@@ -1,129 +1,100 @@
 ---
-title: "PS1"
 output: pdf_document
-date: "2024-08-24"
 keep_tex: yes 
 ---
 
-[Stat 5000]{.smallcaps}[Homework #1]{.smallcaps}\
-[Fall 2024]{.smallcaps} [due Fri, Sep 6th @ 11:59 pm]{.smallcaps}
-[Name:]{.smallcaps} \
-**Directions:** Type or clearly handwrite your solutions to each of the
-following exercises. Partial credit cannot be given unless all work is
-shown. You may work in groups provided that each person takes
-responsibility for understanding and writing out the solutions.
-Additionally, you must give proper credit to your collaborators by
-providing their names on the line below (if you worked alone, write "No
-Collaborators\"):\
+[Stat 5000]{.smallcaps}
+[Homework #1]{.smallcaps}\
+[Fall 2024]{.smallcaps}
+[due Fri, Sep 6th @ 11:59 pm]{.smallcaps}\
+[Name: Samuel Olson]{.smallcaps} \
 
-1.  **\[**+10\]: Some researchers were interested in studying the
-    effects of different fertilizer amount (Low Nitrogen and High
-    Nitrogen) and different genotypes (one energy line and one grain
-    line) of sorghum on biomass. For each genotype, six pots of
-    one-week-old seedlings were available, and each pot held one
-    seedling. For each genotype, the researchers randomly assigned three
-    pots to high nitrogen treatment (H) and the remaining three pots to
-    low nitrogen (L) treatment. After 2 weeks, the fresh weight for each
-    seedling was measured. In total, there are 12 observations.
+**Directions:** Type or clearly handwrite your solutions to each of the following exercises. Partial credit cannot be given unless all work is shown. You may work in groups provided that each person takes responsibility for understanding and writing out the solutions. Additionally, you must give proper credit to your collaborators by providing their names on the line below (if you worked alone, write "No Collaborators\"):\
 
-    1.  Identify the experimental units.
+[Collaborators: ]{.smallcaps}\
 
-    2.  Identify the observational units.
+**1. [+10]:** Some researchers were interested in studying the effects of different fertilizer amount (Low Nitrogen and High Nitrogen) and different genotypes (one energy line and one grain line) of sorghum on biomass. For each genotype, six pots of one-week-old seedlings were available, and each pot held one seedling. For each genotype, the researchers randomly assigned three pots to high nitrogen treatment (H) and the remaining three pots to low nitrogen (L) treatment. After 2 weeks, the fresh weight for each seedling was measured. In total, there are 12 observations.
 
-    3.  Identify the treatments.
+  1.  Identify the experimental units.
+  
+  2.  Identify the observational units.
+  
+  3.  Identify the treatments.
+  
+  4.  Identify the response variable.
+  
+  5.  Does the experiment utilize replication? Answer yes/no and provide a brief justification.
+  
+  6.  Does the experiment utilize blocking? Answer yes/no and provide a brief justification.
+  
+  7.  Does the experiment utilize randomization? Answer yes/no and provide a brief justification.
 
-    4.  Identify the response variable.
+**2. [+10]:** A statistics teacher wanted to determine if having business students use clickers to respond to questions posed in a business statistics class would improve student learning. The teacher decided to have students use clickers in one class of introductory business statistics 226. She did not have students use clickers in a second class of business statistics 226 that she taught during the same semester. She tossed a coin to select the class to use the clickers. She used the same book and the same lectures in both classes and gave the same assignments and same exams to both classes. There were 90 students in each class. At the end of the semester, she compared the final exam scores for the students in the class that used clickers to the final exam scores for the students in the class that did not use clickers.
 
-    5.  Does the experiment utilize replication? Answer yes/no and
-        provide a brief justification.
+  1.  Identify the experimental units.
+  
+  2.  Identify the observational units.
+  
+  3.  Identify the treatments.
+  
+  4.  Identify the response variable.
+  
+  5.  Does the experiment utilize replication? Answer yes/no and provide a brief justification.
+  
+  6.  Does the experiment utilize blocking? Answer yes/no and provide a brief justification.
+  
+  7.  Does the experiment utilize randomization? Answer yes/no and provide a brief justification.
 
-    6.  Does the experiment utilize blocking? Answer yes/no and provide
-        a brief justification.
+**3. [+30]:** The file `guinea_pigs.csv` (available on Canvas) contains data on survival times (in days) of guinea pigs that were randomly assigned either to a control group or to a treatment group that received a dose of tubercle bacilli (Doksum, K. (1974), *Annals of Statistics*, pp 267-77).
 
-    7.  Does the experiment utilize randomization? Answer yes/no and
-        provide a brief justification.
+```{r setup, echo = T, warning = F}
+# knitr::opts_chunk$set(echo = F)
+library(dplyr)
+guinea_pigs <- read.csv("C:/Users/samue/Downloads/guinea_pigs.csv")
+# summary(guinea_pigs)
+controlData <- guinea_pigs %>% 
+      filter(Treatment == "Control") %>% 
+      na.omit()
+treatmentData <- guinea_pigs %>% 
+      filter(Treatment == "Bacilli") %>% 
+      na.omit()
 
-2.  **\[**+10\]: A statistics teacher wanted to determine if having
-    business students use clickers to respond to questions posed in a
-    business statistics class would improve student learning. The
-    teacher decided to have students use clickers in one class of
-    introductory business statistics 226. She did not have students use
-    clickers in a second class of business statistics 226 that she
-    taught during the same semester. She tossed a coin to select the
-    class to use the clickers. She used the same book and the same
-    lectures in both classes and gave the same assignments and same
-    exams to both classes. There were 90 students in each class. At the
-    end of the semester, she compared the final exam scores for the
-    students in the class that used clickers to the final exam scores
-    for the students in the class that did not use clickers.
+summary(controlData)
+summary(treatmentData)
+```
 
-    1.  Identify the experimental units.
+  1.  Use R to compute the following summary statistics for each treatment group:
 
-    2.  Identify the observational units.
+    Statistic            Control                     Bacilli 
+    -------------------- --------------------------- ---------------------------
+    Median                                           
+                                                     
+    Q1                                               
+                                                     
+    Q3                                               
+                                                     
+    IQR                                              
+                                                     
+    Sample Mean                                      
+                                                     
+    Standard Deviation   
 
-    3.  Identify the treatments.
+  2.  Use R to construct side-by-side box plots of survival times for the two treatment groups and include it with this assignment.
+  
+  3.  Use the box plots from part (b) and the summary statistics from part (a) to describe and compare features of the distributions of survival times for the two treatment groups.
+  
+  4.  There is no function built into R to easily perform the randomization test to determine whether the average survival times of the guinea pigs in the two treatment groups is the same or different. Write your own function to perform the test (there is an example in the optional R lab). Interpret the results by providing
 
-    4.  Identify the response variable.
-
-    5.  Does the experiment utilize replication? Answer yes/no and
-        provide a brief justification.
-
-    6.  Does the experiment utilize blocking? Answer yes/no and provide
-        a brief justification.
-
-    7.  Does the experiment utilize randomization? Answer yes/no and
-        provide a brief justification.
-
-3.  **\[**+30\]: The file `guinea_pigs.csv` (available on Canvas)
-    contains data on survival times (in days) of guinea pigs that were
-    randomly assigned either to a control group or to a treatment group
-    that received a dose of tubercle bacilli (Doksum, K. (1974), *Annals
-    of Statistics*, pp 267-77).
-
-    1.  Use R to compute the following summary statistics for each
-        treatment group:
-
-        ::: center
-          Statistic             $\qquad$ Control $\qquad$   $\qquad$ Bacilli $\qquad$
-          -------------------- --------------------------- ---------------------------
-          Median                                           
-                                                           
-          Q1                                               
-                                                           
-          Q3                                               
-                                                           
-          IQR                                              
-                                                           
-          Sample Mean                                      
-                                                           
-          Standard Deviation                               
-                                                           
-        :::
-
-    2.  Use R to construct side-by-side box plots of survival times for
-        the two treatment groups and include it with this assignment.
-
-    3.  Use the box plots from part (b) and the summary statistics from
-        part (a) to describe and compare features of the distributions
-        of survival times for the two treatment groups.
-
-    4.  There is no function built into R to easily perform the
-        randomization test to determine whether the average survival
-        times of the guinea pigs in the two treatment groups is the same
-        or different. Write your own function to perform the test (there
-        is an example in the optional R lab). Interpret the results by
-        providing
-
-        1.  the null and alternative hypotheses;
-
-        2.  observed test statistic;
-
-        3.  randomization histogram;
-
-        4.  p-value;
-
-        5.  interpretation of the test results (stated in the context of
-            the problem).
+    1.  the null and alternative hypotheses;
+    
+    2.  observed test statistic;
+    
+    3.  randomization histogram;
+    
+    4.  p-value;
+    
+    5.  interpretation of the test results (stated in the context of
+        the problem).
 
 **Total:** 50 points **\# correct:** **%:**
 
