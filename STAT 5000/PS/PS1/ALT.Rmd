@@ -61,8 +61,6 @@ Yes. After grouping by genotype, the selection of which pot/seedling was given w
 
 **3. [+30]:** The file `guinea_pigs.csv` (available on Canvas) contains data on survival times (in days) of guinea pigs that were randomly assigned either to a control group or to a treatment group that received a dose of tubercle bacilli (Doksum, K. (1974), *Annals of Statistics*, pp 267-77).\
 
->  1.  Use R to compute the following summary statistics for each treatment group:
-
 ```{r setup, echo = T, warning = F}
 # knitr::opts_chunk$set(echo = F)
 library(dplyr)
@@ -82,6 +80,8 @@ summary(treatmentData$Time)
 IQR(treatmentData$Time)
 sd(treatmentData$Time)
 ```
+
+>  1.  Use R to compute the following summary statistics for each treatment group:
 
   Statistic            Control                     Bacilli 
   -------------------- --------------------------- ---------------------------
@@ -111,37 +111,125 @@ The mean survival time for guinea pigs treated with Bacilli is lower than the me
   
 >  4.  There is no function built into R to easily perform the randomization test to determine whether the average survival times of the guinea pigs in the two treatment groups is the same or different. Write your own function to perform the test (there is an example in the optional R lab). Interpret the results by providing\
 
->> 1.  the null and alternative hypotheses;\
-There are two hypotheses that come to mind, the first being descriptive and the second being specified quantitatively :\
-1: $H_0:$ Treatment of Bacilli on guinea pigs has no effect on survival time, with $H_a:$ Treatment of Bacilli on guinea pigs has an effect on survival times.\
-2: $H_0: \bar{Y}_1 = \bar{Y}_2$ with alternative hypothesis $H_a: \bar{Y}_1 \neq \bar{Y}_2$ where $\bar{Y}_1$ denotes the mean survival time of pigs who received the treatment (Bacilli) and $\bar{Y}_2$ denotes the mean survival time of pigs who received no treatment (Control).\
+```{r}
+# observed difference in sample means
+meanDiff <- function(mean1, mean2) {
+  x1 <- mean1 - mean2
+  x1 
+}
 
->> 2.  observed test statistic;\
+dataBacilli <- guinea_pigs %>% 
+      filter(Treatment == "Bacilli") %>% 
+      na.omit() 
+
+
+dataControl <- guinea_pigs %>% 
+      filter(Treatment == "Control") %>% 
+      na.omit() 
+
+meanBacilli <- mean(dataBacilli$Time)
+meanControl<- mean(dataControl$Time)
+
+
+meanDiff(meanControl, meanBacilli)
+
+```
 
 ```{r}
-# function assumes only two unique category values
-# of interest
+fancyDiff <- function(data, categoryCol, meanCol) {
+  character1 <- glue(as.character(data), "$", categoryCol) 
+  character2 <- glue(as.character(data), "$", meanCol) 
+  mean1 <- mean(as.function.as.on(character2)[as.function(character1)=="Control"])
+  mean2 <- mean(as.function(character2)[as.function(character1)=="Bacilli"])
 
-tidyDiff <- function(df, categoryCol, meanCol) {
-  tidyData <- df %>% 
+  mean1 - mean2
+}
+
+fancyDiff("guinea_pigs", "Treatment", "Time")
+```
+```{r}
+thing <- function(df, meanCol, categoryCol, categoryVal) {
+  x1 <- df %>%
+    as.data.frame %>% 
+    select({{meanCol}}, {{categoryCol}})  
+  
+  x2 <- x1 %>% 
+    filter({{categoryCol}} == as.character(categoryVal))  %>%   
+    mean({{meanCol}})
+  
+  return(x2)
+  
+}
+  
+x1 <- thing(guinea_pigs, Time, Treatment, "Control")
+# nrow(controlData)
+```
+
+```{r tidyverse}
+guinea_pigs %>%
+  group_by(Treatment) %>%
+  summarize(mean(Time))
+```
+
+```{r}
+tidyDiff <- function(one, two, three) {
+  tidyData <- one %>% 
     as.data.frame %>%
-    group_by({{categoryCol}}) %>%
-    summarize(mean({{meanCol}}))
+    group_by({{two}}) %>%
+    summarize(mean({{three}}))
   
   mean1 <- tidyData[[1,2]]
   mean2 <- tidyData[[2,2]]
   
-  diffInMeans <- mean2 - mean1
-  diffInMeans 
+  diff <- mean2 - mean1
+  diff 
 }
 ```
 
 ```{r}
+library(tidyverse)
 tidyDiff(guinea_pigs, Treatment, Time)
 ```
-The average difference between the Treatment and Bacilli group is 102.68 days, meaning guinea pigs who received the Bacilli treatment on average survived for 102.68 days less than their Control (non-treated) counterparts. 
+
+```{r}
+justFilter <- function(one, two, three) {
+  x1 <- one %>%
+    as.data.frame %>% 
+    filter({{two}} == as.character(three))  
+  x1 
+}
+
+nrow(justFilter(guinea_pigs, Treatment, "Control"))
+```
+
+>> 1.  the null and alternative hypotheses;\
+NOTE: CHANGE FROM MU TO Y BAR 
+There are two hypotheses that come to mind, though the first is the one I will be using:\
+1: $H_0:$ Treatment of Bacilli on guinea pigs has no effect on survival time, with $H_a:$ Treatment of Bacilli on guinea pigs has an effect on survival times.\
+2: $H_0: \mu_1 = \mu_2$ with alternative hypothesis $H_a: \mu_1 \neq \mu_2$ and\
+
+>> 2.  observed test statistic;\
+Text
 
 >> 3.  randomization histogram;\
+Text
+
+```{r} 
+mutatedControl <- dataControl %>% 
+  mutate(TimeControl = Time)
+
+mutatedBacilli <- dataBacilli %>% 
+  mutate(TimeBacilli = Time)
+
+mergedData <- merge(mutatedControl, mutatedBacilli, by = "row.names") %>%
+  select(TimeControl, TimeBacilli) %>%
+  mutate(timeDiff = TimeControl - TimeBacilli)
+
+hist(mergedData$timeDiff, 
+       xlim = c(-300,300) , ylim = c(0, 25), xlab="Control - Treatment", main="Difference in Survival Time")
+  abline(v = mean(mergedData$timeDiff), col="red", lwd=3, lty=2)
+  text(x=475, y=20, 'Mean Difference')
+```
 
 ```{r}
 set.seed(101) ## for reproducibility
@@ -166,14 +254,27 @@ hist(res, xlim = c(-200,200))
 abline(v = 0, col="red", lwd=3, lty=2)
 abline(v = mean(res), col="black", lwd=3, lty=2)
 ```
-Simulating sampling between the two groups of guinea pigs and averaging the difference in their mean survival times yielded a distribution of differences centered at mean 0. 
+      
+```{r, echo = T, warning = F, eval = T}
+  par(mfrow = c(2,1)) 
+  
+  hist(controlData$Time, 
+       xlim = c(0,800) , ylim = c(0, 25), xlab="Survival Time (Days)", main="Control")
+  abline(v = mean(controlData$Time), col="red", lwd=3, lty=2)
+  text(x=475, y=20, 'Mean Value Control')
+  
+  hist(treatmentData$Time,
+        xlim = c(0,800) , ylim = c(0, 25), xlab="Survival Time (Days)", main="Treatment")
+  abline(v = mean(treatmentData$Time), col="red", lwd=3, lty=2)
+  text(x=395, y=22.5, 'Mean Value Treatment')
+```
     
 
 >> 4.  p-value;\
-**Bane of my existence.** 
+Text
 
 >> 5.  interpretation of the test results (stated in the context ofthe problem).\
-The data provided would lend support to the theory that guinea pigs treated with Bacilla would on average have lower survival rates than untreated guinea pigs. However, upon further investigation, primarily through the usage of randomization histograms, we would refute such an assertion. 
+Text
 
 **Total:** 50 points **\# correct:** **%:**
 
