@@ -95,12 +95,47 @@ sd(treatmentData$Time)
     
 
 >  2.  Use R to construct side-by-side box plots of survival times for the two treatment groups and include it with this assignment.\
+
+```{r, eval = T}
+library(ggplot2)
+
+# Horizontal
+# plot <- ggplot(guinea_pigs, aes(Time, Treatment))
+# Vertical
+plot <- ggplot(guinea_pigs, aes(Treatment, Time))
+plot + geom_boxplot()
+```
   
 >  3.  Use the box plots from part (b) and the summary statistics from part (a) to describe and compare features of the distributions of survival times for the two treatment groups.\
+The mean survival time for guinea pigs treated with Bacilli is lower than the mean surival time of the Control Group. However, there is greater variance (and standard deviation) in the surival times of the Control Group guineas. 
   
 >  4.  There is no function built into R to easily perform the randomization test to determine whether the average survival times of the guinea pigs in the two treatment groups is the same or different. Write your own function to perform the test (there is an example in the optional R lab). Interpret the results by providing\
 
+```{r}
+meanDiff <- function(mean1, mean2) {
+  x1 <- mean1 - mean2
+  x1 
+}
+
+dataBacilli <- guinea_pigs %>% 
+      filter(Treatment == "Bacilli") %>% 
+      na.omit() 
+
+
+dataControl <- guinea_pigs %>% 
+      filter(Treatment == "Control") %>% 
+      na.omit() 
+
+meanBacilli <- mean(dataBacilli$Time)
+meanControl<- mean(dataControl$Time)
+
+
+meanDiff(meanControl, meanBacilli)
+
+```
+
 >> 1.  the null and alternative hypotheses;\
+NOTE: CHANGE FROM MU TO Y BAR 
 There are two hypotheses that come to mind, though the first is the one I will be using:\
 1: $H_0: \mu_1 = \mu_2$ with alternative hypothesis $H_1: \mu_1 \neq \mu_2$ and\
 2: $H_0: \beta_{treatment} = 0$ with alternative hypothesis $H_1: \beta_{treatment} \neq 0$
@@ -110,6 +145,23 @@ Text
 
 >> 3.  randomization histogram;\
 Text
+
+```{r} 
+mutatedControl <- dataControl %>% 
+  mutate(TimeControl = Time)
+
+mutatedBacilli <- dataBacilli %>% 
+  mutate(TimeBacilli = Time)
+
+mergedData <- merge(mutatedControl, mutatedBacilli, by = "row.names") %>%
+  select(TimeControl, TimeBacilli) %>%
+  mutate(timeDiff = TimeControl - TimeBacilli)
+
+hist(mergedData$timeDiff, 
+       xlim = c(-300,300) , ylim = c(0, 25), xlab="Control - Treatment", main="Difference in Survival Time")
+  abline(v = mean(mergedData$timeDiff), col="red", lwd=3, lty=2)
+  text(x=475, y=20, 'Mean Difference')
+```
       
 ```{r, echo = T, warning = F, eval = T}
   par(mfrow = c(2,1)) 
