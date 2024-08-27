@@ -112,6 +112,7 @@ The mean survival time for guinea pigs treated with Bacilli is lower than the me
 >  4.  There is no function built into R to easily perform the randomization test to determine whether the average survival times of the guinea pigs in the two treatment groups is the same or different. Write your own function to perform the test (there is an example in the optional R lab). Interpret the results by providing\
 
 ```{r}
+# observed difference in sample means
 meanDiff <- function(mean1, mean2) {
   x1 <- mean1 - mean2
   x1 
@@ -134,12 +135,41 @@ meanDiff(meanControl, meanBacilli)
 
 ```
 
+```{r}
+fancyDiff <- function(data, categoryCol, meanCol) {
+  character1 <- glue(as.character(data), "$", categoryCol) 
+  character2 <- glue(as.character(data), "$", meanCol) 
+  mean1 <- mean(as.function.as.on(character2)[as.function(character1)=="Control"])
+  mean2 <- mean(as.function(character2)[as.function(character1)=="Bacilli"])
+
+  mean1 - mean2
+}
+
+fancyDiff("guinea_pigs", "Treatment", "Time")
+```
+```{r}
+thing <- function(df, meanCol, categoryCol, categoryVal) {
+  x1 <- df %>%
+    as.data.frame %>% 
+    select(as.character(meanCol), as.character(categoryCol))  
+  
+  x2 <- x1 %>% 
+    filter(paste0(categoryCol) == as.character(categoryVal))  %>% 
+    nrow
+  
+  return(x2)
+  
+}
+
+thing(guinea_pigs, "Time", "Treatment", "Control")
+nrow(controlData)
+```
 >> 1.  the null and alternative hypotheses;\
 NOTE: CHANGE FROM MU TO Y BAR 
 There are two hypotheses that come to mind, though the first is the one I will be using:\
-1: $H_0: \mu_1 = \mu_2$ with alternative hypothesis $H_1: \mu_1 \neq \mu_2$ and\
-2: $H_0: \beta_{treatment} = 0$ with alternative hypothesis $H_1: \beta_{treatment} \neq 0$
-    
+1: $H_0:$ Treatment of Bacilli on guinea pigs has no effect on survival time, with $H_a:$ Treatment of Bacilli on guinea pigs has an effect on survival times.\
+2: $H_0: \mu_1 = \mu_2$ with alternative hypothesis $H_a: \mu_1 \neq \mu_2$ and\
+
 >> 2.  observed test statistic;\
 Text
 
@@ -161,6 +191,30 @@ hist(mergedData$timeDiff,
        xlim = c(-300,300) , ylim = c(0, 25), xlab="Control - Treatment", main="Difference in Survival Time")
   abline(v = mean(mergedData$timeDiff), col="red", lwd=3, lty=2)
   text(x=475, y=20, 'Mean Difference')
+```
+
+```{r}
+set.seed(101) ## for reproducibility
+nsim <- 1000
+res <- numeric(nsim) ## set aside space for results
+
+for (i in 1:nsim) {
+    ## standard approach: scramble response value
+    perm <- sample(nrow(guinea_pigs))
+    bdat <- transform(guinea_pigs,Time=Time[perm])
+    ## compute & store difference in means; store the value
+    res[i] <- mean(bdat$Time[bdat$Treatment=="Control"])-
+        mean(bdat$Time[bdat$Treatment=="Bacilli"])
+}
+
+obs <- mean(guinea_pigs$Time[guinea_pigs$Treatment=="Control"])-
+        mean(guinea_pigs$Time[guinea_pigs$Treatment=="Bacilli"])
+## append the observed value to the list of results
+res <- c(res,obs)
+
+hist(res, xlim = c(-200,200))
+abline(v = 0, col="red", lwd=3, lty=2)
+abline(v = mean(res), col="black", lwd=3, lty=2)
 ```
       
 ```{r, echo = T, warning = F, eval = T}
