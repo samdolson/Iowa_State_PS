@@ -149,6 +149,7 @@ The average difference between the Treatment and Bacilli group is 102.68 days, m
 
 ```{r}
 library(tidyverse)
+
 guinea_pigs %>%
     group_by(Treatment) %>%
     summarize(meanTime = mean(Time)) %>% 
@@ -156,50 +157,6 @@ guinea_pigs %>%
     pivot_wider(names_from = value, values_from = meanTime) %>% 
     mutate(meanDiff = Control - Bacilli) %>%
     select(meanDiff)
-```
-
-THE ISSUE IS NOT RANDOMLY SAMPLING THE RESPONSE VARIABLE SPECIFICALLY 
-```{r}
-functionDiff <- function(df, categoryCol, meanCol) {
-    perm <- sample(nrow(df))
-    
-    transform(df, as.data.frame(categoryCol) == as.character(categoryCol)[perm]) 
-}
-
-functionDiff(guinea_pigs, "Treatment", Time)
-```
-
-```{r}
-# df[["ages"]] <- height
-guinea_pigs <- read.csv("C:/Users/samue/Downloads/guinea_pigs.csv")
-sampleDf <- sample_n(guinea_pigs, nrow(guinea_pigs)) 
-
-testDf <- guinea_pigs 
-testDf['Time'] <- sampleDf['Time']
-
-head(guinea_pigs)
-head(sampleDf)
-head(testDf)
-```
-
-```{r}
-# function assumes only two unique category values
-# of interest
-
-tidyDiff <- function(df, categoryCol, meanCol) {
-  tidyData <- df %>% 
-    as.data.frame %>%
-    group_by({{categoryCol}}) %>%
-    summarize(mean({{meanCol}}))
-  
-  mean1 <- tidyData[[1,2]]
-  mean2 <- tidyData[[2,2]]
-  
-  diffInMeans <- mean2 - mean1
-  diffInMeans 
-}
-
-tidyDiff(guinea_pigs, Treatment, Time)
 ```
 
 ```{r}
@@ -213,20 +170,21 @@ permFunc <- function(df, meanCol) {
   return(testDf)
 }
 
-permFunc(guinea_pigs, "Time")
+head(permFunc(guinea_pigs, "Time"))
+head(guinea_pigs)
 ```
 ```{r}
-compositeFunction <- function(df, meanColChar, meanCol, categoryCol) {
-  newDf <- permFunc(df, meanColChar)
-  
+compositeFunction <- function(df, meanChar, meanCol, categoryCol) {
+  newDf <- permFunc(df, meanChar)
+
   tidyDiff(newDf, Treatment, Time)
 }
 
-compositeFunction(df = guinea_pigs, meanColChar = "Time", meanCol = Time, categoryCol = Treatment)
+compositeFunction(df = guinea_pigs, "Time", Time, Treatment)
 ```
 
 ```{r}
-replicaData <- do.call(rbind, replicate(1000, compositeFunction(df = guinea_pigs, meanColChar = "Time", meanCol = Time, categoryCol = Treatment), simplify=FALSE))
+replicaData <- do.call(rbind, replicate(10000, compositeFunction(df = guinea_pigs, "Time", Time, Treatment), simplify=FALSE))
 
 replicaMean <- mean(replicaData) 
 
@@ -265,6 +223,13 @@ Simulating sampling between the two groups of guinea pigs and averaging the diff
 **Bane of my existence.** 
 
 "p-value": Probability, given the above distribution, that we observed a difference of 102.6843? 
+
+```{r}
+length(replicaData) 
+length(which(replicaData >= tidyDiff(guinea_pigs, Treatment, Time)))
+
+length(which(replicaData > tidyDiff(guinea_pigs, Treatment, Time))) / length(replicaData)
+```
 
 ```{r}
 length(res) 
