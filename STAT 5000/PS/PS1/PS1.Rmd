@@ -11,7 +11,7 @@ keep_tex: yes
 
 **Directions:** Type or clearly handwrite your solutions to each of the following exercises. Partial credit cannot be given unless all work is shown. You may work in groups provided that each person takes responsibility for understanding and writing out the solutions. Additionally, you must give proper credit to your collaborators by providing their names on the line below (if you worked alone, write "No Collaborators\"):\
 
-[Collaborators: ]{.smallcaps}\
+[Collaborators: Sarah Kilgard]{.smallcaps}\
 
 **1. [+10]:** Some researchers were interested in studying the effects of different fertilizer amount (Low Nitrogen and High Nitrogen) and different genotypes (one energy line and one grain line) of sorghum on biomass. For each genotype, six pots of one-week-old seedlings were available, and each pot held one seedling. For each genotype, the researchers randomly assigned three pots to high nitrogen treatment (H) and the remaining three pots to low nitrogen (L) treatment. After 2 weeks, the fresh weight for each seedling was measured. In total, there are 12 observations.
 
@@ -60,6 +60,10 @@ Yes. After grouping by genotype, the selection of which pot/seedling was given w
   Yes, the choice of which class would receive the clickers was randomly determined through a coin toss, though again I'd argue this isn't "truly random" in the sense that a student's treatment was conditional on their class (though understandably so, as having variance within a class about choice of clicker would likely compromise the study)
 
 **3. [+30]:** The file `guinea_pigs.csv` (available on Canvas) contains data on survival times (in days) of guinea pigs that were randomly assigned either to a control group or to a treatment group that received a dose of tubercle bacilli (Doksum, K. (1974), *Annals of Statistics*, pp 267-77).\
+
+```{r pressure, echo=FALSE, fig.cap="Yeah, let's pump em' full of Bacilla", out.width = '25%'}
+knitr::include_graphics("GForce.jpg")
+```
 
 >  1.  Use R to compute the following summary statistics for each treatment group:
 
@@ -144,8 +148,70 @@ The average difference between the Treatment and Bacilli group is 102.68 days, m
 >> 3.  randomization histogram;\
 
 ```{r}
+library(tidyverse)
+guinea_pigs %>%
+    group_by(Treatment) %>%
+    summarize(meanTime = mean(Time)) %>% 
+    pivot_longer(Treatment) %>% 
+    pivot_wider(names_from = value, values_from = meanTime) %>% 
+    mutate(meanDiff = Control - Bacilli) %>%
+    select(meanDiff)
+```
+
+THE ISSUE IS NOT RANDOMLY SAMPLING THE RESPONSE VARIABLE SPECIFICALLY 
+```{r}
+functionDiff <- function(df, categoryCol, meanCol) {
+    perm <- sample(nrow(df))
+    
+    transform(df, as.data.frame(categoryCol) == as.character(categoryCol)[perm]) 
+}
+
+functionDiff(guinea_pigs, "Treatment", Time)
+```
+
+```{r}
+# df[["ages"]] <- height
+guinea_pigs <- read.csv("C:/Users/samue/Downloads/guinea_pigs.csv")
+sampleDf <- sample_n(guinea_pigs, nrow(guinea_pigs)) 
+
+testDf <- guinea_pigs 
+testDf['Time'] <- sampleDf['Time']
+
+head(guinea_pigs)
+head(sampleDf)
+head(testDf)
+```
+
+```{r}
+# sample(df, 122, replace = TRUE)
+
+functionDiff <- function(df, categoryCol, meanCol) {
+    perm <- sample(nrow(df))
+    
+    transform(df, {{categoryCol}} == {{categoryCol}}[perm]) 
+    # group_by({{categoryCol}}) %>%
+    # summarize(meanCol = mean({{meanCol}})) %>%
+    # pivot_longer({{categoryCol}}) %>%
+    # pivot_wider(names_from = value, values_from = meanCol) %>%
+    # mutate(meanDiff = Control - Bacilli) %>% 
+    # select(meanDiff)
+}
+
+functionDiff(guinea_pigs, Treatment, Time)
+
+replicaData <- do.call(rbind, replicate(1000, functionDiff(guinea_pigs, Treatment, Time), simplify=FALSE))
+
+replicaMean <- replicaData %>%
+ mean(meanDiff)
+
+hist(replicaData$meanDiff, xlim = c(-200,200))
+# abline(v = 0, col="red", lwd=3, lty=2)
+# abline(v = mean(replicaMean), col="black", lwd=3, lty=2)
+```
+
+```{r}
 set.seed(101) ## for reproducibility
-nsim <- 1000
+nsim <- 10000
 res <- numeric(nsim) ## set aside space for results
 
 for (i in 1:nsim) {
@@ -172,8 +238,20 @@ Simulating sampling between the two groups of guinea pigs and averaging the diff
 >> 4.  p-value;\
 **Bane of my existence.** 
 
+"p-value": Probability, given the above distribution, that we observed a difference of 102.6843? 
+
+```{r}
+length(res) 
+length(which(res >= tidyDiff(guinea_pigs, Treatment, Time)))
+
+length(which(res > tidyDiff(guinea_pigs, Treatment, Time))) / length(res)
+```
+
+p-value: 0.0014
+
+
 >> 5.  interpretation of the test results (stated in the context ofthe problem).\
-The data provided would lend support to the theory that guinea pigs treated with Bacilla would on average have lower survival rates than untreated guinea pigs. However, upon further investigation, primarily through the usage of randomization histograms, we would refute such an assertion. 
+The data provided would lend support to the theory that guinea pigs treated with Bacilla would on average have lower survival rates than untreated guinea pigs. Furthermore, with a p-value of 0.0014 we have further support of this conclusion. We say 0.0014 is the probability that randomization alone leads to a test statistic as extreme as or more extreme than the one observed. We say it is unlikely the null hypothesis is correct and more likely that the alternative hypothesis, namely that treatment of Bacilla on the guinea pigs, has some effect on their survival times. 
 
 **Total:** 50 points **\# correct:** **%:**
 
