@@ -139,14 +139,15 @@ meanDiff(meanControl, meanBacilli)
 fancyDiff <- function(data, categoryCol, meanCol) {
   character1 <- glue(as.character(data), "$", categoryCol) 
   character2 <- glue(as.character(data), "$", meanCol) 
-  mean1 <- mean(as.function.as.on(character2)[as.function(character1)=="Control"])
+  mean1 <- mean(as.function(character2)[as.function(character1)=="Control"])
   mean2 <- mean(as.function(character2)[as.function(character1)=="Bacilli"])
 
   mean1 - mean2
 }
 
-fancyDiff("guinea_pigs", "Treatment", "Time")
+fancyDiff(guinea_pigs, "Treatment", "Time")
 ```
+
 ```{r}
 thing <- function(df, meanCol, categoryCol, categoryVal) {
   x1 <- df %>%

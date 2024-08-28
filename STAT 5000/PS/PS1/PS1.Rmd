@@ -28,10 +28,10 @@ The treatments were either a high nitrogen treatment (H) or a low nitrogen treat
 The biomass of the seedling after 2 weeks of being treated (weight of the sorghum)
   
 >  5.  Does the experiment utilize replication? Answer yes/no and provide a brief justification.
-Yes, but this is more due to the lack of information about possible differences in how the seedlings were treated during the 2 week period (same amount of sunlight, water, environs, etc. are not explicitly noted). 
+Yes, because a treatment is applied independently to two or more experimental units; though we do presume from a the lack of information about possible differences in how the seedlings were treated during the 2 week period (same amount of sunlight, water, environs, etc. are not explicitly noted). 
   
 >  6.  Does the experiment utilize blocking? Answer yes/no and provide a brief justification.
-Yes, as first the researchers divided up the seedlings by genotype and then randomly assigned the treatments.
+Yes, as similar experimental units are grouped together (genotype), followed by treatments being assigned to the same number of pexerimental units (via balance), as researchers first divided up the seedlings by genotype and then randomly assigned the treatments.
 
 >  7.  Does the experiment utilize randomization? Answer yes/no and provide a brief justification.
 Yes. After grouping by genotype, the selection of which pot/seedling was given which treatment was randomly decided; however, it is worth noting that the number of seedlings given a particular in each group was fixed, so there was an intervention to make this not "truly random". 
@@ -51,10 +51,10 @@ Yes. After grouping by genotype, the selection of which pot/seedling was given w
     The final exam scores of students in a class (one final exam score per student)
   
 >  5.  Does the experiment utilize replication? Answer yes/no and provide a brief justification.\
-    Yes. Assuming classes are mutually exclusive and there was never any overlap in students attending, then both classes were treated exactly alike aside from the difference in treatment, i.e. given the same lectures, same assignments, and same exams 
+    No because the treatment is not applied independently to two or more experimental units (the class). Because there are only two classes (experimental units), we only have one treatment group at the experimental unit level. 
   
 >  6.  Does the experiment utilize blocking? Answer yes/no and provide a brief justification.\
-  Yes, all students in a class were given the same treatment (a clicker or lack of clicker)
+  No, and this is a bit tricky. We only have two experimental units, meaning only one experimental unit is given the treatment, and all  observational units within the group receive the treatment (clikcer access). But, because treatments are not assogmed within each block I answer "No", though the decision of which experimental unit receives the treatment was done independently. Additionally, because the observational units within an experimental unit are homogenous, I believe the answer holds.  
   
 >  7.  Does the experiment utilize randomization? Answer yes/no and provide a brief justification.\
   Yes, the choice of which class would receive the clickers was randomly determined through a coin toss, though again I'd argue this isn't "truly random" in the sense that a student's treatment was conditional on their class (though understandably so, as having variance within a class about choice of clicker would likely compromise the study)
@@ -183,30 +183,56 @@ head(testDf)
 ```
 
 ```{r}
-# sample(df, 122, replace = TRUE)
+# function assumes only two unique category values
+# of interest
 
-functionDiff <- function(df, categoryCol, meanCol) {
-    perm <- sample(nrow(df))
-    
-    transform(df, {{categoryCol}} == {{categoryCol}}[perm]) 
-    # group_by({{categoryCol}}) %>%
-    # summarize(meanCol = mean({{meanCol}})) %>%
-    # pivot_longer({{categoryCol}}) %>%
-    # pivot_wider(names_from = value, values_from = meanCol) %>%
-    # mutate(meanDiff = Control - Bacilli) %>% 
-    # select(meanDiff)
+tidyDiff <- function(df, categoryCol, meanCol) {
+  tidyData <- df %>% 
+    as.data.frame %>%
+    group_by({{categoryCol}}) %>%
+    summarize(mean({{meanCol}}))
+  
+  mean1 <- tidyData[[1,2]]
+  mean2 <- tidyData[[2,2]]
+  
+  diffInMeans <- mean2 - mean1
+  diffInMeans 
 }
 
-functionDiff(guinea_pigs, Treatment, Time)
+tidyDiff(guinea_pigs, Treatment, Time)
+```
 
-replicaData <- do.call(rbind, replicate(1000, functionDiff(guinea_pigs, Treatment, Time), simplify=FALSE))
+```{r}
+permFunc <- function(df, meanCol) {
+  # one <- as.character(expression({{one}}))
+  sampleDf <- sample_n(df, nrow(df)) 
+  
+  testDf <- df
+  
+  testDf[{{meanCol}}] <- sampleDf[{{meanCol}}]
+  return(testDf)
+}
 
-replicaMean <- replicaData %>%
- mean(meanDiff)
+permFunc(guinea_pigs, "Time")
+```
+```{r}
+compositeFunction <- function(df, meanColChar, meanCol, categoryCol) {
+  newDf <- permFunc(df, meanColChar)
+  
+  tidyDiff(newDf, Treatment, Time)
+}
 
-hist(replicaData$meanDiff, xlim = c(-200,200))
-# abline(v = 0, col="red", lwd=3, lty=2)
-# abline(v = mean(replicaMean), col="black", lwd=3, lty=2)
+compositeFunction(df = guinea_pigs, meanColChar = "Time", meanCol = Time, categoryCol = Treatment)
+```
+
+```{r}
+replicaData <- do.call(rbind, replicate(1000, compositeFunction(df = guinea_pigs, meanColChar = "Time", meanCol = Time, categoryCol = Treatment), simplify=FALSE))
+
+replicaMean <- mean(replicaData) 
+
+hist(replicaData, xlim = c(-200,200))
+abline(v = 0, col="red", lwd=3, lty=2)
+abline(v = mean(replicaMean), col="black", lwd=3, lty=2)
 ```
 
 ```{r}
@@ -247,11 +273,11 @@ length(which(res >= tidyDiff(guinea_pigs, Treatment, Time)))
 length(which(res > tidyDiff(guinea_pigs, Treatment, Time))) / length(res)
 ```
 
-p-value: 0.0014
+p-value: 0.0014 (one-sided test)
 
 
 >> 5.  interpretation of the test results (stated in the context ofthe problem).\
-The data provided would lend support to the theory that guinea pigs treated with Bacilla would on average have lower survival rates than untreated guinea pigs. Furthermore, with a p-value of 0.0014 we have further support of this conclusion. We say 0.0014 is the probability that randomization alone leads to a test statistic as extreme as or more extreme than the one observed. We say it is unlikely the null hypothesis is correct and more likely that the alternative hypothesis, namely that treatment of Bacilla on the guinea pigs, has some effect on their survival times. 
+The data provided would lend support to the theory that guinea pigs treated with Bacilla would on average have lower survival rates than untreated guinea pigs. Furthermore, with a p-value of 0.0014 for a one-sided test we have further support of this conclusion. We say 0.0014 is the probability that randomization alone leads to a test statistic as extreme as or more extreme than the one observed. We say it is unlikely the null hypothesis (there is no treatment effect) is correct and more likely that the alternative hypothesis, namely that treatment of Bacilla on the guinea pigs, has some effect on their survival times. 
 
 **Total:** 50 points **\# correct:** **%:**
 
