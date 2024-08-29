@@ -184,6 +184,7 @@ compositeFunction(df = guinea_pigs, "Time", Time, Treatment)
 ```
 
 ```{r}
+set.seed(37)
 replicaData <- do.call(rbind, replicate(10000, compositeFunction(df = guinea_pigs, "Time", Time, Treatment), simplify=FALSE))
 
 replicaMean <- mean(replicaData) 
@@ -192,6 +193,9 @@ hist(replicaData, xlim = c(-200,200))
 abline(v = 0, col="red", lwd=3, lty=2)
 abline(v = mean(replicaMean), col="black", lwd=3, lty=2)
 ```
+Simulating sampling between the two groups of guinea pigs and averaging the difference in their mean survival times yielded a distribution of differences centered at mean 0. 
+
+>>> Alternate but Similar Method, Similar results     
 
 ```{r}
 set.seed(101) ## for reproducibility
@@ -216,33 +220,34 @@ hist(res, xlim = c(-200,200))
 abline(v = 0, col="red", lwd=3, lty=2)
 abline(v = mean(res), col="black", lwd=3, lty=2)
 ```
-Simulating sampling between the two groups of guinea pigs and averaging the difference in their mean survival times yielded a distribution of differences centered at mean 0. 
-    
 
 >> 4.  p-value;\
-**Bane of my existence.** 
 
-"p-value": Probability, given the above distribution, that we observed a difference of 102.6843? 
+"p-value": Probability, given the above distribution, that we observed a difference of 102.6843 between treatment and control? 
 
 ```{r}
-length(replicaData) 
-length(which(replicaData >= tidyDiff(guinea_pigs, Treatment, Time)))
+# First Method
+x1 <- length(replicaData) 
+x2 <- length(which(replicaData >= tidyDiff(guinea_pigs, Treatment, Time)))
 
-length(which(replicaData > tidyDiff(guinea_pigs, Treatment, Time))) / length(replicaData)
+round(x2/x1, digits =8)
+# length(which(replicaData > tidyDiff(guinea_pigs, Treatment, Time))) / length(replicaData)
 ```
 
 ```{r}
-length(res) 
-length(which(res >= tidyDiff(guinea_pigs, Treatment, Time)))
+# Second Method
+y1 <- length(replicaData) 
+y2 <- length(which(replicaData >= tidyDiff(guinea_pigs, Treatment, Time)))
 
-length(which(res > tidyDiff(guinea_pigs, Treatment, Time))) / length(res)
+round(y2/y1, digits =8)
+# length(which(replicaData > tidyDiff(guinea_pigs, Treatment, Time))) / length(replicaData)
 ```
 
-p-value: 0.0014 (for a one-sided p-value)
+p-value $\approx{0.0011}$ (using both methods), for a one-sided p-value.
 
 
 >> 5.  interpretation of the test results (stated in the context ofthe problem).\
-The data provided would lend support to the theory that guinea pigs treated with Bacilla would on average have lower survival rates than untreated guinea pigs. Furthermore, with a p-value of 0.0014 for a one-sided test we have further support of this conclusion. We say 0.0014 is the probability that randomization alone leads to a test statistic as extreme as or more extreme than the one observed. We say it is unlikely the null hypothesis (there is no treatment effect) is correct and more likely that the alternative hypothesis, namely that treatment of Bacilla on the guinea pigs, has some effect on their survival times. 
+The data provided would lend support to the theory that guinea pigs treated with Bacilla would on average have lower survival rates than untreated guinea pigs. Furthermore, with a p-value of 0.0011 for a one-sided test we have further support of this conclusion. We say 0.0014 is the probability that randomization alone leads to a test statistic as extreme as or more extreme than the one observed. We say it is unlikely the null hypothesis (there is no treatment effect) is correct and more likely that the alternative hypothesis, namely that treatment of Bacilla on the guinea pigs, has some effect on their survival times. 
 
 **Total:** 50 points **\# correct:** **%:**
 

@@ -269,7 +269,61 @@ abline(v = mean(res), col="black", lwd=3, lty=2)
   abline(v = mean(treatmentData$Time), col="red", lwd=3, lty=2)
   text(x=395, y=22.5, 'Mean Value Treatment')
 ```
+
+```{r}
+replicaData <- do.call(rbind, replicate(10000, compositeFunction(df = guinea_pigs, "Time", Time, Treatment), simplify=FALSE))
+
+replicaMean <- mean(replicaData) 
+
+hist(replicaData, xlim = c(-200,200))
+abline(v = 0, col="red", lwd=3, lty=2)
+abline(v = mean(replicaMean), col="black", lwd=3, lty=2)
+```
+
+```{r}
+set.seed(101) ## for reproducibility
+nsim <- 10000
+res <- numeric(nsim) ## set aside space for results
+
+for (i in 1:nsim) {
+    ## standard approach: scramble response value
+    perm <- sample(nrow(guinea_pigs))
+    bdat <- transform(guinea_pigs,Time=Time[perm])
+    ## compute & store difference in means; store the value
+    res[i] <- mean(bdat$Time[bdat$Treatment=="Control"])-
+        mean(bdat$Time[bdat$Treatment=="Bacilli"])
+}
+
+obs <- mean(guinea_pigs$Time[guinea_pigs$Treatment=="Control"])-
+        mean(guinea_pigs$Time[guinea_pigs$Treatment=="Bacilli"])
+## append the observed value to the list of results
+res <- c(res,obs)
+
+hist(res, xlim = c(-200,200))
+abline(v = 0, col="red", lwd=3, lty=2)
+abline(v = mean(res), col="black", lwd=3, lty=2)
+```
+Simulating sampling between the two groups of guinea pigs and averaging the difference in their mean survival times yielded a distribution of differences centered at mean 0. 
     
+
+>> 4.  p-value;\
+**Bane of my existence.** 
+
+"p-value": Probability, given the above distribution, that we observed a difference of 102.6843? 
+
+```{r}
+length(replicaData) 
+length(which(replicaData >= tidyDiff(guinea_pigs, Treatment, Time)))
+
+length(which(replicaData > tidyDiff(guinea_pigs, Treatment, Time))) / length(replicaData)
+```
+
+```{r}
+length(res) 
+length(which(res >= tidyDiff(guinea_pigs, Treatment, Time)))
+
+length(which(res > tidyDiff(guinea_pigs, Treatment, Time))) / length(res)
+```    
 
 >> 4.  p-value;\
 Text
