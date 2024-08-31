@@ -160,32 +160,32 @@ guinea_pigs %>%
 ```
 
 ```{r}
-permFunc <- function(df, meanCol) {
+permFunc <- function(df, categoryCol) {
   # one <- as.character(expression({{one}}))
   sampleDf <- sample_n(df, nrow(df)) 
   
   testDf <- df
   
-  testDf[{{meanCol}}] <- sampleDf[{{meanCol}}]
+  testDf[{{categoryCol}}] <- sampleDf[{{categoryCol}}]
   return(testDf)
 }
 
-head(permFunc(guinea_pigs, "Time"))
+head(permFunc(guinea_pigs, "Treatment"))
 head(guinea_pigs)
 ```
 ```{r}
-compositeFunction <- function(df, meanChar, meanCol, categoryCol) {
-  newDf <- permFunc(df, meanChar)
+compositeFunction <- function(df, categoryCol, meanChar, meanCol) {
+  newDf <- permFunc(df, categoryCol)
 
   tidyDiff(newDf, Treatment, Time)
 }
 
-compositeFunction(df = guinea_pigs, "Time", Time, Treatment)
+compositeFunction(df = guinea_pigs, "Treatment", "Time", Time)
 ```
 
 ```{r}
 set.seed(37)
-replicaData <- do.call(rbind, replicate(10000, compositeFunction(df = guinea_pigs, "Time", Time, Treatment), simplify=FALSE))
+replicaData <- do.call(rbind, replicate(10000, compositeFunction(df = guinea_pigs, "Treatment", "Time", Time), simplify=FALSE))
 
 replicaMean <- mean(replicaData) 
 
@@ -205,7 +205,7 @@ res <- numeric(nsim) ## set aside space for results
 for (i in 1:nsim) {
     ## standard approach: scramble response value
     perm <- sample(nrow(guinea_pigs))
-    bdat <- transform(guinea_pigs,Time=Time[perm])
+    bdat <- transform(guinea_pigs,Treatment=Treatment[perm])
     ## compute & store difference in means; store the value
     res[i] <- mean(bdat$Time[bdat$Treatment=="Control"])-
         mean(bdat$Time[bdat$Treatment=="Bacilli"])
@@ -243,11 +243,11 @@ round(y2/y1, digits =8)
 # length(which(replicaData > tidyDiff(guinea_pigs, Treatment, Time))) / length(replicaData)
 ```
 
-p-value $\approx{0.0011}$ (using both methods), for a one-sided p-value.
+p-value $\approx{0.0008}$ (using both methods), for a one-sided p-value.
 
 
 >> 5.  interpretation of the test results (stated in the context ofthe problem).\
-The data provided would lend support to the theory that guinea pigs treated with Bacilla would on average have lower survival rates than untreated guinea pigs. Furthermore, with a p-value of 0.0011 for a one-sided test we have further support of this conclusion. We say 0.0014 is the probability that randomization alone leads to a test statistic as extreme as or more extreme than the one observed. We say it is unlikely the null hypothesis (there is no treatment effect) is correct and more likely that the alternative hypothesis, namely that treatment of Bacilla on the guinea pigs, has some effect on their survival times. 
+The data provided would lend support to the theory that guinea pigs treated with Bacilla would on average have lower survival rates than untreated guinea pigs. Furthermore, with a p-value of 0.0008 for a one-sided test we have further support of this conclusion. We say 0.0008 is the probability that randomization alone leads to a test statistic as extreme as or more extreme than the one observed. We say it is unlikely the null hypothesis (there is no treatment effect) is correct and more likely that the alternative hypothesis, namely that treatment of Bacilla on the guinea pigs, has some effect on their survival times. 
 
 **Total:** 50 points **\# correct:** **%:**
 
