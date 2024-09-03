@@ -111,7 +111,7 @@ plot + geom_boxplot()
 ```
   
 >  3.  Use the box plots from part (b) and the summary statistics from part (a) to describe and compare features of the distributions of survival times for the two treatment groups.\
-The mean survival time for guinea pigs treated with Bacilli is lower than the mean surival time of the Control Group. However, there is greater variance (and standard deviation) in the surival times of the Control Group guineas. 
+The mean (and median) survival time for guinea pigs treated with Bacilli is lower than the mean surival time of the Control Group. However, there is greater variance (and standard deviation) in the surival times of the Control Group guineas. Furthermore, the IQR of the Control group is larger than the IQR of the Bacilli group, reinforcing the finding that the variance is lower for the Bacilli group. 
   
 >  4.  There is no function built into R to easily perform the randomization test to determine whether the average survival times of the guinea pigs in the two treatment groups is the same or different. Write your own function to perform the test (there is an example in the optional R lab). Interpret the results by providing\
 
@@ -160,6 +160,7 @@ guinea_pigs %>%
 ```
 
 ```{r}
+# function for randomizing a sample 
 permFunc <- function(df, categoryCol) {
   # one <- as.character(expression({{one}}))
   sampleDf <- sample_n(df, nrow(df)) 
@@ -174,6 +175,7 @@ head(permFunc(guinea_pigs, "Treatment"))
 head(guinea_pigs)
 ```
 ```{r}
+# function for getting randomized sample and calculating it's mean difference 
 compositeFunction <- function(df, categoryCol, meanChar, meanCol) {
   newDf <- permFunc(df, categoryCol)
 
@@ -184,6 +186,7 @@ compositeFunction(df = guinea_pigs, "Treatment", "Time", Time)
 ```
 
 ```{r}
+# Replication time
 set.seed(37)
 replicaData <- do.call(rbind, replicate(10000, compositeFunction(df = guinea_pigs, "Treatment", "Time", Time), simplify=FALSE))
 
