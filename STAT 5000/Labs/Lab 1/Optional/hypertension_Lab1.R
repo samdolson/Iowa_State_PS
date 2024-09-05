@@ -1,5 +1,5 @@
 library(readr)
-hypertension <- read_csv("hypertension.csv", 
+hypertension <- read_csv("STAT 5000/Labs/Lab 1/Optional/hypertension.csv", 
                          col_types = cols(sodiumdiet = col_factor(levels = c("low", 
                                                                              "high"))))
 View(hypertension)
