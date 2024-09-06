@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath,latexsym,amssymb}
+\usepackage{color}
+\setlength{\oddsidemargin}{-0.25in}
+\setlength{\textwidth}{7.1in}
+\setlength{\topmargin}{-1in}
+\setlength{\textheight}{9.5in}
+\evensidemargin \oddsidemargin
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+\usepackage{url}
+\usepackage{parskip}
+\usepackage{enumitem}
+
+\begin{document}
+
+\large \noindent \textsc{Stat 5000}\hfill \large{\textsc{Lab \#2}} \hfill \phantom{\textsc{Name:} \underline{\hspace{2in}}} \\
+\large \textsc{Fall 2024}  \hfill \textsc{Due Tue Sep 10th} \hfill \textsc{Name:} \underline{\hspace{2in}}
+
+\vspace{14pt}
+
+\noindent \textbf{Directions:} Complete the exercises below. When you are finished, turn in any required files online in Canvas, then check-in with the Lab TA for dismissal.
+\\ \underline{\hspace{7in}}
+\vspace{14pt}
+
+\textbf{\underline{Introduction to t-Tests in R}}
+
+Refer to the \texttt{fuel\_economy.csv} data file posted in Canvas. This data set has information about an observational study of automobiles driven in Canada, including the following two columns: 
+\begin{description}
+	\item [\texttt{Cylinders}:] category variable with two levels - 4 or 6
+	\item [\texttt{Consumption}:] numeric response variable with the fuel consumption in miles per gallon (mpg)
+\end{description}
+Researchers are interested in exploring whether there is a difference in the average fuel consumption of vehicles with engines built using differing numbers of cylinders. The code to conduct a two-sample t-test in R is explained below. The full R program is provided in the file \texttt{fuel\_economy\_Lab2.R} posted on Canvas.
+
+\begin{itemize}
+	\item First, load in the data using the \textit{Import Dataset} tool in R Studio. Be sure to change the variable type on the Cylinders column to ``factor" and enter ``4, 6" as the levels.
+	\begin{verbatim}
+		library(readr)
+		fuel <- read_csv("fuel_economy.csv", 
+		                      col_types=cols(Cylinders=col_factor(levels=c("4", "6"))))
+		View(fuel)
+	\end{verbatim}
+	\item Next, compute the corresponding summary statistics within in group.
+	\begin{verbatim}
+		library(tidyverse)
+		sum_stats = fuel |> 
+  			group_by(Cylinders) |>
+  			summarize(
+    			Y_n = n(),
+    			Y_mean = mean(Consumption.mpg),
+    			Y_sd = sd(Consumption.mpg)
+  			)
+		sum_stats
+	\end{verbatim}
+	\item Then, use the \texttt{t.test()} function to conduct a test for the difference in mean fuel consumption between 4 and 6 cylinder vehicles. Indicate the response variable name before the $\sim$ and the category variable name after, use the \texttt{data} option to provide the name of the dataset, and use the \texttt{var.equal} option set to ``TRUE" to indicate the population variances are assumed equal.
+	\begin{verbatim}
+		HT = t.test(Consumption.mpg~Cylinders, data=fuel, var.equal=TRUE)
+		HT
+	\end{verbatim}
+	You can see what pieces of information are stored in the \texttt{HT} variable using the \texttt{names()} function. You can access these pieces of information using the \texttt{\$} operator, e.g.
+	\begin{verbatim}
+		names(HT)
+		HT$null.value
+	\end{verbatim}
+\end{itemize}
+
+\newpage
+
+\textbf{\underline{Assignment}}
+\begin{enumerate}
+	\item State the hypotheses for the two-sided test.
+	\item From the output, find/compute the difference in the two sample means.
+	\item From the output, find/compute the estimate of the pooled standard deviation.
+	\item From the output, find/compute the test statistic for the hypothesis test. 
+	\item From the output, find/compute the degrees of freedom for the test. 
+	\item From the output, find/compute the $p$-value for the two-sided hypothesis test.
+	\item Interpret the results of the two-sided test in the context of the research question.
+	\item By default, R conducts the two-sided hypothesis test. You can change this by adding the parameter ``\texttt{alternative=greater}'' or ``\texttt{alternative=less}'' inside the \texttt{t.test()} function. Provide a research question corresponding to either the ``greater" or ``less" one-sided test. 
+\end{enumerate}
+
+\vfill
+\textbf{Total:} 25 points \hspace{14pt} \textbf{\# correct:} \underline{\hspace{1in}}  \hspace{14pt} \textbf{\%:} \underline{\hspace{1in}} 
+
+\end{document}
+
+
+
+
+
+
+
+
