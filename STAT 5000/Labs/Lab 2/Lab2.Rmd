@@ -81,39 +81,98 @@ names(HT)
 HT$null.value
 ```
 
+\newpage
+
 **[Assignment]{.underline}**
 
 > 1.  State the hypotheses for the two-sided test.
 
+Mean consumption (mpg) of 4 Cylinder cars is equal to the mean consumption of 6 Cylinder cars. 
+
 \newpage 
 
-> 2.  From the output, find/compute the difference in the two sample
-    means.
+> 2.  From the output, find/compute the difference in the two sample means.
+
+```{r}
+HT = t.test(Consumption.mpg~Cylinders, data=fuel, var.equal=TRUE)
+HT
+```
+
+```{r}
+sampleMean1 <- 34.08100
+sampleMean2 <- 24.51297 
+difference <- sampleMean1 - sampleMean2 
+difference
+```
 
 \newpage 
 
 > 3.  From the output, find/compute the estimate of the pooled standard deviation.
 
+```{r}
+library(dplyr)
+data1 <- fuel %>% 
+  filter(fuel$Cylinders == 4)
+
+data2 <- fuel %>% 
+  filter(fuel$Cylinders == 6)
+
+#Step 2: Finding standard deviation 
+s1 <- sd(data1$Consumption.mpg)
+s2 <- sd(data2$Consumption.mpg)
+
+#Step 3: Finding sample size 
+n1 <- length(data1$Consumption.mpg)
+n2 <- length(data2$Consumption.mpg)
+
+#Step 4: Calculate pooled standard deviation
+pooled <- sqrt(((n1-1)*s1^2 + (n2-1)*s2^2) / (n1+n1-2))
+
+sd(fuel$Consumption.mpg)
+```
+
 \newpage 
 
 > 4.  From the output, find/compute the test statistic for the hypothesis test.
+
+```{r}
+HT$statistic
+```
 
 \newpage 
 
 > 5.  From the output, find/compute the degrees of freedom for the test.
 
+```{r}
+HT$parameter
+```
+df = $n_1 + n_2 - 2 = 2111 + 1041 - 2 = 3150$
+
 \newpage 
 
 > 6.  From the output, find/compute the $p$-value for the two-sided hypothesis test.
+
+```{r}
+HT
+HT$p.value
+```
+$p-value < 2.2e-16$
+
 
 \newpage 
 
 > 7.  Interpret the results of the two-sided test in the context of the research question.
 
+Low p-value means low probability that the results we observe given the hypothesis of no difference is a low likelihood event. We have evidence to reject the null hypothesis and support of the alternate hypothesis that there is a difference in average fuel consumption between 4 and 6 cylinder vehicles. 
+
 \newpage 
 
 > 8.  By default, R conducts the two-sided hypothesis test. You can change this by adding the parameter "`alternative=greater`" or "`alternative=less`" inside the `t.test()` function. Provide a research question corresponding to either the "greater\" or "less\" one-sided test.
 
-\newpage 
+```{r}
+altHT <- t.test(Consumption.mpg~Cylinders, data=fuel, var.equal=TRUE, alternative = "greater")
+altHT
+```
+Alternative hypothesis is that the average fuel consumption of 4 cylinder vehicles is higher (greater than) the average fuel consumption of 6 cylinder vehicles.
 
 **Total:** 25 points **\# correct:** **%:**
