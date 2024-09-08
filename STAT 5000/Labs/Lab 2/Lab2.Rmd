@@ -87,7 +87,7 @@ HT$null.value
 
 > 1.  State the hypotheses for the two-sided test.
 
-Mean consumption (mpg) of 4 Cylinder cars is equal to the mean consumption of 6 Cylinder cars. 
+$H_0: \mu_{4 \space \text{Cylinder}} = \mu_{6 \space \text{Cylinder}}$, with $H_A: \mu_{4 \space \text{Cylinder}} \neq \mu_{6 \space \text{Cylinder}}$, descriptively stated as: Null Hypothesis is the mean consumption (mpg) of 4 Cylinder cars is equal to the mean consumption of 6 Cylinder cars with alternate hypothesis that the mean consumption of 4 Cylinder cars is **not equal** to the mean consumption of 6 Cylinder cars. 
 
 \newpage 
 
@@ -104,10 +104,16 @@ sampleMean2 <- 24.51297
 difference <- sampleMean1 - sampleMean2 
 difference
 ```
+The difference in the two sample means is $\approx 9.568$ mpg (4 Cylinder - 6 Cylinder).
+
 
 \newpage 
 
 > 3.  From the output, find/compute the estimate of the pooled standard deviation.
+
+Formula: 
+
+$s_p = \sqrt{ \frac{(n_1 - 1)s_1^2 + (n_2 - 1)s_2^2}{(n_1+n_2-2)}}$
 
 ```{r}
 library(dplyr)
@@ -130,6 +136,8 @@ pooled <- sqrt(((n1-1)*s1^2 + (n2-1)*s2^2) / (n1+n1-2))
 
 sd(fuel$Consumption.mpg)
 ```
+
+From the above this yields an estimated pooled standard deviation of $\approx 7.228$ mpg.
 
 \newpage 
 
@@ -156,14 +164,15 @@ df = $n_1 + n_2 - 2 = 2111 + 1041 - 2 = 3150$
 HT
 HT$p.value
 ```
-$p-value < 2.2e-16$
+
+$p-value < 2.2e-16$ or $\approx 0$ (so small R rounds it to 0).
 
 
 \newpage 
 
 > 7.  Interpret the results of the two-sided test in the context of the research question.
 
-Low p-value means low probability that the results we observe given the hypothesis of no difference is a low likelihood event. We have evidence to reject the null hypothesis and support of the alternate hypothesis that there is a difference in average fuel consumption between 4 and 6 cylinder vehicles. 
+The low p-value means we estimate with very low probability the observed results given the null hypothesis is true (no difference in average fuel consumption between the Cylinder types). This provides evidence to reject the null hypothesis and consider the alternative hypothesis, that is we have support that there is a difference in average fuel consumption (mpg) between 4 and 6 cylinder vehicles. 
 
 \newpage 
 
@@ -173,6 +182,9 @@ Low p-value means low probability that the results we observe given the hypothes
 altHT <- t.test(Consumption.mpg~Cylinders, data=fuel, var.equal=TRUE, alternative = "greater")
 altHT
 ```
-Alternative hypothesis is that the average fuel consumption of 4 cylinder vehicles is higher (greater than) the average fuel consumption of 6 cylinder vehicles.
+
+For input $\text{"alternative = "greater""}$: 
+
+We are specifying an alternate hypothesis that the average mpg of 4 cylinder vehicles is higher (greater than) the average mpg of 6 cylinder vehicles. (Though not explicitly called for, it is worth noting that this hypothesis provides a similar p-value, evidence, and conclusions to the above, namely in support of 4 cylinder vehicles having greater mpg, or on average more efficient fuel consumption.)
 
 **Total:** 25 points **\# correct:** **%:**
