@@ -48,7 +48,9 @@ $P(A \cup B) = P(A) + P(B)$
 
 (3) Method: 
 
-Let $A, B \in \mathbb{B}$ and assume Countable Additivity (1). 
+Define $A_1, A_2, ... \in \mathbb{B}$ as pairwise disjoint sets.  
+
+Let $A, B \in \mathbb{B}$ and assume Countable Additivity holds (1). 
 
 Define $A \equiv A_1$ and $B \equiv A_2 \cup A_3 \cup ...$
 
@@ -56,7 +58,7 @@ As $A_1, A_2, A_3, ...$ are pairwise disjoint, $A, B$ are disjoint sets.
 
 Thus, using Theorem 1.2.9, we have: 
 
-1.2.9:  $P(A \cup B) = P(A) + P(B) - P(A \cap B)$
+1.2.9:  $P(A_1 \cup A_2 \cup ...) = P(A \cup B) = P(A) + P(B) - P(A \cap B)$
 
 $P(A \cup B) = P(A) + P(B) - 0 = P(A) + P(B)$ .// 
 
@@ -371,6 +373,69 @@ $\lim_{n \rightarrow \infty}{F(x + n^{-1})} = F(x)$
 
 holds. 
 
+>> A: 
+
 Notes: https://math.stackexchange.com/questions/480042/prove-that-the-cdf-of-a-random-variable-is-always-right-continuous
 
-A: 
+Let $(x_n)$ be a sequence such that $x_n \to y$ and $x_n \geq y$ for every $n$.
+
+Furthermore, let $A_n = (-\infty,x_n]$ $\forall n$. 
+Now from the sequence $(x_n)$ we can extract a monotonically decreasing subsequence, say $(x_{n_k})$. 
+As the new subsequence is monotonically decreasing, it follows from our definition of $A_n$'s that for all $k$ in $\mathbb{N}$, $A_{n_{k+1}} \subseteq A_{n_k}$. 
+So $X^{-1}(A_{n_{k+1}}) \subseteq X^{-1}(A_{n_k})$, and 
+$$F_X(x_{n_{k+1}}) = P(X\leq x_{n_{k+1}}) = P(X^{-1}(A_{n_{k+1}}))$$
+And
+$$P(X^{-1}(A_{n_{k+1}})) \leq P(X^{-1}(A_{n_{k}})) = P(X\leq x_{n_{k}}) = F_X(x_{n_{k}})$$
+
+Now since $(X^{-1}(A_{n_k}))_k$ is a nested sequence of events, we know 
+$$\lim_{k\to\infty}P(X^{-1}(A_{n_k})) = P(\cap_{k=1}^{\infty}(X^{-1}(A_{n_k})))$$
+$$\lim_{k\to\infty}P(X^{-1}(A_{n_k})) = P(X^{-1}(\cap_{k=1}^{\infty}A_{n_k}))$$
+
+$$\lim_{k\to\infty}P(X^{-1}(A_{n_k})) = P(X^{-1}(-\infty,y])$$
+
+And we conclude: 
+$$\lim_{k\to\infty}F_X(x_{n_k}) = P(X\leq y) = F_X(y).$$
+
+>> Alt:
+
+Lemma: If a sequence of events ${\{ A_n\}}$ is decreasing, and $n \geq 1$, 
+then 
+$$\lim_{n \rightarrow \infty}{(A_n)} = (\bigcap\limits_{i=1}^{\infty}A_i)$$
+and their associated probabilities 
+$$\lim_{n \rightarrow \infty}{P(A_n)} = P(\bigcap\limits_{i=1}^{\infty}A_i)$$
+
+The cdf $F$ is right continuous at some point a iff $\forall n \geq 1, {\{ x_n\}}$, such that $x_n \downarrow a$, gives $F(x_n) \downarrow F(a)$
+
+Let the events $A_n$ be defined as follows: 
+
+$A_n = {\{ \omega: X(\omega) \leq x_n\}}\space \forall n \geq 1$
+
+We need to prove that: 
+
+$\bigcap\limits_{i=1}^{\infty}A_i = {\{ \omega: X(\omega) \leq a\}}$
+
+One Direction: 
+if $X(\omega) \leq x_n \space \forall n \geq 1$ 
+since $x_n \downarrow a$, $X(\omega) \leq a$
+
+Other Direction: 
+If $X(\omega) \leq a$, as $a \leq x_n \space \forall n \geq 1$
+Giving us $X(\omega) \leq x_n \space\forall n \geq 1$
+
+End Result: 
+
+$F(X_n) = P(X \leq x_n) = P(A_n) \downarrow P(\bigcap\limits_{i=1}^{\infty}A_i) = P(X \leq a) = F(a)$
+
+>> Note
+
+$\downarrow$ means a decrease or a negaative change in a value or function, or "approaching from the right" 
+
+>> My Attempt: 
+
+Let us take the mcfa property as a given. Let us then define the cdf $F$ of a random variable $X$. 
+
+Let us then define a decreasing sequence of sets/events, ${\{ A_n\}}$ with $n \geq 1$. 
+
+By the mcfa property, we know:
+$$\lim_{n \rightarrow \infty}{P(A_n)} = P(\bigcap\limits_{i=1}^{\infty}A_i)$$
+
