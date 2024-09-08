@@ -15,11 +15,12 @@ Progress
   1. DONE 
     - CHECK STATUS: Does this proof work or can it be infinite?
   2. DONE \ 
-  3. IN PROGRESS \ 
+  3. DONE \ 
   4. DONE \ 
   5. DONE \ 
   6. DONE \ 
-  7. IN PROGRESS \ 
+  7. DONE 
+    - CHECK STATUS: Bit hand-wavy; please review derivatives and integration. 
   8. DONE \ 
   9. IN PROGRESS \ 
 
@@ -83,29 +84,31 @@ However, the probability over the sample space of all possible events must be at
 
 Suppose a family has 4 children, named a, b, c and d, who take turns washing 4 plates denoted $p_1, p_2, p_3, p_4$. These children are not so careful in their work, so, over time, each of the plates will be broken. Suppose any child could break any plate and that the ways in which plates $p_1, p_2, p_3, p_4$ could be broken by children a, b, c, d are equally likely. 
 
-Notes: https://math.stackexchange.com/questions/2419485/probability-question-in-a-certain-family-four-girls-take-turns-at-washing-dish
+We may frame this problem as a problem of urns and balls, where each child is an urn and each broken plate is a ball. 
+So, framing these problems as such, (a) is the probability that 3 balls are put into one particular urn, and (b) is the probability that 3 balls are put into any one urn.
 
-The probability that three from four dishes were randomly broken by the same girl is 3/16
+With this framework, we have the following relevant calculations for (a) and (b): 
 
-The probability that three from four dishes were randomly broken by the youngest girl is 3/64
-
-4^4 possible arrangements 
+(1): $4\choose{3}$, the number of events where one particular child breaks 3 plates. 
+(2): $4\choose{1}$, the number of events where one particular child breaks 1 plate. 
+(3): $\frac{1}{4}$, the probability that one particular child breaks a plate
+(4): $\frac{3}{4}$, the probability that one particular child does not break a plate.
 
 (a) Find the probability that child a breaks 3 plates. 
 
-4 choose 3: 4 children, choose one child to break 3 dishes
-Probability(one child breaks 3 dishes) (1/4 ^ 3)
-Probability(any of the other children break 1 dishes) (3/4)
+We have (1), (3), and (4) from the above. 
 
+Because we are looking at the probability that a particular child (child a) breaks 3 plates we have: 
 
+$P(\text{child a breaks 3 plates}) = {{4}\choose{1}} (\frac{1}{4})^3 (\frac{3}{4})^1 = 4(\frac{1}{64})(\frac{3}{4}) = \frac{3}{64}$
 
 (b) Find the probability that one of the four children breaks 3 plates. 
 
-4 choose 1: 4 children, choose 1 
-4 choose 3 : 4 children, choose 3 
-Probability(one child breaks 3 dishes) (1/4 ^ 3)
-Probability(any of the other children break 1 dishes) (3/4)
+We have (1), (2), (3), and (4) from the above. 
 
+Because we are looking at the probability that any particular child breaks 3 plates, we have exactly 4 possible scenarios from part (a), or said differently we multiple the probability of part (a) by 4. 
+
+$P(\text{child a breaks 3 plates}) = 4{{4}\choose{1}} (\frac{1}{4})^3 (\frac{3}{4})^1 = 16(\frac{1}{64})(\frac{3}{4}) = \frac{1}{4}(\frac{3}{4}) = \frac{3}{16}$
 
 \newpage 
 
@@ -253,33 +256,46 @@ Thus we're reached a contradiction from our presumption of mutual exclusivity.
 
 > 7. 1.47 Prove that the following functions are cdfs. 
 
-To prove a function is a (valid, proper) cdf, we must verify: 
+To prove a function is a (valid, proper) cdf, for our purposes we must verify: 
 
-(1): $\lim_{x \rightarrow -\infty}{F(x) = 0}$ and $\lim_{x \rightarrow \infty} F(x) = 1$
-
-(2): $F(x)$ is a nondecreasing function of x. 
-
-(3): $F(x)$ is right-continuous; that is, for every number $x_0$, $\lim_{x \downarrow x_0}{F(x) = F_o}$
+(1): $\lim_{x \rightarrow -\infty}{F(x) = 0}$
+(2): $\lim_{x \rightarrow \infty} F(x) = 1$
+(3): $F(x)$ is a nondecreasing function of x, i.e. $\frac{d}{dx}F(x) > 0$
 
 >> 1.47 (c)
 
 $F_{X}(x) = e^{-e^{-x}}$ for $x \in (-\infty, \infty)$
 
-(1): $\lim_{x \rightarrow -\infty}{F(x)} = 0$
+(1): $\lim_{x \rightarrow -\infty}{F(x)} = \lim_{x \rightarrow -\infty} e^{-e^{-x}} = e^{-\infty} = 0$
+Note: $e^{-\infty} = \frac{1}{e^{\infty}} = \frac{1}{\infty} = 0$
 
-(2): $\lim_{x \rightarrow \infty}{F(x)} = 1$
+So we conclude that $\lim_{x \rightarrow -\infty}{F(x)} = 0$
 
-(3): Derivative > 0 
+(2): $\lim_{x \rightarrow \infty}{F(x)} =  e^{-e^{-x}} = e^{0} = 1$
+
+So we conclude that $\lim_{x \rightarrow \infty}{F(x)} = 1$
+
+(3): $\frac{d(e^{-e^{-x}})}{dx}= e^{-x - e^{-x}}$
+Note: For $x \in (-\infty, \infty)$, $e^{-x - e^{-x}} > 0$, 
+So we conclude: $\frac{d}{dx}F(x) > 0$
 
 >> 1.47 (d) 
 
 $F_{X}(x) = 1 - e^{-x}$ for $x \in (0, \infty)$
 
-(1): $\lim_{x \rightarrow -\infty}{F(x)} = 0$
+(1): For, $x \in (0, \infty)$, 
+$\lim_{x \rightarrow -\infty}{F(x)} = \lim_{x \rightarrow 0}{F(x)} = \lim_{x \rightarrow 0} {1 - e^{-x}} = \lim_{x \rightarrow 0} 1 - \frac{1}{e^x} = 1 - 1 = 0$
 
-(2): $\lim_{x \rightarrow \infty}{F(x)} = 1$
+So we conclude that $\lim_{x \rightarrow -\infty}{F(x)} = 0$
 
-(3): Derivative > 0 
+(2): $\lim_{x \rightarrow \infty} = \lim_{x \rightarrow -\infty} {1 - e^{-x}} = 1 - 0$
+
+So we conclude that $\lim_{x \rightarrow \infty}{F(x)} = 1$
+
+(3): $\frac{d(1 - e^{-x})}{dx}= 0 - (-e^{-x}) = e^{-x}$
+Note: For $x \in (0, \infty)$, $e^{-x} > 0$ so this condition is satisfied. 
+
+So we conclude $\frac{d}{dx}F(x) > 0$
 
 \newpage 
 
