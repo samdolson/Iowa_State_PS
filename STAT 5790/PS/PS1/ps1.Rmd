@@ -24,20 +24,13 @@ studentApt <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/S
 (b) Display the observations in a set of pairwise scatter plots of the scores in aptitude, mathematics, language and general knowledge, with color to indicate the groups of the observations. [6 points]
 
 ```{r}
-plot(studentApt$Aptitude, studentApt$Math,
-     pch = 19,
-     col = factor(studentApt$studentGroup))
-```
-
-```{r}
-pairs(studentApt[2:5])
+colorsPair <- c("#F8766D", "#00BA38", "#619CFF")
+pairs(x = studentApt[2:5], col = colorsPair[studentApt$studentGroup], pch = 19)
 ```
 
 (c) Comment on characteristics of the students in the three groups. [2 points]
 
-```{r}
 
-```
 
 \newpage
 
@@ -46,25 +39,32 @@ pairs(studentApt[2:5])
 (a) Read in the dataset. Note that the file on the website has the first 60 lines which are really different statistics on the data. These 60 lines should be skipped. Look at the help function on the read.table to see how to skip these lines. [7 points]
 
 ```{r}
-piData <- read.table(file ="http://www.itl.nist.gov/div898/strd/univ/data/PiDigits.dat")
+piData <- read.table(file ="http://www.itl.nist.gov/div898/strd/univ/data/PiDigits.dat", 
+                     skip = 60)
 ```
 
 (b) Construct a frequency table of the digits 1 through 9. (Hint: search on terms to get an appropriate function.) [5 points]
 
 ```{r}
+library(dplyr)
+analyze <- piData %>% 
+  filter(V1 > 0)
 
+table <- table(analyze)
+table
 ```
 
 (c) Construct a bar plot of the frequencies found in part (b). [5 points]
 
 ```{r}
-
+barplot(table)
 ```
 
 (d) Use the chi-square test to test the hypothesis that the digits 1 through 9 are equally probable in the digits of π. What conclusions can you draw? (Hint: use the function chisq.test().) [8 points]
 
 ```{r}
-
+chiData <- chisq.test(table)
+chiData$expected
 ```
 
 \newpage
@@ -72,68 +72,91 @@ piData <- read.table(file ="http://www.itl.nist.gov/div898/strd/univ/data/PiDigi
 >> 3. Plot a graph that shows three curves y = x, y = x2, and y = √x, for x from 0 to 3. Plot a vertical line at 1, 2 and 3, (curves and lines on the same plot). Hint: Decompose this problem into multiple parts: In the first instance, create a vector x consisting of 0 to 3, in increments of 0.01 (say). Create another vector y1 = x2 and a third vector y2 = √x and then combine them all to form a dataframe. Use the plot function as well as the lines function to add lines to an existing plot. Turn in the final plot and also the R code you used for the problem. [15 points]
 
 ```{r}
-x <- 0:3
+x <- seq(from = 0, to = 3, by = 0.01)
+y <- x
 y1 <- x*2
 y2 <- sqrt(x)
-dataX <- data.frame(x, x2, sqrtX)
+dataX <- data.frame(x, y, y1, y2)
 
-plot(y = x, x = y1, data=dataX)
-plot(y = x, x = y2, data=dataX)
-abline(v = 1)
-abline(v = 2)
-abline(v = 3)
+plot(x = dataX$x, 
+     y = dataX$y, 
+     pch = 1, 
+     xlim = c(0,3), 
+     # ylim = c(min(y, y1, y2), max(y, y1, y2))
+     ylim = c(0,3)
+     )
+lines(x = dataX$x, 
+      y = dataX$y1, 
+      col = "red", 
+      lty = "dashed")
+lines(x = dataX$x, 
+      y = dataX$y2, 
+      col = "blue", 
+      lty = "dashed")
+lines(x = rep(x = 1, times = length(x)), 
+      y = x, 
+      col = "black", 
+      lty = "solid")
+lines(x = rep(x = 2, times = length(x)), 
+      y = x, 
+      col = "black", 
+      lty = "solid")
+lines(x = rep(x = 3, times = length(x)), 
+      y = x, 
+      col = "black", 
+      lty = "solid")
+
 ```
 
 \newpage
 
 >> 4. Consider the dataset available in R called cars with the help file that also has more information.
 
+(a - c): 
 (a) Read in the dataset from the file. Call it cars (say). [2 points]
-
-```{r}
-cars <- data(mtcars)
-```
-
 (b) Attach the dataframe so that the variables in the dataframe are now globally available. [1 point]
-
-```{r}
-
-```
-
 (c) The speeds are provided in miles per hour. Convert the speeds into feet per second and store the result in an appropriate vector. [5 points]
 
-```{r}
+speed: Represents the speed of the car in miles per hour. 
+dist: Represents the stopping distance of the car in feet
 
+```{r}
+data(cars)
+attach(cars)
+feetSpeed <- cars$speed * 5280
+feetDistance <- cars$dist * 5280
 ```
 
 (d) Plot the speed (in feet per second) against the distance (in feet). [4 points]
 
 ```{r}
-
+plot(x = feetSpeed, y = cars$dist)
 ```
 
 (e) Convert the measurements into the metric system. Note that one mile is equal to 1.6093 kilome-tres. Store the results in appropriate vectors. [5 points]
 
 ```{r}
-
+metricSpeed <- cars$speed*1.6093
+metricDistance <- cars$dist*1.6093
 ```
 
 (f) Detach the dataframe. [1 point]
 
 ```{r}
-
+detach(cars)
 ```
 
 (g) Plot the speed (in metres per second) against the distance (in metres). [4 points]
 
 ```{r}
-
+plot(x = metricSpeed, y = metricDistance)
 ```
 
 (h) Make sure that the plots above are labeled and titled appropriately. Print out the plots using dev.print() or otherwise. What can you tell, if anything, looking at the two plots? [2 points]
 
 ```{r}
-
+show(plot(x = feetSpeed, y = cars$dist))
+show(plot(x = metricSpeed, y = metricDistance))
 ```
 
 \newpage
@@ -149,24 +172,24 @@ Fahrenheit <- pressure$temperature*9/5 + 32
 (b) Create a dataframe consisting of the temperature in the Fahrenheit scale and Pressure. [4 points]\
 
 ```{r}
-dummy <- data.frame("pressure" = pressure$pressure, "temperature" = Fahrenheit)
+dataFahrenheit <- data.frame("pressure" = pressure$pressure, "temperature" = Fahrenheit)
 ```
 
 (c) Plot temperature against pressure in the Fahrenheit scale. [3 points]
 
 ```{r}
-plot(y = dummy$temperature, x = dummy$pressure)
+plot(y = dataFahrenheit$temperature, x = dataFahrenheit$pressure)
 ```
 
 (d) Perform a simple linear regression with temperature (in Fahrenheit) against pressure, but with no intercept in the model. Report a summary of the results and plot the fitted line on the plot in (c). Comment. [4 + 2 points]
 
 ```{r}
-regression <- lm(formula = Fahrenheit ~ 0 + pressure, data = dummy)
+regression <- lm(formula = Fahrenheit ~ 0 + pressure, data = dataFahrenheit)
 summary(regression)
 ```
 
 ```{r}
-plot(y = dummy$temperature, x = dummy$pressure)
+plot(y = dataFahrenheit$temperature, x = dataFahrenheit$pressure)
 abline(a = 0, b = 1.2161)
 ```
 
@@ -175,29 +198,27 @@ abline(a = 0, b = 1.2161)
 ```{r}
 res <- residuals(regression)
 plot(res)
-abline(h = 0)
+abline(h = 0, lty = "dashed")
 ```
 
 (f) Clearly pressure is not adequate to explain the relationship with temperature. Create another dataframe with four columns, given by temperature in Fahrenheit, pressure, the square of pressure and cubed pressure. [5 points]
 
 ```{r}
-rm()
-dummy2 <- data.frame("temperature" = dummy$temperature, "pressure" = dummy$pressure, "square" = dummy$pressure^2, "cube" = dummy$pressure^3)
-dummy2
+dataNL <- data.frame("temperature" = dataFahrenheit$temperature, "pressure" = dataFahrenheit$pressure, "square" = dataFahrenheit$pressure^2, "cube" = dataFahrenheit$pressure^3)
 ```
 
 (g) Use the above to perform multiple linear regression (with intercept) of temperature on the rest. What coefficients are significant? [6 points]
 
 ```{r}
-regression2 <- lm(formula = temperature ~ pressure + square + cube, data = dummy2)
+regression2 <- lm(formula = temperature ~ pressure + square + cube, data = dataNL)
 summary(regression2)
 ```
 
 (h) On the plot of (c) above, put in the fitted line. Comment on the previous fit and this one. [3 + 2 points]
 
 ```{r}
-plot(x = dummy2$pressure, y = dummy2$temperature)
-abline(lm(temperature ~ square, data = dummy2))
+plot(x = dataNL$pressure, y = dataNL$temperature)
+lines(x = dataNL$pressure, y = predict(regression2), col = "red")
 ```
 
 (i) Plot the residuals against the fitted values. Comment. [3 + 2 points]
@@ -205,5 +226,5 @@ abline(lm(temperature ~ square, data = dummy2))
 ```{r}
 res2 <- residuals(regression2) 
 plot(res2)
-abline(h = 0)
+abline(h = 0, lty = "dashed")
 ```

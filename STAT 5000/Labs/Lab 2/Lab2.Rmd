@@ -133,6 +133,7 @@ n2 <- length(data2$Consumption.mpg)
 
 #Step 4: Calculate pooled standard deviation
 pooled <- sqrt(((n1-1)*s1^2 + (n2-1)*s2^2) / (n1+n1-2))
+pooled 
 
 sd(fuel$Consumption.mpg)
 ```
@@ -142,6 +143,16 @@ From the above this yields an estimated pooled standard deviation of $\approx 7.
 \newpage 
 
 > 4.  From the output, find/compute the test statistic for the hypothesis test.
+
+```{r}
+library(dplyr)
+m1 <- mean(data1$Consumption.mpg)
+
+m2 <- mean(data2$Consumption.mpg)
+
+manualTStatistic <- (m1 - m2) / (pooled * sqrt((1/n1) + (1/n2)))
+manualTStatistic
+```
 
 ```{r}
 HT$statistic
