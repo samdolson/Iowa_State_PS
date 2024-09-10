@@ -30,7 +30,7 @@ pairs(x = studentApt[2:5], col = colorsPair[studentApt$studentGroup], pch = 19)
 
 (c) Comment on characteristics of the students in the three groups. [2 points]
 
-
+Generally, the above pairwise scatter plots don't provide anything immediately apparent. Student groups "1" and "2" tend to be clustered together across all variables and variable pairs. Though not statistically rigorous, it appears student group "3" tends to have the highest scoring students in Aptitude, Math, and Language, though interestingly this doesn't appear to carry over to the General Score, i.e. despite students in student group "3" scoring higher in Aptitude, Math, and Language, this doesn't appear to translate directly to higher General scores. 
 
 \newpage
 
@@ -50,22 +50,34 @@ library(dplyr)
 analyze <- piData %>% 
   filter(V1 > 0)
 
-table <- table(analyze)
-table
+piTable <- table(analyze)
+piTable
 ```
 
 (c) Construct a bar plot of the frequencies found in part (b). [5 points]
 
 ```{r}
-barplot(table)
+barplot(piTable)
 ```
 
 (d) Use the chi-square test to test the hypothesis that the digits 1 through 9 are equally probable in the digits of π. What conclusions can you draw? (Hint: use the function chisq.test().) [8 points]
 
 ```{r}
-chiData <- chisq.test(table)
-chiData$expected
+chiData <- chisq.test(piTable)
+expectedDigits <- chiData$expected
+
+differenceTable <- rep(NA, 9)
+for (i in 1:9) {
+  differenceTable[i] <- piTable[[i]] - chiData$expected[[i]]
+}
+
+differenceData <- data.frame("digit" = 1:9, "difference" = differenceTable)
+
+expectedDigits
+piTable
+differenceData
 ```
+We can conclude that we tend to see an equal distribution of digits in the observed data. While we have a few digits where the expected is "substantial" (as in substantially more than other differences), the extent these of these differences in negligible. 
 
 \newpage
 
@@ -83,7 +95,10 @@ plot(x = dataX$x,
      pch = 1, 
      xlim = c(0,3), 
      # ylim = c(min(y, y1, y2), max(y, y1, y2))
-     ylim = c(0,3)
+     ylim = c(0,3), 
+     xlab = "x-value", 
+     ylab = "y-value", 
+     main = "Check This Out!"
      )
 lines(x = dataX$x, 
       y = dataX$y1, 
@@ -158,6 +173,7 @@ plot(x = metricSpeed, y = metricDistance)
 show(plot(x = feetSpeed, y = cars$dist))
 show(plot(x = metricSpeed, y = metricDistance))
 ```
+We see that converting units simultaneously, i.e. converting the x and y axes at the same time and by the same unit conversion, does not change the interpretation of the plot. 
 
 \newpage
 
@@ -192,6 +208,7 @@ summary(regression)
 plot(y = dataFahrenheit$temperature, x = dataFahrenheit$pressure)
 abline(a = 0, b = 1.2161)
 ```
+This is a very poor fit! We should suspect that a simple linear fit for the model will not suffice to accurately approximate the relationship observed. The actual trend appears non-linear, specifically a non-linear relationship between pressure and temperature with diminishing returns, i.e. the slope of the fit line decreases with greater pressure. 
 
 (e) Plot the residuals against the fitted values. Comment. [3 + 2 points]
 
@@ -200,6 +217,8 @@ res <- residuals(regression)
 plot(res)
 abline(h = 0, lty = "dashed")
 ```
+
+We see a clear pattern in the residual plot, at first increasing positively then sharply falling off and veering into negative values when approaching high pressure values. 
 
 (f) Clearly pressure is not adequate to explain the relationship with temperature. Create another dataframe with four columns, given by temperature in Fahrenheit, pressure, the square of pressure and cubed pressure. [5 points]
 
@@ -213,6 +232,7 @@ dataNL <- data.frame("temperature" = dataFahrenheit$temperature, "pressure" = da
 regression2 <- lm(formula = temperature ~ pressure + square + cube, data = dataNL)
 summary(regression2)
 ```
+All coefficients are significant to some degree, though the initial linear coefficient appears most significant (excluding interpretation of the intercept term). Each successive term becomes less significant than its prior iteration, i.e. pressure is more significant than its square, and its squared term is more significant than the cubed term. 
 
 (h) On the plot of (c) above, put in the fitted line. Comment on the previous fit and this one. [3 + 2 points]
 
@@ -220,6 +240,7 @@ summary(regression2)
 plot(x = dataNL$pressure, y = dataNL$temperature)
 lines(x = dataNL$pressure, y = predict(regression2), col = "red")
 ```
+This fit is much better than the prior linear fit! The line of best fit tends to be much closer to the observed values (pairs of pressure-temperature) than before. 
 
 (i) Plot the residuals against the fitted values. Comment. [3 + 2 points]
 
@@ -228,3 +249,5 @@ res2 <- residuals(regression2)
 plot(res2)
 abline(h = 0, lty = "dashed")
 ```
+
+The residual plot shows that our predictions tend to be more inaccurate for low pressure predictions, and specifically that these predictions tend to be greater than the observed values. Interestingly we see a change between overestimating (negative residual) and underestimating (positive residual) across the values. However, we also see the range of residual values is much smaller than the range of residual values from the first linear fit. 

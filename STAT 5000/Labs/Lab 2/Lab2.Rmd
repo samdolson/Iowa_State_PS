@@ -132,13 +132,18 @@ n1 <- length(data1$Consumption.mpg)
 n2 <- length(data2$Consumption.mpg)
 
 #Step 4: Calculate pooled standard deviation
-pooled <- sqrt(((n1-1)*s1^2 + (n2-1)*s2^2) / (n1+n1-2))
-pooled 
+# pooled <- sqrt( ((n1-1)*(s1^2) + (n2-1)*(s2^2)) / (n1+n1-2) )
+# pooled 
 
-sd(fuel$Consumption.mpg)
+numerator <- (n1-1)*(s1^2) + (n2-1)*(s2^2)
+denom <- n1 + n2 - 2
+pooled <- sqrt( numerator / denom )  
+pooled
+
+# sd(fuel$Consumption.mpg)
 ```
 
-From the above this yields an estimated pooled standard deviation of $\approx 7.228$ mpg.
+From the above this yields an estimated pooled standard deviation of $\approx 5.65644$ mpg.
 
 \newpage 
 
@@ -147,16 +152,17 @@ From the above this yields an estimated pooled standard deviation of $\approx 7.
 ```{r}
 library(dplyr)
 m1 <- mean(data1$Consumption.mpg)
-
 m2 <- mean(data2$Consumption.mpg)
 
 manualTStatistic <- (m1 - m2) / (pooled * sqrt((1/n1) + (1/n2)))
-manualTStatistic
+(m1 - m2) / (5.65644 * sqrt((1/n1) + (1/n2)))
 ```
 
 ```{r}
 HT$statistic
 ```
+
+The test statistic for this hypothesis test is $\approx 44.66384$
 
 \newpage 
 
@@ -183,7 +189,7 @@ $p-value < 2.2e-16$ or $\approx 0$ (so small R rounds it to 0).
 
 > 7.  Interpret the results of the two-sided test in the context of the research question.
 
-The low p-value means we estimate with very low probability the observed results given the null hypothesis is true (no difference in average fuel consumption between the Cylinder types). This provides evidence to reject the null hypothesis and consider the alternative hypothesis, that is we have support that there is a difference in average fuel consumption (mpg) between 4 and 6 cylinder vehicles. 
+The low p-value means we estimate with very low probability the observed results given the null hypothesis is true (no difference in average fuel consumption between the Cylinder types). This provides support against null hypothesis and possible support of the alternative hypothesis; overall, we have limited evidence to support there being a difference in average fuel consumption (mpg) between 4 and 6 cylinder vehicles (two-tailed alternative hypothesis). 
 
 \newpage 
 
@@ -196,6 +202,6 @@ altHT
 
 For input $\text{"alternative = "greater""}$: 
 
-We are specifying an alternate hypothesis that the average mpg of 4 cylinder vehicles is higher (greater than) the average mpg of 6 cylinder vehicles. (Though not explicitly called for, it is worth noting that this hypothesis provides a similar p-value, evidence, and conclusions to the above, namely in support of 4 cylinder vehicles having greater mpg, or on average more efficient fuel consumption.)
+By adding this to the input we change the alternative hypothesis to a one-tailed hypothesis, specifically an alternate hypothesis that the average mpg of 4 cylinder vehicles is higher (greater than) the average mpg of 6 cylinder vehicles. (Though not explicitly called for, it is worth noting that this hypothesis provides a similar p-value and interpretation to the above, but particularly in support of the conclusion that 4 cylinder vehicles have greater mpg, or on average more efficient fuel consumption.)
 
 **Total:** 25 points **\# correct:** **%:**
