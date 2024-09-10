@@ -1,6 +1,8 @@
 ---
 title: "PS1"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 # Homework 1
@@ -36,7 +38,7 @@ Student group "3" tends to exhibit the highest scoring individuals in Aptitude, 
 
 \newpage
 
->> 2. The National Institute of Standards and Technology has a web page that lists the first 5,000 digits of the irrational number π. You can read these digits into R from the website http://www.itl.nist.gov/div898/strd/univ/data/PiDigits.dat.
+>> 2. The National Institute of Standards and Technology has a web page that lists the first 5,000 digits of the irrational number $\pi$. You can read these digits into R from the website http://www.itl.nist.gov/div898/strd/univ/data/PiDigits.dat.
 
 (a) Read in the dataset. Note that the file on the website has the first 60 lines which are really different statistics on the data. These 60 lines should be skipped. Look at the help function on the read.table to see how to skip these lines. [7 points]
 
@@ -62,7 +64,7 @@ piTable
 barplot(piTable)
 ```
 
-(d) Use the chi-square test to test the hypothesis that the digits 1 through 9 are equally probable in the digits of π. What conclusions can you draw? (Hint: use the function chisq.test().) [8 points]
+(d) Use the chi-square test to test the hypothesis that the digits 1 through 9 are equally probable in the digits of $\pi$. What conclusions can you draw? (Hint: use the function chisq.test().) [8 points]
 
 ```{r}
 chiData <- chisq.test(piTable)
@@ -81,6 +83,7 @@ differenceData
 ```
 
 ```{r}
+library(dplyr)
 meanCount <- mean(piTable)
 meanSd <- sd(piTable)
 coefVariation <- meanCount / meanSd
@@ -98,7 +101,7 @@ We tend to see a similar distribution of counts for a given digit compared to it
 
 \newpage
 
->> 3. Plot a graph that shows three curves y = x, y = x2, and y = √x, for x from 0 to 3. Plot a vertical line at 1, 2 and 3, (curves and lines on the same plot). Hint: Decompose this problem into multiple parts: In the first instance, create a vector x consisting of 0 to 3, in increments of 0.01 (say). Create another vector y1 = x2 and a third vector y2 = √x and then combine them all to form a dataframe. Use the plot function as well as the lines function to add lines to an existing plot. Turn in the final plot and also the R code you used for the problem. [15 points]
+>> 3. Plot a graph that shows three curves y = x, y = x2, and y = $\sqrt{x}$, for x from 0 to 3. Plot a vertical line at 1, 2 and 3, (curves and lines on the same plot). Hint: Decompose this problem into multiple parts: In the first instance, create a vector x consisting of 0 to 3, in increments of 0.01 (say). Create another vector y1 = x2 and a third vector y2 = $\sqrt{x}$ and then combine them all to form a dataframe. Use the plot function as well as the lines function to add lines to an existing plot. Turn in the final plot and also the R code you used for the problem. [15 points]
 
 ```{r}
 x <- seq(from = 0, to = 3, by = 0.01)
@@ -107,19 +110,23 @@ y1 <- x*2
 y2 <- sqrt(x)
 dataX <- data.frame(x, y, y1, y2)
 
-plot(x = dataX$x, 
-     y = dataX$y, 
+plot(x = c(0,3),
+     y = c(0,3), 
      pch = 1, 
      xlim = c(0,3), 
-     # ylim = c(min(y, y1, y2), max(y, y1, y2))
      ylim = c(0,3), 
      xlab = "x-value", 
      ylab = "y-value", 
-     main = "Check This Out!"
+     main = "Zero to Three",
+     type = "n"
      )
 lines(x = dataX$x, 
-      y = dataX$y1, 
+      y = dataX$y, 
       col = "red", 
+      lty = "dashed")
+lines(x = dataX$x, 
+      y = dataX$y1, 
+      col = "green", 
       lty = "dashed")
 lines(x = dataX$x, 
       y = dataX$y2, 
@@ -173,13 +180,13 @@ plot(x = feetSpeed, y = cars$dist, xlab = "feet per second", ylab = "stopping di
 speed: Represents the speed of the car in miles per hour. 
 dist: Represents the stopping distance of the car in feet
 
-km per hour = miles per hour * (km/mile) 
-km stopping distance = feet stopping distance (1 km / ft)
+m per hour = miles per hour * (km/mile) * (m / km)
+m stopping distance = feet stopping distance (1 km / ft) * (m / km)
 
 
 ```{r}
-metricSpeed <- cars$speed*1.6093
-metricDistance <- cars$dist/3280.84
+metricSpeed <- cars$speed*1.6093*1000
+metricDistance <- cars$dist/3280.84*1000
 ```
 
 (f) Detach the dataframe. [1 point]
@@ -191,14 +198,14 @@ detach(cars)
 (g) Plot the speed (in metres per second) against the distance (in metres). [4 points]
 
 ```{r}
-plot(x = metricSpeed, y = metricDistance, xlab = "km/hour", ylab = "km stopping distance")
+plot(x = metricSpeed, y = metricDistance, xlab = "m/hour", ylab = "stopping distance (m)")
 ```
 
 (h) Make sure that the plots above are labeled and titled appropriately. Print out the plots using dev.print() or otherwise. What can you tell, if anything, looking at the two plots? [2 points]
 
 ```{r}
-show(plot(x = feetSpeed, y = cars$dist))
-show(plot(x = metricSpeed, y = metricDistance))
+plot(x = feetSpeed, y = cars$dist, xlab = "ft/sec", ylab = "stopping distance (feet)")
+plot(x = metricSpeed, y = metricDistance, xlab = "m/hour", ylab = "stopping distance (m)")
 ```
 We see that converting units concurrently, i.e. converting the x and y axes at the same time and by the same unit conversion, does not change the interpretation of the plot and overall trend(s) we observe. 
 

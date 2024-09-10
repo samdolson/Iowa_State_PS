@@ -3,26 +3,8 @@ title: "HW1"
 output:
   pdf_document: default
   html_document: default
-date: "2024-09-07"
+author: "Sam Olson"
 ---
-
-# Note 
-
-Exercises start ~ pg 67 
-
-Progress
-
-  1. DONE \
-  2. DONE \ 
-  3. DONE \ 
-  4. DONE \ 
-  5. DONE \ 
-  6. DONE \ 
-  7. DONE \
-  8. DONE \ 
-  9. IN PROGRESS \ 
-
-\newpage 
 
 > 1. 1.12 It was noted in Section 1.2.1 that statisticans who follow the deFinetti school do not accept the Axiom of Countable Additivity, instead adhering to the Axiom of Finite Additivity. 
 
@@ -42,13 +24,17 @@ We wish to prove that:
 
 $P(\bigcup\limits_{i=1}^{n}{B_i}) = \sum\limits_{i=1}^{n}{P(B_i)}$
 
+For $B_1, B_2, ..., B_n$ pairwise disjoint. 
+
 (3) Method: 
 
-Define an infinite sequence of disjoint events, $A_1, A_2, ... \in \mathbb{B}$ as pairwise disjoint sets.  
+Define an infinite sequence of disjoint events, $A_1, A_2, ...$ as pairwise disjoint sets.  
+and let us also define a finite sequence of disjoint events, $B_1, B_2, ..., B_n$. 
 
 Furthermore, let: 
-$(\bigcup\limits_{i=1}^{\infty}{A_i}) = (\bigcup\limits_{i=1}^{n}{B_i})$
-such that their associated probabilities are: 
+$(\bigcup\limits_{i=1}^{\infty}{A_i}) = (\bigcup\limits_{i=1}^{n}{B_i})$, meaning the sets of $A_i \text{ where } A_i \neq B_i \text{ are empty sets}$
+
+We may write their associated probabilities as: 
 $P(\bigcup\limits_{i=1}^{\infty}{A_i}) = P(\bigcup\limits_{i=1}^{n}{B_i})$
 
 And define: $\forall i \in [1, n]$, $A_i = B_i$ and $\forall i \notin [1,n]$, $A_i = \emptyset$
@@ -57,10 +43,14 @@ Then, as:
 
 $P(\bigcup\limits_{i=1}^{\infty}{A_i}) = P(\bigcup\limits_{i=1}^{n}{B_i}) + P(\bigcup\limits_{i=n+1}^{\infty}{A_i})$
 
+$$P(\bigcup\limits_{i=1}^{\infty}{A_i}) = P(\bigcup\limits_{i=1}^{n}{A_i} \bigcup\limits_{i=n+1}^{\infty}{A_i} = P(\bigcup\limits_{i=1}^{n}{B_i} \bigcup\limits_{i=n+1}^{\infty}{\emptyset} = P(\bigcup\limits_{i=1}^{n}{B_i}) + P(\bigcup\limits_{i=n+1}^{\infty}\emptyset)$$
+
 $$P(\bigcup\limits_{i=1}^{\infty}{A_i}) = P(\bigcup\limits_{i=1}^{n}{B_i}) + P(\bigcup\limits_{i=n+1}^{\infty}\emptyset) = P(\bigcup\limits_{i=1}^{n}{B_i}) + \emptyset = P(\bigcup\limits_{i=1}^{n}{B_i})$$
+$$P(\bigcup\limits_{i=1}^{\infty}{A_i}) = P(\bigcup\limits_{i=1}^{n}{B_i})$$
+
 For the summation-side of the equation, we have: 
 
-$\sum\limits_{i=1}^{\infty}{P(A_i)} = \sum\limits_{i=1}^{n}{P(B_i)} + \sum\limits_{i=n+1}^{\infty}{P(A_i)} = \sum\limits_{i=1}^{n}{P(B_i)} + \sum\limits_{i=n+1}^{\infty} \emptyset$
+$\sum\limits_{i=1}^{\infty}{P(A_i)} = \sum\limits_{i=1}^{n}{P(A_i)} + \sum\limits_{i=n+1}^{\infty}{P(A_i)}  = \sum\limits_{i=1}^{n}{P(B_i)} + \sum\limits_{i=n+1}^{\infty}{P(A_i)} = \sum\limits_{i=1}^{n}{P(B_i)} + \sum\limits_{i=n+1}^{\infty} \emptyset$
 
 Giving us: 
 
@@ -399,75 +389,40 @@ $\lim_{n \rightarrow \infty}{F(x + n^{-1})} = F(x)$
 
 holds. 
 
->> A: 
+>> Notes: 
 
 Notes: 
-https://stats.stackexchange.com/questions/25238/how-can-i-prove-that-the-cumulative-distribution-function-is-right-continuous
-https://math.stackexchange.com/questions/480042/prove-that-the-cdf-of-a-random-variable-is-always-right-continuous
-https://math.stackexchange.com/questions/234292/continuity-from-below-and-above
+https://math.stackexchange.com/questions/514135/why-distribution-function-is-right-continuous
+
+>> A: 
+
+Objective: Given the mcfa property, we wish to prove the cdf $F$ of a random variable $X$ must be right continuous, $\forall x \in \mathbb{R}$, the following holds: 
+
+$$\forall x \in \mathbb{R}, \text{ } lim_{n \rightarrow \infty} {F(x + n^{-1})} = F(x)$$
 
 
-$\downarrow$ means a decrease or a negative change in a value or function, or "approaching from the right" 
+Proof: 
+Let us start by defining terms: 
 
->> Alt:
+We have a cdf $F$ or a random variable $X$, which we assume to exhibit "monotone continuity from above (mcfa)". 
 
-Lemma: If a sequence of events ${\{ A_n\}}$ is decreasing, and $n \geq 1$, 
-then 
-$$\lim_{n \rightarrow \infty}{(A_n)} = (\bigcap\limits_{i=1}^{\infty}A_i)$$
-and their associated probabilities 
-$$\lim_{n \rightarrow \infty}{P(A_n)} = P(\bigcap\limits_{i=1}^{\infty}A_i)$$
+We may define a decreasing sequence of sets/events $A_1 \supset A_2 \supset \text{ ...}$ such that: 
 
-The cdf $F$ is right continuous at some point a iff $\forall n \geq 1, {\{ x_n\}}$, such that $x_n \downarrow a$, gives $F(x_n) \downarrow F(a)$
+$$\lim_{n \rightarrow \infty}{P(A_n)} = P(\bigcap\limits_{i=1}^{\infty}A_i) $$
 
-Let the events $A_n$ be defined as follows: 
+Define the sequence of sets, $A_n = \{ X \leq x + n^{-1}\}$, and note this is monotone continuous, decreasing sequence where 
+$$\lim_{n \rightarrow \infty} \frac{1}{n} = \lim_{n \rightarrow \infty}  n^{-1} = 0$$
 
-$A_n = {\{ \omega: X(\omega) \leq x_n\}}\space \forall n \geq 1$
+This gives us a limit to the sequence of $A_n$,  
+$$A_n = \lim_{n \rightarrow \infty} A_n = \lim_{n \rightarrow \infty} \{ X \leq x + n^{-1}\} = \{ X \leq x \}$$
 
-We need to prove that: 
+Evaluating the associated probabilities gives us: 
 
-$\bigcap\limits_{i=1}^{\infty}A_i = {\{ \omega: X(\omega) \leq a\}}$
+$$P(\bigcap\limits_{i=1}^{\infty}A_i) = \lim_{n \rightarrow \infty}{P(A_n)}  = P(\{ X \leq x \})  = F(x)$$
 
-One Direction: 
-if $X(\omega) \leq x_n \space \forall n \geq 1$ 
-since $x_n \downarrow a$, $X(\omega) \leq a$
+$$F(x) = \lim_{n \rightarrow \infty} P(\{ X \leq x + n^{-1}\}) = \lim_{n \rightarrow \infty} F(x + n^{-1})$$
 
-Other Direction: 
-If $X(\omega) \leq a$, as $a \leq x_n \space \forall n \geq 1$
-Giving us $X(\omega) \leq x_n \space\forall n \geq 1$
+Such that: 
+$$lim_{n \rightarrow \infty} {F(x + n^{-1})} = F(x)$$
 
-End Result: 
-
-$F(X_n) = P(X \leq x_n) = P(A_n) \downarrow P(\bigcap\limits_{i=1}^{\infty}A_i) = P(X \leq a) = F(a)$
-
->> My Attempt: 
-
-Let us take the mcfa property as a given. Let us then define the cdf $F$ of a random variable $X$. 
-
-Let us then define a decreasing sequence of sets/events, ${\{ A_n\}}$ with $n \geq 1$. 
-
-By the mcfa property, we know:
-$$\lim_{n \rightarrow \infty}{P(A_n)} = P(\bigcap\limits_{i=1}^{\infty}A_i)$$
-
-Objective: The cdf $F$ is right continuous at some point a iff $\forall n \geq 1, {\{ x_n\}}$, such that $x_n \downarrow a$, gives $F(x_n) \downarrow F(a)$
-
-Let the events $A_n$ be defined as follows: 
-
-$A_n = {\{ \omega: X(\omega) \leq x_n\}}\space \forall n \geq 1$
-
-We need to prove that: 
-
-$\bigcap\limits_{i=1}^{\infty}A_i = {\{ \omega: X(\omega) \leq a\}}$
-
-One Direction: If $X(\omega) \leq x_n \space \forall n \geq 1$ since $x_n \downarrow a$, $X(\omega) \leq a$
-
-Other Direction: If $X(\omega) \leq a$, as $a \leq x_n \space \forall n \geq 1$, giving us $X(\omega) \leq x_n \space\forall n \geq 1$
-
-End Result: 
-
-$$F(X_n) = P(X \leq x_n) = P(A_n) \downarrow P(\bigcap\limits_{i=1}^{\infty}A_i)$$
-
-However, as 
-
-$$P(\bigcap\limits_{i=1}^{\infty}A_i) = P(X \leq a) = F(a)$$
-
-We may conclude: $F(x_n) \downarrow F(a)$
+And conclude: right continuity, $F(x_n) \downarrow F(x)$
