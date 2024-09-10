@@ -30,7 +30,9 @@ pairs(x = studentApt[2:5], col = colorsPair[studentApt$studentGroup], pch = 19)
 
 (c) Comment on characteristics of the students in the three groups. [2 points]
 
-Generally, the above pairwise scatter plots don't provide anything immediately apparent. Student groups "1" and "2" tend to be clustered together across all variables and variable pairs. Though not statistically rigorous, it appears student group "3" tends to have the highest scoring students in Aptitude, Math, and Language, though interestingly this doesn't appear to carry over to the General Score, i.e. despite students in student group "3" scoring higher in Aptitude, Math, and Language, this doesn't appear to translate directly to higher General scores. 
+Generally, the above pairwise scatter plots don't provide anything immediately apparent, at least with a greater degree of rigor, e.g. we don't have correlation coefficients to directly compare across groups. That is to say: The commentary given is predominantly descriptive. 
+
+Student group "3" tends to exhibit the highest scoring individuals in Aptitude, Math, and Language. Interestingly this doesn't appear to carry over to the General Score, i.e. despite students in student group "3" scoring higher in Aptitude, Math, or Language individually, this doesn't appear to translate directly to higher General scores. Intuitively however, this makes some sense though, as we'd expect General score to be a composite of all scores, and we only have information about pairs of variables, not the combination of 3 or more.  
 
 \newpage
 
@@ -73,11 +75,26 @@ for (i in 1:9) {
 
 differenceData <- data.frame("digit" = 1:9, "difference" = differenceTable)
 
-expectedDigits
 piTable
+expectedDigits
 differenceData
 ```
-We can conclude that we tend to see an equal distribution of digits in the observed data. While we have a few digits where the expected is "substantial" (as in substantially more than other differences), the extent these of these differences in negligible. 
+
+```{r}
+meanCount <- mean(piTable)
+meanSd <- sd(piTable)
+coefVariation <- meanCount / meanSd
+
+meanCount
+meanSd
+coefVariation
+
+differenceData %>%
+  mutate("deviationAmt" = difference / coefVariation)
+
+differenceData$deviationAmt
+```
+We tend to see a similar distribution of counts for a given digit compared to its expected count, the latter of which is defined using a chi-squared test. Calculating the coefficient of variation for this data gives us a sense of how many standard deviations "off" an observed count is from its expected count. We observe that 7 of the 9 digits are within 1 coefficient of variation (looking at how many deviations away the difference is between the observed and expected counts of a given digit), with the remaining two digits within 1.96 standard deviations of the expected counts. Overall, I would say that all of our data falls within the bounds of expectation.  
 
 \newpage
 
@@ -132,27 +149,37 @@ lines(x = rep(x = 3, times = length(x)),
 (b) Attach the dataframe so that the variables in the dataframe are now globally available. [1 point]
 (c) The speeds are provided in miles per hour. Convert the speeds into feet per second and store the result in an appropriate vector. [5 points]
 
-speed: Represents the speed of the car in miles per hour. 
+speed: Represents the speed of the car in miles per hour
 dist: Represents the stopping distance of the car in feet
+
+miles per hour * (feet/miles) * (seconds/hour) = feet per second
+feet per second = speed * (5280/1) *  (3600/1)
 
 ```{r}
 data(cars)
 attach(cars)
-feetSpeed <- cars$speed * 5280
-feetDistance <- cars$dist * 5280
+feetSpeed <- cars$speed * 5280 * 3600
+# feetDistance <- cars$dist * 5280
 ```
 
 (d) Plot the speed (in feet per second) against the distance (in feet). [4 points]
 
 ```{r}
-plot(x = feetSpeed, y = cars$dist)
+plot(x = feetSpeed, y = cars$dist, xlab = "feet per second", ylab = "stopping distance (feet)")
 ```
 
 (e) Convert the measurements into the metric system. Note that one mile is equal to 1.6093 kilome-tres. Store the results in appropriate vectors. [5 points]
 
+speed: Represents the speed of the car in miles per hour. 
+dist: Represents the stopping distance of the car in feet
+
+km per hour = miles per hour * (km/mile) 
+km stopping distance = feet stopping distance (1 km / ft)
+
+
 ```{r}
 metricSpeed <- cars$speed*1.6093
-metricDistance <- cars$dist*1.6093
+metricDistance <- cars$dist/3280.84
 ```
 
 (f) Detach the dataframe. [1 point]
@@ -164,7 +191,7 @@ detach(cars)
 (g) Plot the speed (in metres per second) against the distance (in metres). [4 points]
 
 ```{r}
-plot(x = metricSpeed, y = metricDistance)
+plot(x = metricSpeed, y = metricDistance, xlab = "km/hour", ylab = "km stopping distance")
 ```
 
 (h) Make sure that the plots above are labeled and titled appropriately. Print out the plots using dev.print() or otherwise. What can you tell, if anything, looking at the two plots? [2 points]
@@ -173,7 +200,7 @@ plot(x = metricSpeed, y = metricDistance)
 show(plot(x = feetSpeed, y = cars$dist))
 show(plot(x = metricSpeed, y = metricDistance))
 ```
-We see that converting units simultaneously, i.e. converting the x and y axes at the same time and by the same unit conversion, does not change the interpretation of the plot. 
+We see that converting units concurrently, i.e. converting the x and y axes at the same time and by the same unit conversion, does not change the interpretation of the plot and overall trend(s) we observe. 
 
 \newpage
 

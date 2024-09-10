@@ -12,14 +12,13 @@ Exercises start ~ pg 67
 
 Progress
 
-  1. DONE 
-    - CHECK STATUS: Does this proof work or can it be infinite?
+  1. DONE \
   2. DONE \ 
   3. DONE \ 
   4. DONE \ 
   5. DONE \ 
   6. DONE \ 
-  7. DONE 
+  7. DONE \
   8. DONE \ 
   9. IN PROGRESS \ 
 
@@ -39,27 +38,41 @@ $P(\bigcup\limits_{i=1}^{\infty}{A_i}) = \sum\limits_{i=1}^{\infty}{P(A_i)}$
 
 (2) Goal: 
 
-We wish to prove the Axiom of Finity Additivity given Coutable Additivity, which is defined as: 
+We wish to prove that: 
 
-$A \in \mathbb{B}$, $B \in \mathbb{B}$ disjoint, then: 
-
-$P(A \cup B) = P(A) + P(B)$
+$P(\bigcup\limits_{i=1}^{n}{B_i}) = \sum\limits_{i=1}^{n}{P(B_i)}$
 
 (3) Method: 
 
-Define $A_1, A_2, ... \in \mathbb{B}$ as pairwise disjoint sets.  
+Define an infinite sequence of disjoint events, $A_1, A_2, ... \in \mathbb{B}$ as pairwise disjoint sets.  
 
-Let $A, B \in \mathbb{B}$ and assume Countable Additivity holds (1). 
+Furthermore, let: 
+$(\bigcup\limits_{i=1}^{\infty}{A_i}) = (\bigcup\limits_{i=1}^{n}{B_i})$
+such that their associated probabilities are: 
+$P(\bigcup\limits_{i=1}^{\infty}{A_i}) = P(\bigcup\limits_{i=1}^{n}{B_i})$
 
-Define $A \equiv A_1$ and $B \equiv A_2 \cup A_3 \cup ...$
+And define: $\forall i \in [1, n]$, $A_i = B_i$ and $\forall i \notin [1,n]$, $A_i = \emptyset$
 
-As $A_1, A_2, A_3, ...$ are pairwise disjoint, $A, B$ are disjoint sets.  
+Then, as: 
 
-Thus, using Theorem 1.2.9, we have: 
+$P(\bigcup\limits_{i=1}^{\infty}{A_i}) = P(\bigcup\limits_{i=1}^{n}{B_i}) + P(\bigcup\limits_{i=n+1}^{\infty}{A_i})$
 
-1.2.9:  $P(A_1 \cup A_2 \cup ...) = P(A \cup B) = P(A) + P(B) - P(A \cap B)$
+$$P(\bigcup\limits_{i=1}^{\infty}{A_i}) = P(\bigcup\limits_{i=1}^{n}{B_i}) + P(\bigcup\limits_{i=n+1}^{\infty}\emptyset) = P(\bigcup\limits_{i=1}^{n}{B_i}) + \emptyset = P(\bigcup\limits_{i=1}^{n}{B_i})$$
+For the summation-side of the equation, we have: 
 
-$P(A \cup B) = P(A) + P(B) - 0 = P(A) + P(B)$ .// 
+$\sum\limits_{i=1}^{\infty}{P(A_i)} = \sum\limits_{i=1}^{n}{P(B_i)} + \sum\limits_{i=n+1}^{\infty}{P(A_i)} = \sum\limits_{i=1}^{n}{P(B_i)} + \sum\limits_{i=n+1}^{\infty} \emptyset$
+
+Giving us: 
+
+$\sum\limits_{i=1}^{\infty}{P(A_i)} = \sum\limits_{i=1}^{n}{P(B_i)} + \emptyset = \sum\limits_{i=1}^{n}{P(B_i)}$
+
+We take advantage of the fact that: 
+
+$P(\bigcup\limits_{i=1}^{\infty}{A_i}) = \sum\limits_{i=1}^{\infty}{P(A_i)}$
+
+Allowing us to conclude: 
+
+$P(\bigcup\limits_{i=1}^{n}{B_i}) = \sum\limits_{i=1}^{n}{P(B_i)}$.//
 
 \newpage 
 
@@ -388,7 +401,11 @@ holds.
 
 >> A: 
 
-Notes: https://math.stackexchange.com/questions/480042/prove-that-the-cdf-of-a-random-variable-is-always-right-continuous
+Notes: 
+https://stats.stackexchange.com/questions/25238/how-can-i-prove-that-the-cumulative-distribution-function-is-right-continuous
+https://math.stackexchange.com/questions/480042/prove-that-the-cdf-of-a-random-variable-is-always-right-continuous
+https://math.stackexchange.com/questions/234292/continuity-from-below-and-above
+
 
 $\downarrow$ means a decrease or a negative change in a value or function, or "approaching from the right" 
 
@@ -431,3 +448,26 @@ Let us then define a decreasing sequence of sets/events, ${\{ A_n\}}$ with $n \g
 By the mcfa property, we know:
 $$\lim_{n \rightarrow \infty}{P(A_n)} = P(\bigcap\limits_{i=1}^{\infty}A_i)$$
 
+Objective: The cdf $F$ is right continuous at some point a iff $\forall n \geq 1, {\{ x_n\}}$, such that $x_n \downarrow a$, gives $F(x_n) \downarrow F(a)$
+
+Let the events $A_n$ be defined as follows: 
+
+$A_n = {\{ \omega: X(\omega) \leq x_n\}}\space \forall n \geq 1$
+
+We need to prove that: 
+
+$\bigcap\limits_{i=1}^{\infty}A_i = {\{ \omega: X(\omega) \leq a\}}$
+
+One Direction: If $X(\omega) \leq x_n \space \forall n \geq 1$ since $x_n \downarrow a$, $X(\omega) \leq a$
+
+Other Direction: If $X(\omega) \leq a$, as $a \leq x_n \space \forall n \geq 1$, giving us $X(\omega) \leq x_n \space\forall n \geq 1$
+
+End Result: 
+
+$$F(X_n) = P(X \leq x_n) = P(A_n) \downarrow P(\bigcap\limits_{i=1}^{\infty}A_i)$$
+
+However, as 
+
+$$P(\bigcap\limits_{i=1}^{\infty}A_i) = P(X \leq a) = F(a)$$
+
+We may conclude: $F(x_n) \downarrow F(a)$
