@@ -10,7 +10,8 @@ output:
 The total points on this homework is 125. Out of these 6 points are reserved for clarity of presentation,
 punctuation and commenting with respect to the code.
 
->> 1. This is an exercise with the partial objective of trying to get ideas from the demo(graphics) package in R to solve our problem.
+## Q1. 
+This is an exercise with the partial objective of trying to get ideas from the demo(graphics) package in R to solve our problem.
 
 The dataset student-apt.dat has data on student scores in aptitude, mathematics, language and general knowledge for students in technical disciplines (group 1), architecture (group 2) and medical technology students (group 3) as indicated in column 1.
 
@@ -32,13 +33,16 @@ pairs(x = studentApt[2:5], col = colorsPair[studentApt$studentGroup], pch = 19)
 
 (c) Comment on characteristics of the students in the three groups. [2 points]
 
+### Comments:
+
 Generally, the above pairwise scatter plots don't provide anything immediately apparent, at least with a greater degree of rigor, e.g. we don't have correlation coefficients to directly compare across groups. That is to say: The commentary given is predominantly descriptive. 
 
 Student group "3" tends to exhibit the highest scoring individuals in Aptitude, Math, and Language. Interestingly this doesn't appear to carry over to the General Score, i.e. despite students in student group "3" scoring higher in Aptitude, Math, or Language individually, this doesn't appear to translate directly to higher General scores. Intuitively however, this makes some sense though, as we'd expect General score to be a composite of all scores, and we only have information about pairs of variables, not the combination of 3 or more.  
 
 \newpage
 
->> 2. The National Institute of Standards and Technology has a web page that lists the first 5,000 digits of the irrational number $\pi$. You can read these digits into R from the website http://www.itl.nist.gov/div898/strd/univ/data/PiDigits.dat.
+## Q2. 
+The National Institute of Standards and Technology has a web page that lists the first 5,000 digits of the irrational number $\pi$. You can read these digits into R from the website http://www.itl.nist.gov/div898/strd/univ/data/PiDigits.dat.
 
 (a) Read in the dataset. Note that the file on the website has the first 60 lines which are really different statistics on the data. These 60 lines should be skipped. Look at the help function on the read.table to see how to skip these lines. [7 points]
 
@@ -97,11 +101,15 @@ differenceData %>%
 
 differenceData$deviationAmt
 ```
+
+### Comments:
+
 We tend to see a similar distribution of counts for a given digit compared to its expected count, the latter of which is defined using a chi-squared test. Calculating the coefficient of variation for this data gives us a sense of how many standard deviations "off" an observed count is from its expected count. We observe that 7 of the 9 digits are within 1 coefficient of variation (looking at how many deviations away the difference is between the observed and expected counts of a given digit), with the remaining two digits within 1.96 standard deviations of the expected counts. Overall, I would say that all of our data falls within the bounds of expectation.  
 
 \newpage
 
->> 3. Plot a graph that shows three curves y = x, y = x2, and y = $\sqrt{x}$, for x from 0 to 3. Plot a vertical line at 1, 2 and 3, (curves and lines on the same plot). Hint: Decompose this problem into multiple parts: In the first instance, create a vector x consisting of 0 to 3, in increments of 0.01 (say). Create another vector y1 = x2 and a third vector y2 = $\sqrt{x}$ and then combine them all to form a dataframe. Use the plot function as well as the lines function to add lines to an existing plot. Turn in the final plot and also the R code you used for the problem. [15 points]
+## Q3. 
+Plot a graph that shows three curves y = x, y = x2, and y = $\sqrt{x}$, for x from 0 to 3. Plot a vertical line at 1, 2 and 3, (curves and lines on the same plot). Hint: Decompose this problem into multiple parts: In the first instance, create a vector x consisting of 0 to 3, in increments of 0.01 (say). Create another vector y1 = x2 and a third vector y2 = $\sqrt{x}$ and then combine them all to form a dataframe. Use the plot function as well as the lines function to add lines to an existing plot. Turn in the final plot and also the R code you used for the problem. [15 points]
 
 ```{r}
 x <- seq(from = 0, to = 3, by = 0.01)
@@ -149,18 +157,21 @@ lines(x = rep(x = 3, times = length(x)),
 
 \newpage
 
->> 4. Consider the dataset available in R called cars with the help file that also has more information.
+## Q4. 
+Consider the dataset available in R called cars with the help file that also has more information.
 
 (a - c): 
 (a) Read in the dataset from the file. Call it cars (say). [2 points]
 (b) Attach the dataframe so that the variables in the dataframe are now globally available. [1 point]
 (c) The speeds are provided in miles per hour. Convert the speeds into feet per second and store the result in an appropriate vector. [5 points]
 
-speed: Represents the speed of the car in miles per hour
-dist: Represents the stopping distance of the car in feet
 
-miles per hour * (feet/miles) * (seconds/hour) = feet per second
-feet per second = speed * (5280/1) *  (3600/1)
+### Notes: 
+  Speed: Represents the speed of the car in miles per hour
+  Dist: Represents the stopping distance of the car in feet
+
+Conversion: 
+  feet per second = miles per hour * (5280 feet/ 1 miles) * (3600 seconds/ 1 hour)
 
 ```{r}
 data(cars)
@@ -177,12 +188,13 @@ plot(x = feetSpeed, y = cars$dist, xlab = "feet per second", ylab = "stopping di
 
 (e) Convert the measurements into the metric system. Note that one mile is equal to 1.6093 kilome-tres. Store the results in appropriate vectors. [5 points]
 
-speed: Represents the speed of the car in miles per hour. 
-dist: Represents the stopping distance of the car in feet
+### Note: 
+  Speed: Represents the speed of the car in miles per hour. 
+  Dist: Represents the stopping distance of the car in feet.
 
-m per hour = miles per hour * (km/mile) * (m / km)
-m stopping distance = feet stopping distance (1 km / ft) * (m / km)
-
+Conversions: 
+  meters per hour = miles per hour * (1.6093 km/ 1 mile) * (1000m / km)
+  meters stopping distance = feet stopping distance (1 km / 3280.84 ft) * (1000m / 1km)
 
 ```{r}
 metricSpeed <- cars$speed*1.6093*1000
@@ -207,11 +219,15 @@ plot(x = metricSpeed, y = metricDistance, xlab = "m/hour", ylab = "stopping dist
 plot(x = feetSpeed, y = cars$dist, xlab = "ft/sec", ylab = "stopping distance (feet)")
 plot(x = metricSpeed, y = metricDistance, xlab = "m/hour", ylab = "stopping distance (m)")
 ```
-We see that converting units concurrently, i.e. converting the x and y axes at the same time and by the same unit conversion, does not change the interpretation of the plot and overall trend(s) we observe. 
+
+### Comments:
+
+We see that converting units concurrently, i.e. converting the x and y axes at the same time and by the same unit conversions, does not change the interpretation of the plot and overall trend(s) we observe. 
 
 \newpage
 
->> 5. Consider the dataset pressure which is in the R software base installation. You may type help(pressure) to get more information on this dataset.
+## Q5. 
+Consider the dataset pressure which is in the R software base installation. You may type help(pressure) to get more information on this dataset.
 
 (a) The temperatures are provided on the Celsius scale. Convert them to the Fahrenheit scale and store them in an appropriate vector. [3 points]
 
@@ -242,6 +258,9 @@ summary(regression)
 plot(y = dataFahrenheit$temperature, x = dataFahrenheit$pressure)
 abline(a = 0, b = 1.2161)
 ```
+
+### Comments:
+
 This is a very poor fit! We should suspect that a simple linear fit for the model will not suffice to accurately approximate the relationship observed. The actual trend appears non-linear, specifically a non-linear relationship between pressure and temperature with diminishing returns, i.e. the slope of the fit line decreases with greater pressure. 
 
 (e) Plot the residuals against the fitted values. Comment. [3 + 2 points]
@@ -252,7 +271,9 @@ plot(res)
 abline(h = 0, lty = "dashed")
 ```
 
-We see a clear pattern in the residual plot, at first increasing positively then sharply falling off and veering into negative values when approaching high pressure values. 
+### Comments: 
+
+We see a clear pattern in the residual plot, at first increasing positively then sharply falling off and veering into negative values when approaching high pressure values.
 
 (f) Clearly pressure is not adequate to explain the relationship with temperature. Create another dataframe with four columns, given by temperature in Fahrenheit, pressure, the square of pressure and cubed pressure. [5 points]
 
@@ -266,6 +287,9 @@ dataNL <- data.frame("temperature" = dataFahrenheit$temperature, "pressure" = da
 regression2 <- lm(formula = temperature ~ pressure + square + cube, data = dataNL)
 summary(regression2)
 ```
+
+### Comments:
+
 All coefficients are significant to some degree, though the initial linear coefficient appears most significant (excluding interpretation of the intercept term). Each successive term becomes less significant than its prior iteration, i.e. pressure is more significant than its square, and its squared term is more significant than the cubed term. 
 
 (h) On the plot of (c) above, put in the fitted line. Comment on the previous fit and this one. [3 + 2 points]
@@ -274,6 +298,9 @@ All coefficients are significant to some degree, though the initial linear coeff
 plot(x = dataNL$pressure, y = dataNL$temperature)
 lines(x = dataNL$pressure, y = predict(regression2), col = "red")
 ```
+
+### Comments:
+
 This fit is much better than the prior linear fit! The line of best fit tends to be much closer to the observed values (pairs of pressure-temperature) than before. 
 
 (i) Plot the residuals against the fitted values. Comment. [3 + 2 points]
@@ -283,5 +310,7 @@ res2 <- residuals(regression2)
 plot(res2)
 abline(h = 0, lty = "dashed")
 ```
+
+### Comments:
 
 The residual plot shows that our predictions tend to be more inaccurate for low pressure predictions, and specifically that these predictions tend to be greater than the observed values. Interestingly we see a change between overestimating (negative residual) and underestimating (positive residual) across the values. However, we also see the range of residual values is much smaller than the range of residual values from the first linear fit. 
