@@ -1,0 +1,134 @@
+---
+title: "Optional Lab 2"
+output: html_document
+date: "2024-09-11"
+---
+
+```{r}
+set.seed(500)
+y0 <- rnorm(1000, mean=1, sd=2)
+hist(y0, freq=FALSE)
+```
+
+```{r}
+fy <- function(x) dnorm(x, mean=1, sd=2)
+curve(fy, -5, 7, add=TRUE, col="red")
+```
+
+```{r}
+z0 <- (y0-1)/2
+hist(z0, freq=FALSE)
+
+fz0 <- function(z0) dnorm(z0, mean=0, sd=1)
+curve(fz0, -3, 3, add=TRUE, col="red")
+```
+
+```{r}
+x0 <- rnorm(1000, mean=2, sd=1)
+hist(x0+y0, freq=FALSE)
+
+meanX0 <- mean(x0)
+sdX0 <- sd(x0)
+
+fx0 <- function(x0) dnorm(x0, mean=3, sd=3)
+curve(fx0, -10, 10, add=TRUE, col="red")
+```
+
+
+```{r}
+n1=16
+s=2500
+y1 = matrix(rnorm(n1*s, mean=2, sd=5), nrow=n1, ncol=s)
+ybar1 <- colMeans(y1)
+hist(ybar1, freq=FALSE, ylim = c(0, 0.5))
+
+fybar1 <- function(ybar1) dnorm(ybar1, mean=2, sd=1)
+
+curve( fybar1, -6, 6, add=TRUE, col="red", ylim = c(0, 0.5))
+
+
+n2=36
+y2 = matrix(rnorm(n2*s, mean=6, sd=5), nrow=n2, ncol=s)
+ybar2 <- colMeans(y2)
+hist(ybar2, freq=FALSE)
+ydiff = ybar1 - ybar2
+hist(ydiff, freq=FALSE)
+```
+
+```{r}
+mean.diff <- mean(ydiff)
+sd.diff <- sd(ydiff)
+```
+
+```{r}
+pnorm(-1, mean.diff, sd.diff, lower.tail=FALSE)
+```
+
+```{r}
+qnorm(0.95, mean.diff, sd.diff)
+```
+
+```{r}
+mean.diff
+sd.diff
+```
+
+```{r}
+hist(ydiff, freq=FALSE, ylim = c(0, 0.3))
+
+fydiff <- function(ydiff) dnorm(ydiff, mean=-4, sd=1.5)
+curve( fydiff, -10, 0.5, add=TRUE, col="red", ylim = c(0, 0.5))
+```
+
+Q: What is the p-value for the right-tailed test for the difference in means if the observed difference in means was -1 and assuming that the null hypothesis is that the population difference in means is -4?
+
+## STUCK ON THIS
+
+```{r}
+z1 <- rnorm(1000)
+w1 <- z1^2
+# pchisq(10, 9, lower.tail=FALSE)
+
+hist(w1, freq=FALSE)
+pchisq(7.5,df=28,lower.tail=FALSE)
+```
+
+```{r}
+z2 <- rnorm(10000)
+w2 <- rowSums(matrix(z2^2, nrow=1000, ncol=10))
+hist(w2, freq=FALSE)
+# To confirm the distribution is a Chi-Square, use the same strategy as above to overlay the
+# density on the histogram, just substitute the dchisq() for the dnorm() function.
+```
+
+```{r}
+pchisq(10, 9, lower.tail=FALSE)
+```
+
+```{r}
+qchisq(0.90, 9)
+```
+
+```{r}
+Zs <- rnorm(1000)
+Ws <- rchisq(1000, 9)
+Ts <- Zs/(Ws/9)
+hist(Ts, freq=FALSE)
+```
+
+```{r}
+n1=16
+n2=36
+ts <- rt(1000, n1+n2-2)
+hist(ts, freq=FALSE)
+fT <- function(x) dt(x, df=n1+n2-2)
+curve(fT, -3, 3, add=TRUE, col="red", ylim = c(0, 0.4))
+```
+
+```{r}
+2*pt(-2.34, df=n1+n2-2, lower.tail=TRUE)
+```
+
+```{r}
+qt(0.995, df=n1+n2-2)
+```
