@@ -106,6 +106,14 @@ Because we are looking at the probability that a particular child (child a) brea
 
 $P(\text{child a breaks 3 plates}) = {{4}\choose{1}} (\frac{1}{4})^3 (\frac{3}{4})^1 = 4(\frac{1}{64})(\frac{3}{4}) = \frac{3}{64}$
 
+Alternative Formulation, same outcome: 
+
+$4^4$: possible outcomes
+${4} \choose{3}$: Number of ways to choose 3 of 4 plates to be broken 
+${3} \choose{1}$: Number of ways the remaining plate could be broken
+
+$P(\text{child a breaks 3 plates}) = \frac{{4\choose{3}}{3\choose{1}}}{4^4} = \frac{3*4}{4^4} = \frac{3}{64}$
+
 (b) Find the probability that one of the four children breaks 3 plates. 
 
 We have (1), (2), (3), and (4) from the above. 
@@ -113,6 +121,12 @@ We have (1), (2), (3), and (4) from the above.
 Because we are looking at the probability that any particular child breaks 3 plates, we have exactly 4 possible scenarios from part (a), or said differently we multiple the probability of part (a) by 4. 
 
 $P(\text{child a breaks 3 plates}) = 4{{4}\choose{1}} (\frac{1}{4})^3 (\frac{3}{4})^1 = 16(\frac{1}{64})(\frac{3}{4}) = \frac{1}{4}(\frac{3}{4}) = \frac{3}{16}$
+
+Alternative Formulation, same outcome: 
+
+We have 4 possible scenarios of (a), since now we're looking at the probability irrespective of who broke 3 plates: 
+
+$P(\text{child a breaks 3 plates}) = 4 * \frac{{4\choose{3}}{3\choose{1}}}{4^4} = 4* \frac{3*4}{4^4} = \frac{3}{16}$
 
 \newpage 
 
@@ -391,33 +405,60 @@ holds.
 
 >> A: 
 
-Objective: Given the mcfa property, we wish to prove the cdf $F$ of a random variable $X$ must be right continuous, $\forall x \in \mathbb{R}$, the following holds: 
+Define a decreasing sequence of sets/events as follows: 
 
-$$\forall x \in \mathbb{R}, \text{ } lim_{n \rightarrow \infty} {F(x + n^{-1})} = F(x)$$
+$A_n := \{ a:a_n \leq x + \frac{1}{n}\}$ and note:
 
+$A_1 \supset A_2 \supset A_3 \supset \space ...$, 
 
-Proof: 
-Let us start by defining terms: 
+Assume mcfa holds for the associated probabilities of the above sets/events. 
 
-We have a cdf $F$ or a random variable $X$, which we assume to exhibit "monotone continuity from above (mcfa)". 
+We thus have: 
 
-We may define a decreasing sequence of sets/events $A_1 \supset A_2 \supset \text{ ...}$ such that: 
+$\lim_{n \rightarrow \infty}{F_{X}(x + \frac{1}{n})} = \lim_{n \rightarrow \infty}{\mathbb{P}(X \leq x + \frac{1}{n})} = \lim_{n \rightarrow \infty}{\mathbb{P}(A_n)}$
 
-$$\lim_{n \rightarrow \infty}{P(A_n)} = P(\bigcap\limits_{i=1}^{\infty}A_i)$$
+Via the mcfa we then have: 
 
-Define the sequence of sets, $A_n = \{ X \leq x + n^{-1}\}$, and note this is monotone continuous, decreasing sequence where 
-$$\lim_{n \rightarrow \infty} \frac{1}{n} = \lim_{n \rightarrow \infty}  n^{-1} = 0$$
+$\lim_{n \rightarrow \infty}{F_{X}(x + \frac{1}{n})} = \lim_{n \rightarrow \infty}{\mathbb{P}(A_n)} = \mathbb{P}(\bigcap\limits_{i=1}^{\infty}A_i)$
 
-This gives us a limit to the sequence of $A_n$,  
-$$\lim_{n \rightarrow \infty} A_n = \bigcap\limits_{i=1}^{\infty}A_i  = \lim_{n \rightarrow \infty} \{ X \leq x + n^{-1}\} = \lim_{n \rightarrow \infty} \{ X \leq x + 0\} = \{ X \leq x \}$$
+### Aside
 
-Evaluating the associated probabilities gives us: 
+(1) We will prove: $\bigcap\limits_{i=1}^{\infty}A_i \subset (-\infty, x]$
 
-$$\lim_{n \rightarrow \infty}{P(A_n)} = P(\bigcap\limits_{i=1}^{\infty}A_i) = P(\{ X \leq x \})  = F(x)$$
+Note: $\forall{i} \text{, }a \leq x + \frac{1}{i} \rightarrow a \leq x$
 
-$$F(x) = \lim_{n \rightarrow \infty} P(\{ X \leq x + n^{-1}\}) = \lim_{n \rightarrow \infty} F(x + n^{-1})$$
+So we have:
 
-Such that: 
-$$lim_{n \rightarrow \infty} {F(x + n^{-1})} = F(x)$$
+$\forall i \geq 1$
 
-And conclude: right continuity, $F(x_n) \downarrow F(x)$
+$\bigcap\limits_{i=1}^{\infty}A_i := \{ a: a\leq x + \frac{1}{i}\}$
+
+And $\{ a: a\leq x + \frac{1}{i}\} \subset \{ a: a\leq x\} \equiv (-\infty, x]$
+
+(2) We will prove: $(-\infty, x] \subset \bigcap\limits_{i=1}^{\infty}A_i$
+
+Define: $y \in (-\infty, x]$
+
+As defined, we have the following relations: 
+
+$y \in (-\infty, x] \iff y \leq x \iff y \leq x + \frac{1}{i} \text{, } \forall {i \geq 1}$
+
+$\therefore (-\infty, x] \subset \bigcap\limits_{i=1}^{\infty}A_i \rightarrow y \in \bigcap\limits_{i=1}^{\infty}A_i$
+
+### Back to the Proof 
+
+We've shown then that (1) and (2) hold, such that: 
+
+$\bigcap\limits_{i=1}^{\infty}A_i \subset (-\infty, x]$ and $(-\infty, x] \subset \bigcap\limits_{i=1}^{\infty}A_i$, hence 
+
+$\bigcap\limits_{i=1}^{\infty}A_i = (-\infty, x]$
+
+$\therefore$, their associated probabilities may be written: 
+
+$\lim_{n \rightarrow \infty}{F_{X}(x + \frac{1}{n})} = \mathbb{P}(\bigcap\limits_{i=1}^{\infty}A_i) = \mathbb{P}(X \in (-\infty, x]) = \mathbb{P}(X \leq x) = F_X(x)$
+
+We then conclude: 
+
+$$lim_{n \rightarrow \infty} {F_X(x + n^{-1})} = F(x)$$
+
+Which is to say we have proved right continuity, $F_X(x + n^{-1}) \downarrow F_X(x)$
