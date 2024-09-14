@@ -1,0 +1,121 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{subfigure,amsmath,latexsym,amssymb}
+\usepackage{color}
+\setlength{\oddsidemargin}{-0.25in}
+\setlength{\textwidth}{7.1in}
+\setlength{\topmargin}{-1in}
+\setlength{\textheight}{9.5in}
+\evensidemargin \oddsidemargin
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+
+\begin{document}
+
+\large \noindent \textsc{Stat 5000}\hfill \large{\textsc{Homework \#3}} \hfill \phantom{\textsc{Name:} \underline{\hspace{2in}}} \\
+\large \textsc{Fall 2024}  \hfill \textsc{due Fri, Sep 20th @ 11:59 pm} \hfill \textsc{Name:} \underline{\hspace{2in}} \\
+
+\vspace{14pt}
+
+\noindent \textbf{Directions:} Type or clearly handwrite your solutions to each of the following exercises.  Partial credit cannot be given unless all work is shown. You may work in groups provided that each person takes responsibility for understanding and writing out the solutions. Additionally, you must give proper credit to your collaborators by providing their names on the line below (if you worked alone, write ``No Collaborators"):
+\vspace{14pt}
+\\ \underline{\hspace{7in}}
+\vspace{14pt}
+\begin{enumerate}
+
+\item \textbf{[+21]:} A major medical center in the Northeastern U.S. conducted a study looking at blood cholesterol levels and incidence of heart attack. Below are summary statistics of blood cholesterol levels from 16 people who had a heart attack and 20 people who did not have a heart attack.
+\begin{center}
+	\begin{tabular}{l|ccc}
+		Group & Sample Size ($n$) & Sample Mean ($\bar y$) & Sample Std. Dev. ($s$) \\
+		\hline
+		Heart Attack (1) & $n_1 = 16$ & $\bar y_1 = 265.4$ & $s_1 = 43.645$ \\
+		No Heart Attack (0) & $n_2 = 20$ & $\bar y_2 = 193.1$ & $s_2 = 21.623$
+	\end{tabular}
+\end{center}
+	\begin{enumerate}
+	\item List the assumptions needed to properly use the $t$-based confidence interval.
+	\vspace{2in}
+	\item Using the formula from lecture, compute a 95\% confidence interval ``by hand" for the population difference in mean cholesterol level between the heart attack and the no heart attack groups.
+	\vspace{3in}
+	\item Interpret the confidence interval in the context of the study.
+	\vspace{2in}
+	\item Suppose that the researchers want to replicate the study, varying the targeted sample sizes in each group to obtain the \textit{best} (or least variable) estimate of the difference in group means, given the constraint that they can only afford to collect information from 50 total participants. How many subjects should they recruit for each group? Fill in the table below to help you answer the question (as an example, one of the solutions is already provided).
+	\begin{center}
+		\begin{tabular}{c|c|c}
+			$n_1$ & $n_2$ & $Var(\bar Y_1 - \bar Y_2) = \sigma^2 \left( \frac{1}{n_1} + \frac{1}{n_2} \right)$ \\
+			\hline
+			&& \\
+			1 & 49 & \\
+			&& \\
+			\hline
+			&& \\
+			5 & 45 & \\
+			&& \\
+			\hline
+			&& \\
+			10 & 40 & 0.125$\sigma^2$ \\
+			&& \\
+			\hline
+			&& \\
+			20 & 30 & \\
+			&& \\
+			\hline
+			&& \\
+			25 & 25 & \\
+			&& \\
+			\hline
+			&& \\
+			30 & 20 & \\
+			&& \\
+			\hline
+			&& \\
+			40 & 10 & \\
+			&& \\
+			\hline
+			&& \\
+			45 & 5 & \\
+			&& \\
+			\hline
+			&& \\
+			49 & 1 & \\
+			&&
+		\end{tabular}
+	\end{center}
+	\vspace{1in}
+	\end{enumerate}
+	
+\item \textbf{[+10]:} Refer to the data set \texttt{cholesterol.csv} (posted in Canvas). This file contains data on 18 randomly sampled individuals diagnosed with high cholesterol who replaced butter in their diets with a brand (A or B) of margarine. The brand of margarine was randomized. Their doctors recorded their blood cholesterol levels at the beginning of the experiment, after four weeks of their diets, and again after eight weeks. The researchers are interested in exploring the question: 
+	\begin{quote}
+		How big is the difference in mean cholesterol reduction after 8 weeks between brand A and B for subjects who replaced butter in their diet with  margarine?
+	\end{quote} 
+	\begin{enumerate}
+	\item Compute the 99\% confidence interval in R and provide a screenshot of the output. 
+	\vspace{4in}
+	\item Interpret the confidence interval in the context of the study.
+	\vspace{3.25in}
+	\end{enumerate}
+	
+\item \textbf{[+9]:} Suppose that the researchers want to replicate the cholesterol study. Help them achieve their study design goals by performing the following sample size determinations in R (provide screenshot of output) or by hand-calculation (show work):
+	\begin{enumerate}
+	\item Given an approximate pooled sample standard deviation of $S_p = 0.16$, what sample size is needed in each of two equally-sized treatment groups in order for the standard error of the difference in average cholesterol reduction to be no more than 0.02?
+	\vspace{2.25in}
+	\item Given an approximate pooled sample standard deviation of $S_p = 0.16$, what sample size is needed in each of two equally-sized treatment groups in order for the width of a 95\% confidence interval for the true difference in mean cholesterol reduction to be no more than 0.04?
+	\vspace{2.25in}
+	\item Given an approximate pooled sample standard deviation of $S_p = 0.16$ and an effect size of $\delta=0.03$, what sample size is needed in each of two equally-sized treatment groups in order for a level $\alpha=0.05$ two-sided test to have 80\% power?
+	\vspace{2.25in}
+	\end{enumerate}
+	
+\item \textbf{[+10]:} Refer to the data set \texttt{birthweight.csv} (posted in Canvas) containing the weights of a random sample of babies born at a certain hospital and information about whether the birth mother was a smoker. 
+	\begin{enumerate}
+	\item Using R, find a 90\% confidence interval for the difference in average birthweight between babies born to mothers who smoke versus non-smoking mothers, and provide a screenshot of the output.
+	\vspace{3in}
+	\item Interpret the confidence interval in the context of the study.
+	\vspace{3in}
+	\end{enumerate}
+
+\end{enumerate}
+
+\vfill
+\textbf{Total:} 50 points \hspace{14pt} \textbf{\# correct:} \underline{\hspace{1in}}  \hspace{14pt} \textbf{\%:} \underline{\hspace{1in}} 
+
+\end{document}
