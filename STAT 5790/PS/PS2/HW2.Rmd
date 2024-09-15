@@ -8,41 +8,99 @@ output:
 # Homework 2
 
 ## Q1: 
+
+pdf_data <- system.file("examples", "data.pdf", package = "tabulizer")
+
 Table 1 displays the heights of the presidents and their opponents in the U.S. presidential election of 1948 through 2008.
+
+Year Winner Height Opponent Height
+2008 Barack Obama 185 cm John McCain 175 cm
+2004 George W. Bush 182 cm John Kerry 193 cm
+2000 George W. Bush 182 cm Al Gore 185 cm
+1996 Bill Clinton 189 cm Bob Dole 187 cm
+1992 Bill Clinton 189 cm George H.W. Bush 188 cm
+1988 George H.W. Bush 188 cm Michael Dukakis 173 cm
+1984 Ronald Reagan 185 cm Waiter Mondale 180 cm
+1980 Ronald Reagan 185 cm Jimmy Carter 177 cm
+1976 Jimmy Carter 177 cm Gerald Ford 183 cm
+1972 Richard Nixon 182 cm George McGovern 185 cm
+1968 Richard Nixon 182 cm Hubert Humphrey 180 cm
+1964 Lyndon B. Johnson 193 cm Barry Goldwater 180 cm
+1960 John F. Kennedy 183 cm Richard Nixon 182 cm
+1956 Dwight D. Eisenhower 179 cm Adlai Stevenson 178 cm
+1952 Dwight D. Eisenhower 179 cm Adlai Stevenson 178 cm
+1948 Harry S. Truman 175 cm Thomas Dewey 173 cm
+
 
 ### (A)
 >> Q: Enter the data in R as a data frame with 3 columns: year, winner and opponent. Enter the height of the winner candidate in the column winner, the height of the opponent candidate in the column opponent. [5 points]
 
-
 >> A: 
+
+```{r}
+years <- seq(from = 1948, to = 2008, by = 4)
+winnerHeights <- c(175, 179, 179, 183, 193, 182, 182, 177, 185, 185, 188, 189, 189, 182, 182, 185)
+opponentHeights <- c(173, 178, 178, 182, 180, 180, 185, 183, 177, 180, 173, 188, 187, 185, 193, 175)
+heightDf <- data.frame("year" = years, "winner" = winnerHeights, "opponent" = opponentHeights)
+```
 
 ### (B)
 >> Q: Create a dataframe with the same fields as before, but including an additional column called difference which is the differences in height between the winner and opponent in the column difference. [5 points]
 
-
 >> A: 
+
+```{r}
+require(dplyr)
+heightDfDiff <- heightDf |> 
+  mutate("difference" = winner - opponent)
+```
 
 ### (C)
 >> Q: Add a new column taller.won to your data frame in (a) with logical values (TRUE/FALSE) determining whether the taller candidate won the election. [5 points]
 
-
 >> A: 
+
+```{r}
+heightDfDiff <- heightDfDiff |> 
+  mutate("taller.won" = winner > opponent)
+```
 
 ### (D)
 >> Q: Use the table function to display percentages of TRUE/FALSE in the column taller.won. Interpret the result. [5 points]
 
 >> A: 
 
+```{r}
+prop.table(table(heightDfDiff$taller.won))
+```
+A majority (75%) of the General Elections in the United States from 1948 to 2008 had the taller candidate win. 
+
 ### (E)
 >> Q:  Display a bar plot of the difference column. Use the rev function to reverse the order of the differences so that the election year is increasing from left to right. [5 points]
 
-
 >> A: 
+
+```{r}
+require(ggplot2)
+p1<-ggplot(data=heightDfDiff, aes(x=year, y=difference)) +
+  geom_bar(stat="identity")
+p1
+
+p2<-ggplot(data=heightDfDiff, aes(x=year, y=difference)) +
+  geom_bar(stat="identity") + 
+  scale_x_reverse()
+p2
+```
 
 ### (F)
 >> Q:  Using the function write.table() perhaps, save the table obtained in 1(c) above in a new file called heights.csv. (Note that you do not have to turn in the created file, just the complete function that you used.) Make sure that the created file is as you would like. [5 points]
 
 >> A: 
+
+```{r}
+names(heightDfDiff)[5] <- "tallerwon"
+write.table(heightDfDiff, file = "heights.csv", row.names = FALSE, col.names = TRUE, sep = ",")
+```
 
 ## Q2: 
 Read the dataset students.txt available in the Datasets section of Canvas into an R object named as students. [5 points]
