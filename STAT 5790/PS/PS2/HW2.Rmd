@@ -9,28 +9,7 @@ output:
 
 ## Q1: 
 
-pdf_data <- system.file("examples", "data.pdf", package = "tabulizer")
-
 Table 1 displays the heights of the presidents and their opponents in the U.S. presidential election of 1948 through 2008.
-
-Year Winner Height Opponent Height
-2008 Barack Obama 185 cm John McCain 175 cm
-2004 George W. Bush 182 cm John Kerry 193 cm
-2000 George W. Bush 182 cm Al Gore 185 cm
-1996 Bill Clinton 189 cm Bob Dole 187 cm
-1992 Bill Clinton 189 cm George H.W. Bush 188 cm
-1988 George H.W. Bush 188 cm Michael Dukakis 173 cm
-1984 Ronald Reagan 185 cm Waiter Mondale 180 cm
-1980 Ronald Reagan 185 cm Jimmy Carter 177 cm
-1976 Jimmy Carter 177 cm Gerald Ford 183 cm
-1972 Richard Nixon 182 cm George McGovern 185 cm
-1968 Richard Nixon 182 cm Hubert Humphrey 180 cm
-1964 Lyndon B. Johnson 193 cm Barry Goldwater 180 cm
-1960 John F. Kennedy 183 cm Richard Nixon 182 cm
-1956 Dwight D. Eisenhower 179 cm Adlai Stevenson 178 cm
-1952 Dwight D. Eisenhower 179 cm Adlai Stevenson 178 cm
-1948 Harry S. Truman 175 cm Thomas Dewey 173 cm
-
 
 ### (A)
 >> Q: Enter the data in R as a data frame with 3 columns: year, winner and opponent. Enter the height of the winner candidate in the column winner, the height of the opponent candidate in the column opponent. [5 points]
@@ -111,25 +90,79 @@ Read the dataset students.txt available in the Datasets section of Canvas into a
 
 >> A: 
 
+```{r}
+studentDf <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/students.txt", header = TRUE)
+
+mean(studentDf$height)
+mean(studentDf$shoesize)
+
+sd(studentDf$height)
+sd(studentDf$shoesize)
+```
+
 ### (B)
 >> Q: How many female students are in the sample? How many male students? [5 points]
 
 >> A: 
 
+```{r}
+require(dplyr)
+studentDf |> 
+  filter(gender == "male") |>
+  nrow()
+
+studentDf |> 
+  filter(gender == "female") |>
+  nrow()
+```
+
 ### (C)
 >> Q: Recode the population variable with color names (kuopio = blue, tampere = red), and create a new dataset called studentsnew. [5 points
 
->> A: 
+>> A:
+
+```{r}
+studentsnew <- studentDf |>
+  mutate("population" = case_when(population == "kuopio" ~ "blue",
+                        population == "tampere" ~ "red"))
+```
 
 ### (D)
 >> Q: Make two subsets of the dataset students. Split it in two according to gender and export the two datasets to female.txt and male.txt files. [5 points]
 
 >> A: 
 
+```{r}
+female <- subset(studentsnew, gender == "female")
+male <- subset(studentsnew, gender == "male")
+
+write.table(male, file = "male.txt", row.names = FALSE, col.names = TRUE, sep = ",")
+write.table(female, file = "female.txt", row.names = FALSE, col.names = TRUE, sep = ",")
+```
+
+```{r}
+boysWillBeBoys <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/male.txt", sep=",", header = TRUE)
+girlsWillBeGirls <- boysWillBeBoys <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/female.txt", sep=",", header = TRUE)
+```
+
 ### (E)
 >> Q: make two new datasets of the dataset students that containing individuals below and above the median height. Export the two new datasets to below.csv and abovem.csv files. [5 points]
 
 >> A: 
+
+```{r}
+medianHeight <- median(studentsnew$height)
+
+below <- subset(studentsnew, height < medianHeight)
+above <- subset(studentsnew, height > medianHeight)
+
+write.table(below, file = "below.csv", row.names = FALSE, col.names = TRUE, sep = ",")
+write.table(above, file = "above.csv", row.names = FALSE, col.names = TRUE, sep = ",")
+```
+
+```{r}
+asAbove <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/above.csv", sep=",", header = TRUE)
+```
 
 \newpage
 
@@ -171,12 +204,20 @@ Romano-British Pottery. Samples from Romano-British pottery were taken at four s
 ### (A)
 >> Q: Read in the dataset into R. [2 points]
 
->> A: 
+>> A:
+
+```{r}
+pottery <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/pottery.dat", sep="", header = TRUE)
+```
 
 ### (B)
 >> Q: For each site, provide summaries of chemical content using means, medians, standard deviations and interquartile ranges (if applicable). [8 points]
 
 >> A: 
+
+```{r}
+
+```
 
 ### (C)
 >> Q:  Use the function boxplot to provide boxplot displays of the site-wise composition of each chemical. Hand in these plots, all on one page. (To do this, use the graphical function par before plotting. The function:
@@ -188,8 +229,15 @@ divides the plotting region into 2 rows and three columns. Thus, successive call
 
 >> A: 
 
+```{r}
+
+```
+
 ### (D)
 >> Q: Discuss the characteristics of the distributions of the percentages of different metal oxides, as provided by the above boxplots and summary measures. [2 points]
 
 >> A: 
 
+```{r}
+
+```
