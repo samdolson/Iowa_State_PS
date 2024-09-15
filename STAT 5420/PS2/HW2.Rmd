@@ -10,12 +10,12 @@ output:
 
 ## Progress Report 
   - 1:  
-  - 2: 
+  - 2: DONE
   - 3: DONE
   - 4: PARTIAL
-  - 5: 
+  - 5: PARTIAL
   - 6: PARTIAL
-  - 7: 
+  - 7: STARTED
   - 8: 
 
 >> # Fig. 1
@@ -28,14 +28,12 @@ Used in Q7, part (b)
 # 1. 
 >> Q: Suppose a random variable X has the following cdf from class (which is neither a step function nor continuous):  
 
-\[
-F(x) = 
+$$F(x) = 
 \begin{cases}
   1 & x < 0 \\
   1 & 0 \leq x \leq 1 \\ 
   0 & x > 1
-\end{cases}
-\]
+\end{cases}$$
 
 (a): Find the following probabilities: 
   $P(X > \frac{1}{2})$
@@ -45,41 +43,51 @@ F(x) =
 
 (b): Conditional on the event "X > 0", the corresponding conditional pdf of X (i.e. given X > 0) is as follows at $x \in \mathbb{R}$: 
 
-\[
-P(X \leq x | X > 0 ) = \frac{P(X \leq x , X > 0 )}{P(X > 0)} = \frac{P(0 < X \leq x)}{P(X > 0)} = \frac{F(x) - F(0)}{1 - F(0)}
-\]
+$$P(X \leq x | X > 0 ) = \frac{P(X \leq x , X > 0 )}{P(X > 0)} = \frac{P(0 < X \leq x)}{P(X > 0)} = \frac{F(x) - F(0)}{1 - F(0)}$$
 
 Giving: 
 
-\[
-P(X \leq x | X > 0 ) = 
+$$P(X \leq x | X > 0 ) = 
 \begin{cases}
   0 & x \leq 0 \\
   x & 0 < x \leq 1 \\ 
   1 & x > 1
-\end{cases}
-\]
+\end{cases}$$
 
 Based on the conditional cdf above, show that the distribution of X, conditional on "X > 0", is the same (i.e. has the same cdf) as that of a random variable Y which is "uniform" on the interval (0, 1), having constant pdf $f_Y(y) = 1$ for $0 < y < 1$ (with $f_Y(y) = 0$ for all other $y \in \mathbb{R}$)
 
 >> A: 
 
 (a):
+$$F(x) = 
+\begin{cases}
+  1 & x < 0 \\
+  1 & 0 \leq x \leq 1 \\ 
+  0 & x > 1
+\end{cases}$$
+
+  $P(X > \frac{1}{2})$
+  
+  $P(X \geq \frac{1}{2})$
+  
+  $P(0 < X \leq \frac{1}{2})$
+  
+  $P(0 \leq X \leq \frac{1}{2})$
 
 (b): 
+
+
 
 \newpage
 
 # 2. 
 >> Q: Statistical reliability involves studying the time to failure of manufactured units. In many reliability textbooks, one can find the exponential distribution: 
 
-\[
-f(x) = 
+$$f(x) = 
 \begin{cases}
   \frac{1}{\theta} e^{-\frac{x}{\theta}} & x > 0 \\
   0 & x \leq 0
-\end{cases}
-\]
+\end{cases}$$
 
 where $\theta > 0$ is a fixed value, for modeling the time X that a random unit runs until failure (i.e. X is a survival time). Show that if X has an exponential distribution as above, then: 
 
@@ -88,6 +96,30 @@ $P(X > s + t | X > t) = P(X > s)$
 for any values t, s > 0; this feature is called the "memoryless" property of te exponential distribution. 
 
 >> A: 
+
+Let X be a random variable with Exponential distribution as given above, with parameter $\theta > 0$. Let t, s > 0. 
+
+For x > 0, the pdf given is $\frac{1}{\theta} e^{-\frac{x}{\theta}}$, thus, for the same x > 0 the cdf is: 
+
+$F_X(x) = \int_{x>0} f(x) dx = \int{\frac{1}{\theta} e^{-\frac{x}{\theta}}}dx = 1 - e^{-\frac{x}{\theta}}$
+
+Thus: 
+
+$P(X > s + t | X > t) = P(X > s) = \frac{P(X > s + t, X > t)}{P(X > t)}$
+
+$P(X > s + t | X > t) = P(X > s) = \frac{P(X > s + t)}{P(X > t)}$
+
+$P(X > s + t | X > t) = \frac{1 - F_X(s + t)}{1 - F_X(t)}$
+
+$$P(X > s + t | X > t) = \frac{1 - (1-\frac{1}{\theta} e^{-\frac{s + t}{\theta}})}{1 - (1-\frac{1}{\theta} e^{-\frac{t}{\theta}})}$$
+
+Cancelling out (most) like terms gives us: 
+
+$P(X > s + t | X > t) = \frac{e^{-\frac{s + t}{\theta}}}{e^{-\frac{ t}{\theta}}} = e^{\frac{-(s+t)-(-t)}{\theta}} = e^{-\frac{s}{\theta}}$ 
+
+However, we know that this is exactly $P(X > s)$!, giving us: 
+
+$P(X > s + t | X > t) = e^{-\frac{s}{\theta}} = P(X > s)$
 
 \newpage
 
@@ -181,9 +213,36 @@ We may then conclude that $f(x)$ is a (proper) pdf.
 
 >> A: 
 
-(b): 
+CHECK THM 2.1.8
+
+(b): $Y = 1 - X^2 \rightarrow X = \sqrt{1 - Y}$, and $-1 < x < 1 \rightarrow 0 < y < \sqrt{2}$
+
+Then for the pdf of Y, we have: 
+
+$f_X(x) = \frac{3}{8}(x + 1)^2 \rightarrow f_Y(y) = \frac{3}{8}(\sqrt{1 - y})^2$
+
+Such that: 
+
+$f_Y(y) = \frac{3}{8}(1-y)$
 
 (c): 
+(1): $Y = 1 - X^2 \rightarrow X = \sqrt{1 - Y}$, and $-1 < x \leq 0 \rightarrow 0 < y \leq  1$ for $X \leq 0$
+
+(2): $Y = 1 - X \rightarrow X = 1 - Y$, and $0 < x < 1 \rightarrow 1 < y < \sqrt{2}$ for $X > 0$
+
+Then for the pdf of Y, we have: 
+
+(1): $f_X(x) = \frac{3}{8}(x + 1)^2 \rightarrow f_Y(y) = \frac{3}{8}(\sqrt{1 - y})^2$ for $0 < y \leq  1$
+
+(2): $f_X(x) = \frac{3}{8}(x + 1)^2 \rightarrow f_Y(y) = \frac{3}{8}(1 - y)^2$ for $1 < y <  \sqrt{2}$
+
+Taking (1) and (2) together, we may write the pdf of Y as: 
+
+$$f_Y(y) = 
+\begin{cases}
+  \frac{3}{8}(\sqrt{1 - y})^2 &  0 < y \leq 1\\
+  \frac{3}{8}(1 - y)^2 & 1 < y < \sqrt{2}
+\end{cases}$$
 
 \newpage
 
@@ -218,8 +277,7 @@ $$u(x) =
   0 & x \leq 1 \\
   \frac{x^2 - 2x}{4} & 1 < x < 3\\
   1 & x \geq 3
-\end{cases}
-$$
+\end{cases}$$
 
 
 \newpage
@@ -238,6 +296,13 @@ $f(x) = \frac{4}{\beta^3\sqrt{\pi}}x^2e^{\frac{-x^2}{\beta^2}}$, $0 < x < \infty
 (a):
 
 (b): 
+
+Note: We assume 
+$$1 = \int\limits_{\infty}^{\infty}{\frac{1}{\sqrt{2\pi}}x^2 e^{\frac{-x^2}{2}}dx} = \frac{2}{\sqrt{2\pi}}\int\limits_{0}^{\infty}{x^2 e^{\frac{-x^2}{2}}dx}$$
+
+For $f(x)$ as specified, we have: 
+
+$$E(X) = \int\limits_{0}^{\infty}{xf(x)dx} = \int\limits_{0}^{\infty}{x\frac{4}{\beta^3\sqrt{\pi}}x^2e^{\frac{-x^2}{\beta^2}}dx}$$
 
 \newpage
 
