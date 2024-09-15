@@ -91,6 +91,8 @@ ub
   - Population variances between the two groups are equal (both have $\sigma^2$ variance)
   - Independence between observations between groups, i.e. $Y_{1,i}$ and $Y_{2,j}$ are independent for all i and j
 
+\newpage
+
 > 2.  Using the formula from lecture, compute a 95% confidence interval "by hand\" for the population difference in mean cholesterol level between the heart attack and the no heart attack groups.
 
 ```{r}
@@ -127,16 +129,19 @@ ciEstimate <- function(n1, n2, mu1, mu2, sd1, sd2, tStat) {
 }
 ```
 
-
 ```{r}
 tStatistic(n1 = 16, n2 = 20, mu1 = 265.4, mu2 = 193.1, sd1 = 43.645, sd2 = 21.623)
 
 ciEstimate(n1 = 16, n2 = 20, mu1 = 265.4, mu2 = 193.1, sd1 = 43.645, sd2 = 21.623, tStat = 6.494355)
 ```
 
+The Interval of the difference is (4.110884e-06, 1.446000e+02) or ($\approx$ 0, 144.6). 
+
+\newpage
+
 > 3.  Interpret the confidence interval in the context of the study.
 
-We are 95% confidence the true difference between the two groups (those who had heart attacks compared to those who didn't) is between -28.29 to 116.31, meaning we believe those who had a heart attack on average have between 116.31 higher to 28.29 lower blood pressure compared to those who didn't have a heart attack. Of note, this 95% confidence interval includes zero.
+We are 95% confidence the true difference between the two groups (those who had heart attacks compared to those who didn't) is between 4.110884e-06 (close to zero!) to 144.6, meaning we believe those who had a heart attack on average have between 116.31 higher to **near zero lower** blood pressure compared to those who didn't have a heart attack..
 
 > 4.  Suppose that the researchers want to replicate the study, varying the targeted sample sizes in each group to obtain the *best* (or least variable) estimate of the difference in group means, given the constraint that they can only afford to collect information from 50 total participants. How many subjects should they recruit for each group? Fill in the table below to help you answer the question (as an example, one of the solutions is already provided).
 
@@ -195,94 +200,128 @@ ciEstimate(n1 = nrow(brandAdf),
          tStat = cholTstatistic)
 ```
 
+The Confideence Interval is (0, -0.329). 
+
+\newpage
+
 > 2.  Interpret the confidence interval in the context of the study.
 
-We are 95% confident that the true difference in blood cholestrol levels between those who consumed Brand A vs. Brand B is between 43.848 and 44.176; this is further support of the finding that consuming Brand A margarine increases blood cholestrol levels compared with consuming Brand B margarine. 
+We are 95% confident that the true difference in blood cholesterol levels between those who consumed Brand A vs. Brand B is between 0 and -.329; we are 95% confident the true difference between consuming Brand A to consuming Brand B is between 0 and -.329 (or that there is no difference to a slightly lower cholesterol level for those who consume Brand A). 
 
 \newpage
 
 3.  **\[+9\]:** Suppose that the researchers want to replicate the cholesterol study. Help them achieve their study design goals by performing the following sample size determinations in R (provide screenshot of output) or by hand-calculation (show work):
 
+> 1.  Given an approximate pooled sample standard deviation of $S_p = 0.16$, what sample size is needed in each of two equally-sized treatment groups in order for the standard error of the difference in average cholesterol reduction to be no more than 0.02?
+
 ### Standard Error
 
 Formula
 
+$n = \frac{2S_P^2}{(s.e.)^2}$
 
+Where s.e. is taken as an input
 
-Function 
+### Calculation
+
+$n = \frac{2S_p^2}{(s.e.)^2}$
+
+Where $S_p = 0.16$ and $s.e. = 0.02$ 
 
 ```{r}
-
+n <- 2*(0.16^2)/(0.02^2)
+n
 ```
+
+128 sample size for each treatment group.  
+
+\newpage
+
+> 2.  Given an approximate pooled sample standard deviation of $S_p = 0.16$, what sample size is needed in each of two equally-sized treatment groups in order for the width of a 95% confidence interval for the true difference in mean cholesterol reduction to be no more than 0.04?
 
 ### Confidence Intervals 
 
 Formula 
 
-Function
+$$n_0 = 8(\frac{z_{1-\frac{\alpha}{2}}S_p}{w})^2$$
+
+$$n_0 = 8(\frac{t_{2(n_0-1),1-\frac{\alpha}{2}}S_p}{w})^2$$
+
+### Calculation 
+
+$$n_0 = 8(\frac{z_{1-\frac{\alpha}{2}}S_p}{w})^2$$
+
+$$n_0 = 8(\frac{t_{2(n_0-1),1-\frac{\alpha}{2}}S_p}{w})^2$$
+Where 
+$w = 0.04$, $S_p = 0.16$
+
+A 95% Confidence Interval gives us: 
+
+$\alpha = 0.05 \rightarrow z_{0.975} = 1.96$
+
+$n_0 = 491.7248 \rightarrow t_{492, 0.975} \approx  1.984$ (rounding down to df=100)
+(1.9653?)
+
+Note: Used this https://www.meracalculator.com/math/t-distribution-critical-value-table.php
 
 ```{r}
-n0Est <- function(){
-  numerator <- (n1-1)*(sd1^2) + (n2-1)*(sd2^2)
-  denom <- n1 + n2 - 2
-  pooled <- sqrt( numerator / denom )
-  
-  
-  
-  # z statistic
-  top <- 
-  # w, width
-  bottom <- 
-  output <- 8 * (top / bottom)^2
-  output 
-}
+qt(p = .975, df = 100)
+qt(p = .975, df = 492)
 ```
 
 ```{r}
-nEst <- function(){
-  numerator <- (n1-1)*(sd1^2) + (n2-1)*(sd2^2)
-  denom <- n1 + n2 - 2
-  pooled <- sqrt( numerator / denom )
-  
-  
-  # t statistic using n0Est 
-  top <- 
-  # w, width
-  bottom <- 
-  output <-8 * (top / bottom)^2
-  output 
-}
+n0 <- 8*((0.16*1.96)/(0.04))^2
+
+n <- 8*((0.16*1.965)/(0.04))^2
+n0
+n 
 ```
+
+The sample size needed is 495 participants per group. 
+
+\newpage
+
+> 3.  Given an approximate pooled sample standard deviation of $S_p = 0.16$ and an effect size of $\delta=0.03$, what sample size is needed in each of two equally-sized treatment groups in order for a level $\alpha=0.05$ two-sided test to have 80% power?
 
 ### Hypothesis Tests
 
 Formula 
 
+$$n_0 = \frac{(z_{1 - \frac{\alpha}{2}} + z_{1-\beta})^2(2S_p^2)}{\delta^2}$$
 
+$$n = \frac{(t_{2(n_0-1), 1-\frac{\alpha}{2}}+ t_{2(n_0-1), 1-\beta })^2(2S_p^2)}{\delta^2}$$
 
-Function 
+### Calculation
 
-```{r}
+$$n_0 = \frac{(z_{1 - \frac{\alpha}{2}} + z_{1-\beta})^2(2S_p^2)}{\delta^2}$$
 
-```
+$$n = \frac{(t_{2(n_0-1), 1-\frac{\alpha}{2}}+ t_{2(n_0-1), 1-\beta })^2(2S_p^2)}{\delta^2}$$
 
-> 1.  Given an approximate pooled sample standard deviation of $S_p = 0.16$, what sample size is needed in each of two equally-sized treatment groups in order for the standard error of the difference in average cholesterol reduction to be no more than 0.02?
-
-```{r}
-
-```
-
-> 2.  Given an approximate pooled sample standard deviation of $S_p = 0.16$, what sample size is needed in each of two equally-sized treatment groups in order for the width of a 95% confidence interval for the true difference in mean cholesterol reduction to be no more than 0.04?
+Where $\delta = 0.03$, $S_p = 0.16$, $\alpha = 0.05$, and $\beta = 0.2 \rightarrow 1-\beta = 0.8$
 
 ```{r}
-
+z1 <- qnorm(p = 0.975)
+z2 <- qnorm(p = 0.8)
 ```
-
-> 3.  Given an approximate pooled sample standard deviation of $S_p = 0.16$ and an effect size of $\delta=0.03$, what sample size is needed in each of two equally-sized treatment groups in order for a level $\alpha=0.05$ two-sided test to have 80% power?
 
 ```{r}
-
+numerator <- (z1 + z2)^2 * (2 * 0.16^2) 
+denom <- 0.03^2 
+n0 <- numerator/denom
+n0
 ```
+
+```{r}
+t1 <- qt(p = .975, df = 447)
+t2 <- qt(p = .80, df = 447)
+
+numerator <- (t1 + t2)^2 * (2 * 0.16^2) 
+denom <- 0.03^2 
+n <- numerator/denom
+n
+```
+
+We require a sample size of 449 participants per group. 
 
 \newpage
 
@@ -299,18 +338,34 @@ birthweight2 <- birthweight |>
   filter(smoker == 1)
 ```
 
-```{r}
-t.test(birthweight)
+$90\% \text{ Confidence} \rightarrow \alpha = .10 \rightarrow 1- \alpha/2 = 0.95$
 
+Using the following formula, we have: 
+
+$$\text{Confidence Interval} \space = (\bar{Y_1} - \bar{Y_2}) \pm t_{(df - 2, 1 - \frac{\alpha}{2})} S_p \sqrt{\frac{1}{n_1} + \frac{1}{n_2}}$$
+
+We calculate our t statistic as: 
+
+```{r}
+qt(p = .95, df = 40)
+```
+
+```{r}
 ciEstimate(n1 = nrow(birthweight1), 
          n2 = nrow(birthweight2), 
          mu1 = mean(birthweight1$Birthweight), 
          mu2 = mean(birthweight2$Birthweight), 
          sd1 = sd(birthweight1$Birthweight), 
          sd2 = sd(birthweight2$Birthweight), 
-         tStat = t.test(birthweight)$statistic)
+         tStat = 1.66342)
 ```
 
+Giving us a confidence interval (average non-smoking birthweight minus average smoking birthweight) of (0.077, 0.674).
+
+\newpage
+
 > 2.  Interpret the confidence interval in the context of the study.
+
+We are 90% confident the true difference between non-smoking birthweights compared to smoking birthweights is between 0.077 to 0.674. This is evidence in support of the observation that smoking mothers will on average have children with lower birthweight compared to non-smoking mothers. 
 
 **Total:** 50 points **\# correct:** **%:**
