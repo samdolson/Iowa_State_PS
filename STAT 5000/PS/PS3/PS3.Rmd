@@ -203,6 +203,69 @@ We are 95% confident that the true difference in blood cholestrol levels between
 
 3.  **\[+9\]:** Suppose that the researchers want to replicate the cholesterol study. Help them achieve their study design goals by performing the following sample size determinations in R (provide screenshot of output) or by hand-calculation (show work):
 
+### Standard Error
+
+Formula
+
+
+
+Function 
+
+```{r}
+
+```
+
+### Confidence Intervals 
+
+Formula 
+
+Function
+
+```{r}
+n0Est <- function(){
+  numerator <- (n1-1)*(sd1^2) + (n2-1)*(sd2^2)
+  denom <- n1 + n2 - 2
+  pooled <- sqrt( numerator / denom )
+  
+  
+  
+  # z statistic
+  top <- 
+  # w, width
+  bottom <- 
+  output <- 8 * (top / bottom)^2
+  output 
+}
+```
+
+```{r}
+nEst <- function(){
+  numerator <- (n1-1)*(sd1^2) + (n2-1)*(sd2^2)
+  denom <- n1 + n2 - 2
+  pooled <- sqrt( numerator / denom )
+  
+  
+  # t statistic using n0Est 
+  top <- 
+  # w, width
+  bottom <- 
+  output <-8 * (top / bottom)^2
+  output 
+}
+```
+
+### Hypothesis Tests
+
+Formula 
+
+
+
+Function 
+
+```{r}
+
+```
+
 > 1.  Given an approximate pooled sample standard deviation of $S_p = 0.16$, what sample size is needed in each of two equally-sized treatment groups in order for the standard error of the difference in average cholesterol reduction to be no more than 0.02?
 
 ```{r}
@@ -245,7 +308,7 @@ ciEstimate(n1 = nrow(birthweight1),
          mu2 = mean(birthweight2$Birthweight), 
          sd1 = sd(birthweight1$Birthweight), 
          sd2 = sd(birthweight2$Birthweight), 
-         tStat = 11.658)
+         tStat = t.test(birthweight)$statistic)
 ```
 
 > 2.  Interpret the confidence interval in the context of the study.
