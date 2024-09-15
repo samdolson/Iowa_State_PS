@@ -22,7 +22,7 @@ Collaborators\"):\
 ## Confidence  Intervals
 
 Formula: 
-$$\text{95\% Confidence Interval} \space = (\bar{Y_1} - \bar{Y_2}) \pm t_{28,0.975} S_p \sqrt{\frac{1}{n_1} + \frac{1}{n_2}}$$
+$$\text{Confidence Interval} \space = (\bar{Y_1} - \bar{Y_2}) \pm t_{(df - 2, 1 - \frac{\alpha}{2})} S_p \sqrt{\frac{1}{n_1} + \frac{1}{n_2}}$$
 Where: 
 $$S_p = \frac{(n_1-1)S_1^2 + (n_2-1)S_2^2}{n_1+n_2-2}$$
 
@@ -73,11 +73,7 @@ ub
 
 # Assignment 
 
-1.  **\[+21\]:** A major medical center in the Northeastern U.S.
-    conducted a study looking at blood cholesterol levels and incidence
-    of heart attack. Below are summary statistics of blood cholesterol
-    levels from 16 people who had a heart attack and 20 people who did
-    not have a heart attack.
+1.  **\[+21\]:** A major medical center in the Northeastern U.S. conducted a study looking at blood cholesterol levels and incidence of heart attack. Below are summary statistics of blood cholesterol levels from 16 people who had a heart attack and 20 people who did not have a heart attack.
 
 ::: center
 
@@ -90,29 +86,77 @@ ub
 
 > 1.  List the assumptions needed to properly use the $t$-based confidence interval.
 
+  - $Y_{1,1}, Y_{1,2}, ... ,Y_{1,16}$ are i.i.d. $N(\mu_1, \sigma^2)$
+  - $Y_{2,1}, Y_{1,2}, ... ,Y_{2,20}$ are i.i.d. $N(\mu_2, \sigma^2)$
+  - Population variances between the two groups are equal (both have $\sigma^2$ variance)
+  - Independence between observations between groups, i.e. $Y_{1,i}$ and $Y_{2,j}$ are independent for all i and j
+
 > 2.  Using the formula from lecture, compute a 95% confidence interval "by hand\" for the population difference in mean cholesterol level between the heart attack and the no heart attack groups.
 
 ```{r}
-cholesterol <- read_csv("cholesterol.csv")
+# df <- 16 + 20 - 2 
+# tStatistic <- 34, 0.975
+
+tStatistic <- function(n1, n2, mu1, mu2, sd1, sd2) {   numerator1 <- (n1-1)*(sd1^2) + (n2-1)*(sd2^2)
+  denom1 <- n1 + n2 - 2
+  pooled <- sqrt( numerator1 / denom1 ) 
+  
+  numerator2 <- mu1 - mu2
+  denom2 <- pooled * (sqrt ( (1/n1) + (1/n2) ) )
+  tStatOutput <- numerator2 / denom2 
+  tStatOutput
+  
+  }
+
+ciEstimate <- function(n1, n2, mu1, mu2, sd1, sd2, tStat) {
+  
+  numerator <- (n1-1)*(sd1^2) + (n2-1)*(sd2^2)
+  denom <- n1 + n2 - 2
+  
+  pooled <- sqrt( numerator / denom )  
+  sqrtFactor <- sqrt(1/n1 + 1/n2)
+  rightSide <- tStat*pooled*sqrtFactor 
+  
+  difference <- mu1 - mu2
+  
+  lb <- difference - rightSide
+  ub <- difference + rightSide
+  output <- c(lb, ub)
+  output
+  
+}
+```
+
+
+```{r}
+tStatistic(n1 = 16, n2 = 20, mu1 = 265.4, mu2 = 193.1, sd1 = 43.645, sd2 = 21.623)
+
+ciEstimate(n1 = 16, n2 = 20, mu1 = 265.4, mu2 = 193.1, sd1 = 43.645, sd2 = 21.623, tStat = 6.494355)
 ```
 
 > 3.  Interpret the confidence interval in the context of the study.
 
+We are 95% confidence the true difference between the two groups (those who had heart attacks compared to those who didn't) is between -28.29 to 116.31, meaning we believe those who had a heart attack on average have between 116.31 higher to 28.29 lower blood pressure compared to those who didn't have a heart attack. Of note, this 95% confidence interval includes zero.
+
 > 4.  Suppose that the researchers want to replicate the study, varying the targeted sample sizes in each group to obtain the *best* (or least variable) estimate of the difference in group means, given the constraint that they can only afford to collect information from 50 total participants. How many subjects should they recruit for each group? Fill in the table below to help you answer the question (as an example, one of the solutions is already provided).
+
+$$Var(\bar Y_1 - \bar Y_2) = \sigma^2 \left( \frac{1}{n_1} + \frac{1}{n_2} \right)$$
 
 
    $n_1$   $n_2$   $Var(\bar Y_1 - \bar Y_2) = \sigma^2 \left( \frac{1}{n_1} + \frac{1}{n_2} \right)$ \ 
   ------- ------- ------------------------------------------------------------------------------------
-     1      49    
-     5      45    
+     1      49     1.020$\sigma^2$
+     5      45     0.222$\sigma^2$
     10      40     0.125$\sigma^2$
-    20      30    
-    25      25    
-    30      20    
-    40      10    
-    45       5    
-    49       1    
+    20      30     0.083$\sigma^2$
+    25      25     0.08$\sigma^2$
+    30      20     0.083$\sigma^2$
+    40      10     0.125$\sigma^2$
+    45       5     0.222$\sigma^2$
+    49       1     1.020$\sigma^2$
   ------- ------- ------------------------------------------------------------------------------------
+
+They should evenly divide the 50 total participants into two groups, making two groups of 25. 
 
 \newpage
 
@@ -123,10 +167,37 @@ cholesterol <- read_csv("cholesterol.csv")
 > 1.  Compute the 99% confidence interval in R and provide a screenshot of the output.
 
 ```{r}
+library(readr)
+library(dplyr)
+cholesterol <- read_csv("cholesterol.csv")
 
+differenceDf <- cholesterol |>
+  mutate(difference = Before - After8weeks)
+
+brandAdf <- differenceDf |> 
+  filter(Margarine == "A")
+brandBdf <- differenceDf |> 
+  filter(Margarine == "B")
+```
+
+```{r}
+cholTstatistic <- tStatistic(n1 = nrow(brandAdf), n2 = nrow(brandBdf), mu1 = mean(brandAdf$difference), mu2 = mean(brandBdf$difference), sd1 = sd(brandAdf$difference), sd2 = sd(brandBdf$difference))
+cholTstatistic
+```
+
+```{r}
+ciEstimate(n1 = nrow(brandAdf), 
+         n2 = nrow(brandBdf), 
+         mu1 = mean(brandAdf$difference), 
+         mu2 = mean(brandBdf$difference), 
+         sd1 = sd(brandAdf$difference), 
+         sd2 = sd(brandBdf$difference), 
+         tStat = cholTstatistic)
 ```
 
 > 2.  Interpret the confidence interval in the context of the study.
+
+We are 95% confident that the true difference in blood cholestrol levels between those who consumed Brand A vs. Brand B is between 43.848 and 44.176; this is further support of the finding that consuming Brand A margarine increases blood cholestrol levels compared with consuming Brand B margarine. 
 
 \newpage
 
@@ -158,6 +229,23 @@ cholesterol <- read_csv("cholesterol.csv")
 
 ```{r}
 birthweight <- read_csv("birthweight.csv")
+
+birthweight1 <- birthweight |> 
+  filter(smoker == 0)
+birthweight2 <- birthweight |>
+  filter(smoker == 1)
+```
+
+```{r}
+t.test(birthweight)
+
+ciEstimate(n1 = nrow(birthweight1), 
+         n2 = nrow(birthweight2), 
+         mu1 = mean(birthweight1$Birthweight), 
+         mu2 = mean(birthweight2$Birthweight), 
+         sd1 = sd(birthweight1$Birthweight), 
+         sd2 = sd(birthweight2$Birthweight), 
+         tStat = 11.658)
 ```
 
 > 2.  Interpret the confidence interval in the context of the study.
