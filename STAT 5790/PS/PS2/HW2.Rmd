@@ -174,20 +174,60 @@ We are given two 83×108 slices of the (same) human brain. The first slice, cont
 
 >> A: 
 
+```{r}
+# two 83×108 slices -> nrow = 83, ncol = 108 
+# firstSlice <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat", nrows = 83, as.is=TRUE, header = FALSE, fill=FALSE, na.strings = NA) |>
+#   as.matrix(nrows = 83, ncols = 108)
+anat <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat") |>
+  as.matrix(nrows = 83, ncols = 108)
+sum(is.na(anat))
+activ <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/activ.dat") |>
+  as.matrix(nrows = 83, ncols = 108)
+sum(is.na(activ))
+
+# secondSlice <- 
+```
+
 ### (B)
 >> Q: Provide an image of the activation data using a grayscale color map. Make sure that you set axes = F, and also perhaps make sure that the lighter scale of the image map represents low values. [6 points]
 
 >> A: 
+
+```{r}
+image(activ, col=rev(gray(0:200/200)), axes=FALSE)
+legend(grconvertX(0.5, "device"), grconvertY(1, "device"),
+    c("0","0.25", ".5", "0.75", "1"), fill = rev(gray(c(0, 0.25, 0.5, 0.75, 1))), xpd = NA)
+```
 
 ### (C)
 >> Q: On the image plot above, overlay a contour plot of the anatomic structure of the brain. Note that there is no need to label the contour lines, and also that there are a few options to control the levels of the contour plots as well as the line width. Note that overlaying means to add a figure atop an existing plot. [6 points]
 
 >> A: 
 
+```{r}
+image(activ, col=rev(gray(0:200/200)), axes=FALSE)
+contour(anat, nlevels = 5, add = TRUE, lwd = 0.5)
+```
+
 ### (D)
 >> Q: What to turn in: Turn in the final plots and also the final R codes that you used for the problem.
 
 >> A: 
+
+```{r}
+# Read Data 
+anat <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat") |>
+  as.matrix(nrows = 83, ncols = 108)
+activ <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/activ.dat") |>
+  as.matrix(nrows = 83, ncols = 108)
+
+# Initial Imaging
+image(activ, col=rev(gray(0:200/200)), axes=FALSE)
+legend(grconvertX(0.5, "device"), grconvertY(1, "device"),
+    c("0","0.25", ".5", "0.75", "1"), fill = rev(gray(c(0, 0.25, 0.5, 0.75, 1))), xpd = NA)
+# Add Contour 
+contour(anat, nlevels = 5, add = TRUE, lwd = 0.5)
+```
 
 \newpage
 
@@ -208,6 +248,7 @@ Romano-British Pottery. Samples from Romano-British pottery were taken at four s
 
 ```{r}
 pottery <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/pottery.dat", sep="", header = TRUE)
+
 ```
 
 ### (B)
