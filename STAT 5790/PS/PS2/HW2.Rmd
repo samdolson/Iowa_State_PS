@@ -248,7 +248,6 @@ Romano-British Pottery. Samples from Romano-British pottery were taken at four s
 
 ```{r}
 pottery <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/pottery.dat", sep="", header = TRUE)
-
 ```
 
 ### (B)
@@ -257,7 +256,134 @@ pottery <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT
 >> A: 
 
 ```{r}
+# Sites
+# "A", "C", "I", "L"
 
+require(dplyr)
+potteryStatsSiteA <- pottery |>
+  filter(Site == "A") |>
+  summarize(meanAl = mean(Al),
+            medianAl = median(Al), 
+            stdDevAl = sd(Al), 
+            iqrAl = IQR(Al), 
+            
+            meanFe = mean(Fe),
+            medianFe = median(Fe), 
+            stdDevFe = sd(Fe), 
+            iqrFe = IQR(Fe), 
+            
+            meanMg = mean(Mg),
+            medianMg = median(Mg), 
+            stdDevMg = sd(Mg), 
+            iqrMg = IQR(Mg), 
+            
+            meanCa = mean(Ca),
+            medianCa = median(Ca), 
+            stdDevCa = sd(Ca), 
+            iqrCa = IQR(Ca), 
+            
+            meanNa = mean(Na),
+            medianNa = median(Na), 
+            stdDevNa = sd(Na), 
+            iqrNa = IQR(Na)
+            )
+
+potteryStatsSiteC <- pottery |>
+  filter(Site == "C") |>
+  summarize(meanAl = mean(Al),
+            medianAl = median(Al), 
+            stdDevAl = sd(Al), 
+            iqrAl = IQR(Al), 
+            
+            meanFe = mean(Fe),
+            medianFe = median(Fe), 
+            stdDevFe = sd(Fe), 
+            iqrFe = IQR(Fe), 
+            
+            meanMg = mean(Mg),
+            medianMg = median(Mg), 
+            stdDevMg = sd(Mg), 
+            iqrMg = IQR(Mg), 
+            
+            meanCa = mean(Ca),
+            medianCa = median(Ca), 
+            stdDevCa = sd(Ca), 
+            iqrCa = IQR(Ca), 
+            
+            meanNa = mean(Na),
+            medianNa = median(Na), 
+            stdDevNa = sd(Na), 
+            iqrNa = IQR(Na)
+            )
+
+potteryStatsSiteI <- pottery |>
+  filter(Site == "I") |>
+  summarize(meanAl = mean(Al),
+            medianAl = median(Al), 
+            stdDevAl = sd(Al), 
+            iqrAl = IQR(Al), 
+            
+            meanFe = mean(Fe),
+            medianFe = median(Fe), 
+            stdDevFe = sd(Fe), 
+            iqrFe = IQR(Fe), 
+            
+            meanMg = mean(Mg),
+            medianMg = median(Mg), 
+            stdDevMg = sd(Mg), 
+            iqrMg = IQR(Mg), 
+            
+            meanCa = mean(Ca),
+            medianCa = median(Ca), 
+            stdDevCa = sd(Ca), 
+            iqrCa = IQR(Ca), 
+            
+            meanNa = mean(Na),
+            medianNa = median(Na), 
+            stdDevNa = sd(Na), 
+            iqrNa = IQR(Na)
+            )
+
+potteryStatsSiteL <- pottery |>
+  filter(Site == "L") |>
+  summarize(meanAl = mean(Al),
+            medianAl = median(Al), 
+            stdDevAl = sd(Al), 
+            iqrAl = IQR(Al), 
+            
+            meanFe = mean(Fe),
+            medianFe = median(Fe), 
+            stdDevFe = sd(Fe), 
+            iqrFe = IQR(Fe), 
+            
+            meanMg = mean(Mg),
+            medianMg = median(Mg), 
+            stdDevMg = sd(Mg), 
+            iqrMg = IQR(Mg), 
+            
+            meanCa = mean(Ca),
+            medianCa = median(Ca), 
+            stdDevCa = sd(Ca), 
+            iqrCa = IQR(Ca), 
+            
+            meanNa = mean(Na),
+            medianNa = median(Na), 
+            stdDevNa = sd(Na), 
+            iqrNa = IQR(Na)
+            )
+```
+
+```{r}
+SiteA <- t(round(potteryStatsSiteA, 3))
+SiteC <- t(round(potteryStatsSiteC, 3))
+SiteI <- t(round(potteryStatsSiteI, 3))
+SiteL <- t(round(potteryStatsSiteL, 3))
+```
+
+\newpage
+
+```{r}
+cbind.data.frame(SiteA, SiteC, SiteI, SiteL)
 ```
 
 ### (C)
@@ -271,7 +397,12 @@ divides the plotting region into 2 rows and three columns. Thus, successive call
 >> A: 
 
 ```{r}
-
+par(mfrow=c(2,3))
+boxplot(Al ~ Site, data = pottery)
+boxplot(Fe ~ Site, data = pottery)
+boxplot(Mg ~ Site, data = pottery)
+boxplot(Ca ~ Site, data = pottery)
+boxplot(Na ~ Site, data = pottery)
 ```
 
 ### (D)
@@ -279,6 +410,4 @@ divides the plotting region into 2 rows and three columns. Thus, successive call
 
 >> A: 
 
-```{r}
 
-```
