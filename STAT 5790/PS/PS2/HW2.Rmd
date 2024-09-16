@@ -178,11 +178,18 @@ We are given two 83×108 slices of the (same) human brain. The first slice, cont
 # two 83×108 slices -> nrow = 83, ncol = 108 
 # firstSlice <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat", nrows = 83, as.is=TRUE, header = FALSE, fill=FALSE, na.strings = NA) |>
 #   as.matrix(nrows = 83, ncols = 108)
-anat <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat") |>
-  as.matrix(nrows = 83, ncols = 108)
+# anat <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat") |>
+#   as.matrix(nrows = 83, ncols = 108)
+
+anat <- scan("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat") |>
+  matrix(byrow = TRUE, nrow = 83, ncol = 108)
+
 sum(is.na(anat))
-activ <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/activ.dat") |>
-  as.matrix(nrows = 83, ncols = 108)
+# activ <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/activ.dat") |>
+#   as.matrix(nrows = 83, ncols = 108)
+activ <- scan("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/activ.dat") |>
+  matrix(byrow = TRUE, nrow = 83, ncol = 108)
+
 sum(is.na(activ))
 
 # secondSlice <- 
@@ -194,7 +201,10 @@ sum(is.na(activ))
 >> A: 
 
 ```{r}
-image(activ, col=rev(gray(0:200/200)), axes=FALSE)
+x <- 10*(1:nrow(activ)); x.at <- seq(100, 800, by=100)
+y <- 10*(1:ncol(activ)); y.at <- seq(100, 600, by=100)
+
+image(x, y, activ, col=rev(gray(0:200/200)), axes=FALSE)
 legend(grconvertX(0.5, "device"), grconvertY(1, "device"),
     c("0","0.25", ".5", "0.75", "1"), fill = rev(gray(c(0, 0.25, 0.5, 0.75, 1))), xpd = NA)
 ```
@@ -227,6 +237,18 @@ legend(grconvertX(0.5, "device"), grconvertY(1, "device"),
     c("0","0.25", ".5", "0.75", "1"), fill = rev(gray(c(0, 0.25, 0.5, 0.75, 1))), xpd = NA)
 # Add Contour 
 contour(anat, nlevels = 5, add = TRUE, lwd = 0.5)
+```
+
+```{r}
+library(graphics)
+library(grDevices)
+x <- 10*(1:nrow(activ)); x.at <- seq(100, 800, by=100)
+y <- 10*(1:ncol(activ)); y.at <- seq(100, 600, by=100)
+image(x, y, activ, col=rev(gray(0:200/200)), axes=FALSE)
+legend(grconvertX(0.5, "device"), grconvertY(1, "device"),
+    c("0","0.25", ".5", "0.75", "1"), fill = rev(gray(c(0, 0.25, 0.5, 0.75, 1))), xpd = NA)
+# Add Contour 
+contour(x, y, anat, nlevels = 5, add = TRUE, lwd = 0.5)
 ```
 
 \newpage

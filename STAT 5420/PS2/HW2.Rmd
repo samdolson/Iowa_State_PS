@@ -9,13 +9,13 @@ output:
 [Collaborators: XXX]{.smallcaps} \
 
 ## Progress Report 
-  - 1:  
+  - 1: PARTIAL
   - 2: DONE
   - 3: DONE
-  - 4: PARTIAL
+  - 4: DONE
   - 5: PARTIAL
-  - 6: PARTIAL
-  - 7: STARTED
+  - 6: DONE
+  - 7: PARTIAL
   - 8: 
 
 >> # Fig. 1
@@ -30,9 +30,9 @@ Used in Q7, part (b)
 
 $$F(x) = 
 \begin{cases}
-  1 & x < 0 \\
-  1 & 0 \leq x \leq 1 \\ 
-  0 & x > 1
+  0 & x < 0 \\
+  (1+x)/2 & 0 \leq x \leq 1 \\ 
+  1 & x > 1
 \end{cases}$$
 
 (a): Find the following probabilities: 
@@ -66,13 +66,13 @@ $$F(x) =
   0 & x > 1
 \end{cases}$$
 
-  $P(X > \frac{1}{2})$
+  $$P(X > \frac{1}{2}) = 1 - F(\frac{1}{2}) = 1 - \frac{3}{4} = \frac{1}{4}$$
   
-  $P(X \geq \frac{1}{2})$
+  $$P(X \geq \frac{1}{2}) = 1 - F(\frac{1}{2}) = 1 - \frac{3}{4} = \frac{1}{4}$$
   
-  $P(0 < X \leq \frac{1}{2})$
+  $$P(0 < X \leq \frac{1}{2}) = F(\frac{1}{2}) - F(0) =\frac{3}{4} - \frac{1}{2} = \frac{1}{4}$$
   
-  $P(0 \leq X \leq \frac{1}{2})$
+  $$P(0 \leq X \leq \frac{1}{2})= F(\frac{1}{2}) - F(0) = \frac{3}{4} - \frac{1}{2} = \frac{1}{4}$$
 
 (b): 
 
@@ -200,7 +200,49 @@ We may then conclude that $f(x)$ is a (proper) pdf.
 
 (b):
 
+If X is a random variable with pdf given by $f(X)$, find $P(X < t)$ $\forall t$.
+
+$$P(X < t) = 
+\begin{cases}
+  \int\limits_{-\infty}^{t}\frac{1}{2}\lambda{e^{\lambda x}}dx & t > 0 \\
+  \int\limits_{-\infty}^{0}\frac{1}{2}\lambda{e^{\lambda x}}dx + \int\limits_{0}^{t}\frac{1}{2}\lambda{e^{-\lambda x}}dx & t \geq 0
+\end{cases}$$
+
+We then evaluate the integrals of each, giving: 
+
+(1): 
+
+$\int\limits_{-\infty}^{t}\frac{1}{2}\lambda{e^{\lambda x}}dx = \frac{1}{2}\lambda e^{\lambda t}\big|_{-\infty}^{t} = \frac{1}{2} e^{\lambda t} - 0 = \frac{1}{2} e^{\lambda t}$
+
+(2)
+
+$\int\limits_{0}^{t}\frac{1}{2}\lambda{e^{-\lambda x}}dx = {-\frac{1}{2}e^{-\lambda x}}\big|_{0}^{t} = \frac{1}{2} - \frac{1}{2}e^{-\lambda t}$ 
+
+(3): 
+
+$\int\limits_{-\infty}^{0}\frac{1}{2}\lambda{e^{\lambda x}}dx = {\frac{1}{2}e^{\lambda x}}\big|_{-\infty}^{0} = \frac{1}{2} - 0$
+
+(4): For the case of (2) + (3), 
+
+$$\frac{1}{2} + \frac{1}{2} - \frac{1}{2}e^{-\lambda t} = 1 - \frac{1}{2}e^{-\lambda t}$$
+
+Thus we're left with:
+
+$$P(X < t) = 
+\begin{cases}
+  \frac{1}{2}e^{\lambda t} & t > 0 \\
+   1 - \frac{1}{2}e^{-\lambda t} & t \geq 0
+\end{cases}$$
+
+
 (c):
+
+$P(|X| < t)$ $\forall t$, 
+
+$$P(|X| < t) = P(-t < X < t)= \int\limits_{-t}^{0}\frac{1}{2}\lambda{e^{\lambda x}} + \int\limits_{0}^{t}\frac{1}{2}\lambda{e^{-\lambda x}}$$
+
+$$P(|X| < t) = \frac{1}{2}[\frac{e^{\lambda x}}{\lambda}\big|_{-t}^{0} + (-\frac{e^{-\lambda x}}{\lambda}\big|_{0}^{t})] = \frac{1}{2} [(1 - e^{-\lambda t}) + (-e^{-\lambda t} + 1)] = \frac{1}{2}(2)(1 - e^{-\lambda t}) = 1-e^{-\lambda t}$$ 
+
 
 \newpage
 
@@ -215,15 +257,21 @@ We may then conclude that $f(x)$ is a (proper) pdf.
 
 CHECK THM 2.1.8
 
-(b): $Y = 1 - X^2 \rightarrow X = \sqrt{1 - Y}$, and $-1 < x < 1 \rightarrow 0 < y < \sqrt{2}$
+(b): $Y = 1 - X^2 \rightarrow X = \sqrt{1 - Y} \equiv (1-Y)^{1/2}$, and $-1 < x < 1 \rightarrow 0 < y < 1$
 
 Then for the pdf of Y, we have: 
+
+$$f_Y(y) =
+\begin{cases}
+  \sum \limits_{i=1}^{k} f_X(g^{-1}_i(y)) & y \in \mathbb{Y} \\
+  0 & otherwise \\ 
+\end{cases}$$
 
 $f_X(x) = \frac{3}{8}(x + 1)^2 \rightarrow f_Y(y) = \frac{3}{8}(\sqrt{1 - y})^2$
 
 Such that: 
 
-$f_Y(y) = \frac{3}{8}(1-y)$
+$$f_Y(y) = \frac{3}{8}(1-y)^{-1/2} + \frac{3}{8}(1-y)^{1/2}$$ for $0 < y < 1$
 
 (c): 
 (1): $Y = 1 - X^2 \rightarrow X = \sqrt{1 - Y}$, and $-1 < x \leq 0 \rightarrow 0 < y \leq  1$ for $X \leq 0$
@@ -238,11 +286,15 @@ Then for the pdf of Y, we have:
 
 Taking (1) and (2) together, we may write the pdf of Y as: 
 
-$$f_Y(y) = 
+$$f_Y(y) =
 \begin{cases}
-  \frac{3}{8}(\sqrt{1 - y})^2 &  0 < y \leq 1\\
-  \frac{3}{8}(1 - y)^2 & 1 < y < \sqrt{2}
+  \sum \limits_{i=1}^{k} f_X(g^{-1}_i(y)) & y \in \mathbb{Y} \\
+  0 & otherwise \\ 
 \end{cases}$$
+
+Such that: 
+
+$$f_Y(y) = \frac{3}{16}(1-(1-y)^{1/2})^2(1-y)^{-1/2} + \frac{3}{8}(2-y)^{2}$$ for $0 < y < 1$
 
 \newpage
 
@@ -260,22 +312,22 @@ find a monotone function $u(x)$ such that the random variable $Y = u(X)$ has a U
 
 >> A: 
 
-CHECK THM 2.1.10
-
-Let the random variable Y be defined as $Y = u(X) = F_x(x)$
+We may take advantage of Thm 2.1.10, and let the random variable Y be defined as $Y = u(X) = F_x(x)$
 
 Taking advantage of the fact that $u(x) = F_x(x) \rightarrow F_x(X)$ ~Uniform $(0, 1)$
 
 That is to say define the random variable Y as the cdf of the random variable X. 
 
-$F_x(X) = \int{f(x)dx} = \int \frac{x-1}{2} = \frac{x^2 - 2x}{4}$
+$F_x(x) = P(X \leq x) = \int\limits_{-\infty}^{x}{f(t)dt} = \int\limits_{-\infty}^{x} \frac{t-1}{2} = \int\limits_{-\infty}^{1} \frac{t-1}{2} + \int\limits_{1}^{x} \frac{t-1}{2} = 0 + \int\limits_{1}^{x} \frac{t-1}{2}$
+
+$$F_x(x) = \int\limits_{1}^{x} \frac{t-1}{2} = \frac{(t-1)^2}{4}\big|_{1}^{x} = \frac{(x-1)^2}{4} - 0 = \frac{(x-1)^2}{4}$$
 
 Such that we may define the monotone function $u(x)$ by: 
 
 $$u(x) = 
 \begin{cases}
   0 & x \leq 1 \\
-  \frac{x^2 - 2x}{4} & 1 < x < 3\\
+  \frac{(x-1)^2}{4} & 1 < x < 3\\
   1 & x \geq 3
 \end{cases}$$
 
@@ -285,7 +337,7 @@ $$u(x) =
 # 7. 2.22 (a, b): 
 >> Q: Let X have the pdf: 
 
-$f(x) = \frac{4}{\beta^3\sqrt{\pi}}x^2e^{\frac{-x^2}{\beta^2}}$, $0 < x < \infty$, $\beta>0$
+$$f(x) = \frac{4}{\beta^3\sqrt{\pi}}x^2e^{\frac{-x^2}{\beta^2}}$$, $0 < x < \infty$, $\beta>0$
 
 (a): Verify that $f(x)$ is a pdf.  
 
@@ -295,7 +347,13 @@ $f(x) = \frac{4}{\beta^3\sqrt{\pi}}x^2e^{\frac{-x^2}{\beta^2}}$, $0 < x < \infty
 
 (a):
 
+HINT: 
+Integration by parts
+$u = x$, $dv = xe^{-\frac{x^2}{\beta^2}}$
+
 (b): 
+
+HINT: $\mathbb{E}(X) = \frac{2\beta}{\sqrt{\pi}}$
 
 Note: We assume 
 $$1 = \int\limits_{\infty}^{\infty}{\frac{1}{\sqrt{2\pi}}x^2 e^{\frac{-x^2}{2}}dx} = \frac{2}{\sqrt{2\pi}}\int\limits_{0}^{\infty}{x^2 e^{\frac{-x^2}{2}}dx}$$
