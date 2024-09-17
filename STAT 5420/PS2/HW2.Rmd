@@ -9,14 +9,14 @@ output:
 [Collaborators: XXX]{.smallcaps} \
 
 ## Progress Report 
-  - 1: PARTIAL
+  - 1: PARTIAL - FOR TODAY
   - 2: DONE
   - 3: DONE
   - 4: DONE
-  - 5: PARTIAL
+  - 5: EXTRA TODAY
   - 6: DONE
-  - 7: PARTIAL
-  - 8: 
+  - 7: PARTIAL - FOR TODAY
+  - 8: EXTRA TODAY 
 
 >> # Fig. 1
 Used in Q7, part (b)
@@ -59,24 +59,77 @@ Based on the conditional cdf above, show that the distribution of X, conditional
 >> A: 
 
 (a):
+
 $$F(x) = 
 \begin{cases}
-  1 & x < 0 \\
-  1 & 0 \leq x \leq 1 \\ 
-  0 & x > 1
+  0 & x < 0 \\
+  (1+x)/2 & 0 \leq x \leq 1 \\ 
+  1 & x > 1
 \end{cases}$$
 
-  $$P(X > \frac{1}{2}) = 1 - F(\frac{1}{2}) = 1 - \frac{3}{4} = \frac{1}{4}$$
+Given the above cdf of X, we may write the pdf of X for $0 \leq x \leq 1$ as: 
+
+$$\mathbb{d}(F(x)) / \mathbb{dx} = \mathbb{d}((1+x)/2) / \mathbb{dx} = \frac{1}{2}$$
+
+  $$P(X > \frac{1}{2}) = 1 - F(\frac{1}{2}) = 1 - P(X \leq \frac{1}{2}) = 1 - ((1 + \frac{1}{2})/2) = 1 - \frac{3}{4} = \frac{1}{4}$$
   
-  $$P(X \geq \frac{1}{2}) = 1 - F(\frac{1}{2}) = 1 - \frac{3}{4} = \frac{1}{4}$$
+  $$P(X \geq \frac{1}{2}) = 1 - F(\frac{1}{2}) + f(\frac{1}{2}) = P(X > \frac{1}{2}) + P(X = \frac{1}{2}) = \frac{1}{4}+\frac{1}{2} = \frac{3}{4}$$
   
-  $$P(0 < X \leq \frac{1}{2}) = F(\frac{1}{2}) - F(0) =\frac{3}{4} - \frac{1}{2} = \frac{1}{4}$$
+  $$P(0 < X \leq \frac{1}{2}) = F(\frac{1}{2}) - F(0)= P(X \leq \frac{1}{2}) - P(X \leq 0) = \frac{3}{4} - \frac{1}{2} = \frac{1}{4}$$
   
-  $$P(0 \leq X \leq \frac{1}{2})= F(\frac{1}{2}) - F(0) = \frac{3}{4} - \frac{1}{2} = \frac{1}{4}$$
+  $$P(0 \leq X \leq \frac{1}{2})= P(0 < X \leq \frac{1}{2}) + P(X=0) = \frac{1}{4} + \frac{1}{2} = \frac{3}{4}$$
 
 (b): 
 
+We are given the following relation to hold (given the definition of conditional probability): 
 
+$$P(X \leq x | X > 0 ) = \frac{P(X \leq x , X > 0 )}{P(X > 0)} = \frac{P(0 < X \leq x)}{P(X > 0)} = \frac{F(x) - F(0)}{1 - F(0)}$$
+
+For $x > 1$,
+
+$P(X \leq x | X > 0 ) =$
+
+And for $x < 0$, 
+
+$P(X \leq x | X > 0 ) =$
+
+Then for $0 < x \leq 1$ we have: 
+
+$$P(X \leq x | X > 0 ) = \frac{F(x) - F(0)}{1 - F(0)} = \frac{\frac{(x+1)}{2} - \frac{1}{2}}{1 - \frac{1}{2}} = = \frac{\frac{(x)}{2} + \frac{1}{2} - \frac{1}{2}}{\frac{1}{2}} = \frac{x}{2} / \frac{1}{2} = x$$
+
+
+
+We may then conclude: 
+
+$$P(X \leq x | X > 0 ) = 
+\begin{cases}
+  0 & x \leq 0 \\
+  x & 0 < x \leq 1 \\ 
+  1 & x > 1
+\end{cases}$$
+
+The above may be considered the cdf of the distribution of X, conditional on "X > 0". 
+
+Consider then a random variable Y which is "uniform" on the interval (0, 1), having constant pdf $f_Y(y) = 1$ for $0 < y < 1$ (with $f_Y(y) = 0$ for all other $y \in \mathbb{R}$), as for a random variable $Y ~ \text{Uniform}(0,1)$. We may write its pdf as: 
+
+$$f_Y(y) = 
+\begin{cases}
+  1 & 0 < y < 1 \\
+  0 & otherwise \\ 
+\end{cases}$$
+
+Taking this, we may find its cdf as:
+
+$$F_Y(y) = 
+\begin{cases}
+  0 & y \leq 0 \\
+  y & 0 < y \leq 1 \\ 
+  1 & y > 1
+\end{cases}$$
+
+Note: I am unsure what can be taken for granted in this instance of "what we know" about Y, i.e. "we know its cdf". In that vein, I want to emphasize that as $\int1dy = y$ and $\int\limits_{0}^{1} 1 dy = y \big|_{0}^{1} = 1 - 0 = 1$, we may write the above cdf of Y, $F_Y(y)$ as given. 
+
+And conclude that: Based on the conditional cdf above, that the distribution of X, conditional on "X > 0", is the same (has the same cdf) as that of a random variable Y which is "uniform" on the interval (0, 1). 
 
 \newpage
 
