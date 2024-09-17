@@ -15,7 +15,7 @@ Additionally, you must give proper credit to your collaborators by
 providing their names on the line below (if you worked alone, write "No
 Collaborators\"):\
 
-[Collaborators: ]{.smallcaps} \
+[Collaborators: Ben, Sabrina, Sarah, Vanessa, **The Hat Man**]{.smallcaps} \
 
 # Note to Self 
 
@@ -99,7 +99,8 @@ ub
 # df <- 16 + 20 - 2 
 # tStatistic <- 34, 0.975
 
-tStatistic <- function(n1, n2, mu1, mu2, sd1, sd2) {   numerator1 <- (n1-1)*(sd1^2) + (n2-1)*(sd2^2)
+tStatistic <- function(n1, n2, mu1, mu2, sd1, sd2) {   
+  numerator1 <- (n1-1)*(sd1^2) + (n2-1)*(sd2^2)
   denom1 <- n1 + n2 - 2
   pooled <- sqrt( numerator1 / denom1 ) 
   
@@ -123,7 +124,7 @@ ciEstimate <- function(n1, n2, mu1, mu2, sd1, sd2, tStat) {
   
   lb <- difference - rightSide
   ub <- difference + rightSide
-  output <- c(lb, ub)
+  output <- c(min(lb, ub), max(lb, ub))
   output
   
 }
@@ -135,13 +136,13 @@ tStatistic(n1 = 16, n2 = 20, mu1 = 265.4, mu2 = 193.1, sd1 = 43.645, sd2 = 21.62
 ciEstimate(n1 = 16, n2 = 20, mu1 = 265.4, mu2 = 193.1, sd1 = 43.645, sd2 = 21.623, tStat = 6.494355)
 ```
 
-The Interval of the difference is (4.110884e-06, 1.446000e+02) or ($\approx$ 0, 144.6). 
+The Interval of the difference between groups (average for Heart attack - average for non-Heart attack) is (4.110884e-06, 1.446000e+02) or ($\approx$ 0, 144.6) difference in cholesterol levels. 
 
 \newpage
 
 > 3.  Interpret the confidence interval in the context of the study.
 
-We are 95% confidence the true difference between the two groups (those who had heart attacks compared to those who didn't) is between 4.110884e-06 (close to zero!) to 144.6, meaning we believe those who had a heart attack on average have between 116.31 higher to **near zero lower** blood pressure compared to those who didn't have a heart attack..
+We are 95% confidence the true difference between the two groups (those who had heart attacks compared to those who didn't) is between 4.110884e-06 (close to zero!) to 144.6, meaning we believe those who had a heart attack on average have between 116.31 higher to **near zero difference** blood pressure compared to those who didn't have a heart attack..
 
 > 4.  Suppose that the researchers want to replicate the study, varying the targeted sample sizes in each group to obtain the *best* (or least variable) estimate of the difference in group means, given the constraint that they can only afford to collect information from 50 total participants. How many subjects should they recruit for each group? Fill in the table below to help you answer the question (as an example, one of the solutions is already provided).
 
@@ -178,35 +179,19 @@ cholesterol <- read_csv("cholesterol.csv")
 
 differenceDf <- cholesterol |>
   mutate(difference = Before - After8weeks)
-
-brandAdf <- differenceDf |> 
-  filter(Margarine == "A")
-brandBdf <- differenceDf |> 
-  filter(Margarine == "B")
 ```
 
 ```{r}
-cholTstatistic <- tStatistic(n1 = nrow(brandAdf), n2 = nrow(brandBdf), mu1 = mean(brandAdf$difference), mu2 = mean(brandBdf$difference), sd1 = sd(brandAdf$difference), sd2 = sd(brandBdf$difference))
-cholTstatistic
+t.test(differenceDf$difference ~ differenceDf$Margarine, conf.level = 0.99)
 ```
 
-```{r}
-ciEstimate(n1 = nrow(brandAdf), 
-         n2 = nrow(brandBdf), 
-         mu1 = mean(brandAdf$difference), 
-         mu2 = mean(brandBdf$difference), 
-         sd1 = sd(brandAdf$difference), 
-         sd2 = sd(brandBdf$difference), 
-         tStat = cholTstatistic)
-```
-
-The Confideence Interval is (0, -0.329). 
+The Confidence Interval is (-0.3876, 0.0587) for the average difference between Group A and Group B where the difference in a particular group is given by "Cholesterol Before" - "Cholesterol After 8 Weeks". 
 
 \newpage
 
 > 2.  Interpret the confidence interval in the context of the study.
 
-We are 95% confident that the true difference in blood cholesterol levels between those who consumed Brand A vs. Brand B is between 0 and -.329; we are 95% confident the true difference between consuming Brand A to consuming Brand B is between 0 and -.329 (or that there is no difference to a slightly lower cholesterol level for those who consume Brand A). 
+We are 99% confident that the true difference in the change in blood cholesterol levels between those who consumed Brand A vs. Brand B during an 8 week period is between (-0.3876, 0.0587) with units being the difference in change in cholesterol levels; we are 99% confident the true difference between the change in cholesterol for consuming Brand A compared to consuming Brand B is between (-0.3876, 0.0587). 
 
 \newpage
 
@@ -245,13 +230,13 @@ Formula
 
 $$n_0 = 8(\frac{z_{1-\frac{\alpha}{2}}S_p}{w})^2$$
 
-$$n_0 = 8(\frac{t_{2(n_0-1),1-\frac{\alpha}{2}}S_p}{w})^2$$
+$$n = 8(\frac{t_{2(n_0-1),1-\frac{\alpha}{2}}S_p}{w})^2$$
 
 ### Calculation 
 
 $$n_0 = 8(\frac{z_{1-\frac{\alpha}{2}}S_p}{w})^2$$
 
-$$n_0 = 8(\frac{t_{2(n_0-1),1-\frac{\alpha}{2}}S_p}{w})^2$$
+$$n = 8(\frac{t_{2(n_0-1),1-\frac{\alpha}{2}}S_p}{w})^2$$
 Where 
 $w = 0.04$, $S_p = 0.16$
 
@@ -259,10 +244,7 @@ A 95% Confidence Interval gives us:
 
 $\alpha = 0.05 \rightarrow z_{0.975} = 1.96$
 
-$n_0 = 491.7248 \rightarrow t_{492, 0.975} \approx  1.984$ (rounding down to df=100)
-(1.9653?)
-
-Note: Used this https://www.meracalculator.com/math/t-distribution-critical-value-table.php
+$n_0 = 491.7248 \rightarrow t_{492, 0.975} \approx  1.984$
 
 ```{r}
 qt(p = .975, df = 100)
@@ -277,7 +259,7 @@ n0
 n 
 ```
 
-The sample size needed is 495 participants per group. 
+The sample size needed is 495 participants per group (using $n_0 = 492$). 
 
 \newpage
 

@@ -6,17 +6,17 @@ output:
 
 # HW 2 
 [Name: Sam Olson]{.smallcaps} \
-[Collaborators: XXX]{.smallcaps} \
+[Collaborators: Kyu-Tae, Ben, Sarah, Sabrina]{.smallcaps} \
 
 ## Progress Report 
   - 1: DONE
   - 2: DONE
   - 3: DONE
   - 4: DONE
-  - 5: EXTRA TODAY
+  - 5: DONE
   - 6: DONE
-  - 7: PARTIAL - FOR TODAY
-  - 8: EXTRA TODAY 
+  - 7: DONE
+  - 8: TODO 
 
 >> # Fig. 1
 Used in Q7, part (b)
@@ -304,13 +304,12 @@ $$P(|X| < t) = \frac{1}{2}[\frac{e^{\lambda x}}{\lambda}\big|_{-t}^{0} + (-\frac
 
 (b): $f_X(x) = \frac{3}{8}(x + 1)^2$, $-1 < x < 1$; $Y = 1 - X^2$
 
-(c): $f_X(x) = \frac{3}{8}(x + 1)^2$, $-1 < x < 1$; $Y = 1 - X^2$ if $X \leq 0$ and $Y = 1 - X$ if $X > 0$
+(c): $$f_X(x) = \frac{3}{8}(x + 1)^2$$, $-1 < x < 1$; $Y = 1 - X^2$ if $X \leq 0$ and $Y = 1 - X$ if $X > 0$
 
 >> A: 
 
-CHECK THM 2.1.8
-
-(b): $Y = 1 - X^2 \rightarrow X = \sqrt{1 - Y} \equiv (1-Y)^{1/2}$, and $-1 < x < 1 \rightarrow 0 < y < 1$
+(b): 
+$f_X(x) = \frac{3}{8}(x + 1)^2$, $-1 < x < 1$; $Y = 1 - X^2$
 
 Then for the pdf of Y, we have: 
 
@@ -320,34 +319,102 @@ $$f_Y(y) =
   0 & otherwise \\ 
 \end{cases}$$
 
-$f_X(x) = \frac{3}{8}(x + 1)^2 \rightarrow f_Y(y) = \frac{3}{8}(\sqrt{1 - y})^2$
+Let us consider the following to motivate our partitions of the sample space: 
 
-Such that: 
+```{r}
+x <- seq(from = -1, to = 1, by = 0.01)
+y <- (1 - x^2)
+plot(x = c(-1, 1), y = c(0, 1), xlab = "x", ylab = "y")
+lines(x, y)
+abline(v = 0)
+```
 
-$$f_Y(y) = \frac{3}{8}(1-y)^{-1/2} + \frac{3}{8}(1-y)^{1/2}$$ for $0 < y < 1$
+We see three distinct partitions to ensure monotone functions: 
+
+$A_1 = (-1, 0)$ 
+$A_2 = \{ 0 \}$
+$A_3 = (0, 1)$ 
+
+We then have their respective functions, $g_i(x)$ as follows: 
+
+$g_1 = (1 - x^2)$
+$g_2 = 0$
+$g_3 = (1 - x^2)$
+
+Then, with note from the results of the following theorem (2.1.8): 
+
+$$f_Y(y) =
+\begin{cases}
+  \sum \limits_{i=1}^{k} f_X(g^{-1}_i(y))|\frac{d}{dy}g_{i}^{-1}(y)| & y \in \mathbb{Y} \\
+  0 & otherwise \\ 
+\end{cases}$$
+
+We have, for $0<y<1$, 
+
+$g_1(x) = g_3(x) = 1 - x^2 \rightarrow g^{-1}(y) = (1-y)^{1/2}$
+
+$\therefore |\frac{d}{dy}g_{1}^{-1}(y)| = \frac{1}{2(1-y)^{1/2}} = |\frac{d}{dy}g_{3}^{-1}(y)|$
+
+Note however that we are dealing with two distinct functions, one positive and the other negative: 
+
+(1):
+$$f_X(g^{-1}_1(y))|\frac{d}{dy}g_{1}^{-1}(y)| = \frac{3}{8}(1 + (1-y)^{1/2})^2(\frac{1}{2(1-y)^{1/2}})$$
+
+(2): 
+$$f_X(g^{-1}_3(y))|\frac{d}{dy}g_{3}^{-1}(y)|= \frac{3}{8}(1 - (1-y)^{1/2})^2(\frac{1}{2(1-y)^{1/2}})$$
+
+Such that we combine (1) and (2) together to get, for $0 < y < 1$:
+
+$$f_Y(y) = \frac{3}{8}(1 - (1-y)^{1/2})^2(\frac{1}{2(1-y)^{1/2}}) + \frac{3}{8}(1 + (1-y)^{1/2})^2(\frac{1}{2(1-y)^{1/2}}) = \frac{3}{8}\frac{1}{2}(1-y)^{-1/2}[(1 - (1-y)^{1/2})^2 + (1 + (1-y)^{1/2})^2]$$
+
+Notice the second term of the expansion between the two values will cancel each other out, leaving us (after much algebra and simplification):
+
+$$f_Y(y) = \frac{3}{8}(1-y)^{-1/2} + \frac{3}{8}(1-y)^{1/2}$$
 
 (c): 
-(1): $Y = 1 - X^2 \rightarrow X = \sqrt{1 - Y}$, and $-1 < x \leq 0 \rightarrow 0 < y \leq  1$ for $X \leq 0$
+$$f_X(x) = \frac{3}{8}(x + 1)^2$$, $-1 < x < 1$; $Y = 1 - X^2$ if $X \leq 0$ and $Y = 1 - X$ if $X > 0$
 
-(2): $Y = 1 - X \rightarrow X = 1 - Y$, and $0 < x < 1 \rightarrow 1 < y < \sqrt{2}$ for $X > 0$
+Similar to part (b), we see three distinct partitions to ensure monotone functions: 
 
-Then for the pdf of Y, we have: 
+$A_1 = (-1, 0)$ 
+$A_2 = \{ 0 \}$
+$A_3 = (0, 1)$ 
 
-(1): $f_X(x) = \frac{3}{8}(x + 1)^2 \rightarrow f_Y(y) = \frac{3}{8}(\sqrt{1 - y})^2$ for $0 < y \leq  1$
+We then have their respective functions, $g_i(x)$ as follows: 
 
-(2): $f_X(x) = \frac{3}{8}(x + 1)^2 \rightarrow f_Y(y) = \frac{3}{8}(1 - y)^2$ for $1 < y <  \sqrt{2}$
+$g_1 = (1 - x^2)$
+$g_2 = 0$
+$g_3 = (1 - x^2)$
 
-Taking (1) and (2) together, we may write the pdf of Y as: 
+Thus, with note of the relevant theorem:
 
 $$f_Y(y) =
 \begin{cases}
-  \sum \limits_{i=1}^{k} f_X(g^{-1}_i(y)) & y \in \mathbb{Y} \\
+  \sum \limits_{i=1}^{k} f_X(g^{-1}_i(y))|\frac{d}{dy}g_{i}^{-1}(y)| & y \in \mathbb{Y} \\
   0 & otherwise \\ 
 \end{cases}$$
 
-Such that: 
+Such that for $0 < y < 1$: 
 
-$$f_Y(y) = \frac{3}{16}(1-(1-y)^{1/2})^2(1-y)^{-1/2} + \frac{3}{8}(2-y)^{2}$$ for $0 < y < 1$
+$g_1(x) = 1 - x^2 \rightarrow g^{-1}(y) = (1-y)^{1/2}$
+
+$\therefore |\frac{d}{dy}g_{1}^{-1}(y)| = \frac{1}{2(1-y)^{1/2}}$
+
+$g_3(x)=1 - x \rightarrow g^{-1}(y) = 1 - y$
+
+$\therefore |\frac{d}{dy}g_{i}^{-1}(y)| = |-1 = 1$
+
+There are two relevant summations: 
+
+(1): 
+$$\frac{3}{8}((1-y)^{1/2} + 1)^2\frac{1}{2}(1-y)^{-1/2} = \frac{3}{16}(1-(1-y)^{1/2})^2(1-y)^{-1/2}$$
+
+(2): 
+$$\frac{3}{8}((1-y) + 1)^2 = \frac{3}{8}(2 - Y)^2$$
+
+Taken together, we have the sum of (1) and (2), written:
+
+$$f_Y(y) = \frac{3}{16}(1-(1-y)^{1/2})^2(1-y)^{-1/2} + \frac{3}{8}(2-y)^{2}$$
 
 \newpage
 
@@ -400,20 +467,68 @@ $$f(x) = \frac{4}{\beta^3\sqrt{\pi}}x^2e^{\frac{-x^2}{\beta^2}}$$, $0 < x < \inf
 
 (a):
 
-HINT: 
-Integration by parts
-$u = x$, $dv = xe^{-\frac{x^2}{\beta^2}}$
+There are two conditions to verify that $f(x)$ is a pdf, the first is: 
+(1): $f(x) \geq 0$, $\forall{x}$. This one is apparent under the conditions $0 < x < \infty$, $\beta>0$. We must then establish condition (2): 
+
+(2): $\int_{\Omega} f(x)dx = 1$, or, the sum of the pdf over the sample space is 1 (note: this is for the continuous case, which we have). 
+
+We thus have: 
+
+$$\int_{\Omega} f(x)dx = \int\limits_{0}^{\infty}{\frac{4}{\beta^3\sqrt{\pi}}x^2e^{\frac{-x^2}{\beta^2}}} dx$$
+Set $\frac{y}{\sqrt{2}} = \frac{x}{\beta} \rightarrow dx = \frac{\beta}{\sqrt{2}} dy$
+
+And $x^2 = \frac{\beta^2 y^2}{{2}}$
+
+Such that we may write:
+
+$$\int_{\Omega} f(x)dx = \int\limits_{0}^{\infty}{\frac{4}{\beta^3\sqrt{\pi}}\frac{\beta^2 y^2}{{2}}e^{\frac{-y^2}{2}}} \frac{\beta}{\sqrt{2}} dy= \int\limits_{0}^{\infty} \frac{2}{\sqrt{2 \pi}} y^2 e^{-y^2/2} dy$$ 
+We may then make use of our assumption/hint, namely: 
+
+$$1 = \int\limits_{\infty}^{\infty}{\frac{1}{\sqrt{2\pi}}x^2 e^{\frac{-x^2}{2}}dx} = \frac{2}{\sqrt{2\pi}}\int\limits_{0}^{\infty}{x^2 e^{\frac{-x^2}{2}}dx} \rightarrow \sqrt{2 \pi}/2 = \int\limits_{0}^{\infty}{x^2 e^{\frac{-x^2}{2}}dx}$$
+Incorporating this into the above relation on $f(x)$ gives us (taking out the constant term from the integral): 
+
+$$\int_{\Omega} f(x)dx = \frac{2}{\sqrt{2 \pi}} \int\limits_{0}^{\infty} y^2 e^{-y^2/2} dy = \frac{2}{\sqrt{2 \pi}} \frac{\sqrt{2 \pi}}{2} = 1$$
+We have shown then that conditions (1) and (2) hold, and as such, $f(x)$ is a pdf! 
 
 (b): 
 
-HINT: $\mathbb{E}(X) = \frac{2\beta}{\sqrt{\pi}}$
+Q: Find $\mathbb{E}(X)$
 
-Note: We assume 
-$$1 = \int\limits_{\infty}^{\infty}{\frac{1}{\sqrt{2\pi}}x^2 e^{\frac{-x^2}{2}}dx} = \frac{2}{\sqrt{2\pi}}\int\limits_{0}^{\infty}{x^2 e^{\frac{-x^2}{2}}dx}$$
+Note: For the random variable X given from the prior $f(x)$, we have $\mathbb{E}(X) = \int_{\Omega} x f(x)dx$
 
-For $f(x)$ as specified, we have: 
+We may calculate this as follows: 
 
-$$E(X) = \int\limits_{0}^{\infty}{xf(x)dx} = \int\limits_{0}^{\infty}{x\frac{4}{\beta^3\sqrt{\pi}}x^2e^{\frac{-x^2}{\beta^2}}dx}$$
+$$\mathbb{E}(X) = \int\limits_{0}^{\infty}x{\frac{4}{\beta^3\sqrt{\pi}}x^2e^{\frac{-x^2}{\beta^2}}} dx$$
+
+Let us take note of Integration by parts, that is: 
+
+$$\int udv = uv - \int v du$$
+
+For the above relation, let 
+$$u = \frac{4x^2}{\beta^3 \sqrt{\pi}} \rightarrow du = \frac{8x}{\beta^3 \sqrt{\pi}}$$ 
+and 
+$$dv = x e^{-\frac{x^2}{\beta^2}} \rightarrow v = \int\limits_{0}^{\infty}{x e^{-\frac{x^2}{\beta^2}}}$$
+Of interest is $uv$, which may be written: 
+
+$$uv = [\frac{4}{\beta^3 \sqrt{\pi}}x^2 (-\frac{\beta^2}{2} e^{-\frac{x^2}{\beta^2}})] \big|_{0}^{\infty}$$
+
+Note: We have a number of constants, such that the above simplifies to: 
+
+$$uv = \frac{4}{\beta^3\sqrt{\pi}} (-\frac{\beta^2}{2})[x^2 e^{-\frac{x^2}{\beta^2}}] \big|_{0}^{\infty}$$
+
+And we note the following: 
+
+$[x^2 e^{-\frac{x^2}{\beta^2}}] \big|_{0}^{\infty} = 0 - 0 = 0$
+
+Such that our term $uv$ is equal to zero, leaving us with: 
+
+$$\mathbb{E}(X) = 0 + \int\limits_{0}^{\infty}x{\frac{4}{\beta^3\sqrt{\pi}}x^2e^{\frac{-x^2}{\beta^2}}} dx = 0 + \frac{4}{\beta \sqrt{\pi}}\int\limits_{0}^{\infty}{x e^{-\frac{x^2}{\beta^2}}}dx$$
+
+$$\mathbb{E}(X) = 0 + \frac{4}{\beta \sqrt{\pi}}(-\frac{1}{2}\beta^2 e^{-\frac{x^2}{\beta^2}} \big|_{0}^{\infty}) =  \frac{4}{\beta \sqrt{\pi}} \frac{\beta^2}{2} = \frac{2 \beta}{\sqrt{\pi}}$$
+
+We conclude then:
+
+$$\mathbb{E}(X) = \frac{2 \beta}{\sqrt{\pi}}$$
 
 \newpage
 
