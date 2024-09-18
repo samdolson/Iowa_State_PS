@@ -1,0 +1,155 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{subfigure,amsmath,latexsym,amssymb}
+\usepackage{multirow}
+\usepackage{color}
+\setlength{\oddsidemargin}{-0.25in}
+\setlength{\textwidth}{7.1in}
+\setlength{\topmargin}{-1in}
+\setlength{\textheight}{9.5in}
+\evensidemargin \oddsidemargin
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+
+\begin{document}
+
+\large \noindent \textsc{Stat 5000}\hfill \large{\textsc{Homework \#4}} \hfill \phantom{\textsc{Name:} \underline{\hspace{2in}}} \\
+\large \textsc{Fall 2024}  \hfill \textsc{due Fri, Sep 27th @ 11:59 pm} \hfill \textsc{Name:} \underline{\hspace{2in}} \\
+
+\vspace{14pt}
+
+\noindent \textbf{Directions:} Type or clearly handwrite your solutions to each of the following exercises.  Partial credit cannot be given unless all work is shown. You may work in groups provided that each person takes responsibility for understanding and writing out the solutions. Additionally, you must give proper credit to your collaborators by providing their names on the line below (if you worked alone, write ``No Collaborators"):
+\vspace{14pt}
+\\ \underline{\hspace{7in}}
+\vspace{14pt}
+\begin{enumerate}
+
+\item \textbf{[+10]:} Consider the dataset from Homework \#1 about survival times (in days) of guinea pigs that were randomly assigned either to a control group or to a treatment group that received a dose of tubercle bacilli (a bacterium that causes tuberculosis). These data are found in the \texttt{guinea\_pigs.csv} file located in our course's shared folder on SAS Studio. Suppose the researchers want to test the hypothesis that the mean (or median/distribution of) survival times are the same for controls and the guinea pigs infected with tubercle bacilli against the \textbf{\underline{one-sided}} alternative that infection with tubercle Bacilli tends to decrease survival times. 
+	\begin{enumerate}
+	\item Perform a two-sample $t$-test assuming two independent random samples from normal distributions with equal variances in SAS Studio. Report (i) the observed $t$-statistic and (ii) the $p$-value.
+	\vspace{2in}
+	\item Perform a two-sample Welch $t$-test assuming two independent random samples from normal distributions with unequal variances (using the Satterthwaite approximation) in SAS Studio. Report (i) the observed $t^*$-statistic and (ii) the $p$-value.
+	\newpage
+	\item Perform a randomization/permutation test using 20,000 new random assignments of guinea pigs to treatment groups in SAS Studio. Report (i) the observed difference in sample means and (ii) the $p$-value.
+	\vspace{2in}
+	\item Perform the Wilcoxon rank-sum test in SAS Studio. Report (i) the sum of the ranks $w$, for the Bacilli treatment group and (ii) the $p$-value.
+	\vspace{2in}
+	\item Compare the results from parts (a)--(d).
+	\vspace{5in}
+	\end{enumerate}
+
+\item \textbf{[+27]:} Revisit the guinea pig study from the previous exercise. Use SAS to create diagnostic information to assess the assumptions for the traditional $t$-based inference procedure.
+	\begin{enumerate}
+	\item There is not enough information provided to assess independence of observations within each group. Which study design aspects would help you assess the assumption of independence between the groups.
+	\vspace{2in}
+	\item Assess the assumption of equal variances using:
+		\begin{enumerate}
+		\item the ratio of standard deviations;
+		\vspace{2in}
+		\item side-by-side boxplots;
+		\vspace{2in}
+		\item the F-test;
+		\vspace{2in}
+		\item the Brown-Forsythe test.
+		\vspace{2in}
+		\end{enumerate}
+	\item Assess the assumption of normality using the following methods:
+		\begin{enumerate}
+		\item side-by-side histograms;
+		\vspace{2.25in}
+		\item Q-Q plot(s);
+		\vspace{2.25in}
+		\item the Shapiro-Wilk test.
+		\vspace{2in}
+		\end{enumerate}
+	\item Based on what you learned in parts (a)--(c), complete the following exercises. 
+		\begin{enumerate}
+		\item Summarize the assessment of all three assumptions.
+		\vspace{3in}
+		\item Discuss which tests are the most appropriate among the 4 used in the previous exercise.
+		\vspace{3in}
+		\item Interpret the result, in the context of the study, for one of the tests you chose.
+		\end{enumerate}
+	\end{enumerate}
+
+\newpage
+	
+\item \textbf{[+13]:} Researchers have data consisting of the annual adjusted gross incomes (\texttt{income}) for 100 randomly sampled   individuals from two adjacent zip codes (\texttt{zip}). What type of statistical analysis should you use to compare the incomes in the two zip codes?
+	\begin{enumerate}
+	\item The output below was created to diagnose  the assumption of normality for this data.
+	\begin{minipage}{0.45\textwidth}
+		\includegraphics[width=\textwidth]{orig_boxplot.pdf}
+	\end{minipage}
+	\begin{minipage}{0.45\textwidth}
+		\includegraphics[width=\textwidth]{orig_hist.pdf}
+	\end{minipage}
+	 
+	\begin{minipage}{0.45\textwidth}
+		\includegraphics[width=\textwidth]{orig_QQplot.pdf}
+	\end{minipage}
+	\begin{minipage}{0.45\textwidth}
+		\begin{center}
+		\footnotesize{
+		\begin{tabular}{c|cc}
+			\multicolumn{3}{c}{\textbf{Shapiro-Wilk Test}} \\ 
+			\multicolumn{3}{c}{} \\
+			Group & Test Stat. & $p$-value \\
+			\hline \\
+			zip = 1 & 0.9092 & 3.933 $\times 10^{-6}$\\ \\
+			zip = 0 & 0.89252 & 6.396 $\times 10^{-7}$\\ \\
+		\end{tabular}}
+		\end{center}
+	\end{minipage}
+	\vspace{12pt}
+	
+	Describe three aspects (minimum) that indicate the normality assumption is violated.
+	
+	\newpage
+	\item Using the information you gathered in part (a), which transformation should be explored to achieve normality? Choose one: logarithm, square-root, arcsine, or power/Box-Cox.
+	\vspace{1in}
+	
+	\item One of these transformations has been applied and the resulting diagnostic output is provided below. 
+	
+	\begin{minipage}{0.45\textwidth}
+		\includegraphics[width=\textwidth]{trans_boxplot.pdf}
+	\end{minipage}
+	\begin{minipage}{0.45\textwidth}
+		\includegraphics[width=\textwidth]{trans_hist.pdf}
+	\end{minipage}
+	 
+	\begin{minipage}{0.45\textwidth}
+		\includegraphics[width=\textwidth]{trans_QQplot.pdf}
+	\end{minipage}
+	\begin{minipage}{0.45\textwidth}
+		\begin{center}
+		\footnotesize{
+		\begin{tabular}{c|cc}
+			\multicolumn{3}{c}{\textbf{Shapiro-Wilk Test}} \\ 
+			\multicolumn{3}{c}{} \\
+			Group & Test Stat. & $p$-value \\
+			\hline \\
+			zip = 1 & 0.99037 & 0.6942 \\ \\
+			zip = 0 & 0.98663 & 0.4129 \\ \\
+		\end{tabular}}
+		\end{center}
+	\end{minipage}
+	\vspace{12pt}
+	
+	Did the transformation succeed in remediating the non-normality?
+	
+	\newpage
+	\item Given the additional output (shown below) to diagnose the equal variance assumption, how should you proceed with the data analysis?
+	\begin{itemize}
+		\item Summary statistics: $s_0 = 0.4899$, $s_1 = 0.5067$, ratio $= 1.0342$
+		\item $F$-test: statistic $= 1.0696$, $p$-value $= 0.3692$
+		\item Brown-Forsythe test: statistic $= 0.0125$, $p$-value $= 0.9109$
+	\end{itemize}
+	\vspace{2in}
+	\end{enumerate}
+	
+\end{enumerate}
+
+\vfill
+\textbf{Total:} 50 points \hspace{14pt} \textbf{\# correct:} \underline{\hspace{1in}}  \hspace{14pt} \textbf{\%:} \underline{\hspace{1in}} 
+
+\end{document}

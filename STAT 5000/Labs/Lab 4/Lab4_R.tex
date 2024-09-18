@@ -1,0 +1,218 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath,latexsym,amssymb}
+\usepackage{color}
+\setlength{\oddsidemargin}{-0.25in}
+\setlength{\textwidth}{7.1in}
+\setlength{\topmargin}{-1in}
+\setlength{\textheight}{9.5in}
+\evensidemargin \oddsidemargin
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+\usepackage{url}
+\usepackage{parskip}
+\usepackage{enumitem}
+
+\begin{document}
+
+\large \noindent \textsc{Stat 5000}\hfill \large{\textsc{Lab \#4}} \hfill \phantom{\textsc{Name:} \underline{\hspace{2in}}} \\
+\large \textsc{Fall 2024}  \hfill \textsc{Due Tue Sep 24th} \hfill \textsc{Name:} \underline{\hspace{2in}} \\
+
+
+\noindent \textbf{Directions:} Complete the exercises below. When you are finished, turn in any required files online in Canvas, then check-in with the Lab TA for dismissal.
+\\ \underline{\hspace{7in}}
+\vspace{14pt}
+
+\textbf{\underline{Diagnosing Assumptions in R}}
+
+Consider an experiment on the effects of vitamins on the growth of guinea pig teeth.  The file, \texttt{guinea\_teeth.csv} (posted in Canvas) contains the length of teeth (\texttt{growth}) for guinea pigs whose diets were randomly assigned for vitamin C supplements (\texttt{trt}), either by ascorbic acid or orange juice (treatment labels 0 and 1, respectively).
+
+The following examples show how to assess the assumptions necessary to perform the traditional t-test (with equal variances) for difference in mean teeth growth in R. The full R script is provided in the \texttt{teeth\_Lab4.r} file posted in Canvas.
+\begin{itemize}
+	\item First, load in the data using the \textit{Import Dataset} tool in R Studio. Be sure to change the variable type on the \texttt{trt} column to ``factor" and enter ``0,1" as the levels.
+	\begin{verbatim}
+	library(readr)
+	guinea_teeth <- read_csv("guinea_teeth.csv", col_types = cols(trt = 
+	                                            col_factor(levels = c("0", "1"))))
+	\end{verbatim}
+	\item To check the equal variance assumption, there are three possible (non-graphical) methods, as discussed in lecture:
+	\begin{enumerate}
+		\item The ratio of sample standard deviations using the \texttt{sd()} function in R:
+		\begin{verbatim}
+		sd(guinea_teeth$growth[guinea_teeth$trt=="1"])/
+  		sd(guinea_teeth$growth[guinea_teeth$trt=="0"])
+		\end{verbatim}
+		Remember that you may need to switch the order to place the larger value in the numerator.
+		\item The F-test using the \texttt{var.test()} function in R:
+		\begin{verbatim}
+		var.test(x=guinea_teeth$growth[guinea_teeth$trt=="1"],
+         y=guinea_teeth$growth[guinea_teeth$trt=="0"], 
+         alternative="greater")
+		\end{verbatim}
+		Be sure to put the group with the largest sample standard deviation as \texttt{x}, the group with the smallest sample standard deviation as \texttt{y}, and specify that you want the right-tailed test using the \texttt{alternative="greater"} option. Recall the null hypothesis is equal variances.
+		\item The Brown-Forsythe test does not have a corresponding built-in function in R, so we must write our own function, \texttt{BF.var.test()}:
+		\begin{verbatim}
+		BF.var.test <- function(dat.response, dat.treatment){
+		  n1 = length(dat.response[dat.treatment==levels(dat.treatment)[1]])
+		  n2 = length(dat.response[dat.treatment==levels(dat.treatment)[2]])
+		  M = c(rep(median(dat.response[dat.treatment==levels(dat.treatment)[1]]), n1),
+		        rep(median(dat.response[dat.treatment==levels(dat.treatment)[2]]),n2))
+		  Z = abs(c(dat.response[dat.treatment==levels(dat.treatment)[1]], 
+		            dat.response[dat.treatment==levels(dat.treatment)[2]]) - M)
+		  G = c(dat.treatment[dat.treatment==levels(dat.treatment)[1]], 
+		        dat.treatment[dat.treatment==levels(dat.treatment)[2]])
+		  df = length(Z)-2
+		  BFstat = (t.test(Z~G, var.equal=T)$statistic)^2
+		  pval = pf(BFstat, 1, df, lower.tail=F)
+		  return(data.frame(BFstat=BFstat, pval=pval, row.names="results:"))
+		}			
+		\end{verbatim}
+		To use the function, you need to specify the response variable and then the treatment/group variable:
+		\begin{verbatim}
+			BF.var.test(guinea_teeth$growth, guinea_teeth$trt)
+		\end{verbatim}
+		The test will output the corresponding $F$-statistic first and then the $p$-value. Note that the null hypothesis is equal variances.
+	\end{enumerate}
+	\item Graphical displays can be used to assess both the equal variance and normal assumptions:
+	\begin{enumerate}
+		\item A side-by-side boxplot of the response values within each group can be obtain using the \texttt{boxplot()} function:
+		\begin{verbatim}
+		boxplot(guinea_teeth$growth ~ guinea_teeth$trt, xlab="Treatment", 
+        ylab="Growth", main="Guinea Pig Teeth Experiment")
+		\end{verbatim}
+		These are useful for assessing both assumptions of equal variance and normality.
+		\item Histograms of the response values within each group can be obtain using the \texttt{hist()} function:
+		\begin{verbatim}
+		par(mfrow=c(2,1))
+		hist(guinea_teeth$growth[guinea_teeth$trt=="1"],
+     main="Treatment = orange juice", xlab="Growth")
+		hist(guinea_teeth$growth[guinea_teeth$trt=="0"],
+     main="Treatment = ascorbic acid", xlab="Growth")
+		\end{verbatim}
+		These are useful for assessing both assumptions of equal variance and normality.
+		\item Normal Q-Q plots of the response values within each group can be obtain using the \texttt{qqnorm()} function:
+		\begin{verbatim}
+		par(mfrow=c(1,2))
+		qqnorm(scale(guinea_teeth$growth[guinea_teeth$trt=="1"]),
+       main="Treatment = orange juice")
+		abline(a=0, b=1, col="red")
+		qqnorm(scale(guinea_teeth$growth[guinea_teeth$trt=="0"]),
+       main="Treatment = ascorbic acid")
+		abline(a=0, b=1, col="red")
+		\end{verbatim}
+		The \texttt{scale()} function is used to ``standardize" the response values (by subtracting off the mean and dividing by the standard deviation) so they can be compared to the standard normal quantiles.  The \texttt{abline()} function is used to create the diagonal reference line. These plots are only useful for assessing the normality assumption.
+	\end{enumerate}
+	\item Numerical summaries, including the mean, median, standard deviation, interquartile range, skew, kurtosis, and excess kurtosis, can be computed for each group in R using the following code:
+	\begin{verbatim}
+	library(tidyverse)
+	library(moments)
+	numerical_stats <- guinea_teeth |> group_by(trt) |> summarize(
+	    Y_mean = mean(growth),
+	    Y_med = quantile(growth, 0.5),
+	    Y_sd = sd(growth),
+	    Y_IQR = quantile(growth, 0.75) - quantile(growth, 0.25),
+	    Y_skew = skewness(growth),
+	    Y_kurt = kurtosis(growth),
+	    Y_excess = Y_kurt - 3)
+	numerical_stats
+	\end{verbatim}
+	If you have not already installed the \texttt{moments} package, you can do so using the code:
+	\begin{verbatim}
+		install.packages("moments")
+	\end{verbatim}
+	\item Statistical tests, such as the Shapiro-Wilk test, can be used to further assess the normality assumption in R using the \texttt{shapiro.test()} function:
+	\begin{verbatim}
+		shapiro.test(guinea_teeth$growth[guinea_teeth$trt=="1"])
+		shapiro.test(guinea_teeth$growth[guinea_teeth$trt=="0"])
+	\end{verbatim}
+	A summary of results displays the test statistic value and associated $p$-value.
+\end{itemize}
+
+\vspace{1cm}
+
+\textbf{\underline{Remedies in R}}
+
+Refer to the guinea pig teeth study described above. 
+\begin{itemize}
+	\item As we discussed during the last lab, the traditional t-test can be conduct in R using the \texttt{t.test()} function with the \texttt{var.equal} option to true:
+	\begin{verbatim}
+		t.test(growth~trt, data=guinea_teeth, var.equal=T)
+	\end{verbatim}
+	\item If the equal variance assumption does not hold, you can conduct the Welch test with the Satterthwaite approximation by setting the \texttt{var.equal} option to false:
+	\begin{verbatim}
+		t.test(growth~trt, data=guinea_teeth, var.equal=F)
+	\end{verbatim}
+	\item If there is reason to believe that neither the equal variance or the normality assumptions of the traditional t-test will not hold, the example R code below will show you how to conduct the Wilcoxon rank-sum test using the \texttt{wilcox.test()} function:
+	\begin{verbatim}
+		wilcox.test(growth~trt, data=guinea_teeth, exact=F)
+	\end{verbatim}
+	You can set the \texttt{exact} option to true to compute the exact $p$-value for the test, or to false to approximate the $p$-value when the sample size is too large. The function will output a summary including the statistic $W$, which is equal to the sum of the ranks in the first group minus the quantity $n_1(n_1+1)/2$, and the corresponding $p$-value.
+\end{itemize}
+
+\newpage
+
+Now, consider another dataset containing the radon concentration levels (\texttt{radon}) for a selection of homes in two different counties (\texttt{county}) in Minnesota, Olmsted and Stearns. The data are found in the \texttt{minn\_radon.csv} file posted in Canvas. While exploring this dataset, you should see that the radon concentration levels are non-normal within the counties. One possible remedy for this if the researchers desire a model-based inferential procedure is to find a transformation of the data that will result in normality. The following example will show you how to conduct the transformation in R:
+\begin{itemize}
+	\item First, load in the data using the \textit{Import Dataset} tool in R Studio. Be sure to change the variable type on the \texttt{county} column to ``factor" and enter ``OLMSTED,STEARNS" as the levels.
+	\begin{verbatim}
+	library(readr)
+	minn_radon <- read_csv("minn_radon.csv",col_types = cols(county = 
+                                  col_factor(levels = c("OLMSTED", "STEARNS"))))
+	\end{verbatim}
+	\item Now, transform the response variable using the appropriate function in R:
+	\begin{itemize}
+		\item Square-root transformation: \texttt{X = sqrt(minn\_radon\$radon)}
+		\item Log transformation: \texttt{X = log(minn\_radon\$radon)}
+		\item Arcsin-root transformation: \texttt{X = asin(sqrt(minn\_radon\$radon))}
+		\item Box-Cox transformation $\left(X = \dfrac{Y^{\lambda}-1}{\lambda} \right)$:
+		\begin{verbatim}
+		library(MASS)
+		bct <- boxcox(lm(radon~county, data=minn_radon))
+		lambda <- bct$x[which.max(bct$y)]
+		X=(minn_radon$radon^lambda-1)/lambda
+		\end{verbatim}
+		If you have not already installed the \texttt{MASS} package, you can do so using the code:
+		\begin{verbatim}
+		install.packages("MASS")
+		\end{verbatim}
+	\end{itemize}
+	and append it to the original dataset: \texttt{minn\_radon = cbind(minn\_radon, X)}
+\end{itemize}
+
+\newpage
+\textbf{\underline{Assignment}}
+\begin{enumerate}
+\item Use R to assess the assumptions of the traditional $t$-based inference procedure for the guinea pig teeth study:
+	\begin{enumerate}
+	\item Describe the independent treatment groups assumption in the context of the study. Explain why this assumption is valid.
+	\item Describe the equal variance assumption in the context of the study. Check whether this assumption is appropriate. Justify your response by including all relevant graphs, summary statistics, test results, etc. 
+	\item Describe the normal distribution assumption in the context of the study. Check whether this assumption is appropriate. Justify your response by including all relevant graphs, summary statistics, test results, etc.
+	\end{enumerate}
+
+\item Perform a Wilcoxon rank-sum test to determine if the distributions of teeth lengths are the same for the two treatment groups. 
+	\begin{enumerate}
+		\item What is the value of the test statistic $W$? What is the corresponding sum of the ranks in the first group?
+		\item What is the value of the $p$-value? 
+		\item Interpret the result of the test in the context of the study.
+	\end{enumerate}
+
+\item Use R to complete the following exercises for the radon study:
+	\begin{enumerate}
+	\item Which transformation of the data will result in normal distributions of radon concentration levels within each county?
+	\item Conduct the traditional t-test (with equal variances) for the transformed data. Interpret the results in the context of the study.
+	\end{enumerate}
+	
+\end{enumerate}
+
+\vfill
+\textbf{Total:} 25 points \hspace{14pt} \textbf{\# correct:} \underline{\hspace{1in}}  \hspace{14pt} \textbf{\%:} \underline{\hspace{1in}} 
+
+\end{document}
+
+
+
+
+
+
+
+
