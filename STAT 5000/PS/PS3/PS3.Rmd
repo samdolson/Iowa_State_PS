@@ -131,18 +131,19 @@ ciEstimate <- function(n1, n2, mu1, mu2, sd1, sd2, tStat) {
 ```
 
 ```{r}
-tStatistic(n1 = 16, n2 = 20, mu1 = 265.4, mu2 = 193.1, sd1 = 43.645, sd2 = 21.623)
+# tStatistic(n1 = 16, n2 = 20, mu1 = 265.4, mu2 = 193.1, sd1 = 43.645, sd2 = 21.623)
+qt(p = 0.975, df = 34)
 
-ciEstimate(n1 = 16, n2 = 20, mu1 = 265.4, mu2 = 193.1, sd1 = 43.645, sd2 = 21.623, tStat = 6.494355)
+ciEstimate(n1 = 16, n2 = 20, mu1 = 265.4, mu2 = 193.1, sd1 = 43.645, sd2 = 21.623, tStat = 2.032245)
 ```
 
-The Interval of the difference between groups (average for Heart attack - average for non-Heart attack) is (4.110884e-06, 1.446000e+02) or ($\approx$ 0, 144.6) difference in cholesterol levels. 
+The Interval of the difference between groups (average for Heart attack - average for non-Heart attack) is (49.67554 to 94.92446) or (49.676, 94.924) difference in cholesterol levels. 
 
 \newpage
 
 > 3.  Interpret the confidence interval in the context of the study.
 
-We are 95% confidence the true difference between the two groups (those who had heart attacks compared to those who didn't) is between 4.110884e-06 (close to zero!) to 144.6, meaning we believe those who had a heart attack on average have between 116.31 higher to **near zero difference** blood pressure compared to those who didn't have a heart attack..
+We are 95% confidence the true difference between the two groups (those who had heart attacks compared to those who didn't) is between 49.676, 94.924, meaning we believe those who had a heart attack on average had between 49.676 to 94.924 greater blood pressure compared to those who didn't have a heart attack..
 
 > 4.  Suppose that the researchers want to replicate the study, varying the targeted sample sizes in each group to obtain the *best* (or least variable) estimate of the difference in group means, given the constraint that they can only afford to collect information from 50 total participants. How many subjects should they recruit for each group? Fill in the table below to help you answer the question (as an example, one of the solutions is already provided).
 
@@ -179,10 +180,22 @@ cholesterol <- read_csv("cholesterol.csv")
 
 differenceDf <- cholesterol |>
   mutate(difference = Before - After8weeks)
+
+data1 <- differenceDf |>
+  filter(Margarine == "A")
+  
+data2 <- differenceDf |>
+  filter(Margarine == "B")
 ```
 
 ```{r}
 t.test(differenceDf$difference ~ differenceDf$Margarine, conf.level = 0.99)
+```
+
+```{r}
+statisticT <- qt(p = 0.995, df = 16)
+
+ciEstimate(n1 = 9, n2 = 9, mu1 = mean(data1$difference), mu2 = mean(data2$difference), sd1 = sd(data1$difference), sd2 = sd(data2$difference), tStat = statisticT)
 ```
 
 The Confidence Interval is (-0.3876, 0.0587) for the average difference between Group A and Group B where the difference in a particular group is given by "Cholesterol Before" - "Cholesterol After 8 Weeks". 
@@ -330,6 +343,7 @@ We calculate our t statistic as:
 
 ```{r}
 qt(p = .95, df = 40)
+qt(p = .05, df = 40)
 ```
 
 ```{r}

@@ -8,23 +8,6 @@ output:
 [Name: Sam Olson]{.smallcaps} \
 [Collaborators: Kyu-Tae, Ben, Sarah, Sabrina]{.smallcaps} \
 
-## Progress Report 
-  - 1: DONE
-  - 2: DONE
-  - 3: DONE
-  - 4: DONE
-  - 5: DONE
-  - 6: DONE
-  - 7: DONE
-  - 8: TODO 
-
->> # Fig. 1
-Used in Q7, part (b)
-
-\[
-1 = \int\limits_{\infty}^{\infty}{\frac{1}{\sqrt{2\pi}}x^2 e^{\frac{-x^2}{2}}dx} = \frac{2}{\sqrt{2\pi}}\int\limits_{0}^{\infty}{x^2 e^{\frac{-x^2}{2}}dx}
-\]
-
 # 1. 
 >> Q: Suppose a random variable X has the following cdf from class (which is neither a step function nor continuous):  
 
@@ -162,17 +145,22 @@ $P(X > s + t | X > t) = P(X > s) = \frac{P(X > s + t, X > t)}{P(X > t)}$
 
 $P(X > s + t | X > t) = P(X > s) = \frac{P(X > s + t)}{P(X > t)}$
 
-$P(X > s + t | X > t) = \frac{1 - F_X(s + t)}{1 - F_X(t)}$
+$P(X > s + t | X > t) = \frac{1 - F_X(s + t)}{1 - F_X(t)} = = \frac{1 - P(X \leq s + t)}{1 - P(X \leq t)}$
+
+With note of the following relation: 
+
+$$F_X(s) = \int\limits_{0}^{s}{\frac{1}{\theta}e^\frac{-x}{\theta}dx} = (-e^{\frac{-s}{\theta}}) - (-e^{\frac{0}{\theta}}) = (-e^{\frac{-s}{\theta}}) - (-1) = 1 - e^{\frac{-s}{\theta}}$$
+We then have: 
 
 $$P(X > s + t | X > t) = \frac{1 - (1-\frac{1}{\theta} e^{-\frac{s + t}{\theta}})}{1 - (1-\frac{1}{\theta} e^{-\frac{t}{\theta}})}$$
 
 Cancelling out (most) like terms gives us: 
 
-$P(X > s + t | X > t) = \frac{e^{-\frac{s + t}{\theta}}}{e^{-\frac{ t}{\theta}}} = e^{\frac{-(s+t)-(-t)}{\theta}} = e^{-\frac{s}{\theta}}$ 
+$$P(X > s + t | X > t) = \frac{1 - F(s+t)}{1 - F(t)} = \frac{e^{-\frac{s + t}{\theta}}}{e^{-\frac{ t}{\theta}}} = e^{\frac{-(s+t)-(-t)}{\theta}} =e^{-\frac{s}{\theta}}$$
 
-However, we know that this is exactly $P(X > s)$!, giving us: 
+However, we know that this is exactly $P(X > s) = 1 - P(X \leq s) = 1 - (1 - e^{-\frac{s}{\theta}}) = e^{-\frac{s}{\theta}}$!, giving us: 
 
-$P(X > s + t | X > t) = e^{-\frac{s}{\theta}} = P(X > s)$
+$P(X > s + t | X > t) = P(X > s)$
 
 \newpage
 
@@ -315,7 +303,7 @@ Then for the pdf of Y, we have:
 
 $$f_Y(y) =
 \begin{cases}
-  \sum \limits_{i=1}^{k} f_X(g^{-1}_i(y)) & y \in \mathbb{Y} \\
+  \sum \limits_{i=1}^{k} f_X(g^{-1}_i(y))|\frac{d}{dy}g_{i}^{-1}(y)| & y \in \mathbb{Y} \\
   0 & otherwise \\ 
 \end{cases}$$
 
@@ -509,7 +497,7 @@ $$u = \frac{4x^2}{\beta^3 \sqrt{\pi}} \rightarrow du = \frac{8x}{\beta^3 \sqrt{\
 and 
 $$dv = x e^{-\frac{x^2}{\beta^2}} \rightarrow v = \int\limits_{0}^{\infty}{x e^{-\frac{x^2}{\beta^2}}}$$
 Of interest is $uv$, which may be written: 
-
+<!-- \biggl[_{0}^{\infty} \biggr] -->
 $$uv = [\frac{4}{\beta^3 \sqrt{\pi}}x^2 (-\frac{\beta^2}{2} e^{-\frac{x^2}{\beta^2}})] \big|_{0}^{\infty}$$
 
 Note: We have a number of constants, such that the above simplifies to: 
@@ -537,7 +525,7 @@ $$\mathbb{E}(X) = \frac{2 \beta}{\sqrt{\pi}}$$
 
 (i.e. pdf $f_U(u) = 1$ for 0 < u < 1)
 
-(a): Suppose a random variable Xhas a cdf $F(x)$ which is strictly increasing and continuous on $x \in \mathbb{R}$; this implies that, for any real value of 0 < u < 1, there is an inverse $F^{-1}(u) = x \in \mathbb{R}$ so that $F(x) = F(F^{-1}(u)) = u$. Define a random variable $Y = F^{-1}(U)$ based on the random variable U. Show that X and Y have the same cdf (i.e. the same distributions).
+(a): Suppose a random variable X has a cdf $F(x)$ which is strictly increasing and continuous on $x \in \mathbb{R}$; this implies that, for any real value of 0 < u < 1, there is an inverse $F^{-1}(u) = x \in \mathbb{R}$ so that $F(x) = F(F^{-1}(u)) = u$. Define a random variable $Y = F^{-1}(U)$ based on the random variable U. Show that X and Y have the same cdf (i.e. the same distributions).
 
 Hint: Use that, because F is strictly increasing, $P(Y \leq y) = P(F(Y) \leq F(y))$ holds for any $y \in \mathbb{R}$, i.e., Y can be less than or equal to y if and only if F(Y) is less than or equal to $F(y)$. Noe that $F(y) \in (0, 1)$ for any real y. 
 
@@ -549,4 +537,82 @@ Hint: Use (a) where F now becomes the cdf of Z; you need to find $F^{-1}(u)$ for
 
 (a): 
 
+Let U and X be random variables. 
+
+Define the following relations to hold: 
+
+For any real value of 0 < u < 1, there is an inverse $F^{-1}(u) = x \in \mathbb{R}$ so that $F(x) = F(F^{-1}(u)) = u$. 
+
+Let us then define a random variable Y as follows: $Y = F^{-1}(U)$
+
+Note: F is strictly increasing, and $F^{-1}$ is also strictly increasing. 
+
+Thus if we define $Y \leq y \rightarrow F(Y) \leq F(y)$. Similarly, if we define $F(Y) \leq F(y) \rightarrow F^{-1}(F(Y)) \leq F^{-1}(F(y)) \rightarrow Y \leq y$
+
+Such that we have shown: 
+
+$$Y \leq y \iff F(Y) \leq F(y)$$ for a strictly increasing function $F$. 
+
+Then consider the cdf of the random variable X, and the following consequence of F being strictly increasing: 
+
+$$F(x) = F(F^{-1}(u)) = u \rightarrow F^{-1}(u) = x$$
+
+Given Our relations of the random variables Y and U, namely that F is strictly increasing, then the values the random variables take, y and u respectively may be written: 
+
+$$Y = F^{-1}(U) \rightarrow y = F^{-1}(u) \rightarrow F(y) = u$$
+
+such that the above relations give us: 
+
+(1):
+
+$$F(Y) =P(Y \leq y) = P(F^{-1}(U) \leq F^{-1}(u)) = P(F(F^{-1}(U)) \leq F(F^{-1}(u))) = P(U \leq u)$$
+
+(2): 
+
+$$F(X) = P(F(X) \leq u) = P(U \leq u)$$
+
+
+And taking (1) and (2) together, we may conclude that the random variable X and Y have the same cdfs. 
+
 (b): 
+
+We are given the pdf of Z, so we derive its cdf as follows: 
+
+$$F_Z(z) =
+\begin{cases}
+  \int\limits_{-\infty}^{z} \frac{e^t}{2} dt & z < 0 \\
+  \int\limits_{-\infty}^{0} \frac{e^t}{2} dt + \int\limits_{0}^{z} \frac{e^-t}{2} dt  & z > 0
+\end{cases}$$
+
+We then evaluate the following integrals such that we have: 
+
+$$\int\limits_{-\infty}^{z} \frac{e^t}{2} dt = \frac{e^z}{2}$$
+
+$$\int\limits_{-\infty}^{0} \frac{e^t}{2} dt = \frac{1}{2}$$
+
+$$\int\limits_{0}^{z} \frac{e^{-t}}{2} = \frac{1}{2} - \frac{1}{2}e^{-z}$$ 
+Such that we have, for $z > 0$: 
+
+$F_Z(z) = \frac{1}{2} + \frac{1}{2} - \frac{1}{2}e^{-z} = 1 - \frac{1}{2}e^{-z}$
+
+Thus we have the cdf of Z as: 
+
+$$F_Z(z) =
+\begin{cases}
+  \frac{e^z}{2} & z < 0 \\
+   1 - \frac{1}{2}e^{-z}  & z > 0
+\end{cases}$$
+
+We then take the inverse $F^{-1}$ to transform this from the random variable Z to the random variable U: 
+
+$F^{-1}(\frac{e^z}{2}) = ln(2u)$
+
+$F^{-1}(1 - \frac{1}{2}e^{-z}) = \frac{1}{ln(2-2u)}$
+
+We may then write $F^{-1}(u)$
+
+$$F_Z^{-1}(u) = 
+\begin{cases}
+   ln(2)-ln(u) & 0 < u < 1/2 \\
+   \frac{1}{ln(2-2u)}  & 1/2 < u < 1 
+\end{cases}$$

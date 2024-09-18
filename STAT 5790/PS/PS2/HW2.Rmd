@@ -52,6 +52,14 @@ heightDfDiff <- heightDfDiff |>
 ```{r}
 prop.table(table(heightDfDiff$taller.won))
 ```
+
+```{r}
+heightDfDiff$taller.won |>
+  table() |> 
+  prop.table() |> 
+  apply(MARGIN=1, FUN=scales::percent, accuracy=0.1)
+```
+
 A majority (75%) of the General Elections in the United States from 1948 to 2008 had the taller candidate win. 
 
 ### (E)
@@ -87,7 +95,6 @@ Read the dataset students.txt available in the Datasets section of Canvas into a
 ### (A)
 >> Q: What is the mean height and shoesize of all the students? What about their standard deviations? [5 points]
 
-
 >> A: 
 
 ```{r}
@@ -99,6 +106,11 @@ mean(studentDf$shoesize)
 sd(studentDf$height)
 sd(studentDf$shoesize)
 ```
+Mean Height: 169.7647 cm
+Mean Shoesize: 40.47059 cm
+
+Sd Height: 7.578996 cm
+Sd Shoesize: 2.695312 cm
 
 ### (B)
 >> Q: How many female students are in the sample? How many male students? [5 points]
@@ -115,6 +127,7 @@ studentDf |>
   filter(gender == "female") |>
   nrow()
 ```
+There are 8 male students and 9 female students in the sample. 
 
 ### (C)
 >> Q: Recode the population variable with color names (kuopio = blue, tampere = red), and create a new dataset called studentsnew. [5 points
@@ -125,6 +138,7 @@ studentDf |>
 studentsnew <- studentDf |>
   mutate("population" = case_when(population == "kuopio" ~ "blue",
                         population == "tampere" ~ "red"))
+studentsnew$population
 ```
 
 ### (D)
@@ -174,23 +188,23 @@ We are given two 83×108 slices of the (same) human brain. The first slice, cont
 
 >> A: 
 
-```{r}
+```{r, eval = FALSE, message = FALSE, echo = FALSE}
 # two 83×108 slices -> nrow = 83, ncol = 108 
 # firstSlice <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat", nrows = 83, as.is=TRUE, header = FALSE, fill=FALSE, na.strings = NA) |>
 #   as.matrix(nrows = 83, ncols = 108)
 # anat <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat") |>
 #   as.matrix(nrows = 83, ncols = 108)
-
-anat <- scan("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat") |>
-  matrix(byrow = TRUE, nrow = 83, ncol = 108)
-
-sum(is.na(anat))
-# activ <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/activ.dat") |>
-#   as.matrix(nrows = 83, ncols = 108)
-activ <- scan("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/activ.dat") |>
-  matrix(byrow = TRUE, nrow = 83, ncol = 108)
-
-sum(is.na(activ))
+# 
+# anat <- scan("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/anat.dat") |>
+#   matrix(byrow = TRUE, nrow = 83, ncol = 108)
+# 
+# sum(is.na(anat))
+# # activ <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/activ.dat") |>
+# #   as.matrix(nrows = 83, ncols = 108)
+# activ <- scan("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/activ.dat") |>
+#   matrix(byrow = TRUE, nrow = 83, ncol = 108)
+# 
+# sum(is.na(activ))
 
 # secondSlice <- 
 ```
@@ -200,7 +214,7 @@ sum(is.na(activ))
 
 >> A: 
 
-```{r}
+```{r, eval = FALSE, message = FALSE, echo = FALSE}
 x <- 10*(1:nrow(activ)); x.at <- seq(100, 800, by=100)
 y <- 10*(1:ncol(activ)); y.at <- seq(100, 600, by=100)
 
@@ -214,7 +228,7 @@ legend(grconvertX(0.5, "device"), grconvertY(1, "device"),
 
 >> A: 
 
-```{r}
+```{r, eval = FALSE, message = FALSE, echo = FALSE}
 image(activ, col=rev(gray(0:200/200)), axes=FALSE)
 contour(anat, nlevels = 5, add = TRUE, lwd = 0.5)
 ```
@@ -239,7 +253,7 @@ legend(grconvertX(0.5, "device"), grconvertY(1, "device"),
 contour(anat, nlevels = 5, add = TRUE, lwd = 0.5)
 ```
 
-```{r}
+```{r, eval = FALSE, message = FALSE, echo = FALSE}
 library(graphics)
 library(grDevices)
 x <- 10*(1:nrow(activ)); x.at <- seq(100, 800, by=100)
@@ -268,7 +282,7 @@ Romano-British Pottery. Samples from Romano-British pottery were taken at four s
 
 >> A:
 
-```{r}
+```{r, echo = FALSE}
 pottery <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS2/pottery.dat", sep="", header = TRUE)
 ```
 
@@ -277,125 +291,189 @@ pottery <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT
 
 >> A: 
 
-```{r}
+```{r, echo = FALSE}
 # Sites
 # "A", "C", "I", "L"
 
 require(dplyr)
 potteryStatsSiteA <- pottery |>
   filter(Site == "A") |>
-  summarize(meanAl = mean(Al),
+  summarize(nObs = n(), 
+            meanAl = mean(Al),
             medianAl = median(Al), 
             stdDevAl = sd(Al), 
-            iqrAl = IQR(Al), 
+            iqrAl = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Al)
+                      ), 
             
             meanFe = mean(Fe),
             medianFe = median(Fe), 
             stdDevFe = sd(Fe), 
-            iqrFe = IQR(Fe), 
+            iqrFe = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Fe)
+                      ), 
             
             meanMg = mean(Mg),
             medianMg = median(Mg), 
             stdDevMg = sd(Mg), 
-            iqrMg = IQR(Mg), 
+            iqrMg = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Mg)
+                      ),  
             
             meanCa = mean(Ca),
             medianCa = median(Ca), 
             stdDevCa = sd(Ca), 
-            iqrCa = IQR(Ca), 
+            iqrCa = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Ca)
+                      ),  
             
             meanNa = mean(Na),
             medianNa = median(Na), 
             stdDevNa = sd(Na), 
-            iqrNa = IQR(Na)
+            iqrNa = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Ca)
+                      ), 
             )
 
 potteryStatsSiteC <- pottery |>
   filter(Site == "C") |>
-  summarize(meanAl = mean(Al),
+  summarize(nObs = n(), 
+            meanAl = mean(Al),
             medianAl = median(Al), 
             stdDevAl = sd(Al), 
-            iqrAl = IQR(Al), 
+            iqrAl = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Al)
+                      ), 
             
             meanFe = mean(Fe),
             medianFe = median(Fe), 
             stdDevFe = sd(Fe), 
-            iqrFe = IQR(Fe), 
+            iqrFe = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Fe)
+                      ), 
             
             meanMg = mean(Mg),
             medianMg = median(Mg), 
             stdDevMg = sd(Mg), 
-            iqrMg = IQR(Mg), 
+            iqrMg = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Mg)
+                      ),  
             
             meanCa = mean(Ca),
             medianCa = median(Ca), 
             stdDevCa = sd(Ca), 
-            iqrCa = IQR(Ca), 
+            iqrCa = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Ca)
+                      ),  
             
             meanNa = mean(Na),
             medianNa = median(Na), 
             stdDevNa = sd(Na), 
-            iqrNa = IQR(Na)
+            iqrNa = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Ca)
+                      ), 
             )
 
 potteryStatsSiteI <- pottery |>
   filter(Site == "I") |>
-  summarize(meanAl = mean(Al),
+  summarize(nObs = n(), 
+            meanAl = mean(Al),
             medianAl = median(Al), 
             stdDevAl = sd(Al), 
-            iqrAl = IQR(Al), 
+            iqrAl = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Al)
+                      ), 
             
             meanFe = mean(Fe),
             medianFe = median(Fe), 
             stdDevFe = sd(Fe), 
-            iqrFe = IQR(Fe), 
+            iqrFe = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Fe)
+                      ), 
             
             meanMg = mean(Mg),
             medianMg = median(Mg), 
             stdDevMg = sd(Mg), 
-            iqrMg = IQR(Mg), 
+            iqrMg = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Mg)
+                      ),  
             
             meanCa = mean(Ca),
             medianCa = median(Ca), 
             stdDevCa = sd(Ca), 
-            iqrCa = IQR(Ca), 
+            iqrCa = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Ca)
+                      ),  
             
             meanNa = mean(Na),
             medianNa = median(Na), 
             stdDevNa = sd(Na), 
-            iqrNa = IQR(Na)
+            iqrNa = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Ca)
+                      ), 
             )
 
 potteryStatsSiteL <- pottery |>
   filter(Site == "L") |>
-  summarize(meanAl = mean(Al),
+  summarize(nObs = n(), 
+            meanAl = mean(Al),
             medianAl = median(Al), 
             stdDevAl = sd(Al), 
-            iqrAl = IQR(Al), 
+            iqrAl = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Al)
+                      ), 
             
             meanFe = mean(Fe),
             medianFe = median(Fe), 
             stdDevFe = sd(Fe), 
-            iqrFe = IQR(Fe), 
+            iqrFe = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Fe)
+                      ), 
             
             meanMg = mean(Mg),
             medianMg = median(Mg), 
             stdDevMg = sd(Mg), 
-            iqrMg = IQR(Mg), 
+            iqrMg = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Mg)
+                      ),  
             
             meanCa = mean(Ca),
             medianCa = median(Ca), 
             stdDevCa = sd(Ca), 
-            iqrCa = IQR(Ca), 
+            iqrCa = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Ca)
+                      ),  
             
             meanNa = mean(Na),
             medianNa = median(Na), 
             stdDevNa = sd(Na), 
-            iqrNa = IQR(Na)
+            iqrNa = case_when(
+                        nObs <= 2 ~ NA,
+                        nObs > 2 ~ IQR(Ca)
+                      ), 
             )
 ```
 
-```{r}
+```{r, echo = FALSE}
 SiteA <- t(round(potteryStatsSiteA, 3))
 SiteC <- t(round(potteryStatsSiteC, 3))
 SiteI <- t(round(potteryStatsSiteI, 3))
