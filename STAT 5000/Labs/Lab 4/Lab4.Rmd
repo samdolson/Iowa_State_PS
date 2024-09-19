@@ -25,28 +25,11 @@ perform the traditional t-test (with equal variances) for difference in
 mean teeth growth in R. The full R script is provided in the
 `teeth_Lab4.r` file posted in Canvas.
 
--   First, load in the data using the *Import Dataset* tool in R Studio.
-    Be sure to change the variable type on the `trt` column to "factor\"
-    and enter "0,1\" as the levels.
-
 ```{r}
 library(readr)
 guinea_teeth <- read_csv("guinea_teeth.csv", col_types = cols(trt = 
                                             col_factor(levels = c("0", "1"))))
 ```
-
--   To check the equal variance assumption, there are three possible
-    (non-graphical) methods, as discussed in lecture:
-
-        Be sure to put the group with the largest sample standard
-        deviation as `x`, the group with the smallest sample standard
-        deviation as `y`, and specify that you want the right-tailed
-        test using the `alternative="greater"` option. Recall the null
-        hypothesis is equal variances.
-
-    3.  The Brown-Forsythe test does not have a corresponding built-in
-        function in R, so we must write our own function,
-        `BF.var.test()`:
 
 ```{r}
 BF.var.test <- function(dat.response, dat.treatment){
@@ -64,30 +47,10 @@ BF.var.test <- function(dat.response, dat.treatment){
   return(data.frame(BFstat=BFstat, pval=pval, row.names="results:"))
 }           
 ```
-
-        To use the function, you need to specify the response variable
-        and then the treatment/group variable:
         
 ```{r}
 BF.var.test(guinea_teeth$growth, guinea_teeth$trt)
 ```
-        The test will output the corresponding $F$-statistic first and
-        then the $p$-value. Note that the null hypothesis is equal
-        variances.
-
--   Graphical displays can be used to assess both the equal variance and
-    normal assumptions:
-
-        The `scale()` function is used to "standardize\" the response
-        values (by subtracting off the mean and dividing by the standard
-        deviation) so they can be compared to the standard normal
-        quantiles. The `abline()` function is used to create the
-        diagonal reference line. These plots are only useful for
-        assessing the normality assumption.
-
--   Numerical summaries, including the mean, median, standard deviation,
-    interquartile range, skew, kurtosis, and excess kurtosis, can be
-    computed for each group in R using the following code:
 
 ```{r}
 library(tidyverse)
@@ -103,51 +66,21 @@ numerical_stats <- guinea_teeth |> group_by(trt) |> summarize(
 numerical_stats
 ```
 
-    If you have not already installed the `moments` package, you can do
-    so using the code:
-
-                install.packages("moments")
-
--   Statistical tests, such as the Shapiro-Wilk test, can be used to
-    further assess the normality assumption in R using the
-    `shapiro.test()` function:
-
-```{r}
-shapiro.test(guinea_teeth$growth[guinea_teeth$trt=="1"])
-shapiro.test(guinea_teeth$growth[guinea_teeth$trt=="0"])
-```
-    A summary of results displays the test statistic value and
-    associated $p$-value.
-
 **[Remedies in R]{.underline}**
 
 Refer to the guinea pig teeth study described above.
 
--   As we discussed during the last lab, the traditional t-test can be
-    conduct in R using the `t.test()` function with the `var.equal`
-    option to true:
 ```{r}
 t.test(growth~trt, data=guinea_teeth, var.equal=T)
 ```
--   If the equal variance assumption does not hold, you can conduct the
-    Welch test with the Satterthwaite approximation by setting the
-    `var.equal` option to false:
+
 ```{r}
 t.test(growth~trt, data=guinea_teeth, var.equal=F)
 ```
--   If there is reason to believe that neither the equal variance or the
-    normality assumptions of the traditional t-test will not hold, the
-    example R code below will show you how to conduct the Wilcoxon
-    rank-sum test using the `wilcox.test()` function:
+
 ```{r}
 wilcox.test(growth~trt, data=guinea_teeth, exact=F)
 ```
-    You can set the `exact` option to true to compute the exact
-    $p$-value for the test, or to false to approximate the $p$-value
-    when the sample size is too large. The function will output a
-    summary including the statistic $W$, which is equal to the sum of
-    the ranks in the first group minus the quantity $n_1(n_1+1)/2$, and
-    the corresponding $p$-value.
 
 Now, consider another dataset containing the radon concentration levels
 (`radon`) for a selection of homes in two different counties (`county`)
@@ -159,9 +92,6 @@ model-based inferential procedure is to find a transformation of the
 data that will result in normality. The following example will show you
 how to conduct the transformation in R:
 
--   First, load in the data using the *Import Dataset* tool in R Studio.
-    Be sure to change the variable type on the `county` column to
-    "factor\" and enter "OLMSTED,STEARNS\" as the levels.
 ```{r}
 library(readr)
 minn_radon <- read_csv("minn_radon.csv",
@@ -169,6 +99,7 @@ minn_radon <- read_csv("minn_radon.csv",
                        col_factor(levels = c("OLMSTED", "STEARNS")))
                        )
 ```
+
 -   Now, transform the response variable using the appropriate function
     in R:
 
@@ -187,19 +118,9 @@ bct <- boxcox(lm(radon~county, data=minn_radon))
 lambda <- bct$x[which.max(bct$y)]
 X=(minn_radon$radon^lambda-1)/lambda
 ```
-        If you have not already installed the `MASS` package, you can do
-        so using the code:
 
-                    install.packages("MASS")
-
-    and append it to the original dataset:
 ```{r}
 minn_radon = cbind(minn_radon, X)
-# minn_radon
-```
-
-```{r}
-hist(minn_radon$X)
 ```
 
 \newpage
@@ -238,7 +159,7 @@ boxplot(guinea_teeth$growth ~ guinea_teeth$trt,
 
 Description: In the context of the study, the equal variance assumption is interpreted as meaning we presume the variability in the growth of teeth between the guinea pigs whose diets were of ascorbic acid or orange juice (treatment labels 0 and 1, respectively) are equal, that is to say both groups of guinea pigs vary equally in the growth of teeth. 
 
-Justification: 
+Justification: The above box plots show obvious differences in skewness, which would lead us to consider our assumption of equal variances to be violated. Furthermore, use of the F-test provides some evidence to consider rejecting the null hypothesis of no difference in variance to support the alternative hypothesis that there is some difference in the variances of the two groups. 
 
 \newpage
 
@@ -261,6 +182,11 @@ hist(guinea_teeth$growth[guinea_teeth$trt=="0"],
 ```
 
 ```{r}
+sd(guinea_teeth$growth[guinea_teeth$trt=="1"])/
+sd(guinea_teeth$growth[guinea_teeth$trt=="0"])
+```
+
+```{r}
 shapiro.test(guinea_teeth$growth[guinea_teeth$trt=="1"])
 shapiro.test(guinea_teeth$growth[guinea_teeth$trt=="0"])
 ```
@@ -277,7 +203,7 @@ abline(a=0, b=1, col="red")
 
 Description: In the context of the study, the normal distribution assumption may be interpreted as meaning that the distribution of the teeth growth of guinea pigs is normally distributed, and that this assumption holds both for the guinea pigs whose diets were of ascorbic acid or orange juice (treatment labels 0 and 1, respectively). 
 
-Justification: 
+Justification: We have evidence to reject the assumption that our data is normally distributed. We have skewness in our data, as evidenced by the box plots shown in the above problem. The ratio of sample standard deviations is 1.62, which according to slides should have "little impact". Shapiro-Wilk normality test also provide some evidence that each group of guinea pigs may or may not be normally distributed. Taken in conjunction, while we do have evidence to show that our population (and each treatment group) may not be normally distributed, we don't have any information that would overwhelmingly forewarn us of inappropriateness of our typical procedure, i.e. using the typical t-test. 
 
 \newpage
 
@@ -290,21 +216,19 @@ wilcox.test(growth~trt, data=guinea_teeth, exact=F)
 
 > 1.  What is the value of the test statistic $W$? What is the corresponding sum of the ranks in the first group?
 
-W = 19.5
+The $W$ statistic for the Wilcoxon rank-sum test is the same as the corresponding sum of the ranks in the first group, which is $W = 19.5$. 
 
 > 2.  What is the value of the $p$-value?
 
-p-value $= 0.02319$
+The p-value for this test is f-value:$= 0.02319$. 
 
 > 3.  Interpret the result of the test in the context of the study.
 
-p-value is the likelihood we observed the results we did given the null hypothesis. Where: 
+In the context of p-value is the likelihood we observed the results we did given the null hypothesis. Where: 
+  - Null Hypothesis: Distribution of response variable (teeth growth) is the same for both groups (of guinea pigs).
+  - Alternative Hypothesis: Distribution of response variable (teeth growth) is different between the two groups (of guinea pigs).
 
-Null Hypothesis: Distribution of response variable is the same for both groups.
-
-Alternative Hypothesis: Distribution of response variable is different between the two groups.
-
-So we have evidence in support of the alternative hypothesis, namely that there is a difference between the two groups of guinea pigs. 
+So we have low likelihood attributed to the median of the differences in teeth growth being observed if there was no difference in the median of teeth growth in the guinea pigs. Said differently, we have evidence to support the alternative hypothesis that there is a difference in the median teeth growth of guinea pigs with an ascorbic acid diet compared to the median value of guinea pigs treated with an orange juice diet. 
 
 \newpage
 
@@ -313,12 +237,52 @@ Use R to complete the following exercises for the radon study:
 
 > 1.  Which transformation of the data will result in normal distributions of radon concentration levels within each county?
 
-Box-Cox transformation
+We use the Box-Cox transformation to transform the data into something (more) normally distributed for radon concentration levels. 
+
+We verify this normalized the data by checking the following: 
+
+```{r}
+hist(minn_radon$X, xlab = "Box-Cox Transformed Radon Levels", main = "Overall", freq = FALSE)
+lines(density(minn_radon$X), col = "black", lwd = 2)
+```
+Which appears, approximately, normal. 
+
+However, if we look at the radon levels before and after using Quantile plots we have: 
+
+
+> Before 
+
+```{r}
+par(mfrow=c(1,2))
+qqnorm(scale(minn_radon$radon[minn_radon$county=="OLMSTED"]),
+  main="Treatment = OLMSTED")
+abline(a=0, b=1, col="red")
+qqnorm(scale(minn_radon$radon[minn_radon$county=="STEARNS"]),
+  main="Treatment = STEARNS")
+abline(a=0, b=1, col="red")
+```
+
+> After Box-Cox Transformation
+
+```{r}
+par(mfrow=c(1,2))
+qqnorm(scale(minn_radon$X[minn_radon$county=="OLMSTED"]),
+  main="Treatment = OLMSTED")
+abline(a=0, b=1, col="red")
+qqnorm(scale(minn_radon$X[minn_radon$county=="STEARNS"]),
+  main="Treatment = STEARNS")
+abline(a=0, b=1, col="red")
+```
+We do see that this transformation has made progress in normalizing the data (many more values are close to the plotted quantile line as well as more values being nearer to the 0-th theoretical quantile). 
 
 > 2.  Conduct the traditional t-test (with equal variances) for the transformed data. Interpret the results in the context of the study.
 
 ```{r}
 t.test(X~county, data=minn_radon, var.equal=T)
 ```
+
+With a p-value of $0.4541$, we do not have substantive evidence to reject the null hypothesis, which is that the difference in average levels of radon (more on this shortly, because this is not just your typical "radon levels"!) between Olmsted and Stearns county is zero. 
+
+However, it is worth noting that this test was done on the Box-Cox transformed response variable (radon levels), so we should instead say that we observe a p-value of $0.4541$ and a 95% Confidence Interval of (-0.733, 0.333) provide evidence to not reject the null hypothesis and support the observation that the difference in **average Box-Cox transformed levels of radon** between Olmsted and Stearns county is zero. 
 
 **Total:** 25 points **\# correct:** **%:**
