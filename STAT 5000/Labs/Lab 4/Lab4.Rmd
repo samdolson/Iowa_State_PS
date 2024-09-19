@@ -38,23 +38,6 @@ guinea_teeth <- read_csv("guinea_teeth.csv", col_types = cols(trt =
 -   To check the equal variance assumption, there are three possible
     (non-graphical) methods, as discussed in lecture:
 
-    1.  The ratio of sample standard deviations using the `sd()`
-        function in R:
-```{r}
-sd(guinea_teeth$growth[guinea_teeth$trt=="1"])/
-sd(guinea_teeth$growth[guinea_teeth$trt=="0"])
-```
-        Remember that you may need to switch the order to place the
-        larger value in the numerator.
-
-    2.  The F-test using the `var.test()` function in R:
-
-```{r}
-var.test(
-  x=guinea_teeth$growth[guinea_teeth$trt=="1"],
-  y=guinea_teeth$growth[guinea_teeth$trt=="0"], 
-  alternative="greater")
-```
         Be sure to put the group with the largest sample standard
         deviation as `x`, the group with the smallest sample standard
         deviation as `y`, and specify that you want the right-tailed
@@ -84,6 +67,7 @@ BF.var.test <- function(dat.response, dat.treatment){
 
         To use the function, you need to specify the response variable
         and then the treatment/group variable:
+        
 ```{r}
 BF.var.test(guinea_teeth$growth, guinea_teeth$trt)
 ```
@@ -93,45 +77,6 @@ BF.var.test(guinea_teeth$growth, guinea_teeth$trt)
 
 -   Graphical displays can be used to assess both the equal variance and
     normal assumptions:
-
-    1.  A side-by-side boxplot of the response values within each group
-        can be obtain using the `boxplot()` function:
-```{r}
-boxplot(guinea_teeth$growth ~ guinea_teeth$trt, 
-        xlab="Treatment", 
-        ylab="Growth", 
-        main="Guinea Pig Teeth Experiment")
-```
-        These are useful for assessing both assumptions of equal
-        variance and normality.
-
-    2.  Histograms of the response values within each group can be
-        obtain using the `hist()` function:
-
-```{r}
-par(mfrow=c(2,1))
-hist(guinea_teeth$growth[guinea_teeth$trt=="1"],
-  main="Treatment = orange juice", 
-  xlab="Growth")
-hist(guinea_teeth$growth[guinea_teeth$trt=="0"],
-  main="Treatment = ascorbic acid", 
-  xlab="Growth")
-```
-        These are useful for assessing both assumptions of equal
-        variance and normality.
-
-    3.  Normal Q-Q plots of the response values within each group can be
-        obtain using the `qqnorm()` function:
-
-```{r}
-par(mfrow=c(1,2))
-qqnorm(scale(guinea_teeth$growth[guinea_teeth$trt=="1"]),
-  main="Treatment = orange juice")
-abline(a=0, b=1, col="red")
-qqnorm(scale(guinea_teeth$growth[guinea_teeth$trt=="0"]),
-  main="Treatment = ascorbic acid")
-abline(a=0, b=1, col="red")
-```
 
         The `scale()` function is used to "standardize\" the response
         values (by subtracting off the mean and dividing by the standard
@@ -235,6 +180,7 @@ minn_radon <- read_csv("minn_radon.csv",
 
     -   Box-Cox transformation
         $\left(X = \dfrac{Y^{\lambda}-1}{\lambda} \right)$:
+
 ```{r}
 library(MASS)
 bct <- boxcox(lm(radon~county, data=minn_radon))
@@ -247,7 +193,16 @@ X=(minn_radon$radon^lambda-1)/lambda
                     install.packages("MASS")
 
     and append it to the original dataset:
-    `minn_radon = cbind(minn_radon, X)`
+```{r}
+minn_radon = cbind(minn_radon, X)
+# minn_radon
+```
+
+```{r}
+hist(minn_radon$X)
+```
+
+\newpage
 
 **[Assignment]{.underline}**
 
@@ -256,32 +211,100 @@ Use R to assess the assumptions of the traditional $t$-based inference procedure
 
 > 1.  Describe the independent treatment groups assumption in the context of the study. Explain why this assumption is valid.
 
-Our assumption is that guinea pigs (our units for the study) have independence both within and between the two groups, and that all units for a particular group belong to the same population (identically distributed). In the context of this study, we have no reason to assume this is violated, as our participants are all guinea pigs taken from the same pool of guinea pigs, and their treatments are randomly assigned, e.g. we have no reason to believe the total pool of guinea pigs was composed of two distinct types of guinea pigs or some underlying condition existing within the population that would warrant the believe of more than one population being contained within each sample. 
+Description: Our assumption is that guinea pigs (our units for the study) have independence both within and between the two groups, and that all units for a particular group belong to the same population (identically distributed). In the context of this study, we have no reason to assume this is violated, as our participants are all guinea pigs taken from the same pool of guinea pigs, and their treatments are randomly assigned, e.g. we have no reason to believe the total pool of guinea pigs was composed of two distinct types of guinea pigs or some underlying condition existing within the population that would warrant the believe of more than one population being contained within each sample. 
+
+\newpage
 
 > 2.  Describe the equal variance assumption in the context of the study. Check whether this assumption is appropriate. Justify your response by including all relevant graphs, summary statistics, test results, etc.
 
+```{r}
+sd(guinea_teeth$growth[guinea_teeth$trt=="1"])/
+sd(guinea_teeth$growth[guinea_teeth$trt=="0"])
+```
 
+```{r}
+var.test(
+  x=guinea_teeth$growth[guinea_teeth$trt=="1"],
+  y=guinea_teeth$growth[guinea_teeth$trt=="0"], 
+  alternative="greater")
+```
+
+```{r}
+boxplot(guinea_teeth$growth ~ guinea_teeth$trt, 
+        xlab="Treatment", 
+        ylab="Growth", 
+        main="Guinea Pig Teeth Experiment")
+```
+
+Description: In the context of the study, the equal variance assumption is interpreted as meaning we presume the variability in the growth of teeth between the guinea pigs whose diets were of ascorbic acid or orange juice (treatment labels 0 and 1, respectively) are equal, that is to say both groups of guinea pigs vary equally in the growth of teeth. 
+
+Justification: 
+
+\newpage
 
 > 3.  Describe the normal distribution assumption in the context of the study. Check whether this assumption is appropriate. Justify your response by including all relevant graphs, summary statistics, test results, etc.
 
+```{r}
+par(mfrow=c(2,1))
+hist(guinea_teeth$growth[guinea_teeth$trt=="1"],
+  main="Treatment = orange juice", 
+  xlab="Growth", 
+  xlim = range(c(2, 22)), 
+  breaks = 8
+  )
+hist(guinea_teeth$growth[guinea_teeth$trt=="0"],
+  main="Treatment = ascorbic acid", 
+  xlab="Growth", 
+  xlim = range(c(2, 22)),
+  breaks = 8
+  )
+```
 
+```{r}
+shapiro.test(guinea_teeth$growth[guinea_teeth$trt=="1"])
+shapiro.test(guinea_teeth$growth[guinea_teeth$trt=="0"])
+```
+
+```{r}
+par(mfrow=c(1,2))
+qqnorm(scale(guinea_teeth$growth[guinea_teeth$trt=="1"]),
+  main="Treatment = orange juice")
+abline(a=0, b=1, col="red")
+qqnorm(scale(guinea_teeth$growth[guinea_teeth$trt=="0"]),
+  main="Treatment = ascorbic acid")
+abline(a=0, b=1, col="red")
+```
+
+Description: In the context of the study, the normal distribution assumption may be interpreted as meaning that the distribution of the teeth growth of guinea pigs is normally distributed, and that this assumption holds both for the guinea pigs whose diets were of ascorbic acid or orange juice (treatment labels 0 and 1, respectively). 
+
+Justification: 
 
 \newpage
 
 # 2.  
 Perform a Wilcoxon rank-sum test to determine if the distributions of teeth lengths are the same for the two treatment groups.
 
+```{r}
+wilcox.test(growth~trt, data=guinea_teeth, exact=F)
+```
+
 > 1.  What is the value of the test statistic $W$? What is the corresponding sum of the ranks in the first group?
 
-
+W = 19.5
 
 > 2.  What is the value of the $p$-value?
 
-
+p-value $= 0.02319$
 
 > 3.  Interpret the result of the test in the context of the study.
 
+p-value is the likelihood we observed the results we did given the null hypothesis. Where: 
 
+Null Hypothesis: Distribution of response variable is the same for both groups.
+
+Alternative Hypothesis: Distribution of response variable is different between the two groups.
+
+So we have evidence in support of the alternative hypothesis, namely that there is a difference between the two groups of guinea pigs. 
 
 \newpage
 
@@ -290,10 +313,12 @@ Use R to complete the following exercises for the radon study:
 
 > 1.  Which transformation of the data will result in normal distributions of radon concentration levels within each county?
 
-
+Box-Cox transformation
 
 > 2.  Conduct the traditional t-test (with equal variances) for the transformed data. Interpret the results in the context of the study.
 
-
+```{r}
+t.test(X~county, data=minn_radon, var.equal=T)
+```
 
 **Total:** 25 points **\# correct:** **%:**
