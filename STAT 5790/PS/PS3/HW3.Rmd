@@ -278,7 +278,6 @@ How long was the longest rental (converted into days)?. *2 points*
 
 ```{r}
 # 86400 seconds in a day 
-
 max(bikes$Duration)/86400
 ```
 8.976389 days, or roughly speaking: 8 days, 23 hours, 26 minutes long. 
@@ -350,11 +349,35 @@ bikes |>
 Plot barcharts of the number of trips on each day of the week, for each Subscriber.Type. Note that one can divide the plotting area using par(mfrow = $c(....)$) if needed. Make sure that the days of the week (wday) are in the usual order (Start with Mondays). Describe any patterns you see. *6 points*
 
 ```{r}
+dailySummaries <- bikes |> 
+  group_by(wday, Subscriber.Type) |> 
+  summarize(count = n())
 
+subs <- dailySummaries |> 
+  filter(Subscriber.Type == "Registered") 
+
+casuals <- dailySummaries |> 
+  filter(Subscriber.Type == "Casual")
+
+days_of_the_week <- c("Mon", "Tues", "Wed", 
+                      "Thurs", "Fri", "Sat", "Sun")
+par(mfrow=c(1,2))
+
+barplot(subs$count ~ factor(subs$wday, days_of_the_week), 
+        main = "Registered User Trips By Day", 
+        ylim = c(0, 9000), 
+        xlab = "Day", 
+        ylab = "Count", 
+        las = 2)
+barplot(casuals$count ~ factor(casuals$wday, days_of_the_week), 
+        main = "Casual User Trips By Day", 
+        ylim = c(0, 9000), 
+        xlab = "Day", 
+        ylab = "Count", 
+        las = 2)
 ```
 
-Observations: 
-
+Observations: Between both subscriber types, most Casual subscriber usage spikes during the weekend (Saturday-Sunday), whereas Registered subscriber usage decreases during the weekend. Also, perhaps unsurprisingly, the population of Registered subscribers goes on a trip more often than casual users regardless of the day of the week. 
 
 \newpage
 
@@ -380,11 +403,47 @@ titantic <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STA
 ```
 
 ## (b) 
-Using for instance the function table, cross-classify the passengers by gender and passenger class. Do a further
-cross-tabulation, perhaps using the same function additionally stratified by survival status. Comment on your findings. *3 + 3 + 3 points*
+Using for instance the function table, cross-classify the passengers by gender and passenger class. Do a further cross-tabulation, perhaps using the same function additionally stratified by survival status. Comment on your findings. *3 + 3 + 3 points*
+
+```{r}
+table(titantic$PClass, titantic$Sex)
+```
+
+```{r}
+table(titantic$PClass, titantic$Sex, titantic$Survived)
+```
+Females in 1st class tended to survive than not, and likewise for females in the 2nd class. However, this trend is inverted for 3rd class females, which is to say more 3rd class females did not survive than survive. Looking at men, we observe more men tended not to survive than survive regardless of class, though the proportion of 1st class men who survived is greater than the proportion of 3rd class men who didn't survive. 
 
 ## (c) 
 Is there any preliminary evidence that there is a difference in ages among people who survived and those that did not? To answer this question, calculate the mean difference in ages (separately, for both men and women) and the standard errors of the means. What assumptions do you need to make in order to answer this question? *(2 + 3 + 2)× 2 + 4 points*
+
+```{r}
+gone <- titantic |> 
+  filter(Survived == 0) |> 
+  na.omit() |> 
+  group_by(Sex) |> 
+  summarize(ageAvg = mean(Age), 
+            stdErrAge = sd(Age)/sqrt(length((Age))), 
+            nObs = n())
+
+survivor <- titantic |>
+  filter(Survived == 1) |> 
+  na.omit() |> 
+  group_by(Sex) |> 
+  summarize(ageAvg = mean(Age), 
+            stdErrAge = sd(Age)/sqrt(length((Age))), 
+            nObs = n())
+
+gone <- cbind.data.frame("Survived == 0", gone)
+survivor <- cbind.data.frame("Survived == 1", survivor)
+
+gone
+survivor
+```
+
+Preliminary evidence indicates that women who survived tended to be older on average, and that men who survived tended to be younger on average. 
+
+An assumption one should make when supporting the validity of this claim is that not other variables could possibly upend this presumption. In statistical terms, we suppose that observations are independent between groups, i.e. between men and women, and that each of the variables in question is independent of some other variable. For example, one would need to suppose that no other factors could have caused this phenomenon to occur, which is rather difficult to support given past analysis and general consensus over the fact that people in the upper class were more likely to survive compared to lower class. Combine this information with a potential demographic skew of, say, older women tending to belong to the upper class of passengers, and we start to suspect some other factors playing a role in survival. 
 
 \newpage
 
