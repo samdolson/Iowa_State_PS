@@ -468,15 +468,63 @@ senateVote <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/S
 ### i 
 Our objective is to take the above vector of character strings, and for each element, to only keep the portion that contains the string preceding the first "". There are a few ways to do this, but you can use the function sub() and its allies (see ?sub for examples) which replaces the first time a desired string matches in each element with our choice. Use this to create a new vector of character strings containing only the bill type. *10 points*
 
+```{r}
+TypeOnlyDf <- senateVote |> 
+  mutate(
+    bill_type_bill_name_bill_ID = gsub("\\_.*","",bill_type_bill_name_bill_ID)
+  )
+
+# TypeOnlyDf$BillTypeOnly
+```
+
+```{r}
+# library(stringr)
+# TypeOnlyDf <- senateVote |> 
+#   mutate(
+#     BillTypeOnly = str_extract(senateVote$bill_type_bill_name_bill_ID, "^[^_]+(?=_)")
+#   )
+```
+
 ### ii 
 Tabulate the frequency for each type of bill. *5 points*
+
+```{r}
+TypeOnlyDf |> 
+  group_by(bill_type_bill_name_bill_ID) |> 
+  summarize(count = n()) |> 
+  arrange(desc(count)) |> 
+  mutate(prop = paste(round( count / sum(count), 3) * 100, "%")
+  )
+```
 
 ## (c) 
 *Data Quality*. The second field contains the number of votes which were not recorded for each senator. We will evaluate if there is any discrepancy. To do so, note that if ***X*** is the matrix of votes (only), then the diagonal elements of ***XX***$\prime$ plus the column of missing votes should match the total number of senators. (Note that there is an "easier"way to do this, using the function apply(), but you are not asked to try that here, since we will be encountering this in detail later.) *5 points*
 
+```{r}
+ncol(TypeOnlyDf) - 2
+```
+We expect 100 senators in our dataset. 
+
+```{r}
+missingMatrix <- matrix(TypeOnlyDf$missing_votes, ncol = 1)
+tMissing <- t(missingMatrix)
+diag(missingMatrix %*% tMissing) + missingMatrix
+```
+
+```{r}
+sum(TypeOnlyDf$missing_votes)
+```
+
 ## (d) 
 One issue here is whether we can discern voting trends on different issues. However, every vote here is recorded as a-1/0/1 vote, regardless of whether it is for/neutral/against on a conservative/moderate/liberal issue. For this reason, we will analyze the datasets according to whether senators voted with or against the (majority) leader, Senator Bill Frist (a Republican whose votes are recorded in the last field). Thus, we will convert all the votes of the other senators relative to whether they voted with or against Senator Frist. Do so, using a set of appropriate matrix and vector operations, after eliminating those Bills from consideration where the leader did not record a vote. *15 points*
+
+```{r}
+
+```
 
 ## (e) 
 or each bill type identified earlier, tabulate the average number of times senators voted with, against, or indifferently from the Senate majority leader. *10 points*
 
+```{r}
+
+```
