@@ -469,6 +469,7 @@ senateVote <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/S
 Our objective is to take the above vector of character strings, and for each element, to only keep the portion that contains the string preceding the first "". There are a few ways to do this, but you can use the function sub() and its allies (see ?sub for examples) which replaces the first time a desired string matches in each element with our choice. Use this to create a new vector of character strings containing only the bill type. *10 points*
 
 ```{r}
+require(dplyr)
 TypeOnlyDf <- senateVote |> 
   mutate(
     bill_type_bill_name_bill_ID = gsub("\\_.*","",bill_type_bill_name_bill_ID)
@@ -519,12 +520,52 @@ sum(TypeOnlyDf$missing_votes)
 One issue here is whether we can discern voting trends on different issues. However, every vote here is recorded as a-1/0/1 vote, regardless of whether it is for/neutral/against on a conservative/moderate/liberal issue. For this reason, we will analyze the datasets according to whether senators voted with or against the (majority) leader, Senator Bill Frist (a Republican whose votes are recorded in the last field). Thus, we will convert all the votes of the other senators relative to whether they voted with or against Senator Frist. Do so, using a set of appropriate matrix and vector operations, after eliminating those Bills from consideration where the leader did not record a vote. *15 points*
 
 ```{r}
+filterDf <- TypeOnlyDf |> 
+  filter(William.H...Bill..Frist..TN. != 0)
 
+fristOnly <- filterDf |> 
+  select(William.H...Bill..Frist..TN.) |>
+  as.matrix(nrow = 539, ncol = 1)
+
+otherSenators <- filterDf |> 
+  select(-c(William.H...Bill..Frist..TN., bill_type_bill_name_bill_ID, missing_votes)) |>
+  as.matrix(nrow = 539, ncol = 99)
+```
+
+```{r}
+M <- otherSenators
+v <- fristOnly
+result <- M * matrix(v, nrow = nrow(M), ncol = ncol(M), byrow = TRUE)
+# comparison <- M == matrix(v, nrow = nrow(M), ncol = ncol(M), byrow = TRUE)
+
+analysisData <- cbind.data.frame("billType" = filterDf$bill_type_bill_name_bill_ID, result)
 ```
 
 ## (e) 
-or each bill type identified earlier, tabulate the average number of times senators voted with, against, or indifferently from the Senate majority leader. *10 points*
+For each bill type identified earlier, tabulate the average number of times senators voted with, against, or indifferently from the Senate majority leader. *10 points*
 
 ```{r}
+# sum(analysisData == 1, na.rm=TRUE)
+# sum(analysisData == -1, na.rm=TRUE)
+# sum(analysisData == 0, na.rm=TRUE)
 
+analysisData 
+
+length(unique(analysisData$billType))
+
+# summaryCounts <- analysisData |> 
+#   group_by(billType) |> 
+#   summarize(count = n()) |> 
+#   arrange(desc(count))
+
+testDf <- analysisData |> 
+  filter(billType == "Abortion Issues") |> 
+
+sum(testDf == 0, na.rm=TRUE)
+# |> 
+#   mutate(
+#     countFor = 
+#     countAgainst = 
+#     countNeutral = 
+#   )
 ```
