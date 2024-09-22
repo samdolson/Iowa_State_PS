@@ -30,11 +30,122 @@ windDf <- as.data.frame(readxl::read_excel("C:/Users/samue/OneDrive/Desktop/Iowa
 ## (b) 
 Provide descriptive summaries of the measurements such as means, standard deviations, medians, quartiles and inter-quartile ranges. *10 points*
 
+```{r}
+
+require(dplyr)
+seasonsSummary <- sapply(windDf, summary)
+
+iqrSeason <- function(season) {
+  quartile1 <- quantile(windDf[[season]], 0.75)
+  quartile2 <- quantile(windDf[[season]], 0.25)
+  iqr <- quartile1 - quartile2
+  iqr[[1]]
+}
+
+iqrVals <- sapply(c("Spring", "Summer", "Autumn", "Winter"), iqrSeason)
+endDf <- rbind.data.frame(seasonsSummary, iqrVals)
+rownames(endDf)[rownames(endDf) == "7"] <- "IQR"
+
+endDf
+```
+
 ## (c) 
 Given that these are angular data, do any of these descriptive measures above make sense? Why/why not? Think about the average between 1*◦*and 359*◦*. *5 points*
 
+The above summary statistics do make sense, but they require a certain degree of understanding or transformation in order to be relevant for a particular research question. For example: Knowing angular measurements are between 1 and 359 does not give us an idea of **angular dispersion** or **circular mean**, which tend to be used when studying angular measurements. So transforming these using a triometric method would likely aid in interpretability. But I would argue that we have summary statistics of "raw measurements", there is some value to the above table, insomuch as it tells us that the angular measurements between seasons are different. However, we cannot surmise much beyond that without undergoing some transformations, either to a particular statistic or to the underlying data. 
+
 ## (d)
 Plot, in one figure, the angular measures, using color for the season. (Note that to obtain a meaningful plot, we need to display angle in terms of a bivariate plot. One way to do so is to use a bivariate direction vector given by ($$cos(\theta), sin(\theta)$$) for each angle.) Comment on seasonal differences, if any. *10 points*
+
+```{r}
+par(mfrow=c(2,2))
+plot(sin(windDf$Spring) ~ cos(windDf$Spring), xlab = "cos", ylab = "sin", main = "Spring", col = "yellow2")
+abline(v = 0, lty = "dashed")
+abline(h = 0, lty = "dashed")
+plot(sin(windDf$Summer) ~ cos(windDf$Summer), xlab = "cos", ylab = "sin", main = "Summer", col = "green3")
+abline(v = 0, lty = "dashed")
+abline(h = 0, lty = "dashed")
+plot(sin(windDf$Autumn) ~ cos(windDf$Autumn), xlab = "cos", ylab = "sin", main = "Autumn", col = "tomato3")
+abline(v = 0, lty = "dashed")
+abline(h = 0, lty = "dashed")
+plot(sin(windDf$Winter) ~ cos(windDf$Winter), xlab = "cos", ylab = "sin", main = "Winter", col = "skyblue2")
+abline(v = 0, lty = "dashed")
+abline(h = 0, lty = "dashed")
+```
+Observation: The distributions of directions between seasons appear similar upon initial inspection, though some differences become apparent. In particular, if we look at the counts of points in each quadrant of the plot, e.g. upper right quadrant of points between $cos(\theta) \in (0, 1)$ and $sin(\theta) \in (0, 1)$, Autumn and Winter have 5 observations, whereas Summer has only 3 and Spring has at least 6. 
+
+Using an alternative formulation, noted below, we can observe these differences more easily, and see there are marked differences between the seasons. 
+
+```{r}
+library(ggplot2)
+library(patchwork)
+
+x1 <- ggplot(data.frame(a = windDf$Spring %% (2 * pi))) +
+  annotate('rect', xmin = -Inf, xmax = Inf, ymin = 0, ymax = 1,
+           fill = 'gray97') +
+  geom_hline(yintercept = 1, color = 'gray60') +
+  geom_segment(aes(x = a, xend = a, y = 0, yend = 1), 
+               color = 'yellow2', size = 1, alpha = 0.5,
+               arrow = arrow(angle = 25, length = unit(4, 'mm'))) +
+  annotate('text', x = 0:3 * pi/2, y = 0.9, label = c('N', 'E', 'S', 'W'),
+           size = 7, fontface = 2, color = 'gray30') +
+  geom_point(aes(x = a, y = 1)) +
+  scale_x_continuous(limits = c(0, 2 * pi)) +
+  coord_polar() +
+  theme_void() +
+  theme(plot.background = element_rect(color = NA, fill = '#ecf1f4')) + 
+  ggtitle("Spring")
+
+x2 <- ggplot(data.frame(a = windDf$Summer %% (2 * pi))) +
+  annotate('rect', xmin = -Inf, xmax = Inf, ymin = 0, ymax = 1,
+           fill = 'gray97') +
+  geom_hline(yintercept = 1, color = 'gray60') +
+  geom_segment(aes(x = a, xend = a, y = 0, yend = 1), 
+               color = 'green3', size = 1, alpha = 0.5,
+               arrow = arrow(angle = 25, length = unit(4, 'mm'))) +
+  annotate('text', x = 0:3 * pi/2, y = 0.9, label = c('N', 'E', 'S', 'W'),
+           size = 7, fontface = 2, color = 'gray30') +
+  geom_point(aes(x = a, y = 1)) +
+  scale_x_continuous(limits = c(0, 2 * pi)) +
+  coord_polar() +
+  theme_void() +
+  theme(plot.background = element_rect(color = NA, fill = '#ecf1f4')) + 
+  ggtitle("Summer")
+
+x3 <- ggplot(data.frame(a = windDf$Autumn %% (2 * pi))) +
+  annotate('rect', xmin = -Inf, xmax = Inf, ymin = 0, ymax = 1,
+           fill = 'gray97') +
+  geom_hline(yintercept = 1, color = 'gray60') +
+  geom_segment(aes(x = a, xend = a, y = 0, yend = 1), 
+               color = 'tomato3', size = 1, alpha = 0.5,
+               arrow = arrow(angle = 25, length = unit(4, 'mm'))) +
+  annotate('text', x = 0:3 * pi/2, y = 0.9, label = c('N', 'E', 'S', 'W'),
+           size = 7, fontface = 2, color = 'gray30') +
+  geom_point(aes(x = a, y = 1)) +
+  scale_x_continuous(limits = c(0, 2 * pi)) +
+  coord_polar() +
+  theme_void() +
+  theme(plot.background = element_rect(color = NA, fill = '#ecf1f4')) + 
+  ggtitle("Autumn")
+
+x4 <- ggplot(data.frame(a = windDf$Winter %% (2 * pi))) +
+  annotate('rect', xmin = -Inf, xmax = Inf, ymin = 0, ymax = 1,
+           fill = 'gray97') +
+  geom_hline(yintercept = 1, color = 'gray60') +
+  geom_segment(aes(x = a, xend = a, y = 0, yend = 1), 
+               color = 'skyblue2', size = 1, alpha = 0.5,
+               arrow = arrow(angle = 25, length = unit(4, 'mm'))) +
+  annotate('text', x = 0:3 * pi/2, y = 0.9, label = c('N', 'E', 'S', 'W'),
+           size = 7, fontface = 2, color = 'gray30') +
+  geom_point(aes(x = a, y = 1)) +
+  scale_x_continuous(limits = c(0, 2 * pi)) +
+  coord_polar() +
+  theme_void() +
+  theme(plot.background = element_rect(color = NA, fill = '#ecf1f4')) + 
+  ggtitle("Winter")
+
+x1 + x2 + x3 + x4
+```
 
 \newpage
 
@@ -45,23 +156,85 @@ Plot, in one figure, the angular measures, using color for the season. (Note tha
 Generate *m* = 1000 samples of size *n* = 2 from a *Uniform*(0*,* 1) distribution and storage the samples in a matrix of dimensions 2 *×* 1000. (Hint: runif() generates values from a random uniform distribution between 0 and 1.) *6 points* 
 
 ```{r}
-set.seed(50)
-UniformNums <- rep(runif(2, min = 0, max = 1), 1000)
+seeds <- 1:1000   # 10 seeds
+count <- 0
+UniformNums <- replicate(1000, { count <<- count + 1; set.seed(seeds[count]); runif(2, min = 0, max = 1) })
 matrixDf <- matrix(UniformNums, nrow  = 2, ncol = 1000)
 dim(matrixDf)
 ```
 
 ## (b)    
-Calculate the mean *X* =[1]{.underline} *n* *n* *i*=1*Xi* for each   sample. (Hint: consider using matrix operations.) *6 points*    
+Calculate the mean *X* {Some Math my Knitr Didn't Like} for each sample. (Hint: consider using matrix operations.) *6 points*   
+
+```{r}
+# Overall 
+top <- sum(matrixDf)
+bottom <- length(matrixDf)
+top/bottom
+
+# By Sample 
+# By column 
+XsDf <- colMeans(matrixDf)
+
+# colMeans(t(matrixDf))
+```
 
 ## (c) 
 Draw a QQ-plot for the 1000 *X*s to judge the normality. Comment. *5 points*
 
+```{r}
+qqnorm(XsDf, pch = 1, frame = FALSE)
+qqline(XsDf, col = "steelblue", lwd = 2)
+
+# hist(XsDf)
+```
+We generally have a good fit of normality, but the tails deviate a bit from what we'd empirically/theoretically expect, as in we appear to have the opposite of a heavy tail/potentially negative kurtosis. 
+
 ## (d) 
 Repeat the procedure ((a),(b) and (c)) for *n* = 10*,* 25*,* and 100 with *m* = 1000. Turn in the QQ-plots and the R code. *10 points*
 
+```{r}
+seeds <- 1:1000   # 10 seeds
+count <- 0
+UniformNums <- replicate(1000, { count <<- count + 1; set.seed(seeds[count]); runif(10, min = 0, max = 1) })
+matrixDf <- matrix(UniformNums, nrow  = 10, ncol = 1000)
+
+XsDf <- colMeans(matrixDf)
+
+qqnorm(XsDf, pch = 1, frame = FALSE)
+qqline(XsDf, col = "steelblue", lwd = 2)
+```
+
+```{r}
+seeds <- 1:1000   # 10 seeds
+count <- 0
+UniformNums <- replicate(1000, { count <<- count + 1; set.seed(seeds[count]); runif(25, min = 0, max = 1) })
+matrixDf <- matrix(UniformNums, nrow  = 25, ncol = 1000)
+
+XsDf <- colMeans(matrixDf)
+
+qqnorm(XsDf, pch = 1, frame = FALSE)
+qqline(XsDf, col = "steelblue", lwd = 2)
+```
+
+```{r}
+seeds <- 1:1000   # 10 seeds
+count <- 0
+UniformNums <- replicate(1000, { count <<- count + 1; set.seed(seeds[count]); runif(100, min = 0, max = 1) })
+matrixDf <- matrix(UniformNums, nrow  = 100, ncol = 1000)
+
+XsDf <- colMeans(matrixDf)
+
+qqnorm(XsDf, pch = 1, frame = FALSE)
+qqline(XsDf, col = "steelblue", lwd = 2)
+```
+
 ## (e) 
 What conclusions can you draw? *3 points*
+
+**"Boy, R sure can do some fast simulations! "**
+
+Pithy comments aside, the above plots don't look very different from one another. To me, this indicates two things: The first being that having a large $m$ may be more of a contributing factor to achieving normality in the observations, which in turn means that we achieve something "sufficiently normal" for relatively small $n$. Contrapositively, this to me indicates that we will continue to see (or at least expect to see) fairly normal observations nonetheless contain some possible deivations or lack of a perfect fit even for larger and larger $n$.  
 
 \newpage
 
@@ -69,6 +242,10 @@ What conclusions can you draw? *3 points*
 Do you ride a bicycle? (If not, you should seriously consider it.) Bike-sharing is the idea that you can rent a bike at one station and ride it to another where you drop it off. Users are charged by the amount of blocks of time that they have the bike. The data set **bikes.csv** in the Datasets section of Canvas contain information about a bike sharing service in Washington DC. Each row in the dataset is a record on one rental/trip.
 
 For all the answers, provide the R code necessary for a complete solution.
+
+```{r}
+knitr::include_graphics("memes.png")
+```
 
 ## (a) 
 Load the data into R. How many trips were there overall?. How many factor variables are in the data, how many variables are of other kinds? *4 points*
@@ -79,6 +256,19 @@ bikes <- read_csv("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS
 nrow(bikes)
 summary(bikes)
 ```
+There were 77,186 trips contained in the bikes dataset. 
+
+There appear to be 6 Factor Variables in the bikes dataset: 
+  - wday
+  - hour
+  - Start.Station
+  - End.Station
+  - Subscriber.Type 
+  - Bike. 
+
+And there appears to be 2 non-Factor Variables in the bikes dataset: 
+  - Duration
+  - Start.date 
 
 ## (b) 
 The variable Duration contains the length of the bike rental in seconds.
@@ -86,11 +276,34 @@ The variable Duration contains the length of the bike rental in seconds.
 ### i
 How long was the longest rental (converted into days)?. *2 points*
 
+```{r}
+# 86400 seconds in a day 
+
+max(bikes$Duration)/86400
+```
+8.976389 days, or roughly speaking: 8 days, 23 hours, 26 minutes long. 
+
 ### ii
 What other information is available in the data on this trip? *5 points*
 
+```{r}
+bikes |> 
+  filter(Duration == max(Duration))
+```
+
+This trip started at 10am on a Wednesday, using a W21208 while beginning at the Metro Center, and ended at a different station (3rd & H St NW). This was also a "Casual" subscriber to the service. 
+
 ### iii
 How many trips (of all trips) lasted more than one day? *2 points*
+
+```{r}
+# 86400 seconds in a day 
+oneDay <- 86400
+bikes |> 
+  filter(Duration > 86400) |> 
+  nrow()
+```
+7 trips lasted longer than one day. 
 
 ## (c) 
 Start.Station describes the start of each trip.
@@ -98,15 +311,50 @@ Start.Station describes the start of each trip.
 ### i 
 From which station did most trips originate? How many trips? *4 points*
 
+```{r}
+bikes |> 
+  group_by(Start.Station) |> 
+  summarize(count = n()) |> 
+  arrange(desc(count)) |> 
+  head()
+```
+
+Massachusetts Ave & Dupont Circle NW has most trips originate from it. 
+
 ### ii 
 Is that the same station at which most trips ended (End.Station)?
 *3 points*
 
+```{r}
+bikes |> 
+  group_by(End.Station) |> 
+  summarize(count = n()) |> 
+  arrange(desc(count)) |> 
+  head()
+```
+
+Massachusetts Ave & Dupont Circle NW also was the most frequent end station, so yes, it is both the most common start and stop location. 
+
 ## (d) 
 When a bike is not returned, the End.Station is marked as $" "$. How often do bikes not get returned? What is reported for the duration of those trips? Change the value of Duration to NA for these records. *4 points*
 
+```{r}
+bikes$Duration[is.na(bikes$End.Station)] <- NA
+
+bikes |> 
+  filter(is.na(End.Station))
+```
+
+
 ## (e)
 Plot barcharts of the number of trips on each day of the week, for each Subscriber.Type. Note that one can divide the plotting area using par(mfrow = $c(....)$) if needed. Make sure that the days of the week (wday) are in the usual order (Start with Mondays). Describe any patterns you see. *6 points*
+
+```{r}
+
+```
+
+Observations: 
+
 
 \newpage
 
