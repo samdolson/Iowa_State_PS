@@ -549,23 +549,42 @@ For each bill type identified earlier, tabulate the average number of times sena
 # sum(analysisData == -1, na.rm=TRUE)
 # sum(analysisData == 0, na.rm=TRUE)
 
-analysisData 
-
-length(unique(analysisData$billType))
+# analysisData 
+# 
+# length(unique(analysisData$billType))
 
 # summaryCounts <- analysisData |> 
 #   group_by(billType) |> 
 #   summarize(count = n()) |> 
 #   arrange(desc(count))
 
-testDf <- analysisData |> 
-  filter(billType == "Abortion Issues") |> 
+result <- analysisData %>%
+  group_by(billType = analysisData[[1]]) %>%  
+  summarise(
+    Avg_With = mean(rowSums(.[-1] == 1, na.rm = TRUE)),
+    Avg_Against = mean(rowSums(.[-1] == -1, na.rm = TRUE)),
+    Avg_Indifferent = mean(rowSums(.[-1] == 0, na.rm = TRUE))
+  )
 
-sum(testDf == 0, na.rm=TRUE)
+result
+
 # |> 
 #   mutate(
 #     countFor = 
 #     countAgainst = 
 #     countNeutral = 
 #   )
+```
+
+```{r}
+library(tidyverse)
+result <- analysisData %>%
+  group_by(billType) %>%  
+  summarise(
+    Avg_With = mean(rowSums(.[-1] == 1, na.rm = TRUE)),
+    Avg_Against = mean(rowSums(.[-1] == -1, na.rm = TRUE)),
+    Avg_Indifferent = mean(rowSums(.[-1] == 0, na.rm = TRUE))
+  )
+
+result
 ```
