@@ -473,17 +473,10 @@ require(dplyr)
 TypeOnlyDf <- senateVote |> 
   mutate(
     bill_type_bill_name_bill_ID = gsub("\\_.*","",bill_type_bill_name_bill_ID)
+    # the below will extract using a different method
+    # and create a new column
+    # BillTypeOnly = str_extract(senateVote$bill_type_bill_name_bill_ID, "^[^_]+(?=_)")
   )
-
-# TypeOnlyDf$BillTypeOnly
-```
-
-```{r}
-# library(stringr)
-# TypeOnlyDf <- senateVote |> 
-#   mutate(
-#     BillTypeOnly = str_extract(senateVote$bill_type_bill_name_bill_ID, "^[^_]+(?=_)")
-#   )
 ```
 
 ### ii 
@@ -535,83 +528,128 @@ otherSenators <- filterDf |>
 ```{r}
 M <- otherSenators
 v <- fristOnly
-result <- M * matrix(v, nrow = nrow(M), ncol = ncol(M), byrow = TRUE)
-# comparison <- M == matrix(v, nrow = nrow(M), ncol = ncol(M), byrow = TRUE)
+# positive entries when agreed (-1 * -1 = 1)
+# negative if voted against 
+# 0 if they voted neutral 
 
+result <- M * matrix(v, nrow = nrow(M), ncol = ncol(M), byrow = TRUE)
 analysisData <- cbind.data.frame("billType" = filterDf$bill_type_bill_name_bill_ID, result)
 ```
 
 ## (e) 
 For each bill type identified earlier, tabulate the average number of times senators voted with, against, or indifferently from the Senate majority leader. *10 points*
 
+> Senator Averages 
+
 ```{r}
-# sum(analysisData == 1, na.rm=TRUE)
-# sum(analysisData == -1, na.rm=TRUE)
-# sum(analysisData == 0, na.rm=TRUE)
+resultsNeutralInd <- analysisData |>
+  group_by(billType) |>
+  # Get a summary of a senators votes by billType
+  summarize(
+    across(everything(), ~ sum(. == 0, na.rm = TRUE), .names = "zero_{col}"),
+  ) |>  
+  arrange(desc(billType))
 
-# analysisData 
-# 
-# length(unique(analysisData$billType))
 
-# summaryCounts <- analysisData |> 
-#   group_by(billType) |> 
-#   summarize(count = n()) |> 
-#   arrange(desc(count))
+resultsForInd <- analysisData |>
+  group_by(billType) |>
+  summarize(
+    across(everything(), ~ sum(. == 1, na.rm = TRUE), .names = "for_{col}"),
+  ) |> 
+  arrange(desc(billType))
 
-result <- analysisData %>%
-  group_by(billType = analysisData[[1]]) %>%  
-  summarise(
-    Avg_With = mean(rowSums(.[-1] == 1, na.rm = TRUE)),
-    Avg_Against = mean(rowSums(.[-1] == -1, na.rm = TRUE)),
-    Avg_Indifferent = mean(rowSums(.[-1] == 0, na.rm = TRUE))
-  )
 
-result
+resultsAgainstInd <- analysisData |>
+  group_by(billType) |>
+  summarize(
+    across(everything(), ~ sum(. == -1, na.rm = TRUE), .names = "against_{col}"),
+  ) |>
+  arrange(desc(billType))
 
-# |> 
-#   mutate(
-#     countFor = 
-#     countAgainst = 
-#     countNeutral = 
-#   )
 ```
 
 ```{r}
-library(tidyverse)
-library(dplyr)
-result1 <- analysisData %>%
-  group_by(billType) %>%
+averageCountsperType <- TypeOnlyDf |> 
+  group_by(bill_type_bill_name_bill_ID) |> 
+  summarize(count = n()) |> 
+  arrange(desc(bill_type_bill_name_bill_ID))
+
+names(averageCountsperType)[1] <- "billType"  
+
+# compNeutral <- mutate(averageCountsperType, 
+#                  resultsNeutralInd
+# )
+# 
+# compFor <- mutate(averageCountsperType, 
+#                  resultsForInd
+# )
+# 
+# compAgainst <- mutate(averageCountsperType, 
+#                  resultsAgainstInd
+# )
+```
+
+```{r}
+m <- as.matrix(averageCountsperType$count, nrow = 36, ncol = 1)
+mSenateNeutral <- as.matrix(resultsNeutralInd[,2:100], nrow = 36, ncol = 99)
+mSenateFor <- as.matrix(resultsForInd[,2:100], nrow = 36, ncol = 99)
+mSenateAgainst <- as.matrix(resultsAgainstInd[,2:100], nrow = 36, ncol = 99)
+
+neutralTable <- round(sweep(mSenateNeutral, 1, m, "/"),3)
+forTable <- round(sweep(mSenateFor, 1, m, "/"),3)
+againstTable <- round(sweep(mSenateAgainst, 1, m, "/"),3)
+```
+
+```{r}
+neutralInfo <- neutralTable
+```
+
+> Overall Averages
+
+```{r}
+resultsNeutral <- analysisData |>
+  group_by(billType) |>
+  # Get a summary of a senators votes by billType
   summarize(
-      zero = sum(Arlen.Specter..PA. == 0, na.rm = TRUE), 
-      one = sum(Arlen.Specter..PA. == 1, na.rm = TRUE), 
-      against = sum(Arlen.Specter..PA. == -1, na.rm = TRUE)
-  )
+    across(everything(), ~ sum(. == 0, na.rm = TRUE), .names = "zero_{col}"),
+  ) |> 
+  # mutate so we keep billType for use later
+  # now we sum the total of senators across senators
+  mutate(total_zero = rowSums(across(starts_with("zero_")))) |>
+  select(c(billType, total_zero)) |>
+  arrange(desc(billType))
 
-# result2 <- analysisData %>%
-#   group_by(billType) %>%
-#   summarize(
-#       zero = sum(analysisData[,2] == 0, na.rm = TRUE), 
-#       one = sum(analysisData[,2] == 1, na.rm = TRUE), 
-#       against = sum(analysisData[,2] == -1, na.rm = TRUE)
-#   )
-
-head(result1)
-
-# head(result2) 
-
-senatorData <- function(data) {
-  x <- as.character(colnames(analysisData[data]))
-
-  result <- analysisData %>%
-  group_by(billType) %>%
+resultsFor <- analysisData |>
+  group_by(billType) |>
   summarize(
-      zero = sum(x == 0, na.rm = TRUE), 
-      one = sum(x == 1, na.rm = TRUE), 
-      against = sum(x == -1, na.rm = TRUE)
-  )
+    across(everything(), ~ sum(. == 1, na.rm = TRUE), .names = "for_{col}"),
+  ) |> 
+  mutate(total_for = rowSums(across(starts_with("for_")))) |>
+  select(c(billType, total_for)) |>
+  arrange(desc(billType))
 
-  result
-}
+resultsAgainst <- analysisData |>
+  group_by(billType) |>
+  summarize(
+    across(everything(), ~ sum(. == -1, na.rm = TRUE), .names = "against_{col}"),
+  ) |> 
+  mutate(total_against = rowSums(across(starts_with("against_")))) |>
+  select(c(billType, total_against)) |>
+  arrange(desc(billType))
+```
 
-head(senatorData(2))
+```{r}
+combinedCounts <- mutate(resultsNeutral,
+                         resultsAgainst,
+                         resultsFor
+                        )
+
+averageVoting <- combinedCounts |>
+  mutate(totalCount = total_zero + total_against + total_for,
+         averageNeutral = round(total_zero / totalCount, 3),
+         averageFor = round(total_against/ totalCount, 3),
+         averageAgainst = round(total_for/ totalCount, 3)
+         ) |>
+
+averageVoting
 ```
