@@ -220,7 +220,7 @@ The $W$ statistic for the Wilcoxon rank-sum test is the same as the correspondin
 
 > 2.  What is the value of the $p$-value?
 
-The p-value for this test is f-value:$= 0.02319$. 
+The p-value for this test is f-value:$= 0.02319$. However this is the one-tailed so to get the two-tailed we multiply this value by 2, giving us p-value:$=0.02319 * 2 = 0.04638$
 
 > 3.  Interpret the result of the test in the context of the study.
 
@@ -228,7 +228,7 @@ In the context of p-value is the likelihood we observed the results we did given
   - Null Hypothesis: Distribution of response variable (teeth growth) is the same for both groups (of guinea pigs).
   - Alternative Hypothesis: Distribution of response variable (teeth growth) is different between the two groups (of guinea pigs).
 
-So we have low likelihood attributed to the median of the differences in teeth growth being observed if there was no difference in the median of teeth growth in the guinea pigs. Said differently, we have evidence to support the alternative hypothesis that there is a difference in the median teeth growth of guinea pigs with an ascorbic acid diet compared to the median value of guinea pigs treated with an orange juice diet. 
+So we have low likelihood attributed to the median of the differences in teeth growth being observed if there was no difference in the distributions of teeth growth in the guinea pigs. Said differently, we have evidence to support the alternative hypothesis that there is a difference in the distributions of teeth growth of guinea pigs with an ascorbic acid diet compared to the distribution of values for guinea pigs treated with an orange juice diet. 
 
 \newpage
 
@@ -239,16 +239,37 @@ Use R to complete the following exercises for the radon study:
 
 We use the Box-Cox transformation to transform the data into something (more) normally distributed for radon concentration levels. 
 
-We verify this normalized the data by checking the following: 
+Justification for using this specific transformation was due to having skewed data, as evidenced in the below histogram(s). 
+
+```{r}
+hist(minn_radon$radon[minn_radon$county=="OLMSTED"], xlab = "Box-Cox Transformed Radon Levels", main = "OLMSTED", freq = FALSE, ylim = c(0, 0.2))
+lines(density(minn_radon$radon[minn_radon$county=="OLMSTED"]), col = "black", lwd = 2)
+```
+
+```{r}
+hist(minn_radon$radon[minn_radon$county=="STEARNS"], xlab = "Box-Cox Transformed Radon Levels", main = "STEARNS", freq = FALSE)
+lines(density(minn_radon$radon[minn_radon$county=="STEARNS"]), col = "black", lwd = 2)
+```
+We verify this transformation normalized the data by checking the following: 
 
 ```{r}
 hist(minn_radon$X, xlab = "Box-Cox Transformed Radon Levels", main = "Overall", freq = FALSE)
 lines(density(minn_radon$X), col = "black", lwd = 2)
 ```
+
+```{r}
+hist(minn_radon$X[minn_radon$county=="OLMSTED"], xlab = "Box-Cox Transformed Radon Levels", main = "OLMSTED", freq = FALSE)
+lines(density(minn_radon$X[minn_radon$county=="OLMSTED"]), col = "black", lwd = 2)
+```
+
+```{r}
+hist(minn_radon$X[minn_radon$county=="STEARNS"], xlab = "Box-Cox Transformed Radon Levels", main = "STEARNS", freq = FALSE)
+lines(density(minn_radon$X[minn_radon$county=="STEARNS"]), col = "black", lwd = 2)
+```
+
 Which appears, approximately, normal. 
 
 However, if we look at the radon levels before and after using Quantile plots we have: 
-
 
 > Before 
 
