@@ -51,7 +51,7 @@ endDf
 ## (c) 
 Given that these are angular data, do any of these descriptive measures above make sense? Why/why not? Think about the average between 1*◦*and 359*◦*. *5 points*
 
-The above summary statistics do make sense, but they require a certain degree of understanding or transformation in order to be relevant for a particular research question. For example: Knowing angular measurements are between 1 and 359 does not give us an idea of **angular dispersion** or **circular mean**, which tend to be used when studying angular measurements. So transforming these using a triometric method would likely aid in interpretability. But I would argue that we have summary statistics of "raw measurements", there is some value to the above table, insomuch as it tells us that the angular measurements between seasons are different. However, we cannot surmise much beyond that without undergoing some transformations, either to a particular statistic or to the underlying data. 
+***Some*** (but not most!) of the above summary statistics make sense, but they require a certain degree of understanding or transformation in order to be relevant for a particular research question. For example: Knowing angular measurements are between 1 and 359 does not give us an idea of **angular dispersion** or **circular mean**, which tend to be used when studying angular measurements. So transforming these using a trigometric method would likely aid in interpretability. But I would argue that what we have, i.e. summary statistics of "raw measurements", make sense insomuch as it tells us that the angular measurements between seasons are different (their range of values, minimum, and maximum). However, we cannot surmise much beyond that without undergoing some transformations, either to a particular statistic or to the underlying data. 
 
 ## (d)
 Plot, in one figure, the angular measures, using color for the season. (Note that to obtain a meaningful plot, we need to display angle in terms of a bivariate plot. One way to do so is to use a bivariate direction vector given by ($$cos(\theta), sin(\theta)$$) for each angle.) Comment on seasonal differences, if any. *10 points*
@@ -417,28 +417,49 @@ Females in 1st class tended to survive than not, and likewise for females in the
 Is there any preliminary evidence that there is a difference in ages among people who survived and those that did not? To answer this question, calculate the mean difference in ages (separately, for both men and women) and the standard errors of the means. What assumptions do you need to make in order to answer this question? *(2 + 3 + 2)× 2 + 4 points*
 
 ```{r}
-gone <- titantic |> 
+goneMale <- titantic |> 
   filter(Survived == 0) |> 
-  na.omit() |> 
-  group_by(Sex) |> 
-  summarize(ageAvg = mean(Age), 
-            stdErrAge = sd(Age)/sqrt(length((Age))), 
-            nObs = n())
+  filter(Sex == "male") |>
+  na.omit()
 
-survivor <- titantic |>
+survivedMale <- titantic |> 
   filter(Survived == 1) |> 
-  na.omit() |> 
-  group_by(Sex) |> 
-  summarize(ageAvg = mean(Age), 
-            stdErrAge = sd(Age)/sqrt(length((Age))), 
-            nObs = n())
+  filter(Sex == "male") |> 
+  na.omit()
 
-gone <- cbind.data.frame("Survived == 0", gone)
-survivor <- cbind.data.frame("Survived == 1", survivor)
+goneFemale <- titantic |> 
+  filter(Survived == 0) |> 
+  filter(Sex == "female") |>
+  na.omit()
 
-gone
-survivor
+survivedFemale <- titantic |> 
+  filter(Survived == 1) |> 
+  filter(Sex == "female") |> 
+  na.omit()
+
+mean(goneMale$Age) - mean(survivedMale$Age)
+mean(goneFemale$Age) - mean(survivedFemale$Age)
 ```
+```{r}
+# sd(goneMale$Age)/sqrt(length((goneMale$Age)))
+# sd(survivedMale$Age)/sqrt(length((survivedMale$Age)))
+# 
+# sd(goneFemale$Age)/sqrt(length((goneFemale$Age)))
+# sd(survivedFemale$Age)/sqrt(length((survivedFemale$Age)))
+```
+
+```{r}
+sqrt(var(goneMale$Age)/(length((goneMale$Age))) + var(survivedMale$Age)/(length((survivedMale$Age))))
+
+sqrt(var(goneFemale$Age)/(length((goneFemale$Age))) + var(survivedFemale$Age)/(length((survivedFemale$Age))))
+```
+Omitting NAs in the dataset, our summary statistics are: 
+
+Average Male Difference in Age: 6.368905 years (Dead - Survived) 
+Male Std Error: 1.720795
+
+Average Female Difference in Age: -5.965734 years (Dead - Survived)
+Female Std Error: 1.854056
 
 Preliminary evidence indicates that women who survived tended to be older on average, and that men who survived tended to be younger on average. 
 
@@ -476,6 +497,8 @@ TypeOnlyDf <- senateVote |>
     # and create a new column
     # BillTypeOnly = str_extract(senateVote$bill_type_bill_name_bill_ID, "^[^_]+(?=_)")
   )
+
+unique(TypeOnlyDf$bill_type_bill_name_bill_ID)
 ```
 
 ### ii 

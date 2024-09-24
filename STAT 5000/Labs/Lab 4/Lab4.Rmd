@@ -31,6 +31,8 @@ guinea_teeth <- read_csv("guinea_teeth.csv", col_types = cols(trt =
                                             col_factor(levels = c("0", "1"))))
 ```
 
+\newpage
+
 Now, consider another dataset containing the radon concentration levels
 (`radon`) for a selection of homes in two different counties (`county`)
 in Minnesota, Olmsted and Stearns. The data are found in the
@@ -112,13 +114,13 @@ boxplot(guinea_teeth$growth ~ guinea_teeth$trt,
         main="Guinea Pig Teeth Experiment")
 ```
 
-Description: In the context of the study, the equal variance assumption is interpreted as meaning the variability in the growth of teeth between the guinea pigs whose diets were of ascorbic acid or orange juice (treatment labels 0 and 1, respectively) are equal, which is to say both groups of guinea pigs vary equally in the growth of teeth. 
+Description: In the context of the study, the equal variance assumption is interpreted as meaning the variability in the growth of teeth between the guinea pigs whose diets were of ascorbic acid or orange juice (treatment labels 0 and 1, respectively) are equal, which is to say both groups of guinea pigs growth rates of teeth vary equally. 
 
-Justification: The above box plots show obvious differences in skewness, which would lead us to consider our assumption of equal variances to be violated. Furthermore, use of the F-test provides some evidence to consider rejecting the null hypothesis of no difference in variance to support the alternative hypothesis that there is some difference in the variances of the two groups. This is further corroborated through the additional variance test detailed in the user-defined function. 
+Justification: The above box plots show obvious differences in variances, particularly in the range of the spread of values in the growth rates (7.3 range, roughly 4.2 to 11.5 for "0" and 13.3 range, roughly 8.2 to 21.5 for "1"). This would lend support to consider the assumption of equal variances to be violated. Furthermore, use of the F-test provides some evidence to consider rejecting the null hypothesis (no difference in variances between groups) and provides support for the alternative hypothesis that there is some difference in the variances of the two groups. This is further corroborated through the additional variance test detailed in the user-defined function. Both p-values are statistically significant in the range of p-value$< 0.09 < 0.10$. 
 
-Though the p-values for the respective statistical tests are around the 0.08 range, I would nonetheless support the interpretation of the above figures to rejecting the hypothesis of equal variance in favor of an alternative hypothesis of the two guinea pig groups having a difference in their population variances. 
+Though the p-values for the respective statistical tests are within the 0.08 range, and are not statistically significance at a smaller level like 0.05, I would nonetheless support the interpretation of the above figures to rejecting the hypothesis of equal variance in favor of an alternative hypothesis of the two guinea pig groups having a difference in their population variances. 
 
-Worth noting as well that the ratio of sample standard deviations is 1.62, which according to slides should have "little impact", though this is illustrative of there being differences between the two groups.
+Worth noting as well that the ratio of sample standard deviations is 1.62, which according to slides should have "little impact" in the sense of impacting the appropriateness of the t-test procedure, though this is nonetheless illustrative of there being differences between the two groups (ratio is not 1).
 
 \newpage
 
@@ -171,9 +173,9 @@ abline(a=0, b=1, col="red")
 
 Description: In the context of the study, the normal distribution assumption may be interpreted as meaning that the distribution of the teeth growth of guinea pigs is normally distributed, and that this assumption holds both for the guinea pigs whose diets were of ascorbic acid or orange juice (treatment labels 0 and 1, respectively). 
 
-Justification: We have some evidence to reject the assumption that our data is normally distributed. From both the box plots and summary statistics we note there are some deviations in each groups distributions from the normal. Of particular note: Medians and Means for each of the groups are not equal, which is further supported by the finding of skewness in both groups. There is also excess (negative) kurtosis, meaning the tails of the distributions is not normal. 
+Justification: We have some evidence to reject the assumption that our data is normally distributed. From both the box plots and summary statistics we note there are some deviations in each groups distributions from the normal. Of particular note: Medians and Means for each of the groups are not equal, which in conjunction with the actual calculated values of skewness in each of the datasets is further support of the two groups not having normality in their distributions. There is also excess (negative) kurtosis, meaning the tails of the distributions is not normal (opposite of heavy-tailed, though notably deviating from the kurtosis levels of a normal distribution for both groups). 
 
-However, it is worth noting that the samples in question are fairly small, so the deviations from the normal are understandable to a certain extent (there are only 20 total observations, 10 for each group of guinea pigs). Despite this, the statistical test for normality via Shapiro-Wilk is below the 0.20 p-value range. We will see this further when testing for differences in distribution, but it is worth noting here that the visuals above generally do not look normally distributed. Particularly for the quantile plots, we see at least half of the observations in each group do not correspond to the expected distribution given from the empirical (theoretical) qualtiles of a normal distribution. 
+However, it is worth noting that the samples in question are fairly small, so the deviations from the normal are to a certain extent expected (there are only 20 total observations, 10 for each group of guinea pigs). Despite this, the statistical test for normality via Shapiro-Wilk is below the 0.20 p-value range. I believe this is in part impacted by the small sample sizes being tested, as the Shapiro-Wilk test will tend to reject the normality null hypothesis (small p-values) for large N, we would similarly observe a tendancy for the Shapiro-Wilk test to not reject the null hypothesis (higher p-values) for small N. We will see this further when testing for differences in distribution, but it is worth noting here that the visuals above generally do not look normally distributed. Particularly for the quantile plots, we see at least half of the observations in each group do not correspond to the expected distribution given from the empirical (theoretical) qualtiles of a normal distribution. 
 
 \newpage
 
@@ -205,6 +207,57 @@ So we observe a fairly low p-value, below the 0.05 threshold, meaning we calcula
 Use R to complete the following exercises for the radon study:
 
 > 1.  Which transformation of the data will result in normal distributions of radon concentration levels within each county?
+
+>> Comparing Transformations 
+
+```{r}
+sqrtRadon = sqrt(minn_radon$radon)
+
+logRadon = log(minn_radon$radon)
+
+asinRadon = asin(sqrt(minn_radon$radon))
+
+library(MASS)
+bct <- boxcox(lm(radon~county, data=minn_radon))
+lambda <- bct$x[which.max(bct$y)]
+X=(minn_radon$radon^lambda-1)/lambda
+
+minn_radon = cbind(minn_radon, X, sqrtRadon, logRadon, asinRadon)
+```
+
+>>> sqrt
+
+```{r}
+shapiro.test(minn_radon$sqrtRadon[minn_radon$county=="STEARNS"])
+shapiro.test(minn_radon$sqrtRadon[minn_radon$county=="OLMSTED"])
+```
+
+>>> log
+
+```{r}
+shapiro.test(minn_radon$logRadon[minn_radon$county=="STEARNS"])
+shapiro.test(minn_radon$logRadon[minn_radon$county=="OLMSTED"])
+```
+
+>>> arcSin
+
+```{r}
+summary(minn_radon$asinRadon[minn_radon$county=="STEARNS"])
+summary(minn_radon$asinRadon[minn_radon$county=="OLMSTED"])
+```
+
+>>> Box-Cox
+
+```{r}
+shapiro.test(minn_radon$X[minn_radon$county=="STEARNS"])
+shapiro.test(minn_radon$X[minn_radon$county=="OLMSTED"])
+```
+
+Comparing types of transformations, we observe the largest p-values in the Shapiro-Wilk normality test when utilizing the Box-Cox transformation. We want to maximize the p-values in these instances because the null hypothesis is that the underlying data (radon levels in two different counties) being tested has a normal distribution. So a relatively larger p-value means that we had a greater probability of observed the results we did given the null hypothesis of normality (following transformation of the response variable, radon levels. Taken together, the above indicates that using the Box-Cox transformation provides the greatest probability of achieving normality in the transformed radon levels across transformations considered. 
+
+Unfortunately, using the arcSin transformation resulted in a great number of NAs. 
+
+>> Evaluating Normality  
 
 We use the Box-Cox transformation to transform the data into something (more) normally distributed for radon concentration levels. 
 
