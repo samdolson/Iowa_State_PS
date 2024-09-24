@@ -31,6 +31,47 @@ guinea_teeth <- read_csv("guinea_teeth.csv", col_types = cols(trt =
                                             col_factor(levels = c("0", "1"))))
 ```
 
+Now, consider another dataset containing the radon concentration levels
+(`radon`) for a selection of homes in two different counties (`county`)
+in Minnesota, Olmsted and Stearns. The data are found in the
+`minn_radon.csv` file posted in Canvas. While exploring this dataset,
+you should see that the radon concentration levels are non-normal within
+the counties. One possible remedy for this if the researchers desire a
+model-based inferential procedure is to find a transformation of the
+data that will result in normality. The following example will show you
+how to conduct the transformation in R:
+
+```{r}
+library(readr)
+minn_radon <- read_csv("minn_radon.csv",
+                       col_types = cols(county = 
+                       col_factor(levels = c("OLMSTED", "STEARNS")))
+                       )
+```
+
+```{r, results = FALSE}
+library(MASS)
+bct <- boxcox(lm(radon~county, data=minn_radon))
+lambda <- bct$x[which.max(bct$y)]
+X=(minn_radon$radon^lambda-1)/lambda
+minn_radon = cbind(minn_radon, X)
+```
+
+\newpage
+
+**[Assignment]{.underline}**
+
+# 1.  
+Use R to assess the assumptions of the traditional $t$-based inference procedure for the guinea pig teeth study:
+
+> 1.  Describe the independent treatment groups assumption in the context of the study. Explain why this assumption is valid.
+
+Description: Our assumption is that guinea pigs (our units for the study) have independence both within and between the two groups, and that all units for a particular group belong to the same population (identically distributed). In the context of this study, we have no reason to assume this is violated, as our participants are all guinea pigs taken from the same pool of guinea pigs, and their treatments are randomly assigned, e.g. we have no reason to believe the total pool of guinea pigs was composed of two distinct types of guinea pigs or some underlying condition existing within the population that would warrant the believe of more than one population being contained within each sample. 
+
+\newpage
+
+> 2.  Describe the equal variance assumption in the context of the study. Check whether this assumption is appropriate. Justify your response by including all relevant graphs, summary statistics, test results, etc.
+
 ```{r}
 BF.var.test <- function(dat.response, dat.treatment){
   n1 = length(dat.response[dat.treatment==levels(dat.treatment)[1]])
@@ -53,6 +94,37 @@ BF.var.test(guinea_teeth$growth, guinea_teeth$trt)
 ```
 
 ```{r}
+var.test(
+  x=guinea_teeth$growth[guinea_teeth$trt=="1"],
+  y=guinea_teeth$growth[guinea_teeth$trt=="0"], 
+  alternative="greater")
+```
+
+```{r}
+sd(guinea_teeth$growth[guinea_teeth$trt=="1"])/
+sd(guinea_teeth$growth[guinea_teeth$trt=="0"])
+```
+
+```{r}
+boxplot(guinea_teeth$growth ~ guinea_teeth$trt, 
+        xlab="Treatment", 
+        ylab="Growth", 
+        main="Guinea Pig Teeth Experiment")
+```
+
+Description: In the context of the study, the equal variance assumption is interpreted as meaning the variability in the growth of teeth between the guinea pigs whose diets were of ascorbic acid or orange juice (treatment labels 0 and 1, respectively) are equal, which is to say both groups of guinea pigs vary equally in the growth of teeth. 
+
+Justification: The above box plots show obvious differences in skewness, which would lead us to consider our assumption of equal variances to be violated. Furthermore, use of the F-test provides some evidence to consider rejecting the null hypothesis of no difference in variance to support the alternative hypothesis that there is some difference in the variances of the two groups. This is further corroborated through the additional variance test detailed in the user-defined function. 
+
+Though the p-values for the respective statistical tests are around the 0.08 range, I would nonetheless support the interpretation of the above figures to rejecting the hypothesis of equal variance in favor of an alternative hypothesis of the two guinea pig groups having a difference in their population variances. 
+
+Worth noting as well that the ratio of sample standard deviations is 1.62, which according to slides should have "little impact", though this is illustrative of there being differences between the two groups.
+
+\newpage
+
+> 3.  Describe the normal distribution assumption in the context of the study. Check whether this assumption is appropriate. Justify your response by including all relevant graphs, summary statistics, test results, etc.
+
+```{r}
 library(tidyverse)
 library(moments)
 numerical_stats <- guinea_teeth |> group_by(trt) |> summarize(
@@ -65,105 +137,6 @@ numerical_stats <- guinea_teeth |> group_by(trt) |> summarize(
     Y_excess = Y_kurt - 3)
 numerical_stats
 ```
-
-**[Remedies in R]{.underline}**
-
-Refer to the guinea pig teeth study described above.
-
-```{r}
-t.test(growth~trt, data=guinea_teeth, var.equal=T)
-```
-
-```{r}
-t.test(growth~trt, data=guinea_teeth, var.equal=F)
-```
-
-```{r}
-wilcox.test(growth~trt, data=guinea_teeth, exact=F)
-```
-
-Now, consider another dataset containing the radon concentration levels
-(`radon`) for a selection of homes in two different counties (`county`)
-in Minnesota, Olmsted and Stearns. The data are found in the
-`minn_radon.csv` file posted in Canvas. While exploring this dataset,
-you should see that the radon concentration levels are non-normal within
-the counties. One possible remedy for this if the researchers desire a
-model-based inferential procedure is to find a transformation of the
-data that will result in normality. The following example will show you
-how to conduct the transformation in R:
-
-```{r}
-library(readr)
-minn_radon <- read_csv("minn_radon.csv",
-                       col_types = cols(county = 
-                       col_factor(levels = c("OLMSTED", "STEARNS")))
-                       )
-```
-
--   Now, transform the response variable using the appropriate function
-    in R:
-
-    -   Square-root transformation: `X = sqrt(minn_radon$radon)`
-
-    -   Log transformation: `X = log(minn_radon$radon)`
-
-    -   Arcsin-root transformation: `X = asin(sqrt(minn_radon$radon))`
-
-    -   Box-Cox transformation
-        $\left(X = \dfrac{Y^{\lambda}-1}{\lambda} \right)$:
-
-```{r}
-library(MASS)
-bct <- boxcox(lm(radon~county, data=minn_radon))
-lambda <- bct$x[which.max(bct$y)]
-X=(minn_radon$radon^lambda-1)/lambda
-```
-
-```{r}
-minn_radon = cbind(minn_radon, X)
-```
-
-\newpage
-
-**[Assignment]{.underline}**
-
-# 1.  
-Use R to assess the assumptions of the traditional $t$-based inference procedure for the guinea pig teeth study:
-
-> 1.  Describe the independent treatment groups assumption in the context of the study. Explain why this assumption is valid.
-
-Description: Our assumption is that guinea pigs (our units for the study) have independence both within and between the two groups, and that all units for a particular group belong to the same population (identically distributed). In the context of this study, we have no reason to assume this is violated, as our participants are all guinea pigs taken from the same pool of guinea pigs, and their treatments are randomly assigned, e.g. we have no reason to believe the total pool of guinea pigs was composed of two distinct types of guinea pigs or some underlying condition existing within the population that would warrant the believe of more than one population being contained within each sample. 
-
-\newpage
-
-> 2.  Describe the equal variance assumption in the context of the study. Check whether this assumption is appropriate. Justify your response by including all relevant graphs, summary statistics, test results, etc.
-
-```{r}
-sd(guinea_teeth$growth[guinea_teeth$trt=="1"])/
-sd(guinea_teeth$growth[guinea_teeth$trt=="0"])
-```
-
-```{r}
-var.test(
-  x=guinea_teeth$growth[guinea_teeth$trt=="1"],
-  y=guinea_teeth$growth[guinea_teeth$trt=="0"], 
-  alternative="greater")
-```
-
-```{r}
-boxplot(guinea_teeth$growth ~ guinea_teeth$trt, 
-        xlab="Treatment", 
-        ylab="Growth", 
-        main="Guinea Pig Teeth Experiment")
-```
-
-Description: In the context of the study, the equal variance assumption is interpreted as meaning we presume the variability in the growth of teeth between the guinea pigs whose diets were of ascorbic acid or orange juice (treatment labels 0 and 1, respectively) are equal, that is to say both groups of guinea pigs vary equally in the growth of teeth. 
-
-Justification: The above box plots show obvious differences in skewness, which would lead us to consider our assumption of equal variances to be violated. Furthermore, use of the F-test provides some evidence to consider rejecting the null hypothesis of no difference in variance to support the alternative hypothesis that there is some difference in the variances of the two groups. 
-
-\newpage
-
-> 3.  Describe the normal distribution assumption in the context of the study. Check whether this assumption is appropriate. Justify your response by including all relevant graphs, summary statistics, test results, etc.
 
 ```{r}
 par(mfrow=c(2,1))
@@ -179,11 +152,6 @@ hist(guinea_teeth$growth[guinea_teeth$trt=="0"],
   xlim = range(c(2, 22)),
   breaks = 8
   )
-```
-
-```{r}
-sd(guinea_teeth$growth[guinea_teeth$trt=="1"])/
-sd(guinea_teeth$growth[guinea_teeth$trt=="0"])
 ```
 
 ```{r}
@@ -203,7 +171,9 @@ abline(a=0, b=1, col="red")
 
 Description: In the context of the study, the normal distribution assumption may be interpreted as meaning that the distribution of the teeth growth of guinea pigs is normally distributed, and that this assumption holds both for the guinea pigs whose diets were of ascorbic acid or orange juice (treatment labels 0 and 1, respectively). 
 
-Justification: We have evidence to reject the assumption that our data is normally distributed. We have skewness in our data, as evidenced by the box plots shown in the above problem. The ratio of sample standard deviations is 1.62, which according to slides should have "little impact". Shapiro-Wilk normality test also provide some evidence that each group of guinea pigs may or may not be normally distributed. Taken in conjunction, while we do have evidence to show that our population (and each treatment group) may not be normally distributed, we don't have any information that would overwhelmingly forewarn us of inappropriateness of our typical procedure, i.e. using the typical t-test. 
+Justification: We have some evidence to reject the assumption that our data is normally distributed. From both the box plots and summary statistics we note there are some deviations in each groups distributions from the normal. Of particular note: Medians and Means for each of the groups are not equal, which is further supported by the finding of skewness in both groups. There is also excess (negative) kurtosis, meaning the tails of the distributions is not normal. 
+
+However, it is worth noting that the samples in question are fairly small, so the deviations from the normal are understandable to a certain extent (there are only 20 total observations, 10 for each group of guinea pigs). Despite this, the statistical test for normality via Shapiro-Wilk is below the 0.20 p-value range. We will see this further when testing for differences in distribution, but it is worth noting here that the visuals above generally do not look normally distributed. Particularly for the quantile plots, we see at least half of the observations in each group do not correspond to the expected distribution given from the empirical (theoretical) qualtiles of a normal distribution. 
 
 \newpage
 
@@ -225,10 +195,9 @@ The p-value for this test is f-value:$= 0.02319$. However this is the one-tailed
 > 3.  Interpret the result of the test in the context of the study.
 
 In the context of p-value is the likelihood we observed the results we did given the null hypothesis. Where: 
-  - Null Hypothesis: Distribution of response variable (teeth growth) is the same for both groups (of guinea pigs).
-  - Alternative Hypothesis: Distribution of response variable (teeth growth) is different between the two groups (of guinea pigs).
+Null Hypothesis: Distribution of response variable (teeth growth) is the same for both groups (of guinea pigs), and Alternative Hypothesis: Distribution of response variable (teeth growth) is different between the two groups (of guinea pigs).
 
-So we have low likelihood attributed to the median of the differences in teeth growth being observed if there was no difference in the distributions of teeth growth in the guinea pigs. Said differently, we have evidence to support the alternative hypothesis that there is a difference in the distributions of teeth growth of guinea pigs with an ascorbic acid diet compared to the distribution of values for guinea pigs treated with an orange juice diet. 
+So we observe a fairly low p-value, below the 0.05 threshold, meaning we calculate the probability of observing the results we did under the null hypothesis being true (no difference in distributions between groups), to be under 0.05. Said differently, we have evidence to support the alternative hypothesis that there is a difference in the distributions of teeth growth of guinea pigs with an ascorbic acid diet compared to the distribution of values for guinea pigs treated with an orange juice diet. Given the data in support of the hypothesis that there are differences between the two groups we may further extend the details to say this is support in favor of believing there are differences in median teeth growth between the two groups (in addition to other summary statistics). 
 
 \newpage
 
@@ -242,12 +211,12 @@ We use the Box-Cox transformation to transform the data into something (more) no
 Justification for using this specific transformation was due to having skewed data, as evidenced in the below histogram(s). 
 
 ```{r}
-hist(minn_radon$radon[minn_radon$county=="OLMSTED"], xlab = "Box-Cox Transformed Radon Levels", main = "OLMSTED", freq = FALSE, ylim = c(0, 0.2))
+hist(minn_radon$radon[minn_radon$county=="OLMSTED"], xlab = "UN-Transformed Radon Levels", main = "OLMSTED", freq = FALSE, ylim = c(0, 0.2))
 lines(density(minn_radon$radon[minn_radon$county=="OLMSTED"]), col = "black", lwd = 2)
 ```
 
 ```{r}
-hist(minn_radon$radon[minn_radon$county=="STEARNS"], xlab = "Box-Cox Transformed Radon Levels", main = "STEARNS", freq = FALSE)
+hist(minn_radon$radon[minn_radon$county=="STEARNS"], xlab = "UN-Transformed Radon Levels", main = "STEARNS", freq = FALSE)
 lines(density(minn_radon$radon[minn_radon$county=="STEARNS"]), col = "black", lwd = 2)
 ```
 We verify this transformation normalized the data by checking the following: 
@@ -271,7 +240,7 @@ Which appears, approximately, normal.
 
 However, if we look at the radon levels before and after using Quantile plots we have: 
 
-> Before 
+> Before Transformation
 
 ```{r}
 par(mfrow=c(1,2))
@@ -295,6 +264,22 @@ qqnorm(scale(minn_radon$X[minn_radon$county=="STEARNS"]),
 abline(a=0, b=1, col="red")
 ```
 We do see that this transformation has made progress in normalizing the data (many more values are close to the plotted quantile line as well as more values being nearer to the 0-th theoretical quantile). 
+
+>> One Other Thing 
+
+```{r}
+shapiro.test(minn_radon$radon[minn_radon$county=="STEARNS"])
+shapiro.test(minn_radon$radon[minn_radon$county=="OLMSTED"])
+```
+
+```{r}
+shapiro.test(minn_radon$X[minn_radon$county=="STEARNS"])
+shapiro.test(minn_radon$X[minn_radon$county=="OLMSTED"])
+```
+
+Comparing the Shapiro-Wilk normality test between the groups of transformed and untransformed response variables similarly supports the conclusion that the Cox transformation normalized the data. 
+
+\newpage
 
 > 2.  Conduct the traditional t-test (with equal variances) for the transformed data. Interpret the results in the context of the study.
 
