@@ -542,84 +542,6 @@ analysisData <- cbind.data.frame("billType" = filterDf$bill_type_bill_name_bill_
 ## (e) 
 For each bill type identified earlier, tabulate the average number of times senators voted with, against, or indifferently from the Senate majority leader. *10 points*
 
-> Senator Averages 
-
-```{r}
-resultsNeutralInd <- analysisData |>
-  group_by(billType) |>
-  # Get a summary of a senators votes by billType
-  summarize(
-    across(everything(), ~ sum(. == 0, na.rm = TRUE), .names = "zero_{col}"),
-  ) |>  
-  arrange(desc(billType))
-
-
-resultsForInd <- analysisData |>
-  group_by(billType) |>
-  summarize(
-    across(everything(), ~ sum(. == 1, na.rm = TRUE), .names = "for_{col}"),
-  ) |> 
-  arrange(desc(billType))
-
-
-resultsAgainstInd <- analysisData |>
-  group_by(billType) |>
-  summarize(
-    across(everything(), ~ sum(. == -1, na.rm = TRUE), .names = "against_{col}"),
-  ) |>
-  arrange(desc(billType))
-
-```
-
-```{r}
-averageCountsperType <- TypeOnlyDf |> 
-  group_by(bill_type_bill_name_bill_ID) |> 
-  summarize(count = n()) |> 
-  arrange(desc(bill_type_bill_name_bill_ID))
-
-names(averageCountsperType)[1] <- "billType"  
-
-# compNeutral <- mutate(averageCountsperType, 
-#                  resultsNeutralInd
-# )
-# 
-# compFor <- mutate(averageCountsperType, 
-#                  resultsForInd
-# )
-# 
-# compAgainst <- mutate(averageCountsperType, 
-#                  resultsAgainstInd
-# )
-```
-
-```{r}
-m <- as.matrix(averageCountsperType$count, nrow = 36, ncol = 1)
-mSenateNeutral <- as.matrix(resultsNeutralInd[,2:100], nrow = 36, ncol = 99)
-mSenateFor <- as.matrix(resultsForInd[,2:100], nrow = 36, ncol = 99)
-mSenateAgainst <- as.matrix(resultsAgainstInd[,2:100], nrow = 36, ncol = 99)
-
-neutralTable <- round(sweep(mSenateNeutral, 1, m, "/"),3)
-forTable <- round(sweep(mSenateFor, 1, m, "/"),3)
-againstTable <- round(sweep(mSenateAgainst, 1, m, "/"),3)
-```
-
-```{r}
-neutralInfo <- cbind(resultsNeutralInd$billType, neutralTable) 
-# neutralInfo
-```
-
-```{r}
-forInfo <- cbind(resultsForInd$billType, forTable) 
-# forInfo
-```
-
-```{r}
-againstInfo <- cbind(resultsAgainstInd$billType, againstTable) 
-# againstInfo
-```
-
-> Overall Averages
-
 ```{r}
 resultsNeutral <- analysisData |>
   group_by(billType) |>
@@ -663,7 +585,8 @@ averageVoting <- combinedCounts |>
          averageNeutral = round(total_zero / totalCount, 3),
          averageFor = round(total_against/ totalCount, 3),
          averageAgainst = round(total_for/ totalCount, 3)
-         )
+         ) |> 
+  select(c(billType, averageFor, averageNeutral, averageAgainst))
 
 averageVoting
 ```
