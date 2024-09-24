@@ -31,7 +31,6 @@ windDf <- as.data.frame(readxl::read_excel("C:/Users/samue/OneDrive/Desktop/Iowa
 Provide descriptive summaries of the measurements such as means, standard deviations, medians, quartiles and inter-quartile ranges. *10 points*
 
 ```{r}
-
 require(dplyr)
 seasonsSummary <- sapply(windDf, summary)
 
@@ -500,13 +499,15 @@ ncol(TypeOnlyDf) - 2
 We expect 100 senators in our dataset. 
 
 ```{r}
-missingMatrix <- matrix(TypeOnlyDf$missing_votes, ncol = 1)
-tMissing <- t(missingMatrix)
-diag(missingMatrix %*% tMissing) + missingMatrix
+missingMatrix <- as.matrix(TypeOnlyDf$missing_votes, ncol = 1)
+voteMatrix <- as.matrix(TypeOnlyDf[,3:102], nrow = nrow(TypeOnlyDf), ncol = 100)
+tVote <- t(voteMatrix)
+
+XXt <- voteMatrix %*% tVote
 ```
 
 ```{r}
-sum(TypeOnlyDf$missing_votes)
+diag(XXt) + missingMatrix
 ```
 
 ## (d) 

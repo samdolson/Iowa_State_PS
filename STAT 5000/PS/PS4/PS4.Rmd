@@ -69,6 +69,8 @@ knitr::include_graphics("SAS_Img3.png")
 
 (ii): p-value:$=0.0269$ (one-sided)
 
+\newpage
+
 > 5.  Compare the results from parts (a)--(d).
 
 (a): Assuming equal population variances different between Bacilli and Control groups, provides evidence to reject the null hypothesis that there is no difference in average survival times between groups of guinea pigs. 
@@ -89,7 +91,7 @@ Revisit the guinea pig study from the previous exercise. Use SAS to create diagn
 
 > 1.  There is not enough information provided to assess independence of observations within each group. Which study design aspects would help you assess the assumption of independence between the groups.
 
-If guinea pigs were grouped together when determining which group they'd belong to, if there was some genetic relationship between guinea pigs, or even if the same guinea pigs were measured multiple times over the course of the study, then we should suspect our assumption of independence is violated. Contrapositively, if we can ensure these **did not occur** then we would be more certain of not having violated this assumption. 
+There are a number of aspects of the study design that would impact whether we are violating the independence of observations in the study (both within and between groups of guinea pigs). For example, if guinea pigs were grouped together when determining which group they'd belong to, i.e., they exhibited clustered effects, then we would suspect independence being violated. Similarly, if there was some genetic relationship between guinea pigs, if they were related to one another "closely", especially if genetic relatives exhibit some similar underlying genetic condition, then independence would likely be violated. Additionally, if the same guinea pigs were measured multiple times over the course of the study, then we should suspect our assumption of independence is violated (we want to ensure that each observation is independent of every other observation, and as such want no duplicate guinea pigs in the dataset). Contrapositively, if we can ensure that none of these events/conditions **did not occur** then we would be more certain of not having violated the assumption of independence. 
 
 > 2.  Assess the assumption of equal variances using:
 
@@ -98,15 +100,18 @@ If guinea pigs were grouped together when determining which group they'd belong 
 ```{r}
 knitr::include_graphics("gross.png")
 ```
-The ratio of standard deviations is given as $\frac{max\{S_1, S_2\}}{min\{S_1, S_@ \}}$, which from our data (shown in the above SAS output) gives us: 
-
-$\text{Ratio} = \frac{269.1}{144.4} = 1.864$. 
-
-Given the below table for guidance, we are bordering the line of "potential impact", but are still well within the boundary of believing this to be of "little impact" in violation of the assumption of equal variances. 
 
 ```{r}
 knitr::include_graphics("RatioAssessment.png")
 ```
+
+The ratio of standard deviations is given as $\frac{max\{S_1, S_2\}}{min\{S_1, S_@ \}}$, which from our data (shown in the above SAS output) gives us: 
+
+$\text{Ratio} = \frac{269.1}{144.4} = 1.864$. 
+
+Given the table from lecture for guidance, we are bordering the line of "potential impact", but are still well within the boundary of believing this to be of "little impact" in violation of the assumption of equal variances. 
+
+\newpage
 
 >> 2.  side-by-side boxplots;
 
@@ -121,6 +126,8 @@ knitr::include_graphics("TopDown.png")
 We also see a similar skewness between the two groups, insomuch as the range of values between the median and upper quartile is much wider (greater variability on the upper end of the data distribution) compared to the range of values from the lower quartile to the median. We also see the opposite of heavy tails in our data, leading to the possibility of negative kurtosis. 
 
 Overall, it appears we may have some concerns of the equal variances assumptions being valid given the visual evidence of both groups having non-normal tendencies and differences in variability (the Control group has a significantly wider range of values than the Bacilli group, Bacilli values range from 76 to 598 whereas Control group values range from 18 to 735). 
+
+\newpage
 
 >> 3.  the F-test;
 
@@ -138,6 +145,8 @@ knitr::include_graphics("SAS_Img4.png")
 
 p-value:$=<0.0001$, similar to the interpretation of the F-test p-value given above, this provides evidence to support rejecting the null hypothesis of equal variances, alternatively may be described as evidence to support the alternative hypothesis of a non-zero difference between the population variances of the Bacilli and Control group.
 
+\newpage
+
 > 3.  Assess the assumption of normality using the following methods:
 
 >> 1.  side-by-side histograms;
@@ -150,6 +159,8 @@ We see that for both groups the mean value is slightly greater than the median v
 
 Overall, it appears we may have some concerns of the normal distribution assumptions being valid given the visual evidence of both groups having non-normal tendencies. 
 
+\newpage
+
 >> 2.  Q-Q plot(s);
 
 ```{r, echo=FALSE, fig.cap="Figure 1", out.width = '100%'}
@@ -158,6 +169,8 @@ knitr::include_graphics("SAS_Img5.png")
 
 While both the distributions of Bacilli and Control groups appear similar to one another, they (both) do not appear normally distributed. Of particular note is that values of both appear to deviation around the 0-th empirical quantile, which is somewhat concerning as it is the area of the Quantile plot we'd most expect to match up to the plotted normal line. This provides evidence to possibly support the conclusion that we've violated the normally distributed observations assumption. 
 
+\newpage
+
 >> 3.  the Shapiro-Wilk test.
 
 ```{r, echo=FALSE, fig.cap="Figure 1", out.width = '100%'}
@@ -165,6 +178,8 @@ knitr::include_graphics("SAS_Img8.png")
 ```
 
 The above tests for normalcy provide evidence to reject the null hypothesis that our data is normally distributed. Certainly not ideal, as this is further support of the conclusion that our observations/experimental data is not normally distributed. Major bummer. 
+
+\newpage
 
 > 4.  Based on what you learned in parts (a)--(c), complete the following exercises.
 
