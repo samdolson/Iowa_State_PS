@@ -51,12 +51,35 @@ endDf
 ## (c) 
 Given that these are angular data, do any of these descriptive measures above make sense? Why/why not? Think about the average between 1*◦*and 359*◦*. *5 points*
 
-***Some*** (but not most!) of the above summary statistics make sense, but they require a certain degree of understanding or transformation in order to be relevant for a particular research question. For example: Knowing angular measurements are between 1 and 359 does not give us an idea of **angular dispersion** or **circular mean**, which tend to be used when studying angular measurements. So transforming these using a trigometric method would likely aid in interpretability. But I would argue that what we have, i.e. summary statistics of "raw measurements", make sense insomuch as it tells us that the angular measurements between seasons are different (their range of values, minimum, and maximum). However, we cannot surmise much beyond that without undergoing some transformations, either to a particular statistic or to the underlying data. 
+***Some*** (but not most!) of the above summary statistics make sense. Short and sweet the answer is no though, because even the ones that make some sense still require a degree of transformation to understand. For example: Knowing angular measurements are between 1 and 359 does not give us an idea of **angular dispersion** or **circular mean**, which tend to be used when studying angular measurements. So transforming these using a trigometric method would likely aid in interpretability. But I would argue that what we have, i.e. summary statistics of "raw measurements", make sense insomuch as it tells us that the angular measurements between seasons are different (their range of values, minimum, and maximum). However, we cannot surmise much beyond that without undergoing some transformations, either to a particular statistic or to the underlying data. 
 
 ## (d)
 Plot, in one figure, the angular measures, using color for the season. (Note that to obtain a meaningful plot, we need to display angle in terms of a bivariate plot. One way to do so is to use a bivariate direction vector given by ($$cos(\theta), sin(\theta)$$) for each angle.) Comment on seasonal differences, if any. *10 points*
 
 ```{r}
+springDf <- data.frame("wind" = windDf$Spring, "season" = "Spring")
+summerDf <- data.frame("wind" = windDf$Summer, "season" = "Summer")
+autumnDf <- data.frame("wind" = windDf$Autumn, "season" = "Autumn")
+winterDf <- data.frame("wind" = windDf$Winter, "season" = "Winter")
+
+seasonsDf <- rbind.data.frame(springDf, summerDf, autumnDf, winterDf)
+seasonsDf$season <- as.factor(seasonsDf$season)
+```
+
+```{r}
+plot(sin(seasonsDf$wind) ~ cos(seasonsDf$wind), xlab = "cos", ylab = "sin", main = "Winds by Seasons - Transformed", col = c("yellow2", "green3", "tomato3", "skyblue2")[seasonsDf$season], pch = 20) 
+legend(x = "bottomright", legend = levels(seasonsDf$season), col = c("yellow2", "green3", "tomato3", "skyblue2"), pch = 20, cex=0.7)
+abline(v = 0, lty = "dashed")
+abline(h = 0, lty = "dashed")
+```
+
+Observation: The distributions of directions between seasons appear similar upon initial inspection, though some differences become apparent. In particular, if we look at the counts of points in each quadrant of the plot, e.g. upper right quadrant of points between $cos(\theta) \in (0, 1)$ and $sin(\theta) \in (0, 1)$, Autumn and Winter have 5 observations, whereas Summer has only 3 and Spring has at least 6. 
+
+Using an alternative formulation, noted below, we can observe these differences more easily, and see there are marked differences between the seasons. 
+
+Note: The below code and plot (should be just one!) are included as they aided in analysis of the wind observations. I recognize this is not called for in this question. 
+
+```{r, eval = FALSE, results = FALSE}
 par(mfrow=c(2,2))
 plot(sin(windDf$Spring) ~ cos(windDf$Spring), xlab = "cos", ylab = "sin", main = "Spring", col = "yellow2")
 abline(v = 0, lty = "dashed")
@@ -71,9 +94,28 @@ plot(sin(windDf$Winter) ~ cos(windDf$Winter), xlab = "cos", ylab = "sin", main =
 abline(v = 0, lty = "dashed")
 abline(h = 0, lty = "dashed")
 ```
-Observation: The distributions of directions between seasons appear similar upon initial inspection, though some differences become apparent. In particular, if we look at the counts of points in each quadrant of the plot, e.g. upper right quadrant of points between $cos(\theta) \in (0, 1)$ and $sin(\theta) \in (0, 1)$, Autumn and Winter have 5 observations, whereas Summer has only 3 and Spring has at least 6. 
 
-Using an alternative formulation, noted below, we can observe these differences more easily, and see there are marked differences between the seasons. 
+```{r, eval = FALSE, results = FALSE}
+library(ggplot2)
+df <- data.frame(a = seasonsDf$wind %% (2 * pi), b = seasonsDf$season)
+
+ggplot(x) +
+  annotate('rect', xmin = -Inf, xmax = Inf, ymin = 0, ymax = 1,
+           fill = 'gray97') +
+  geom_hline(yintercept = 1, color = 'gray60') +
+  geom_segment(aes(x = df$a, xend = df$a, y = 0, yend = 1), 
+               color=c("yellow2", "green3", "tomato3", "skyblue2")[df$b], size = 1, alpha = 0.5,
+               arrow = arrow(angle = 25, length = unit(4, 'mm'))
+               ) +
+  annotate('text', x = 0:3 * pi/2, y = 0.9, label = c('N', 'E', 'S', 'W'),
+           size = 7, fontface = 2, color = 'gray30') +
+  # geom_point(aes(x = a, y = 1)) +
+  scale_x_continuous(limits = c(0, 2 * pi)) +
+  coord_polar() +
+  theme(legend.position="bottom", plot.background = element_rect(color = NA, fill = '#ecf1f4')) +
+  theme_void() +
+  ggtitle("Seasons")
+```
 
 ```{r}
 library(ggplot2)
@@ -258,16 +300,16 @@ summary(bikes)
 There were 77,186 trips contained in the bikes dataset. 
 
 There appear to be 6 Factor Variables in the bikes dataset: 
-  - wday
-  - hour
-  - Start.Station
-  - End.Station
-  - Subscriber.Type 
-  - Bike. 
+    - wday
+    - hour (arguable, but there are only a set of values from 0 to 23, discrete and modular)
+    - Start.Station
+    - End.Station
+    - Subscriber.Type 
+    - Bike. 
 
 And there appears to be 2 non-Factor Variables in the bikes dataset: 
-  - Duration
-  - Start.date 
+    - Duration (all multiples of 10, weirdly enough)
+    - Start.date (Stored as a character, but can be converted to a continuous date and time)
 
 ## (b) 
 The variable Duration contains the length of the bike rental in seconds.
@@ -440,6 +482,7 @@ survivedFemale <- titantic |>
 mean(goneMale$Age) - mean(survivedMale$Age)
 mean(goneFemale$Age) - mean(survivedFemale$Age)
 ```
+
 ```{r}
 # sd(goneMale$Age)/sqrt(length((goneMale$Age)))
 # sd(survivedMale$Age)/sqrt(length((survivedMale$Age)))
@@ -535,6 +578,8 @@ which(missingDiag != 100)
 ```
 No discrepancies, as given from the above method. I am suspicious...
 
+Note: The matrix itself was not presented in full because of its dimensions/visual difficulty (a 542 x 1 matrix)
+
 ## (d) 
 One issue here is whether we can discern voting trends on different issues. However, every vote here is recorded as a-1/0/1 vote, regardless of whether it is for/neutral/against on a conservative/moderate/liberal issue. For this reason, we will analyze the datasets according to whether senators voted with or against the (majority) leader, Senator Bill Frist (a Republican whose votes are recorded in the last field). Thus, we will convert all the votes of the other senators relative to whether they voted with or against Senator Frist. Do so, using a set of appropriate matrix and vector operations, after eliminating those Bills from consideration where the leader did not record a vote. *15 points*
 
@@ -602,8 +647,10 @@ combinedCounts <- mutate(resultsNeutral,
                          resultsAgainst,
                          resultsFor
                         )
+```
 
-averageVoting <- combinedCounts |>
+```{r, eval = FALSE, results = FALSE}
+averageVotingProp <- combinedCounts |>
   mutate(totalCount = total_zero + total_against + total_for,
          averageNeutral = round(total_zero / totalCount, 3),
          averageFor = round(total_against/ totalCount, 3),
@@ -611,5 +658,17 @@ averageVoting <- combinedCounts |>
          ) |> 
   select(c(billType, averageFor, averageNeutral, averageAgainst))
 
-averageVoting
+averageVotingProp
+```
+
+```{r}
+averageVotinCounts <- combinedCounts |>
+  mutate(totalCount = total_zero + total_against + total_for,
+         averageNeutral = round(total_zero / totalCount * 99, 2),
+         averageFor = round(total_against/ totalCount * 99, 2),
+         averageAgainst = round(total_for/ totalCount * 99, 2)
+         ) |> 
+  select(c(billType, averageFor, averageNeutral, averageAgainst))
+
+averageVotinCounts
 ```
