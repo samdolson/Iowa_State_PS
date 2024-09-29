@@ -13,16 +13,6 @@ The total points on this homework is 175. Out of these, 5 points are reserved fo
 
 The homework for this week are mainly exercises in using the apply() function, and its benefits in many cases where the problem can be “reduced” (which may mean, expanded for some cases) to operations at the margins of an array. Some of the problems are for a bigger dataset that is more cumbersome to notice operations on, so you are advised to try it out first on a small array (say of dimension 3x4x5) and then moving to the given problem once you are confident of your approach to solving the problem.
 
-```{r}
-# library(readr)
-# fbpImg <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/fbp-img.dat")
-
-# senateVote <- read.table(file = "C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS3/senate-109.txt",
-#                        sep="\t",
-#                        quote="\"",
-#                        header = TRUE)
-```
-
 ## Q1 
 The file fbp-img.dat on Canvas is a 128×128 matrix containing the results of an image of fluorodeoxyglucse (FDG-18) radio-tracer intake reconstructed using Positron Emission Tomography (PET).
 
@@ -220,29 +210,43 @@ We will now identify which of these means is closest to each gene. To do so, set
 mean_abundance_array <- array(rep(mean_abundance, each = 20), dim = c(22, 810, 20))
 
 # Step 2: Create a 3D array of micromeans (mean vectors) replicated for each gene
-micromeans_array <- array(rep(micromeans_matrix, times = 22810), dim = c(20, 11))
+# micromeans_array <- array(rep(micromeans_matrix, times = 22810), dim = c(20, 11))
+micromeans_array <- array(rep(micromeans_matrix, times = 22810), dim = c(22810, 11, 20))
 
 # Step 3: Calculate the Euclidean distances
-euclidean_distances <- array(0, dim = c(22, 810, 20))  # Initialize distances array
+# Initialize the distances array
+euclidean_distances <- array(0, dim = c(22810, 20))  # Now only need to track gene and mean indices
 
-# Loop through 22 rows and 810 columns
-for (gene_idx in 1:22) {
-  for (sample_idx in 1:810) {
-    for (mean_idx in 1:20) {
-      euclidean_distances[gene_idx, sample_idx, mean_idx] <- sqrt(sum((mean_abundance[gene_idx, sample_idx] - micromeans_matrix[mean_idx, ])^2))
-    }
+# Loop through genes and means
+for (gene_idx in 1:22810) {
+  for (mean_idx in 1:20) {
+    euclidean_distances[gene_idx, mean_idx] <- sqrt(sum((mean_abundance[gene_idx, ] - micromeans_matrix[mean_idx, ])^2))
   }
 }
 
-# Step 4: Find the closest mean for each gene and sample
-closest_means_indices <- apply(euclidean_distances, c(1, 2), which.min)
+# Find the closest mean for each gene
+closest_means_indices <- apply(euclidean_distances, 1, which.min)
 
-# Step 5: Tabulate the frequency distribution
+# Tabulate the frequency distribution
 frequency_distribution <- table(closest_means_indices)
 
-# Step 6: Display the frequencies using a pie chart
+# Display the frequencies using a pie chart
 pie(frequency_distribution, main = "Frequency Distribution of Closest Means")
 ```
+
+Notes: 
+Data Preparation:
+
+Mean Abundance Matrix: Ensure you have a matrix (mean_abundance) with dimensions 
+22810
+×
+11
+22810×11, where rows represent different genes and columns represent mean abundance levels across 11 time points.
+Micromeans Matrix: Define or load a matrix (micromeans_matrix) representing mean vectors for the 20 conditions or time points (e.g., dimensions 
+20
+×
+11
+20×11).
 
 \newpage
 
