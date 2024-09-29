@@ -442,3 +442,371 @@ So, the corrected second derivative leads to the same result for the variance:
 - Variance: \(\text{Var}(X) = \frac{1 - p}{p^2}\)
 
 Thank you for pointing that out!
+
+# Q5 
+
+To find \( E(Y^r) \) for the random variable \( Y = e^X \), where \( X \) has a standard normal distribution, we start by expressing \( E(Y^r) \) in terms of \( X \):
+
+\[
+E(Y^r) = E(e^{rX}).
+\]
+
+### Step 1: Express the Expectation
+
+Since \( X \) is a standard normal random variable with the probability density function (pdf):
+
+\[
+f(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}},
+\]
+
+the expectation \( E(e^{rX}) \) can be calculated as follows:
+
+\[
+E(e^{rX}) = \int_{-\infty}^{\infty} e^{rx} f(x) \, dx = \int_{-\infty}^{\infty} e^{rx} \cdot \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} \, dx.
+\]
+
+### Step 2: Combine Exponents
+
+Combining the exponential terms in the integral gives:
+
+\[
+E(e^{rX}) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} e^{rx - \frac{x^2}{2}} \, dx.
+\]
+
+This can be rewritten as:
+
+\[
+E(e^{rX}) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} e^{-\frac{1}{2}(x^2 - 2rx)} \, dx.
+\]
+
+### Step 3: Completing the Square
+
+To simplify the exponent, we complete the square:
+
+\[
+x^2 - 2rx = (x - r)^2 - r^2.
+\]
+
+So the expression becomes:
+
+\[
+E(e^{rX}) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} e^{-\frac{1}{2}((x - r)^2 - r^2)} \, dx = e^{\frac{r^2}{2}} \cdot \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} e^{-\frac{1}{2}(x - r)^2} \, dx.
+\]
+
+### Step 4: Evaluate the Integral
+
+The integral 
+
+\[
+\int_{-\infty}^{\infty} e^{-\frac{1}{2}(x - r)^2} \, dx
+\]
+
+is simply the integral of the normal distribution, which evaluates to \(\sqrt{2\pi}\):
+
+\[
+\int_{-\infty}^{\infty} e^{-\frac{1}{2}(x - r)^2} \, dx = \sqrt{2\pi}.
+\]
+
+### Step 5: Substitute Back
+
+Substituting back into our expression gives:
+
+\[
+E(e^{rX}) = e^{\frac{r^2}{2}} \cdot \frac{1}{\sqrt{2\pi}} \cdot \sqrt{2\pi} = e^{\frac{r^2}{2}}.
+\]
+
+### Final Result
+
+Thus, the expected value \( E(Y^r) \) for \( Y = e^X \) is:
+
+\[
+E(Y^r) = e^{\frac{r^2}{2}}.
+\]
+
+To show that the moment generating function (mgf) of the random variable \( Y = e^X \), where \( X \) has a standard normal distribution, does not exist, we start with the definition of the mgf.
+
+### Definition of the Moment Generating Function
+
+The moment generating function of \( Y \) is given by:
+
+\[
+M_Y(t) = E[e^{tY}] = E[e^{te^X}].
+\]
+
+We need to determine if this expectation is finite for all \( t \in \mathbb{R} \).
+
+### Step 1: Express the MGF
+
+Substituting \( Y = e^X \) into the mgf:
+
+\[
+M_Y(t) = E[e^{te^X}] = \int_{-\infty}^{\infty} e^{te^x} f_X(x) \, dx,
+\]
+
+where \( f_X(x) \) is the pdf of the standard normal distribution:
+
+\[
+f_X(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}}.
+\]
+
+Thus,
+
+\[
+M_Y(t) = \int_{-\infty}^{\infty} e^{te^x} \cdot \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} \, dx.
+\]
+
+### Step 2: Analyze the Integral
+
+To analyze whether the integral converges, consider the behavior of \( e^{te^x} \) as \( x \to \infty \).
+
+1. **As \( x \to \infty \)**:
+   - \( e^x \to \infty \) and hence \( e^{te^x} \to \infty \) for \( t > 0 \).
+   - Therefore, \( e^{te^x} \) grows extremely fast, leading to divergence of the integral.
+
+2. **As \( x \to -\infty \)**:
+   - \( e^x \to 0 \), thus \( e^{te^x} \to 1 \) and the integrand approaches \( \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} \).
+   - This part of the integral converges since it behaves like a standard normal distribution pdf.
+
+### Step 3: Divergence of the Integral for \( t > 0 \)
+
+Now, we specifically focus on the case \( t > 0 \):
+
+\[
+M_Y(t) = \int_{-\infty}^{\infty} e^{te^x} \cdot \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} \, dx.
+\]
+
+As \( x \to \infty \):
+
+- The term \( e^{te^x} \) grows much faster than \( e^{-\frac{x^2}{2}} \) decays, leading to:
+
+\[
+e^{te^x - \frac{x^2}{2}} \to \infty \text{ as } x \to \infty.
+\]
+
+This indicates that the integral diverges.
+
+### Step 4: Conclusion for \( t > 0 \)
+
+Since the integral diverges for \( t > 0 \), we conclude:
+
+\[
+M_Y(t) = \int_{-\infty}^{\infty} e^{te^x} \cdot \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} \, dx \text{ does not exist for } t > 0.
+\]
+
+### All Moments Exist
+
+Even though the mgf does not exist for \( t > 0 \), we found earlier that \( E[Y^r] = e^{\frac{r^2}{2}} \) for any \( r \), indicating that all moments of \( Y \) exist.
+
+### Summary
+
+- **Moment Generating Function**: \( M_Y(t) \) does not exist for \( t > 0 \).
+- **Existence of Moments**: All moments \( E[Y^r] \) exist and are finite for any \( r \).
+
+Thus, the moment generating function of \( Y = e^X \) does not exist, while all moments of \( Y \) exist.
+
+# Q8 
+
+To derive the expected value of \( S = \text{min} \{ X, c \} \), we start by understanding the nature of \( S \) based on the demand \( X \) and the capacity \( c \).
+
+### Understanding \( S \)
+
+- \( S \) represents the number of sales, which is the minimum of the actual demand \( X \) and the number of copies purchased \( c \).
+- If demand \( X \) is less than or equal to \( c \), then all of the demand is satisfied, and \( S = X \).
+- If demand \( X \) exceeds \( c \), then only \( c \) copies can be sold, so \( S = c \).
+
+### Step 1: Express \( E(S) \)
+
+The expected value of \( S \) can be expressed as:
+
+\[
+E(S) = E(\text{min} \{ X, c \}).
+\]
+
+To compute \( E(S) \), we can partition the possible values of \( X \) based on whether \( X \) is less than, equal to, or greater than \( c \):
+
+\[
+E(S) = \sum_{x=0}^{c} E(S \mid X = x) P(X = x) + E(S \mid X > c) P(X > c).
+\]
+
+### Step 2: Calculate the Components
+
+1. **For \( x = 0, 1, \ldots, c \)**: 
+   - If \( X = x \) (where \( x \) is between 0 and \( c \)), then \( S = x \).
+   - Thus, the contribution to the expectation from this range is:
+
+   \[
+   \sum_{x=0}^{c} x P(X = x) = \sum_{x=0}^{c} x f(x).
+   \]
+
+2. **For \( X > c \)**: 
+   - If \( X > c \), then \( S = c \).
+   - The probability that \( X > c \) is \( P(X > c) = 1 - F(c) \).
+   - Thus, the contribution from this case is:
+
+   \[
+   E(S \mid X > c) \cdot P(X > c) = c \cdot (1 - F(c)).
+   \]
+
+### Step 3: Combine the Contributions
+
+Combining both contributions gives us:
+
+\[
+E(S) = \sum_{x=0}^{c} x f(x) + c (1 - F(c)).
+\]
+
+This is the required expression for \( E(S) \):
+
+\[
+E(S) = \sum_{x=0}^{c} x f(x) + c(1 - F(c)).
+\]
+
+### Conclusion
+
+Thus, we have shown that:
+
+\[
+E(S) = \sum_{x=0}^{c} x f(x) + c(1 - F(c)).
+\]
+
+This concludes the proof.
+
+To find the expected profit \( Y = S \cdot d_2 - c \cdot d_1 \), where:
+
+- \( S = \text{min}\{X, c\} \) is the number of copies sold,
+- \( d_2 \) is the selling price per copy, and
+- \( d_1 \) is the cost per copy,
+
+we start by expressing the expected value \( E(Y) \):
+
+\[
+E(Y) = E(S \cdot d_2 - c \cdot d_1).
+\]
+
+### Step 1: Use Linearity of Expectation
+
+Using the linearity of expectation, we can separate the terms:
+
+\[
+E(Y) = E(S \cdot d_2) - E(c \cdot d_1) = d_2 \cdot E(S) - c \cdot d_1.
+\]
+
+### Step 2: Substitute \( E(S) \)
+
+From part (a), we know:
+
+\[
+E(S) = \sum_{x=0}^{c} x f(x) + c(1 - F(c)).
+\]
+
+Now we can substitute \( E(S) \) into the expression for \( E(Y) \):
+
+\[
+E(Y) = d_2 \left(\sum_{x=0}^{c} x f(x) + c(1 - F(c))\right) - c \cdot d_1.
+\]
+
+### Step 3: Simplify
+
+Distributing \( d_2 \):
+
+\[
+E(Y) = d_2 \sum_{x=0}^{c} x f(x) + d_2 \cdot c(1 - F(c)) - c \cdot d_1.
+\]
+
+### Final Result
+
+Thus, the expected profit \( E(Y) \) is given by:
+
+\[
+E(Y) = d_2 \sum_{x=0}^{c} x f(x) + d_2 c (1 - F(c)) - c d_1.
+\]
+
+This completes the derivation for the expected profit \( E(Y) \).
+
+To define the expected profit function as a function of \( c \), we can write:
+
+\[
+g(c) = E(Y_c) = d_2 \sum_{x=0}^{c} x f(x) + d_2 c (1 - F(c)) - c d_1.
+\]
+
+### Step 1: Analyzing the Expected Profit Function
+
+The company wants to maximize \( g(c) \). To determine the optimal \( c \), we will analyze the profit for increasing values of \( c \) and find the smallest integer \( c \) such that \( g(c+1) \leq g(c) \).
+
+### Step 2: Compute \( g(c+1) \)
+
+Let's write out \( g(c+1) \):
+
+\[
+g(c+1) = d_2 \sum_{x=0}^{c+1} x f(x) + d_2 (c+1) (1 - F(c+1)) - (c + 1) d_1.
+\]
+
+### Step 3: Compare \( g(c) \) and \( g(c+1) \)
+
+To find when the profit starts to decrease, we need to compare \( g(c+1) \) with \( g(c) \):
+
+\[
+g(c+1) - g(c) = \left(d_2 \sum_{x=0}^{c+1} x f(x) - d_2 \sum_{x=0}^{c} x f(x)\right) + d_2 (c + 1)(1 - F(c + 1)) - c d_1 - \left(d_2 c (1 - F(c)) - c d_1\right).
+\]
+
+This simplifies to:
+
+\[
+g(c+1) - g(c) = d_2 \left( (c + 1)f(c + 1) + c (1 - F(c + 1)) - c (1 - F(c)) \right).
+\]
+
+### Step 4: Determine the Condition for Maximum Profit
+
+Setting \( g(c+1) - g(c) \leq 0 \) gives:
+
+\[
+d_2 \left( (c + 1) f(c + 1) + c (1 - F(c + 1)) - c (1 - F(c)) \right) \leq 0.
+\]
+
+Rearranging yields:
+
+\[
+(c + 1) f(c + 1) + c (1 - F(c + 1)) \leq c (1 - F(c)).
+\]
+
+### Step 5: Focus on the Condition
+
+As \( c \) increases, if the expected profit decreases, it is essential to explore the marginal benefit of increasing sales. 
+
+The condition where increasing \( c \) no longer yields profit can be derived from:
+
+1. When the additional expected revenue from selling one more unit (when demand is at least \( c + 1 \)) equals the cost of the additional unit:
+
+\[
+(1 - F(c + 1)) \cdot d_2 \leq d_1.
+\]
+
+2. Rearranging this gives:
+
+\[
+1 - F(c + 1) \leq \frac{d_1}{d_2} \implies F(c + 1) \geq 1 - \frac{d_1}{d_2}.
+\]
+
+### Step 6: Final Comparison with Given Condition
+
+Now we relate this back to the condition:
+
+\[
+\frac{d_2 - d_1}{d_2} = 1 - \frac{d_1}{d_2}.
+\]
+
+Thus, for maximization:
+
+\[
+F(c) \geq \frac{d_2 - d_1}{d_2}.
+\]
+
+### Conclusion
+
+We have shown that the company should choose the smallest integer \( c \) such that:
+
+\[
+F(c) \geq \frac{d_2 - d_1}{d_2}.
+\]
+
+This ensures that the expected profit \( g(c) \) is maximized.
