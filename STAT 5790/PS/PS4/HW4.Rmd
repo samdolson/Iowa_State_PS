@@ -144,7 +144,14 @@ geneDf <- read.csv("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/P
 For each gene, calculate the mean abundance level at each time-point, and store the result in a matrix. One way to achieve this is to create a three-dimensional array or dimension 22, 810 × 11 × 2 and to use apply over it with the appropriate function and over the appropriate margins. Note that you are only asked present the commands that you use here. From now on, we will use this dataset averaged over the two replications for each gene. 
 
 ```{r}
+# Step 3: Convert the data to a matrix, excluding the first column (gene probeset)
+gene_matrix <- as.matrix(geneDf[, -1])
 
+# Step 4: Reshape the matrix into a 3D array: genes x time points x replications
+gene_array <- array(gene_matrix, dim = c(22810, 11, 2))
+
+# Step 5: Calculate the mean abundance level at each time-point
+mean_abundance <- apply(gene_array, c(1, 2), mean)
 ```
 
 ### (c): 
@@ -154,21 +161,88 @@ Standardization. Gene data are compared to each other by way of correlations. (C
 #### i. 
 In pursuance of the objective, use the apply function to calculate the mean of the mean abundance level over all time-points for each gene.
 
+```{r}
+mean_of_means <- apply(mean_abundance, 1, mean)
+```
+
 #### ii. 
 Set up a matrix of dimension 22, 810 × 11 of the means of the mean abundance levels, where each row is a replicated version of the first one. Use this to eliminate the mean effect from the matrix stored in the previous part. 
 
+```{r}
+# Step 1: Create a matrix of dimension 22810 x 11 with each row being a copy of mean_of_means
+mean_replicated_matrix <- matrix(mean_of_means, nrow = 22810, ncol = 11, byrow = TRUE)
+
+# Step 2: Subtract the replicated mean matrix from the mean abundance matrix
+mean_abundance_centered <- mean_abundance - mean_replicated_matrix
+```
+
 #### iii. 
 Use the apply function again to calculate the standard deviation of each row of the matrix in the part (b) above, and proceed to obtain the scaled measurements on the genes.
+
+```{r}
+# Step 1: Calculate the standard deviation for each gene (row) in the centered abundance matrix
+std_dev <- apply(mean_abundance_centered, 1, sd)
+
+# Step 2: Create a matrix of the standard deviations with the same dimensions as mean_abundance_centered
+std_dev_matrix <- matrix(rep(std_dev, each = 11), nrow = 22810, ncol = 11, byrow = TRUE)
+
+# Step 3: Scale the measurements for each gene by dividing by the standard deviation
+scaled_measurements <- mean_abundance_centered / std_dev_matrix
+```
 
 ### (d):
 The file micromeans.dat contains a 20 × 11 matrix of measurements. Read in this dataset, and standardize as above.
 
 ```{r}
 geneDfMicro <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/micromeans.dat")
+micromeans <- geneDfMicro
+```
+
+```{r}
+# Step 3: Convert the data to a matrix
+micromeans_matrix <- as.matrix(micromeans)
+
+# Step 4: Calculate the standard deviation for each row (measurement) in the micromeans matrix
+std_dev_micromeans <- apply(micromeans_matrix, 1, sd)
+
+# Step 5: Create a matrix of the standard deviations with the same dimensions as micromeans_matrix
+std_dev_micromeans_matrix <- matrix(rep(std_dev_micromeans, each = 11), nrow = 20, ncol = 11, byrow = TRUE)
+
+# Step 6: Scale the measurements for each row by dividing by the standard deviation
+scaled_micromeans <- micromeans_matrix / std_dev_micromeans_matrix
 ```
 
 ### (e):
 We will now identify which of these means is closest to each gene. To do so, set up an three-dimensional array (of dimension 22, 810×11×20) with 20 replicated datasets (of the 22,810 diurnal mean abundance levels over 11 time-points). Next, set up replications of the 20 mean vectors into a three-dimensional array (of dimension 22, 810 × 11 × 20), with the replications occurring along the first dimension. Using apply and the above, obtain a 22, 810 × 20 matrix of Euclidean distances for each gene and mean. Finally, obtain the means to which each gene is closest to. Report the frequency distribution, and tabulate the frequencies, and display using a piechart.
+
+```{r}
+# Step 1: Create a 3D array of mean abundance levels replicated for 20 means
+mean_abundance_array <- array(rep(mean_abundance, each = 20), dim = c(22, 810, 20))
+
+# Step 2: Create a 3D array of micromeans (mean vectors) replicated for each gene
+micromeans_array <- array(rep(micromeans_matrix, times = 22810), dim = c(20, 11))
+
+# Step 3: Calculate the Euclidean distances
+euclidean_distances <- array(0, dim = c(22, 810, 20))  # Initialize distances array
+
+# Loop through 22 rows and 810 columns
+for (gene_idx in 1:22) {
+  for (sample_idx in 1:810) {
+    for (mean_idx in 1:20) {
+      euclidean_distances[gene_idx, sample_idx, mean_idx] <- sqrt(sum((mean_abundance[gene_idx, sample_idx] - micromeans_matrix[mean_idx, ])^2))
+    }
+  }
+}
+
+# Step 4: Find the closest mean for each gene and sample
+closest_means_indices <- apply(euclidean_distances, c(1, 2), which.min)
+
+# Step 5: Tabulate the frequency distribution
+frequency_distribution <- table(closest_means_indices)
+
+# Step 6: Display the frequencies using a pie chart
+pie(frequency_distribution, main = "Frequency Distribution of Closest Means")
+```
 
 \newpage
 
