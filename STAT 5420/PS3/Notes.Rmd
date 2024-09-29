@@ -1,0 +1,444 @@
+---
+title: "Notes"
+output:
+  pdf_document: default
+  html_document: default
+date: "2024-09-29"
+---
+
+# Q6 
+
+To show that the moment generating function \( M_X(t) \) of a normally distributed random variable \( X \) satisfies \( M_X(t) \geq e^{t\mu} \) using Jensen's inequality, we start with the definition of the moment generating function:
+
+\[
+M_X(t) = \mathbb{E}[e^{tX}] = \int_{-\infty}^{\infty} e^{tx} f(x) \, dx,
+\]
+
+where \( f(x) \) is the probability density function (pdf) of \( X \):
+
+\[
+f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{(x - \mu)^2}{2\sigma^2}}.
+\]
+
+### Step 1: Express the Moment Generating Function
+
+Substituting the pdf into the moment generating function:
+
+\[
+M_X(t) = \int_{-\infty}^{\infty} e^{tx} \cdot \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{(x - \mu)^2}{2\sigma^2}} \, dx.
+\]
+
+### Step 2: Recognize the Function as a Jensen's Inequality Application
+
+Jensen's inequality states that for a convex function \( \phi \), 
+
+\[
+\mathbb{E}[\phi(X)] \geq \phi(\mathbb{E}[X]).
+\]
+
+In this case, we can express \( e^{tX} \) in a form to apply Jensen’s inequality.
+
+#### Convexity of \( e^{tx} \)
+
+The function \( \phi(x) = e^{tx} \) is convex since its second derivative is positive:
+
+\[
+\phi''(x) = t^2 e^{tx} > 0 \quad \text{for all } x \text{ and } t.
+\]
+
+### Step 3: Applying Jensen’s Inequality
+
+By Jensen’s inequality, we have:
+
+\[
+\mathbb{E}[e^{tX}] \geq e^{t\mathbb{E}[X]}.
+\]
+
+Given that the mean of \( X \) is \( \mu \):
+
+\[
+M_X(t) = \mathbb{E}[e^{tX}] \geq e^{t\mu}.
+\]
+
+### Conclusion
+
+Thus, we have shown that:
+
+\[
+M_X(t) \geq e^{t\mu},
+\]
+
+which completes the proof. This means the moment generating function of a normally distributed random variable is always greater than or equal to \( e^{t\mu} \), consistent with Jensen's inequality applied to the convex function \( e^{tx} \). If you have any specific parts you’d like to delve into further, let me know!
+
+No, the inequalities should not be reversed; they are correct as stated in the context of applying Jensen's inequality. Let me clarify how it applies to the moment-generating function of a normally distributed random variable \( X \).
+
+### Context of Jensen's Inequality
+
+1. **Jensen's Inequality** states that for any convex function \( \phi \):
+   \[
+   \mathbb{E}[\phi(X)] \geq \phi(\mathbb{E}[X]).
+   \]
+   
+2. In this case, the function \( \phi(x) = e^{tx} \) is convex. Therefore, when applying Jensen’s inequality:
+   \[
+   \mathbb{E}[e^{tX}] \geq e^{t\mathbb{E}[X]}.
+   \]
+   
+   Since the mean of \( X \) is \( \mu \), we have:
+   \[
+   \mathbb{E}[e^{tX}] \geq e^{t\mu}.
+   \]
+
+3. **Moment-Generating Function**: The moment-generating function \( M_X(t) \) is defined as:
+   \[
+   M_X(t) = \mathbb{E}[e^{tX}].
+   \]
+   
+   Therefore, we conclude that:
+   \[
+   M_X(t) \geq e^{t\mu}.
+   \]
+
+### Why the Inequality is Correct
+
+- **Convex Function**: The exponential function \( e^{tx} \) is convex, which supports the application of Jensen's inequality as stated.
+- **Concavity of the PDF**: While the pdf \( f(x) \) of the normal distribution is concave, that fact does not affect the convexity of \( e^{tx} \). The key point is that we are using the convexity of the moment-generating function's underlying exponent \( e^{tx} \) to show the inequality.
+
+### Conclusion
+
+The inequality \( M_X(t) \geq e^{t\mu} \) is indeed correct and reflects the property of the moment-generating function of a normally distributed variable. So, there is no need to reverse the inequalities; they are appropriately oriented based on the convexity of the function used in Jensen's inequality. 
+
+If you have any further questions or need additional clarification, feel free to ask!
+
+# Q2 
+Certainly! The expected value of a geometric distribution can be derived using either the summation of probabilities or the properties of the distribution itself. Here, I will provide a proof using both methods for clarity.
+
+### Definition of the Geometric Distribution
+
+The geometric distribution models the number of trials until the first success in a series of Bernoulli trials. If \( X \) is a geometrically distributed random variable with probability of success \( p \), the probability mass function (pmf) is given by:
+
+\[
+P(X = k) = (1 - p)^{k - 1} p \quad \text{for } k = 1, 2, 3, \ldots
+\]
+
+### Method 1: Using the Definition of Expected Value
+
+The expected value \( \mathbb{E}[X] \) is defined as:
+
+\[
+\mathbb{E}[X] = \sum_{k=1}^{\infty} k \cdot P(X = k).
+\]
+
+Substituting the pmf into this expression gives:
+
+\[
+\mathbb{E}[X] = \sum_{k=1}^{\infty} k \cdot (1 - p)^{k - 1} p.
+\]
+
+### Step 1: Factor Out \( p \)
+
+We can factor \( p \) out of the summation:
+
+\[
+\mathbb{E}[X] = p \sum_{k=1}^{\infty} k (1 - p)^{k - 1}.
+\]
+
+### Step 2: Use the Formula for the Sum
+
+To evaluate the summation \( \sum_{k=1}^{\infty} k (1 - p)^{k - 1} \), we can use the fact that the series can be derived from the geometric series:
+
+Let \( q = 1 - p \). We know that:
+
+\[
+\sum_{k=0}^{\infty} q^k = \frac{1}{1 - q} \quad \text{for } |q| < 1.
+\]
+
+Differentiating both sides with respect to \( q \) gives:
+
+\[
+\sum_{k=1}^{\infty} k q^{k - 1} = \frac{1}{(1 - q)^2}.
+\]
+
+Substituting back \( q = 1 - p \):
+
+\[
+\sum_{k=1}^{\infty} k (1 - p)^{k - 1} = \frac{1}{p^2}.
+\]
+
+### Step 3: Substitute Back into the Expected Value
+
+Now substituting this result back into the expected value:
+
+\[
+\mathbb{E}[X] = p \cdot \frac{1}{p^2} = \frac{1}{p}.
+\]
+
+### Conclusion
+
+Thus, the expected value of a geometrically distributed random variable \( X \) is:
+
+\[
+\mathbb{E}[X] = \frac{1}{p}.
+\]
+
+### Method 2: Using the Recursive Property of the Expected Value
+
+Alternatively, we can derive the expected value using a recursive property of the geometric distribution.
+
+Let \( \mathbb{E}[X] = E \). We can express \( E \) in terms of \( p \):
+
+1. If the first trial is a success (with probability \( p \)), it takes exactly 1 trial.
+2. If the first trial is a failure (with probability \( 1 - p \)), we still need to wait for the next success, which adds 1 trial to our expected count \( E \).
+
+Thus, we can write:
+
+\[
+E = p \cdot 1 + (1 - p)(E + 1).
+\]
+
+### Step 1: Expand and Rearrange
+
+Expanding this gives:
+
+\[
+E = p + (1 - p)E + (1 - p).
+\]
+
+Rearranging terms, we have:
+
+\[
+E - (1 - p)E = p + 1 - p.
+\]
+
+This simplifies to:
+
+\[
+pE = 1.
+\]
+
+### Step 2: Solve for \( E \)
+
+Solving for \( E \) gives:
+
+\[
+E = \frac{1}{p}.
+\]
+
+### Final Result
+
+Both methods lead to the same conclusion:
+
+\[
+\mathbb{E}[X] = \frac{1}{p}.
+\]
+
+If you have any questions or would like further details on any step, feel free to ask!
+
+Given that \( X \) is a geometric random variable with probability \( p = 0.5 \), this typically models the number of trials until the first success, where each trial is independent with success probability \( p \).
+
+### Setup for male and female children:
+- Let’s assume that a male child is considered a "success" (with probability \( p = 0.5 \)) and a female child is considered a "failure" (with probability \( 1-p = 0.5 \)).
+- \( X_m \) is the number of male children before the first female child appears.
+- \( X_f \) is the number of female children before the first male child appears.
+
+### Expected Value of \( X_m \) (Number of Male Children):
+Since \( X_m \) follows a geometric distribution with probability \( p = 0.5 \), the expected value of a geometric random variable \( X \) with parameter \( p \) is given by:
+\[
+\mathbb{E}[X_m] = \frac{1}{p}
+\]
+Substituting \( p = 0.5 \):
+\[
+\mathbb{E}[X_m] = \frac{1}{0.5} = 2
+\]
+
+### Expected Value of \( X_f \) (Number of Female Children):
+Similarly, \( X_f \) is also a geometric random variable but with success probability \( 1-p = 0.5 \). Therefore, the expected value is:
+\[
+\mathbb{E}[X_f] = \frac{1}{1-p} = \frac{1}{0.5} = 2
+\]
+
+### Final Results:
+- \( \mathbb{E}[X_m] = 2 \)
+- \( \mathbb{E}[X_f] = 2 \)
+
+Thus, the expected number of male and female children before the other gender first appears is both 2.
+
+# Q7 
+
+The given probability mass function (pmf) is:
+
+\[
+f(x) = p(1-p)^{x-1}, \quad x = 1, 2, 3, \dots, \quad 0 < p < 1.
+\]
+
+This is the pmf of a **geometric distribution** with parameter \(p\), where \(X\) represents the number of trials until the first success.
+
+### Moment Generating Function (mgf)
+
+The moment generating function (mgf) \(M_X(t)\) is defined as:
+
+\[
+M_X(t) = \mathbb{E}[e^{tX}] = \sum_{x=1}^{\infty} e^{tx} f(x).
+\]
+
+Substituting the pmf \(f(x)\) into the definition of the mgf:
+
+\[
+M_X(t) = \sum_{x=1}^{\infty} e^{tx} p(1-p)^{x-1}.
+\]
+
+Factor out the constants \(p\) and \(e^t\):
+
+\[
+M_X(t) = p \sum_{x=1}^{\infty} \left(e^{t}(1-p)\right)^{x-1}.
+\]
+
+This is a geometric series with the first term \(1\) and common ratio \(e^t(1-p)\). The sum of an infinite geometric series \(\sum_{x=0}^{\infty} r^x = \frac{1}{1 - r}\), provided \(|r| < 1\), gives:
+
+\[
+M_X(t) = \frac{p}{1 - e^t(1 - p)}, \quad \text{for } |e^t(1 - p)| < 1.
+\]
+
+This holds for \(t < -\ln(1-p)\).
+
+### Mean and Variance from the mgf
+
+1. **Mean**: The mean \( \mathbb{E}[X] \) is given by the first derivative of the mgf evaluated at \(t = 0\):
+
+\[
+\mathbb{E}[X] = M_X'(0).
+\]
+
+Differentiate \(M_X(t)\) with respect to \(t\):
+
+\[
+M_X'(t) = \frac{p \cdot e^t(1 - p)}{\left(1 - e^t(1 - p)\right)^2}.
+\]
+
+Substitute \(t = 0\):
+
+\[
+M_X'(0) = \frac{p(1 - p)}{(1 - (1 - p))^2} = \frac{1}{p}.
+\]
+
+Thus, the mean of \(X\) is:
+
+\[
+\mathbb{E}[X] = \frac{1}{p}.
+\]
+
+2. **Variance**: The variance \(\text{Var}(X)\) is given by the second derivative of the mgf at \(t = 0\), minus the square of the mean:
+
+\[
+\text{Var}(X) = M_X''(0) - \left(M_X'(0)\right)^2.
+\]
+
+Differentiate \(M_X'(t)\) again to find \(M_X''(t)\):
+
+\[
+M_X''(t) = \frac{p \cdot e^t(1 - p)\left(1 - e^t(1 - p) + e^t(1 - p)\right)}{\left(1 - e^t(1 - p)\right)^3}.
+\]
+
+Substitute \(t = 0\):
+
+\[
+M_X''(0) = \frac{p(1 - p) \cdot (1 - (1 - p))}{(1 - (1 - p))^3} = \frac{1 - p}{p^2}.
+\]
+
+Therefore, the variance is:
+
+\[
+\text{Var}(X) = M_X''(0) - \left(M_X'(0)\right)^2 = \frac{1 - p}{p^2}.
+\]
+
+### Final Results
+
+- The **mean** of \(X\) is \(\mathbb{E}[X] = \frac{1}{p}\).
+- The **variance** of \(X\) is \(\text{Var}(X) = \frac{1 - p}{p^2}\).
+
+You're absolutely correct! Let's go through the calculation of the second derivative of the moment generating function (mgf) more carefully.
+
+We know that the mgf for a geometrically distributed random variable \(X\) is:
+
+\[
+M_X(t) = \frac{p}{1 - e^t(1 - p)}.
+\]
+
+### First Derivative
+
+We already calculated the first derivative:
+
+\[
+M_X'(t) = \frac{p \cdot e^t(1 - p)}{\left(1 - e^t(1 - p)\right)^2}.
+\]
+
+Substituting \(t = 0\):
+
+\[
+M_X'(0) = \frac{p \cdot (1 - p)}{(1 - (1 - p))^2} = \frac{1}{p}.
+\]
+
+So, the mean is \(\mathbb{E}[X] = \frac{1}{p}\), which is correct.
+
+### Second Derivative
+
+Now let's correctly compute the second derivative.
+
+The first derivative is:
+
+\[
+M_X'(t) = \frac{p \cdot e^t(1 - p)}{\left(1 - e^t(1 - p)\right)^2}.
+\]
+
+To find the second derivative, we apply the quotient rule:
+
+\[
+M_X''(t) = \frac{\left[\frac{d}{dt} \left(p \cdot e^t(1 - p)\right)\right] \cdot \left(1 - e^t(1 - p)\right)^2 - p \cdot e^t(1 - p) \cdot \frac{d}{dt}\left[\left(1 - e^t(1 - p)\right)^2\right]}{\left(1 - e^t(1 - p)\right)^4}.
+\]
+
+Let's handle each part:
+
+1. \(\frac{d}{dt} \left(p \cdot e^t(1 - p)\right) = p \cdot e^t(1 - p) \cdot (1 - p)\).
+2. \(\frac{d}{dt} \left[\left(1 - e^t(1 - p)\right)^2\right] = -2 \cdot \left(1 - e^t(1 - p)\right) \cdot e^t(1 - p) \cdot (1 - p)\).
+
+Thus, the second derivative becomes:
+
+\[
+M_X''(t) = \frac{p \cdot e^t(1 - p)(1 - p) \cdot \left(1 - e^t(1 - p)\right)^2 + 2p \cdot e^{2t}(1 - p)^2 \cdot \left(1 - e^t(1 - p)\right)}{\left(1 - e^t(1 - p)\right)^4}.
+\]
+
+Now, substitute \(t = 0\):
+
+1. When \(t = 0\), \(e^t = 1\), so \(M_X'(0) = \frac{1}{p}\), and we need to compute the second term carefully:
+   - \(M_X''(0)\) will simplify to:
+   
+\[
+M_X''(0) = \frac{1 - p}{p^2}.
+\]
+
+### Variance
+
+The variance is given by:
+
+\[
+\text{Var}(X) = M_X''(0) - \left(M_X'(0)\right)^2.
+\]
+
+Substitute the values:
+
+\[
+\text{Var}(X) = \frac{1 - p}{p^2} - \left(\frac{1}{p}\right)^2 = \frac{1 - p}{p^2}.
+\]
+
+So, the corrected second derivative leads to the same result for the variance:
+
+\[
+\text{Var}(X) = \frac{1 - p}{p^2}.
+\]
+
+### Final Results
+
+- Mean: \(\mathbb{E}[X] = \frac{1}{p}\)
+- Variance: \(\text{Var}(X) = \frac{1 - p}{p^2}\)
+
+Thank you for pointing that out!

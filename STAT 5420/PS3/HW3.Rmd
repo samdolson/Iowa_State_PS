@@ -8,13 +8,13 @@ date: "2024-09-28"
 [Collaborators: **Tne Hatman**]{.smallcaps} \
 
 # Overview 
-  - 1: Fix up f(y) calculation
-  - 2: Part (b), (c) left TO-DO
+  - 1: DONE
+  - 2: DONE, but (c) may need a touch-up
   - 3: Part (c) left TO-DO
   - 4: DONE
   - 5: 
-  - 6: JANKY
-  - 7: 
+  - 6: DONE
+  - 7: DONE, but can tidy up a bit
   - 8: 
 
 > 1. 2.23(b) 
@@ -30,12 +30,6 @@ Define the random variable Y by $Y = X^2$
 
 ## Answer 1  
 
-```{r}
-x <- seq(from = -1, to = 1, by = 0.01)
-y <- 1/2 * (1+x)
-plot(x, y)
-```
-
 (b): 
 
 (From prior HW) Note from the results of theorem 2.1.8: 
@@ -46,18 +40,27 @@ $$f_Y(y) =
   0 & otherwise \\ 
 \end{cases}$$
 
+Note: For $X \in [-1, 1]$, we have $Y = X^2 \in [0, 1]$
+
 Over the following partitions, we have monotonicity, 
 
-$A_1 = (-1, 0)$, 
-$A_2 = (0, 1)$, with 
+$A_1 = (-1, 0) \rightarrow X = -\sqrt{y}$, as $g_1(x) = x^2$, and 
+ 
+$A_2 = (0, 1) \rightarrow X = \sqrt{y}$, as $g_2(x) = x^2$
 
-$g_1(x) = x^2$ on their respective intervals.
+Taking the absolute value of the derivatives, $|\frac{d}{dy}g_{i}^{-1}(y)|$, we have: 
 
-Giving 
+$|\frac{d}{dy}g_{1}^{-1}(y)| = |\frac{d}{dy}g_{2}^{-1}(y)| = \frac{1}{2}y^{-1/2}$ 
 
-$f_Y(y) = \frac{1}{2\sqrt y}$, $0 < y < 1$
+Thus we have 
 
-Calculations: 
+$f_Y(y) = \frac{1}{2}y^{-1/2} \frac{1}{2}[(1 + \sqrt{y}) + (1 - \sqrt{y})] = \frac{1}{4}y^{-1/2} [2] = \frac{1}{2} y^{-1/2}$
+
+Such that we have the pdf of Y as:
+
+$f_Y(y) = \frac{1}{2} y^{-1/2}$, $0 < y < 1$
+
+Using this for our Expected value calculation we have: 
 
 $E(Y) = \int\limits_{y \in \mathbb{Y}} yf(y)dy = \int\limits_{y=0}^{1} y(\frac{1}{2\sqrt y})dy$
 
@@ -104,16 +107,43 @@ $f_X(x) = P(X = x) = p(1-p)^{x-1}$
 $$E(X) = \sum\limits_{x=1}^{\infty} x P(X = x) = \sum\limits_{k=x}^{\infty} x (p(1-p)^{x-1}) = p \sum\limits_{x=1}^{\infty} x ((1-p)^{k-1})$$
 
 Note, for the infinite geometric series we have, for $|r| < 1$, k some positive integer, the following holds: 
-$$\sum\limits_{k = 1}^{\infty} r^{k-1} = \frac{1}{1-r}$$
+$$\sum\limits_{k = 1}^{\infty} r^{k} = \frac{1}{1-r}$$
 
-Note: as $0 < p < 1 \rightarrow 0 < 1-p < 1$, giving us: 
+Note: Let $q = 1-p$ for simplicity. 
+As $0 < p < 1 \rightarrow 0 < 1-p < 1 \rightarrow 0 < q < 1$.
+For our purposes, we have $|q| < 1$, such that the above relation holds for an infinite geometric series: 
 
-$$E(X) = p \sum\limits_{k=1}^{\infty} k ((1-p)^{k-1})$$
+$$\sum\limits_{x = 1}^{\infty} q^{x} = \frac{1}{1-q}$$
 
+Note then: 
+
+$$\frac{d}{dq} (\sum\limits_{x = 1}^{\infty} q^{x}) = \sum\limits_{x = 1}^{\infty} (\frac{d}{dq} q^{x}) = \sum\limits_{x = 1}^{\infty} x q^{x-1}$$
+Additionally, 
+
+$$\frac{d}{dq} (\frac{1}{1-q}) = \frac{d}{dq}[(1-q)^{-1}] = \frac{1}{(1-q)^2} = (1-q)^{-2}$$
+
+Thus we have: 
+$$E(X) = p (1-q)^{-2} = p ( 1 - (1 - p) ) ^ {-2} = p ( p)^{-2} = p^{-1} = \frac{1}{p}$$
+
+For $p=0.5$, we have: 
 
 $$E(X) = \frac{1}{p} = \frac{1}{0.5} = 2$$
 
+Or, on average they would have two children before they have their first female. 
+
 (c): 
+
+Note: $X_f$ and $X_m$ are subsets of the random variable $X$. 
+
+Both $X_f$ and $X_m$ are Geometrically distributed random variables with parameter p, where $p = 0.5$. Given the derivation in part (b), we have: 
+
+$E(X_f) = \frac{1}{p} = \frac{1}{0.5} = 2$
+
+and 
+
+$E(X_m) = \frac{1}{p} = \frac{1}{0.5} = 2$
+
+Which we may interpret as meaning the expected number of males/females born before having a child belonging to the other respective gender is 2. 
 
 \newpage
 
@@ -211,24 +241,26 @@ The mean of X is $\mu$. Show that the moment generating function of X satisfies 
 
 ## Answer 6
 
-With note of Jensen's Inequality, we have, for a concave function, 
+With note of Jensen's Inequality, we have, for a convex function g, (avoiding confusion of the usage of f with the above pdf), 
 
-$$E[f(X)] \leq f(E(X))$$
+Let us then consider the moment generation function of X, 
 
-We know $E(X) = \mu$, such that
+$M_X(t) = E(e^{tX})$
 
-$$E[f(x)] \leq f(\mu)$$
-Let us then consider the mgf of $X$, $M_X(t)$. Given the above, $f(x)'' < 0$ (always negative second derivative), such that we are assured of concavity. 
+Consider then the function $e^{tX}$, specifically its second derivative: 
 
-Then we may directly make use of Jensen's inequality to conclude: 
+$$\frac{d^2}{dx^2} e^tX = t^2 e^{tX} > 0$$, $\forall x, t$
 
-$f(\mu) = e^{t\mu} \leq M_X(t)$
+We may then note that the mgf of X is convex since its second derivative is positive. 
 
-$M_X(t) = E[e^{tX}]$
+This is advantagous to our purposes, as we know when applying Jensen's inequality that we have a convex function, such that we may write: 
 
-Given concavity we know: 
-$$E(g(X)) \leq g(E(X))$$
+Since $E(X) = \mu$,
 
+$$M_X(t) = E[e^{tX}] \geq e^{tE(X)} = e^{t\mu}$$
+And we conclude 
+
+$M_X(t) \geq e^{t\mu}$
 
 \newpage
 
@@ -239,6 +271,38 @@ Suppose that $X$ has pmf $f(x) = p(1-p)^{x-1}$, for $x = 1, 2, 3, ...$ where $0<
 
 ## Answer 7
 
+For deriving the mean and variance of X, we will need to first define the mgf of X as: 
+
+$$M_X(t) = E(e^{tX}) = \sum\limits_{x=1}^{\infty} e^{tx} f(x) = \sum\limits_{x=1}^{\infty} e^{tx} p(1-p)^{x-1}$$
+
+The mean $\mu = E(X)$ is equal to the first derivative of the mgf evaluated at $t = 0$:
+
+$E(X) = M_X'(0)$
+
+$$M_X'(t) = \frac{p e^t(1 - p)}{\left(1 - e^t(1 - p)\right)^2}$$
+
+$$M_X'(0) = \frac{p(1 - p)}{(1 - (1 - p))^2} = \frac{1}{p}$$
+
+$$E(X) = \frac{1}{p}$$
+
+We then derive the variance of X. We know the typical variance formula as: 
+$\text{Var}(X) = E(X^2) - (E(X))^2$
+
+However, we just calculated $E(X)$! Additionally, we know that $E(X^2)$ is equal to the second derivative of the mgf at $t=0$. As such we write: 
+
+$$M_X''(t) = \frac{p e^t(1 - p)\left(1 - e^t(1 - p) + e^t(1 - p)\right)}{\left(1 - e^t(1 - p)\right)^3}$$ 
+
+To make computation easier, let $q = 1 - p$. Then, for $t = 0$, 
+
+$$M_X''(0) = \frac{p-pq^2}{(1-q)^4} = \frac{p(1-q^2)}{(1-q)^4} = \frac{p(1+q)}{(1-q)^3} = \frac{1+q}{p^2}$$
+
+Taking this calculation minus the square of the mean gives us: 
+
+$$\text{Var}(X) = M_X''(0) - \left(M_X'(0)\right)^2 = \frac{1+q}{p^2} - \frac{1}{p^2} = \frac{q}{p^2} = \frac{1-p}{p^2}$$
+
+And we conclude then
+
+$$\text{Var}(X) =\frac{1-p}{p^2}$$
 
 
 \newpage
