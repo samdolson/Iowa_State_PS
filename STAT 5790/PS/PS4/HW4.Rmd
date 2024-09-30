@@ -258,13 +258,9 @@ Read in the dataset as a vector. This dataset has 2000 rows and 256 columns. Con
 
 ```{r}
 ziptrain <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/ziptrain.dat")
-  
-zipdigit <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/zipdigit.dat")
-```
-
-```{r}
-dim(ziptrain)
-dim(t(ziptrain))
+# zipdigit <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/zipdigit.dat")
+# dim(ziptrain)
+# dim(t(ziptrain))
 
 ziptrain3D <- array(t(ziptrain), dim = c(16, 16, 2000))
 
@@ -294,9 +290,12 @@ Using par(mfrow = c(40,50)) and a total image size of 5.2”×6.5”, image all 
 ```{r}
 par(mfrow = c(40, 50), 
     mar = rep(0.05, 4), 
-    pin = c(5.2/64, 6.5/80)
+    # this pin size works, I guess
+    # pin = c(5.2/50, 6.5/40)
+    # pin = c(5.2/40, 6.5/50)
+    # pin = c(5.2/100, 6.5/80)
+    pin = c(5.2/80, 6.5/100)
     ) 
-# , pin = c(5.2/50, 6.5/40))
 
 apply(X = properArray, MARGIN = 3, FUN = function(x) {
   image(x[, 16:1], 
@@ -309,51 +308,66 @@ apply(X = properArray, MARGIN = 3, FUN = function(x) {
 We now compute the mean and standard deviation images of the digits. To do so, we convert the array back to a matrix, and calculate the means for the ten digits, convert back to a three-dimensional array. Do exactly that. Also, compute and display the standard deviation images in exactly a similar way.
 
 ```{r}
-ziptrain_data <- matrix(scan("ziptrain.dat"), ncol = 256, byrow = TRUE)
+zipMat <- matrix(scan("ziptrain.dat"), 
+                        nrow = 2000, 
+                        ncol = 256, 
+                        byrow = TRUE)
 
-# Step 2: Reshape the dataset into a 3D array (16x16x2000)
-ziptrain_array <- array(t(ziptrain_data), dim = c(16, 16, 2000))
+zipdigit <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/zipdigit.dat")
 
-ziptrain_matrix <- matrix(t(matrix(ziptrain_array)), nrow = 2000, ncol = 256, byrow = TRUE)
-```
+meanDigits <- sapply(X = 0:9, 
+                     function(x) {
+                        digitDf <- zipMat[zipdigit == x, ]  
+                        # Select rows corresponding to the current digit
+                        colMeans(digitDf)
+                        }
+                      )
 
-```{r}
-# Step 1: Read the pixel data from the file
-ziptrain_data <- matrix(scan("ziptrain.dat"), ncol = 256, byrow = TRUE)  # Read in the 2000x256 pixel data
+stdDigits <- sapply(X = 0:9, 
+                    FUN = function(x) {
+                      digitDf <- zipMat[zipdigit == x, ]  
+                      apply(X = digitDf, MARGIN = 2, FUN = sd)
+                      }
+                    )
 
-# Step 2: Use zipdigit as the digit labels
-digit_labels <- zipdigit  # This is your 2000x1 matrix
 
-mean_images <- sapply(0:9, function(digit) {
-  digit_data <- ziptrain_data[digit_labels == digit, ]  # Select rows corresponding to the current digit
-  colMeans(digit_data)
-})
+meanDigitsArr <- array(t(meanDigits), dim = c(16, 16, 10))
+stdDigitsArr <- array(t(stdDigits), dim = c(16, 16, 10))
 
-stddev_images <- sapply(0:9, function(digit) {
-  digit_data <- ziptrain_data[digit_labels == digit, ]  # Select rows corresponding to the current digit
-  apply(digit_data, 2, sd)
-})
-
-# Step 3: Reshape the results back into 16x16x10 arrays
-mean_images_array <- array(t(mean_images), dim = c(16, 16, 10))
-stddev_images_array <- array(t(stddev_images), dim = c(16, 16, 10))
-
-# Step 4: Display the mean and standard deviation images
 par(mfrow = c(2, 10), mar = rep(0.05, 4))
 
-# Display mean images
-for (digit in 0:9) {
-  image(mean_images_array[,,digit+1], axes = FALSE, col = gray(31:0/31))
-}
+# for (x in 0:9) {
+    # image(meanDigitsArr[,,x+1],
+    # axes = FALSE,
+    # col = gray(31:0/31))
+# }
+# for (x in 0:9) {
+    # image(stdDigitsArr[,,x+1], 
+    # axes = FALSE, 
+    # col = gray(31:0/31))
+# }
 
-# Display standard deviation images
-for (digit in 0:9) {
-  image(stddev_images_array[,,digit+1], axes = FALSE, col = gray(31:0/31))
-}
+# mean images 
+apply(X = meanDigitsArr, MARGIN = 3, FUN = function(x) {
+  image(x[, 16:1], 
+        axes = FALSE, 
+        col = gray(31:0/31))
+})
+
+# std dev images
+apply(X = stdDigitsArr, MARGIN = 3, FUN = function(x) {
+  image(x[, 16:1], 
+        axes = FALSE, 
+        col = gray(31:0/31))
+})
 ```
 
 ### (d):
 Our final act will involve cleaning up the dataset. To do so, remove the mean digit effect from each record. Then, perform a singular value decomposition on the 2000 × 256 matrix of deviations Y (that is the records with the correspoding digit mean effect removed). (Recall that the SVD is Y = U DV ' and is obtained via the svd() function in R.) Replace D with a diagonal matrix Dk of the first k eigenvalues of D and the remainder as zero. Then let Yk = U DkV '. Add back the mean and display the resulting images of all the digits for k = 25, 50, 75 in the same manner as (b)ii. Comment on the displays. 
+
+```{r}
+x
+```
 
 ```{r}
 # Assuming ziptrain_data and zipdigit are already defined
