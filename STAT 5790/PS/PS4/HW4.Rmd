@@ -84,15 +84,21 @@ In this second case, we will group according to the 16 equally-spaced quantile b
 
 ```{r}
 # 16 bins implies 17 total lengths 
-qtFbpImg <- quantile(fbpImg, probs = seq(0, 1, length = 17))
+qtFbpImg <- quantile(fbpImg, 
+                     probs = seq(0, 1, length = 17)
+                     )
 midQtFbpImg <- (qtFbpImg[-1] + qtFbpImg[-length(qtFbpImg)])/2
 
 # stack the matrix 16 times on top of each other
-arrFbpImg <- array(fbpImg, dim = c(dim(fbpImg),
-                              length(midQtFbpImg))
+arrFbpImg <- array(fbpImg, 
+                   dim = c(dim(fbpImg),
+                              length(midQtFbpImg)
+                           )
                  )
 # dim(arrFbpImg)
-midArr <- array(rep(midQtFbpImg, each = prod(dim(fbpImg))), 
+midArr <- array(rep(midQtFbpImg, 
+                    each = prod(dim(fbpImg))
+                    ), 
                  dim = dim(arrFbpImg)
                  )
 # dim(midArr)
@@ -115,7 +121,7 @@ image(1:nrow(minIndex),
 #### iii. 
 Comment, and discuss similarities and differences on the differences in the two images thus obtained with the original image.
 
-Similar but different, neh, samurai? 
+The two images do appear similar, in that you can clearly visualize the outline of the brain and the distinct regions of the brain. However, the quantile-based image (second image) more clearly visualizes some of the smaller areas whose values differ considerably from the larger regions of the brain. 
 
 \newpage
 
@@ -127,21 +133,22 @@ Read in the dataset. Note that this is a big file, and can take a while, especia
 
 ```{r}
 require(readr) 
+# I downloaded it locally! 
 geneDf <- read.csv("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/diurnaldata.csv")
 ```
 
 ### (b): 
-For each gene, calculate the mean abundance level at each time-point, and store the result in a matrix. One way to achieve this is to create a three-dimensional array or dimension 22, 810 × 11 × 2 and to use apply over it with the appropriate function and over the appropriate margins. Note that you are only asked present the commands that you use here. From now on, we will use this dataset averaged over the two replications for each gene. 
+For each gene, calculate the mean abundance level at each time-point, and store the result in a matrix. One way to achieve this is to create a three-dimensional array or dimension 22,810 × 11 × 2 and to use apply over it with the appropriate function and over the appropriate margins. Note that you are only asked present the commands that you use here. From now on, we will use this dataset averaged over the two replications for each gene. 
 
 ```{r}
-# Step 3: Convert the data to a matrix, excluding the first column (gene probeset)
-gene_matrix <- as.matrix(geneDf[, -1])
+# Exclude first column
+geneMat <- as.matrix(geneDf[, -1])
 
-# Step 4: Reshape the matrix into a 3D array: genes x time points x replications
-gene_array <- array(gene_matrix, dim = c(22810, 11, 2))
+geneArray <- array(geneMat, dim = c(22810, 11, 2))
 
-# Step 5: Calculate the mean abundance level at each time-point
-mean_abundance <- apply(gene_array, c(1, 2), mean)
+meanGene <- apply(X = geneArray, MARGIN = c(1, 2), FUN = mean)
+dim(meanGene)
+# meanGene
 ```
 
 ### (c): 
@@ -152,18 +159,22 @@ Standardization. Gene data are compared to each other by way of correlations. (C
 In pursuance of the objective, use the apply function to calculate the mean of the mean abundance level over all time-points for each gene.
 
 ```{r}
-mean_of_means <- apply(mean_abundance, 1, mean)
+meanGeneAllTimes <- apply(X = meanGene, MARGIN = 1, FUN = mean)
+length(meanGeneAllTimes)
+# meanGeneAllTimes
 ```
 
 #### ii. 
-Set up a matrix of dimension 22, 810 × 11 of the means of the mean abundance levels, where each row is a replicated version of the first one. Use this to eliminate the mean effect from the matrix stored in the previous part. 
+Set up a matrix of dimension 22,810 × 11 of the means of the mean abundance levels, where each row is a replicated version of the first one. Use this to eliminate the mean effect from the matrix stored in the previous part. 
 
 ```{r}
 # Step 1: Create a matrix of dimension 22810 x 11 with each row being a copy of mean_of_means
-mean_replicated_matrix <- matrix(mean_of_means, nrow = 22810, ncol = 11, byrow = TRUE)
+meanRepGene <- matrix(meanGeneAllTimes, nrow = 22810, ncol = 11, byrow = TRUE)
 
 # Step 2: Subtract the replicated mean matrix from the mean abundance matrix
-mean_abundance_centered <- mean_abundance - mean_replicated_matrix
+meanGeneNoMeanEffect <- meanGene - meanRepGene
+
+dim(meanGeneNoMeanEffect)
 ```
 
 #### iii. 
@@ -171,82 +182,71 @@ Use the apply function again to calculate the standard deviation of each row of 
 
 ```{r}
 # Step 1: Calculate the standard deviation for each gene (row) in the centered abundance matrix
-std_dev <- apply(mean_abundance_centered, 1, sd)
+stdGene <- apply(X = meanGeneNoMeanEffect, MARGIN = 1, FUN = sd)
 
 # Step 2: Create a matrix of the standard deviations with the same dimensions as mean_abundance_centered
-std_dev_matrix <- matrix(rep(std_dev, each = 11), nrow = 22810, ncol = 11, byrow = TRUE)
+stdGeneMat <- matrix(rep(stdGene, each = 11), 
+                         nrow = 22810, 
+                         ncol = 11, 
+                         byrow = TRUE)
 
 # Step 3: Scale the measurements for each gene by dividing by the standard deviation
-scaled_measurements <- mean_abundance_centered / std_dev_matrix
+scaledGenes <- meanGene / stdGeneMat
+dim(scaledGenes)
 ```
 
 ### (d):
 The file micromeans.dat contains a 20 × 11 matrix of measurements. Read in this dataset, and standardize as above.
 
 ```{r}
-geneDfMicro <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/micromeans.dat")
-micromeans <- geneDfMicro
-```
+geneDfMicro <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/micromeans.dat") |> 
+  as.matrix(nrow = 20, 
+            ncol = 11)
 
-```{r}
-# Step 3: Convert the data to a matrix
-micromeans_matrix <- as.matrix(micromeans)
-
-# Step 4: Calculate the standard deviation for each row (measurement) in the micromeans matrix
-std_dev_micromeans <- apply(micromeans_matrix, 1, sd)
+stdMicro <- apply(X = geneDfMicro, MARGIN = 1, FUN = sd)
 
 # Step 5: Create a matrix of the standard deviations with the same dimensions as micromeans_matrix
-std_dev_micromeans_matrix <- matrix(rep(std_dev_micromeans, each = 11), nrow = 20, ncol = 11, byrow = TRUE)
+stdMicroMat <- matrix(rep(stdMicro, each = 11), 
+                                    nrow = 20, 
+                                    ncol = 11, 
+                                    byrow = TRUE)
 
 # Step 6: Scale the measurements for each row by dividing by the standard deviation
-scaled_micromeans <- micromeans_matrix / std_dev_micromeans_matrix
+scaledMicro <- geneDfMicro / stdMicroMat
+
+dim(scaledMicro)
 ```
 
 ### (e):
-We will now identify which of these means is closest to each gene. To do so, set up an three-dimensional array (of dimension 22, 810×11×20) with 20 replicated datasets (of the 22,810 diurnal mean abundance levels over 11 time-points). Next, set up replications of the 20 mean vectors into a three-dimensional array (of dimension 22, 810 × 11 × 20), with the replications occurring along the first dimension. Using apply and the above, obtain a 22, 810 × 20 matrix of Euclidean distances for each gene and mean. Finally, obtain the means to which each gene is closest to. Report the frequency distribution, and tabulate the frequencies, and display using a piechart.
+We will now identify which of these means is closest to each gene. To do so, set up an three-dimensional array (of dimension 22,810×11×20) with 20 replicated datasets (of the 22,810 diurnal mean abundance levels over 11 time-points). Next, set up replications of the 20 mean vectors into a three-dimensional array (of dimension 22, 810 × 11 × 20), with the replications occurring along the first dimension. Using apply and the above, obtain a 22,810 × 20 matrix of Euclidean distances for each gene and mean. Finally, obtain the means to which each gene is closest to. Report the frequency distribution, and tabulate the frequencies, and display using a piechart.
 
 ```{r}
-# Step 1: Create a 3D array of mean abundance levels replicated for 20 means
-mean_abundance_array <- array(rep(mean_abundance, each = 20), dim = c(22, 810, 20))
+meanGeneArr <- array(rep(meanGene, each = 20), 
+                              dim = c(22, 810, 20)
+                              )
+microGeneArr <- array(rep(geneDfMicro, times = 22810), 
+                          dim = c(22810, 11, 20)
+                          )
 
-# Step 2: Create a 3D array of micromeans (mean vectors) replicated for each gene
-# micromeans_array <- array(rep(micromeans_matrix, times = 22810), dim = c(20, 11))
-micromeans_array <- array(rep(micromeans_matrix, times = 22810), dim = c(22810, 11, 20))
+distancesArr <- array(0, 
+                      dim = c(22810, 20)
+                      ) 
 
-# Step 3: Calculate the Euclidean distances
-# Initialize the distances array
-euclidean_distances <- array(0, dim = c(22810, 20))  # Now only need to track gene and mean indices
-
-# Loop through genes and means
-for (gene_idx in 1:22810) {
-  for (mean_idx in 1:20) {
-    euclidean_distances[gene_idx, mean_idx] <- sqrt(sum((mean_abundance[gene_idx, ] - micromeans_matrix[mean_idx, ])^2))
+for (gene_index in 1:22810) {
+  for (micro_index in 1:20) {
+    distancesArr[gene_index, micro_index] <- 
+      sqrt(sum(
+        (meanGene[gene_index, ] - geneDfMicro[micro_index, ])^2)
+        )
   }
 }
 
-# Find the closest mean for each gene
-closest_means_indices <- apply(euclidean_distances, 1, which.min)
+closestMeansIndex <- apply(X = distancesArr, MARGIN = 1, FUN = which.min)
 
-# Tabulate the frequency distribution
-frequency_distribution <- table(closest_means_indices)
+frequencyTable <- table(closestMeansIndex)
 
-# Display the frequencies using a pie chart
-pie(frequency_distribution, main = "Frequency Distribution of Closest Means")
+pie(frequencyTable, main = "Frequency Distribution of Genes by Their Closest Means")
 ```
-
-Notes: 
-Data Preparation:
-
-Mean Abundance Matrix: Ensure you have a matrix (mean_abundance) with dimensions 
-22810
-×
-11
-22810×11, where rows represent different genes and columns represent mean abundance levels across 11 time points.
-Micromeans Matrix: Define or load a matrix (micromeans_matrix) representing mean vectors for the 20 conditions or time points (e.g., dimensions 
-20
-×
-11
-20×11).
 
 \newpage
 
