@@ -168,10 +168,8 @@ length(meanGeneAllTimes)
 Set up a matrix of dimension 22,810 × 11 of the means of the mean abundance levels, where each row is a replicated version of the first one. Use this to eliminate the mean effect from the matrix stored in the previous part. 
 
 ```{r}
-# Step 1: Create a matrix of dimension 22810 x 11 with each row being a copy of mean_of_means
 meanRepGene <- matrix(meanGeneAllTimes, nrow = 22810, ncol = 11, byrow = TRUE)
 
-# Step 2: Subtract the replicated mean matrix from the mean abundance matrix
 meanGeneNoMeanEffect <- meanGene - meanRepGene
 
 dim(meanGeneNoMeanEffect)
@@ -181,16 +179,13 @@ dim(meanGeneNoMeanEffect)
 Use the apply function again to calculate the standard deviation of each row of the matrix in the part (b) above, and proceed to obtain the scaled measurements on the genes.
 
 ```{r}
-# Step 1: Calculate the standard deviation for each gene (row) in the centered abundance matrix
 stdGene <- apply(X = meanGeneNoMeanEffect, MARGIN = 1, FUN = sd)
 
-# Step 2: Create a matrix of the standard deviations with the same dimensions as mean_abundance_centered
 stdGeneMat <- matrix(rep(stdGene, each = 11), 
                          nrow = 22810, 
                          ncol = 11, 
                          byrow = TRUE)
 
-# Step 3: Scale the measurements for each gene by dividing by the standard deviation
 scaledGenes <- meanGene / stdGeneMat
 dim(scaledGenes)
 ```
@@ -205,13 +200,11 @@ geneDfMicro <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 57
 
 stdMicro <- apply(X = geneDfMicro, MARGIN = 1, FUN = sd)
 
-# Step 5: Create a matrix of the standard deviations with the same dimensions as micromeans_matrix
 stdMicroMat <- matrix(rep(stdMicro, each = 11), 
                                     nrow = 20, 
                                     ncol = 11, 
                                     byrow = TRUE)
 
-# Step 6: Scale the measurements for each row by dividing by the standard deviation
 scaledMicro <- geneDfMicro / stdMicroMat
 
 dim(scaledMicro)
@@ -410,31 +403,15 @@ meanImages <- sapply(X = 0:9,
 
 deviationMat <- ziptrain
 
+# I swear I cannot make this work using sapply
+# this for loop is holding onto my sanity
 for (digit in 0:9) {
   meanDigit <- matrix(meanImages[, digit + 1], nrow = 16, ncol = 16)
   deviationMat[zipdigit == digit, ] <-
     deviationMat[zipdigit == digit, ] - as.vector(t(meanDigit))
 }
 
-deviationMat2 <- ziptrain
-
-deviationMatFill <- do.call(rbind, lapply(X = 0:9,
-                           FUN = function(x) {
-                             meanDigit <- matrix(meanImages[, x + 1], nrow = 16, ncol = 16)
-                             deviationMat2[zipdigit == x, ] <-
-                               deviationMat2[zipdigit == x, ] - as.vector(t(meanDigit))
-                             }
-                           )
-              )
-
-# svdDf <- svd(x1)
-# svd_result <- svd(deviationMatFill)
-
-svd_result <- svd(deviationMat)
-svdDf <- svd(deviationMatFill)
-
-length(svdDf$d)
-length(svd_result$d)
+svdDf <- svd(deviationMat)
 
 reconstruct_images <- function(u, d, v, k) {
   Dk <- diag(d[1:k])  
@@ -444,52 +421,35 @@ reconstruct_images <- function(u, d, v, k) {
 
 k_values <- c(25, 50, 75)
 ```
-```{r}
-for (k in k_values) {
-  Yk <- reconstruct_images(svdDf$u, svdDf$d, svdDf$v, k)
-  
-  # Add back the mean for each digit and display the images
-  for (digit in 0:9) {
-    meanDigit <- matrix(meanImages[, digit + 1], nrow = 16, ncol = 16)  # Reshape to 16x16
-    reconstructedImg <- Yk[zipdigit == digit, ] + as.vector(t(meanDigit))
-    
-    # Display the reconstructed image for this digit
-    image(matrix(reconstructedImg[1, ], nrow = 16, ncol = 16)[, 16:1], axes = FALSE, col = gray(31:0/31))
-  }
-}
-```
 
 ```{r}
-for (k in k_values) {
-  Yk <- reconstruct_images(svd_result$u, svd_result$d, svd_result$v, k)
-  
-  # Add back the mean for each digit and display the images
-  for (digit in 0:9) {
-    meanDigit <- matrix(meanImages[, digit + 1], nrow = 16, ncol = 16)  # Reshape to 16x16
-    reconstructedImg <- Yk[zipdigit == digit, ] + as.vector(t(meanDigit))
-    
-    # Display the reconstructed image for this digit
-    image(matrix(reconstructedImg[1, ], nrow = 16, ncol = 16)[, 16:1], axes = FALSE, col = gray(31:0/31))
-  }
-}
+# for (k in k_values) {
+#   Yk <- reconstruct_images(svdDf$u, svdDf$d, svdDf$v, k)
+#   
+#   for (digit in 0:9) {
+#     meanDigit <- matrix(meanImages[, digit + 1], nrow = 16, ncol = 16)
+#     reconstructedImg <- Yk[zipdigit == digit, ] + as.vector(t(meanDigit))
+#     image(matrix(reconstructedImg[1, ], nrow = 16, ncol = 16)[, 16:1], axes = FALSE, col = gray(31:0/31))
+#   }
+# }
 
-# par(mfrow = c(length(k_values), 10), mar = rep(0.05, 4))
+par(mfrow = c(length(k_values), 10), mar = rep(0.05, 4))
 
-# sapply(k_values[1:3],
-#        function(k) {
-#   Yk <- reconstruct_images(svd_result$u, svd_result$d, svd_result$v, k)
-# 
-#   sapply(0:9, function(x) {
-#     meanDigit <- matrix(meanImages[, x + 1], nrow = 16, ncol = 16)  # Reshape to 16x16
-#     reconstructedImg <- Yk[zipdigit == x, ] + as.vector(t(meanDigit))
-#         image(matrix(reconstructedImg[1, ],
-#                  nrow = 16,
-#                  ncol = 16)[, 16:1],
-#           axes = FALSE,
-#           col = gray(31:0/31))
-# })
-#        }
-# )
+sapply(k_values[1:3],
+       function(k) {
+         Yk <- reconstruct_images(svdDf$u, svdDf$d, svdDf$v, k)
+         sapply(0:9, function(x) {
+           meanDigit <- matrix(meanImages[, x + 1], nrow = 16, ncol = 16)  
+           reconstructedImg <- Yk[zipdigit == x, ] + as.vector(t(meanDigit))
+           image(matrix(reconstructedImg[1, ],
+                        nrow = 16,
+                        ncol = 16)[, 16:1],
+                 axes = FALSE,
+                 col = gray(31:0/31))
+           }
+         )
+         }
+       )
 ```
 
 > Comments
