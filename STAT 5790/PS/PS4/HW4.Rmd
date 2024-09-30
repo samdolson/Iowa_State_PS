@@ -323,27 +323,14 @@ meanDigits <- sapply(X = 0:9,
                         }
                       )
 
-stdDigits <- sapply(X = 0:9, 
-                    FUN = function(x) {
-                      digitDf <- zipMat[zipdigit == x, ]  
-                      apply(X = digitDf, MARGIN = 2, FUN = sd)
-                      }
-                    )
 
-
-meanDigitsArr <- array(t(meanDigits), dim = c(16, 16, 10))
-stdDigitsArr <- array(t(stdDigits), dim = c(16, 16, 10))
-
-par(mfrow = c(2, 10), mar = rep(0.05, 4))
+# meanDigitsArr <- array(t(meanDigits), dim = c(16, 16, 10))
+meanDigitsArr <- array(meanDigits, dim = c(16, 16, 10))
+par(mfrow = c(1, 10), mar = rep(0.05, 4))
 
 # for (x in 0:9) {
     # image(meanDigitsArr[,,x+1],
     # axes = FALSE,
-    # col = gray(31:0/31))
-# }
-# for (x in 0:9) {
-    # image(stdDigitsArr[,,x+1], 
-    # axes = FALSE, 
     # col = gray(31:0/31))
 # }
 
@@ -353,6 +340,26 @@ apply(X = meanDigitsArr, MARGIN = 3, FUN = function(x) {
         axes = FALSE, 
         col = gray(31:0/31))
 })
+```
+
+```{r}
+stdDigits <- sapply(X = 0:9, 
+                    FUN = function(x) {
+                      digitDf <- zipMat[zipdigit == x, ]  
+                      apply(X = digitDf, MARGIN = 2, FUN = sd)
+                      }
+                    )
+
+# stdDigitsArr <- array(t(stdDigits), dim = c(16, 16, 10))
+stdDigitsArr <- array(stdDigits, dim = c(16, 16, 10))
+
+par(mfrow = c(1, 10), mar = rep(0.05, 4))
+
+# for (x in 0:9) {
+    # image(stdDigitsArr[,,x+1], 
+    # axes = FALSE, 
+    # col = gray(31:0/31))
+# }
 
 # std dev images
 apply(X = stdDigitsArr, MARGIN = 3, FUN = function(x) {
@@ -362,17 +369,84 @@ apply(X = stdDigitsArr, MARGIN = 3, FUN = function(x) {
 })
 ```
 
+```{r}
+# x1 <- zipMat[zipdigit == 1,]  
+# x2 <- colMeans(x1)
+# x3 <- array(t(x2), dim = c(16, 16, 1))
+# image(x3[,,], 
+#        axes = FALSE, 
+#        col = gray(31:0/31)
+#       )
+```
+
+```{r}
+# x1 <- zipMat[zipdigit == 2,]  
+# x2 <- colMeans(x1)
+# x3 <- array(t(x2), dim = c(16, 16, 1))
+# image(x3[,,], 
+#        axes = FALSE, 
+#        col = gray(31:0/31)
+#       )
+```
+
 ### (d):
 Our final act will involve cleaning up the dataset. To do so, remove the mean digit effect from each record. Then, perform a singular value decomposition on the 2000 × 256 matrix of deviations Y (that is the records with the correspoding digit mean effect removed). (Recall that the SVD is Y = U DV ' and is obtained via the svd() function in R.) Replace D with a diagonal matrix Dk of the first k eigenvalues of D and the remainder as zero. Then let Yk = U DkV '. Add back the mean and display the resulting images of all the digits for k = 25, 50, 75 in the same manner as (b)ii. Comment on the displays. 
 
 ```{r}
-x
+ziptrain_data <- matrix(scan("ziptrain.dat"), ncol = 256, byrow = TRUE)
+zipdigit <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/zipdigit.dat")
+
+mean_images <- array(0, dim = c(256, 10))  # 256 pixels, 10 digits
+
+for (digit in 0:9) {
+  mean_images[, digit + 1] <- colMeans(ziptrain_data[zipdigit == digit, ])
+}
+
+# Step 2: Create a matrix to hold deviations
+deviation_matrix <- ziptrain_data  # Start with the original data
+
+# Step 3: Subtract the mean image for each digit
+for (digit in 0:9) {
+  mean_digit <- matrix(mean_images[, digit + 1], nrow = 16, ncol = 16)  # Reshape to 16x16
+  deviation_matrix[zipdigit == digit, ] <- 
+    deviation_matrix[zipdigit == digit, ] - as.vector(t(mean_digit))
+}
+
+# Step 4: Perform Singular Value Decomposition
+svd_result <- svd(deviation_matrix)
+
+# Step 5: Define a function to reconstruct images using the first k singular values
+reconstruct_images <- function(U, D, V, k) {
+  Dk <- diag(D[1:k])  # Keep the first k singular values
+  Yk <- U[, 1:k] %*% Dk %*% t(V[, 1:k])  # Ensure correct dimensions
+  return(Yk)
+}
+
+# Step 6: Define k values to consider
+k_values <- c(25, 50, 75)
+
+# Step 7: Set up plotting layout for reconstructed images
+par(mfrow = c(length(k_values), 10), mar = rep(0.05, 4))
+
+# Step 8: Loop through k values and reconstruct images
+for (k in k_values) {
+  Yk <- reconstruct_images(svd_result$u, svd_result$d, svd_result$v, k)
+  
+  # Add back the mean for each digit and display the images
+  for (digit in 0:9) {
+    mean_digit <- matrix(mean_images[, digit + 1], nrow = 16, ncol = 16)  # Reshape to 16x16
+    reconstructed_image <- Yk[zipdigit == digit, ] + as.vector(t(mean_digit))
+    
+    # Display the reconstructed image for this digit
+    image(matrix(reconstructed_image[1, ], nrow = 16, ncol = 16)[, 16:1], axes = FALSE, col = gray(31:0/31))
+  }
+}
 ```
 
 ```{r}
-# Assuming ziptrain_data and zipdigit are already defined
+ziptrain_data <- matrix(scan("ziptrain.dat"), ncol = 256, byrow = TRUE)
+zipdigit <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/zipdigit.dat")
 
-# Step 1: Compute mean images if not done yet
 mean_images <- array(0, dim = c(256, 10))  # 256 pixels, 10 digits
 
 for (digit in 0:9) {
