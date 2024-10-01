@@ -10,9 +10,9 @@ date: "2024-09-28"
 # Overview 
   - 1: DONE
   - 2: DONE
-  - 3: Part (b) tidy, (c) left TO-DO
+  - 3: Part (b) tidy integration-by-parts, (c) left TO-DO
   - 4: DONE
-  - 5: 
+  - 5: Part (b) TO-DO 
   - 6: DONE
   - 7: DONE, but can tidy up a bit
   - 8: 
@@ -244,7 +244,7 @@ $$f(x) = \frac{1}{\sqrt{2\pi}} e^{\frac{-x^2}{2}}$$, $-\infty < x < \infty$
 
 Then the random variable Y, $Y=e^{X}$ has a log-normal distribution. 
 
-(a): Find $E(Y^r)$ for any r. 
+(a): Find $E(Y^r)$ for any r.
 
 (b): Show the moment generating function of Y does not exist (even though all moments of Y exist). 
 
@@ -252,7 +252,61 @@ Then the random variable Y, $Y=e^{X}$ has a log-normal distribution.
 
 (a):
 
+$$E(Y^r) = E((e^{X})^r) = E(e^{rX})$$
+
+$$E(Y^r) = \int_{-\infty}^{\infty} e^{rx} f(x) dx = \int_{-\infty}^{\infty} e^{rx} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx$$
+
+$$E(Y^r) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} e^{rx - \frac{x^2}{2}} dx = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} e^{-\frac{1}{2}(x^2 - 2rx)} dx$$
+
+$$E(Y^r) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} e^{-\frac{1}{2}((x - r)^2 - r^2)} dx = e^{\frac{r^2}{2}}  \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} e^{-\frac{1}{2}(x - r)^2} dx$$
+
+The below is the normal distribution, which evaluates to $\sqrt{2\pi}$
+
+$$\int_{-\infty}^{\infty} e^{-\frac{1}{2}(x - r)^2} = \sqrt{2\pi} $$
+
+So we have: 
+
+$$E(Y^r)  = \sqrt{2\pi} e^{\frac{r^2}{2}}  \frac{1}{\sqrt{2\pi}} = e^{r^2/2}$$
+
 (b): 
+
+Part (a) shows that all moments of Y exist. We must then show that the moment generating function of Y does not exist.
+
+To that end, let us consider the moment generating function of Y: 
+
+$M_Y(t) = E(e^tY) = E(e^{te^X})$
+
+$$M_Y(t) = \int_{-\infty}^{\infty} e^{te^x} f_X(x) dx = f_X(x) = \int_{-\infty}^{\infty} e^{te^x} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx$$
+
+For any x, we may break the above integral into the sum of two integrals, specifically: 
+
+$$M_Y(t) = \int_{-\infty}^{x} e^{te^x} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx + \int_{x}^{\infty} e^{te^x} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx$$
+
+$$x \rightarrow \infty$$ 
+$$e^x \to \infty$$ and
+$$e^{te^x} \to \infty$$ for $$t > 0$$
+
+$$x \to -\infty$$
+$$e^x \to 0$$ and
+$$e^{te^x} \to 1$$ and 
+$$\frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}}$$
+
+Now, we specifically focus on the case $$t > 0$$
+
+$$M_Y(t) = \int_{-\infty}^{\infty} e^{te^x} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx$$
+
+As $$x \to \infty$$
+The term $$e^{te^x}$$ 
+grows much faster than $$e^{-\frac{x^2}{2}}$$ decays, so:
+
+$$e^{te^x - \frac{x^2}{2}} \to \infty \text{ as } x \to \infty$$
+
+This indicates that the integral diverges.
+
+Since the integral diverges for $$t > 0$$, we conclude:
+
+$$M_Y(t) = \int_{-\infty}^{\infty} e^{te^x} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx$$ 
+Only exists for $$t \leq 0$$, or stated differently, the MGF does not exist for positive t! 
 
 \newpage
 
