@@ -10,11 +10,11 @@ date: "2024-09-28"
 # Overview 
   - 1: DONE
   - 2: DONE
-  - 3: Part (b) tidy integration-by-parts, (c) left TO-DO
+  - 3: DONE
   - 4: DONE
-  - 5: Part (b) TO-DO 
+  - 5: DONE
   - 6: DONE
-  - 7: DONE, but can tidy up a bit
+  - 7: DONE
   - 8: 
 
 > 1. 2.23(b) 
@@ -176,7 +176,16 @@ Note: For $t = 0$, $\frac{1}{ct}$ is not defined, so the above mgf is defined fo
 
 (b): 
 
-$$M_X(t) = \int\limits_{-\infty}^{\infty}{e^{tx} f_X(x) dx} = \int\limits_{0}^{c}{e^{tx}} \frac{2x}{c^2} dx = \frac{2}{c^2t^2}e^{tx}(tx-1) \big|_{x=0}^{x=c}$$
+$$M_X(t) = \int\limits_{-\infty}^{\infty}{e^{tx} f_X(x) dx} = \int\limits_{0}^{c}{e^{tx}} \frac{2x}{c^2} dx$$
+Via integration by parts, let $u = x, du = 1$ such that $dv = \frac{2e^{tx}}{c^2} = \rightarrow v = \frac{2e^{tx}}{tc^2}$
+
+So our formula now is 
+
+$$M_X(t) = \int u dv = uv - \int vdu = x\frac{2e^{tx}}{tc^2} - \frac{2e^{tx}}{t^2c^2} = xt \frac{2e^{tx}}{t^2c^2} - \frac{2e^{tx}}{t^2c^2}$$
+
+Simplifying, we then evaluate over the original range (support of X), giving us: 
+
+$$M_X(t) = \frac{2}{c^2t^2}e^{tx}(tx-1) \big|_{x=0}^{x=c}$$
 
 $$M_X(t) = \frac{2}{c^2t^2}e^{tc}(tc-1) - (\frac{2}{c^2t^2}1(-1)) = \frac{2}{c^2t^2}(tce^{tc} - e^{tc} + 1)$$
 
@@ -194,17 +203,27 @@ $$M_X(t) = \int\limits_{-\infty}^{\alpha}{e^{tx} \frac{1}{2\beta}e^{\frac{(x-\al
 
 > 1. 
 
-$$\int\limits_{-\infty}^{\alpha}{e^{tx} \frac{1}{2\beta}e^{\frac{(x-\alpha)}{\beta}} dx} =$$ 
+$$\int\limits_{-\infty}^{\alpha}{e^{tx} \frac{1}{2\beta}e^{\frac{(x-\alpha)}{\beta}} dx} = \frac{e^{tx + (x-\alpha)/\beta}}{2(t \beta + 1)} \big|_{x=-\infty}^{\alpha} = \frac{e^{tx}}{2(t \beta + 1)} - 0 = \frac{e^{t\alpha}}{2(t\beta + 1)}$$ 
 
 > 2. 
 
-$$\int\limits_{\alpha}^{\infty}{e^{tx} \frac{1}{2\beta}e^{\frac{-(x-\alpha)}{\beta}} dx} =$$ 
+$$\int\limits_{\alpha}^{\infty}{e^{tx} \frac{1}{2\beta}e^{\frac{-(x-\alpha)}{\beta}} dx} = \frac{e^{tx - (x-\alpha)/\beta}}{2(t \beta - 1)} \big|_{x = \alpha}^{\infty}  = 0 - \frac{e^{tx}}{2(t \beta - 1)}= - \frac{e^{t\alpha}}{2(t \beta - 1)}$$ 
 
 > 3. 
 
 Combining the above (1.) and (2.) together we then have: 
 
-$$M_X(t) =$$
+$$M_X(t) = \frac{e^{t\alpha}}{2(t\beta + 1)} - \frac{e^{t\alpha}}{2(t \beta - 1)} = \frac{4e^{\alpha t}}{4 - \beta^2t^2}$$
+
+Note, we need to ensure the above Mgf of X evaluates, so we need to specify the conditions where the denominator is not equal to 0 (divide by zero error!). 
+
+For a fixed $\beta$, consider: $4 - \beta^2t^2 = 0 \rightarrow 4 = \beta^2 t^2 \rightarrow 4/\beta^2 = t^2$
+
+So the denominator is equal to 0 when $t = \sqrt{4/\beta^2} = \pm 2 / \beta$
+
+However, we also know that $M_X(t) \geq 0$, (as we assume f(x) is a pdf, hence $f(x) \geq 0$) $\forall t$, so we actually have bounds for $t$, namely: 
+
+The above mgf is defined for $- 2/ \beta < t < 2 / \beta$, where $\beta > 0$. 
 
 \newpage
 
@@ -217,13 +236,13 @@ Does a distribution exist for which $M_X(t) = \frac{t}{(1-t)}$, $|t| < 1$? If ye
 
 Let us suppose that the distribution exists. 
 
-Then by the definition of a(n) mfg: 
+Then by the definition of a(n) mfg, using the existence of the distribution we have: 
 
 $M_X(t) = E(e^{tX})$
 
 We know for $t=0$ that the relation $|t| = | 0 | = 0 < 1$ holds. 
 
-Thus we know the 0-th moment is defined, as: 
+Thus we know the 0-th moment is defined: 
 
 $M_X(0) = E(e^{0X}) = E(e^0) = E(1) = 1$
 
@@ -276,37 +295,27 @@ To that end, let us consider the moment generating function of Y:
 
 $M_Y(t) = E(e^tY) = E(e^{te^X})$
 
-$$M_Y(t) = \int_{-\infty}^{\infty} e^{te^x} f_X(x) dx = f_X(x) = \int_{-\infty}^{\infty} e^{te^x} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx$$
+$$M_Y(t) = \int\limits_{-\infty}^{\infty} e^{te^{x}} \frac{1}{\sqrt{2\pi}} e^{\frac{-x^2}{2}}$$
 
-For any x, we may break the above integral into the sum of two integrals, specifically: 
+$$M_Y(t) = \frac{1}{\sqrt{2\pi}} \int\limits_{-\infty}^{\infty} e^{te^{x}} e^{\frac{-x^2}{2}} dx = \frac{1}{\sqrt{2\pi}} \int\limits_{-\infty}^{\infty} e^{te^{x} - \frac{x^2}{2}} dx$$
 
-$$M_Y(t) = \int_{-\infty}^{x} e^{te^x} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx + \int_{x}^{\infty} e^{te^x} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx$$
+Note: For $x>0$, define some positive real $c$, $c > 0$
 
-$$x \rightarrow \infty$$ 
-$$e^x \to \infty$$ and
-$$e^{te^x} \to \infty$$ for $$t > 0$$
+There exists a sufficiently large $x_0$ such that for $x > x_0$: 
 
-$$x \to -\infty$$
-$$e^x \to 0$$ and
-$$e^{te^x} \to 1$$ and 
-$$\frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}}$$
+$te^{x} - \frac{x^2}{2} > 0$
 
-Now, we specifically focus on the case $$t > 0$$
+Meaning: $te^{x} - \frac{x^2}{2} \geq c > 0$
 
-$$M_Y(t) = \int_{-\infty}^{\infty} e^{te^x} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx$$
+Note the exponential function is a positive monotonic transformation, such that the following holds: 
 
-As $$x \to \infty$$
-The term $$e^{te^x}$$ 
-grows much faster than $$e^{-\frac{x^2}{2}}$$ decays, so:
+$e^{te^{x} - \frac{x^2}{2}} > e^c > 0$, such that: 
 
-$$e^{te^x - \frac{x^2}{2}} \to \infty \text{ as } x \to \infty$$
+With note that we are working with a non-negative function, 
 
-This indicates that the integral diverges.
+$$M_Y(t) = \frac{1}{\sqrt{2\pi}} \int\limits_{-\infty}^{\infty} e^{te^{x} - \frac{x^2}{2}} dx \geq \frac{1}{\sqrt{2\pi}} \int\limits_{x_0}^{\infty} e^{te^{x} - \frac{x^2}{2}} dx \geq \frac{1}{\sqrt{2\pi}} \int\limits_{x_0}^{\infty} e^{c}dx = \infty$$
 
-Since the integral diverges for $$t > 0$$, we conclude:
-
-$$M_Y(t) = \int_{-\infty}^{\infty} e^{te^x} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx$$ 
-Only exists for $$t \leq 0$$, or stated differently, the MGF does not exist for positive t! 
+As the integral does not converge to a finite value, we say the moment generating function does not exist for positive real $t$. 
 
 \newpage
 
