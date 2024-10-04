@@ -126,7 +126,11 @@ image(1:nrow(minIndex),
 #### iii. 
 Comment, and discuss similarities and differences on the differences in the two images thus obtained with the original image.
 
-The two images do appear similar, in that you can clearly visualize the outline of the brain and the distinct regions of the brain. However, the quantile-based image (second image) more clearly visualizes some of the smaller areas whose values differ considerably from the larger regions of the brain. 
+Interestingly, the colors denoting particular areas of the image are swapped between the two images, i.e. the outside region is predominantly red in the midpoint-based image and is blue with red streaks in the quantile-based image. 
+
+While the two images do appear similar, in that they convey the same information of the image being a brain, there are also some differences. One can visualize the outline of the brain and the distinct regions of the brain in greater detail in the quantile-based image (image two), particularly when identifying smaller regions within the brain that are distinct/different from the areas around it; see, for example, the difference in how recognizable the small patch to the top left of the brain is for the quantile-based image compared to the midpoint-based image. 
+
+Generally I'd reckon, the quantile-based image (second image) more clearly visualizes distinct areas of the brain compared to the midpoint-based image, particularly with regards to some of the smaller areas whose values differ considerably from the larger regions of the brain. 
 
 \newpage
 
@@ -235,11 +239,11 @@ distancesArr <- sapply(1:22810, function(x) {
   })
 })
 
-# for (gene_index in 1:22810) {
-#   for (micro_index in 1:20) {
-#     distancesArr[gene_index, micro_index] <- 
+# for (x in 1:22810) {
+#   for (y in 1:20) {
+#     distancesArr[x, y] <- 
 #       sqrt(sum(
-#         (meanGene[gene_index, ] - geneDfMicro[micro_index, ])^2)
+#         (meanGene[x, ] - geneDfMicro[y, ])^2)
 #         )
 #   }
 # }
@@ -380,64 +384,48 @@ Our final act will involve cleaning up the dataset. To do so, remove the mean di
 ```{r}
 ziptrain <- matrix(scan("ziptrain.dat"), ncol = 256, byrow = TRUE)
 zipdigit <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/zipdigit.dat")
-
-# 2000 x 256 
-# rowmeans for mean of each row
 # 2000 x 1 vector
-
 ziptrainMeans <- rowMeans(ziptrain)
-length(ziptrainMeans)
-
-# replicate that vector 256 times 
-
+# length(ziptrainMeans)
 ziptrainMeansRep <- array(rep(stdDigits, 256), dim = c(2000, 256))
-dim(ziptrainMeansRep)
-# 2000 x 256 
+# dim(ziptrainMeansRep)
 
+# 2000 x 256 
 # difference matrix 
 # original - mean effect 
-
 meanDiffMat <- ziptrain - ziptrainMeansRep
 dim(meanDiffMat)
 
 svdDiff <- svd(meanDiffMat)
-
-# svd entire deviations matrix 
-
 svdDiffD <- svdDiff$d
-# pull out $d from that svd output 
 
-k1 <- diag(c(svdDiffD[1:25], rep(0, 231)))
-k2 <- diag(c(svdDiffD[1:50], rep(0, 206)))
-k3 <- diag(c(svdDiffD[1:75], rep(0, 181)))
+kList <- list(
+  diag(c(svdDiffD[1:25], rep(0, 231))),
+  diag(c(svdDiffD[1:50], rep(0, 206))),
+  diag(c(svdDiffD[1:75], rep(0, 181)))
+)
 
-k1Mat <- svdDiff$u %*% k1 %*% t(svdDiff$v)
-k2Mat <- svdDiff$u %*% k2 %*% t(svdDiff$v)
-k3Mat <- svdDiff$u %*% k3 %*% t(svdDiff$v)
+results <- lapply(X = kList, FUN = function(k) {
+  kMat <- svdDiff$u %*% k %*% t(svdDiff$v)  
+  kPlusMeanDiff <- kMat + ziptrainMeansRep  
+  kPlusMeanDiff
+}
+)
 
-k1PlusMeanDiff <- k1Mat + ziptrainMeansRep
-k2PlusMeanDiff <- k2Mat + ziptrainMeansRep
-k3PlusMeanDiff <- k3Mat + ziptrainMeansRep
-
-# 16 x 16 x 2000 
-# image again 
+newK1 <- array(t(results[[1]]), dim = c(16, 16, 2000))
+newK2 <- array(t(results[[2]]), dim = c(16, 16, 2000))
+newK3 <- array(t(results[[3]]), dim = c(16, 16, 2000))
 ```
 
 ```{r}
 par(mfrow = c(40, 50), 
     mar = rep(0.05, 4)
     # this pin size works, I guess
-    # pin = c(5.2/50, 6.5/40)
-    # pin = c(5.2/40, 6.5/50)
-    # pin = c(5.2/100, 6.5/80)
     # pin = c(5.2/80, 6.5/100)
     ) 
-
-newK1 <- array(t(k1PlusMeanDiff), dim = c(16, 16, 2000))
-
 
 apply(X = newK1, MARGIN = 3, FUN = function(x) {
-  image(x[, 1:16], 
+  image(x[, 16:1], 
         axes = FALSE, 
         col = gray(31:0/31))
 })
@@ -447,16 +435,11 @@ apply(X = newK1, MARGIN = 3, FUN = function(x) {
 par(mfrow = c(40, 50), 
     mar = rep(0.05, 4)
     # this pin size works, I guess
-    # pin = c(5.2/50, 6.5/40)
-    # pin = c(5.2/40, 6.5/50)
-    # pin = c(5.2/100, 6.5/80)
     # pin = c(5.2/80, 6.5/100)
     ) 
-
-newK2 <- array(t(k2PlusMeanDiff), dim = c(16, 16, 2000))
 
 apply(X = newK2, MARGIN = 3, FUN = function(x) {
-  image(x[, 1:16], 
+  image(x[, 16:1], 
         axes = FALSE, 
         col = gray(31:0/31))
 })
@@ -466,22 +449,20 @@ apply(X = newK2, MARGIN = 3, FUN = function(x) {
 par(mfrow = c(40, 50), 
     mar = rep(0.05, 4)
     # this pin size works, I guess
-    # pin = c(5.2/50, 6.5/40)
-    # pin = c(5.2/40, 6.5/50)
-    # pin = c(5.2/100, 6.5/80)
     # pin = c(5.2/80, 6.5/100)
     ) 
 
-newK3 <- array(t(k3PlusMeanDiff), dim = c(16, 16, 2000))
-
 apply(X = newK3, MARGIN = 3, FUN = function(x) {
-  image(x[, 1:16], 
+  image(x[, 16:1], 
         axes = FALSE, 
         col = gray(31:0/31))
 })
 ```
 
 ```{r}
+# this code is here in memorium 
+# for the work that was done
+# in vain 
 # ziptrain <- matrix(scan("ziptrain.dat"), ncol = 256, byrow = TRUE)
 # zipdigit <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS4/zipdigit.dat")
 # 
@@ -516,9 +497,6 @@ apply(X = newK3, MARGIN = 3, FUN = function(x) {
 # }
 # 
 # k_values <- c(25, 50, 75)
-```
-
-```{r}
 # for (k in k_values) {
 #   Yk <- reconstruct_images(svdDf$u, svdDf$d, svdDf$v, k)
 #   
