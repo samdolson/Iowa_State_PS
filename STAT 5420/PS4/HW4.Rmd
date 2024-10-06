@@ -7,8 +7,8 @@ date: "2024-09-29"
 ---
 
 # Status 
-  - Q1: 
-  - Q2: 
+  - Q1: DONE
+  - Q2: DONE 
   - Q3:
   - Q4: 
   - Q5:
@@ -21,7 +21,7 @@ Due October 13
 ## Q1 
 > Question: 3.6 (a), (b) Casella & Berger
 
-A large number of insects are expected to be attracted to a certain variety of rose plant. A commerical insecticide is advertised as being 99% effective. Suppose 2,000 insects infest a rose garden where the insecticide has been applied and let $X =$ number of surviving insects. 
+A large number of insects are expected to be attracted to a certain variety of rose plant. A commercial insecticide is advertised as being 99% effective. Suppose 2,000 insects infest a rose garden where the insecticide has been applied and let $X =$ number of surviving insects. 
 
 >> (a)
 
@@ -29,14 +29,24 @@ What probability distribution might provide a reasonable model for this experime
 
 >> (b) 
 
-Write down, but do not evaluate, an expression for the proibability that fewer than 100 insects survive, suing the model in part (a) 
+Write down, but do not evaluate, an expression for the probability that fewer than 100 insects survive, suing the model in part (a) 
 
 > Answer 
 >> (a)
 
+We may interpret X as the number of "failures" given an effective rate of 99%, or $p=1 - 0.99 = 0.01$ (1% chance of failure). As we are counting the number of failures, we have a dicrete random variable. We know $n=2,000$, or our total number of "trials" for the insecticide. 
+
+Taken together, we have X as a Binomial distributed random variable, or: 
+
+$X \sim Binomial(n = 2,000, p = 0.01)$
+
+It's worth noting that we can also represent this as a Poisson distributed random variable with parameter $\lambda = np = 2000 (0.01) = 20$
 
 >> (b) 
 
+$P(X < 100) = P(X \leq 99)$
+
+$\sum\limits_{x=0}^{99} P(X=x) = \sum\limits_{x=0}^{99} f(x) = \sum\limits_{x=0}^{99} {n \choose x}(0.01)^x (0.99)^{2000-k}$
 
 \newpage 
 ## Q2 
@@ -57,7 +67,59 @@ $X \sim Poisson(\lambda)$
 > Answer 
 >> (a) 
 
+The pmf of a Poisson distribution is: 
 
+$P(X = x) = \frac{\lambda^x e^{-\lambda}}{x!}$
+
+Also:
+
+$P(X > 0) = 1 - P(X = 0) = 1 - \frac{\lambda^0 e^{-\lambda}}{0!} = 1 - e^{-\lambda}$
+
+Combining these together gives us the truncated pmf: 
+
+$$P(X_T = x) = \frac{P(X=x)}{P(X>0)} = \frac{\lambda^x e^{-\lambda}}{x!} / 1 - e^{-\lambda} = \frac{\lambda^x e^{-\lambda}}{x!( 1 - e^{-\lambda})}$$
+For $x = 1, 2, ...$
+
+Using the above pmf, we may find the mean as: 
+
+$$E(X_T) = \sum\limits_{x=1}^{\infty} x P(X_T = x) = \sum\limits_{x=1}^{\infty} x \frac{\lambda^x e^{-\lambda}}{x!( 1 - e^{-\lambda})} = \frac{\lambda e^{-\lambda}}{(1 - e^{-\lambda})} \sum\limits_{x \geq 1} \frac{\lambda^{x-1}}{(x-1)!}$$
+
+Let $y = x - 1$, such that we may rewrite the above as: 
+
+$$E(X_T) = \frac{\lambda e^{-\lambda}}{(1 - e^{-\lambda})} \sum\limits_{y \geq 0} \frac{\lambda^{y}}{(y)!}$$
+
+Using the infinite summation for Euler, namely: 
+
+$$e^\lambda = \sum\limits_{y \geq 0} \lambda^y / y! $$
+
+We may then evaluate this as: 
+
+$$E(X_T) = \frac{\lambda e^{-\lambda}}{(1 - e^{-\lambda})} e^{\lambda} = \frac{\lambda}{(1 - e^{-\lambda})}$$
+
+To then find the variance, let us consider $E(X_T ^2)$
+
+$$E(X_T^2) = \sum\limits_{x \geq 1} x^2 P(X_T = x) = \sum\limits_{x\geq 1} x^2  \frac{\lambda^x e^{-\lambda}}{x!( 1 - e^{-\lambda})} = \frac{\lambda e^{-\lambda}}{(1-e^{-\lambda})} \sum\limits_{x\geq 1} x  \frac{\lambda^x}{(x-1)!}$$
+
+$$E(X_T^2) = \frac{\lambda e^{-\lambda}}{(1-e^{-\lambda})} 
+\big(\sum\limits_{x\geq 1} (x-1)  \frac{\lambda^{x-1}}{(x-1)!} + 
+\sum\limits_{x\geq 1}   \frac{\lambda^{x-1}}{(x-1)!} \big) = 
+\frac{\lambda e^{-\lambda}}{(1-e^{-\lambda})} 
+\big(\lambda \sum\limits_{x\geq 2}  \frac{\lambda^{x-2}}{(x-2)!} + 
+\sum\limits_{x\geq 1}   \frac{\lambda^{x-1}}{(x-1)!} \big)$$
+
+Then, let $y = x-2$, $z= x-1$, we have: 
+
+$$E(X_T^2) = \frac{\lambda e^{-\lambda}}{(1-e^{-\lambda})} 
+\big(\lambda \sum\limits_{y\geq 0}  \frac{\lambda^{y}}{(y)!} + 
+\sum\limits_{z \geq 0}   \frac{\lambda^{z}}{(z)!} \big) = 
+\frac{\lambda e^{-\lambda}}{(1-e^{-\lambda})}
+\big(\lambda e^{\lambda} + e^\lambda \big)$$
+
+Thus: 
+
+$$E(X_T^2) = \frac{\lambda^2 + \lambda}{(1-e^{-\lambda})}$$
+
+$$Var(E_T) = E(X_T^2) - (E(X_T))^2 = \frac{\lambda^2 + \lambda}{(1-e^{-\lambda})} - (\frac{\lambda}{(1-e^{-\lambda})})^2$$
 
 \newpage 
 ## Q3 
