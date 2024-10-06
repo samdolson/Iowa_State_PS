@@ -1,0 +1,176 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{amsmath,latexsym,amssymb}
+\usepackage{color}
+\setlength{\oddsidemargin}{-0.25in}
+\setlength{\textwidth}{7.1in}
+\setlength{\topmargin}{-1in}
+\setlength{\textheight}{9.5in}
+\evensidemargin \oddsidemargin
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+\usepackage{url}
+\usepackage{parskip}
+\usepackage{enumitem}
+
+\begin{document}
+
+\large \noindent \textsc{Stat 5000}\hfill \large{\textsc{Lab \#5}} \hfill \phantom{\textsc{Name:} \underline{\hspace{2in}}} \\
+\large \textsc{Fall 2024}  \hfill \textsc{Due Tue Oct 8th} \hfill \textsc{Name:} \underline{\hspace{2in}} \\
+
+\noindent \textbf{Directions:} Complete the exercises below. When you are finished, turn in any required files online in Canvas, then check-in with the Lab TA for dismissal.
+\\ \underline{\hspace{7in}}
+\vspace{14pt}
+
+
+\textbf{\underline{ANOVA in SAS}}
+
+Consider the donut example we introduced in lecture. The purpose of this experiment is to compare the amount of oil absorbed (\texttt{absorbed}) when cooking donuts in four different types of frying oil (\texttt{oil}). The dataset is contained in the \texttt{donuts.txt} file located in our course's shared folder in SAS Studio.
+
+\begin{itemize}
+	\item First, read in the data set:
+	\begin{verbatim}
+	data donuts;
+	     infile `~/my_shared_file_links/u63538023/STAT5000_Fall2024_ISU/donuts.txt' 
+	            dlm=`, ' firstobs=2;
+	     input oil $ absorbed;
+	run;
+	\end{verbatim}
+	\item Then, make a scatterplot of the amount of oil absorbed for each type using the \texttt{sgplot} procedure with the \texttt{scatter} option with the group variable on the x-axis and the response variable on the y-axis:
+	\begin{verbatim}
+	title ``Donut Oil Absorption'';
+	proc sgplot data=donut;
+	     scatter x=oil y=absorbed / markerattrs=(size=15 symbol=diamond color=black);
+	     yaxis label="Oil Absorbed - 150 grams" values=(-5 to 50 by 5) 
+	          labelattrs=(size=15) valueattrs=(size=15);
+	     xaxis label="Type of Oil"  labelattrs=(size=20) values=(1 to 4 by 1)  
+	          valueattrs=(size=15) offsetmin=0.10 offsetmax=0.10;	run;
+	\end{verbatim}
+	\item Next, compute some summary statistics of the amount of oil absorbed for each type using the \texttt{means} procedure:
+	\begin{verbatim}
+	proc sort data=donut; 
+	     by oil;
+	
+	proc means data=donut n mean std var stderr min max;
+	     by oil;
+	     var absorbed;	run;
+	\end{verbatim}
+	\item Finally, find the ANOVA table and conduct the $F$-test using the \texttt{glm} procedure where the \texttt{class} option specifies the grouping variable and the \texttt{model} option is of the form response = group:
+	\begin{verbatim}	proc glm data=donut;
+	      class oil;
+	      model absorbed = oil;	run;
+	\end{verbatim}
+\end{itemize}
+\vfill
+
+\textbf{\underline{Checking ANOVA Assumptions in SAS}}
+
+\begin{itemize}
+	\item First, conduct ANOVA using the \texttt{glm} procedure with some additional options\footnote{Additional details of the options and their corresponding output can be found in the SAS User Guide: \\\url{https://documentation.sas.com/doc/en/statug/15.2/statug_glm_syntax01.htm}}:
+	\begin{verbatim}
+	proc glm data=donut plots=(diagnostics residuals) plots=boxplot;	     /* To obtain individual residual plots, replace 
+	     plots=(diagnostics residuals) with plots(unpack)=residuals */
+	     class oil;
+	     model absorbed = oil / p solution xpx inverse ;
+	     means oil /hovtest=bf;
+	     lsmeans oil / stderr cl pdiff plots=none;
+	     output out=set2 residual=r predicted=yhat;	run;
+	\end{verbatim}
+	The additional options will show more details of the model, including:
+	\begin{itemize}
+		\item The first 2 tables are standard output for the \texttt{glm} procedure.
+		\item If you look at the $4\times 4$ submatrix of the third \textit{The X'X Matrix} table (a result of the \texttt{xpx} option), you will see the $\mathbf X^T \mathbf X$ matrix shown on slide 14 of the Week 5 notes with the sample sizes along the diagonal and zeros on the off-diagonals.
+		\item The fourth \textit{X'X Generalized Inverse (g2)} table (a result of the \texttt{inverse} option) shows $(\mathbf X^T \mathbf X)^{-1}$.
+		\item The fifth through eighth tables are the same as the usual ANOVA output.
+		\item The ninth table (a result of the \texttt{solution} option) provides estimates of all model parameters (the first row for \textit{Intercept} corresponds to $\mu$ and the following rows provide estimates of the effects $\alpha_1, \ldots, \alpha_r$).
+		\item The tenth table (a result of the \texttt{p} option) shows the observed, predicted, and residual values associate with every single data point.
+		\item The final 4 tables in the overall output are a result of the \texttt{lsmeans} options show information for comparing the group means to each other (we will talk more about this next week).
+	\end{itemize}
+	You will also see information relevant to diagnosing the ANOVA assumptions, including:
+	\begin{itemize}
+		\item The first set of plots (a result of the \texttt{plots=(diagnostics residuals)} option), show different plots of the residuals which can be used to assess the equal variance and normality assumptions.
+		\item The second plot (standard output for the \texttt{glm} procedure), shows the standard side-by-side boxplot of the responses within each group, which can be used to assess the equal variance and normality assumptions.
+		\item The twelfth table (a result of the \texttt{hovtest=bf} option) provides the output of the Brown-Forsythe test for equal variances.
+		\item The third plot and thirteenth table (a result of the \texttt{plots=boxplot} option), is a repeat of the standard side-by-side boxplot with accompanying summary statistics which can be used to assess the equal variance assumption.
+	\end{itemize}	
+	\item Next, you can assess the equal variance assumption for the residuals using the scatterplot of the residuals from the \texttt{sgplot} procedure (which is made possible by saving the output of the ANOVA in the previous procedure):
+	\begin{verbatim}
+	title "Plot Residuals vs. Oils";	proc sgplot data=set2;
+	     scatter x=oil y=r / markerattrs=(size=15 symbol=diamond color=black);
+	     yaxis label="Residuals" values=(-20 to 25 by 5)
+	          labelattrs=(size=17) valueattrs=(size=15);
+	     xaxis label="Type of Oil" labelattrs=(size=17)
+	          values=(1 to 4 by 1) valueattrs=(size=15)
+	          offsetmin=0.10 offsetmax=0.10;	run;
+	\end{verbatim}
+	If the equal variance assumption holds, then you should see no patterns or trends in the residuals (they should look like random noise).
+	\item Finally, you can further assess the normality assumption using the \texttt{univariate} procedure on the residuals:
+	\begin{verbatim}
+	proc univariate data=set2 normal;	     var r;	     qqplot r / normal(mu=est sigma=est) square;	run;
+	\end{verbatim}
+	The output will show plots, summaries, and tests, including:
+	\begin{itemize}
+		\item The first table contains the measures of skew (\textit{Skewness}) and excess kurtosis (\textit{Kurtosis}), which should both be near 0 if normality holds.
+		\item The second table contains a comparison of the mean and median, which should also both be near 0 if normality holds.
+		\item The fourth table shows the various tests for normality of the residuals.
+		\item Lastly, the normal Q-Q plot of the residuals should follow the diagonal reference line if normality holds.
+	\end{itemize}	 
+\end{itemize}
+\newpage
+
+\textbf{\underline{Kruskal-Wallis Test in SAS}}
+
+\begin{itemize}
+	\item Because the Kruskal-Wallis test is just the multi-group extension of the Wilcoxon rank-sum test, the procedure in SAS is the same.  You can conduct the test using the \texttt{npar1way} procedure with the \texttt{wilcoxon} option, where \texttt{class} specifies the grouping variable and \texttt{var} the response:
+	\begin{verbatim}
+	title `Kruskal-Wallis test';	proc npar1way data=donut wilcoxon;
+	     class oil;
+	     var absorbed;
+	     exact wilcoxon / mc n=50000;	run;
+	\end{verbatim}
+	The output will include:
+	\begin{itemize}
+	\item A table showing the summary statistics for each group, including the sums of the ranks in the \textit{Sum of Scores} column. 
+	\item The next table will provide the Chi-squared test-statistic and associated $p$-value for the approximate test.  
+	\item If you used the \texttt{exact wilcoxon} option, the last table will provide an estimate of the exact $p$-value estimated from a random selection of all possible assignments of ranks to groups. 
+	\item Lastly, the output will show a side-by-side boxplot of the ranks (or \textit{Scores}) within each group to help visualize whether or not there is a difference in the distributions.
+	\end{itemize}
+\end{itemize}
+\newpage
+
+\textbf{\underline{Assignment}}
+\begin{enumerate}
+\item \textbf{[+11]} Refer to the ANOVA results for the donut example to complete the following exercises:
+	\begin{enumerate}
+	\item Construct a scatter plot of the absorption to visualize potential differences between oil treatment groups. Include a screenshot of the plot.
+	\item Compute the relevant summary statistics to compare the amount of oil absorbed for each type. Include a screenshot or record the means and standard deviations.
+	\item Conduct the $F$-test for the equality of the four means. Provide a screenshot of the full ANOVA table for the different types of cooking oil and absorption measurements. 
+	\item Given the results in part (c), state the null and alternative hypotheses, test statistic, $p$-value, and interpretation of the result in the context of the study.
+	\end{enumerate}
+\item \textbf{[+6]} Refer to the process of diagnosing the ANOVA assumptions for the donut example to complete the following exercises:
+	\begin{enumerate}
+	\item Discuss the independence assumption in the context of the study. Is it satisfied for the donut example?
+	\item Check the assumption of equal variances and provide a screenshot of any relevant tables and/or figures that you used. Is it satisfied for the donut example?
+	\item Check the assumptions of normality and provide a screenshot of any relevant tables and/or figures that you used. Is it satisfied for the donut example?
+	\end{enumerate}
+\item \textbf{[+8]} Refer to the results of the Kruskal-Wallis test for the donut example to complete the following exercises:
+	\begin{enumerate}
+	\item Conduct the Kruskal-Wallis test to analyze the different types of cooking oil on the oil absorbed. Provide a screenshot of the results obtained. 
+	\item Given the results in part (a), state the null and alternative hypotheses, test statistic, and $p$-value. 
+	\item Interpret the result from part (b) in the context of the study.
+	\end{enumerate}
+\end{enumerate}
+
+\vfill
+\textbf{Total:} 25 points \hspace{14pt} \textbf{\# correct:} \underline{\hspace{1in}}  \hspace{14pt} \textbf{\%:} \underline{\hspace{1in}} 
+
+\end{document}
+
+
+
+
+
+
+
+
