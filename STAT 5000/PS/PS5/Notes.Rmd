@@ -1,0 +1,127 @@
+---
+title: "Notes"
+output: html_document
+date: "2024-10-07"
+---
+
+# Q2
+
+The estimated \(\hat{\beta}\) didn't change between the baseline constraint (\(\alpha_4 = 0\)) and the sum-to-zero constraint (\(\sum \alpha_i = 0\)) because the parameterization of the model doesn't affect the underlying **fit** of the data—it only affects how the parameters are interpreted.
+
+Here’s why:
+
+### 1. **Model Fit Remains the Same:**
+Both the baseline constraint (\(\alpha_4 = 0\)) and the sum-to-zero constraint (\(\sum \alpha_i = 0\)) are different ways to impose identifiability on the same model. They ensure that the model can uniquely estimate the parameters, but the **predicted values** for the data points (i.e., the estimated group means) are identical regardless of which constraint is used. In other words, the way we express the group effects doesn't change the overall fit or the residuals of the model.
+
+### 2. **Shift in the Interpretation of Parameters:**
+- Under the **baseline constraint** (\(\alpha_4 = 0\)):
+  - The group effect \(\alpha_i\) for each group \(i = 1, 2, 3\) represents the difference in mean weight gain between that group and the **baseline group** (group 4).
+  
+- Under the **sum-to-zero constraint** (\(\sum_{i=1}^4 \alpha_i = 0\)):
+  - The group effects \(\alpha_i\) represent deviations of the group means from the overall mean, with the sum of all deviations being zero.
+
+Even though the constraints are different, both parameterizations must explain the same group means and total variation in the data. The estimated parameters \(\hat{\beta}\) (which include the mean and group effects) remain the same numerically because the **group means** and the overall mean are not affected by the choice of constraint.
+
+### 3. **Equivalence of Estimates:**
+- In the **baseline constraint** formulation, the parameter vector is \([ \hat{\mu}, \hat{\alpha}_1, \hat{\alpha}_2, \hat{\alpha}_3 ]\), where \(\hat{\alpha}_4 = 0\).
+- In the **sum-to-zero constraint** formulation, the parameter vector is also \([ \hat{\mu}, \hat{\alpha}_1, \hat{\alpha}_2, \hat{\alpha}_3 ]\), with \(\hat{\alpha}_4 = -(\hat{\alpha}_1 + \hat{\alpha}_2 + \hat{\alpha}_3)\).
+
+Because the group means (for groups 1 through 4) are preserved, the estimates of the effects relative to the overall mean or baseline don't change. For example:
+- In the baseline constraint, \(\hat{\alpha}_4 = 0\), and the effects for the other groups are calculated relative to group 4.
+- In the sum-to-zero constraint, \(\hat{\alpha}_4 = -( \hat{\alpha}_1 + \hat{\alpha}_2 + \hat{\alpha}_3)\), but the group effects still add up to the same overall group means.
+
+Thus, while the constraints are different, they are just alternative ways of expressing the same underlying relationships between the group means. The result is that \(\hat{\beta}\) remains numerically unchanged.
+
+We don’t include \(\alpha_4\) in the parameter vector \(\beta\) because it is **determined by the constraint** we impose to make the model identifiable. Specifically, both the **baseline constraint** (\(\alpha_4 = 0\)) and the **sum-to-zero constraint** (\(\sum_{i=1}^4 \alpha_i = 0\)) remove the need to explicitly estimate \(\alpha_4\). Here's why:
+
+### 1. **Identifiability of the Model:**
+In models like this, without constraints, the parameters are not uniquely identifiable. This is because the effects \(\alpha_1, \alpha_2, \alpha_3, \alpha_4\) and the mean \(\mu\) can change together without changing the model's predictions. To avoid this problem, we impose a constraint that ensures the model is well-defined.
+
+#### Two Common Constraints:
+- **Baseline constraint**: Set one effect (in this case, \(\alpha_4\)) to 0.
+  - Here, \(\alpha_4\) is treated as the **reference group**, and the other effects are estimated relative to it. Since \(\alpha_4 = 0\) by definition, it doesn’t need to be included in \(\beta\), and the model estimates only \(\alpha_1, \alpha_2, \alpha_3\).
+  
+- **Sum-to-zero constraint**: Enforce the condition \(\sum_{i=1}^4 \alpha_i = 0\).
+  - Here, \(\alpha_4\) is not free to vary because it is determined by the values of \(\alpha_1, \alpha_2,\) and \(\alpha_3\). Specifically, \(\alpha_4 = -(\alpha_1 + \alpha_2 + \alpha_3)\). Since \(\alpha_4\) is completely determined by the other parameters, it doesn’t need to be included in the parameter vector \(\beta\).
+
+### 2. **Redundancy of Including \(\alpha_4\):**
+If we included \(\alpha_4\) in the parameter vector, it would be redundant. With either constraint:
+- In the **baseline constraint**, \(\alpha_4 = 0\), so adding it would not provide new information.
+- In the **sum-to-zero constraint**, \(\alpha_4 = -(\alpha_1 + \alpha_2 + \alpha_3)\), so it's dependent on the other parameters.
+
+Including \(\alpha_4\) would create a situation where we have more parameters than necessary to describe the model, leading to non-identifiability (too many unknowns for the data to provide unique estimates).
+
+### 3. **Degrees of Freedom:**
+For a model with four groups (as in this case), there are only 3 **degrees of freedom** for the group effects. This means we only need to estimate 3 independent parameters (e.g., \(\alpha_1, \alpha_2, \alpha_3\))—the fourth effect is automatically determined by the constraint. Including an \(\alpha_4\) would exceed the available degrees of freedom, leading to overparameterization.
+
+### 4. **Parameter Vector \(\beta\) in this Model:**
+Thus, the parameter vector \(\beta\) only needs to include:
+\[
+\beta = \begin{bmatrix} \mu \\ \alpha_1 \\ \alpha_2 \\ \alpha_3 \end{bmatrix}
+\]
+Where:
+- \(\mu\) is the overall mean.
+- \(\alpha_1, \alpha_2, \alpha_3\) are the group effects for the first three groups (relative to the baseline or subject to the sum-to-zero constraint).
+- \(\alpha_4\) is implicitly defined by the constraint (\(\alpha_4 = 0\) or \(\alpha_4 = -(\alpha_1 + \alpha_2 + \alpha_3)\)).
+
+### Summary:
+We don't include \(\alpha_4\) in \(\beta\) because the constraint we've chosen (either \(\alpha_4 = 0\) or \(\sum_{i=1}^4 \alpha_i = 0\)) eliminates the need to estimate it separately. It is either fixed (in the baseline constraint) or dependent on the other parameters (in the sum-to-zero constraint), so it doesn't need to be part of the parameter vector.
+
+To verify that the ANOVA table remains the same for the models and constraints given in parts (b), (c), and (e), we need to show that the predicted values \(X\hat{\beta}\) (the fitted values) are the same for each of these parameterizations. Since the ANOVA table is based on the sums of squares derived from the total variation in the data, if the fitted values are the same, the ANOVA table will also be the same.
+
+### 1. Models and Constraints Recap:
+- **Part (b)**: Cell means model \(Y_{ij} = \mu_i + \epsilon_{ij}\)
+  - Each group mean is estimated independently.
+
+- **Part (c)**: Effects model with baseline constraint \(Y_{ij} = \mu + \alpha_i + \epsilon_{ij}\), where \(\alpha_4 = 0\)
+  - This means we are estimating the effect of the first three groups relative to the fourth.
+
+- **Part (e)**: Effects model with sum-to-zero constraint \(Y_{ij} = \mu + \alpha_i + \epsilon_{ij}\), where \(\sum_{i=1}^{4} \alpha_i = 0\)
+  - Here, all group effects are deviations from the overall mean.
+
+### 2. Verify \(X\hat{\beta}\) for Each Model:
+
+#### **Part (b)**: Cell Means Model
+- In this model, the predicted values for each group can be represented as:
+  \[
+  \hat{Y}_{ij} = \mu_i
+  \]
+- This means we have four independent parameters, each representing the mean of the respective groups.
+
+#### **Part (c)**: Effects Model with Baseline Constraint
+- The predicted values in this model are:
+  \[
+  \hat{Y}_{ij} = \mu + \alpha_i
+  \]
+  - For groups 1, 2, and 3:
+    \[
+    \hat{Y}_{1j} = \mu + \alpha_1, \quad \hat{Y}_{2j} = \mu + \alpha_2, \quad \hat{Y}_{3j} = \mu + \alpha_3
+    \]
+  - For group 4:
+    \[
+    \hat{Y}_{4j} = \mu + 0 = \mu
+    \]
+  
+#### **Part (e)**: Effects Model with Sum-to-Zero Constraint
+- The predicted values in this model can be expressed as:
+  \[
+  \hat{Y}_{ij} = \mu + \alpha_i
+  \]
+  - Similar to part (c), we have:
+    \[
+    \hat{Y}_{1j} = \mu + \alpha_1, \quad \hat{Y}_{2j} = \mu + \alpha_2, \quad \hat{Y}_{3j} = \mu + \alpha_3
+    \]
+  - And for group 4:
+    \[
+    \hat{Y}_{4j} = \mu - (\alpha_1 + \alpha_2 + \alpha_3)
+    \]
+
+### 3. Compare \(X\hat{\beta}\) Across All Models:
+- In both models with the baseline constraint (part c) and the sum-to-zero constraint (part e), the estimates of \(\alpha_i\) can be adjusted such that the predicted values remain consistent:
+  - The overall mean \(\mu\) will be the same across all models.
+  - The differences (\(\alpha_i\) values) will adjust depending on the constraint, but the resultant predicted group means remain the same since both methods can be constructed to reflect the same group means.
+
+### 4. Conclusion:
+Since the fitted values \(X\hat{\beta}\) (the predictions) for all three models/constraints can be expressed to yield the same group means, the **ANOVA table** will indeed remain the same across the three scenarios. This is because the sums of squares for the model and error components depend on the differences between the observed values and the fitted values, which are invariant across these different parameterizations. 
+
+Thus, the ANOVA results (e.g., total sums of squares, model sums of squares, error sums of squares) will be the same as long as the predictions \(X\hat{\beta}\) are identical, confirming that the structure of the ANOVA table does not change with different constraints as long as they yield the same fitted values.
