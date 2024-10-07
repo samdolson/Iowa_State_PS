@@ -9,11 +9,11 @@ date: "2024-09-29"
 # Status 
   - Q1: DONE
   - Q2: DONE 
-  - Q3:
-  - Q4: 
-  - Q5:
-  - Q6:
-  - Q7:
+  - Q3: DONE 
+  - Q4: WIP 
+  - Q5: DOUBLE CHECK MATH
+  - Q6: WIP
+  - Q7: WIP 
   
 # Homework 4 
 Due October 13 
@@ -125,11 +125,24 @@ $$Var(E_T) = E(X_T^2) - (E(X_T))^2 = \frac{\lambda^2 + \lambda}{(1-e^{-\lambda})
 ## Q3 
 > Question: 3.17 Casella & Berger
 
-Establish a formula simialr to (3.3.18) for the gamma distribution. If $X \sim Gamma (\alpha, \beta)$, then for any positive constant v, 
+Establish a formula similar to (3.3.18) for the gamma distribution. If $X \sim Gamma (\alpha, \beta)$, then for any positive constant v, 
 
 $EX^v = \frac{\beta^v \Gamma(v + \alpha)}{\Gamma(\alpha)}$
 
 > Answer 
+
+Formula 3.3.18: 
+
+$$EX^n = \frac{B(\alpha + n, \beta)}{B(\alpha, \beta)} = \frac{\Gamma(\alpha + n)\Gamma(\alpha + \beta)}{\Gamma(\alpha + \beta + n)\Gamma(\alpha)}$$
+
+$$EX^v = \int\limits_{x = 0}^{\infty} x^v \frac{1}{\Gamma(\alpha) \beta^\alpha}x^{\alpha - 1}e^{-x/\beta}dx = \frac{1}{\Gamma(\alpha) \beta^\alpha} \int\limits_{x = 0}^{\infty} x^{(v + \alpha - 1)} e^{-x/\beta}dx$$ 
+$$EX^v = \frac{\Gamma(v + \alpha) \beta ^ {v+\alpha}}{\Gamma(\alpha) \beta^\alpha} \int\limits_{x = 0}^{\infty} \frac{1}{\Gamma(v + \alpha) \beta ^ {v+\alpha}} x^{(v + \alpha - 1)} e^{-x/\beta}dx = \frac{\Gamma(v + \alpha) \beta ^ {v+\alpha}}{\Gamma(\alpha) \beta^\alpha} (1)$$
+With note of a cheeky: $\frac{\Gamma(v + \alpha) \beta ^ {v+\alpha}}{\Gamma(v + \alpha) \beta ^ {v+\alpha}} = 1$
+
+Simplifying gives us: 
+
+$$EX^v = \frac{\Gamma(v + \alpha) \beta ^ {v+\alpha}}{\Gamma(\alpha) \beta^\alpha} = \frac{\Gamma(v + \alpha) \beta ^ {v}}{\Gamma(\alpha)}$$
+$\forall v > -\alpha$ as The Gamma function is only defined for positive values. 
 
 \newpage 
 ## Q4
@@ -141,14 +154,20 @@ $$\int\limits_{x}^{\infty} \frac{1}{\Gamma(\alpha)} z^{\alpha-1} e^{-z} dz = \su
 
 For $\alpha = 1, 2, 3, ...$
 
-Hint: Use integration by parts. Express this formula as a probabilistic relationbship between Poisson and Gamma random variables. 
+Hint: Use integration by parts. Express this formula as a probabilistic relationship between Poisson and Gamma random variables. 
 
 > Answer 
+
+Via Integration by Parts 
+
+$$\frac{1}{\Gamma(n)} \int\limits_{z = x}^{\infty} z^{n-1}z^{-z} dz = \frac{x^{n-1} e^{-x}}{(n-1)!} + \frac{1}{\Gamma(n-1)} \int\limits_{z = x}^{\infty} z^{n-2}z^{-z} dz = ...$$
+
+By unraveling the integral we denote an exact term within the summation. 
 
 \newpage 
 ## Q5
 > Question: 3.24 (a), (c) Casella & Berger 
-Note: You can skip the part about showing that the pdf is a pdf; also, in (c), the variance will not exist unless a >2.
+Note: You can skip the part about showing that the pdf is a pdf; also, in (c), the variance will not exist unless a>2.
 
 Many "named" distributions are special cases of the more common distributions already discussed. For each of the following named distributions derive the form of the pdf, ..., and calculate the mean and variance. 
 
@@ -163,8 +182,55 @@ If $X \sim Gamma(a, b)$, then $Y = 1/X$ has the inverted Gamma IG(a,b) distribut
 > Answer 
 >> (a) 
 
+$X \sim Exponential(\beta) \rightarrow f_X(x) = \frac{1}{\beta} e^{-x/\beta}$
+
+$Y = X ^ {1/\gamma} \rightarrow f_Y(y) = f_x(y^\gamma)(d/dy) = \frac{1}{\beta} e^{-y^\gamma / \beta} \gamma y^{\gamma - 1}$
+
+For $x>0$, $y>0$
+
+For simplicity, let us consider $EY^n = \int\limits_{y = 0}^{\infty} y^n f(y) = \int\limits_{y = 0}^{\infty} y^n \frac{1}{\beta} e^{-y^\gamma / \beta} \gamma y^{\gamma - 1}$
+
+Simplifying terms somewhat, and removing terms that don't depend on y, we have: 
+
+$$EY^n = \gamma / \beta \int\limits_{y = 0}^{\infty} y^{\gamma + n - 1} e^{-y^\gamma/ \beta} dy$$
+
+Let $z = y^\gamma / \beta \rightarrow dy = \beta / \gamma dz$
+
+Change of variables allows us to rewrite the above as: 
+
+$$EY^n = \beta^{n / \gamma}  \int\limits_{z = 0}^{\infty} z^{n/\gamma} e^{-z} dz$$ 
+
+Recognizing this as the $\Gamma (n / \gamma + 1)$ function we thus have: 
+
+$$EY^n = \beta ^{n / \gamma}\Gamma (n / \gamma + 1)$$
+
+Using the above formula we have: 
+
+$EY = \beta ^{1 / \gamma}\Gamma (1 / \gamma + 1)$
+
+and
+
+$EY^2 = \beta ^{2 / \gamma}\Gamma (2 / \gamma + 1)$
+
+$$Var(Y) = EY^2 - (EY)^2 = \beta ^{2 / \gamma}\Gamma (2 / \gamma + 1) - (\beta ^{1 / \gamma}\Gamma (1 / \gamma + 1))^2 $$
+
+$$Var(Y) = \beta^{2/ \gamma} [\Gamma (2 / \gamma + 1) - (\Gamma (1 / \gamma + 1))^2]$$
+
 >> (c) 
 
+$X \sim Gamma(a, b) \rightarrow f_X(x) = \frac{1}{\Gamma(a) b^a}x^{a - 1} e^{-x/b}$
+
+$Y = 1/X \rightarrow f_Y(y) = f_X(1/y)(d/dy) = \frac{1}{\Gamma(a) b^a}(1/y)^{a - 1} e^{-1/by}$
+
+$EY = \int\limits_{y=0}^{\infty} y\frac{1}{\Gamma(a) b^a}(1/y)^{a - 1} e^{-1/by} dy$
+
+$$EY = \frac{1}{\Gamma(a)b^a}\int\limits_{y=0}^{\infty} (\frac{1}{y})^a e^{-1/by} dy = \frac{\Gamma(a-1)b^{a-1}}{\Gamma(a)b^a} = \frac{1}{(a-1)b}$$
+
+$EY^2 = \int\limits_{y=0}^{\infty} y^2 \frac{1}{\Gamma(a) b^a}(1/y)^{a - 1} e^{-1/by} dy$
+
+$$EY^2 = \frac{1}{\Gamma(a)b^a}\int\limits_{y=0}^{\infty} (\frac{1}{y})^{a-1} e^{-1/by} dy = \frac{\Gamma(a-2)b^{a-2}}{\Gamma(a)b^a} = \frac{1}{(a-1)(a-2)b^2}$$
+
+$Var(Y) = EY^2 - (EY)^2 = \frac{1}{(a-1)(a-2)b^2} - (\frac{1}{(a-1)b})^2 = \frac{1}{(a-1)^2(a-2)b^2}$
 
 \newpage 
 ## Q6
@@ -192,7 +258,15 @@ Note: $\frac{d(arctanx)}{dx} = \frac{1}{1+x^2}$
 > Answer 
 >> (a) 
 
+$P (Z \geq 0 ) = \int\limits_{z=0}^{\infty} \frac{1}{\pi} \frac{1}{1+z^2} dz = \frac{1}{\pi} arctanz \big|_{z=0}^{\infty} = \frac{1}{\pi}(\pi / 2 - 0) = \frac{1}{2}$
+
+So $P( X \geq \mu) = \frac{1}{2}$
+
 >> (b) 
+
+$P(Z \geq 1) = \frac{1}{\pi}arctanz \big|_{z=1}^{\infty} = \frac{1}{\pi} (\pi /2 - \pi/4) = \frac{1}{4}$
+
+So $P(X \geq \mu + \sigma) = \frac{1}{4}$
 
 \newpage 
 ## Q7 
@@ -201,3 +275,47 @@ Note: $\frac{d(arctanx)}{dx} = \frac{1}{1+x^2}$
 If $X \sim N(\mu, \sigma^2)$, find values of $\mu$ and $\sigma$ such that $P(|X|< 2) = \frac{1}{2}$. Prove or disprove that the values of $\mu$ and $\sigma$ are unique. 
 
 > Answer 
+
+$$Z = \frac{X - \mu}{\sigma} \sim N(0, 1)$$
+
+$|X| < 2 \rightarrow -2 < X < 2$
+
+$$P(-2 < X < 2) = P\left(\frac{-2 - \mu}{\sigma} < Z < \frac{2 - \mu}{\sigma}\right)$$
+
+$$a = \frac{-2 - \mu}{\sigma} \quad \text{and} \quad b = \frac{2 - \mu}{\sigma}$$
+
+$$P(a < Z < b) = \Phi(b) - \Phi(a) = \frac{1}{2}$$
+
+$\Phi(b) = \Phi(a) + \frac{1}{2}$ 
+
+$b = a + d$
+
+$\Phi(b) = \Phi(a) + \frac{1}{2}$ 
+
+Symmetry 
+
+Thus
+
+$$\Phi(z) - \Phi(-z) = \frac{1}{2}$$
+
+$$\Phi(-z) = 1 - \Phi(z)$$
+
+$$\Phi(z) - (1 - \Phi(z)) = \frac{1}{2} \Rightarrow 2\Phi(z) - 1 = \frac{1}{2} \Rightarrow \Phi(z) = \frac{3}{4}$$
+
+$\Phi(z) = \frac{3}{4} \implies z \approx 0.674$ 
+
+$$a = \frac{-2 - \mu}{\sigma} = -z \implies \frac{-2 - \mu}{\sigma} = -0.674 \implies -2 - \mu = -0.674\sigma \implies \mu = -2 + 0.674\sigma$$
+
+$$b = \frac{2 - \mu}{\sigma} = z \implies \frac{2 - \mu}{\sigma} = 0.674 \implies 2 - \mu = 0.674\sigma \implies \mu = 2 - 0.674\sigma$$ 
+
+$-2 + 0.674\sigma = 2 - 0.674\sigma$ 
+
+$$0.674\sigma + 0.674\sigma = 4 \implies 1.348\sigma = 4 \implies \sigma = \frac{4}{1.348} \approx 2.96$$
+
+$\mu = -2 + 0.674 \cdot 2.96 \approx -2 + 2.0 \approx 0$ 
+
+$\mu \approx 0, \quad \sigma \approx 2.96$ 
+
+To check the uniqueness, consider the functions \( \Phi(b) - \Phi(a) \) as continuous functions of \( \mu \) and \( \sigma \). The conditions specified yield a unique pair \((\mu, \sigma)\) as long as \(\sigma > 0\) since each probability corresponds to a unique interval in the normal distribution. Thus, the solution is indeed unique:
+
+$\mu = 0, \quad \sigma \approx 2.96 \text{ (to satisfy } P(|X| < 2) = \frac{1}{2})$
