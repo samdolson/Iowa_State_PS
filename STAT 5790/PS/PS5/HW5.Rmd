@@ -8,7 +8,7 @@ date: "2024-09-29"
 ---
 
 # Status 
-  - Q1: WIP
+  - Q1: DONE
   - Q2: DONE
   - Q3: WIP
   - Q4: DONE
@@ -53,10 +53,10 @@ state.region and state.size.
 incomes <- state.x77[,2] 
 incomesf <- factor(state.region)
 
-tapplyCount <- tapply(X = incomes,
+tapplyMean <- tapply(X = incomes,
                       INDEX = incomesf, 
                       FUN = mean)
-tapplyCount
+tapplyMean
 
 aggCount <- aggregate(x = incomes, 
           by = list(incomesf), 
@@ -71,10 +71,10 @@ aggCount
 illit <- state.x77[,3] 
 illitf <- factor(state.division)
 
-tapplyCount <- tapply(X = illit,
+tapplyMax <- tapply(X = illit,
                       INDEX = illitf, 
                       FUN = max)
-tapplyCount
+tapplyMax
 aggCount <- aggregate(x = illit, 
           by = list(illitf), 
           FUN = max)
@@ -103,16 +103,17 @@ aggCount
 >> d. 
 
 ```{r}
+# states <- state.x77[,0]
 statesf <- factor(state.division)
 
-tapplyCount <- tapply(X = statesf,
+tapplyNames <- tapply(X = state.name,
                       INDEX = state.division, 
-                      FUN = length)
-tapplyCount
+                      FUN = function(x) {x})
+tapplyNames
 
-aggCount <- aggregate(x = state.division, 
+aggCount <- aggregate(x = state.name, 
           by = list(statesf), 
-          FUN = length)
+          FUN = function(x) {paste(x, collapse = ", ")})
 
 aggCount
 ```
@@ -120,7 +121,27 @@ aggCount
 >> e. 
 
 ```{r}
+state.size <- cut(x = state.x77[, "Population"], 
+                  breaks = c(0, 2000, 10000, Inf), 
+                  labels = c("Small", "Medium", "Large")
+                  )
+```
 
+```{r}
+hsRates <- state.x77[,6]
+df <- cbind.data.frame(hsRates, state.region, state.size)
+
+tapplyMed <- tapply(X = hsRates, 
+                    INDEX = list(state.region, state.size), 
+                    FUN = median)
+  
+tapplyMed 
+
+aggMed <- aggregate(x = hsRates ~ state.region + state.size, 
+                    data = df, 
+                    FUN = median, 
+                    na.rm = T)
+aggMed
 ```
 
 \newpage
