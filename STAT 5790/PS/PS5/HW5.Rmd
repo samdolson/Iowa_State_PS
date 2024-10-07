@@ -9,8 +9,8 @@ date: "2024-09-29"
 
 # Status 
   - Q1: 
-  - Q2: 
-  - Q3:
+  - Q2: WIP 
+  - Q3: WIP
   - Q4: WIP
   - Q5: WIP 
   - Q6: ISH 
@@ -30,7 +30,7 @@ The mean per capita income of the states in each of the four regions defined by 
 
 >> b.
 
-Themaximumilliteracy rates for states in each of the nine divisions defined by the factor state.division,
+The maximum illiteracy rates for states in each of the nine divisions defined by the factor state.division,
 
 >> c. 
 
@@ -78,7 +78,44 @@ By calculating it directly from the definition (i.e., not using the mad() functi
 
 >> a. 
 
+```{r}
+# Load the mtcars dataset
+data(mtcars)
+
+# Define a custom function to compute the MAD estimator of scale
+mad_estimator <- function(column) {
+  median_value <- median(column, na.rm = TRUE)  # Median of the column
+  mad_value <- median(abs(column - median_value), na.rm = TRUE)  # MAD
+  return(1.4826 * mad_value)  # MAD estimator
+}
+
+# Apply the custom function to each column in mtcars
+mad_results <- apply(mtcars, 2, mad_estimator)
+
+# Display the MAD estimator of scale for each column
+print(mad_results)
+```
+
 >> b. 
+
+```{r}
+# Load the mtcars dataset
+data(mtcars)
+
+# Define a function to compute the MAD estimator of scale directly
+mad_estimator_direct <- function(column) {
+  median_value <- median(column, na.rm = TRUE)  # Calculate the median
+  abs_deviations <- abs(sweep(as.matrix(column), 2, median_value))  # Compute absolute deviations from the median
+  mad_value <- median(abs_deviations, na.rm = TRUE)  # Median of absolute deviations
+  return(1.4826 * mad_value)  # Return the MAD estimator
+}
+
+# Apply the function to each column in mtcars
+mad_results_direct <- apply(mtcars, 2, mad_estimator_direct)
+
+# Display the MAD estimator of scale for each column
+print(mad_results_direct)
+```
 
 \newpage
 ## Q3 
@@ -107,9 +144,141 @@ Compare the above with results obtained avoiding loops.
 
 >> a. 
 
+```{r}
+x <- function(x, n) {
+  result <- 0  # Initialize the result
+  for (i in 0:n) {  # Loop from 0 to n (inclusive)
+    result <- result + x^i  # Add x^i to the result
+  }
+  return(result)  # Return the computed sum
+}
+```
+
 >> b. 
 
+```{r}
+y <- function(x, n) {
+  result <- 0  # Initialize the result
+  i <- 0  # Initialize the counter
+  
+  while (i <= n) {  # Loop while i is less than or equal to n
+    result <- result + x^i  # Add x^i to the result
+    i <- i + 1  # Increment the counter
+  }
+  
+  return(result)  # Return the computed sum
+}
+```
+
 >> c. 
+
+$x = 0.3, 1.01$ evaluate the performance for $n = 500, 5000$
+
+```{r}
+x_value <- 0.3
+n_value <- 500
+
+system.time(expr = 
+"sum_result <- x(x_value, n_value)
+sum_result"
+)
+
+system.time(
+"sum_result <- y(x_value, n_value)
+sum_result"
+)
+```
+
+```{r}
+x_value <- 0.3
+n_value <- 5000
+
+system.time(expr = 
+"sum_result <- x(x_value, n_value)
+sum_result"
+)
+
+system.time(
+"sum_result <- y(x_value, n_value)
+sum_result"
+)
+```
+
+```{r}
+x_value <- 1.01
+n_value <- 500
+
+system.time(expr = 
+"sum_result <- x(x_value, n_value)
+sum_result"
+)
+
+system.time(
+"sum_result <- y(x_value, n_value)
+sum_result"
+)
+```
+
+```{r}
+x_value <- 1.01
+n_value <- 5000
+
+system.time(expr = 
+"sum_result <- x(x_value, n_value)
+sum_result"
+)
+
+system.time(
+"sum_result <- y(x_value, n_value)
+sum_result"
+)
+```
+
+```{r}
+# Define the function using a for loop
+h_for <- function(x, n) {
+  result <- 1  # Initialize the sum
+  for (i in 1:n) {
+    result <- result + x^i
+  }
+  return(result)
+}
+
+# Define the function using a while loop
+h_while <- function(x, n) {
+  result <- 1  # Initialize the sum
+  i <- 1       # Start from the first power
+  while (i <= n) {
+    result <- result + x^i
+    i <- i + 1
+  }
+  return(result)
+}
+
+# Set values of x and n
+x_values <- c(0.3, 1.01)
+n_values <- c(500, 5000)
+
+# Loop through each combination of x and n, measuring time
+results <- data.frame()
+
+for (x in x_values) {
+  for (n in n_values) {
+    # Measure time for the for loop
+    time_for <- system.time(h_for(x, n))["user.self"]
+    
+    # Measure time for the while loop
+    time_while <- system.time(h_while(x, n))["user.self"]
+    
+    # Store the results
+    results <- rbind(results, data.frame(x = x, n = n, Time_for = time_for, Time_while = time_while))
+  }
+}
+```
+
+```{r}
+results
+```
 
 >> d. 
 
