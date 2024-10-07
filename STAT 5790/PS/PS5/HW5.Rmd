@@ -9,12 +9,12 @@ date: "2024-09-29"
 
 # Status 
   - Q1: 
-  - Q2: WIP 
+  - Q2: DONE
   - Q3: WIP
-  - Q4: WIP
-  - Q5: WIP 
-  - Q6: ISH 
-  - Q7: WIP 
+  - Q4: DONE
+  - Q5: DONE 
+  - Q6: DONE 
+  - Q7: DONE 
 
 # Homework 5
 Due October 15 
@@ -79,42 +79,39 @@ By calculating it directly from the definition (i.e., not using the mad() functi
 >> a. 
 
 ```{r}
-# Load the mtcars dataset
 data(mtcars)
 
-# Define a custom function to compute the MAD estimator of scale
-mad_estimator <- function(column) {
-  median_value <- median(column, na.rm = TRUE)  # Median of the column
-  mad_value <- median(abs(column - median_value), na.rm = TRUE)  # MAD
-  return(1.4826 * mad_value)  # MAD estimator
+mad <- function(x) {
+  median <- median(x, na.rm = TRUE)
+  mad <- median(abs(x - median), na.rm = TRUE)  
+  1.4826 * mad
 }
 
-# Apply the custom function to each column in mtcars
-mad_results <- apply(mtcars, 2, mad_estimator)
+madDf <- apply(X = mtcars,
+                     MARGIN = 2,
+                     FUN = mad)
 
-# Display the MAD estimator of scale for each column
-print(mad_results)
+madDf
 ```
 
 >> b. 
 
 ```{r}
-# Load the mtcars dataset
-data(mtcars)
-
-# Define a function to compute the MAD estimator of scale directly
-mad_estimator_direct <- function(column) {
-  median_value <- median(column, na.rm = TRUE)  # Calculate the median
-  abs_deviations <- abs(sweep(as.matrix(column), 2, median_value))  # Compute absolute deviations from the median
-  mad_value <- median(abs_deviations, na.rm = TRUE)  # Median of absolute deviations
-  return(1.4826 * mad_value)  # Return the MAD estimator
+madDirect <- function(x) {
+  median <- median(x, na.rm = TRUE)  
+  deviations <- abs(sweep(x = as.matrix(x),
+                          MARGIN = 2,
+                          STATS = median)
+                    )  
+  mad <- median(deviations, na.rm = TRUE)  
+  1.4826 * mad
 }
 
-# Apply the function to each column in mtcars
-mad_results_direct <- apply(mtcars, 2, mad_estimator_direct)
+madDdf <- apply(X = mtcars,
+              MARGIN = 2,
+              FUN = madDirect)
 
-# Display the MAD estimator of scale for each column
-print(mad_results_direct)
+madDdf
 ```
 
 \newpage
@@ -305,40 +302,46 @@ Suppose that there were 4000 animal of the prey variety at the beginning of the 
 > A: 
 
 ```{r}
-# Set initial parameters
-bx <- 0.04  # Natural birth rate of prey
-dx <- 0.0005  # Death rate of prey in an encounter with predator
-by <- 0.1  # Efficiency of turning predated animals into predators
-dy <- 0.2  # Natural death rate of predators
+bx <- 0.04  
+dx <- 0.0005  
+by <- 0.1  
+dy <- 0.2  
 
-# Initial conditions
-prey <- 4000  # Initial number of prey
-predator <- 100  # Initial number of predators
+prey <- 4000  
+predator <- 100 
 
-# Create lists to store prey and predator values over time
-prey_list <- c(prey)
-predator_list <- c(predator)
+preyList <- c(prey)
+predatorList <- c(predator)
 
-# While loop to simulate the predator-prey system
 while (prey > 3900) {
-  # Update prey and predator populations using Lotka-Volterra model
-  new_prey <- prey + bx * prey - dx * prey * predator
-  new_predator <- predator + by * dx * prey * predator - dy * predator
+  newPrey <- prey + bx * prey - dx * prey * predator
+  newPredator <- predator + by * dx * prey * predator - dy * predator
+  # this is a lot like recursion, which
+  # is a lot like recursion, which
+  # is a lot like...
+  preyList <- c(preyList, newPrey)
+  predatorList <- c(predatorList, newPredator)
   
-  # Append the new populations to the lists
-  prey_list <- c(prey_list, new_prey)
-  predator_list <- c(predator_list, new_predator)
-  
-  # Update the current prey and predator populations for the next iteration
-  prey <- new_prey
-  predator <- new_predator
+  prey <- newPrey
+  predator <- newPredator
 }
+```
 
-# Plot the results
-plot(prey_list, type="l", col="blue", ylim=c(min(c(prey_list, predator_list)), max(c(prey_list, predator_list))),
-     xlab="Time (years)", ylab="Population", main="Predator-Prey System")
-lines(predator_list, col="red")
-legend("topright", legend=c("Prey Population", "Predator Population"), col=c("blue", "red"), lty=1)
+```{r}
+plot(preyList, 
+     type="l", 
+     col="cyan3", 
+     ylim=c(min(c(preyList, predatorList)), max(c(preyList, predatorList))),
+     xlab="Years", 
+     ylab="Animals",
+     main="Lotka-Volterra model")
+lines(predatorList, 
+      col="tan3")
+legend("right", 
+       inset=0,
+       legend=c("Prey Count", "Predator Count"), 
+       col=c("cyan3", "tan3"), 
+       lty=1)
 ```
 
 \newpage
@@ -349,38 +352,34 @@ The game of craps is played as follows: first, Player 1 rolls two six-sided die;
 
 > A: 
 
+```{r, echo=FALSE, fig.cap="Saw what I did there?", out.width = '100%'}
+knitr::include_graphics("sawIt.jpg")
+```
+
 ```{r}
-# Function to simulate a game of craps
-play_craps <- function() {
-  # Roll two dice and sum the result
-  first_roll <- sum(sample(1:6, 2, replace = TRUE))
-  
-  # Check if the player wins on the first roll
-  if (first_roll == 7 || first_roll == 11) {
+ohCrap <- function() {
+  roll1 <- sum(sample(1:6, 2, replace = TRUE))
+  if (roll1 == 7 || roll1 == 11) {
     return("Player 1 wins on the first roll!")
   } else {
-    # Continue rolling until player gets the first roll value or 7 or 11
-    point <- first_roll
+    point <- roll1
     repeat {
-      roll <- sum(sample(1:6, 2, replace = TRUE))
-      
-      # If player rolls the point value again, they win
-      if (roll == point) {
+      rollN <- sum(sample(1:6, 2, replace = TRUE))
+      if (rollN == point) {
         return("Player 1 wins!")
       }
-      
-      # If player rolls a 7 or 11, they lose
-      if (roll == 7 || roll == 11) {
+      if (rollN == 7 || rollN == 11) {
         return("Player 1 loses!")
       }
     }
   }
 }
 
-# Simulate the game
-result <- play_craps()
-print(result)
+print("Let's play a game!")
+rep(ohCrap(), 10)
 ```
+
+Orange you glad I went with the (jig)Saw joke instead of a poop joke? 
 
 \newpage
 ## Q6
@@ -393,6 +392,11 @@ Suppose that $(x(t), y(t))$ has polar coordinates given by $(\sqrt{t}, 2\pi t)$.
 Polar to Cartesian coordinates, r radius 
 x = r cos $\theta$
 y = r sin $\theta$
+
+Where $r = \sqrt{t}$
+Add $\theta = 2 \pi t$
+
+Utilizing this conversion, we then have: 
 
 $x(t) = \sqrt{t} \cdot \cos(2\pi t)$
 $y(t) = \sqrt{t} \cdot \sin(2\pi t)$
@@ -408,27 +412,26 @@ yt <- sqrt(t) * sin(2 * pi * t)
 
 plot(x = xt, 
      y = yt, 
-     type = "l")
+     type = "l",
+     main = "Look, A Spiral!")
 ```
+Here's a for loop of it. 
 
 ```{r}
-# Define the time sequence
 t <- seq(from = 0, to = 1, by = 0.001)
 
-# Initialize vectors for xt and yt
 xt <- numeric(length(t))
 yt <- numeric(length(t))
 
-# For loop to calculate xt and yt at each time point
 for (i in 1:length(t)) {
   xt[i] <- sqrt(t[i]) * cos(2 * pi * t[i])
   yt[i] <- sqrt(t[i]) * sin(2 * pi * t[i])
 }
 
-# Plot the results
 plot(x = xt, 
      y = yt, 
-     type = "l")
+     type = "l",
+     main = "Look, A Spiral, Again!")
 ```
 
 \newpage
@@ -447,21 +450,22 @@ Starting with varx, use two applications of the sweep() function, one dividing e
 > A: 
 
 ```{r}
-# Generate the matrix x
+# start
 x <- matrix(rnorm(n = 500), ncol = 5)
-
-# Calculate the covariance matrix varx
 varx <- var(x)
 
-# Step 1: Extract the standard deviations (square root of the diagonal of varx)
+# the problem
 std_devs <- sqrt(diag(varx))
 
-# Step 2: Use sweep to divide each row by the corresponding standard deviation
-varx_sweep_row <- sweep(varx, 1, std_devs, FUN = "/")
+rowSweep <- sweep(x = varx,
+                  MARGIN = 1,
+                  STATS = std_devs, 
+                  FUN = "/")
 
-# Step 3: Use sweep to divide each column by the corresponding standard deviation
-R <- sweep(varx_sweep_row, 2, std_devs, FUN = "/")
-
-# Print the correlation matrix R
-print(R)
+# 5x5 matrix 
+corR <- sweep(x = rowSweep, 
+              MARGIN = 2, 
+              STATS = std_devs, 
+              FUN = "/")
+corR
 ```
