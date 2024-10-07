@@ -11,10 +11,10 @@ date: "2024-09-29"
   - Q1: 
   - Q2: 
   - Q3:
-  - Q4: 
-  - Q5:
+  - Q4: WIP
+  - Q5: WIP 
   - Q6: ISH 
-  - Q7:
+  - Q7: WIP 
 
 # Homework 5
 Due October 15 
@@ -135,6 +135,43 @@ Suppose that there were 4000 animal of the prey variety at the beginning of the 
 
 > A: 
 
+```{r}
+# Set initial parameters
+bx <- 0.04  # Natural birth rate of prey
+dx <- 0.0005  # Death rate of prey in an encounter with predator
+by <- 0.1  # Efficiency of turning predated animals into predators
+dy <- 0.2  # Natural death rate of predators
+
+# Initial conditions
+prey <- 4000  # Initial number of prey
+predator <- 100  # Initial number of predators
+
+# Create lists to store prey and predator values over time
+prey_list <- c(prey)
+predator_list <- c(predator)
+
+# While loop to simulate the predator-prey system
+while (prey > 3900) {
+  # Update prey and predator populations using Lotka-Volterra model
+  new_prey <- prey + bx * prey - dx * prey * predator
+  new_predator <- predator + by * dx * prey * predator - dy * predator
+  
+  # Append the new populations to the lists
+  prey_list <- c(prey_list, new_prey)
+  predator_list <- c(predator_list, new_predator)
+  
+  # Update the current prey and predator populations for the next iteration
+  prey <- new_prey
+  predator <- new_predator
+}
+
+# Plot the results
+plot(prey_list, type="l", col="blue", ylim=c(min(c(prey_list, predator_list)), max(c(prey_list, predator_list))),
+     xlab="Time (years)", ylab="Population", main="Predator-Prey System")
+lines(predator_list, col="red")
+legend("topright", legend=c("Prey Population", "Predator Population"), col=c("blue", "red"), lty=1)
+```
+
 \newpage
 ## Q5 
 > Q: 
@@ -142,6 +179,39 @@ Suppose that there were 4000 animal of the prey variety at the beginning of the 
 The game of craps is played as follows: first, Player 1 rolls two six-sided die; let x be the sum of the die on the first roll. If x = 7 or x = 11, then Player 1 wins, otherwise the player continues rolling until (s)he gets x again, in which case also Player 1 wins, or until (s)he gets 7 or 11, in which case (s)he loses. Write R code to simulate the game of craps. You can simulate the roll of a fair die using the sample() function in R.
 
 > A: 
+
+```{r}
+# Function to simulate a game of craps
+play_craps <- function() {
+  # Roll two dice and sum the result
+  first_roll <- sum(sample(1:6, 2, replace = TRUE))
+  
+  # Check if the player wins on the first roll
+  if (first_roll == 7 || first_roll == 11) {
+    return("Player 1 wins on the first roll!")
+  } else {
+    # Continue rolling until player gets the first roll value or 7 or 11
+    point <- first_roll
+    repeat {
+      roll <- sum(sample(1:6, 2, replace = TRUE))
+      
+      # If player rolls the point value again, they win
+      if (roll == point) {
+        return("Player 1 wins!")
+      }
+      
+      # If player rolls a 7 or 11, they lose
+      if (roll == 7 || roll == 11) {
+        return("Player 1 loses!")
+      }
+    }
+  }
+}
+
+# Simulate the game
+result <- play_craps()
+print(result)
+```
 
 \newpage
 ## Q6
@@ -152,8 +222,8 @@ Suppose that $(x(t), y(t))$ has polar coordinates given by $(\sqrt{t}, 2\pi t)$.
 > A: 
 
 Polar to Cartesian coordinates, r radius 
-x = r cos θ
-y = r sin θ
+x = r cos $\theta$
+y = r sin $\theta$
 
 $x(t) = \sqrt{t} \cdot \cos(2\pi t)$
 $y(t) = \sqrt{t} \cdot \sin(2\pi t)$
@@ -167,6 +237,26 @@ t <- seq(from = 0, to = 1, by = 0.001)
 xt <- sqrt(t) * cos(2 * pi * t)
 yt <- sqrt(t) * sin(2 * pi * t)
 
+plot(x = xt, 
+     y = yt, 
+     type = "l")
+```
+
+```{r}
+# Define the time sequence
+t <- seq(from = 0, to = 1, by = 0.001)
+
+# Initialize vectors for xt and yt
+xt <- numeric(length(t))
+yt <- numeric(length(t))
+
+# For loop to calculate xt and yt at each time point
+for (i in 1:length(t)) {
+  xt[i] <- sqrt(t[i]) * cos(2 * pi * t[i])
+  yt[i] <- sqrt(t[i]) * sin(2 * pi * t[i])
+}
+
+# Plot the results
 plot(x = xt, 
      y = yt, 
      type = "l")
@@ -186,3 +276,23 @@ varx <- var(x)
 Starting with varx, use two applications of the sweep() function, one dividing each row of the matrix and the other dividing each column, of a covariance matrix to obtain R, the correlation matrix. 
 
 > A: 
+
+```{r}
+# Generate the matrix x
+x <- matrix(rnorm(n = 500), ncol = 5)
+
+# Calculate the covariance matrix varx
+varx <- var(x)
+
+# Step 1: Extract the standard deviations (square root of the diagonal of varx)
+std_devs <- sqrt(diag(varx))
+
+# Step 2: Use sweep to divide each row by the corresponding standard deviation
+varx_sweep_row <- sweep(varx, 1, std_devs, FUN = "/")
+
+# Step 3: Use sweep to divide each column by the corresponding standard deviation
+R <- sweep(varx_sweep_row, 2, std_devs, FUN = "/")
+
+# Print the correlation matrix R
+print(R)
+```
