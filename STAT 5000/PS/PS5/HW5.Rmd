@@ -13,8 +13,8 @@ date: "2024-09-18"
 
 # Progress Report 
   - Q1: DONE
-  - Q2: (g) LEFT 
-  - Q3: (d) LEFT 
+  - Q2: QUESTION (g) 
+  - Q3: QUESTION (d) 
 
 # Q1 
 Exercise 19 (page 143) at the end of Chapter 5 in The Statistical Sleuth describes an observational study of competition among species of birds and rodents for nesting sites in cavities of rocks and trees (data from Donald Youkey, Oregon State University Department of Fisheries and Wildlife). The areas of entrances to nesting cavities were measured for 294 nesting sites for nine common species of birds and rodents in Oregon. The boxplots from Display 5.22 on page 144 are shown below.
@@ -235,7 +235,7 @@ $$\hat{\beta} = \begin{bmatrix} 27 \\ 22 - 27 \\ 25 - 27 \\ 29 - 27 \end{bmatrix
 ## (d) 
 For the model and constraint in part (c), what does $\alpha_2$ represent in the context of the study?
 
-This $\alpha_2$ represents the difference in mean weight gain between the group receiving Supplement 20 (group 2) and the baseline group that receives Supplement 60 (group 4). 
+This $\alpha_2$ represents the difference in mean weight gain between the group 2 (group receiving Supplement 20) and the baseline group that receives Supplement 60 (group 4). 
 
 ## (e) 
 For the effects model $Y_{ij} = \mu + \alpha_i + \epsilon_{ij}$ , where $i = 1, 2, 3, 4$ and $j = 1, 2, 3$, using the **sum-to-zero constraint** $\sum\limits_{i=1}^{r} \alpha_i = 0$, what is the parameter vector *$\beta$*, the corresponding design matrix *X*, and the estimated *$\hat{\beta}$* vector?
@@ -268,146 +268,23 @@ $$\hat{\beta} = \begin{bmatrix} 27 \\ 22 - 27 \\ 25 - 27 \\ 29 - 27 \end{bmatrix
 ## (f) 
 For the model and constraint in part (e), what does $\alpha_2$ represent in the context of the study?
 
-This $\alpha_2$ represents the deviation of the mean weight gain for the group receiving Supplement 20 from the overall mean weight gain across all groups.
+This $\alpha_2$ represents the deviation of the mean weight for the group 2 (group receiving Supplement 20) from the overall mean weight gain across all groups.
 
 ## (g) 
 For the models and/or constraints given in parts (b), (c), and (e), the ANOVA table will be the same provided that *X*$\hat{\beta}$ is the same. Verify that this is true for all 3 models/constraints. 
 
-(b): 
+If we assume that *$X\hat{\beta}$* is the same, then the sums of squares for the model and error depend on the differences between the observed values and the fitted values. Since the observed values stay the same, and we presume the fitted values are equal, then their resultant values in the ANOVA table will all be equal. Furthermore, under each of the parametrizations, we retain the same degrees of freedom, meaning that the associated mean squared values (model, error, and total) and their resultant
+F-statistics remain the same. As all elements of the ANOVA table are equal under the assumption of *$X\hat{\beta}$*, we see they are one and the same. 
 
-```{r}
-X <- matrix(c(
-  1, 0, 0, 0,
-  1, 0, 0, 0,
-  1, 0, 0, 0,
-  0, 1, 0, 0,
-  0, 1, 0, 0,
-  0, 1, 0, 0,
-  0, 0, 1, 0,
-  0, 0, 1, 0,
-  0, 0, 1, 0,
-  0, 0, 0, 1,
-  0, 0, 0, 1,
-  0, 0, 0, 1
-), nrow = 12, byrow = TRUE)
+As: 
 
-# Define the parameter vector
-beta <- c(22, 25, 29, 32)
+$$SS_\text{error} \equiv SS_\text{within groups} = \sum\limits_{i=1}^{r}\sum\limits_{j=1}^{n_i} e_{ij}^2$$
 
-X %*% beta 
-```
+and 
 
-$$X\hat{\beta} = \begin{bmatrix}
-  1 & 0 & 0 & 0 \\
-  1 & 0 & 0 & 0 \\
-  1 & 0 & 0 & 0 \\
-  0 & 1 & 0 & 0 \\
-  0 & 1 & 0 & 0 \\
-  0 & 1 & 0 & 0 \\
-  0 & 0 & 1 & 0 \\
-  0 & 0 & 1 & 0 \\
-  0 & 0 & 1 & 0 \\
-  0 & 0 & 0 & 1 \\
-  0 & 0 & 0 & 1 \\
-  0 & 0 & 0 & 1 \\
-  \end{bmatrix} \begin{bmatrix} 22 \\ 25 \\ 29 \\ 32 \end{bmatrix}$$
+$$SS_{model} \equiv SS_\text{within groups} = \sum\limits_{i=1}^{r}n_i(\bar{Y_i} - \bar{Y})^2$$
 
-$$X\hat{\beta} =$$
 
-(c): 
-
-```{r}
-X <- matrix(c(
-  1, 0, 0, 0,
-  1, 0, 0, 0,
-  1, 0, 0, 0,
-  1, 1, 0, 0,
-  1, 1, 0, 0,
-  1, 1, 0, 0,
-  1, 0, 1, 0,
-  1, 0, 1, 0,
-  1, 0, 1, 0,
-  1, 0, 0, 1,
-  1, 0, 0, 1,
-  1, 0, 0, 1
-), nrow = 12, byrow = TRUE)
-
-# Define the parameter vector
-beta <- c(27, -5, -2, 2)
-
-X %*% beta 
-```
-
-$$X\hat{\beta} = \begin{bmatrix}
-  1 & 0 & 0 & 0 \\
-  1 & 0 & 0 & 0 \\
-  1 & 0 & 0 & 0 \\
-  1 & 1 & 0 & 0 \\
-  1 & 1 & 0 & 0 \\
-  1 & 1 & 0 & 0 \\
-  1 & 0 & 1 & 0 \\
-  1 & 0 & 1 & 0 \\
-  1 & 0 & 1 & 0 \\
-  1 & 0 & 0 & 1 \\
-  1 & 0 & 0 & 1 \\
-  1 & 0 & 0 & 1 \\
-  \end{bmatrix} \begin{bmatrix} 27 \\ -5 \\ -2 \\ 2 \end{bmatrix}$$
-
-$$X\hat{\beta} = \begin{bmatrix}
-  1 \\
-  1 \\
-  1 \\
-  1 \\
-  1 \\
-  1 \\
-  1 \\
-  1 \\
-  1 \\
-  1 \\
-  1 \\
-  1 \\
-  \end{bmatrix}$$
-
-(e): 
-
-```{r}
-X <- matrix(c(
-  1, 0, 0, 0,
-  1, 0, 0, 0,
-  1, 0, 0, 0,
-  1, 1, 0, 0,
-  1, 1, 0, 0,
-  1, 1, 0, 0,
-  1, 0, 1, 0,
-  1, 0, 1, 0,
-  1, 0, 1, 0,
-  1, -1, -1, -1,
-  1, -1, -1, -1,
-  1, -1, -1, -1
-), nrow = 12, byrow = TRUE)
-
-# Define the parameter vector
-beta <- c(27, -5, -2, 2)
-
-X %*% beta 
-```
-
-$$X\hat{\beta} = \begin{bmatrix}
-  1 & 0 & 0 & 0 \\
-  1 & 0 & 0 & 0 \\
-  1 & 0 & 0 & 0 \\
-  1 & 1 & 0 & 0 \\
-  1 & 1 & 0 & 0 \\
-  1 & 1 & 0 & 0 \\
-  1 & 0 & 1 & 0 \\
-  1 & 0 & 1 & 0 \\
-  1 & 0 & 1 & 0 \\
-  1 & -1 & -1 & -1 \\
-  1 & -1 & -1 & -1 \\
-  1 & -1 & -1 & -1 \\
-  \end{bmatrix} \begin{bmatrix} 27 \\ -5 \\ -2 \\ 2 \end{bmatrix}$$
-
-$$X\hat{\beta} =$$
 
 \newpage
 # Q3
@@ -460,7 +337,41 @@ Assumptions
   - Independence within and between groups 
   - Equal variance
   
-Assessment 
+Assessment: 
+
+Overall: 
+We have reason to suspect our normality assumption and equal variances assumption are violated. We have some apprehension about within group independence being violated as well.
+
+The independence and equal variances assumptions possibly being violated are especially problematic for the use of ANOVA. 
+
+Normality: 
+Mean is not equal to median, but they are fairly close to one another. Furthermore, when inspecting the QQ plot of the overall data, the data does visually appear normally distributed, with minor deviations at the tails (comparing points to the reference line). 
+
+When reviewing the data at the group level (company), upon review of Shapiro-Wilk we see the following p-values: 
+
+  - company == "M", p-value = 0.07217
+  - company == "B", p-value = 0.4919
+  - company == "P", p-value = 0.6419
+  - company == "V", p-value = 0.1982
+
+We do not have evidence to reject the null hypothesis of the data being normally distributed for companies "B" and "P", and at $\alpha=0.2$ we would reject the null hypothesis of normality for company "V", and at $\alpha = 0.075$ we would reject the null hypothesis of normality for company "M". 
+
+Equal Variance: 
+With use of Levene's test, we may directly assess the equal variances assumption between all groups. With a corresponding p-value of 0.09095 and a null hypothesis that all groups have equal (the same) variance, we would reject the null hypothesis at the $\alpha = 0.1$ level. 
+
+Upon inspecting the residual plot, we would have further reason to suspect the equal variances assumption is violated, as larger fitted values have a greater spread of residuals (non-constant variance). 
+
+Also, upon reviewing the ratio of sample standard deviations, we see a ratio between the max and min of 2.54951, which leads us to suspect potential impact and violation of this equal variances assumption.
+
+Independence: 
+
+We know that the cars in the dataset all come from the same class of car, but, in part because I am not a car expert by any stretch, we do not know whether this means they are the same car, i.e. same make and model for a given year. 
+
+As such, it would be reasonable to suspect independence is being violated in this scenario. We don't have any factors being controlled, such as differences in year or model, the latter of which when not controlled could be problematic for independence within groups to be violated. 
+
+Furthermore, we have no information about whether certain parts are used by car models between and within groups, and if an especially important part, like an engine, is in use by multiple companies, then we may suspect that between group independence may also be violated. 
+
+Taken together, I'd say we have reason to suspect within group independence to be violated, but have less reason (though still some!) to suspect that between group independence is not violated. 
 
 ```{r}
 summary(anovaFit$residuals)
@@ -472,12 +383,30 @@ qqline(anovaFit$residuals, col = "red")
 ```
 
 ```{r}
+x1 <- sd(car$economy[car$company=="M"])
+x2 <- sd(car$economy[car$company=="B"])
+x3 <- sd(car$economy[car$company=="P"])
+x4 <- sd(car$economy[car$company=="V"])
+
+maxCar <- max(x1, x2, x3, x4)
+minCar <- min(x1, x2, x3, x4)
+maxCar/minCar
+```
+
+```{r}
+shapiro.test(car$economy[car$company=="M"])
+shapiro.test(car$economy[car$company=="B"])
+shapiro.test(car$economy[car$company=="P"])
+shapiro.test(car$economy[car$company=="V"])
+```
+
+```{r}
 library(car)
 car::leveneTest(economy ~ company, data = car)
 ```
 
 ```{r}
-plot(anovaFit$residuals, anovaFit$fitted.values)
+plot(anovaFit$fitted.values, anovaFit$residuals)
 ```
 
 
