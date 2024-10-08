@@ -364,46 +364,35 @@ If $X \sim N(\mu, \sigma^2)$, find values of $\mu$ and $\sigma$ such that $P(|X|
 
 > Answer 
 
+Note: For any normally distributed random variable X, the standard normal Z may be derived by 
+
 $$Z = \frac{X - \mu}{\sigma} \sim N(0, 1)$$
+
+Furthermore, as  
 
 $|X| < 2 \rightarrow -2 < X < 2$
 
-$$P(-2 < X < 2) = P\left(\frac{-2 - \mu}{\sigma} < Z < \frac{2 - \mu}{\sigma}\right)$$
+Such that: 
 
-$$a = \frac{-2 - \mu}{\sigma} \quad \text{and} \quad b = \frac{2 - \mu}{\sigma}$$
+$$P(|X| < 2) = P(-2 < X < 2) = P\left(\frac{-2 - \mu}{\sigma} < \frac{X - \mu}{\sigma} < \frac{2 - \mu}{\sigma}\right) = P\left(\frac{-2 - \mu}{\sigma} < Z < \frac{2 - \mu}{\sigma}\right)$$
 
-$$P(a < Z < b) = \Phi(b) - \Phi(a) = \frac{1}{2}$$
+$$P(|X| < 2) = P\left(Z < \frac{2 - \mu}{\sigma}\right) - P\left(Z < \frac{-2 - \mu}{\sigma} \right)$$
 
-$\Phi(b) = \Phi(a) + \frac{1}{2}$ 
+For the cdf of the standard normal $\Phi$, we have: 
 
-$b = a + d$
+$\Phi(\frac{2 - \mu}{\sigma}) - \Phi(\frac{-2 - \mu}{\sigma}) = \frac{1}{2}$
 
-$\Phi(b) = \Phi(a) + \frac{1}{2}$ 
+$\Phi(\frac{2 - \mu}{\sigma}) - (1 - \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$
 
-Symmetry 
+For simplicity, let $\mu = 0$ 
 
-Thus
+$\Phi(\frac{2}{\sigma}) + \Phi(\frac{2}{\sigma}) = \frac{3}{2} \rightarrow \Phi(\frac{2}{\sigma}) = \frac{3}{4}$
 
-$$\Phi(z) - \Phi(-z) = \frac{1}{2}$$
+As $\Phi(\frac{2}{\sigma}) = \frac{3}{4}$, 
+We may solve for $\sigma$ by using the inverse cdf, $\Phi^{-1}$, 
 
-$$\Phi(-z) = 1 - \Phi(z)$$
+$\frac{2}{\sigma} = \Phi^{-1}(\frac{3}{4}) \rightarrow \frac{2}{\Phi^{-1}(\frac{3}{4})} = \sigma$
 
-$$\Phi(z) - (1 - \Phi(z)) = \frac{1}{2} \Rightarrow 2\Phi(z) - 1 = \frac{1}{2} \Rightarrow \Phi(z) = \frac{3}{4}$$
+$\sigma \approx 2.97$
 
-$\Phi(z) = \frac{3}{4} \implies z \approx 0.674$ 
-
-$$a = \frac{-2 - \mu}{\sigma} = -z \implies \frac{-2 - \mu}{\sigma} = -0.674 \implies -2 - \mu = -0.674\sigma \implies \mu = -2 + 0.674\sigma$$
-
-$$b = \frac{2 - \mu}{\sigma} = z \implies \frac{2 - \mu}{\sigma} = 0.674 \implies 2 - \mu = 0.674\sigma \implies \mu = 2 - 0.674\sigma$$ 
-
-$-2 + 0.674\sigma = 2 - 0.674\sigma$ 
-
-$$0.674\sigma + 0.674\sigma = 4 \implies 1.348\sigma = 4 \implies \sigma = \frac{4}{1.348} \approx 2.96$$
-
-$\mu = -2 + 0.674 \cdot 2.96 \approx -2 + 2.0 \approx 0$ 
-
-$\mu \approx 0, \quad \sigma \approx 2.96$ 
-
-To check the uniqueness, consider the functions \( \Phi(b) - \Phi(a) \) as continuous functions of \( \mu \) and \( \sigma \). The conditions specified yield a unique pair \((\mu, \sigma)\) as long as \(\sigma > 0\) since each probability corresponds to a unique interval in the normal distribution. Thus, the solution is indeed unique:
-
-$\mu = 0, \quad \sigma \approx 2.96 \text{ (to satisfy } P(|X| < 2) = \frac{1}{2})$
+Notice the above held for $\mu = 0$. However, this choice was arbitrary. So while this probability is unique to $\sigma = 2.97$, it holds for any finite $\mu$. So $\sigma$ is unique, but $\mu$ is not. This is because the normal distribution is symmetrical about the mean, i.e. $\Phi(z) = 1 - \Phi(-z)$, $\forall z$. 
