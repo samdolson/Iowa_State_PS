@@ -67,7 +67,7 @@ $df_{model} = k - 1 = 9 - 1 = 8$
 
 $df_{error} = df_{total} - df_{model} = 293 - 8 = 285$
 
-$MS_{model} = \sigma^2 + \frac{1}{9-1}\sum\limits_{i=1}^{9}n_i(\mu_i - \bar{\mu})^2$
+$SS_{model} = \sum\limits_{i=1}^{9}n_i(\mu_i - \bar{\mu})^2$
 
 Where
 
@@ -102,32 +102,34 @@ model7 <- 11 * ((8.214 - barMu)^2)
 model8 <- 7 * ((8.272 - barMu)^2)
 model9 <- 6 * ((8.297 - barMu)^2)
 numeratorModel <- sum(model1, model2, model3, model4, model5, model6, model7, model8, model9)
-denomModel <- 8 
+# denomModel <- 8 
   
-sumModel <- numeratorModel / denomModel
+sumModel <- numeratorModel 
+# / denomModel
 
-msModel <- pooledEstimate + sumModel 
-msModel
+ssModel <- sumModel 
+# + pooledEstimate
+ssModel
 ```
 
-$SS_{model} = df_{model} * MS_{model} = 8 * 2.369372 = 18.95498$
+$MS_{model} = SS_{model} / df_{model} = 17.41966 / 8 * 2.369372 = 2.177458$
 $SS_{error} = df_{error} * MS_{error} = 285 * 0.1919143 = 54.69558$
-$SS_{total} = SS_{model} + SS_{error} = 54.69558 + 18.95498 = 73.65056$
-$MS_{total} = SS_{total} / df_{total} = 73.65056 / 293 = 0.2513671$
+$SS_{total} = SS_{model} + SS_{error} = 54.69558 + 17.420 = 73.65056$
+$MS_{total} = SS_{total} / df_{total} = 72.116 / 293 = 0.2461297$
 
 Source of Variation   Degrees of Freedom   Sum of Squares   Mean Square
 --------------------- -------------------- ---------------- -------------
-Model                 8                    18.955           2.369
+Model                 8                    17.420           2.177
 Error                 285                  54.696           0.192
-Total                 293                  73.651           0.251     
+Total                 293                  72.116           0.246     
 --------------------- -------------------- ---------------- -------------
 
 ## (c) 
 Perform an F-test of the null hypothesis that means of the natural logarithm of cavity entrance areas are the same for all nine species. Report the value of the F-statistics, its degrees of freedom, and the corresponding p-value.
 
 ```{r}
-MS_model <- 2.369
-MS_error <- 0.192
+MS_model <- 2.177458
+MS_error <- 0.1919158
 
 F_statistic <- MS_model / MS_error
 
@@ -138,9 +140,9 @@ p_value <- 1 - pf(F_statistic, df_model, df_error)
 p_value
 ```
 
-$F-Statistic = MS_{model} / MS_{error} = 2.369 / 0.192 = 12.33854 \approx 12.339$
-$F-Statistic_{df_{model}, df_{error}} = F_{8, 285}\approx 12.339$
-p-value: = $P(F_{r-1, N-r} > F) = 3.552714e-15 \approx 3.55e-15$ (very small!) 
+$F-Statistic = MS_{model} / MS_{error} = 2.177458 / 0.192 = 11.3459 \approx 11.346$
+$F-Statistic_{df_{model}, df_{error}} = F_{8, 285} \approx 11.346$
+p-value: = $P(F_{r-1, N-r} > F) = 5.87308e-14 \approx 5.873e-14$ (very small!) 
 
 ## (d) 
 Interpret the test result in the context of the study.
