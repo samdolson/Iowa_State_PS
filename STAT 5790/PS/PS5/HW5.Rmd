@@ -10,7 +10,7 @@ date: "2024-09-29"
 # Status 
   - Q1: DONE
   - Q2: DONE
-  - Q3: WIP
+  - Q3: Question 
   - Q4: DONE
   - Q5: DONE 
   - Q6: DONE 
@@ -229,28 +229,26 @@ Compare the above with results obtained avoiding loops.
 >> a. 
 
 ```{r}
-x <- function(x, n) {
-  result <- 0  # Initialize the result
-  for (i in 0:n) {  # Loop from 0 to n (inclusive)
-    result <- result + x^i  # Add x^i to the result
+forfunc <- function(x, n) {
+  result <- 0
+  for (i in 0:n) {  
+    result <- result + x^i 
   }
-  return(result)  # Return the computed sum
+  result
 }
 ```
 
 >> b. 
 
 ```{r}
-y <- function(x, n) {
-  result <- 0  # Initialize the result
-  i <- 0  # Initialize the counter
-  
-  while (i <= n) {  # Loop while i is less than or equal to n
-    result <- result + x^i  # Add x^i to the result
-    i <- i + 1  # Increment the counter
+whilefunc <- function(x, n) {
+  result <- 0  
+  i <- 0  
+  while (i <= n) { 
+    result <- result + x^i  
+    i <- i + 1  
   }
-  
-  return(result)  # Return the computed sum
+  result  
 }
 ```
 
@@ -259,112 +257,135 @@ y <- function(x, n) {
 $x = 0.3, 1.01$ evaluate the performance for $n = 500, 5000$
 
 ```{r}
-x_value <- 0.3
-n_value <- 500
+# because life
+set.seed(42)
+```
+
+```{r}
+xVal <- 0.3
+nVal <- 500
 
 system.time(expr = 
-"sum_result <- x(x_value, n_value)
-sum_result"
+"forRes <- forfunc(xVal, nVal)
+forRes"
 )
 
 system.time(
-"sum_result <- y(x_value, n_value)
-sum_result"
+"whielRes <- whilefunc(xVal, xVal)
+whielRes"
 )
-```
 
-```{r}
-x_value <- 0.3
-n_value <- 5000
+xVal <- 0.3
+nVal <- 5000
 
 system.time(expr = 
-"sum_result <- x(x_value, n_value)
-sum_result"
+"forRes <- forfunc(xVal, nVal)
+forRes"
 )
 
 system.time(
-"sum_result <- y(x_value, n_value)
-sum_result"
+"whielRes <- whilefunc(xVal, xVal)
+whielRes"
 )
-```
 
-```{r}
-x_value <- 1.01
-n_value <- 500
+xVal <- 1.01
+nVal <- 500
 
 system.time(expr = 
-"sum_result <- x(x_value, n_value)
-sum_result"
+"forRes <- forfunc(xVal, nVal)
+forRes"
 )
 
 system.time(
-"sum_result <- y(x_value, n_value)
-sum_result"
+"whielRes <- whilefunc(xVal, xVal)
+whielRes"
 )
-```
 
-```{r}
-x_value <- 1.01
-n_value <- 5000
+xVal <- 1.01
+nVal <- 5000
 
 system.time(expr = 
-"sum_result <- x(x_value, n_value)
-sum_result"
+"forRes <- forfunc(xVal, nVal)
+forRes"
 )
 
 system.time(
-"sum_result <- y(x_value, n_value)
-sum_result"
+"whielRes <- whilefunc(xVal, xVal)
+whielRes"
 )
 ```
 
 ```{r}
-# Define the function using a for loop
-h_for <- function(x, n) {
-  result <- 1  # Initialize the sum
-  for (i in 1:n) {
-    result <- result + x^i
-  }
-  return(result)
-}
+xVal <- 0.3
+nVal <- 500
 
-# Define the function using a while loop
-h_while <- function(x, n) {
-  result <- 1  # Initialize the sum
-  i <- 1       # Start from the first power
-  while (i <= n) {
-    result <- result + x^i
-    i <- i + 1
-  }
-  return(result)
-}
+t1 <- Sys.time()
+forRes <- forfunc(xVal, nVal)
+forRes
+t2 <- Sys.time()
+t2 - t1
 
-# Set values of x and n
-x_values <- c(0.3, 1.01)
-n_values <- c(500, 5000)
-
-# Loop through each combination of x and n, measuring time
-results <- data.frame()
-
-for (x in x_values) {
-  for (n in n_values) {
-    # Measure time for the for loop
-    time_for <- system.time(h_for(x, n))["user.self"]
-    
-    # Measure time for the while loop
-    time_while <- system.time(h_while(x, n))["user.self"]
-    
-    # Store the results
-    results <- rbind(results, data.frame(x = x, n = n, Time_for = time_for, Time_while = time_while))
-  }
-}
+t1 <- Sys.time()
+whileRes <- whilefunc(xVal, xVal)
+whileRes
+t2 <- Sys.time()
+t2 - t1
 ```
 
 ```{r}
-results
+xVal <- 0.3
+nVal <- 5000
+
+t1 <- Sys.time()
+forRes <- forfunc(xVal, nVal)
+forRes
+t2 <- Sys.time()
+t2 - t1
+
+t1 <- Sys.time()
+whileRes <- whilefunc(xVal, xVal)
+whileRes
+t2 <- Sys.time()
+t2 - t1
+```
+
+```{r}
+xVal <- 1.01
+nVal <- 500
+
+t1 <- Sys.time()
+forRes <- forfunc(xVal, nVal)
+forRes
+t2 <- Sys.time()
+t2 - t1
+
+t1 <- Sys.time()
+whileRes <- whilefunc(xVal, xVal)
+whileRes
+t2 <- Sys.time()
+t2 - t1
+```
+
+```{r}
+xVal <- 1.01
+nVal <- 5000
+
+t1 <- Sys.time()
+forRes <- forfunc(xVal, nVal)
+forRes
+t2 <- Sys.time()
+t2 - t1
+
+t1 <- Sys.time()
+whileRes <- whilefunc(xVal, xVal)
+whileRes
+t2 <- Sys.time()
+t2 - t1
 ```
 
 >> d. 
+
+The only noticeable difference I found was when using Sys.time() instead of system.time, likely due to rounding on part of the latter and precision on part of the former. Comparing across the different values of x, n, even in fractions of a second we tend to observe similar computation times. Our obvious conclusion then is to say that for loops and while loops are fairly interchangeable, and there are no edge cases to consider. But in all seriousness, the results are very similar across values of x and n. 
 
 \newpage
 ## Q4 
