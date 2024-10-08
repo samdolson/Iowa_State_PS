@@ -211,9 +211,6 @@ For the effects model $Y_{ij} = \mu + \alpha_i + \epsilon_{ij}$, where $i = 1, 2
 $$\beta = \begin{bmatrix} \mu \\ \alpha_1 \\ \alpha_2 \\ \alpha_3 \end{bmatrix}$$
   
 $$X = \begin{bmatrix}
-  1 & 0 & 0 & 0 \\
-  1 & 0 & 0 & 0 \\
-  1 & 0 & 0 & 0 \\
   1 & 1 & 0 & 0 \\
   1 & 1 & 0 & 0 \\
   1 & 1 & 0 & 0 \\
@@ -223,6 +220,9 @@ $$X = \begin{bmatrix}
   1 & 0 & 0 & 1 \\
   1 & 0 & 0 & 1 \\
   1 & 0 & 0 & 1 \\
+  1 & 0 & 0 & 0 \\
+  1 & 0 & 0 & 0 \\
+  1 & 0 & 0 & 0 \\
   \end{bmatrix}$$
 
 For reference, given our prior $\hat{\beta}$, 
@@ -230,7 +230,7 @@ $$\hat{\beta} = \begin{bmatrix} 22 \\ 25 \\ 29 \\ 32 \end{bmatrix}$$
 $\hat{\mu} = (22+25+29+32) / 4 = 27$
 
 Our new $\hat{\beta}$ for this problem is: 
-$$\hat{\beta} = \begin{bmatrix} 27 \\ 22 - 27 \\ 25 - 27 \\ 29 - 27 \end{bmatrix} = \begin{bmatrix} 27 \\ -5 \\ -2 \\ 2 \end{bmatrix}$$
+$$\hat{\beta} = \begin{bmatrix} 32 \\ 22 - 32 \\ 25 - 32 \\ 29 - 32 \end{bmatrix} = \begin{bmatrix} 27 \\ -10 \\ -7 \\ -3 \end{bmatrix}$$
 
 ## (d) 
 For the model and constraint in part (c), what does $\alpha_2$ represent in the context of the study?
@@ -243,15 +243,15 @@ For the effects model $Y_{ij} = \mu + \alpha_i + \epsilon_{ij}$ , where $i = 1, 
 $$\beta = \begin{bmatrix} \mu_1 \\ \mu_2 \\ \mu_3 \\ \mu_4 \end{bmatrix}$$
   
 $$X = \begin{bmatrix}
-  1 & 0 & 0 & 0 \\
-  1 & 0 & 0 & 0 \\
-  1 & 0 & 0 & 0 \\
   1 & 1 & 0 & 0 \\
   1 & 1 & 0 & 0 \\
   1 & 1 & 0 & 0 \\
   1 & 0 & 1 & 0 \\
   1 & 0 & 1 & 0 \\
   1 & 0 & 1 & 0 \\
+  1 & 0 & 0 & 1 \\
+  1 & 0 & 0 & 1 \\
+  1 & 0 & 0 & 1 \\
   1 & -1 & -1 & -1 \\
   1 & -1 & -1 & -1 \\
   1 & -1 & -1 & -1 \\
@@ -273,6 +273,8 @@ This $\alpha_2$ represents the deviation of the mean weight for the group 2 (gro
 ## (g) 
 For the models and/or constraints given in parts (b), (c), and (e), the ANOVA table will be the same provided that *X*$\hat{\beta}$ is the same. Verify that this is true for all 3 models/constraints. 
 
+Description: 
+
 If we assume that *$X\hat{\beta}$* is the same, then the sums of squares for the model and error depend on the differences between the observed values and the fitted values. Since the observed values stay the same, and we presume the fitted values are equal, then their resultant values in the ANOVA table will all be equal. Furthermore, under each of the parametrizations, we retain the same degrees of freedom, meaning that the associated mean squared values (model, error, and total) and their resultant
 F-statistics remain the same. As all elements of the ANOVA table are equal under the assumption of *$X\hat{\beta}$*, we see they are one and the same. 
 
@@ -283,8 +285,73 @@ $$SS_\text{error} \equiv SS_\text{within groups} = \sum\limits_{i=1}^{r}\sum\lim
 and 
 
 $$SS_{model} \equiv SS_\text{within groups} = \sum\limits_{i=1}^{r}n_i(\bar{Y_i} - \bar{Y})^2$$
+Verify via Code: 
 
+When we directly evaluate *$X\hat{\beta}$* we do indeed see that these fitted values are the same. The descriptive logic then follows from above for the conclusion that their respective ANOVA tables will be equal. 
 
+(b) 
+```{r}
+X <- matrix(c(
+  1, 0, 0, 0,
+  1, 0, 0, 0,
+  1, 0, 0, 0,
+  0, 1, 0, 0,
+  0, 1, 0, 0,
+  0, 1, 0, 0,
+  0, 0, 1, 0,
+  0, 0, 1, 0,
+  0, 0, 1, 0,
+  0, 0, 0, 1,
+  0, 0, 0, 1,
+  0, 0, 0, 1
+), nrow = 12, byrow = TRUE)
+# Define the parameter vector
+beta <- c(22, 25, 29, 32)
+X %*% beta 
+```
+(c) 
+
+```{r}
+X <- matrix(c(
+  1, 1, 0, 0,
+  1, 1, 0, 0,
+  1, 1, 0, 0,
+  1, 0, 1, 0,
+  1, 0, 1, 0,
+  1, 0, 1, 0,
+  1, 0, 0, 1,
+  1, 0, 0, 1,
+  1, 0, 0, 0,
+  1, 0, 0, 0,
+  1, 0, 0, 0,
+  1, 0, 0, 0
+), nrow = 12, byrow = TRUE)
+# Define the parameter vector
+beta <- c(32, -10, -7, -3)
+X %*% beta 
+```
+
+(e) 
+
+```{r}
+X <- matrix(c(
+  1, 1, 0, 0,
+  1, 1, 0, 0,
+  1, 1, 0, 0,
+  1, 0, 1, 0,
+  1, 0, 1, 0,
+  1, 0, 1, 0,
+  1, 0, 0, 1,
+  1, 0, 0, 1,
+  1, -1, -1, -1,
+  1, -1, -1, -1,
+  1, -1, -1, -1,
+  1, -1, -1, -1
+), nrow = 12, byrow = TRUE)
+# Define the parameter vector
+beta <- c(27, -5, -2, 2)
+X %*% beta 
+```
 
 \newpage
 # Q3
