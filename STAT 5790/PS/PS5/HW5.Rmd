@@ -266,6 +266,29 @@ xVal <- 0.3
 nVal <- 500
 
 system.time(expr = 
+"result <- 0
+  for (i in 0:nVal) {  
+    result <- result + xVal^i 
+  }
+result"
+)
+
+system.time(expr = 
+"result <- 0  
+  i <- 0  
+  while (i <= nVal) { 
+    result <- result + xVal^i  
+    i <- i + 1  
+  }
+result" 
+)
+```
+
+```{r}
+xVal <- 0.3
+nVal <- 500
+
+system.time(expr = 
 "forRes <- forfunc(xVal, nVal)
 forRes"
 )
@@ -379,13 +402,38 @@ t2 - t1
 t1 <- Sys.time()
 whileRes <- whilefunc(xVal, xVal)
 whileRes
+t2 <- Sys.time()
+t2 - t1
+```
+
+```{r}
+xVal <- 1.01
+nVal <- 5000
+
+t1 <- Sys.time()
+result <- 0
+  for (i in 0:nVal) {  
+    result <- result + xVal^i 
+  }
+result
+t2 <- Sys.time()
+t2 - t1
+
+t1 <- Sys.time()
+result <- 0  
+  i <- 0  
+  while (i <= nVal) { 
+    result <- result + xVal^i  
+    i <- i + 1  
+  }
+result
 t2 <- Sys.time()
 t2 - t1
 ```
 
 >> d. 
 
-The only noticeable difference I found was when using Sys.time() instead of system.time, likely due to rounding on part of the latter and precision on part of the former. Comparing across the different values of x, n, even in fractions of a second we tend to observe similar computation times. Our obvious conclusion then is to say that for loops and while loops are fairly interchangeable, and there are no edge cases to consider. But in all seriousness, the results are very similar across values of x and n. 
+The only noticeable difference I found was when using Sys.time() instead of system.time, likely due to rounding on part of the latter and precision on part of the former. Comparing across the different values of x, n, even in fractions of a second we tend to observe similar computation times. As the results are very similar across values of x and n, I believe this is more indicative of a lack of evidence that one is more efficient than the other (not an indication they are equally efficient, which apriori I do not believe). 
 
 \newpage
 ## Q4 

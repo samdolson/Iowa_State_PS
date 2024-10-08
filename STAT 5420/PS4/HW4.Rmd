@@ -10,8 +10,8 @@ date: "2024-09-29"
   - Q1: DONE
   - Q2: DONE 
   - Q3: DONE 
-  - Q4: WIP 
-  - Q5: DOUBLE CHECK MATH
+  - Q4: DONE 
+  - Q5: DONE
   - Q6: WIP
   - Q7: WIP 
   
@@ -158,11 +158,48 @@ Hint: Use integration by parts. Express this formula as a probabilistic relation
 
 > Answer 
 
-Via Integration by Parts 
+Via Integration by Parts, let us take out the constant $\frac{1}{\Gamma(\alpha)}$, and let $\alpha = n$, such that we have: 
 
-$$\frac{1}{\Gamma(n)} \int\limits_{z = x}^{\infty} z^{n-1}z^{-z} dz = \frac{x^{n-1} e^{-x}}{(n-1)!} + \frac{1}{\Gamma(n-1)} \int\limits_{z = x}^{\infty} z^{n-2}z^{-z} dz = ...$$
+$$u = z^{\alpha-1}$$
 
-By unraveling the integral we denote an exact term within the summation. 
+$$du = (\alpha - 1)z^{\alpha-2}$$
+
+$$dv = e^{-z}dz$$
+
+$$v = -e^{-z}$$
+
+Thus, we have :
+
+$$\int u dv = uv - \int vdu$$
+
+Giving us: 
+
+
+$$\int\limits_{z = x}^{\infty} z^{n-1}z^{-z} dz = x^{n-1} e^{-x} - \int\limits_{z = x}^{\infty} z^{n-2}(n-2)(-z^{-z}) dz$$
+
+Simplifying and adding back in the $\frac{1}{\Gamma(n)}$ term gives us: 
+
+$$\frac{1}{\Gamma(n)} \int\limits_{z = x}^{\infty} z^{n-1}z^{-z} dz = \frac{1}{\Gamma(n)} \big[ x^{n-1} e^{-x} + \int\limits_{z = x}^{\infty} (n-1)z^{n-2}z^{-z} dz\big]$$
+
+We then note the expansion of $\Gamma(n) = (n-1) \Gamma (n-1) = (n-1)(n-2)\Gamma(n-2) = ... = (n-1)!\Gamma(1) = (n-1)! (1) = (n-1)!$. Using this relation above gives us: 
+
+$$\frac{1}{\Gamma(n)} \int\limits_{z = x}^{\infty} z^{n-1}z^{-z} dz = \frac{x^{n-1} e^{-x}}{(n-1)!} + \int\limits_{z = x}^{\infty} \frac{1}{(n-1)\Gamma(n-1)} (n-1)z^{n-2}z^{-z} dz$$
+
+$$\frac{1}{\Gamma(n)} \int\limits_{z = x}^{\infty} z^{n-1}z^{-z} dz = \frac{x^{n-1} e^{-x}}{(n-1)!} + \frac{1}{\Gamma(n-1)} \int\limits_{z = x}^{\infty} z^{n-2}z^{-z} dz$$
+
+Notice the first term in this evaluation is $\frac{x^y e^{-x}}{y!}$ evaluated at $y = n-1$!
+
+Notice also that we may continue the integration by parts for the term 
+
+$$\frac{1}{\Gamma(n-1)} \int\limits_{z = x}^{\infty} z^{n-2}z^{-z} dz$$, 
+
+which will yield two parts, the first being the $\frac{x^y e^{-x}}{y!}$ evaluated at $y = n-2$ and the second part being another integral we may break into parts. 
+
+The above process may be repeated until we arrive at an integral in the $\int vdu = 0$
+
+In summary, we can continue breaking the integral into parts which coincide with elements of the summation in reverse order ($\alpha - 1 \text{ or } n-1$), meaning these two values are equal. 
+
+This is all to say that we have shown the relationship between the random variable $X \sim Poisson(x)$ and the random variable $Y \sim Gamma(\alpha, 1)$, as $P(X > x) = P(Y \leq \alpha - 1)$
 
 \newpage 
 ## Q5
@@ -184,7 +221,13 @@ If $X \sim Gamma(a, b)$, then $Y = 1/X$ has the inverted Gamma IG(a,b) distribut
 
 $X \sim Exponential(\beta) \rightarrow f_X(x) = \frac{1}{\beta} e^{-x/\beta}$
 
-$Y = X ^ {1/\gamma} \rightarrow f_Y(y) = f_x(y^\gamma)(d/dy) = \frac{1}{\beta} e^{-y^\gamma / \beta} \gamma y^{\gamma - 1}$
+Using the following general relation for two related random variables: 
+
+Thm. 2.1.5: $$f_X(x) = f_z(g^-1(x)) | \frac{d}{dx} g^{-1}(x)|$$
+
+We have: 
+
+$$Y = X ^ {1/\gamma} \rightarrow f_Y(y) = f_x(y^\gamma)(d/dy) = \frac{1}{\beta} e^{-y^\gamma / \beta} \gamma y^{\gamma - 1}$$
 
 For $x>0$, $y>0$
 
@@ -194,13 +237,17 @@ Simplifying terms somewhat, and removing terms that don't depend on y, we have:
 
 $$EY^n = \gamma / \beta \int\limits_{y = 0}^{\infty} y^{\gamma + n - 1} e^{-y^\gamma/ \beta} dy$$
 
-Let $z = y^\gamma / \beta \rightarrow dy = \beta / \gamma dz$
+Let $z = y^\gamma / \beta \rightarrow dz = \frac{\gamma}{\beta} y^{\gamma - 1}dy$
+Such that $\frac{\beta}{\gamma y^{\gamma - 1}} dz = dy$
 
 Change of variables allows us to rewrite the above as: 
 
-$$EY^n = \beta^{n / \gamma}  \int\limits_{z = 0}^{\infty} z^{n/\gamma} e^{-z} dz$$ 
+$$EY^n = \frac{\gamma}{\beta} \frac{\beta}{\gamma} \beta^{\gamma + n - 1/ \gamma}  \int\limits_{z = 0}^{\infty} z^{\frac{\gamma + n - 1}{\gamma}} z^{\frac{1}{\gamma} - 1} e^{-z} dz$$ 
+Simplifying terms somewhat gives us: 
 
-Recognizing this as the $\Gamma (n / \gamma + 1)$ function we thus have: 
+$$EY^n = \beta^{\gamma + n - 1/ \gamma} \int\limits_{z = 0}^{\infty} z^{n/\gamma} e^{-z} dz$$ 
+
+Recognizing this as the $\Gamma (n / \gamma + 1)$ function and simplifying constants, we thus have: 
 
 $$EY^n = \beta ^{n / \gamma}\Gamma (n / \gamma + 1)$$
 
@@ -219,6 +266,8 @@ $$Var(Y) = \beta^{2/ \gamma} [\Gamma (2 / \gamma + 1) - (\Gamma (1 / \gamma + 1)
 >> (c) 
 
 $X \sim Gamma(a, b) \rightarrow f_X(x) = \frac{1}{\Gamma(a) b^a}x^{a - 1} e^{-x/b}$
+
+With note of Thm. 2.1.5: $$f_X(x) = f_z(g^-1(x)) | \frac{d}{dx} g^{-1}(x)|$$
 
 $Y = 1/X \rightarrow f_Y(y) = f_X(1/y)(d/dy) = \frac{1}{\Gamma(a) b^a}(1/y)^{a - 1} e^{-1/by}$
 
