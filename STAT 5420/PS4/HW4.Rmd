@@ -381,6 +381,10 @@ Furthermore, as
 
 $|X| < 2 \rightarrow -2 < X < 2$
 
+Furthermore, note: 
+
+$$X = \mu + \sigma Z \rightarrow Z = \frac{X - \mu}{\sigma}$$
+
 Such that: 
 
 $$P(|X| < 2) = P(-2 < X < 2) = P\left(\frac{-2 - \mu}{\sigma} < \frac{X - \mu}{\sigma} < \frac{2 - \mu}{\sigma}\right) = P\left(\frac{-2 - \mu}{\sigma} < Z < \frac{2 - \mu}{\sigma}\right)$$
@@ -406,23 +410,65 @@ $\Phi(\frac{2 - \mu}{\sigma}) - (1 -  \Phi(\frac{2 + \mu}{\sigma})) = \frac{1}{2
 
 $\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$
 
+## One Case
+
 For simplicity, let $\mu = 0$ 
 
 Simplifying the above equation gives us: 
 
-$\Phi(\frac{2}{\sigma}) + \Phi(\frac{2}{\sigma}) = \frac{3}{2} \rightarrow \Phi(\frac{2}{\sigma}) = \frac{3}{4}$
+$\Phi(\frac{2}{\sigma}) + \Phi(\frac{2}{\sigma}) = \frac{3}{2}$ 
 
-As $\Phi(\frac{2}{\sigma}) = \frac{3}{4}$, 
-We may solve for $\sigma$ by using the inverse cdf, $\Phi^{-1}$,
+Utilizing the inverse cdf of the standard normal then gives us: 
+
+$\frac{2}{\sigma}+ \frac{2}{\sigma} = \Phi^{-1}(\frac{3}{2})$
 
 Note: We take as a given that the inverse cdf of the standard normal exists. 
 
-$\frac{2}{\sigma} = \Phi^{-1}(\frac{3}{4}) \rightarrow \frac{2}{\Phi^{-1}(\frac{3}{4})} = \sigma$
+$\frac{4}{\Phi^{-1}(\frac{3}{4})} = \sigma \approx 4.286$
 
-As $\Phi^{-1}(\frac{3}{4}) \approx 0.674$, then 
+As $\Phi^{-1}(\frac{3}{2}) \approx 0.9332$, then 
+<!-- As $\Phi^{-1}(\frac{3}{4}) \approx 0.674$, then  -->
 
-$\sigma \approx 2.97$
+$\sigma^2 \approx 18.37$
 
-Notice the above held for $\mu = 0$. However, this choice was arbitrary. We may take advantage of any normal distribution belonging to the location-scale family of the normal distribution, such that we may appropriately transform the above relations of the standard normal to any normal distribution. 
+## Proof by Contradiction - Extending to other values of $\mu$, $\sigma$ 
 
-Note then that So while this probability is unique to $\sigma = 2.97$, it holds for any finite $\mu$. So $\sigma$ is unique, but $\mu$ is not. This is because the normal distribution is symmetrical about the mean, i.e. $\Phi(z) = 1 - \Phi(-z)$, $\forall z$. 
+$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$
+
+Let us assume that the values of $\mu$, $\sigma$ are unique. Then consider $\mu \neq 0$, specifically $\mu = 1$. We set to prove then that there does not exist a $\sigma$ that satisfies the following relation: 
+
+$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \Phi(\frac{2 - 1}{\sigma}) + \Phi(\frac{2 + 1}{\sigma})) = \Phi(\frac{1}{\sigma}) + \Phi(\frac{3}{\sigma})) = \frac{3}{2}$
+
+Then we have the following relation to evaluate: 
+
+$\Phi(\frac{1}{\sigma}) + \Phi(\frac{3}{\sigma})) = \frac{3}{2}$
+
+We may again utilize the inverse cdf of the standard normal, such that: 
+
+$\frac{1}{\sigma} + \frac{3}{\sigma} = \Phi^{-1}(\frac{3}{2})$
+
+We know from the prior calculation that: 
+
+$\Phi^{-1}(\frac{3}{4}) \approx 0.9332 \rightarrow \frac{1}{\sigma} + \frac{3}{\sigma} \approx 0.9332$
+
+$\sigma = \frac{(1 + 3)}{\Phi^{-1}\frac{3}{4}} = \frac{4}{{\Phi^{-1}\frac{3}{4}}} \approx 4.286$
+
+This is a contradiction though, as we have found a finite value of $\sigma$ that satisfies the relation! Thus we are led to conclude that the values of $\mu, \sigma$ are not unique that satisfy the relation $P(|X|< 2) = \frac{1}{2}$. 
+
+## Case for any finite $\mu$
+
+Let $\mu = \alpha$, some finite value. Then the following relation holds: 
+
+$$\Phi(\frac{2 - \alpha}{\sigma}) + \Phi(\frac{2 + \alpha}{\sigma}))  = \frac{3}{2}$$
+
+Utilizing the inverse cdf of the standard normal, we then have: 
+
+$$\frac{2 - \alpha}{\sigma} + \frac{2 + \alpha}{\sigma} = \Phi^{-1}(\frac{3}{2})$$
+
+$$\Phi^{-1}(\frac{3}{2}) \sigma = 2 - \alpha + 2 + \alpha = 4$$ 
+
+$$\sigma = \frac{4}{\Phi^{-1}(\frac{3}{2})}$$
+
+So while we find the value of $\sigma$ to be unique, we see the relation holds for any finite $\alpha$! 
+
+So while the value of $sigma$ is unique, the value of $\mu$ is not, meaning that the pair of values $\mu, \sigma$ that satisfy $X \sim N(\mu, \sigma^2)$,  $P(|X|< 2) = \frac{1}{2}$ are not unique! (It holds for a fixed $\sigma$ and any $\mu$!)
