@@ -11,9 +11,6 @@ date: "2024-09-18"
 [Name:]{.smallcaps} \
 [Collaborators: Ethan, Ben, **The Hatman**]{.smallcaps} \
 
-# Q's 
-Q3: QUESTION (d) 
-
 # Q1 
 Exercise 19 (page 143) at the end of Chapter 5 in The Statistical Sleuth describes an observational study of competition among species of birds and rodents for nesting sites in cavities of rocks and trees (data from Donald Youkey, Oregon State University Department of Fisheries and Wildlife). The areas of entrances to nesting cavities were measured for 294 nesting sites for nine common species of birds and rodents in Oregon. The boxplots from Display 5.22 on page 144 are shown below.
 
@@ -396,7 +393,7 @@ summary(anovaFit)
 
 F-statistic: 1416
 p-value: p-value < 2e-16 (very small!) 
-Interpretation: The large F-statistic corresponds to a small p-value (well below the $\alpha = 0.01$ significance threshold). This provides evidence to support rejecting the null hypothesis that each company has the same average fuel economy and to consider supporting the alternative hypothesis that at least one company has a different average fuel economy compared to the other companies (groups, in this study). 
+Interpretation: The large F-statistic corresponds to a small p-value (well below the $\alpha = 0.01$ significance threshold). This provides evidence to support rejecting the null hypothesis that each company has the same average fuel economy (mpg) and to consider supporting the alternative hypothesis that at least one company has a different average fuel economy (mpg) compared to the other companies (groups, in this study). 
 
 ## (d) 
 Check the ANOVA assumptions in R and include screenshots of any relevant figures. Are any of the assumptions not satisfied for this study?
@@ -409,8 +406,12 @@ Assumptions
   
 Assessment: 
 
+Notes from office hours: In general weigh the aggregated results more. More information. 
+
 Overall: 
-We have reason to suspect our normality assumption and equal variances assumption are violated. We have some apprehension about within group independence being violated as well.
+We have reason to suspect our equal variances assumption is violated. There is also evidence to suspect our normality assumption is violated, both at the group level of one (possibly two) companies, as well as for the overall distribution of data. 
+
+We also have some apprehension about within group independence being violated as well.
 
 The independence and equal variances assumptions possibly being violated are especially problematic for the use of ANOVA. 
 
@@ -423,11 +424,12 @@ When reviewing the data at the group level (company), upon review of Shapiro-Wil
   - company == "B", p-value = 0.4919
   - company == "P", p-value = 0.6419
   - company == "V", p-value = 0.1982
+  - Overall, p-value = 9.152e-06 (very small!)
 
-We do not have evidence to reject the null hypothesis of the data being normally distributed for companies "B" and "P", and at $\alpha=0.2$ we would reject the null hypothesis of normality for company "V", and at $\alpha = 0.075$ we would reject the null hypothesis of normality for company "M". 
+When doing statistical tests of normality, the overall data (regardless of company) has a very small p-value, allowing us to say with $\alpha = 0.05$ level that we have evidence to reject the null hypothesis that the data is normally distributed. At the group level (company-level) though, we do not have evidence to reject the null hypothesis of the data being normally distributed for companies "B" and "P", and at $\alpha=0.2$ we would reject the null hypothesis of normality for company "V", and at $\alpha = 0.075$ we would reject the null hypothesis of normality for company "M". 
 
 Equal Variance: 
-With use of Levene's test, we may directly assess the equal variances assumption between all groups. With a corresponding p-value of 0.09095 and a null hypothesis that all groups have equal (the same) variance, we would reject the null hypothesis at the $\alpha = 0.1$ level. 
+With use of Levene's test, we may directly assess the equal variances assumption between all groups. With a corresponding p-value of 0.09095 and a null hypothesis that all groups have equal (the same) variance, we would reject the null hypothesis at the $\alpha = 0.10$ level. 
 
 Upon inspecting the residual plot, we would have further reason to suspect the equal variances assumption is violated, as larger fitted values have a greater spread of residuals (non-constant variance). 
 
@@ -471,6 +473,10 @@ shapiro.test(car$economy[car$company=="V"])
 ```
 
 ```{r}
+shapiro.test(car$economy)
+```
+
+```{r}
 library(car)
 car::leveneTest(economy ~ company, data = car)
 ```
@@ -487,9 +493,11 @@ Perform a Kruskal-Wallis non-parameteric test in R for the equality of the fuel 
 kruskal.test(economy ~ company, data = car)
 ```
 
-Null: The distributions of each company is the same as the distribution of the other companies, i.e., all companies have the same distribution.  
-Alternative: At least one company has a different distribution than the other companies. 
+Null: The distributions of each company is the same as the distribution of the other companies, i.e., all companies have the same distribution of fuel economy (distribution of mpg).  
+Alternative: At least one company has a different distribution than the other companies, i.e. at least one company has a different distribution of fuel economy compared to the other groups (distribution of mpg). 
 Test Statistic: 26.645
 p-value: 6.989e-06 (again, very small!) 
 
-Interpretation: The large chi-squared statistic corresponds to a small p-value (well below the $\alpha = 0.01$ significance threshold). This provides evidence to support rejecting the null hypothesis that each company has the same distribution in fuel economy and to consider supporting the alternative hypothesis that at least one company has a different distribution in fuel economy compared to the other companies (groups, in this study).
+Interpretation: We have reason to suspect some of our assumptions are being violated, particularly the equal variances and normality assumptions. Since ANOVA is sensitive to these assumptions, we then turn to a non-parametric statistical test of the Kruskal-Wallis. Performing this, we find: 
+
+The large chi-squared statistic corresponds to a small p-value (well below the $\alpha = 0.01$ level). This provides evidence to support rejecting the null hypothesis that each company has the same distribution in fuel economy and to consider supporting the alternative hypothesis that at least one company has a different distribution in fuel economy compared to the other companies (groups, in this study).
