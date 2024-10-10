@@ -329,73 +329,9 @@ whielRes"
 )
 ```
 
-```{r}
-xVal <- 0.3
-nVal <- 500
+## Example using Sys.time() instead of system.time() 
 
-t1 <- Sys.time()
-forRes <- forfunc(xVal, nVal)
-forRes
-t2 <- Sys.time()
-t2 - t1
-
-t1 <- Sys.time()
-whileRes <- whilefunc(xVal, xVal)
-whileRes
-t2 <- Sys.time()
-t2 - t1
-```
-
-```{r}
-xVal <- 0.3
-nVal <- 5000
-
-t1 <- Sys.time()
-forRes <- forfunc(xVal, nVal)
-forRes
-t2 <- Sys.time()
-t2 - t1
-
-t1 <- Sys.time()
-whileRes <- whilefunc(xVal, xVal)
-whileRes
-t2 <- Sys.time()
-t2 - t1
-```
-
-```{r}
-xVal <- 1.01
-nVal <- 500
-
-t1 <- Sys.time()
-forRes <- forfunc(xVal, nVal)
-forRes
-t2 <- Sys.time()
-t2 - t1
-
-t1 <- Sys.time()
-whileRes <- whilefunc(xVal, xVal)
-whileRes
-t2 <- Sys.time()
-t2 - t1
-```
-
-```{r}
-xVal <- 1.01
-nVal <- 5000
-
-t1 <- Sys.time()
-forRes <- forfunc(xVal, nVal)
-forRes
-t2 <- Sys.time()
-t2 - t1
-
-t1 <- Sys.time()
-whileRes <- whilefunc(xVal, xVal)
-whileRes
-t2 <- Sys.time()
-t2 - t1
-```
+This just provides a comparison with fractions of a second, though this still is not a good method for determining complexity/computation time. 
 
 ```{r}
 xVal <- 1.01
@@ -449,47 +385,53 @@ Suppose that there were 4000 animal of the prey variety at the beginning of the 
 > A: 
 
 ```{r}
-bx <- 0.04  
-dx <- 0.0005  
-by <- 0.1  
-dy <- 0.2  
+b_x <- 0.04
+d_x <- 0.0005
+b_y <- 0.1
+d_y <- 0.2
 
-prey <- 4000  
-predator <- 100 
+prey <- 4000
+pred <- 100
 
-preyList <- c(prey)
-predatorList <- c(predator)
+preyList <- list()
+predList <- list()
 
 while (prey > 3900) {
-  newPrey <- prey + bx * prey - dx * prey * predator
-  newPredator <- predator + by * dx * prey * predator - dy * predator
-  # this is a lot like recursion, which
-  # is a lot like recursion, which
-  # is a lot like...
-  preyList <- c(preyList, newPrey)
-  predatorList <- c(predatorList, newPredator)
+  preyList[[length(preyList) + 1]] <- prey
+  predList[[length(predList) + 1]] <- pred
   
-  prey <- newPrey
-  predator <- newPredator
+  preyNew <- prey + b_x * prey - d_x * prey * pred
+  predNew <- pred + b_y * d_x * prey * pred - d_y * pred
+  
+  prey <- preyNew
+  pred <- predNew
 }
 ```
 
 ```{r}
-plot(preyList, 
-     type="l", 
-     col="cyan3", 
-     ylim=c(min(c(preyList, predatorList)), max(c(preyList, predatorList))),
-     xlab="Years", 
-     ylab="Animals",
-     main="Lotka-Volterra model")
-lines(predatorList, 
-      col="tan3")
-legend("right", 
+simDf <- data.frame(prey = unlist(preyList), pred = unlist(predList))
+simDf$time <- 1:nrow(simDf) - 1
+
+plot(x = simDf$time, 
+     y= simDf$prey, 
+     type = "l", 
+     col = c("cyan"), 
+     ylim=c(min(c(simDf$prey, simDf$pred)), max(c(simDf$prey, simDf$pred))),
+     xlab = "Time", 
+     ylab = "Population", 
+     main = "Lotka-Volterra model")
+
+lines(x = simDf$time, 
+      y = simDf$pred, 
+      col = c("brown3"))
+
+legend("right",
        inset=0,
-       legend=c("Prey Count", "Predator Count"), 
-       col=c("cyan3", "tan3"), 
+       legend=c("Prey Count", "Predator Count"),
+       col=c("cyan", "brown3"),
        lty=1)
 ```
+
 
 \newpage
 ## Q5 
@@ -510,13 +452,18 @@ ohCrap <- function() {
     return("Winner Winner, Chicken Dinner. And on the first roll! Lucky duck!")
   } else {
     point <- roll1
+    # adding breaks in case return() is poor form
     repeat {
       rollN <- sum(sample(1:6, 2, replace = TRUE))
       if (rollN == point) {
-        return("Fortune smiles upon you. We have a winner!")
+        print("Fortune smiles upon you. We have a winner!")
+        break
+        # return("Fortune smiles upon you. We have a winner!")
       }
       if (rollN == 7 || rollN == 11) {
-        return("You lost! Better luck next time. Remember, the house wins in the long run, and this time, the house most certainly won.")
+        print("You lost! Better luck next time. Remember, the house wins in the long run, and this time, the house most certainly won.")
+        break
+        # return("You lost! Better luck next time. Remember, the house wins in the long run, and this time, the house most certainly won.")
       }
     }
   }
@@ -562,6 +509,7 @@ plot(x = xt,
      type = "l",
      main = "Look, A Spiral!")
 ```
+
 Here's a for loop of it. 
 
 ```{r}
