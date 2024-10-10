@@ -408,67 +408,40 @@ Refering back to the above difference in cdfs, we then have:
 
 $\Phi(\frac{2 - \mu}{\sigma}) - (1 -  \Phi(\frac{2 + \mu}{\sigma})) = \frac{1}{2}$
 
-$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$
+$$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$$
 
-## One Case
+# A stroll and a frolick
 
-For simplicity, let $\mu = 0$ 
+Define $Z_\alpha$, such that $P (Z \geq Z_\alpha) = \alpha$, where $0 \leq \alpha \leq \frac{1}{2}$
 
-Simplifying the above equation gives us: 
+Also define: 
 
-$\Phi(\frac{2}{\sigma}) + \Phi(\frac{2}{\sigma}) = \frac{3}{2}$ 
+$Z_{\alpha + \frac{1}{2}} \rightarrow P(Z \geq Z_{\alpha + \frac{1}{2}}) =  \alpha + \frac{1}{2}$
 
-Utilizing the inverse cdf of the standard normal then gives us: 
+Note: The above are not cdfs. That being said, 
 
-$\frac{2}{\sigma}+ \frac{2}{\sigma} = \Phi^{-1}(\frac{3}{2})$
+We have the following relations:
 
-Note: We take as a given that the inverse cdf of the standard normal exists. 
+$$Z_{\alpha} = \frac{2- \mu}{\sigma}$$, 
 
-$\frac{4}{\Phi^{-1}(\frac{3}{4})} = \sigma \approx 4.286$
+$$Z_{\alpha + \frac{1}{2}} = \frac{- 2 - \mu}{\sigma}$$
 
-As $\Phi^{-1}(\frac{3}{2}) \approx 0.9332$, then 
-<!-- As $\Phi^{-1}(\frac{3}{4}) \approx 0.674$, then  -->
+The above gives us a system of equations that must hold for the desired property, $P(|X|< 2) = \frac{1}{2}$
 
-$\sigma^2 \approx 18.37$
+Such that: 
 
-## Proof by Contradiction - Extending to other values of $\mu$, $\sigma$ 
+$$Z_{\alpha} - Z_{\alpha + \frac{1}{2}} = \frac{2- \mu}{\sigma} - (\frac{- 2 - \mu}{\sigma}) = \frac{4}{\sigma}$$
 
-$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$
+Solving for $\sigma$ gives us: 
 
-Let us assume that the values of $\mu$, $\sigma$ are unique. Then consider $\mu \neq 0$, specifically $\mu = 1$. We set to prove then that there does not exist a $\sigma$ that satisfies the following relation: 
+$\sigma = \frac{4}{Z_{\alpha} - Z_{\alpha + \frac{1}{2}}}$
 
-$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \Phi(\frac{2 - 1}{\sigma}) + \Phi(\frac{2 + 1}{\sigma})) = \Phi(\frac{1}{\sigma}) + \Phi(\frac{3}{\sigma})) = \frac{3}{2}$
+The above gives us the form of $\sigma$, let us then define the form of $\mu$, 
 
-Then we have the following relation to evaluate: 
+$$Z_{\alpha} = \frac{2- \mu}{\sigma} \rightarrow z_{\alpha} \frac{4}{Z_{\alpha} - Z_{\alpha + \frac{1}{2}}} = 2 - \mu$$ 
 
-$\Phi(\frac{1}{\sigma}) + \Phi(\frac{3}{\sigma})) = \frac{3}{2}$
+$$\mu = 2 - \frac{4 z_{\alpha} }{Z_{\alpha} - Z_{\alpha + \frac{1}{2}}} = \frac{-2(z_{\alpha} + z_{\alpha + \frac{1}{2}})}{z_{\alpha} - z_{\alpha + \frac{1}{2}}}$$
 
-We may again utilize the inverse cdf of the standard normal, such that: 
+Note: The above equations for $\sigma, \mu$ are valid as Z is continuous, such that $Z_\alpha, Z_{\alpha + \frac{1}{2}}$ exist and $Z_\alpha - Z_{\alpha + \frac{1}{2}} \neq 0$ by definition. 
 
-$\frac{1}{\sigma} + \frac{3}{\sigma} = \Phi^{-1}(\frac{3}{2})$
-
-We know from the prior calculation that: 
-
-$\Phi^{-1}(\frac{3}{4}) \approx 0.9332 \rightarrow \frac{1}{\sigma} + \frac{3}{\sigma} \approx 0.9332$
-
-$\sigma = \frac{(1 + 3)}{\Phi^{-1}\frac{3}{4}} = \frac{4}{{\Phi^{-1}\frac{3}{4}}} \approx 4.286$
-
-This is a contradiction though, as we have found a finite value of $\sigma$ that satisfies the relation! Thus we are led to conclude that the values of $\mu, \sigma$ are not unique that satisfy the relation $P(|X|< 2) = \frac{1}{2}$. 
-
-## Case for any finite $\mu$
-
-Let $\mu = \alpha$, some finite value. Then the following relation holds: 
-
-$$\Phi(\frac{2 - \alpha}{\sigma}) + \Phi(\frac{2 + \alpha}{\sigma}))  = \frac{3}{2}$$
-
-Utilizing the inverse cdf of the standard normal, we then have: 
-
-$$\frac{2 - \alpha}{\sigma} + \frac{2 + \alpha}{\sigma} = \Phi^{-1}(\frac{3}{2})$$
-
-$$\Phi^{-1}(\frac{3}{2}) \sigma = 2 - \alpha + 2 + \alpha = 4$$ 
-
-$$\sigma = \frac{4}{\Phi^{-1}(\frac{3}{2})}$$
-
-So while we find the value of $\sigma$ to be unique, we see the relation holds for any finite $\alpha$! 
-
-So while the value of $sigma$ is unique, the value of $\mu$ is not, meaning that the pair of values $\mu, \sigma$ that satisfy $X \sim N(\mu, \sigma^2)$,  $P(|X|< 2) = \frac{1}{2}$ are not unique! (It holds for a fixed $\sigma$ and any $\mu$!)
+On the subject of uniqueness: As we have a range of potential $\alpha$ values, as $0 \leq \alpha \leq \frac{1}{2}$, we have a number of possible solutions to the above system of equations (the values of $Z_\alpha - Z_{\alpha + \frac{1}{2}}$ that satisfy $P(|X|< 2) = \frac{1}{2}$). Thus the values of $(\mu, \sigma^2)$ are not unique.  
