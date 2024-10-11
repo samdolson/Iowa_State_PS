@@ -410,6 +410,74 @@ $\Phi(\frac{2 - \mu}{\sigma}) - (1 -  \Phi(\frac{2 + \mu}{\sigma})) = \frac{1}{2
 
 $$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$$
 
+# Alternativces 
+
+By the definition of the cdf of the standard normal, 
+For $$0 \leq \Phi(\frac{2 - \mu}{\sigma}) \leq 1$$, 
+$$0 \leq \Phi(\frac{2 - \mu}{\sigma}) \leq 1$$, 
+
+And from the above relation we have: 
+
+$$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$$
+
+# A Proof? 
+
+Let us assume the above relations have no values of $\mu, \sigma$ that satisfy the relation. 
+
+Then let $\mu = 0$, such that 
+
+$$\Phi(\frac{2}{\sigma}) + \Phi(\frac{2}{\sigma})) = \frac{3}{2}$$
+
+As the standard normal distribution is a monotonically increasing continuous function, then its inverse is defined, such that we have: 
+
+$$2\Phi(\frac{2}{\sigma}) = \frac{3}{2} \rightarrow \Phi(\frac{2}{\sigma}) = \frac{3}{4}$$
+
+And the following holds: 
+
+$$\sigma = \frac{2}{\Phi^{-1}(\frac{3}{4})}  \approx 2.965$$
+
+```{r}
+qnorm(3/4)
+```
+
+As $\Phi^{-1}(\frac{3}{4}) \approx 0.6745$
+
+So there does exist a solution for $\mu = 0$, $\approx 2.965$, so we have a contradiction. Thus we know that there exists at least one solution. 
+
+Let us then assume there exists a unique soluition, $\mu = 0$, $\approx 2.965$, such that there are no other values which satisfy the given relation, $P(|X|< 2) = \frac{1}{2}$. 
+
+Let us then assume that 
+
+$$\Phi(\frac{2 - \mu}{\sigma}) = \Phi(\frac{2 + \mu}{\sigma})) + \frac{1}{8}$$
+$$2\Phi(\frac{2 + \mu}{\sigma}))  + \frac{1}{8} = \frac{3}{2}$$
+
+Giving us: 
+
+$$\Phi(\frac{2 + \mu}{\sigma}))  + \frac{1}{8} = \frac{3}{4}$$
+
+$$\Phi(\frac{2 + \mu}{\sigma}))  = \frac{5}{8}$$
+
+By again taking advantage of the inverse cdf of the standard normal, we then have: 
+
+$$\frac{2 + \mu}{\sigma}  = \Phi^{-1}(\frac{5}{8})$$
+```{r}
+qnorm(5/8)
+```
+Note: For this example we use 
+
+$$\Phi(\frac{2 - \mu}{\sigma}) = \Phi(\frac{2 + \mu}{\sigma})) + \frac{1}{8}$$
+and not 
+$$\Phi(\frac{2 - \mu}{\sigma}) = \Phi(\frac{2 + \mu}{\sigma})) + \frac{1}{4}$$
+To avoid potential divide by zero issues. Though this choice is dependent upon our constrains, the choice of $\frac{1}{8}$ is just to illustrate a second case. 
+
+That being said: 
+
+$$\mu = \sigma \Phi^{-1}(\frac{5}{8}) - 2 \approx \sigma (0.319) - 2$$
+
+As $\sigma > 0$, let $\sigma = 1$, such that: 
+
+$\mu = (0.319) - 2 = -1.681$, meaning we have found another pair of $(\mu, \sigma^2)$ to satisfy the relation. However, we assumed the values to satisfy $P(|X|< 2) = \frac{1}{2}$ and have arrived at a contradiction; we are left then to conclude that the values of $(\mu, \sigma^2)$ that satisfy $P(|X|< 2) = \frac{1}{2}$ are not unique. 
+
 # A stroll and a frolick
 
 Define $Z_\alpha$, such that $P (Z \geq Z_\alpha) = \alpha$, where $0 \leq \alpha \leq \frac{1}{2}$
