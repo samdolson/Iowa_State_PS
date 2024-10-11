@@ -5,9 +5,6 @@ output:
   html_document: default
 date: "2024-09-29"
 ---
-
-# Q's 
-Q7
   
 # Homework 4 
 Due October 13 
@@ -184,29 +181,29 @@ $$\int u dv = uv - \int vdu$$
 Giving us: 
 
 
-$$\int\limits_{z = x}^{\infty} z^{n-1}z^{-z} dz = x^{n-1} e^{-x} - \int\limits_{z = x}^{\infty} z^{n-2}(n-2)(-z^{-z}) dz$$
+$$\int\limits_{z = x}^{\infty} z^{\alpha-1}z^{-z} dz = x^{\alpha-1} e^{-x} - \int\limits_{z = x}^{\infty} z^{\alpha-2}(\alpha-2)(-z^{-z}) dz$$
 
-Simplifying and adding back in the $\frac{1}{\Gamma(n)}$ term gives us: 
+Simplifying and adding back in the $\frac{1}{\Gamma(\alpha)}$ term gives us: 
 
-$$\frac{1}{\Gamma(n)} \int\limits_{z = x}^{\infty} z^{n-1}z^{-z} dz = \frac{1}{\Gamma(n)} \big[ x^{n-1} e^{-x} + \int\limits_{z = x}^{\infty} (n-1)z^{n-2}z^{-z} dz\big]$$
+$$\frac{1}{\Gamma(\alpha)} \int\limits_{z = x}^{\infty} z^{\alpha-1}z^{-z} dz = \frac{1}{\Gamma(\alpha)} \big[ x^{\alpha-1} e^{-x} + \int\limits_{z = x}^{\infty} (\alpha-1)z^{\alpha-2}z^{-z} dz\big]$$
 
-We then note the expansion of $\Gamma(n) = (n-1) \Gamma (n-1) = (n-1)(n-2)\Gamma(n-2) = ... = (n-1)!\Gamma(1) = (n-1)! (1) = (n-1)!$. Using this relation above gives us: 
+We then note the expansion of $\Gamma(\alpha) = (\alpha-1) \Gamma (\alpha-1) = (\alpha-1)(\alpha-2)\Gamma(\alpha-2) = ... = (\alpha-1)!\Gamma(1) = (\alpha-1)! (1) = (n-1)!$. Using this relation above gives us: 
 
-$$\frac{1}{\Gamma(n)} \int\limits_{z = x}^{\infty} z^{n-1}z^{-z} dz = \frac{x^{n-1} e^{-x}}{(n-1)!} + \int\limits_{z = x}^{\infty} \frac{1}{(n-1)\Gamma(n-1)} (n-1)z^{n-2}z^{-z} dz$$
+$$\frac{1}{\Gamma(\alpha)} \int\limits_{z = x}^{\infty} z^{\alpha-1}z^{-z} dz = \frac{x^{\alpha-1} e^{-x}}{(\alpha-1)!} + \int\limits_{z = x}^{\infty} \frac{1}{(\alpha-1)\Gamma(\alpha-1)} (\alpha-1)z^{\alpha-2}z^{-z} dz$$
 
-$$\frac{1}{\Gamma(n)} \int\limits_{z = x}^{\infty} z^{n-1}z^{-z} dz = \frac{x^{n-1} e^{-x}}{(n-1)!} + \frac{1}{\Gamma(n-1)} \int\limits_{z = x}^{\infty} z^{n-2}z^{-z} dz$$
+$$\frac{1}{\Gamma(\alpha)} \int\limits_{z = x}^{\infty} z^{\alpha-1}z^{-z} dz = \frac{x^{\alpha-1} e^{-x}}{(\alpha-1)!} + \frac{1}{\Gamma(\alpha-1)} \int\limits_{z = x}^{\infty} z^{\alpha-2}z^{-z} dz$$
 
-Notice the first term in this evaluation is $\frac{x^y e^{-x}}{y!}$ evaluated at $y = n-1$!
+Notice the first term in this evaluation is $\frac{x^y e^{-x}}{y!}$ evaluated at $y = \alpha-1$!
 
 Notice also that we may continue the integration by parts for the term 
 
-$$\frac{1}{\Gamma(n-1)} \int\limits_{z = x}^{\infty} z^{n-2}z^{-z} dz$$, 
+$$\frac{1}{\Gamma(\alpha-1)} \int\limits_{z = x}^{\infty} z^{\alpha-2}z^{-z} dz$$, 
 
-which will yield two parts, the first being the $\frac{x^y e^{-x}}{y!}$ evaluated at $y = n-2$ and the second part being another integral we may break into parts. 
+which will yield two parts, the first being the $\frac{x^y e^{-x}}{y!}$ evaluated at $y = \alpha-2$ and the second part being another integral we may break into parts. 
 
-The above process may be repeated until we arrive at an integral in the $\int vdu = 0$
+The above process may be repeated until we arrive at an integral equal to the first term of the summation, $e^{-x}$ when $y=0$ (with a remaining part $\int vdu = 0$). 
 
-In summary, we can continue breaking the integral into parts which coincide with elements of the summation in reverse order ($\alpha - 1 \text{ or } n-1$), meaning these two values are equal. 
+In summary, we can continue breaking the integral into parts which coincide with elements of the summation in reverse order ($\alpha - 1$), meaning these two values are equal. 
 
 This is all to say that we have shown the relationship between the random variable $X \sim Poisson(x)$ and the random variable $Y \sim Gamma(\alpha, 1)$, as $P(X > x) = P(Y \leq \alpha - 1)$
 
@@ -393,9 +390,62 @@ $$P(|X| < 2) = P\left(Z < \frac{2 - \mu}{\sigma}\right) - P\left(Z < \frac{-2 - 
 
 For the cdf of the standard normal $\Phi$, we have: 
 
-$\Phi(\frac{2 - \mu}{\sigma}) - \Phi(\frac{-2 - \mu}{\sigma}) = \frac{1}{2}$
+$$\Phi(\frac{2 - \mu}{\sigma}) - \Phi(\frac{-2 - \mu}{\sigma}) = \frac{1}{2}$$
 
 Note then that the above may be interpreted as a cdf of the normal distribution. Let us then denote the cdf of the standard normal distribution, $\Phi$, and proceed.
+
+For any $\alpha \in (0,1)$, 
+
+$$P(Z \leq z_{\alpha}) = \alpha = \Phi(z_\alpha)$$
+
+And
+
+$$P(Z \leq z_{\alpha + \frac{1}{2}}) = \alpha + \frac{1}{2}$$
+
+Such that: 
+
+$$\Phi(z_{\alpha + \frac{1}{2}}) - \Phi(z_{\alpha}) = \frac{1}{2}$$
+
+Now let $\alpha \in (0, \frac{1}{2})$, such that: 
+
+$$z_{\alpha + \frac{1}{2}} = \frac{2 - \mu}{\sigma}$$
+
+$$z_\alpha = \frac{-2 - \mu}{\sigma}$$
+
+It holds then that we still have the relation: 
+
+$$\Phi(z_{\alpha + \frac{1}{2}}) - \Phi(z_{\alpha}) = \Phi(\frac{2 - \mu}{\sigma}) - \Phi(\frac{-2 - \mu}{\sigma}) = \frac{1}{2}$$
+
+We then have the following relation with $\mu, \sigma$: 
+
+$$z_{\alpha + \frac{1}{2}} - z_{\alpha} = \frac{2 - \mu}{\sigma} - \frac{-2 - \mu}{\sigma} = \frac{4}{\sigma}$$ 
+
+$$\sigma = \frac{4}{(z_{\alpha + \frac{1}{2}} - z_{\alpha})}$$
+Where $\sigma > 0$
+
+"Solving" for $\mu$ gives us: 
+
+$$z_{\alpha} = \frac{(2-\mu)}{\frac{4}{(z_{\alpha + \frac{1}{2}} - z_{\alpha})}} = \frac{{(z_{\alpha + \frac{1}{2}} - z_{\alpha})(2-\mu)}}{4}$$
+
+$$4 z_\alpha = 2{(z_{\alpha + \frac{1}{2}} - z_{\alpha}) - \mu(z_{\alpha + \frac{1}{2}} - z_{\alpha})}$$
+
+$$\mu(z_{\alpha + \frac{1}{2}} - z_{\alpha}) = 2(z_{\alpha + \frac{1}{2}} - z_{\alpha}) - 4 z_\alpha$$
+
+$$\mu = \frac{2z_{\alpha + \frac{1}{2}} - 6z_{\alpha}}{(z_{\alpha + \frac{1}{2}} - z_{\alpha})}$$
+
+
+
+Such that we have the following system of equations: 
+
+$$\mu = \frac{2z_{\alpha + \frac{1}{2}} - 6z_{\alpha}}{(z_{\alpha + \frac{1}{2}} - z_{\alpha})}$$
+
+$$\sigma = \frac{4}{(z_{\alpha + \frac{1}{2}} - z_{\alpha})}$$
+
+Note, given the relations of $\mu, \sigma$, there are many possible solutions (values of $z_\alpha, z_{\alpha+\frac{1}{2}}$) that satisfy the desired property $P(|X|< 2) = \frac{1}{2}$, so we conclude the values that satisfy are not unique. 
+
+# Alternative Solution - Question mark? 
+
+Hey, if you don't mind could you give your thoughts on the below proof? I have a "better" proof above, but curious if this also suffices. 
 
 Taking advantage of the normal distribution being symmetrical, we have the following: 
 $\Phi(z) = 1 - \Phi(-z)$
@@ -410,7 +460,7 @@ $\Phi(\frac{2 - \mu}{\sigma}) - (1 -  \Phi(\frac{2 + \mu}{\sigma})) = \frac{1}{2
 
 $$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$$
 
-# Alternativces 
+# Conditions We Must Meet 
 
 By the definition of the cdf of the standard normal, 
 For $$0 \leq \Phi(\frac{2 - \mu}{\sigma}) \leq 1$$, 
@@ -420,7 +470,7 @@ And from the above relation we have:
 
 $$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$$
 
-# A Proof? 
+# A Proof Of Existence, (Non) Uniqueness
 
 Let us assume the above relations have no values of $\mu, \sigma$ that satisfy the relation. 
 
@@ -444,72 +494,47 @@ As $\Phi^{-1}(\frac{3}{4}) \approx 0.6745$
 
 So there does exist a solution for $\mu = 0$, $\approx 2.965$, so we have a contradiction. Thus we know that there exists at least one solution. 
 
+Is it unique? 
+
 Let us then assume there exists a unique soluition, $\mu = 0$, $\approx 2.965$, such that there are no other values which satisfy the given relation, $P(|X|< 2) = \frac{1}{2}$. 
 
-Let us then assume that 
+Let us then assume that:
 
 $$\Phi(\frac{2 - \mu}{\sigma}) = \Phi(\frac{2 + \mu}{\sigma})) + \frac{1}{8}$$
+
+Such that we may write: 
+
+$$\Phi(\frac{2 - \mu}{\sigma}) + \Phi(\frac{2 + \mu}{\sigma})) = \frac{3}{2}$$
+
 $$2\Phi(\frac{2 + \mu}{\sigma}))  + \frac{1}{8} = \frac{3}{2}$$
 
-Giving us: 
+Simplifying this relation gives us: 
 
 $$\Phi(\frac{2 + \mu}{\sigma}))  + \frac{1}{8} = \frac{3}{4}$$
 
 $$\Phi(\frac{2 + \mu}{\sigma}))  = \frac{5}{8}$$
 
-By again taking advantage of the inverse cdf of the standard normal, we then have: 
+By again taking advantage of the inverse cdf of the standard normal, (existing because the standard normal cdf is monotonically continuous) we then have: 
 
 $$\frac{2 + \mu}{\sigma}  = \Phi^{-1}(\frac{5}{8})$$
 ```{r}
 qnorm(5/8)
 ```
-Note: For this example we use 
+Brief Aside: For this example we use 
 
 $$\Phi(\frac{2 - \mu}{\sigma}) = \Phi(\frac{2 + \mu}{\sigma})) + \frac{1}{8}$$
 and not 
 $$\Phi(\frac{2 - \mu}{\sigma}) = \Phi(\frac{2 + \mu}{\sigma})) + \frac{1}{4}$$
 To avoid potential divide by zero issues. Though this choice is dependent upon our constrains, the choice of $\frac{1}{8}$ is just to illustrate a second case. 
 
-That being said: 
+That being said:
+
+For the following, there exists many possible combinations of $\mu, \sigma$ that satisfy: 
 
 $$\mu = \sigma \Phi^{-1}(\frac{5}{8}) - 2 \approx \sigma (0.319) - 2$$
 
-As $\sigma > 0$, let $\sigma = 1$, such that: 
+So long as $\sigma > 0$. 
 
-$\mu = (0.319) - 2 = -1.681$, meaning we have found another pair of $(\mu, \sigma^2)$ to satisfy the relation. However, we assumed the values to satisfy $P(|X|< 2) = \frac{1}{2}$ and have arrived at a contradiction; we are left then to conclude that the values of $(\mu, \sigma^2)$ that satisfy $P(|X|< 2) = \frac{1}{2}$ are not unique. 
+For our purposes, let $\sigma = 1$, such that: 
 
-# A stroll and a frolick
-
-Define $Z_\alpha$, such that $P (Z \geq Z_\alpha) = \alpha$, where $0 \leq \alpha \leq \frac{1}{2}$
-
-Also define: 
-
-$Z_{\alpha + \frac{1}{2}} \rightarrow P(Z \geq Z_{\alpha + \frac{1}{2}}) =  \alpha + \frac{1}{2}$
-
-Note: The above are not cdfs. That being said, 
-
-We have the following relations:
-
-$$Z_{\alpha} = \frac{2- \mu}{\sigma}$$, 
-
-$$Z_{\alpha + \frac{1}{2}} = \frac{- 2 - \mu}{\sigma}$$
-
-The above gives us a system of equations that must hold for the desired property, $P(|X|< 2) = \frac{1}{2}$
-
-Such that: 
-
-$$Z_{\alpha} - Z_{\alpha + \frac{1}{2}} = \frac{2- \mu}{\sigma} - (\frac{- 2 - \mu}{\sigma}) = \frac{4}{\sigma}$$
-
-Solving for $\sigma$ gives us: 
-
-$\sigma = \frac{4}{Z_{\alpha} - Z_{\alpha + \frac{1}{2}}}$
-
-The above gives us the form of $\sigma$, let us then define the form of $\mu$, 
-
-$$Z_{\alpha} = \frac{2- \mu}{\sigma} \rightarrow z_{\alpha} \frac{4}{Z_{\alpha} - Z_{\alpha + \frac{1}{2}}} = 2 - \mu$$ 
-
-$$\mu = 2 - \frac{4 z_{\alpha} }{Z_{\alpha} - Z_{\alpha + \frac{1}{2}}} = \frac{-2(z_{\alpha} + z_{\alpha + \frac{1}{2}})}{z_{\alpha} - z_{\alpha + \frac{1}{2}}}$$
-
-Note: The above equations for $\sigma, \mu$ are valid as Z is continuous, such that $Z_\alpha, Z_{\alpha + \frac{1}{2}}$ exist and $Z_\alpha - Z_{\alpha + \frac{1}{2}} \neq 0$ by definition. 
-
-On the subject of uniqueness: As we have a range of potential $\alpha$ values, as $0 \leq \alpha \leq \frac{1}{2}$, we have a number of possible solutions to the above system of equations (the values of $Z_\alpha - Z_{\alpha + \frac{1}{2}}$ that satisfy $P(|X|< 2) = \frac{1}{2}$). Thus the values of $(\mu, \sigma^2)$ are not unique.  
+$\mu = (0.319) - 2 = -1.681$, meaning we have found another pair of $(\mu, \sigma^2)$ to satisfy the relation. However, we assumed the values to satisfy $P(|X|< 2) = \frac{1}{2}$ are unique! Thus we have  a contradiction; we are left then to conclude that the values of $(\mu, \sigma^2)$ that satisfy $P(|X|< 2) = \frac{1}{2}$ are not unique (as we found more than one combination of $\mu, \sigma$ that satisfy the relation). 
