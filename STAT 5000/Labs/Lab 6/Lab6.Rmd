@@ -4,26 +4,319 @@ output: pdf_document
 date: "2024-10-03"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# Question 1 
+
+Run the code you created in R Studio for testing contrasts in the popcorn example to complete the following exercises:
+
+```{r}
+library(readr)
+popcorn <- read_csv("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5000/Labs/Lab 6/popcorn-1.csv",
+                    col_types = cols(Time =col_factor(levels = c("Short", "Medium", "Long")))
+                    )
 ```
 
-## R Markdown
+## (a) 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Construct a scatterplot of the volumes popped for each time. Is there a trend in volume over time?
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+plot(y=popcorn$Volume,
+     x=as.numeric(popcorn$Time), 
+     xlim=c(0.5,3.5),
+     ylim=c(50,150),
+     xlab="Time", 
+     ylab="Volume", 
+     xaxt='n',
+     main="Microwave Popcorn Experiment")
 
-```{r cars}
-summary(cars)
+axis(1, at=c(1,2,3),
+     labels=c("Short", "Medium", "Long")
+     )
 ```
 
-## Including Plots
+Yes, there tends to be a greater volume of popcorn for longer periods of time (comparing "Short" to either "Medium" or "Long").
 
-You can also embed plots, for example:
+\newpage
+## (b) 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+For each of the single group means $\mu_i$, conduct the t-test of $H_0: \mu_i = 0$ and interpret the result in the context of the study.
+
+```{r}
+my.aov <- aov(Volume~Time, data=popcorn)
+summary(my.aov)
+library(emmeans)
+single.means <- emmeans(my.aov, "Time")
+confint(single.means)
+test(single.means)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+We have evidence (at the $\alpha = 0.001$ level) to reject the null hypothesis that the mean volume of popped corn is zero for all groups (short, medium, and long). Or, individually we have evidence to reject the null hypothesis that the average volume of popped corn is 0 for short, reject the null hypothesis that the average volume of popped corn is 0 for medium, and reject the null hypothesis that the average volume of popped corn is 0 for long; all the aforementioned interpretations of rejecting the null hypothesis (hypotheses, plural?) is significant at the $\alpha = 0.001$ level.  
+
+\newpage
+## (c) 
+
+For each of the single group means $\mu_i$, find and interpret the 95% confidence interval in the context of the study.
+
+We are 95% confident that the true average volume of popped corn for each group (respective lengths of time short, medium, and long) are: 
+Short: average popped corn volume between 59.2 to 82.8 cl
+Medium: average popped corn volume between 120.2 to 143.8 cl 
+Long: average popped corn volume between 122.2 to 145.8 cl 
+
+\newpage
+## (d) 
+
+Suppose the researchers are interested in testing the orthogonal polynomial contrasts. Conduct the test and interpret the results for these contrasts.
+
+```{r}
+contrast(single.means, method="poly")
+contrast(single.means, method=list(c(-1,0,1),
+c(1,-2,1)))
+contrast(single.means, method=list("Long - Short" = c(-1,0,1),
+"(Long+Short)-2*Medium" = c(1,-2,1)))
+contrast(single.means, method=list("Long - Short" = c(-1,0,1),
+"(Long+Short)/2-Medium" = c(0.5,-1,0.5)))
+```
+
+```{r}
+confint(contrast(single.means, method="poly"))
+```
+
+The above provide estimates of each contrast. The contrasts may respectively be interpreted as follows: 
+Contrast 1: Long - Short: (-1, 0, 1): $\gamma_1 = \mu_{long} - \mu_{short}$
+Contrast 2: (Long+Short)-2*Medium: (1, -2, 1): $\gamma_2 = \mu_{long} + \mu_{short} - 2(\mu_{medium})$
+
+Contrast 1: p-value $<.0001$ 
+Contrast 2: p-value $0.0006$
+
+At the $\alpha = 0.001$ level, we reject the null hypothesis that $\gamma_1$ is 0, and likewise reject the null hypothesis at the same alpha-level that $\gamma_2$ is 0. We are 95% confidence that the true value of Contrast 1 (the difference between the average volume Long popped corn and the average volume of Short popped corn) is between 46.3 and 79.7 cl. We are also 95% confidence that the true value of Contrast 2 (the difference between the sum of the average volumes of Long and Short popped corns minus the average volum of Medium popped corn) is between -30.0 to -88.0 cl. 
+
+\newpage
+## (e)
+
+Using what you’ve learned, add code to your program to test the sequential contrasts and
+interpret the results: $\gamma_1 = \mu_{long} - \mu_{medium}$ and $\gamma_2 = \mu_{medium} - \mu_{short}$.
+
+\newpage
+## (f) 
+
+Are the contrasts in part (e) orthogonal? Support your choice with relevant calculations.
+
+$\gamma_1: = (-1, 0, 1)$
+$\gamma_2: = (1, -2, 1)$ 
+
+Test of orthogonal: To test this we see if the sum of the product of respective elements sums to 0. Note: for the actual formula you look at the sum of the product of each group divided by $n_i$ for the ith group, however we can forgo this additional element as we have equal sampling between groups (time); this is verified using the below code. 
+
+Calculation: (-1 * 1) + (0 * - 2) + (1 * 1) = -1 + 0 + 1 = 0 
+
+Interpretation: We do have orthogonal contrasts for part (e) above. 
+
+```{r}
+library(tidyverse)
+popcorn |> 
+  group_by(Time) |> 
+  summarize(n = n())
+```
+
+\newpage 
+# Question 2 
+
+Run the code you created in R Studio for multiple comparisons in the popcorn example to complete the following exercises:
+
+## (a) 
+
+Summarize your findings from the pairwise comparison analysis of the mean volume of popcorn popped for the 3 different microwave times.
+
+```{r}
+pairs(single.means, adjust=NULL)
+```
+
+Short - Medium: Average difference in volume between Short and Medium is -61 cl. P-value of <.0001 provides us with the finding that at the $\alpha = 0.001$ level we reject the null hypothesis that the average difference between these two times is 0.    
+Short - Long: Average difference in volume between Short and Long is -63 cl. P-value of <.0001 provides us with the finding that at the $\alpha = 0.001$ level we reject the null hypothesis that the average difference between these two times is 0.    
+Medium - Long: Average difference in volume between Medium and Long is -2 cl. P-value of 0.8023 provides us with the finding that we do not have significant evidence to reject the null hypothesis that the average difference between these two times is 0.    
+
+\newpage
+## (b) 
+
+Summarize your findings from the Bonferroni procedure for multiple comparisons.
+
+```{r}
+pairs(single.means, adjust="bonferroni")
+```
+
+Short - Medium: Average difference in volume between Short and Medium is -61 cl. P-value of <.0001 provides us with the finding that at the $\alpha = 0.001$ level we reject the null hypothesis that the average difference between these two times is 0.    
+Short - Long: Average difference in volume between Short and Long is -63 cl. P-value of <.0001 provides us with the finding that at the $\alpha = 0.001$ level we reject the null hypothesis that the average difference between these two times is 0.    
+Medium - Long: Average difference in volume between Medium and Long is -2 cl. P-value of 1.000 provides us with the finding that we do not have significant evidence to reject the null hypothesis that the average difference between these two times is 0.  
+
+\newpage
+## (c) 
+
+Summarize your findings from the Scheffe procedure for multiple comparisons.
+
+```{r}
+pairs(single.means, adjust="scheffe")
+```
+
+Short - Medium: Average difference in volume between Short and Medium is -61 cl. P-value of <.0001 provides us with the finding that at the $\alpha = 0.001$ level we reject the null hypothesis that the average difference between these two times is 0.    
+Short - Long: Average difference in volume between Short and Long is -63 cl. P-value of <.0001 provides us with the finding that at the $\alpha = 0.001$ level we reject the null hypothesis that the average difference between these two times is 0.    
+Medium - Long: Average difference in volume between Medium and Long is -2 cl. P-value of 0.9681 provides us with the finding that we do not have significant evidence to reject the null hypothesis that the average difference between these two times is 0.  
+
+\newpage
+## (d) 
+
+Summarize your findings from the Tukey-Kramer HSD procedure for multiple comparisons.
+
+```{r}
+pairs(single.means, adjust="tukey")
+```
+
+Short - Medium: Average difference in volume between Short and Medium is -61 cl. P-value of <.0001 provides us with the finding that at the $\alpha = 0.001$ level we reject the null hypothesis that the average difference between these two times is 0.    
+Short - Long: Average difference in volume between Short and Long is -63 cl. P-value of <.0001 provides us with the finding that at the $\alpha = 0.001$ level we reject the null hypothesis that the average difference between these two times is 0.    
+Medium - Long: Average difference in volume between Medium and Long is -2 cl. P-value of 0.9649 provides us with the finding that we do not have significant evidence to reject the null hypothesis that the average difference between these two times is 0. 
+
+\newpage
+## (e) 
+
+How do your findings compare between the methods in parts (b), (c), (d)?
+
+Across parts (b), (c), and (d) we have evidence at the $\alpha = 0.001$ level to reject the null hypothesis of zero difference for Short - Medium and Short - Long; taken together, these findings are consistent with supporting the alternative hypothesis that there is a difference between the average volume of Medium popped corn and Short popped corn, as well as between the average volume of Long popped corn and Short popped corn. 
+
+Though with a range of "large" p-values, i.e. between 0.8023 to 1.000, we have consistent interpretations for the difference (or lack thereof) between the average volume of Medium popped corn and Long popped corn. For all sections of the above, the associated p-value does not provide sufficient evidence to reject the null hypothesis of zero difference between the average volume of Medium popped corn and the average volume of Long popped corn. 
+
+It is also worth noting that, regardless of the average group difference being looked at, we observe consistent values of the estimated difference, its standard error, degrees of freedom, and t-ratio, which makes sense as our multiple comparison adjustment procedures primarily focus on the p-values and their associate interpretations. 
+
+\newpage
+# Question 3 
+
+Run the code you created in R Studio for matched pairs analysis in the cholesterol example to complete the following exercises:
+
+```{r}
+library(readr)
+cholesterol <- read_csv("cholesterol-1.csv")
+```
+
+```{r}
+plot(cholesterol$Before, cholesterol$After4weeks, main="Cholesterol Levels",
+xlab="Before (Control)", ylab="After 4 Weeks")
+cor(cholesterol$Before, cholesterol$After4weeks)
+```
+
+## (a) 
+
+Describe the blocks being used in this experiment.
+
+The blocks used in this expeeriment are individuals diagnoses with high cholesterol. This allowed for similarity between experimental units (individuals being treated). 
+
+\newpage
+## (b) 
+
+Explain why this is a matched pairs experiment.
+
+We may interprete this as an experiments with two treatments (before being no change in diet vs. change in diet to margarine). Our blocks have one experimental unit (an individual, using reuse method). 
+
+As far as why this means this experiment is a "matched pairs" experiment, we are looking one particular individual (experimental unit). This one individual effectively provides data for two different groups (before diet change and 4 weeks after diet change). So we have a matched pair insomuch as an individual is providing more than one data point. 
+
+\newpage
+## (c) 
+
+Conduct the t-test to determine whether or not the mean cholesterol level is lower when after replacing butter with margarine. Be sure to include the null and alternative hypothesis, test statistic, p-value, and interpret the result in the context of the study. 
+
+(Use $\alpha = 0.05$ if you opt for the statistical significance method of interpretation.)
+
+```{r}
+t.test(cholesterol$Before, cholesterol$After4weeks, paired=TRUE)
+```
+
+```{r}
+d = cholesterol$Before - cholesterol$After4weeks
+t.test(d)
+```
+
+Null: $H_0:$ Difference between Average Cholesterol levels before and average Cholesterol levels after 4 weeks is 0 (the average cholesterol levels of before is equal to average cholesterol levels after 4 weeks).
+Alternative: $H_A:$ Difference between Average Cholesterol levels before and average Cholesterol levels after 4 weeks is not 0 (the average cholesterol levels of before is not equal to average cholesterol levels after 4 weeks).
+Test Statistic: $t = 15.439$
+p-value: $1.958e-11$ 
+
+Interpretation: We have evidence at the $\alpha = 0.001$ level to reject the null hypothesis that the average difference in cholesterol levels before and after 4 weeks is 0. We have evidence to support rejecting the null hypothesis in favor of the alternative hypothesis that there is a difference between the average cholesterol level before changing diet and the average cholesterol level after 4 weeks of changing diet. 
+
+\newpage
+## (d) 
+
+Check the assumptions for this hypothesis test. Summarize your findings.
+
+### Overall 
+
+Overall, we see fairly normally distributed data, and don't have anything immediately drawing red flags about independence within groups. We do not believe our relevant assumptions for the preceding test are violated. s
+
+### Independence 
+
+We may reasonable infer that there is independence within groups for this experiment. We have no reason to believe that individuals overlap or cluster with other individuals in the experiment. However, it may be possible these assumptions are violated if individuals share meals with one another, for example. We would also be skeptical if individuals participating in the study are genetically related in some form, as there may be other complicating factors beyond diet that could confound things, e.g. a family history of high blood pressure.  
+
+### Normality 
+
+```{r}
+hist(d)
+qqnorm(d)
+qqline(d, col="red")
+```
+
+```{r}
+library(moments)
+mean(d)
+median(d)
+skewness(d)
+kurtosis(d)-3
+```
+
+```{r}
+shapiro.test(d)
+```
+
+Summary Statistics: 
+  Mean $\approx$ Median (0.5661111 $\approx$ .575)
+  Skewness near zero (-0.2382553). 
+  Small amount of excess kurtosis (0.09800931).
+
+Visual Review: 
+  Histogram appears fairly normal, bell-shaped with symmetry about the center. 
+  Quantile plot closely follows the reference line for normality. 
+
+Statistical Test: 
+  Shapiro-Wilk statistical test provides insufficient evidence (p-value of 0.9196) to reject null hypothesis of normally distributed data. 
+
+\newpage
+## (e) 
+
+Perform the Wilcoxon signed rank test. Be sure to include the null and alternative hypothesis, test statistic, p-value, and interpret the result in the context of the study.
+
+```{r}
+wilcox.test(cholesterol$Before, cholesterol$After4weeks, paired=TRUE)
+```
+
+Null: $H_0:$ Distributions are same between "groups"; distribution of cholesterol levels before diet change are equal to distribution of cholesterol levels after 4 weeks of diet change. 
+Alternative: $H_A:$ Distributions are same between "groups"; distribution of cholesterol levels before diet change are different from the distribution of cholesterol levels after 4 weeks of changing diets. 
+Test Statistic: $V = 171$
+p-value: $0.0002134$ 
+
+Interpretation: We have a small p-value corresponding to $\alpha = 0.001$ level of rejecting the null hypothesis that the cholesterol levels before changing diet is distributed the same as the cholesterol levels after 4 weeks of changing diet.
+
+\newpage
+## (f) 
+
+Perform the sign test. Be sure to include the null and alternative hypothesis, test statistic, p-value, and interpret the result in the context of the study.
+
+```{r}
+binom.test(sum(d>0), length(d))
+```
+
+```{r}
+library(nonpar)
+# signtest(d)
+signtest(d, exact=TRUE)
+```
+
+Null: $H_0: Pr(+) = Pr(-) = 0.5$; the proportion of positive differences is equal to the proportion of negative differences, where a "difference" is the difference in the cholesterol level of an individual before diet change minus the cholesterol level of an individual 4 weeks after diet change. 
+Alternative: $H_A: Pr(+) \neq Pr(-)$; the proportion of positive differences is different from the proportion of negative differences, where a "difference" is the difference in the cholesterol level of an individual before diet change minus the cholesterol level of an individual 4 weeks after diet change.
+Test Statistic: $B = 18$
+p-value: $7.629e-06$ or $6.151e-05$ depending on method/package used. 
+
+Interpretation: We have a small p-value corresponding to $\alpha = 0.001$ level of rejecting the null hypothesis that the proportion of positive differences is equal to the proportion of negative differences, for differences of cholesterol levels before changing diet compared to cholesterol levels 4 weeks after changing diets. This is evidence to support the alternative hypothesis that the proportion of positive differences is different from the proportion of negative differences, with differences as defined previously. 
