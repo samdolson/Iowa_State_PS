@@ -81,3 +81,324 @@ The Scheffe 95% confidence interval for \(\gamma\) is:
 \]
 
 You will need the sample means \(\hat{\mu}_i\) to compute \(\hat{\gamma}\) and finalize the interval, but the width of the interval is \(\pm 1.236\).
+
+# Alternative 
+
+### Step 1: Scheffé Method Formula
+
+To construct a confidence interval for a contrast using the Scheffé method, the general formula for the confidence interval is:
+
+\[
+\gamma \pm \sqrt{(r-1) \cdot F_{{r-1},{N-r},{1-\alpha}} \cdot \text{MS}_{\text{Error}} \cdot \sum_{i=1}^{r} c_i^2}
+\]
+
+Where:
+- \(\gamma\) is the contrast of interest.
+- \(r\) is the number of groups (here 9 species, so \(r = 9\)).
+- \(F_{{r-1},{N-r},{1-\alpha}}\) is the critical value from the F-distribution.
+- \(\text{MS}_{\text{Error}} = 0.1919\) is the mean square error.
+- \(N = 293\) is the total number of observations.
+- \(N - r = 85\) is the degrees of freedom for the error term.
+- \(\sum_{i=1}^{r} c_i^2\) is the sum of the squared coefficients of the contrast (this comes from the contrast vector \(c\)).
+
+### Step 2: Define the Contrast Coefficients
+
+From the null hypothesis:
+
+\[
+H_O: \gamma = \frac{\mu_1 + \mu_2 + \mu_3 + \mu_4 + \mu_5 + \mu_6}{6} - \frac{\mu_7 + \mu_8 + \mu_9}{3} = 0
+\]
+
+The coefficients for the contrast are:
+
+\[
+c = \left( \frac{1}{6}, \frac{1}{6}, \frac{1}{6}, \frac{1}{6}, \frac{1}{6}, \frac{1}{6}, -\frac{1}{3}, -\frac{1}{3}, -\frac{1}{3} \right)
+\]
+
+Thus:
+
+\[
+\sum_{i=1}^{r} c_i^2 = 6 \left( \frac{1}{6}^2 \right) + 3 \left( \frac{-1}{3}^2 \right) = 6 \times \frac{1}{36} + 3 \times \frac{1}{9} = \frac{1}{6} + \frac{1}{3} = \frac{1}{2}
+\]
+
+### Step 3: Apply the Formula
+
+Now we can plug the known values into the formula for the confidence interval.
+
+- \(r = 9\)
+- \(F_{{r-1},{N-r},{1-\alpha}} = 1.989\)
+- \(\text{MS}_{\text{Error}} = 0.1919\)
+- \(\sum_{i=1}^{r} c_i^2 = \frac{1}{2}\)
+
+\[
+\text{Confidence interval} = \gamma \pm \sqrt{(9-1) \cdot 1.989 \cdot 0.1919 \cdot \frac{1}{2}}
+\]
+
+Simplifying:
+
+\[
+\text{Confidence interval} = \gamma \pm \sqrt{8 \cdot 1.989 \cdot 0.1919 \cdot \frac{1}{2}}
+\]
+\[
+= \gamma \pm \sqrt{8 \cdot 1.989 \cdot 0.09595}
+\]
+\[
+= \gamma \pm \sqrt{1.528}
+\]
+\[
+= \gamma \pm 1.236
+\]
+
+### Final Answer:
+
+The confidence interval for \(\gamma\) is:
+
+\[
+\gamma \pm 1.236
+\]
+
+This interval gives the range of plausible values for \(\gamma\) with at least 95% confidence.
+
+# Followed by 
+
+### Step 1: Confidence Interval Based on Ordinary t-Test
+
+The formula for a confidence interval using an ordinary t-test for a contrast \(\gamma\) is:
+
+\[
+\gamma \pm t_{{N-r},{1-\alpha/2}} \cdot \sqrt{\text{MS}_{\text{Error}} \cdot \sum_{i=1}^{r} c_i^2}
+\]
+
+Where:
+- \(t_{{N-r},{1-\alpha/2}} = 1.973\) is the critical value from the t-distribution.
+- \(\text{MS}_{\text{Error}} = 0.1919\) is the mean square error.
+- \(\sum_{i=1}^{r} c_i^2 = \frac{1}{2}\) is the sum of the squared coefficients for the contrast (calculated previously).
+- \(N - r = 85\) is the degrees of freedom for the error term.
+
+### Step 2: Apply the Formula
+
+We can now plug in the values:
+
+\[
+\text{Confidence interval} = \gamma \pm 1.973 \cdot \sqrt{0.1919 \cdot \frac{1}{2}}
+\]
+
+Simplifying:
+
+\[
+\text{Confidence interval} = \gamma \pm 1.973 \cdot \sqrt{0.09595}
+\]
+\[
+= \gamma \pm 1.973 \cdot 0.3097
+\]
+\[
+= \gamma \pm 0.611
+\]
+
+### Step 3: Comparison to Scheffé Method
+
+The confidence interval from the ordinary t-test is:
+
+\[
+\gamma \pm 0.611
+\]
+
+In comparison, the confidence interval from the Scheffé method was:
+
+\[
+\gamma \pm 1.236
+\]
+
+### Conclusion:
+
+The Scheffé method produces a wider confidence interval (\(\gamma \pm 1.236\)) than the ordinary t-test confidence interval (\(\gamma \pm 0.611\)). This is expected because the Scheffé method accounts for multiple comparisons, making it more conservative, whereas the ordinary t-test does not adjust for multiple comparisons, leading to a narrower interval. The Scheffé method ensures at least 95% confidence for all possible contrasts, while the t-test-based interval only controls the confidence level for this specific contrast.
+
+The researcher’s argument that using the ordinary t-test confidence interval is acceptable because only one confidence interval was constructed is not entirely valid in this context. Here’s why:
+
+### 1. **Pre-specified vs. Data-driven Hypotheses:**
+   In this case, the null hypothesis was constructed **after** observing the data, which raises concerns about the validity of using the ordinary t-test. When a hypothesis is pre-specified before data collection, using a single confidence interval from a t-test might be acceptable. However, when a hypothesis is based on patterns observed in the data (as it appears here), this introduces the possibility of **data snooping** or **multiple testing in disguise**. Even if only one confidence interval is constructed, the fact that the contrast was informed by the data suggests that the researcher may have explored various patterns before settling on this one. This increases the risk of a Type I error (false positive).
+
+### 2. **Multiple Comparisons in Context:**
+   The Scheffé method is designed to handle situations where multiple contrasts or comparisons are possible, even if only one contrast is ultimately tested. In this case, the confidence interval is for a specific contrast between two groups of species, but the possibility exists that the researcher could have tested multiple contrasts (e.g., comparing different subsets of species). The Scheffé method accounts for the fact that more comparisons **could** have been made, even if only one was explicitly stated, thus controlling for the family-wise error rate.
+
+### 3. **Conservativeness of Scheffé Method:**
+   The Scheffé method is conservative because it guarantees at least a 95% confidence level for **any** contrast, not just the one being tested. By using the ordinary t-test confidence interval, which is narrower, the researcher runs the risk of underestimating the uncertainty involved, particularly if the hypothesis was not pre-specified. This could lead to overconfidence in the result and a higher likelihood of making a false discovery.
+
+### 4. **Validity of Inference:**
+   The Scheffé method ensures that the inferences drawn from the analysis are valid across all potential contrasts that could have been made. Since the null hypothesis about the contrast \(\gamma\) was developed post-hoc, the use of a more conservative approach (like Scheffé) ensures that the confidence interval is valid, even in the face of potential exploratory analysis.
+
+### Conclusion:
+While the researcher might argue that only one confidence interval was constructed, the context of the analysis (post-data hypothesis formation) suggests that the ordinary t-test confidence interval could be misleading. The Scheffé method provides a more reliable approach by accounting for the fact that multiple comparisons could have been considered, thus giving a more accurate reflection of uncertainty in the estimate of \(\gamma\). Therefore, it is safer and more statistically sound to use the confidence interval from the Scheffé method.
+
+# Q2 
+
+To show that the sum of squares for a set of orthogonal contrasts sums to the model sum of squares (\(SS_{\text{model}}\)), we need to review the concept of **orthogonal contrasts** and how they relate to the overall model sum of squares. I'll guide you through the theoretical framework and then show how this is reflected in the ANOVA table (such as those produced by software like SAS).
+
+### 1. **Orthogonal Contrasts and Sum of Squares**
+
+In ANOVA, **contrasts** are linear combinations of the group means that allow us to test specific hypotheses about the relationships between the group means. A set of contrasts is said to be **orthogonal** if the dot product of any two contrasts equals zero. This means that each contrast captures unique information about the differences between groups and does not overlap with the others.
+
+Mathematically, if \(\gamma_1, \gamma_2, \ldots, \gamma_r\) are contrasts and their coefficients satisfy the orthogonality condition:
+
+\[
+\sum_{i=1}^k c_{i1}c_{i2} = 0 \quad \text{for any pair of contrasts} \ \gamma_1 \text{ and } \gamma_2
+\]
+
+Then the sum of squares for each contrast \(\text{SS}_{\gamma_i}\) can be computed, and the total sum of squares for all contrasts will equal the model sum of squares (\(SS_{\text{model}}\)).
+
+### 2. **Sum of Squares for a Contrast**
+
+The sum of squares for a contrast \(\gamma\) is given by:
+
+\[
+SS_{\gamma} = \frac{\left( \sum_{i=1}^{k} c_i \bar{Y}_i \right)^2}{\sum_{i=1}^{k} c_i^2 / n_i}
+\]
+
+Where:
+- \(c_i\) are the coefficients of the contrast.
+- \(\bar{Y}_i\) is the sample mean of group \(i\).
+- \(n_i\) is the sample size of group \(i\).
+
+For each contrast, we calculate its sum of squares, and the total sum of squares for all contrasts should equal the model sum of squares.
+
+### 3. **Sum of Orthogonal Contrasts Equals \(SS_{\text{model}}\)**
+
+If we have a set of orthogonal contrasts, the sum of their sum of squares is:
+
+\[
+SS_{\gamma_1} + SS_{\gamma_2} + \cdots + SS_{\gamma_r} = SS_{\text{model}}
+\]
+
+This holds because the orthogonality of the contrasts ensures that the sum of squares from each contrast captures different portions of the variation between the groups.
+
+### 4. **ANOVA Table in SAS**
+
+In a typical ANOVA table generated by SAS, you will see the following components:
+
+| Source   | DF   | Sum of Squares (\(SS\)) | Mean Square (\(MS\)) | F-value | p-value |
+|----------|------|-------------------------|----------------------|---------|---------|
+| Model    | \(r-1\) | \(SS_{\text{model}}\)      | \(MS_{\text{model}}\)    |         |         |
+| Error    | \(N-r\) | \(SS_{\text{error}}\)      | \(MS_{\text{error}}\)    |         |         |
+| Total    | \(N-1\) | \(SS_{\text{total}}\)      |                      |         |         |
+
+In this table:
+- \(SS_{\text{model}}\) represents the sum of squares due to differences between group means (i.e., the treatment effect or between-trial variation).
+- \(SS_{\text{error}}\) represents the residual or unexplained variation within the groups.
+- \(SS_{\text{total}}\) is the total variation in the data, where:
+
+\[
+SS_{\text{total}} = SS_{\text{model}} + SS_{\text{error}}
+\]
+
+If SAS were to display the sum of squares for a set of orthogonal contrasts in the model, you would find that the sum of the sum of squares for each contrast equals \(SS_{\text{model}}\).
+
+### 5. **SAS Output Example with Orthogonal Contrasts**
+
+Here’s an example from a hypothetical SAS output where orthogonal contrasts are used:
+
+| Source           | DF  | Sum of Squares (\(SS\)) | Mean Square (\(MS\)) | F-value | p-value |
+|------------------|-----|-------------------------|----------------------|---------|---------|
+| Contrast 1       | 1   | 5.12                    |                      |         |         |
+| Contrast 2       | 1   | 7.45                    |                      |         |         |
+| Contrast 3       | 1   | 4.85                    |                      |         |         |
+| Model (Total)    | 3   | 17.42                   |                      |         |         |
+| Error            | 85  | 54.70                   |                      |         |         |
+| Total            | 88  | 72.12                   |                      |         |         |
+
+In this example:
+- \(SS_{\text{model}} = 5.12 + 7.45 + 4.85 = 17.42\), which matches the model sum of squares.
+- This confirms that the sum of the sum of squares for the orthogonal contrasts equals \(SS_{\text{model}}\).
+
+### 6. **Conclusion**
+
+The sum of squares for a set of orthogonal contrasts sums to the model sum of squares because each contrast explains a unique portion of the total variation between groups. This is reflected in ANOVA tables, where the sum of squares for each contrast adds up to the total model sum of squares.
+
+# Q3 
+
+To determine how large the sample size \(n\) needs to be for the 95% confidence interval width for the difference in mean responses between the drug and placebo to be about 0.75 hours, we can use the formula for the width of a confidence interval for a paired \(t\)-test.
+
+### 1. **Formula for Confidence Interval Width in a Paired \(t\)-test:**
+
+The confidence interval for the mean difference \(d\) between two conditions (drug and placebo) is given by:
+
+\[
+\text{CI} = \bar{d} \pm t_{\alpha/2, n-1} \cdot \frac{s_d}{\sqrt{n}}
+\]
+
+Where:
+- \(\bar{d}\) is the mean difference between the drug and placebo for each individual.
+- \(t_{\alpha/2, n-1}\) is the critical value of the \(t\)-distribution with \(n-1\) degrees of freedom for a confidence level of 95%.
+- \(s_d\) is the standard deviation of the differences between the two conditions (drug and placebo).
+- \(n\) is the number of individuals (patients).
+
+The **width** of the confidence interval is the distance between the upper and lower bounds:
+
+\[
+\text{Width} = 2 \times t_{\alpha/2, n-1} \cdot \frac{s_d}{\sqrt{n}}
+\]
+
+### 2. **Setting the Target Width:**
+
+We want the width of the confidence interval to be 0.75 hours:
+
+\[
+0.75 = 2 \times t_{\alpha/2, n-1} \cdot \frac{s_d}{\sqrt{n}}
+\]
+
+This simplifies to:
+
+\[
+\frac{0.75}{2} = t_{\alpha/2, n-1} \cdot \frac{s_d}{\sqrt{n}}
+\]
+\[
+0.375 = t_{\alpha/2, n-1} \cdot \frac{s_d}{\sqrt{n}}
+\]
+
+### 3. **Assumptions and Critical Value:**
+
+For a large enough sample size, the critical value \(t_{\alpha/2, n-1}\) approximates the standard normal critical value \(z_{\alpha/2}\), which is about 1.96 for a 95% confidence interval. Since the sample size isn't extremely small, this approximation will give a reasonable estimate.
+
+Therefore, the equation becomes:
+
+\[
+0.375 = 1.96 \cdot \frac{s_d}{\sqrt{n}}
+\]
+
+### 4. **Solving for \(n\):**
+
+We can now solve for \(n\):
+
+\[
+n = \left( \frac{1.96 \cdot s_d}{0.375} \right)^2
+\]
+
+### 5. **Estimating \(s_d\) (Standard Deviation of Differences):**
+
+To proceed, we need an estimate for the standard deviation of the differences \(s_d\). Since the problem does not provide this information, we could estimate it based on previous studies or clinical data, or we could assume a reasonable value. Let's assume \(s_d = 1\) hour as an example (you can adjust this based on actual data if available).
+
+### 6. **Calculating \(n\):**
+
+Plugging in \(s_d = 1\) hour:
+
+\[
+n = \left( \frac{1.96 \cdot 1}{0.375} \right)^2
+\]
+\[
+n = \left( \frac{1.96}{0.375} \right)^2
+\]
+\[
+n = \left( 5.227 \right)^2
+\]
+\[
+n \approx 27.32
+\]
+
+Since \(n\) must be an integer, we round up to the next whole number.
+
+\[
+n \approx 28
+\]
+
+### 7. **Conclusion:**
+
+The study would need to include approximately **28 patients** to achieve a 95% confidence interval with a width of about 0.75 hours, assuming the standard deviation of the differences between drug and placebo is around 1 hour. If the true standard deviation \(s_d\) is different, this estimate would need to be adjusted accordingly.
