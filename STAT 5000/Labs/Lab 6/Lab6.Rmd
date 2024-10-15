@@ -78,17 +78,48 @@ contrast(single.means, method=list("Long - Short" = c(-1,0,1),
 ```
 
 ```{r}
+confint(contrast(single.means, method=list("Long - Short" = c(-1,0,1),
+"(Long+Short)/2-Medium" = c(0.5,-1,0.5))))
+```
+
+```{r}
+contrast(single.means, method=list("Long - Short" = c(-1,0,1),
+"(Long+Short)-2*Medium" = c(1,-2,1)))
+```
+
+```{r}
 confint(contrast(single.means, method="poly"))
 ```
 
 The above provide estimates of each contrast. The contrasts may respectively be interpreted as follows: 
+
+### (1) 
+
+Contrast 1: Linear, p-value $<.0001$ 
+Contrast 2: Quadratic, p-value $0.0006$
+
+At the $\alpha = 0.001$ level, we reject the null hypothesis that $\gamma_1$ is 0, and likewise reject the null hypothesis at the same alpha-level that $\gamma_2$ is 0. This provides evidence to support the alternative hypothesis that both the linear and quadratic contrasts are not 0. We are 95% confidence that the true value of the Linear contrast is between 46.3 and 79.7 cl. We are also 95% confidence that the true value of the Quadratic Contrast is between -30.0 to -88.0 cl. 
+
+### (2) 
+
 Contrast 1: Long - Short: (-1, 0, 1): $\gamma_1 = \mu_{long} - \mu_{short}$
 Contrast 2: (Long+Short)-2*Medium: (1, -2, 1): $\gamma_2 = \mu_{long} + \mu_{short} - 2(\mu_{medium})$
 
 Contrast 1: p-value $<.0001$ 
 Contrast 2: p-value $0.0006$
 
-At the $\alpha = 0.001$ level, we reject the null hypothesis that $\gamma_1$ is 0, and likewise reject the null hypothesis at the same alpha-level that $\gamma_2$ is 0. We are 95% confidence that the true value of Contrast 1 (the difference between the average volume Long popped corn and the average volume of Short popped corn) is between 46.3 and 79.7 cl. We are also 95% confidence that the true value of Contrast 2 (the difference between the sum of the average volumes of Long and Short popped corns minus the average volum of Medium popped corn) is between -30.0 to -88.0 cl. 
+At the $\alpha = 0.001$ level, we reject the null hypothesis that $\gamma_1$ is 0, and likewise reject the null hypothesis at the same alpha-level that $\gamma_2$ is 0. We are 95% confidence that the true value of Contrast 1 (the difference between the average volume Long popped corn and the average volume of Short popped corn) is between 46.3 and 79.7 cl. We are also 95% confidence that the true value of Contrast 2 (the difference between the sum of the average volumes of Long and Short popped corns minus two times the average volume of Medium popped corn) is between -30.0 to -88.0 cl. 
+
+### (3) 
+
+The above provide estimates of each contrast. The contrasts may respectively be interpreted as follows: 
+Contrast 1: Long - Short: (-1, 0, 1): $\gamma_1 = \mu_{long} - \mu_{short}$
+Contrast 2: (Long+Short)/2-Medium: (1/2, -1, 1/2): $\gamma_2 = (\mu_{long} + \mu_{short})/2 - \mu_{medium}$
+
+Contrast 1: p-value $<.0001$ 
+Contrast 2: p-value $0.0006$
+
+At the $\alpha = 0.001$ level, we reject the null hypothesis that $\gamma_1$ is 0, and likewise reject the null hypothesis at the same alpha-level that $\gamma_2$ is 0. Interestingly, this differs from parts (1) and (2) in terms of what is being estimated, but we can easily see that these contrasts are orthogonal. We are 95% confidence that the true value of Contrast 1 (the difference between the average volume Long popped corn and the average volume of Short popped corn) is between 46.3 and 79.7 cl. We are also 95% confidence that the true value of Contrast 2 (the difference between the average of the average volumes of Long and Short popped corns minus the average volume of Medium popped corn) is between -44.0 to -15.0 cl. 
 
 \newpage
 ## (e)
@@ -96,19 +127,48 @@ At the $\alpha = 0.001$ level, we reject the null hypothesis that $\gamma_1$ is 
 Using what you’ve learned, add code to your program to test the sequential contrasts and
 interpret the results: $\gamma_1 = \mu_{long} - \mu_{medium}$ and $\gamma_2 = \mu_{medium} - \mu_{short}$.
 
+$\gamma_1 \equiv (0, -1, 1)$
+$\gamma_2 \equiv (-1, 1, 0)$
+
+```{r}
+contrast(single.means, 
+         method=list("gamma_1" = c(0, -1, 1),
+                     "gamma_2" = c(-1, 1, 0)
+                     ))
+
+```
+
+```{r}
+confint(contrast(single.means, 
+                 method=list("gamma_1" = c(0, -1, 1),
+                     "gamma_2" = c(-1, 1, 0)
+                     )))
+```
+Interpretation: 
+
+$\gamma_1 = \mu_{long} - \mu_{medium}$ 
+$\gamma_2 = \mu_{medium} - \mu_{short}$
+
+Contrast 1: p-value $0.8023$ 
+Contrast 2: p-value $<.0001$
+
+At the $\alpha = 0.001$ level, we have evidence to reject the null hypothesis that $\gamma_2$ is 0. However, for $\gamma_1$ we do not reject the null hypothesis at any "typical" alpha-level that $\gamma_1$ is 0. 
+
+We are 95% confidence that the true value of Contrast 1 (the difference between the average volume Long popped corn minus the average volume of Medium popped corn) is between -14.7 to 18.7 cl, which includes 0. We are also 95% confidence that the true value of Contrast 2 (the difference between the average of the average volumes of Medium popped corn minus the average volume of Short popped corn) is between  44.3 to 77.7 cl. 
+
 \newpage
 ## (f) 
 
 Are the contrasts in part (e) orthogonal? Support your choice with relevant calculations.
 
-$\gamma_1: = (-1, 0, 1)$
-$\gamma_2: = (1, -2, 1)$ 
+$\gamma_1 \equiv (0, -1, 1)$
+$\gamma_2 \equiv (-1, 1, 0)$
 
 Test of orthogonal: To test this we see if the sum of the product of respective elements sums to 0. Note: for the actual formula you look at the sum of the product of each group divided by $n_i$ for the ith group, however we can forgo this additional element as we have equal sampling between groups (time); this is verified using the below code. 
 
-Calculation: (-1 * 1) + (0 * - 2) + (1 * 1) = -1 + 0 + 1 = 0 
+Calculation: (0 * -1) + (-1 * 1) + (1 * 0) = 0 + -1 + 0 = -1 (Not Zero!)
 
-Interpretation: We do have orthogonal contrasts for part (e) above. 
+Interpretation: We do not have orthogonal contrasts for part (e) above. 
 
 ```{r}
 library(tidyverse)
@@ -204,21 +264,21 @@ cor(cholesterol$Before, cholesterol$After4weeks)
 
 Describe the blocks being used in this experiment.
 
-The blocks used in this expeeriment are individuals diagnoses with high cholesterol. This allowed for similarity between experimental units (individuals being treated). 
+The blocks is an individual patient who has been diagnosed with high cholesterol. 
 
 \newpage
 ## (b) 
 
 Explain why this is a matched pairs experiment.
 
-We may interprete this as an experiments with two treatments (before being no change in diet vs. change in diet to margarine). Our blocks have one experimental unit (an individual, using reuse method). 
+Our blocks are one experimental unit (an individual diagnosed with high cholesterol, and we are using the reuse method). 
 
-As far as why this means this experiment is a "matched pairs" experiment, we are looking one particular individual (experimental unit). This one individual effectively provides data for two different groups (before diet change and 4 weeks after diet change). So we have a matched pair insomuch as an individual is providing more than one data point. 
+As far as why this means this experiment is a "matched pairs" experiment, we are looking one particular individual (a block in our experiment). Each measurement (before and after 4 weeks) is taken from each block, so one individual diagnosed with high cholesterol provides two measurements in our experiment. So we have a matched pair insomuch as an individual is providing more than one data point. 
 
 \newpage
 ## (c) 
 
-Conduct the t-test to determine whether or not the mean cholesterol level is lower when after replacing butter with margarine. Be sure to include the null and alternative hypothesis, test statistic, p-value, and interpret the result in the context of the study. 
+Conduct the t-test to determine whether or not the mean cholesterol level is lower after replacing butter with margarine. Be sure to include the null and alternative hypothesis, test statistic, p-value, and interpret the result in the context of the study. 
 
 (Use $\alpha = 0.05$ if you opt for the statistical significance method of interpretation.)
 
@@ -236,7 +296,7 @@ Alternative: $H_A:$ Difference between Average Cholesterol levels before and ave
 Test Statistic: $t = 15.439$
 p-value: $1.958e-11$ 
 
-Interpretation: We have evidence at the $\alpha = 0.001$ level to reject the null hypothesis that the average difference in cholesterol levels before and after 4 weeks is 0. We have evidence to support rejecting the null hypothesis in favor of the alternative hypothesis that there is a difference between the average cholesterol level before changing diet and the average cholesterol level after 4 weeks of changing diet. 
+Interpretation: We have evidence at the $\alpha = 0.05$ level (and in fact at the $\alpha = 0.001$ level) to reject the null hypothesis that the average difference in cholesterol levels before and after 4 weeks is 0. We have evidence to support rejecting the null hypothesis in favor of the alternative hypothesis that there is a difference between the average cholesterol level before changing diet and the average cholesterol level after 4 weeks of changing diet. We are 95% confidence that the true difference between average cholesterol before diet change and average cholesterol after 4 weeks of changing diets is between 0.4887 to 0.6435 (presumably units cholesterol levels).
 
 \newpage
 ## (d) 
@@ -297,7 +357,7 @@ Alternative: $H_A:$ Distributions are same between "groups"; distribution of cho
 Test Statistic: $V = 171$
 p-value: $0.0002134$ 
 
-Interpretation: We have a small p-value corresponding to $\alpha = 0.001$ level of rejecting the null hypothesis that the cholesterol levels before changing diet is distributed the same as the cholesterol levels after 4 weeks of changing diet.
+Interpretation: We have a small p-value corresponding to $\alpha = 0.001$ level evidence to support rejecting the null hypothesis that the cholesterol levels before changing diet is distributed the same as the cholesterol levels after 4 weeks of changing diet.
 
 \newpage
 ## (f) 
@@ -319,4 +379,4 @@ Alternative: $H_A: Pr(+) \neq Pr(-)$; the proportion of positive differences is 
 Test Statistic: $B = 18$
 p-value: $7.629e-06$ or $6.151e-05$ depending on method/package used. 
 
-Interpretation: We have a small p-value corresponding to $\alpha = 0.001$ level of rejecting the null hypothesis that the proportion of positive differences is equal to the proportion of negative differences, for differences of cholesterol levels before changing diet compared to cholesterol levels 4 weeks after changing diets. This is evidence to support the alternative hypothesis that the proportion of positive differences is different from the proportion of negative differences, with differences as defined previously. 
+Interpretation: We have a small p-value corresponding to $\alpha = 0.001$ level evidence to support rejecting the null hypothesis that the proportion of positive differences is equal to the proportion of negative differences, for differences of cholesterol levels before changing diet compared to cholesterol levels 4 weeks after changing diets. This is evidence to support the alternative hypothesis that the proportion of positive differences is different from the proportion of negative differences, with differences as defined previously. 
