@@ -32,15 +32,33 @@ Total                 293                  72.116                         $\appr
 
 After observing the data, the researchers decided to test the null hypothesis that the average of the logarithm of the area of cavity openings for the first six species (mouse, pinyon mouse, Bewick’s wren, mountain bluebird, ash-throated flycatcher and plain titmouse) is equal to the average of the logarithm of the cavity opening for the other three species (northern flicker, western screech owl, and American kestrel).
 
-$$H_O: \gamma = \frac{\mu_1 + \mu_2 + \mu_3 + \mu_4 + \mu_5 + \mu_6}{6} - \frac{\mu_7 + \mu_8 + \mu_9}{3} = 0 $$
+$$H_O: \gamma = \frac{\mu_1 + \mu_2 + \mu_3 + \mu_4 + \mu_5 + \mu_6}{6} - \frac{\mu_7 + \mu_8 + \mu_9}{3} = 0$$
 
 There is no file with the actual data. You will need to answer the following questions using only the summary statistics shown in the tables. You may also use the following quantiles:
 
-$$t_{{N-r},{1-\alpha/2}} = 1.973, t_{{N-r},{1-\alpha/(2m)}} = 3.246, F_{{r-1},{N-r},{1-\alpha}} = 1.989, F_{{1},{N-r},{1-\alpha/2}} = 5.107$$
+$$t_{{N-r},{1-\alpha/2}} = 1.973$$
+$$t_{{N-r},{1-\alpha/(2m)}} = 3.246$$
+$$F_{{r-1},{N-r},{1-\alpha}} = 1.989$$
+$$F_{{1},{N-r},{1-\alpha/2}} = 5.107$$
 \newpage
 ## (a) 
 
 Because the researchers decided to perform this test after examining the summary statistics and selecting what appeared to be a large difference, they will need to use the Scheffe method. Report (i) the test statistic and (ii) the critical value. (iii) Interpret the result in the context of the study.
+
+$$|\bar{Y}_i - \bar{Y}_j| \geq \sqrt{(r-1)F_{{r-1},{N-r},{1-\alpha}}} \sqrt{MS_{error}(\frac{1}{n_i} + \frac{1}{n_j})}$$
+$r-1 = 8$
+
+$\sqrt{(8 * 1.989)}$ $\sqrt{(0.1919 * (\frac{1}{n_i} + \frac{1}{n_j})}$
+
+(i): Test Statistic: F: 11.350
+
+(ii): Critical value of F: $F_{{r-1},{N-r},{1-\alpha}} = 1.989$
+
+(iii): 
+
+$F_{Scheffe} = (9-1) (1.989) = 8(1.989) = 15.91$
+
+Since the test statistic (11.350) is less than the Scheffe critical value (15.912), the difference is not significant under the Scheffe method.
 
 \newpage
 ## (b) 
@@ -51,6 +69,8 @@ Use the Scheffe method to construct a confidence interval for the contrast $\gam
 ## (c) 
 
 Construct a confidence interval for the contrast $\gamma$ using the formula based on an ordinary t-test without any multiple comparison adjustment. How does it compare to the result from the Scheffe method?
+
+
 
 \newpage
 ## (d) 
@@ -69,6 +89,10 @@ The measurements are grouped into five trials with 20 determinations for each tr
 
 Use the Tukey-HSD method in SAS to compare means for measurements of speed of light in air for each pair of trials
 
+```{r, echo=FALSE, fig.cap="img", out.width = '100%'}
+knitr::include_graphics("TukeyQ2.png")
+```
+
 ### i. 
 
 What is the minimum distance between two sample means required to reject the hypothesis that two trials have the same means using an experiment-wise type I error level of $\alpha$ = 0.05?
@@ -82,6 +106,10 @@ Indicate which means are significantly different at the 5% level.
 ## (b) 
 
 If we are interested in using Bonferroni’s method to perform a hypothesis test for differences between all pairs of means, what is the type I error rate that we need to control for each comparison so that the experiment-wise type I error rate is 0.05?
+
+```{r, echo=FALSE, fig.cap="img", out.width = '100%'}
+knitr::include_graphics("BoneQ2.png")
+```
 
 \newpage
 ## (c) 
@@ -97,6 +125,10 @@ changes in the population means across the five trials:
 ### i. 
 
 For each contrast, report the contrast coefficients, the sum of squares, corresponding F-statistic, and p-value
+
+```{r, echo=FALSE, fig.cap="img", out.width = '100%'}
+knitr::include_graphics("ContrastsQ2.png")
+```
 
 \newpage
 ### ii. 
@@ -123,37 +155,80 @@ knitr::include_graphics("Summary2.png")
 
 Identify the blocks and treatments for this experiment.
 
+Block is an individual suffering from a sleep disorder.
+
 \newpage
 ## (b) 
 
 Explain why this is a matched pairs experiment.
+
+Each block (an individual) effectively provides multiple measurements in our data, specifically for the two different variables of interest (Placebo and Drug). This is a reuse matched pairs experiment. 
 
 \newpage
 ## (c) 
 
 What is one aspect of the experimental design that could be improved? Explain how this would strengthen the results.
 
+Randomize which pill an individual receives on a given night. 
+
 \newpage
 ## (d) 
 
 Using SAS, compute the value of a t-statistic for testing the null hypothesis that mean hours of sleep are the same for the drug and the placebo, against a one-sided alternative that mean hours of sleep are greater when the drug is used. Report the (i) test statistic, (ii) degrees of freedom, (iii) p-value, and (iv) interpret the result in the context of the study.
+
+```{r, echo=FALSE, fig.cap="img 2", out.width = '100%'}
+knitr::include_graphics("SleepyQ3.png")
+```
 
 \newpage
 ## (e) 
 
 Check the assumptions for this test and provide supporting data from SAS.
 
+Independence within groups, i.e. independence between blocks (not between because of matched pairs!)
+
+Normality of differences:  
+
+```{r, echo=FALSE, fig.cap="img 2", out.width = '100%'}
+knitr::include_graphics("Q3Summary.png")
+```
+
+```{r, echo=FALSE, fig.cap="img 2", out.width = '100%'}
+knitr::include_graphics("Q3StatTests.png")
+```
+
+```{r, echo=FALSE, fig.cap="img 2", out.width = '100%'}
+knitr::include_graphics("Q3Hist.png")
+```
+
+```{r, echo=FALSE, fig.cap="img 2", out.width = '100%'}
+knitr::include_graphics("BoxplotQ3.png")
+```
+
+```{r, echo=FALSE, fig.cap="img 2", out.width = '100%'}
+knitr::include_graphics("Q3QQ.png")
+```
+
 \newpage
 ## (f) 
 
 Apply the Wilcoxon signed rank test to these data in SAS. Report the (i) test statistic (sum of ranks for positive differences), (ii) p-value, and (iii) interpret the result in the context of the study.
+
+```{r, echo=FALSE, fig.cap="img 2", out.width = '100%'}
+knitr::include_graphics("Q3Proc.png")
+```
 
 \newpage
 ## (g) 
 
 Apply the sign test to these data in SAS. Report the (i) test statistic (number of positive differences), (ii) p-value, and (iii) interpret the result in the context of the study
 
+```{r, echo=FALSE, fig.cap="img 2", out.width = '100%'}
+knitr::include_graphics("Q3Proc.png")
+```
+
 \newpage
 ## (h) 
 
 Compute how large (the number of patients) a study of this type would need to be so that the width of a 95% confidence interval for the difference in the mean responses to the drug and the placebo would be about 0.75 hours.
+

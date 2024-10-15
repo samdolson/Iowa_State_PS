@@ -1,0 +1,83 @@
+---
+title: "Notes"
+output: html_document
+date: "2024-10-15"
+---
+
+To construct a Scheffe confidence interval for the contrast \(\gamma\), we'll proceed with the following steps:
+
+### 1. **Calculate the Estimate of the Contrast \(\hat{\gamma}\)**:
+The contrast \(\gamma\) is a linear combination of the group means, so the estimate of the contrast is the corresponding linear combination of the sample means \(\hat{\mu}_i\):
+
+\[
+\hat{\gamma} = \frac{\hat{\mu}_1 + \hat{\mu}_2 + \hat{\mu}_3 + \hat{\mu}_4 + \hat{\mu}_5 + \hat{\mu}_6}{6} - \frac{\hat{\mu}_7 + \hat{\mu}_8 + \hat{\mu}_9}{3}
+\]
+
+We would need the sample means \(\hat{\mu}_i\) for each group to compute \(\hat{\gamma}\). Let's proceed with the general formula.
+
+### 2. **Find the Standard Error of the Contrast**:
+The standard error of a contrast is calculated as:
+
+\[
+\text{SE}(\hat{\gamma}) = \sqrt{\text{MS}_{\text{Error}} \cdot \sum_{i=1}^9 c_i^2 / n_i}
+\]
+
+Where:
+- \(c_i\) are the coefficients of the contrast (e.g., \(\frac{1}{6}\) for groups 1 to 6 and \(-\frac{1}{3}\) for groups 7 to 9),
+- \(n_i\) is the number of observations in each group,
+- \(\text{MS}_{\text{Error}}\) is the mean square error, which is given as 0.1919.
+
+Let's break down the coefficients:
+- For \(\mu_1, \mu_2, \dots, \mu_6\), the coefficient is \( \frac{1}{6} \).
+- For \(\mu_7, \mu_8, \mu_9\), the coefficient is \(-\frac{1}{3}\).
+
+So the sum of squared coefficients is:
+
+\[
+\sum_{i=1}^9 c_i^2 = 6 \left(\frac{1}{6}\right)^2 + 3 \left(-\frac{1}{3}\right)^2 = 6 \times \frac{1}{36} + 3 \times \frac{1}{9} = \frac{6}{36} + \frac{3}{9} = \frac{1}{6} + \frac{1}{3} = \frac{1}{2}
+\]
+
+Thus, the standard error of the contrast is:
+
+\[
+\text{SE}(\hat{\gamma}) = \sqrt{0.1919 \times \frac{1}{2}} = \sqrt{0.09595} \approx 0.3097
+\]
+
+### 3. **Find the Critical Value**:
+The critical value for the Scheffe method is:
+
+\[
+t_{\text{Scheffe}} = \sqrt{(r-1) \cdot F_{\alpha,(r-1),(N-r)}}
+\]
+
+From earlier, we know:
+- \(F_{8,85,0.05} = 1.989\)
+- \(r - 1 = 8\)
+
+So:
+
+\[
+t_{\text{Scheffe}} = \sqrt{8 \cdot 1.989} = \sqrt{15.912} \approx 3.991
+\]
+
+### 4. **Construct the Confidence Interval**:
+The 95% confidence interval for \(\gamma\) is given by:
+
+\[
+\hat{\gamma} \pm t_{\text{Scheffe}} \cdot \text{SE}(\hat{\gamma})
+\]
+
+Substituting the values we have:
+
+\[
+\hat{\gamma} \pm 3.991 \times 0.3097 = \hat{\gamma} \pm 1.236
+\]
+
+### Final Answer:
+The Scheffe 95% confidence interval for \(\gamma\) is:
+
+\[
+\left( \hat{\gamma} - 1.236 , \hat{\gamma} + 1.236 \right)
+\]
+
+You will need the sample means \(\hat{\mu}_i\) to compute \(\hat{\gamma}\) and finalize the interval, but the width of the interval is \(\pm 1.236\).
