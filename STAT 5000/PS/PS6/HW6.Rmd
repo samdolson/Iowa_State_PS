@@ -47,7 +47,7 @@ Because the researchers decided to perform this test after examining the summary
 
 ```{r}
 y_i <- (7.347 + 7.369 + 7.428 + 7.487 + 7.563 + 7.568) / 6
-y_j <- (8.214 + 8.272 ++ 8.297) / 3
+y_j <- (8.214 + 8.272 + 8.297) / 3
 testStat <- abs(y_i - y_j) 
 n_i <- 127 + 44 + 24 + 41 + 18 + 16
 n_j <- 11 + 7 + 6
@@ -59,9 +59,6 @@ testStat >= compStat
 ```
 
 $$|\bar{Y}_i - \bar{Y}_j| \geq \sqrt{(r-1)F_{{r-1},{N-r},{1-\alpha}}} \sqrt{MS_{error}(\frac{1}{n_i} + \frac{1}{n_j})}$$
-$r-1 = 8$
-
-$\sqrt{(8 * 1.989)}$ $\sqrt{(0.1919 * (\frac{1}{n_i} + \frac{1}{n_j})}$
 
 (i): Test Statistic: 0.80067
 
@@ -80,24 +77,86 @@ $$0.8006667 \geq 0.3722083$$
 
 Use the Scheffe method to construct a confidence interval for the contrast $\gamma$ such that the confidence level is at least 95 percent.
 
+Typical procedure: 
+$$\hat{\gamma} \pm t_{N-r, 1 - \alpha/2} S_{\hat{\gamma}}$$
+
+Where: 
+$$S_{\hat{\gamma}} = \sqrt{MS_{error} \sum\limits_{i}(c^2_i / n_i)}$$
+
+$$t_{{N-r},{1-\alpha/2}} = 1.973$$
+
+However, for Scheffe, we use 
+
+$$\sqrt{(r-1)F_{{r-1},{N-r},{1-\alpha}}}$$
+
+Instead of 
+$$t_{{N-r},{1-\alpha/2}} = 1.973$$
+
+Where: 
+$$F_{{r-1},{N-r},{1-\alpha}} = 1.989$$
+
 ```{r}
 # sum for all i c_i^2 / n_i
+plus <- ((1/6)^2)/127 + ((1/6)^2)/44 + ((1/6)^2)/24 + ((1/6)^2)/41 + ((1/6)^2)/18 + ((1/6)^2)/16
 
+minus <- ((-1/3)^2)/11 + ((-1/3)^2)/7 + ((-1/3)^2)/6
+
+coef <- plus + minus
+coef
+
+plusminus <- 1.989 * sqrt(0.1919 * coef) 
+plusminus 
 ```
+
+```{r}
+y_i <- (7.347 + 7.369 + 7.428 + 7.487 + 7.563 + 7.568) / 6
+y_j <- (8.214 + 8.272 + 8.297) / 3
+estimate <- y_i - y_j
+
+estimate + plusminus 
+estimate - plusminus
+```
+We are $100(1- \alpha)$ confident that the true value of the contrast $\gamma$ is between -0.604948 and -0.9963853. 
 
 \newpage
 ## (c) 
 
 Construct a confidence interval for the contrast $\gamma$ using the formula based on an ordinary t-test without any multiple comparison adjustment. How does it compare to the result from the Scheffe method?
 
+Estimate of the contrast, $\gamma$, remains the same, we just use a different adjustment in the plus/minus: 
 
+```{r}
+# sum for all i c_i^2 / n_i
+plus <- ((1/6)^2)/127 + ((1/6)^2)/44 + ((1/6)^2)/24 + ((1/6)^2)/41 + ((1/6)^2)/18 + ((1/6)^2)/16
+
+minus <- ((-1/3)^2)/11 + ((-1/3)^2)/7 + ((-1/3)^2)/6
+
+coef <- plus + minus
+coef
+
+plusminus <- 1.973 * sqrt(0.1919 * coef) 
+plusminus 
+```
+
+```{r}
+y_i <- (7.347 + 7.369 + 7.428 + 7.487 + 7.563 + 7.568) / 6
+y_j <- (8.214 + 8.272 + 8.297) / 3
+estimate <- y_i - y_j
+
+estimate + plusminus 
+estimate - plusminus
+```
+
+We are $100(1- \alpha)$ confident that the true value of the contrast $\gamma$ is between -0.6065224 to -0.9948109 using the ordinary t-test method. 
+
+This confidence interval is slightly narrower (smaller) than the one calculated using Scheffe's Method. 
 
 \newpage
 ## (d) 
 
 One researcher tried to argue that using the confidence interval from (c) in situations such as this is okay because only one confidence interval was constructed. How would you respond to this assertion?
 
-
+This is not ok. This is actually fairly problematic. We have already done a number of post-hoc transformations and calculations to get at where we started in this problem, from transforming the data to the log scale to normalize our data to even the construction/parametrization of the contrast in question. In a sense, we have already done "multiple comparisons", so it would be disingenuous for us to use the single confidence interval they are interested in. It would be more appropriate to use an adjusted one that accounts for multiple comparisons, a la Scheffe's Method; despite this method being more conservative in its estimate (wider interval than the ordinary t-test), it's worth noting that this difference isn't even especially large! 
 
 \newpage
 # Q2 
@@ -255,6 +314,6 @@ knitr::include_graphics("Q3Proc.png")
 Compute how large (the number of patients) a study of this type would need to be so that the width of a 95% confidence interval for the difference in the mean responses to the drug and the placebo would be about 0.75 hours.
 
 ```{r}
-qnorm()
-qt()
+# qnorm()
+# qt()
 ```
