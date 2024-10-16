@@ -11,7 +11,7 @@ date: "2024-10-15"
 [Fall 2024]{.smallcaps} 
 [due Fri, October 18th @ 11:59 pm]{.smallcaps}
 [Name:]{.smallcaps} \
-[Collaborators: **The Hatman**]{.smallcaps} \
+[Collaborators: Ethan, **The Hatman**]{.smallcaps} \
 
 # Q1 
 
@@ -287,6 +287,7 @@ knitr::include_graphics("Summary2.png")
 Identify the blocks and treatments for this experiment.
 
 Block is an individual suffering from a sleep disorder.
+Treatments are receiving either a placebo or a sleep-aid drug. 
 
 \newpage
 ## (b) 
@@ -300,25 +301,35 @@ Each block (an individual) effectively provides multiple measurements in our dat
 
 What is one aspect of the experimental design that could be improved? Explain how this would strengthen the results.
 
-Randomize which pill an individual receives on a given night. 
+
+Additionally, more data would be helpful (low hanging fruit); so either having more participants, or having more nights under study could help. A third one I'll throw in for good measure: Having different dosages of the sleeping pill could also strengthen results, as it could affirm the impact of the sleep-aid drug while also possibly quantifying dosage effects. 
 
 \newpage
 ## (d) 
 
 Using SAS, compute the value of a t-statistic for testing the null hypothesis that mean hours of sleep are the same for the drug and the placebo, against a one-sided alternative that mean hours of sleep are greater when the drug is used. Report the (i) test statistic, (ii) degrees of freedom, (iii) p-value, and (iv) interpret the result in the context of the study.
 
-```{r, echo=FALSE, fig.cap="img 2", out.width = '100%'}
-knitr::include_graphics("SleepyQ3.png")
+```{r, echo=FALSE, fig.cap="img ", out.width = '100%'}
+knitr::include_graphics("Onetail.png")
 ```
+
+Test Statistic: 1.33 
+degrees of freedom: 9 
+p-value: 0.1088
+Interpretation: 
+
+We have evidence at the $\alpha = 0.20$ level to reject the null hypothesis that the average sleep times of users of the sleep-aid drug is less than or equal to the average sleep times of users of the placebo. Typically, for most $\alpha = 0.10, 0.05, 0.01, etc.$ levels we do not reject the null hypothesis stated previously. Overall, we would say that we do not reject the null hypothesis and support there being evidence that the average sleep times of users of the sleep-aid drug is less than or equal to the average sleep times of users of the placebo.  
 
 \newpage
 ## (e) 
 
 Check the assumptions for this test and provide supporting data from SAS.
 
-Independence within groups, i.e. independence between blocks (not between because of matched pairs!)
+Our assumptions are independence within groups, i.e. independence between blocks (not between because of matched pairs!), and normality of differences. Overall, these assumptions do not readily appear to be violated. 
 
-Normality of differences:  
+As far as independence between blocks, I do not believe we have reason to suspect this is being violated. It would be violated if participants were sleeping with one another, or were sleeping in an environment where they could disturb another participant. But this does seem a bit farcical.  
+
+The below provides a number of diagnostics run for normality. Overall, the statistical tests provide evidence not to reject the null hypothesis of normality, particularly Shapiro-Wilk failing to reject normality. Furthermore, the box plot and histograms tend to have a normal shape, though the box plot does show that variance (spread) is not symmetrical. Furthermore, skewness and (excess) kurtosis both have absolute differences less than 1, and while mean and median are not equal, they are relatively similar (difference of 0.4 for values having a range of 5.3). Additionally, the quantile (qq) plot shows values that closely track with the reference line, though there is some inexactness. 
 
 ```{r, echo=FALSE, fig.cap="img 2", out.width = '100%'}
 knitr::include_graphics("Q3Summary.png")
@@ -349,6 +360,10 @@ Apply the Wilcoxon signed rank test to these data in SAS. Report the (i) test st
 knitr::include_graphics("Q3Proc.png")
 ```
 
+Test Statistic: 8.5 
+p-value: 0.3594 
+Interpretation: We do not have statistically significant evidence to reject the null hypothesis that the distribution of sleep times for Placebo is different from the distribution of sleep times for the sleep-aid drug. 
+
 \newpage
 ## (g) 
 
@@ -358,12 +373,43 @@ Apply the sign test to these data in SAS. Report the (i) test statistic (number 
 knitr::include_graphics("Q3Proc.png")
 ```
 
+Test Statistic: 0.5
+p-value: 1.000
+Interpretation: We do not have statistically significant evidence to reject the null hypothesis. We do not have evidence that there are consistent differences between the sleep times of the Placebo and the sleep times of the sleep-aid drug. We do not have evidence of a direction of change, or, explicitly, that taking the sleep-aid drug would tend to be associated with a positive or negative change in the number of hours slept compared to the Placebo.  
+
 \newpage
 ## (h) 
 
 Compute how large (the number of patients) a study of this type would need to be so that the width of a 95% confidence interval for the difference in the mean responses to the drug and the placebo would be about 0.75 hours.
 
+```{r, echo=FALSE, fig.cap="img", out.width = '100%'}
+knitr::include_graphics("Placebo.png")
+```
+
+```{r, echo=FALSE, fig.cap="img", out.width = '100%'}
+knitr::include_graphics("Drug.png")
+```
+
 ```{r}
 # qnorm()
 # qt()
+# equal n means
+# S_p^2 = S_1^2 + S_2^2 / 2 
+sp1 <- 4.42 
+sp2 <- 3.1627778
+spSq <- (sp1 + sp2) / 2
+sp <- sqrt(spSq)
 ```
+
+```{r}
+zval <- qnorm(p = 0.975, mean = 0, sd = 1)
+n0 <- 8 * ((zval * sp)/0.75)^2
+# 207.139
+# use 208
+tval <- qt(p = 0.975, df = 414)
+n <- 8 * ((tval * sp)/0.75)^2
+# qt(p = 0.975, )
+n0
+n
+```
+209 Participants are needed so that the width of a 95% confidence interval for the difference in the mean responses to the drug and the placebo would be about 0.75 hours.
