@@ -1,0 +1,62 @@
+---
+title: "PS6"
+output: pdf_document
+date: "2024-10-20"
+---
+
+# Q1 
+
+Vibrothermography is a modern nondestructive evaluation imaging technique for detecting cracks or flaws
+in industrial, dental and aerospace applications. The imaging modality works on the principle that a sonic or ultrasonic energy pulse when applied to a unit being tested causes it to vibrate. As a result, it is expected that the faces of a crack will rub against each other, resulting in an increase in temperature in that region. An infrared camera captures this increased temperature and produces a sequence of images of the temperature intensities over a short period of time starting just before the pulse of energy is applied and ending around the time that generated heat has dissipated. A sequence of images records the temperature changes over time. The primary objective of this technology is to detect flaws in the material with a high degree of precision. If the crack is larger than a certain threshold, the part needs to be taken out of operation and repaired or replaced. 
+
+The file etcpod 05-400 102307 1 trig01.dat, on measurements made on an aircraft engine part, and available at the class datasets site on Canvas is three-dimensional with 72 × 72 × 150 elements, and each element representing the temperature intensity at that pixel and time-point. Thus there are 150 frames, each of 72 × 72 pixels.
+
+## (a) 
+
+Read in the dataset and store in an appropriate array. Note that this is simply a file of numeric values in ASCII format.
+
+## (b) 
+
+One way to decide on where there is an indication or a flaw in the material is to determine whether there is a hotspot in the image and whether the high temperature elevation is significant enough to warrant further action. However, there are complications. We will not address all of them now, but only some of them in a simplified and idealized setting.
+
+### i. 
+
+Estimation of background noise. Materials with large grains are noisy (and generate temperatures with widely varying intensities) so we may try to reduce this effect by (crudely) estimating and eliminating the background from each frame. We do so by creating a frame of average intensities from the first five frames (when the sonic or high energy pulse has not been ramped up substantially. Use matrix and array operations and functions to obtain this averaged image.
+
+### ii. 
+
+Elimination of background noise. In the next step, we will substract the background from each of the 150 frames. Perform this operation using the background estimate obtained from the previous part.
+
+### iii. 
+
+Identifying frame with hottest signal. Our next objective is to identify the frame in the sequence with the hottest intensity pixel. Using matrix and apply operations, find this frame.
+
+### iv. 
+
+Actually, the operation in the previous part is a bit too simplified. To guard against spurious spikes, a smoothing averaging is applied. In other words, for each pixel indexed by (i, j) the values of the pixels indexed by (i-1, j),(i, j-1),(i+1, j),(i, j+1) and (i, j) are averaged and the hottest frame is picked from the one with the highest neighborhood-averaged intensity. Use array techniques to pick out this hottest frame. (Hint: Consider adding another dimension to your 3-d array, and also expanding the frames by one pixel at each edge ) 
+
+### v. 
+
+Display. Plot the resulting frame in the part (with or without extra credit above).
+
+\newpage
+
+# Q2 
+
+Complex materials development involves understanding the molecular structure of the material being tested and the movement of molecules under application of force. The dataset available in the Excel spreadsheet file PreliminaryData.xlsx on the class datasets site on Canvas was on measurements recorded by a former graduate student in Iowa State University’s Materials Science Engineering department. The observations are on several things but for this exercise, we will ignore most of them, but for the last two columns (which are measurements obtained by two methods) and the x- and y- coordinates.
+
+## (a) 
+
+Read in and store the dataset. Note that because this file was written in Excel which does not require formatting, there are three columns which are meaningless (and should be removed to conserve space).
+
+## (b) 
+
+Data quality. The measurements in the last two columns are measurements on a grid. We will now investigate if every value in the x- and y coordinate is measured. (Note that both the x and y coordinates increment in terms of 10 units and start at 0.). An important aspect of this data quality check is to ascertain that every grid value is present. It would be helpful to know if the x- and the y-values are increasing in a nested sequence. Run checks to determine if this is indeed true.
+
+## (c) 
+
+For each of the (old and new) method measurements, we will create a matrix of the observed values (after scaling these down by 10), where the rows will correspond to x- and the columns will correspond to the y-coordinates (and the value of the measurement will be stored in the (x, y)th entry.) Do the above. [
+
+## (d) 
+
+For both sets of measurements, display the matrix in terms of an image.
