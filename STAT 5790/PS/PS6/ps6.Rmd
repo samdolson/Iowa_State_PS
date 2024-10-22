@@ -15,6 +15,16 @@ The file etcpod 05-400 102307 1 trig01.dat, on measurements made on an aircraft 
 
 Read in the dataset and store in an appropriate array. Note that this is simply a file of numeric values in ASCII format.
 
+```{r}
+dat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS6/etcpod_05-400_102307_1_trig01.dat")
+
+dat <- as.matrix(dat)
+
+arrayDat <- array(dat, dim = c(72, 72, 150))
+
+dim(arrayDat)
+```
+
 ## (b) 
 
 One way to decide on where there is an indication or a flaw in the material is to determine whether there is a hotspot in the image and whether the high temperature elevation is significant enough to warrant further action. However, there are complications. We will not address all of them now, but only some of them in a simplified and idealized setting.
@@ -49,14 +59,44 @@ Complex materials development involves understanding the molecular structure of 
 
 Read in and store the dataset. Note that because this file was written in Excel which does not require formatting, there are three columns which are meaningless (and should be removed to conserve space).
 
+```{r}
+library(readxl)
+PreliminaryData <- read_excel("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS6/PreliminaryData.xlsx") 
+
+cleanPrelim <- PreliminaryData |> 
+  # subset( , select = -c(8, 9, 11))
+  subset( , select = c(5, 6, 10, 12))
+
+names(cleanPrelim)
+```
+
 ## (b) 
 
 Data quality. The measurements in the last two columns are measurements on a grid. We will now investigate if every value in the x- and y coordinate is measured. (Note that both the x and y coordinates increment in terms of 10 units and start at 0.). An important aspect of this data quality check is to ascertain that every grid value is present. It would be helpful to know if the x- and the y-values are increasing in a nested sequence. Run checks to determine if this is indeed true.
 
+```{r}
+xObs <- unique(cleanPrelim$x)
+yObs <- unique(cleanPrelim$y)
+
+xExp <- seq(from = 0, to = max(cleanPrelim$x), by = 10)
+yExp <- seq(from = 0, to = max(cleanPrelim$y), by = 10)
+
+# xObs == xExp 
+# yObs == yExp
+```
+
 ## (c) 
 
-For each of the (old and new) method measurements, we will create a matrix of the observed values (after scaling these down by 10), where the rows will correspond to x- and the columns will correspond to the y-coordinates (and the value of the measurement will be stored in the (x, y)th entry.) Do the above. [
+For each of the (old and new) method measurements, we will create a matrix of the observed values (after scaling these down by 10), where the rows will correspond to x- and the columns will correspond to the y-coordinates (and the value of the measurement will be stored in the (x, y)th entry.) Do the above.
+
+```{r}
+
+```
 
 ## (d) 
 
 For both sets of measurements, display the matrix in terms of an image.
+
+```{r}
+
+```
