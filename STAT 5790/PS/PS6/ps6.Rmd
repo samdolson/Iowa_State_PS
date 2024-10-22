@@ -33,21 +33,176 @@ One way to decide on where there is an indication or a flaw in the material is t
 
 Estimation of background noise. Materials with large grains are noisy (and generate temperatures with widely varying intensities) so we may try to reduce this effect by (crudely) estimating and eliminating the background from each frame. We do so by creating a frame of average intensities from the first five frames (when the sonic or high energy pulse has not been ramped up substantially. Use matrix and array operations and functions to obtain this averaged image.
 
+```{r}
+# Extract the first five frames
+firstFive <- arrayDat[ , , 1:5]
+
+# Compute the average across these first five frames
+averageFrames <- apply(
+  X = firstFive,
+  MARGIN = c(1, 2), 
+  FUN = mean)
+
+image(averageFrames)
+
+image(x= 1:72, 
+      y = 1:72, 
+      averageFrames[, 72:1]
+      )
+```
+
 ### ii. 
 
 Elimination of background noise. In the next step, we will substract the background from each of the 150 frames. Perform this operation using the background estimate obtained from the previous part.
+
+```{r}
+backgroundRep <- array(rep(averageFrames, times = 150), 
+                       dim = c(72, 72, 150)
+                       )
+
+arrayDatSub <- arrayDat - backgroundRep
+```
 
 ### iii. 
 
 Identifying frame with hottest signal. Our next objective is to identify the frame in the sequence with the hottest intensity pixel. Using matrix and apply operations, find this frame.
 
+```{r}
+maxPerFrame <- apply(X = arrayDatSub, 
+                     MARGIN = 3, 
+                     FUN = max)
+
+hottestInd <- which.max(maxPerFrame)
+hottestVal <- max(maxPerFrame)
+
+hottestInd
+hottestVal
+```
+
 ### iv. 
 
 Actually, the operation in the previous part is a bit too simplified. To guard against spurious spikes, a smoothing averaging is applied. In other words, for each pixel indexed by (i, j) the values of the pixels indexed by (i-1, j),(i, j-1),(i+1, j),(i, j+1) and (i, j) are averaged and the hottest frame is picked from the one with the highest neighborhood-averaged intensity. Use array techniques to pick out this hottest frame. (Hint: Consider adding another dimension to your 3-d array, and also expanding the frames by one pixel at each edge ) 
 
+```{r}
+arrayDat_background_subtracted <- arrayDatSub
+
+# 1. Expand the array by padding each frame with zeros (or replicate edge values if desired) for handling boundaries
+pad_frame <- function(frame) {
+  # Add one row/column of zeros on all sides (for 72x72 matrix)
+  padded <- matrix(0, nrow = 74, ncol = 74)
+  padded[2:73, 2:73] <- frame
+  return(padded)
+}
+
+# Apply padding to all frames
+padded_array <- array(0, dim = c(74, 74, 150))
+for (k in 1:150) {
+  padded_array[,,k] <- pad_frame(arrayDat_background_subtracted[,,k])
+}
+
+# 2. Perform smoothing (neighborhood averaging) using the 5-point stencil for each pixel in the original 72x72 frames
+smooth_frame <- function(padded_frame) {
+  # Take the original frame (i.e., without the padding)
+  smooth <- matrix(0, nrow = 72, ncol = 72)
+  
+  # Compute the average of the neighborhood pixels for each (i, j)
+  for (i in 2:73) {
+    for (j in 2:73) {
+      smooth[i-1, j-1] <- mean(c(padded_frame[i, j],     # current pixel (i,j)
+                                 padded_frame[i-1, j],   # pixel above (i-1,j)
+                                 padded_frame[i+1, j],   # pixel below (i+1,j)
+                                 padded_frame[i, j-1],   # pixel left (i,j-1)
+                                 padded_frame[i, j+1]))  # pixel right (i,j+1)
+    }
+  }
+  return(smooth)
+}
+
+# Apply the smoothing operation to each frame
+smoothed_array <- array(0, dim = c(72, 72, 150))
+for (k in 1:150) {
+  smoothed_array[,,k] <- smooth_frame(padded_array[,,k])
+}
+
+# 3. Now find the maximum neighborhood-averaged intensity per frame
+max_smoothed_intensity_per_frame <- apply(smoothed_array, 3, max)
+
+# Identify the frame with the hottest smoothed intensity
+hottest_frame_index <- which.max(max_smoothed_intensity_per_frame)
+
+# hottest_frame_index is the index of the frame with the highest smoothed neighborhood intensity
+hottest_smoothed_value <- max(max_smoothed_intensity_per_frame)
+```
+
+```{r}
+pad_frame <- function(frame) {
+  # Create a 74x74 matrix with zeros
+  padded <- matrix(0, nrow = 74, ncol = 74)
+  
+  # Place the original 72x72 frame in the center
+  padded[2:73, 2:73] <- frame
+  
+  return(padded)
+}
+
+# 2. Define a function to perform the smoothing for a single frame
+smooth_frame <- function(padded_frame) {
+  # Use vectorized operations to calculate the average of each pixel and its neighbors
+  # Slice the padded frame for neighbors and compute the mean
+  smoothed <- (padded_frame[2:73, 2:73] +  # center pixel
+               padded_frame[1:72, 2:73] +  # top neighbor
+               padded_frame[3:74, 2:73] +  # bottom neighbor
+               padded_frame[2:73, 1:72] +  # left neighbor
+               padded_frame[2:73, 3:74]) / 5  # right neighbor
+  
+  return(smoothed)
+}
+
+# 3. Apply padding and smoothing across all frames without using loops
+
+# Use lapply to apply padding to all frames
+padded_array <- lapply(1:dim(arrayDat_background_subtracted)[3], function(k) {
+  pad_frame(arrayDat_background_subtracted[,,k])
+})
+
+# Use lapply again to smooth each padded frame
+smoothed_array <- sapply(padded_array, function(padded_frame) {
+  smooth_frame(padded_frame)
+}, simplify = "array")
+
+# 4. Find the hottest frame based on the smoothed intensities
+
+# Find the maximum intensity in each smoothed frame
+max_smoothed_intensity_per_frame <- apply(smoothed_array, 3, max)
+
+# Identify the frame with the highest maximum intensity
+hottest_frame_index <- which.max(max_smoothed_intensity_per_frame)
+hottest_smoothed_value <- max(max_smoothed_intensity_per_frame)
+
+# Output the hottest frame index and value
+hottest_frame_index
+hottest_smoothed_value
+```
+
+```{r}
+hottest_frame_index
+hottest_smoothed_value
+```
+
 ### v. 
 
 Display. Plot the resulting frame in the part (with or without extra credit above).
+
+```{r}
+hottestFrame <- arrayDat[ , , 93]
+
+image(hottestFrame)
+
+image(x= 1:72, 
+      y = 1:72, 
+      hottestFrame[, 72:1]
+      )
+```
 
 \newpage
 
