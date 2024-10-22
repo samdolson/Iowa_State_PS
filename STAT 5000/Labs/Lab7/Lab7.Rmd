@@ -1,5 +1,5 @@
 ---
-title: "lab7"
+title: "Lab 7"
 output: pdf_document
 date: "2024-10-22"
 ---
@@ -32,6 +32,12 @@ There are three orthogonal contrasts specified in the SAS code. Describe the ana
 knitr::include_graphics("Contrasts1.png")
 ```
 
+A-B: The comparison between A and B is not statistically significant (P = 0.7219), indicating no meaningful difference between these two levels.
+
+C - (A+B)/2: This contrast approaches statistical significance (P = 0.0827), suggesting that there may be a meaningful difference between C and the average of A and B, although it does not reach the conventional threshold for significance (0.05).
+
+D - (A+B+C)/3: This contrast shows no significant difference (P = 1.0000), indicating that D is essentially equivalent to the average of A, B, and C in terms of yield.
+
 ## (d) 
 
 Check the assumptions for the RCBD analysis using SAS output. Write a summary of your findings.
@@ -45,8 +51,16 @@ There are 4 assumptions in the RCBD:
 
   4. Additive block and treatment effects: Using the penicillin example as illustration, the additivity assumption for the RCBD can be checked in SAS using both graphs and statistical tests 
     • Residual vs. Fitted Graph (no replication required): The easiest method for diagnosing this new assumption is to plot the fitted values on the x-axis and the residuals on the y-axis and then examine this plot for any trends (trends indicate an interaction between blocks and treatments, whereas random scatter indicates additive effects).
-    
 
+Assessment: 
+
+Independence: 
+
+Homogenous variances: 
+
+Normality: 
+
+Block and Treatment effects: 
 
 ```{r, echo=FALSE, fig.cap="Img", out.width = '100%'}
 knitr::include_graphics("Fitted1.png")
@@ -71,6 +85,22 @@ knitr::include_graphics("Boxplots1.png")
 
 Did blocking help? Compare the RCBD design with a design dropping the block effect and summarize your findings. Include a discussion of efficiency
 
+```{r, echo=FALSE, fig.cap="Img", out.width = '100%'}
+knitr::include_graphics("WithBlock1.png")
+```
+
+```{r, echo=FALSE, fig.cap="Img", out.width = '100%'}
+knitr::include_graphics("DropBlock1.png")
+```
+
+Blocking (using batch) significantly improves the efficiency of the model, as demonstrated by a higher R-squared (59.84% vs. 12.5%) and a lower Root MSE (4.33 vs. 5.53). The block effect (batch) is statistically significant (P = 0.0407), which indicates that it captures important variability in the data. The process factor is not significant in either model, but blocking leads to a more precise and efficient estimation of the treatment effects. Therefore, the RCBD design with blocks is more effective than the model without blocks.
+
+Efficiency Gain from Blocking: The model with blocking is clearly more efficient. The lower Root MSE and higher R-squared show that the model with blocks provides a better fit and explains more of the variability in yield. Blocking reduces unexplained error variance, leading to a more precise estimate of treatment effects.
+
+Significance of Blocking: The batch (block) effect is significant, meaning that blocking helps account for variability that would otherwise inflate the error term in the unblocked model. This makes the RCBD design more effective at detecting true differences between the treatments.
+
+Process Effect: In both models, the process effect is not statistically significant. However, the RCBD model still performs better overall due to the inclusion of blocks, which capture important variation not explained by the process alone.
+
 \newpage 
 
 # Q2 
@@ -81,10 +111,49 @@ The full SAS program to analyze the brome data is provided in the brome Lab7.sas
 
 Find the full ANOVA table and provide an appropriate summary of results for analyzing the different management plans on the yield of brome.
 
+```{r, echo=FALSE, fig.cap="Img", out.width = '100%'}
+knitr::include_graphics("LS2.png")
+```
+
 ## (b) 
 
 Is there any difference between the management plan of “in situ” versus the other plans? Provide appropriate output from SAS and summarize your findings.
 
+```{r, echo=FALSE, fig.cap="Img", out.width = '100%'}
+knitr::include_graphics("situ2.png")
+```
+
 ## (c) 
 
 Did the consideration of the stream block help? Compare the LS design with a design dropping the stream effect and summarize your findings. Include a discussion of efficiency.
+
+```{r, echo=FALSE, fig.cap="Img", out.width = '100%'}
+knitr::include_graphics("dropStream2.png")
+```
+
+```{r, echo=FALSE, fig.cap="Img", out.width = '100%'}
+knitr::include_graphics("Est21.png")
+```
+
+```{r, echo=FALSE, fig.cap="Img", out.width = '100%'}
+knitr::include_graphics("Est22.png")
+```
+
+The "stream" factor is significant (P = 0.0041) in the LS design, meaning it has a notable impact on yield. Meanwhile, the treatment (trt) remains highly significant in both designs. The freeway factor is not significant in either design.
+
+The RCBD model shows the following sums of squares for yield:
+  Freeway: 3.015725
+  Trt: 2275.772825
+
+In the LS design:
+  Freeway: 3.015725
+  Stream: 108.080825
+  Trt: 2275.772825
+
+The inclusion of the "stream" factor adds significant explanatory power to the model, as shown by the Type III sum of squares for stream (108.08). This shows that the stream factor accounts for a meaningful portion of the variability in the data, which the RCBD design without stream misses.
+
+The inclusion of the "stream" block improves the efficiency of the design. This is evident from the improved R-squared, lower Root MSE, and lower coefficient of variation in the Latin Square design. In statistical models, efficiency typically refers to minimizing the error variance, and the LS design achieves this with a lower Root MSE (1.5590 vs. 3.7051).
+
+The stream factor's significance (P = 0.0041) suggests that its inclusion helps to control for variability that would otherwise be attributed to error, leading to a more efficient use of experimental data.
+
+By considering the stream as a block, the model becomes more effective at isolating the treatment effect (trt), as evidenced by the much higher F value for treatment in the LS design (311.98 vs. 55.68).
