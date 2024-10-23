@@ -25,6 +25,12 @@ arrayDat <- array(dat, dim = c(72, 72, 150))
 dim(arrayDat)
 ```
 
+```{r}
+# dat <- scan("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5790/PS/PS6/etcpod_05-400_102307_1_trig01.dat")
+# 
+# dim(dat) <- c(72, 72, 150)
+```
+
 ## (b) 
 
 One way to decide on where there is an indication or a flaw in the material is to determine whether there is a hotspot in the image and whether the high temperature elevation is significant enough to warrant further action. However, there are complications. We will not address all of them now, but only some of them in a simplified and idealized setting.
@@ -45,12 +51,25 @@ averageFrames <- apply(
 ```
 
 ```{r}
-# image(averageFrames)
-
 image(x= 1:72, 
       y = 1:72, 
       averageFrames[, 72:1]
       )
+```
+
+```{r}
+# Extract the first five frames
+# firstFive <- dat[ , , 1:5]
+# 
+# averageFrames <- apply(
+#   X = firstFive,
+#   MARGIN = c(1, 2), 
+#   FUN = mean)
+# 
+# image(x= 1:72, 
+#       y = 1:72, 
+#       averageFrames[, 72:1 ]
+#       )
 ```
 
 ### ii. 
@@ -86,6 +105,7 @@ hottestVal
 Actually, the operation in the previous part is a bit too simplified. To guard against spurious spikes, a smoothing averaging is applied. In other words, for each pixel indexed by (i, j) the values of the pixels indexed by (i-1, j),(i, j-1),(i+1, j),(i, j+1) and (i, j) are averaged and the hottest frame is picked from the one with the highest neighborhood-averaged intensity. Use array techniques to pick out this hottest frame. (Hint: Consider adding another dimension to your 3-d array, and also expanding the frames by one pixel at each edge ) 
 
 ```{r}
+# BEHOLD MY FOR LOOP!
 # padFrame <- function(frame) {
 #   padded <- matrix(0, nrow = 74, ncol = 74)
 #   padded[2:73, 2:73] <- frame
@@ -157,7 +177,9 @@ smoothArray <- array(apply(X = paddedArray,
                      dim = c(72, 72, 150)
                      )
 
-maxSmoothed <- apply(smoothArray, 3, max)
+maxSmoothed <- apply(X = smoothArray, 
+                     MARGIN = 3, 
+                     FUN = max)
 
 hottestFrame <- which.max(maxSmoothed)
 hottestSmoothedVal <- max(maxSmoothed)
@@ -179,10 +201,10 @@ hottestFrame <- arrayDat[ , , 93]
 
 image(x= 1:72, 
       y = 1:72, 
-      hottestFrame[, 72:1], 
-      xlab = "", 
-      ylab = "", 
-      axes = FALSE
+      hottestFrame[, 72:1] 
+      # xlab = "", 
+      # ylab = "", 
+      # axes = FALSE
       )
 ```
 
@@ -262,6 +284,7 @@ method2Mat[cbind(xIndex, yIndex)] <- cleanPrelim$method2
 ```
 
 ```{r}
+# BEHOLD THE FALLEN! 
 # cleanPrelim$xScaled<- cleanPrelim$x / 10
 # cleanPrelim$yScaled <- cleanPrelim$y / 10
 # 
@@ -315,7 +338,6 @@ method2Mat[cbind(xIndex, yIndex)] <- cleanPrelim$method2
 ## (d) 
 
 For both sets of measurements, display the matrix in terms of an image.
-
 
 ```{r}
 image(x = 1:498, 
