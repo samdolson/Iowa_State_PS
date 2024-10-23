@@ -42,8 +42,10 @@ averageFrames <- apply(
   X = firstFive,
   MARGIN = c(1, 2), 
   FUN = mean)
+```
 
-image(averageFrames)
+```{r}
+# image(averageFrames)
 
 image(x= 1:72, 
       y = 1:72, 
@@ -84,109 +86,86 @@ hottestVal
 Actually, the operation in the previous part is a bit too simplified. To guard against spurious spikes, a smoothing averaging is applied. In other words, for each pixel indexed by (i, j) the values of the pixels indexed by (i-1, j),(i, j-1),(i+1, j),(i, j+1) and (i, j) are averaged and the hottest frame is picked from the one with the highest neighborhood-averaged intensity. Use array techniques to pick out this hottest frame. (Hint: Consider adding another dimension to your 3-d array, and also expanding the frames by one pixel at each edge ) 
 
 ```{r}
-arrayDat_background_subtracted <- arrayDatSub
+# padFrame <- function(frame) {
+#   padded <- matrix(0, nrow = 74, ncol = 74)
+#   padded[2:73, 2:73] <- frame
+#   return(padded)
+# }
+# 
+# paddedArray <- array(0, dim = c(74, 74, 150))
+# for (k in 1:150) {
+#   paddedArray[,,k] <- padFrame(arrayDatSub[,,k])
+# }
+# 
+# smoothFrame <- function(padFrame) {
+#   smooth <- matrix(0, nrow = 72, ncol = 72)
+#   
+#   for (i in 2:73) {
+#     for (j in 2:73) {
+#       smooth[i-1, j-1] <- mean(c(padFrame[i, j],     # current pixel (i,j)
+#                                  padFrame[i-1, j],   # pixel above (i-1,j)
+#                                  padFrame[i+1, j],   # pixel below (i+1,j)
+#                                  padFrame[i, j-1],   # pixel left (i,j-1)
+#                                  padFrame[i, j+1]))  # pixel right (i,j+1)
+#     }
+#   }
+#   return(smooth)
+# }
+# 
+# smoothArray <- array(0, dim = c(72, 72, 150))
+# for (k in 1:150) {
+#   smoothArray[,,k] <- smoothFrame(paddedArray[,,k])
+# }
+# 
+# maxSmoothed <- apply(X = smoothArray, 
+#                      MARGIN = 3,
+#                      FUN = max)
+# 
+# hottestFrame <- which.max(maxSmoothed)
+# hottestSmoothedVal <- max(maxSmoothed)
+```
 
-# 1. Expand the array by padding each frame with zeros (or replicate edge values if desired) for handling boundaries
-pad_frame <- function(frame) {
-  # Add one row/column of zeros on all sides (for 72x72 matrix)
+```{r}
+padFrame <- function(frame) {
   padded <- matrix(0, nrow = 74, ncol = 74)
   padded[2:73, 2:73] <- frame
-  return(padded)
+  padded
 }
 
-# Apply padding to all frames
-padded_array <- array(0, dim = c(74, 74, 150))
-for (k in 1:150) {
-  padded_array[,,k] <- pad_frame(arrayDat_background_subtracted[,,k])
-}
+paddedArray <- array(apply(X = arrayDatSub, 
+                           MARGIN = 3, 
+                           FUN = padFrame), 
+                     dim = c(74, 74, 150)
+                     )
 
-# 2. Perform smoothing (neighborhood averaging) using the 5-point stencil for each pixel in the original 72x72 frames
-smooth_frame <- function(padded_frame) {
-  # Take the original frame (i.e., without the padding)
+smoothFrame <- function(padFrame) {
   smooth <- matrix(0, nrow = 72, ncol = 72)
   
-  # Compute the average of the neighborhood pixels for each (i, j)
-  for (i in 2:73) {
-    for (j in 2:73) {
-      smooth[i-1, j-1] <- mean(c(padded_frame[i, j],     # current pixel (i,j)
-                                 padded_frame[i-1, j],   # pixel above (i-1,j)
-                                 padded_frame[i+1, j],   # pixel below (i+1,j)
-                                 padded_frame[i, j-1],   # pixel left (i,j-1)
-                                 padded_frame[i, j+1]))  # pixel right (i,j+1)
-    }
-  }
-  return(smooth)
+  smooth <- (padFrame[2:73, 2:73] +   # Current pixel
+             padFrame[1:72, 2:73] +   # Pixel above
+             padFrame[3:74, 2:73] +   # Pixel below
+             padFrame[2:73, 1:72] +   # Pixel left
+             padFrame[2:73, 3:74]     # Pixel right
+             ) / 5  
+  
+  smooth
 }
 
-# Apply the smoothing operation to each frame
-smoothed_array <- array(0, dim = c(72, 72, 150))
-for (k in 1:150) {
-  smoothed_array[,,k] <- smooth_frame(padded_array[,,k])
-}
+smoothArray <- array(apply(X = paddedArray, 
+                           MARGIN = 3, 
+                           FUN = smoothFrame), 
+                     dim = c(72, 72, 150)
+                     )
 
-# 3. Now find the maximum neighborhood-averaged intensity per frame
-max_smoothed_intensity_per_frame <- apply(smoothed_array, 3, max)
+maxSmoothed <- apply(smoothArray, 3, max)
 
-# Identify the frame with the hottest smoothed intensity
-hottest_frame_index <- which.max(max_smoothed_intensity_per_frame)
-
-# hottest_frame_index is the index of the frame with the highest smoothed neighborhood intensity
-hottest_smoothed_value <- max(max_smoothed_intensity_per_frame)
+hottestFrame <- which.max(maxSmoothed)
+hottestSmoothedVal <- max(maxSmoothed)
 ```
 
 ```{r}
-pad_frame <- function(frame) {
-  # Create a 74x74 matrix with zeros
-  padded <- matrix(0, nrow = 74, ncol = 74)
-  
-  # Place the original 72x72 frame in the center
-  padded[2:73, 2:73] <- frame
-  
-  return(padded)
-}
-
-# 2. Define a function to perform the smoothing for a single frame
-smooth_frame <- function(padded_frame) {
-  # Use vectorized operations to calculate the average of each pixel and its neighbors
-  # Slice the padded frame for neighbors and compute the mean
-  smoothed <- (padded_frame[2:73, 2:73] +  # center pixel
-               padded_frame[1:72, 2:73] +  # top neighbor
-               padded_frame[3:74, 2:73] +  # bottom neighbor
-               padded_frame[2:73, 1:72] +  # left neighbor
-               padded_frame[2:73, 3:74]) / 5  # right neighbor
-  
-  return(smoothed)
-}
-
-# 3. Apply padding and smoothing across all frames without using loops
-
-# Use lapply to apply padding to all frames
-padded_array <- lapply(1:dim(arrayDat_background_subtracted)[3], function(k) {
-  pad_frame(arrayDat_background_subtracted[,,k])
-})
-
-# Use lapply again to smooth each padded frame
-smoothed_array <- sapply(padded_array, function(padded_frame) {
-  smooth_frame(padded_frame)
-}, simplify = "array")
-
-# 4. Find the hottest frame based on the smoothed intensities
-
-# Find the maximum intensity in each smoothed frame
-max_smoothed_intensity_per_frame <- apply(smoothed_array, 3, max)
-
-# Identify the frame with the highest maximum intensity
-hottest_frame_index <- which.max(max_smoothed_intensity_per_frame)
-hottest_smoothed_value <- max(max_smoothed_intensity_per_frame)
-
-# Output the hottest frame index and value
-hottest_frame_index
-hottest_smoothed_value
-```
-
-```{r}
-hottest_frame_index
-hottest_smoothed_value
+hottestFrame
+hottestSmoothedVal
 ```
 
 ### v. 
@@ -196,7 +175,7 @@ Display. Plot the resulting frame in the part (with or without extra credit abov
 ```{r}
 hottestFrame <- arrayDat[ , , 93]
 
-image(hottestFrame)
+# image(hottestFrame)
 
 image(x= 1:72, 
       y = 1:72, 
@@ -225,7 +204,7 @@ cleanPrelim <- PreliminaryData |>
   # subset( , select = -c(8, 9, 11))
   subset( , select = c(5, 6, 10, 12))
 
-names(cleanPrelim)
+names(cleanPrelim) <- c("x", "y", "method1", "method2")
 ```
 
 ## (b) 
@@ -233,14 +212,28 @@ names(cleanPrelim)
 Data quality. The measurements in the last two columns are measurements on a grid. We will now investigate if every value in the x- and y coordinate is measured. (Note that both the x and y coordinates increment in terms of 10 units and start at 0.). An important aspect of this data quality check is to ascertain that every grid value is present. It would be helpful to know if the x- and the y-values are increasing in a nested sequence. Run checks to determine if this is indeed true.
 
 ```{r}
-xObs <- unique(cleanPrelim$x)
-yObs <- unique(cleanPrelim$y)
+library(dplyr)
 
-xExp <- seq(from = 0, to = max(cleanPrelim$x), by = 10)
-yExp <- seq(from = 0, to = max(cleanPrelim$y), by = 10)
+xVal <- sort(unique(cleanPrelim$x))
+yVal <- sort(unique(cleanPrelim$y))
 
-# xObs == xExp 
-# yObs == yExp
+xInc <- all(diff(xVal) == 10)
+yInc <- all(diff(yVal) == 10)
+
+xRep <- rep(x = xVal, 
+                  each = length(yVal))
+yRep <- rep(x = yVal, 
+                  times = length(xVal))
+
+expMat <- data.frame(x = xRep,
+                     y = yRep)
+
+missingXy <- anti_join(x = expMat, 
+                       y = cleanPrelim, 
+                       by = c("x", "y")
+                       )
+
+missingXy
 ```
 
 ## (c) 
@@ -248,13 +241,92 @@ yExp <- seq(from = 0, to = max(cleanPrelim$y), by = 10)
 For each of the (old and new) method measurements, we will create a matrix of the observed values (after scaling these down by 10), where the rows will correspond to x- and the columns will correspond to the y-coordinates (and the value of the measurement will be stored in the (x, y)th entry.) Do the above.
 
 ```{r}
+xScaledUnique <- sort(unique(cleanPrelim$x / 10))
+yScaledUnique <- sort(unique(cleanPrelim$y / 10))
 
+method1Mat <- matrix(NA, 
+                     nrow = length(xScaledUnique), 
+                     ncol = length(yScaledUnique)
+                     )
+
+method2Mat <- matrix(NA, 
+                     nrow = length(xScaledUnique), 
+                     ncol = length(yScaledUnique)
+                     )
+
+xIndex <- match(cleanPrelim$x / 10, xScaledUnique)
+yIndex <- match(cleanPrelim$y / 10, yScaledUnique)
+
+method1Mat[cbind(xIndex, yIndex)] <- cleanPrelim$method1
+method2Mat[cbind(xIndex, yIndex)] <- cleanPrelim$method2
+```
+
+```{r}
+# cleanPrelim$xScaled<- cleanPrelim$x / 10
+# cleanPrelim$yScaled <- cleanPrelim$y / 10
+# 
+# xScaledUnique <- sort(unique(cleanPrelim$xScaled))
+# yScaledUnique <- sort(unique(cleanPrelim$yScaled))
+# 
+# method1Mat <- matrix(NA, 
+#                      nrow = length(xScaledUnique), 
+#                      ncol = length(yScaledUnique)
+#                      )
+# 
+# method2Mat <- matrix(NA, 
+#                      nrow = length(xScaledUnique), 
+#                      ncol = length(yScaledUnique)
+#                      )
+
+# apply(X = cleanPrelim,
+#       MARGIN = 1,
+#       FUN = function(row) {
+#   xIndex <- match(row['xScaled'], xScaledUnique)
+#   yIndex <- match(row['yScaled'], yScaledUnique)
+# 
+#   method1Mat[xIndex, yIndex] <- row['method1']
+# })
+# 
+# apply(X = cleanPrelim,
+#       MARGIN = 1,
+#       FUN = function(row) {
+#   xIndex <- match(row['xScaled'], xScaledUnique)
+#   yIndex <- match(row['yScaled'], yScaledUnique)
+# 
+#   method2Mat[xIndex, yIndex] <- row['method2']
+# })
+
+# for (i in 1:nrow(cleanPrelim)) {
+#   xIndex <- match(x = cleanPrelim$xScaled[i],
+#                   table = xScaledUnique)
+#   yIndex <- match(x = cleanPrelim$yScaled[i],
+#                   table = yScaledUnique)
+# 
+#   method1Mat[xIndex, yIndex] <- cleanPrelim$method1[i]
+#   method2Mat[xIndex, yIndex] <- cleanPrelim$method2[i]
+# }
+
+# rownames(method1Mat) <- xScaledUnique
+# colnames(method1Mat) <- yScaledUnique
+# rownames(method2Mat) <- xScaledUnique
+# colnames(method2Mat) <- yScaledUnique
 ```
 
 ## (d) 
 
 For both sets of measurements, display the matrix in terms of an image.
 
-```{r}
 
+```{r}
+image(x = 1:498, 
+      y = 1:496,
+      method1Mat[, 496:1]
+      )
+```
+
+```{r}
+image(x = 1:498, 
+      y = 1:496,
+      method2Mat[, 496:1]
+      )
 ```
