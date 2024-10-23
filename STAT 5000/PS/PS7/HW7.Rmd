@@ -27,7 +27,7 @@ An agronomist is interested in the effects of plant density on the yield of a ce
 
 ### i. Design
 
-- Randomized Complete Block Design (RCBD): The design uses blocks (fields) to account for potential variability in soil fertility across fields, and within each block (field), the treatments (densities) are randomly assigned to the plots.
+- Randomized Complete Block Design (RCBD): The design uses blocks (five fields with 6 plots each) to account for potential variability in soil fertility across fields, and within each block (plots of a field), the treatments (teh six plant densities) are randomly assigned to the plots.
 
 ### ii. Experimental units, treatments, and blocks:
 
@@ -58,7 +58,7 @@ A router is used to cut notches in a printed circuit board. The vibration of the
 ### i. 
 Design: 
 
-- Completely Randomized Design (CRD): Since the assignment of boards to the three cutting speeds was done randomly and no blocking is mentioned to account for other sources of variation, this is a completely randomized design.
+- Completely Randomized Design (CRD): Since the assignment of boards to the three cutting speeds was done randomly and no blocking is mentioned to account for other sources of variation, this is a completely randomized design, though we have three different treatments being studied.
 
 ## ii.Experimental units, treatments, and blocks:
 
@@ -86,7 +86,7 @@ Industrial psychologists wish to investigate the effect of music in the factory 
 
 ### i. Design: 
 
-Randomized Complete Block Design (RCBD): Since each plant serves as a block and all five music treatments are applied in a randomized order within each plant (across the weeks), this is a randomized complete block design.
+Randomized Complete Block Design (RCBD): Since each of the 8 plants serves as a block and all five music programs (treatments) are applied in a randomized order within each plant (across the 5 weeks), this is a randomized complete block design.
 
 ### ii. Experimental units, treatments, and blocks:
 
@@ -125,24 +125,91 @@ names(dat) <- c("row", "placement", "torque")
 names(dat)
 ```
 
+| Subject | Neutral (N) | Back (B) | Staggered (S) |
+|---------|-------------|----------|---------------|
+| 1       | 26.3        | 23.0     | 21.3          |
+| 2       | 22.7        | 19.7     | 19.8          |
+| 3       | 21.1        | 20.0     | 19.5          |
+| 4       | 25.9        | 23.3     | 22.4          |
+| 5       | 25.6        | 21.1     | 18.5          |
+| 6       | 22.5        | 19.9     | 19.6          |
+| 7       | 26.1        | 23.4     | 22.5          |
+| 8       | 21.4        | 18.8     | 19.0          |
+| 9       | 17.4        | 17.7     | 16.6          |
+| 10      | 22.8        | 21.9     | 20.0          |
+| 11      | 23.0        | 22.2     | 22.1          |
+| 12      | 18.4        | 17.3     | 18.6          |
+| 13      | 29.6        | 25.5     | 21.8          |
+| 14      | 27.4        | 23.2     | 22.3          |
+
 ## (a) 
 
 Construct an ANOVA table for the model with fixed placement and subject effects. Include the full table below.
 
 ```{r}
-# Ensure placement is treated as a factor
-dat$placement <- as.factor(dat$placement)
+placement_means <- tapply(dat$torque, dat$placement, mean)
 
-# Fit the model with placement as a factor
-anova_model <- aov(torque ~ placement + row, data = dat)
+grand_mean <- mean(dat$torque)
 
-# Display the ANOVA table
-summary(anova_model)
+n_j <- table(dat$placement)
+
+SSB <- sum(n_j * (placement_means - grand_mean)^2)
+SSB  # Should be 81.0876
+
+row_means <- tapply(dat$torque, dat$row, mean)
+
+SSR <- sum(table(dat$row) * (row_means - grand_mean)^2)
+SSR
+
+SSE <- sum((dat$torque - ave(dat$torque, dat$placement, FUN = mean) 
+                     - ave(dat$torque, dat$row, FUN = mean) + grand_mean)^2)
+
+SSE  # Should be 270.6514
+
+SST <- sum((dat$torque - grand_mean)^2)
+SST  # 351.739
+
+df_placement <- length(unique(dat$placement)) - 1
+df_row <- length(unique(dat$row)) - 1
+df_residual <- nrow(dat) - (df_placement + df_row + 1)
+df_total <- nrow(dat) - 1
+
+MSB_placement <- SSB / df_placement
+MSB_row <- SSR / df_row
+MSW_residual <- SSE / df_residual
+
+F_placement <- MSB_placement / MSW_residual
+F_row <- MSB_row / MSW_residual
+
+MSB_placement
+F_placement
+MSB_row
+F_row
 ```
 
+
+| Source          | SS       | df   | MS       | F         |
+|-----------------|----------|------|----------|-----------|
+| Between Groups  | 81.08762 | 2    | 40.54381 | 26.91943  |
+| Rows (Block)    | 231.4924 | 13   | 17.80711 | 11.82319  |
+| Residual (Error)| 39.15905 | 26   | 1.506117 |           |
+| Total           | 351.739  | 41   |          |           |
+
+Compared to the R output: 
+
+```{r}
+dat$placement <- as.factor(dat$placement)
+dat$row <- as.factor(dat$row)
+
+anova_model <- aov(torque ~ placement + row, data = dat)
+
+summary(anova_model)
+```
 ## (b) 
 
 Are there significant differences in the mean torque between the three feet placements? Conduct an F-test and properly state your conclusion in the context of the study.
+
+There are significant differences in the mean torque between the three feet placements, as we find evidence to reject the null hypothesis at the $\alpha = 0.01$ level, where the null hypothesis is no difference between the mean feet placements when averaged across the row (subjects). This is evidence in favor of the alternative hypothesis that there is some mean difference in the torque experienced by patients when considering feet placement, when averaging the values of torque across subjects (row). 
 
 ## (c) 
 
@@ -156,29 +223,37 @@ tukey_results <- TukeyHSD(anova_model, "placement", conf.level = 0.95)
 print(tukey_results)
 ```
 
+We have evidence at the $\alpha = 0.001$ level to reject the null hypothesis in favor of the alternative hypothesis that there is a statistically significant difference in knee torque when using the Neutral foot placement compared to the Back foot placement. The null hypothesis being rejected is that there is no difference in average torque between the neutral and the back placements when averaging torque levels across subjects (rows). 
+
+We additionally have evidence at the $\alpha = 0.001$ level to reject the null hypothesis in favor of the alternative hypothesis that there is a statistically significant difference in knee torque when using the staggered foot placement compared to the neutral foot placement. The null hypothesis being rejected is that there is no difference in average torque between the staggered and the neutral placements when averaging torque levels across subjects (rows). 
+
+On the flipside, we do not have evidence to reject the null hypothesis (particularly at the $\alpha = 0.10$ level) that there is no difference in average torque between the staggered and the back placements when averaging torque levels across subjects (rows). 
+
 ## (d) 
 
 Specify and test two orthogonal contrasts that compare (i) the mean torque of the feet neutral group to the mean torque of the other two groups, and (ii) the mean torque of the feet back group to the mean torque of the feet staggered group. How do these results support your conclusions from part (c)?
 
 ```{r}
 unique(dat$placement)
-# Convert placement to a factor with the desired levels
 dat$placement <- factor(dat$placement, levels = c("N", "B", "S"))
 
-# Check the levels of placement to confirm
 levels(dat$placement)
 
 contrasts(dat$placement) <- matrix(c(
-  1, -0.5, -0.5,  # Contrast 1: Compare 'neutral' to 'back' and 'staggered'
-  0, 1, -1        # Contrast 2: Compare 'back' to 'staggered'
+  1, -0.5, -0.5,  # 'neutral' to 'back' and 'staggered'
+  0, 1, -1        # 'back' to 'staggered'
 ), ncol = 2)
 
-# Fit the ANOVA model with contrasts
-anova_model_contrasts <- aov(torque ~ placement + row, data = dat)
+anova_model_contrasts <- aov(torque ~ placement, data = dat)
 
-# Display the summary of the model with contrasts
 summary.lm(anova_model_contrasts)
 ```
+
+Contrast 1: With a p-value of  0.00214, we have evidence to reject the null hypothesis that there is no difference between the average torque of "neutral" foot position when averaged across subjects (rows) compared to the average of the mean amount of torque from the "back" and "staggered" foot positions. This is evidence in favor of there being a difference between the average torque of "neutral" foot position when averaged across subjects (rows) compared to the average of the mean amount of torque from the "back" and "staggered" foot positions.
+
+Contrast 2: With a p-value of  0.35677, we do not have evidence to reject the null hypothesis that there is no difference between the average torque of "back" foot position when averaged across subjects (rows) compared to the average of the torque from the "staggered" foot positions. 
+
+Comparison with Past Analysis: Prior analysis showed that we similarly do not reject the null hypothesis of there being a difference in average torque between the "back" and "staggered" foot positions. Similarly, we found evidence to support the alternative hypotheses that (1) there is a significant difference between the average torque of the "neutral" foot position compared to the "back" foot position, as well (2) there is a significant difference between the average torque of the "neutral" foot position compared to the "staggered" foot position; the first contrast specified is much like a combination of these two tests in one. 
 
 ## (e) 
 
@@ -187,10 +262,11 @@ Examine the normal Q-Q plot of the residuals. What does this plot suggest?
 ```{r}
 residuals_anova <- residuals(anova_model)
 
-# Create a Q-Q plot of the residuals
 qqnorm(residuals_anova)
 qqline(residuals_anova)
 ```
+
+The QQ plot of the residuals generally appears to track along its reference line, at least in the center. However, we do observe a general dispersion (lack of fit) compared to the reference line. Taken together, this is evidence that we may not have normality in our residuals, which is a violation of a key assumption of our model. 
 
 ## (f) 
 
@@ -212,6 +288,8 @@ plot(fitted_values, residuals_anova,
 abline(h = 0, col = "red")
 ```
 
+Overall, there does not appear to be a general trend in the fitted values compared to the residuals. This indicates to us that we likely do not observe any interaction between the blocks and treatments (between subjects and foot position), and likely are not violating the assumption of additive effects in our model. 
+
 # Q3 
 
 A group of investigators are interested in the effect of planting density on the yield of millet, a small grain. The investigators are comparing five planting densities, labeled 2, 4, 6, 8, and 10. A field of land was divided into 25 plots (5 rows and 5 columns) to account for known differences in soil quality in the field. In their first study, the investigators randomly assigned density treatments to plots in a 5 x 5 Latin Square. The data are in the millet.txt file (posted on Canvas).
@@ -227,16 +305,66 @@ millet <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5000/PS
 
 Compute the ANOVA table by-hand for the model with fixed row, column, and spacing effects. Include all sources of variation, degrees of freedom, and sums of squares.
 
+```{r}
+SS_row <- sum((tapply(millet$yield, millet$row, mean) - mean(millet$yield))^2) * nrow(millet)/length(unique(millet$row))
+SS_col <- sum((tapply(millet$yield, millet$col, mean) - mean(millet$yield))^2) * nrow(millet)/length(unique(millet$col))
+SS_spacing <- sum((tapply(millet$yield, millet$spacing, mean) - mean(millet$yield))^2) * nrow(millet)/length(unique(millet$spacing))
+
+# Total sum of squares
+SS_total <- sum((millet$yield - mean(millet$yield))^2)
+
+# Residual sum of squares (from ANOVA)
+SS_residual <- SS_total - SS_row - SS_col - SS_spacing
+
+# Degrees of freedom
+df_row <- length(unique(millet$row)) - 1
+df_col <- length(unique(millet$col)) - 1
+df_spacing <- length(unique(millet$spacing)) - 1
+df_residual <- nrow(millet) - (df_row + df_col + df_spacing + 1)
+df_total <- nrow(millet) - 1
+
+# Mean squares
+MS_row <- SS_row / df_row
+MS_col <- SS_col / df_col
+MS_spacing <- SS_spacing / df_spacing
+MS_residual <- SS_residual / df_residual
+
+# F-values
+F_row <- MS_row / MS_residual
+F_col <- MS_col / MS_residual
+F_spacing <- MS_spacing / MS_residual
+
+# Print the results
+cat("SS_row:", SS_row, "SS_col:", SS_col, "SS_spacing:", SS_spacing, "SS_residual:", SS_residual, "\n")
+cat("df_row:", df_row, "df_col:", df_col, "df_spacing:", df_spacing, "df_residual:", df_residual, "\n")
+cat("MS_row:", MS_row, "MS_col:", MS_col, "MS_spacing:", MS_spacing, "MS_residual:", MS_residual, "\n")
+cat("F_row:", F_row, "F_col:", F_col, "F_spacing:", F_spacing, "\n")
+```
+
+```{r}
+
+```
+
+| Source          | SS         | df   | MS        | F-value  |
+|-----------------|------------|------|-----------|----------|
+| Rows            | SS_Row     | df_Row | MS_Row   | F_Row    |
+| Columns         | SS_Col     | df_Col | MS_Col   | F_Col    |
+| Spacing         | SS_Spacing | df_Spacing | MS_Spacing | F_Spacing |
+| Residuals       | SS_Residual| df_Residual | MS_Residual |          |
+| Total           | SS_Total   | df_Total |           |          |
+
 ## (b) 
 
 Construct an ANOVA table using R for the model with fixed row, column, and spacing effects to verify your calculations in part (a). Include the full table below.
 
 ```{r}
-# Fit the ANOVA model with row, col, and spacing as fixed effects
-anova_model_millet <- aov(yield ~ row + col + spacing, data = millet)
+millet$row <- as.factor(millet$row)
+millet$col <- as.factor(millet$col)
+millet$spacing <- as.factor(millet$spacing)
 
-# Display the ANOVA table
-summary(anova_model_millet)
+anova_model <- aov(yield ~ row + col + spacing, data = millet)
+
+summary(anova_model)
 ```
 
 ## (c) 
@@ -274,6 +402,7 @@ tukey_results <- TukeyHSD(anova_model_spacing, "spacing", conf.level = 0.95)
 # Display the Tukey HSD results
 print(tukey_results)
 ```
+
 None of the comparisons between the spacing levels (e.g., Spacing 4 vs. Spacing 2, Spacing 8 vs. Spacing 2) have a p adj (adjusted p-value) less than 0.05.
 
 This indicates that there are no statistically significant differences in mean millet yield between any of the planting densities at the 5% significance level.
@@ -287,3 +416,15 @@ There are no significant differences in mean millet yield between the five plant
 ## (e) 
 
 If the study is repeated next year, would you recommend that it still be a Latin Squares design? Or, should the investigators just use row blocks, just use column blocks, or just use a CRD? Justify your answer with appropriate calculations and explanations.
+
+For the next year’s study, I recommend switching to an RCBD with column blocks, as it simplifies the design while still accounting for significant variability in the field. This approach would reduce complexity without compromising much on the control of variability, making the study more efficient and easier to implement.
+
+Should the investigators still use a Latin Square Design (LSD)?
+
+Given that the column effect was close to being significant and row blocking was not, there is an argument for simplifying the design to just account for column blocking (RCBD with column blocks). This would reduce the complexity of the design while still controlling for the significant source of variability.
+Why not continue with LSD?
+
+The row effect is not statistically significant, indicating that row blocking does not reduce variability in this case. Simplifying the design could increase ease of execution without sacrificing much efficiency.
+Why not use a Completely Randomized Design (CRD)?
+
+CRD would ignore both row and column variability. Since column variability is still significant, it would likely lead to increased residual variance, making it a less efficient design compared to RCBD.
