@@ -31,22 +31,27 @@ An agronomist is interested in the effects of plant density on the yield of a ce
 
 ### ii. Experimental units, treatments, and blocks:
 
-- Experimental units: Plots within fields (each plot within a field where the density treatment is applied)
+- Experimental units: Plots within fields (6 plots each within one of the 5 fields where the density treatment is applied, totaling 30 plots)
 - Treatments: Six plant densities (7, 8, 9, 10, 11, and 12 plants/m²)
 - Blocks: Five fields (each field serves as a block to account for soil fertility differences)
 
+\newpage
+
 ### iii. ANOVA Table Outline:
 
-| Source of Variation  | Degrees of Freedom (DF) |
+| Source of Variation  | Degrees of Freedom      |
 |----------------------|-------------------------|
-| Blocks (Fields)**    | 4                       |
-| Treatments (Densities)** | 5                   |
-| Error**              | (4)(5) = 20             |
-| Total**              | 29                      |
+| Blocks (Fields)      | 4                       |
+| Treatments (Densities) | 5                     |
+| Error                | (4)(5) = 20             |
+| Total                | 29                      |
 
 - Blocks: \( k - 1 \), where \( k = 5 \) fields (blocks)
+
 - Treatments: \( t - 1 \), where \( t = 6 \) densities (treatments)
+
 - Error: \((k-1)(t-1)\), where \( k = 5 \) fields and \( t = 6 \) treatments
+
 - Total: Total number of plots minus one (\(30 - 1 = 29\))
 
 \newpage
@@ -60,7 +65,7 @@ Design:
 
 - Completely Randomized Design (CRD): Since the assignment of boards to the three cutting speeds was done randomly and no blocking is mentioned to account for other sources of variation, this is a completely randomized design, though we have three different treatments being studied.
 
-## ii.Experimental units, treatments, and blocks:
+### ii.Experimental units, treatments, and blocks:
 
 - Experimental units: Individual circuit boards (15 different boards used in the experiment)
 - Treatments: Three cutting speeds (50, 70, and 90 rpm)
@@ -70,14 +75,16 @@ Design:
 
 ### iii. ANOVA Table Outline:
 
-| Source of Variation  | Degrees of Freedom (DF) |
+| Source of Variation  | Degrees of Freedom      |
 |----------------------|-------------------------|
 | Treatments (Cutting Speeds) | 2                |
 | Error                | 15 - 3 = 12             |
 | Total                | 14                      |
 
 - Treatments: \( t - 1 \), where \( t = 3 \) cutting speeds (treatments)
+
 - Error: Total experimental units minus number of treatments, \( n - t \), where \( n = 15 \) boards and \( t = 3 \) treatments
+
 - Total: Total number of experimental units minus one (\(15 - 1 = 14\))
 
 ## (c) 
@@ -90,7 +97,7 @@ Randomized Complete Block Design (RCBD): Since each of the 8 plants serves as a 
 
 ### ii. Experimental units, treatments, and blocks:
 
-- Experimental units: Week of production within each plant (the productivity during a week under a specific music program in each plant)
+- Experimental units: A week of production within a plant (one of the five weeks for a specific plant out of the 8 plants, totaling 40 week-plant combinations)
 - Treatments: Five music programs (four distinct music programs and no music)
 - Blocks: Eight plants (each plant is a block)
 
@@ -98,7 +105,7 @@ Randomized Complete Block Design (RCBD): Since each of the 8 plants serves as a 
 
 ANOVA Table Outline:
 
-| Source of Variation  | Degrees of Freedom (DF) |
+| Source of Variation  | Degrees of Freedom      |
 |----------------------|-------------------------|
 | Blocks (Plants)      | 7                       |
 | Treatments (Music Programs) | 4                |
@@ -107,8 +114,11 @@ ANOVA Table Outline:
 
 Explanation of Degrees of Freedom:
 - Blocks: \( k - 1 \), where \( k = 8 \) plants (blocks)
+
 - Treatments: \( t - 1 \), where \( t = 5 \) music programs (treatments)
+
 - Error: \((k-1)(t-1)\), where \( k = 8 \) plants and \( t = 5 \) treatments
+
 - Total: Total number of observations (plants × weeks) minus one (\(40 - 1 = 39\))
 
 \newpage
@@ -503,35 +513,23 @@ tukeyRow
 
 **Making a Choice:**
 
-I recommend switching to an RCBD with row blocks, as it simplifies the design while still accounting for a potentially significant source of variability in the study, this source being from row block effects. We also have reason to believe the RCBD would be more efficient, as at most we have one potential source of variability to account for, as we found the columns blocking had no evidence to reject the null hypothesis that there were differences in average millet yield across levels of columns when averaging across treatments and rows. As we only have one potential blocking effective that is *borderline* significant, that being the row block effects, we have reason to believe there is at most one source of variability we want to consider in a future study, making the RCBD more efficient than the Latin Squares design (specifically when we believe there is only one potential source of variability to account for in our model that is not the treatments specifically being investigated). 
+I recommend continuing with the Latin Squares design, as it provides the greatest efficiency (precision of estimates of treatment and block effects), despite making implementation somewhat more complicated for researchers. 
 
-This approach is also a bit easier in terms of implementation compared to the current Latin Square design, while still allowing us to effectively quantify/capture what we expect is a potential source of variability, the effects of row blocks, which I would argue makes the RCBD study more efficient than the current Latin Square design (as well as other potential choices such as CRD).
+In our study, we want to maximize the amount of variability in our Model Sum of Squares, which includes both treatment and blocking effects; this is also to say that we want to minimize the Error (Residual) Sum of Squares. 
 
-**Why abandon a Latin Square design?:** 
+Despite not being statistically significant from zero for either blocking effect (for a given block, row or column, we do not have evidence to reject the null hypothesis that the mean millet yields are different from any other level of the blocking factor when averaged across treatments and the other respective blocking factor), we still improve the amount of variability (observe greater sum of squares for the Model). So by contrast, models like RCBD (with one blocking factor, i.e. only row or only column) and RCD would (and do in the above) have greater Sum of Squares Error, meaning they are less efficient/less precise than the estimates produced by the Latin Squares model, which uses two blocking factors. It is important to note that this result holds despite not producing any estimates of treatment or block effects that are significantly different from zero (do not reject the null hypothesis as stated previously). 
 
-Given that the row effect was close to being significant and column blocking was not, there is an argument for simplifying the design to just account for row blocking (RCBD with row blocks). This would reduce the complexity of the design while still controlling for the significant source of variability in our model, as we found that the row variable in our models were the smallest p-values, meaning of the variables being studied the row variable was closest to providing evidence to reject its respective null hypothesis (that mean yield of millet is different across the levels of row when averaging across the columns and treatments of plant densities).
+Understandably though, the Latin Squares Design approach is also a bit more difficult for researchers to implement compared to the alternatives. Despite this, I would argue that the improved efficiency would be worth continuing to utilize this design; while certainly a bit of a hand-wave, the researchers would regardless be implementing their treatments via plots on a row-column grid, so it is an inherent part of the research design and worthwhile to incorporate into their model, i.e. to "control" for when analyzing treatment effects. 
 
-Additionally, to have seen no evidence any of the null hypotheses, indicates to me that we potentially are including variables in our model that are not needed, meaning we made our model more complicated unnecessarily, i.e. may be better off using a simpler model such as one without the multiple blocks of rows and columns. 
+**Why not use an RCBD?:** 
+
+Well, semantically, Latin Squares is specific instance of an RCBD. That notwithstanding, the question is really why use Latin Squares with the two blocking factors, row and column, rather than just using one blocking factor (just row, or just column)? 
+
+Aside from the fact that researchers are implementing treatments based on a combination of row and column (making the choice of "controlling for just row effects" or "controlling for just column effects" rather nonsensical), there are also advantages to be had in terms of precision. Despite not having evidence to reject the respective null hypotheses of either the row or column blocking factors, we nonetheless see that the Latin Squares ANOVA table has a smaller Residual Sum of Squares. This is a key distinction to make, insomuch as it is evidence that our Latin Squares model provides more precision/efficiency than a single block variable RCBD model. 
 
 **Why not use CRD?:**
 
-We found that the blocking effect from columns was not statistically significant, i.e. we did not have evidence to reject the null hypothesis that there were no differences in mean millet yield for different columns when averaging across rows and treatment (plant densities). This provides some motivation to potentially remove this blocking from future studies, as we believe it does not provide a significant source of variability in the study. 
-
-However, compared to RCBD, CRD would ignore both row and column variability. And as given above, the closest effect we found that very nearly had significance enough to reject the null hypothesis was for the row variable (null hypothesis being that there are differences in the mean yield of millet when comparing rows when averaging across columns and treatments). 
-
-As such, of the variables/blocks used in this year's study, the blocking effects of row were the closest to being significant. I would want to further investigate this effect, and while I don't have a biological mechanism to provide an underlying theory to differences in row associated with differences in mean millet yield, I would nonetheless want to include this going forward to test for potential consistency in its effect. 
-
-To attempt to put it succinctly: We have reason from this year's study to believe row variability is significant, or at least more significant than the other blocks and treatments being studied, so we have reason to believe that excluding it in future studies would likely lead to increased residual variance, making our model as a whole less efficient compared to the current Latin Squares or our recommended RCBD.
-
-**A Note on Efficiency**
-
-When comparing RCBD to the CRD in terms of efficiency, we have found in the past and have covered RCBD being more efficient. To briefly detail this: In an RCD, all variability that isn't caused by treatments (their different levels) ends up being part of the residual error, ultimately increasing the Sum of Squares Error. RCD also doesn't group or block experimental units. As evidenced in the above model outputs, we see that the Sum of Squares Error of the ANOVA table for the model only accounting for treatments is much higher than the models that incorporate at least one (and both) blocking factors used in the Latin Squares and RCBD designs. This means that generally CRD is less efficient than RCBD. 
-
-Comparing the efficiency of RCBD to Latin Squares is a bit more of a challenge though, insomuch as the implication is not as "open and shut" in favor of RCBD. The key distinction, and what we look at regarding our results, is whether both blocking factors in the Latin Squares design appeared significantly different across their levels (for the response variable of mean millet yield and when averaged across treatments and the other respective blocking factor). 
-
-What we have is reason to believe the RCBD would be more efficient, as at most we have one potential source of variability to account for, as we found the "columns" blocking had no evidence to reject the null hypothesis that there were differences in average millet yield across levels of columns when averaging across treatments and rows. However, we very nearly had evidence (we had *borderline* significant results) regarding the blocking factor of "rows" being significantly different across the different factor levels (again when looking at the response variable of average millet yield when averaging across levels of treatment and levels of the column). 
-
-As such, though we saw the Residual Sum of Squares increase when comparing ANOVA tables for all two blocks with the treatments compared to the table for only "row" blocks with the treatment, the decrease in the Sum of Squares was not especially significant (not as significant/large of a drop when "row" is dropped). Taken together, we have reason to believe there is at most one source of variability we want to consider in a future study, making the RCBD potentially more efficient than the Latin Squares design (specifically when we believe there is only one potential source of variability to account for in our model that is not the treatments specifically being investigated). 
+At the risk of redundancy, the above assessment can be extended to comparing RCBD/Latin Squares to CRD, including the  implications to efficiency gains from the Latin Squares design. From past work and lectures, we know generally that RCBD has greater efficiency than CRD, and since Latin Squares is a particular type of RCBD, transitively it holds that we would prefer Latin Squares to CRD as it is more efficient. 
 
 **Why did they stop making Cars movies?:**
 
