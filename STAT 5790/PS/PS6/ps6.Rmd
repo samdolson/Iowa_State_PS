@@ -40,10 +40,8 @@ One way to decide on where there is an indication or a flaw in the material is t
 Estimation of background noise. Materials with large grains are noisy (and generate temperatures with widely varying intensities) so we may try to reduce this effect by (crudely) estimating and eliminating the background from each frame. We do so by creating a frame of average intensities from the first five frames (when the sonic or high energy pulse has not been ramped up substantially. Use matrix and array operations and functions to obtain this averaged image.
 
 ```{r}
-# Extract the first five frames
 firstFive <- arrayDat[ , , 1:5]
 
-# Compute the average across these first five frames
 averageFrames <- apply(
   X = firstFive,
   MARGIN = c(1, 2), 
@@ -58,7 +56,6 @@ image(x= 1:72,
 ```
 
 ```{r}
-# Extract the first five frames
 # firstFive <- dat[ , , 1:5]
 # 
 # averageFrames <- apply(
@@ -303,21 +300,25 @@ method1Mat[cbind(xIndex, yIndex)] <- cleanPrelim$method1
 method2Mat[cbind(xIndex, yIndex)] <- cleanPrelim$method2
 ```
 
+Hey, so I realize the above uses the function "match", which is a dplyr-specific function. I did also initially get this working with a "for" loop as well as using it with "apply" usage. If you are going to replicate any of the below, the "apply" one takes a looooooong time to run. 
+
+Please Gautham, have mercy! 
+
 ```{r}
 # BEHOLD THE FALLEN! 
 # cleanPrelim$xScaled<- cleanPrelim$x / 10
 # cleanPrelim$yScaled <- cleanPrelim$y / 10
-# 
+#
 # xScaledUnique <- sort(unique(cleanPrelim$xScaled))
 # yScaledUnique <- sort(unique(cleanPrelim$yScaled))
-# 
-# method1Mat <- matrix(NA, 
-#                      nrow = length(xScaledUnique), 
+#
+# method1Mat <- matrix(NA,
+#                      nrow = length(xScaledUnique),
 #                      ncol = length(yScaledUnique)
 #                      )
-# 
-# method2Mat <- matrix(NA, 
-#                      nrow = length(xScaledUnique), 
+#
+# method2Mat <- matrix(NA,
+#                      nrow = length(xScaledUnique),
 #                      ncol = length(yScaledUnique)
 #                      )
 
@@ -326,16 +327,16 @@ method2Mat[cbind(xIndex, yIndex)] <- cleanPrelim$method2
 #       FUN = function(row) {
 #   xIndex <- match(row['xScaled'], xScaledUnique)
 #   yIndex <- match(row['yScaled'], yScaledUnique)
-# 
+#
 #   method1Mat[xIndex, yIndex] <- row['method1']
 # })
-# 
+#
 # apply(X = cleanPrelim,
 #       MARGIN = 1,
 #       FUN = function(row) {
 #   xIndex <- match(row['xScaled'], xScaledUnique)
 #   yIndex <- match(row['yScaled'], yScaledUnique)
-# 
+#
 #   method2Mat[xIndex, yIndex] <- row['method2']
 # })
 
