@@ -27,7 +27,7 @@ An agronomist is interested in the effects of plant density on the yield of a ce
 
 ### i. Design
 
-- Randomized Complete Block Design (RCBD): The design uses blocks (five fields with 6 plots each) to account for potential variability in soil fertility across fields, and within each block (plots of a field), the treatments (teh six plant densities) are randomly assigned to the plots.
+- Randomized Complete Block Design **(RCBD)**: The design uses blocks (five fields with 6 plots each) to account for potential variability in soil fertility across fields, and within each block (plots of a field), the treatments (the six plant densities) are randomly assigned to the plots.
 
 ### ii. Experimental units, treatments, and blocks:
 
@@ -63,7 +63,7 @@ A router is used to cut notches in a printed circuit board. The vibration of the
 ### i. 
 Design: 
 
-- Completely Randomized Design (CRD): Since the assignment of boards to the three cutting speeds was done randomly and no blocking is mentioned to account for other sources of variation, this is a completely randomized design, though we have three different treatments being studied.
+- Completely Randomized Design **(CRD)**: Since the assignment of boards to the three cutting speeds was done randomly and no blocking is mentioned to account for other sources of variation, this is a completely randomized design, though we have three different treatments being studied.
 
 ### ii.Experimental units, treatments, and blocks:
 
@@ -93,7 +93,7 @@ Industrial psychologists wish to investigate the effect of music in the factory 
 
 ### i. Design: 
 
-Randomized Complete Block Design (RCBD): Since each of the 8 plants serves as a block and all five music programs (treatments) are applied in a randomized order within each plant (across the 5 weeks), this is a randomized complete block design.
+Randomized Complete Block Design **(RCBD)**: Since each of the 8 plants serves as a block and all five music programs (treatments) are applied in a randomized order within each plant (across the 5 weeks), this is a randomized complete block design.
 
 ### ii. Experimental units, treatments, and blocks:
 
@@ -258,17 +258,38 @@ Specify and test two orthogonal contrasts that compare (i) the mean torque of th
 unique(dat$placement)
 dat$placement <- factor(dat$placement, levels = c("N", "B", "S"))
 
+library(emmeans)
+
+anova_model_contrasts <- aov(torque ~ placement, data = dat)
+
+single.means <- emmeans(anova_model_contrasts, "placement")
+
+# confint(single.means)
+test(single.means)
+
+contrast(single.means, method=list(
+  "n compared to 1/2(b+s) " = c(1, -0.5, -0.5),
+  "b compared to s" = c(0, 1, -1)))
+```
+
+```{r}
+unique(dat$placement)
+dat$placement <- factor(dat$placement, levels = c("N", "B", "S"))
+
 levels(dat$placement)
 
 contrasts(dat$placement) <- matrix(c(
-  1, -0.5, -0.5,  # B compared to 1/2(b+s) 
-  0, 1, -1        # B compared to s
+  1, -0.5, -0.5,  # n compared to 1/2(b+s) 
+  0, 1, -1        # b compared to s
 ), ncol = 2)
 
 anova_model_contrasts <- aov(torque ~ placement, data = dat)
 
 summary.lm(anova_model_contrasts)
 ```
+Please note: The above created contrast estimates using two methods to ensure consistency. Additionally, the "placement" levels are explicitly specified in the above code, which is important to consider as it is not the default order given. I did this to be especially sure and am making this note as others I have discussed this with had different results/conclusions. 
+
+My conclusions from the above: 
 
 Contrast 1: With a p-value of  0.00214, we have evidence to reject the null hypothesis that there is no difference between the average torque of "neutral" foot position when averaged across subjects (rows) compared to the average of the mean amount of torque from the "back" and "staggered" foot positions. This is evidence in favor of there being a difference between the average torque of "neutral" foot position when averaged across subjects (rows) compared to the average of the mean amount of torque from the "back" and "staggered" foot positions.
 
@@ -289,7 +310,7 @@ qqnorm(residuals_anova)
 qqline(residuals_anova)
 ```
 
-The QQ plot of the residuals generally appears to track along its reference line, at least in the center. However, we do observe a general dispersion (lack of fit) compared to the reference line. Taken together, this is evidence that we may not have normality in our residuals, which is a violation of a key assumption of our model. 
+The QQ plot of the residuals generally appears to track along its reference line, at least in the center. However, we do observe a general dispersion (lack of fit) compared to the reference line near the tails. Taken together, this is evidence that we likely have normality in our residuals, which means we have evidence to suppose the assumption of normality for ANOVA is not being violated. 
 
 \newpage
 
@@ -413,19 +434,31 @@ summary(anova_model)
 Are there significant differences in the mean millet yield between the 5 planting densities? Conduct an F-test and properly state your conclusion in the context of the study
 
 ```{r}
+millet$row <- as.factor(millet$row)
+millet$col <- as.factor(millet$col)
 millet$spacing <- as.factor(millet$spacing)
 
-anova_model_spacing <- aov(yield ~ spacing, data = millet)
+anova_model <- aov(yield ~ row + col + spacing, data = millet)
 
-summary(anova_model_spacing)
+summary(anova_model)
 ```
 
-Our F-test Null Hypothesis: There is no difference in mean millet yield between the 5 planting densities.
-Alternative Hypothesis: There is at least one mean difference in millet yield across the 5 planting densities.
+```{r}
+# actually just want to use the one from (a)/(b), given here again above
+# millet$spacing <- as.factor(millet$spacing)
+# 
+# anova_model_spacing <- aov(yield ~ spacing, data = millet)
+# 
+# summary(anova_model_spacing)
+```
 
-The above p-value of 0.338 does not provide evidence to reject the null hypothesis stated above. This is consistent with our results from (a) and (b), albeit with a p-value of (0.249, with similar conclusions). 
+Our F-test Null Hypothesis: There is no difference in mean millet yield between the 5 planting densities when controlling for blocking effects of row and column, when averaging across levels of the row and column factors.
 
-In the context of the study, "spacing" is our name for the treatment of the five planting densities. So we do not have evidence to suggest the mean millet yield of the plant densities is significantly different from the other mean millet yields of the other plants, when averaging particular plant densities across row and column, e.g. the first plant density "2"'s mean millet yield when averaging across row and column is not significantly different than the second plant density "4"'s mean millet yield when averaging across row and column. 
+Alternative Hypothesis: There is at least one mean difference in millet yield across the 5 planting densities when controlling for blocking effects of row and column, when averaging across levels of the row and column factors.
+
+The above p-value of 0.249 does not provide evidence to reject the null hypothesis stated above. This is consistent with our results from (a) and (b). 
+
+In the context of the study, "spacing" is our name for the treatment of the five planting densities. So we do not have evidence to suggest the mean millet yield of the plant densities is significantly different from the other mean millet yields of the other plant densities, when averaging a particular plant densities across our blocking factors of row and column, e.g. the first plant density "2"'s mean millet yield when averaging across row and column is not significantly different than the second plant density "4"'s mean millet yield when averaging across row and column. 
 
 \newpage
 
@@ -434,16 +467,29 @@ In the context of the study, "spacing" is our name for the treatment of the five
 Apply Tukey’s HSD method with an experiment-wise Type I error level of $\alpha$ = 0.05. Properly state your conclusions about the pairwise comparison of the mean millet yield between the five planting densities in the context of the study.
 
 ```{r}
+millet$row <- as.factor(millet$row)
+millet$col <- as.factor(millet$col)
 millet$spacing <- as.factor(millet$spacing)
 
-anovaSpacing <- aov(yield ~ spacing, data = millet)
+anova_model <- aov(yield ~ row + col + spacing, data = millet)
 
-tukey <- TukeyHSD(anovaSpacing, "spacing", conf.level = 0.95)
+tukey <- TukeyHSD(anova_model, "spacing", conf.level = 0.95)
 
 tukey
 ```
 
-All of the above p-values are rather large (all greater than 0.35, and a majority greater than 0.8), such that we do not reject the null hypothesis that the difference in the average millet yield of any pairwise combinations of spacing levels are significantly different from one another when averaging across rows and columns. 
+```{r}
+# we actually just want the above model 
+# millet$spacing <- as.factor(millet$spacing)
+# 
+# anovaSpacing <- aov(yield ~ spacing, data = millet)
+# 
+# tukey <- TukeyHSD(anovaSpacing, "spacing", conf.level = 0.95)
+# 
+# tukey
+```
+
+All of the above p-values are rather large (all greater than 0.29, and a majority greater than 0.7), such that we do not reject the null hypothesis that the difference in the average millet yield of any pairwise combinations of spacing levels are significantly different from one another when averaging across rows and columns. 
 
 Consistent with the above, we are 95% confident that the true difference between any pairwise combination of the spacing levels contains zero (is between a positive and a negative number), which indicates that we are not certain, and do not have evidence to reject, that the null hypothesis that the average millet yield of any pairwise combinations of spacing levels are significantly different from one another when averaging across rows and columns. 
 
@@ -530,7 +576,8 @@ Aside from the fact that researchers are implementing treatments based on a comb
 **Why not use CRD?:**
 
 At the risk of redundancy, the above assessment can be extended to comparing RCBD/Latin Squares to CRD, including the  implications to efficiency gains from the Latin Squares design. From past work and lectures, we know generally that RCBD has greater efficiency than CRD, and since Latin Squares is a particular type of RCBD, transitively it holds that we would prefer Latin Squares to CRD as it is more efficient. 
+\newpage
 
-**Why did they stop making Cars movies?:**
-
-Because they provided a high-octane, consistently well animated and beautifully told story in three parts, ultimately ending the series on a high note with Cars 3. Lightning McQueen cemented his legacy as not just an incredible racer (winner of the Piston Cup seven times during his professional racing career), but also as an exceptional mentor and coach. Did you ever notice that there's a Car pope? Think about the implications this has to the Cars universe version of transubstantiation. 
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("Lightning.png")
+```
