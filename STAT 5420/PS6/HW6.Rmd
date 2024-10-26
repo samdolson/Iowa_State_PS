@@ -6,7 +6,43 @@ date: "2024-10-26"
 
 # Homework 6
 
+Outline: 
+  Q1: Started 
+  Q2: Started 
+  Q3: Started 
+  Q4: Started 
+  Q5:  
+  Q6: Started
+  Q7: Started
+
 # Q1: 4.17, Casella & Berger
+
+Let X be an exponential(1) random variable, and define Y to be the integer part of X+1, that is: 
+
+$$Y = i + 1 \text{ iff } i \leq X < i+1, i = 0, 1, 2, ...$$
+
+## (a) 
+
+Find the distribution of Y. What well-known distribution does Y have? 
+
+$$P(Y = i + 1) = \int\limits_{i}^{i+1}e^{-x} dx = -e^{-x} \big|_{x = i}^{i+1} = -e^{-(i+1)} + e^{-i} = e^{-i}(1-e^{-1})$$
+
+This is a geometric distribution with $p = 1-e^{-1}$, such that
+
+$Y \sim Geom(1-e^{-1})$
+
+## (b) 
+
+Find the conditional distribution of X - 4 given $Y \geq 5$
+
+As defined, $Y = i + 1$, such that 
+
+$$Y \geq 5 \rightarrow i + 1 \geq 5 \rightarrow X \geq 4$$
+Utilizing the distributions as defined and found, we then have
+
+$P(X - 4 \leq x | Y \geq 5) = P(X - 4 \leq 4 | X \geq 4) = P(X \leq x) = e^{-x}$
+
+With note of the memoryless property of the Exponential distribution. 
 
 \newpage
 
@@ -14,46 +50,607 @@ date: "2024-10-26"
 
 ## (a) 
 
+For a hierarchical model: 
+
+$$Y | \Lambda \sim Poisson(\Lambda) \text{ and } \Lambda \sim Gamma(\alpha, \beta)$$
+
+find the marginal distribution, mean, and variance of Y. Show that the marginal distribution of Y is a negative binomial if $\alpha$ is an integer. 
+
+For y = 0, 1, ..., we may write the conditional distribution of Y = y as: 
+
+$$P(Y = y | \lambda) = \sum\limits_{n=y}^{\infty} P(Y = y | N = n, \lambda) P(N = n | \lambda) = \sum\limits_{n=y}^{\infty} {n \choose y} p^{y} (1-p)^{n-y} \frac{e^{-\lambda} \lambda^n}{n!}$$
+
+$$P(Y = y | \lambda) = \sum\limits_{n=y}^{\infty} \frac{1}{y!(n-y)!} (\frac{p}{1-p})^{y} [(1-p)\lambda]^{n}e^{-\lambda}$$
+
+Define $m = n - y$, such that we may rewrite the above as: 
+
+$$P(Y = y | \lambda) = \sum\limits_{n=y}^{\infty} \frac{e^{-\lambda}}{y!m!} (\frac{p}{1-p})^{y} [(1-p)\lambda)^{m}] = \sum\limits_{n=y}^{\infty} \frac{e^{-\lambda}}{y!} (\frac{p}{1-p})^{y} \frac{[(1-p)\lambda)^{m}]}{m!}$$
+
+After gathering the terms, we see quite a lot of this does not depend on m, such that we may take it out of the summation and write: 
+
+$$P(Y = y | \lambda) = \frac{e^{-\lambda}}{y!} (\frac{p}{1-p})^{y} \sum\limits_{n=y}^{\infty}  \frac{[(1-p)\lambda)^{m}]}{m!}$$
+
+After simplifying, we then take advantage that 
+
+$$\sum\limits_{n=y}^{\infty}  \frac{[(1-p)\lambda)^{m}]}{m!} = e^{(1-p)\lambda}$$
+
+And may write: 
+
+$$P(Y = y | \lambda) = e^{-\lambda}(p\lambda)^{y}e^{(1-p)\lambda}= \frac{(p\lambda)^{y}e^{-p\lambda}}{y!}$$
+
+Note the above is a type of Poisson, specifically: 
+
+$$Y | \Lambda \sim Poisson(p\lambda)$$
+
+From this we may "extract" the pmf of Y (pmf as both the conditional of Y and $\Lambda$ are both Poisson distributed), specifically for $y = 0 , 1, ...$, 
+
+$$f_Y(y) = \frac{1}{\Gamma(\alpha) y! (p\beta)^{\alpha}} \Gamma(y + \alpha) (\frac{p\beta}{1+p\beta})^{y + \alpha}$$
+
+For a positive integer $\alpha$, the above provides a pmf for a negative binomial distribution, specifically: 
+
+$$Y \sim NB(\alpha, \frac{1}{1 + p\beta}$$
+
 \newpage
 
 # Q3
 
+Expectation
+
 ## (a) 
 
+Show that any random variable X (with finite mean) has zero covariance with any real constant c, i.e. $Cov(X, c) = 0$
+
+To show that any random variable \( X \) with finite mean has zero covariance with any real constant \( c \), we start by using the definition of covariance.
+
+The covariance between two random variables \( X \) and \( Y \) is given by:
+
+
+$$Cov(X, c) = E[(X - E[X])(c - E[c])] = E[(X - E[X])(c-c)] = E[(X - E[X])0] = E[0] = 0$$
+
 ## (b) 
+
+Using the definition of conditional expectation, show that 
+
+$$E[g(X)h(Y) | X = x] = g(x)E[h(Y) | X = x]$$
+
+for an x with pdf $f_X(x) > 0$ (You may also assume (X, Y) are jointly discrete). 
+
+To show that 
+
+$$
+E[g(X)h(Y) \mid X = x] = g(x)E[h(Y) \mid X = x],
+$$
+
+we start by recalling the definition of conditional expectation and use the fact that \(X\) and \(Y\) are jointly discrete random variables.
+
+For discrete random variables \(X\) and \(Y\), the conditional expectation of \(h(Y)\) given \(X = x\) is defined as:
+
+$$
+E[h(Y) \mid X = x] = \sum_y h(y) P(Y = y \mid X = x).
+$$
+
+Similarly, the conditional expectation of \(g(X)h(Y)\) given \(X = x\) is:
+
+$$
+E[g(X)h(Y) \mid X = x] = \sum_y g(x)h(y) P(Y = y \mid X = x).
+$$
+
+Since \(g(X)\) depends only on \(X\), and we are conditioning on \(X = x\), we can replace \(g(X)\) with \(g(x)\), which is a constant with respect to the summation over \(y\):
+
+$$
+E[g(X)h(Y) \mid X = x] = \sum_y g(x) h(y) P(Y = y \mid X = x).
+$$
+
+We can factor \(g(x)\) out of the summation:
+
+$$
+E[g(X)h(Y) \mid X = x] = g(x) \sum_y h(y) P(Y = y \mid X = x).
+$$
+
+The summation \(\sum_y h(y) P(Y = y \mid X = x)\) is precisely the definition of \(E[h(Y) \mid X = x]\):
+
+$$
+E[g(X)h(Y) \mid X = x] = g(x) E[h(Y) \mid X = x].
+$$
+
+This completes the proof:
+
+$$
+E[g(X)h(Y) \mid X = x] = g(x) E[h(Y) \mid X = x].
+$$
+
+The result holds for values of \(x\) such that the conditional probability \(P(X = x) > 0\).
 
 \newpage
 
 # Q4
 
+Suppose that $X_i$ has mean $\mu_i$ and variance $\sigma_i^2$, for i = 1, 2, and that the covariance of $X_1$ and $X_2$ is $\sigma_{12}$. Compute the covariance between $X_1 - 2X_2 + 8$, and then compute the covariance of $3X_1 + X_2$. 
+
+## (a) 
+
+$X_1 - 2X_2 + 8$
+
+Let $Y = X_1 - 2X_2 + 8$
+
+$$
+Var(Y) = Cov(Y, Y) = Cov(X_1 - 2X_2 + 8, X_1 - 2X_2 + 8).
+$$
+
+$$
+Var(Y) = Cov(X_1 - 2X_2 + 8, X_1 - 2X_2 + 8) = Cov(X_1 - 2X_2, X_1 - 2X_2).
+$$
+
+$$
+Var(Y) = Cov(X_1, X_1) - 2Cov(X_1, X_2) - 2Cov(X_2, X_1) + 4Cov(X_2, X_2).
+$$
+
+Simplifying gives us 
+
+$$
+Var(Y) = \sigma_1^2 - 4\sigma_{12} + 4\sigma_2^2.
+$$
+
+So we conclude: 
+
+$$
+Cov(X_1 - 2X_2 + 8) = Cov (X_1 - 2X_2) = \sigma_1^2 - 4\sigma_{12} + 4\sigma_2^2.
+$$
+
+## (b)  
+
+$3X_1 + X_2$
+
+$$
+Cov(3X_1 + X_2, 3X_1 + X_2) = Cov(3X_1, 3X_1) + Cov(3X_1, X_2) + Cov(X_2, 3X_1) + Cov(X_2, X_2)
+$$
+
+$$
+Cov(3X_1 + X_2, 3X_1 + X_2) = 9\sigma_1^2 + 3\sigma_{12} + 3\sigma_{12} + \sigma_2^2
+$$
+
+We then conclude: 
+
+$$
+Cov(3X_1 + X_2, 3X_1 + X_2) = 9\sigma_1^2 + 6\sigma_{12} + \sigma_2^2
+$$
+
 \newpage
 
 # Q5
 
+The joint distribution of X, Y is given by the joint pdf: 
+
+$$f(x, y) = 3 (x + y) \text{ for } 0<x<1, 0<y<1, 0<x+y<1$$
+
 ## (a) 
+
+Find the marginal distribution of $f_X(x)$
 
 ## (b) 
 
+Find the conditional pdf of Y | X = x, given some 0<x<1. 
+
 ## (c) 
+
+Find $E[Y | X = x]$
 
 ## (d)
 
+Given the results in (a), (b), and (c), explain how you know $E[X | Y = y]$ without any further calculation
+
 ## (e) 
+
+Find $E[E[2XY - Y[X]]$
 
 \newpage
 
 # Q6
 
+Suppose that $f(x, y) = e^{-y} \text{ for } 0 < x < y < \infty$
+
 ## (a) 
+
+Find the joint moment generating function for (X, Y). 
+
+To find the joint moment generating function (MGF) of \( (X, Y) \) with the joint probability density function \( f(x, y) = e^{-y} \) for \( 0 < x < y < \infty \), we proceed as follows.
+
+The joint moment generating function \( M_{X, Y}(t_1, t_2) \) is defined as:
+
+$$
+M_{X, Y}(t_1, t_2) = \mathbb{E}\left[e^{t_1 X + t_2 Y}\right].
+$$
+
+This is the double integral of \( e^{t_1 x + t_2 y} \) with respect to the joint density function \( f(x, y) \):
+
+$$
+M_{X, Y}(t_1, t_2) = \int_0^\infty \int_0^y e^{t_1 x + t_2 y} e^{-y} \, dx \, dy.
+$$
+
+We can combine the exponentials:
+
+$$
+M_{X, Y}(t_1, t_2) = \int_0^\infty \int_0^y e^{t_1 x} e^{(t_2 - 1) y} \, dx \, dy.
+$$
+
+First, integrate with respect to \( x \). The inner integral is:
+
+$$
+\int_0^y e^{t_1 x} \, dx = \frac{1}{t_1} \left( e^{t_1 y} - 1 \right),
+$$
+
+assuming \( t_1 \neq 0 \).
+
+Substitute the result into the outer integral:
+
+$$
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \int_0^\infty \left( e^{(t_1 + t_2 - 1) y} - e^{(t_2 - 1) y} \right) \, dy.
+$$
+
+Now, integrate term by term:
+
+For \( e^{(t_1 + t_2 - 1) y} \):
+
+$$
+\int_0^\infty e^{(t_1 + t_2 - 1) y} \, dy = \frac{1}{1 - t_1 - t_2} \quad \text{for} \, t_1 + t_2 < 1.
+$$
+
+For \( e^{(t_2 - 1) y} \):
+
+$$
+\int_0^\infty e^{(t_2 - 1) y} \, dy = \frac{1}{1 - t_2} \quad \text{for} \, t_2 < 1.
+$$
+
+Now, combine the two results:
+
+$$
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right).
+$$
+
+Thus, the joint moment generating function for \( (X, Y) \) is:
+
+$$
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right),
+$$
+
+valid for \( t_1 + t_2 < 1 \) and \( t_2 < 1 \).
 
 ## (b) 
 
+Use the joint moment generating function to find the variance of X, the variance of Y, and the covariance of X and Y. 
+
+To find the variances of \( X \), \( Y \), and the covariance between \( X \) and \( Y \) using the joint moment generating function (MGF), we will compute the necessary partial derivatives of the MGF.
+
+The joint MGF we found is:
+
+$$
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right),
+$$
+
+valid for \( t_1 + t_2 < 1 \) and \( t_2 < 1 \).
+
+To find the means of \( X \) and \( Y \), we use the following formulas for the partial derivatives of the MGF:
+
+- \( \mathbb{E}[X] = \frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} \),
+- \( \mathbb{E}[Y] = \frac{\partial}{\partial t_2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} \).
+
+First, we differentiate \( M_{X, Y}(t_1, t_2) \) with respect to \( t_1 \):
+
+$$
+\frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = \frac{-1}{t_1^2} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) + \frac{1}{t_1} \cdot \frac{1}{(1 - t_1 - t_2)^2}.
+$$
+
+Taking the limit as \( t_1 \to 0 \) and \( t_2 \to 0 \), we get:
+
+$$
+\mathbb{E}[X] = \frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} = \frac{1}{1^2} = 1.
+$$
+
+Now, we differentiate \( M_{X, Y}(t_1, t_2) \) with respect to \( t_2 \):
+
+$$
+\frac{\partial}{\partial t_2} M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{(1 - t_1 - t_2)^2} - \frac{1}{(1 - t_2)^2} \right).
+$$
+
+Taking the limit as \( t_1 \to 0 \) and \( t_2 \to 0 \), we get:
+
+$$
+\mathbb{E}[Y] = \frac{\partial}{\partial t_2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} = 1.
+$$
+
+The variance of \( X \) is given by:
+
+$$
+\text{Var}(X) = \frac{\partial^2}{\partial t_1^2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0}.
+$$
+
+From the first derivative:
+
+$$
+\frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = \frac{-1}{t_1^2} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) + \frac{1}{t_1} \cdot \frac{1}{(1 - t_1 - t_2)^2}.
+$$
+
+The second derivative is:
+
+$$
+\frac{\partial^2}{\partial t_1^2} M_{X, Y}(t_1, t_2) = \frac{2}{t_1^3} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) - \frac{2}{t_1^2} \cdot \frac{1}{(1 - t_1 - t_2)^2} + \frac{2}{t_1} \cdot \frac{1}{(1 - t_1 - t_2)^3}.
+$$
+
+Evaluating at \( t_1 = 0 \) and \( t_2 = 0 \), we get:
+
+$$
+\text{Var}(X) = 1.
+$$
+
+Similarly, the variance of \( Y \) is:
+
+$$
+\text{Var}(Y) = \frac{\partial^2}{\partial t_2^2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0}.
+$$
+
+This is:
+
+$$
+\frac{\partial^2}{\partial t_2^2} M_{X, Y}(t_1, t_2) = \frac{2}{t_1} \left( \frac{1}{(1 - t_1 - t_2)^3} - \frac{1}{(1 - t_2)^3} \right).
+$$
+
+Evaluating at \( t_1 = 0 \) and \( t_2 = 0 \), we get:
+
+$$
+\text{Var}(Y) = 1.
+$$
+
+The covariance of \( X \) and \( Y \) is given by:
+
+$$
+\text{Cov}(X, Y) = \frac{\partial^2}{\partial t_1 \partial t_2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0}.
+$$
+
+From the derivative:
+
+$$
+\frac{\partial}{\partial t_1} \frac{\partial}{\partial t_2} M_{X, Y}(t_1, t_2) = \frac{1}{(1 - t_1 - t_2)^2}.
+$$
+
+Evaluating at \( t_1 = 0 \) and \( t_2 = 0 \), we get:
+
+$$
+\text{Cov}(X, Y) = 1.
+$$
+
+Conclusions:
+- \( \text{Var}(X) = 1 \),
+- \( \text{Var}(Y) = 1 \),
+- \( \text{Cov}(X, Y) = 1 \).
+
 ## (c)
+
+Based on the joint moment generating function, identify the marginal distribution of X and the marginal distribution of Y. 
+
+To find the marginal distributions of \( X \) and \( Y \) based on the joint moment generating function (MGF), we will extract the MGFs of \( X \) and \( Y \) by setting appropriate parameters in the joint MGF.
+
+The joint moment generating function we found is:
+
+$$
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right),
+$$
+
+valid for \( t_1 + t_2 < 1 \) and \( t_2 < 1 \).
+
+To find the marginal MGF of \( X \), we set \( t_2 = 0 \) in the joint MGF:
+
+$$
+M_X(t_1) = M_{X, Y}(t_1, 0) = \frac{1}{t_1} \left( \frac{1}{1 - t_1} - 1 \right).
+$$
+
+Simplifying:
+
+$$
+M_X(t_1) = \frac{1}{t_1} \left( \frac{1}{1 - t_1} - 1 \right) = \frac{1}{t_1} \left( \frac{1 - (1 - t_1)}{1 - t_1} \right) = \frac{t_1}{t_1(1 - t_1)} = \frac{1}{1 - t_1}.
+$$
+
+This is the MGF of an **Exponential(1)** distribution. Therefore, the marginal distribution of \( X \) is:
+
+$$
+X \sim \text{Exponential}(1).
+$$
+
+To find the marginal MGF of \( Y \), we set \( t_1 = 0 \) in the joint MGF:
+
+$$
+M_Y(t_2) = M_{X, Y}(0, t_2) = \frac{1}{0} \left( \frac{1}{1 - t_2} - \frac{1}{1 - t_2} \right),
+$$
+
+which simplifies directly to:
+
+$$
+M_Y(t_2) = \frac{1}{1 - t_2}.
+$$
+
+This is also the MGF of an **Exponential(1)** distribution. Therefore, the marginal distribution of \( Y \) is:
+
+$$
+Y \sim \text{Exponential}(1).
+$$
+
+### Conclusion:
+
+- The marginal distribution of \( X \) is **Exponential(1)**.
+- The marginal distribution of \( Y \) is **Exponential(1)**.
+
+Both \( X \) and \( Y \) are independently distributed as **Exponential(1)** random variables.
 
 \newpage
 
 # Q7
 
+Beta-Binomial model: Suppose that the conditional distribution X | P = p is Binomial(n, p) and Suppose P has a Beta($\alpha, \beta$) distribution. 
+
 ## (a) 
 
+Using the EVVE formula, find Var(X) 
+
+Given \(X | P = p \sim \text{Binomial}(n, p)\), the conditional distribution of \(X\) given \(P = p\) has mean and variance:
+
+$$
+E[X | P = p] = np
+$$
+
+$$
+Var(X | P = p) = np(1 - p).
+$$
+
+The prior distribution for \(P\) is \(P \sim \text{Beta}(\alpha, \beta)\), which has mean and variance:
+
+$$
+E[P] = \frac{\alpha}{\alpha + \beta}
+$$
+
+$$
+Var(P) = \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta + 1)}.
+$$
+
+The EVVE formula states:
+
+$$
+Var(X) = E[Var(X | P)] + Var(E[X | P]).
+$$
+
+Given \(Var(X | P = p) = np(1 - p)\), the expectation of this variance is:
+
+$$
+E[Var(X | P)] = E[np(1 - p)] = n E[p(1 - p)].
+$$
+
+$$
+E[p(1 - p)] = E[p] - E[p^2].
+$$
+
+Using the properties of the Beta distribution:
+
+$$
+E[p] = \frac{\alpha}{\alpha + \beta}
+$$
+
+and
+
+$$
+E[p^2] = \frac{\alpha(\alpha + 1)}{(\alpha + \beta)(\alpha + \beta + 1)}.
+$$
+
+Thus,
+
+$$
+E[p(1 - p)] = \frac{\alpha}{\alpha + \beta} - \frac{\alpha(\alpha + 1)}{(\alpha + \beta)(\alpha + \beta + 1)} = \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta + 1)}.
+$$
+
+Therefore,
+
+$$
+E[Var(X | P)] = n \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta + 1)}.
+$$
+
+Given \(E[X | P = p] = np\), we need to find the variance:
+
+$$
+Var(E[X | P]) = Var(np) = n^2 Var(P).
+$$
+
+Since \(Var(P) = \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta + 1)}\), we have:
+
+$$
+Var(E[X | P]) = n^2 \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta + 1)}.
+$$
+
+$$
+Var(X) = n \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta + 1)} + n^2 \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta + 1)}.
+$$
+
+Combining the terms gives:
+
+$$
+Var(X) = \frac{n \alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta + 1)} (1 + n).
+$$
+
+Thus, the variance of \(X\) is:
+
+$$
+Var(X) = \frac{n \alpha \beta (n + 1)}{(\alpha + \beta)^2 (\alpha + \beta + 1)}.
+$$
+
 ## (b) 
+
+Suppose that W has a Binomial(n, $\tilde{p}$) distribution having the same mean as X above. For n > 1, show that X has a larger variance than W by a multiplicative factor of: 
+
+$$\frac{\alpha + \beta + n}{\alpha + \beta + 1} > 1$$
+
+From the Beta-Binomial model, we have:
+
+- \( X | P = p \sim \text{Binomial}(n, p) \), where \( P \sim \text{Beta}(\alpha, \beta) \).
+- The mean of \( X \) is:
+
+$$
+E[X] = n E[P] = n \frac{\alpha}{\alpha + \beta}.
+$$
+
+We want the mean of \( W \), given by \( n \tilde{p} \), to be equal to the mean of \( X \):
+
+$$
+n \tilde{p} = n \frac{\alpha}{\alpha + \beta}.
+$$
+
+Thus, we set:
+
+$$
+\tilde{p} = \frac{\alpha}{\alpha + \beta}.
+$$
+
+The variance of a Binomial random variable \( W \) is given by:
+
+$$
+Var(W) = n \tilde{p}(1 - \tilde{p}).
+$$
+
+Substitute \( \tilde{p} = \frac{\alpha}{\alpha + \beta} \):
+
+$$
+Var(W) = n \left(\frac{\alpha}{\alpha + \beta}\right) \left(1 - \frac{\alpha}{\alpha + \beta}\right) = n \frac{\alpha}{\alpha + \beta} \frac{\beta}{\alpha + \beta}.
+$$
+
+This simplifies to:
+
+$$
+Var(W) = n \frac{\alpha \beta}{(\alpha + \beta)^2}.
+$$
+
+The variance of \( X \) in the Beta-Binomial model, as derived earlier, is:
+
+$$
+Var(X) = \frac{n \alpha \beta (n + 1)}{(\alpha + \beta)^2 (\alpha + \beta + 1)}.
+$$
+
+To show that \( X \) has a larger variance than \( W \), we compare \( Var(X) \) with \( Var(W) \):
+
+$$
+\frac{Var(X)}{Var(W)} = \frac{\frac{n \alpha \beta (n + 1)}{(\alpha + \beta)^2 (\alpha + \beta + 1)}}{n \frac{\alpha \beta}{(\alpha + \beta)^2}}.
+$$
+
+Simplifying the expression:
+
+$$
+\frac{Var(X)}{Var(W)} = \frac{(n + 1)}{\alpha + \beta + 1}.
+$$
+
+Thus, the multiplicative factor by which \( X \) has a larger variance than \( W \) is:
+
+$$
+\frac{\alpha + \beta + n}{\alpha + \beta + 1}.
+$$
+
+Since \( n > 1 \), it follows that:
+
+$$
+\frac{\alpha + \beta + n}{\alpha + \beta + 1} > 1.
+$$
+
+This demonstrates that the variance of \( X \) is indeed larger than the variance of \( W \) by a factor of \( \frac{\alpha + \beta + n}{\alpha + \beta + 1} \).
