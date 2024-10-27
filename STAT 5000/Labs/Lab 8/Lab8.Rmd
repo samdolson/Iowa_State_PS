@@ -1,0 +1,126 @@
+---
+title: "Lab 8"
+output: pdf_document
+date: "2024-10-27"
+---
+
+```{r}
+library(readr)
+minnows <- read_table("minnows.txt",
+                      col_names = c("copper", "zinc", "protein"), 
+                      col_types = cols(copper = col_factor(levels = c("0","150")),
+                                       zinc = col_factor(levels = c("0", "750", "1500")))
+                      )
+
+```
+
+```{r}
+options(contrasts = c("contr.sum", "contr.sum"))
+sumto0.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
+summary(sumto0.anova)
+sumto0.anova$coefficients
+model.matrix(sumto0.anova)
+```
+
+```{r}
+options(contrasts = c("contr.treatment", "contr.treatment"))
+baseline.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
+summary(baseline.anova)
+baseline.anova$coefficients
+model.matrix(baseline.anova)
+```
+```{r}
+interaction.plot(minnows$copper, minnows$zinc, minnows$protein,
+  main="Minnows Experiment",
+  xlab="Zinc Concentration",
+  ylab="Mean Protein Level",
+  trace.label="Copper\n Conc.")
+interaction.plot(minnows$zinc, minnows$copper, minnows$protein,
+  main="Minnows Experiment",
+  xlab="Copper Concentration",
+  ylab="Mean Protein Level",
+  trace.label="Zinc\n Conc.")
+```
+```{r}
+library(emmeans)
+simple.effects <- emmeans(sumto0.anova, c("copper", "zinc"))
+pairs(simple.effects, adjust=NULL)
+```
+
+```{r}
+copper.effects <- emmeans(sumto0.anova, "copper")
+pairs(copper.effects, adjust="tukey")
+zinc.effects <- emmeans(sumto0.anova, "zinc")
+pairs(zinc.effects, adjust="tukey")
+```
+
+```{r}
+plot(sumto0.anova$fitted.values, sumto0.anova$residuals,
+main="Diagnostic Plot for Minnows Experiment",
+xlab="Fitted Values", ylab="Residuals")
+plot(as.numeric(minnows$copper), sumto0.anova$residuals,
+main="Diagnostic Plot for Minnows Experiment",
+xlab="Copper Level", ylab="Residuals")
+plot(as.numeric(minnows$zinc), sumto0.anova$residuals,
+main="Diagnostic Plot for Minnows Experiment",
+xlab="Zinc Level", ylab="Residuals")
+```
+```{r}
+qqnorm(sumto0.anova$residuals)
+qqline(sumto0.anova$residuals, col="red")
+```
+
+```{r}
+shapiro.test(sumto0.anova$residuals)
+library(moments)
+mean(sumto0.anova$residuals)
+median(sumto0.anova$residuals)
+skewness(sumto0.anova$residuals)
+kurtosis(sumto0.anova$residuals)-3
+```
+
+1. Using baseline constraints, report the six unique rows in the design matrix X and the parameter vector $\beta$ for this two-factor experiment.
+
+\newpage
+
+2. Using sum-to-zero constraints, report the six unique rows in the design matrix X and the parameter vector $\beta$ for this two-factor experiment.
+
+\newpage
+
+3. Use the estimated parameters from the R output to calculate the six sample treatment means. 
+
+\newpage
+
+4. Use the ANOVA table from the R output to conduct the overall F-test for the effects of the six treatments on the minnow protein production. Interpret the results of the test in the context of the study.
+
+\newpage
+
+5. Use the ANOVA table from the R output to test for the main effect of copper concentration on the minnow protein production. Assuming there is no significant interaction, interpret the results of the test in the context of the study.
+
+\newpage
+
+6. Use the ANOVA table from the R output to test for the main effect of zinc concentration on the minnow protein production. Assuming there is no significant interaction, interpret the results of the test in the context of the study.
+
+\newpage
+
+7. Use the ANOVA table from the R output to test for the interaction effect between copper and zinc concentrations on the minnow protein production. Interpret the results of the test in the context of the study.
+
+\newpage
+
+8. Study the interaction plot in the R output. Explain why, based on this plot, the interaction is not significant in the model.
+
+\newpage
+
+9. Use the LSD method to perform all pairwise comparisons of the cell means (simple effects) for the six treatments. Summarize any significant findings in the context of the study.
+
+\newpage
+
+10. Use Tukey’s HSD method to perform pairwise comparisons of the marginal means for the two copper concentrations (main effect of copper) and the marginal means for the three zinc concentrations (main effect of zinc). Summarize any significant findings in the context of the study.
+
+\newpage
+
+11. Study the plots of the residuals versus: a) predicted value, b) the copper concentrations, and c) the zinc concentrations. Do these plots show any cause for concern?
+
+\newpage
+
+12. Study the normal probability plot for the residuals. Is there anything of concern in this plot?
