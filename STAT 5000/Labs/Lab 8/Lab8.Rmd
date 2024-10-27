@@ -18,13 +18,9 @@ minnows <- read_table("minnows.txt",
 
 ```
 
-```{r}
-options(contrasts = c("contr.sum", "contr.sum"))
-sumto0.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
-summary(sumto0.anova)
-sumto0.anova$coefficients
-model.matrix(sumto0.anova)
-```
+# 1. 
+
+Using baseline constraints, report the six unique rows in the design matrix X and the parameter vector $\beta$ for this two-factor experiment.
 
 ```{r}
 options(contrasts = c("contr.treatment", "contr.treatment"))
@@ -33,8 +29,6 @@ summary(baseline.anova)
 baseline.anova$coefficients
 model.matrix(baseline.anova)
 ```
-
-1. Using baseline constraints, report the six unique rows in the design matrix X and the parameter vector $\beta$ for this two-factor experiment.
 
 $$
 X = \begin{bmatrix}
@@ -60,7 +54,17 @@ $$
 
 \newpage
 
-2. Using sum-to-zero constraints, report the six unique rows in the design matrix X and the parameter vector $\beta$ for this two-factor experiment.
+# 2. 
+
+Using sum-to-zero constraints, report the six unique rows in the design matrix X and the parameter vector $\beta$ for this two-factor experiment.
+
+```{r}
+options(contrasts = c("contr.sum", "contr.sum"))
+sumto0.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
+summary(sumto0.anova)
+sumto0.anova$coefficients
+model.matrix(sumto0.anova)
+```
 
 $$
 X = \begin{bmatrix} 
@@ -87,48 +91,61 @@ The dataset's structure confirms the full factorial design and the coding remain
 
 \newpage
 
-3. Use the estimated parameters from the R output to calculate the six sample treatment means. 
+# 3. 
+
+Use the estimated parameters from the R output to calculate the six sample treatment means. 
 
 This question is to calculate the six sample treatment means or the cell means. 
+
+```{r}
+model <- lm(protein ~ copper + zinc + copper*zinc, data = minnows)
+summary(model)
+```
 
 ```{r}
 aggregate(protein ~ copper + zinc, data = minnows, FUN = mean)
 ```
 
+\newpage
+
+# 4. 
+
+Use the ANOVA table from the R output to conduct the overall F-test for the effects of the six treatments on the minnow protein production. Interpret the results of the test in the context of the study.
+
 ```{r}
-baseline.anova$coefficients
+options(contrasts = c("contr.sum", "contr.sum"))
+summary(lm(protein ~ copper + zinc + copper*zinc, data = minnows))
 ```
 
-\newpage
-
-4. Use the ANOVA table from the R output to conduct the overall F-test for the effects of the six treatments on the minnow protein production. Interpret the results of the test in the context of the study.
-
-
 
 \newpage
 
-5. Use the ANOVA table from the R output to test for the main effect of copper concentration on the minnow protein production. Assuming there is no significant interaction, interpret the results of the test in the context of the study.
+# 5. 
+
+Use the ANOVA table from the R output to test for the main effect of copper concentration on the minnow protein production. Assuming there is no significant interaction, interpret the results of the test in the context of the study.
 
 ```{r}
 sumto0.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
 summary(sumto0.anova)
 ```
 
-## Copper (Main Effect):
+Copper (Main Effect):
 F-value: 1.809
 p-value: 0.227
 Interpretation: The p-value of 0.227 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that there is no significant difference in the mean protein content ($\mu$g/tank) between the two copper levels (0 ppm and 150 ppm). 
 
 \newpage
 
-6. Use the ANOVA table from the R output to test for the main effect of zinc concentration on the minnow protein production. Assuming there is no significant interaction, interpret the results of the test in the context of the study.
+# 6. 
+
+Use the ANOVA table from the R output to test for the main effect of zinc concentration on the minnow protein production. Assuming there is no significant interaction, interpret the results of the test in the context of the study.
 
 ```{r}
 sumto0.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
 summary(sumto0.anova)
 ```
 
-## Zinc (Main Effect):
+Zinc (Main Effect):
 
 F-value: 39.537
 p-value: 0.000351
@@ -136,21 +153,25 @@ Interpretation: The p-value of 0.000351 meets the threshold of the $\alpha = 0.0
 
 \newpage
 
-7. Use the ANOVA table from the R output to test for the interaction effect between copper and zinc concentrations on the minnow protein production. Interpret the results of the test in the context of the study.
+# 7. 
+
+Use the ANOVA table from the R output to test for the interaction effect between copper and zinc concentrations on the minnow protein production. Interpret the results of the test in the context of the study.
 
 ```{r}
 sumto0.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
 summary(sumto0.anova)
 ```
 
-## Interaction (Copper × Zinc):
+Interaction (Copper × Zinc):
 F-value: 1.113
 p-value: 0.388
 Interpretation: The p-value of 0.388 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that the interaction between copper and zinc concentrations does not significantly influence the mean protein content ($\mu$g/tank). 
 
 \newpage
 
-8. Study the interaction plot in the R output. Explain why, based on this plot, the interaction is not significant in the model.
+# 8. 
+
+Study the interaction plot in the R output. Explain why, based on this plot, the interaction is not significant in the model.
 
 ```{r}
 interaction.plot(minnows$copper, minnows$zinc, minnows$protein, main="Minnows Experiment", xlab="Zinc Concentration", ylab="Mean Protein Level", trace.label="Copper\n Conc.") 
@@ -185,7 +206,9 @@ Therefore, the interaction is not significant in the model because the interacti
 
 \newpage
 
-9. Use the LSD method to perform all pairwise comparisons of the cell means (simple effects) for the six treatments. Summarize any significant findings in the context of the study.
+# 9. 
+
+Use the LSD method to perform all pairwise comparisons of the cell means (simple effects) for the six treatments. Summarize any significant findings in the context of the study.
 
 ```{r}
 library(emmeans)
@@ -228,7 +251,9 @@ The above pairs do meet the alpha level such that we have evidence to reject the
   
 \newpage
 
-10. Use Tukey’s HSD method to perform pairwise comparisons of the marginal means for the two copper concentrations (main effect of copper) and the marginal means for the three zinc concentrations (main effect of zinc). Summarize any significant findings in the context of the study.
+# 10. 
+
+Use Tukey’s HSD method to perform pairwise comparisons of the marginal means for the two copper concentrations (main effect of copper) and the marginal means for the three zinc concentrations (main effect of zinc). Summarize any significant findings in the context of the study.
 
 ```{r}
 copper.effects <- emmeans(sumto0.anova, "copper")
@@ -244,7 +269,9 @@ zinc750 - zinc1500     53.8 8.04  6   6.682  0.0013
 
 \newpage
 
-11. Study the plots of the residuals versus: a) predicted value, b) the copper concentrations, and c) the zinc concentrations. Do these plots show any cause for concern?
+# 11. 
+
+Study the plots of the residuals versus: a) predicted value, b) the copper concentrations, and c) the zinc concentrations. Do these plots show any cause for concern?
 
 ```{r}
 plot(sumto0.anova$fitted.values, sumto0.anova$residuals,
@@ -260,7 +287,9 @@ xlab="Zinc Level", ylab="Residuals")
 
 \newpage
 
-12. Study the normal probability plot for the residuals. Is there anything of concern in this plot?
+# 12. 
+
+Study the normal probability plot for the residuals. Is there anything of concern in this plot?
 
 ```{r}
 qqnorm(sumto0.anova$residuals)
