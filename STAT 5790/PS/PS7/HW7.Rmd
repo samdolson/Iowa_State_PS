@@ -12,21 +12,129 @@ Consider the dataset txhousing which is in the ggplot2 R package. This dataset c
 
 Plot a time series of sales against date for each city on the same plot using ggplot2 package. Describe problems that make it hard to see the long-term trend in this plot. 
 
+```{r}
+library(ggplot2)
+library(dplyr)
+attach(txhousing)
+
+ggplot(txhousing, aes(x = date, y = sales, color = city)) +
+  geom_line() +
+  labs(title = "Monthly House Sales for Each Texas City",
+       x = "Date",
+       y = "Sales",
+       color = "City") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+length(unique(txhousing$city))
+
+lowCities <- txhousing |>
+  group_by(city) |> 
+  summarize(avgSales = mean(sales, na.rm = TRUE)) |>
+  filter(avgSales < 2500) |> 
+  nrow()
+
+lowCities
+```
+
+There are a lot of cities in this dataset (46 to be exact)! The fact that so many cluster around 0 to 2500 in "Sales" (44 of 46 average below 2500) means there's a lot of difficulty distinguishing between trends for most of the cities in the above display. 
+
 ## (b) 
 
 We can fix one problem described in (a) by plotting sales in the log-scale. Plot a time series of sales in the log-scale against date for each city on the same plot using ggplot2. 
+
+```{r}
+ggplot(txhousing, aes(x = date, y = log(sales), color = city)) +
+  geom_line() +
+  labs(title = "Monthly House Sales for Each Texas City",
+       x = "Date",
+       y = "log of Sales",
+       color = "City") +
+  theme_minimal() +
+  theme(legend.position = "none") + 
+  annotate("text", x = 2005, y = 2.25, label = "Oh yeah, that helped a bunch...", size = 4, hjust = 0.5)
+```
 
 ## (c) 
 
 We can fix another problem described in (a) by removing the strong seasonal trend present in the dataset. Fit a linear model with log(sales) against month for each city, then create a new column in txhousing, call it "rel_sales", which contains the residuals of the linear fits. Then plot a time series of rel sales against date for each city (on the same plot) using ggplot2
 
+```{r}
+
+residuals_list <- tapply(X = seq_along(txhousing$sales), INDEX = txhousing$city, FUN = function(idx) {
+  lm_fit <- lm(log(txhousing$sales[idx]) ~ txhousing$month[idx], na.action = na.exclude)
+  residuals(lm_fit)
+})
+
+txhousing$rel_sales <- unlist(residuals_list)
+
+ggplot(txhousing, aes(x = date, y = rel_sales, color = city)) +
+  geom_line() +
+  labs(title = "Residual Sales Time Series for Each Texas City",
+       x = "Date",
+       y = "Residuals of log(Sales)",
+       color = "City") +
+  theme_minimal() +
+  theme(legend.position = "none") + 
+  annotate("text", x = 2005, y = -1.5, label = "The lines Mason, what do they mean!?", size = 4, hjust = 0.5)
+```
+
 ## (d) 
 
 On the plot for (c), put in the mean curve using the function geom line() on the R code in (c).
 
+```{r}
+# Fighting the urge to use DB language and group_by...
+# mean_rel_sales <- txhousing |>
+#   group_by(date) |>
+#   summarise(mean_rel_sales = mean(rel_sales, na.rm = TRUE))
+
+mean_rel_sales <- data.frame(
+  date = unique(txhousing$date),
+  mean_rel_sales = tapply(txhousing$rel_sales, txhousing$date, mean, na.rm = TRUE)
+)
+
+# Plot the time series of 'rel_sales' for each city and add the mean curve
+ggplot(txhousing, aes(x = date, y = rel_sales, color = city)) +
+  geom_line() +
+  geom_line(data = mean_rel_sales, aes(x = date, y = mean_rel_sales), color = "black", size = 1.2, linetype = "solid") +
+  labs(title = "Residual Sales Time Series for Each Texas City",
+       x = "Date",
+       y = "Residuals of log(Sales)",
+       color = "City") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  annotate("text", x = 2005, y = -1.5, label = "Woah", size = 4, hjust = 0.5)
+```
+
 ## (e) 
 
 Provide a page of plots of rel sales against month by year using the facet option on ggplot2 package. On each plot, put in the mean curve using geom line() options. 
+
+```{r}
+mean_rel_sales <- data.frame(
+  year = rep(unique(txhousing$year), each = 12),
+  month = 1:12,
+  mean_rel_sales = as.numeric(tapply(X = txhousing$rel_sales, 
+                                     INDEX = list(txhousing$year, txhousing$month), 
+                                     FUN = mean, 
+                                     na.rm = TRUE))
+)
+
+ggplot(txhousing, aes(x = month, y = rel_sales, color = city)) +
+  geom_line() +
+  geom_line(data = mean_rel_sales, aes(x = month, y = mean_rel_sales), 
+            color = "black", size = 1.2, linetype = "solid") +
+  labs(title = "Residual Sales Time Series by Month and Year",
+       x = "Month",
+       y = "Residuals of log(Sales)",
+       color = "City") +
+  facet_wrap(~ year, scales = "free_y") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+
 
 \newpage
 
