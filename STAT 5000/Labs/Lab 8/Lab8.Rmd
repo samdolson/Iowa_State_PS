@@ -4,6 +4,10 @@ output: pdf_document
 date: "2024-10-27"
 ---
 
+Factor A: Concentration of copper (0 or 150 ppm)
+Factor B: Concentration of zinc (0, 750 or 1500 ppm)
+Response Variable: protein content ($\mu$g/tank)
+
 ```{r}
 library(readr)
 minnows <- read_table("minnows.txt",
@@ -29,23 +33,202 @@ summary(baseline.anova)
 baseline.anova$coefficients
 model.matrix(baseline.anova)
 ```
+
+1. Using baseline constraints, report the six unique rows in the design matrix X and the parameter vector $\beta$ for this two-factor experiment.
+
+$$
+X = \begin{bmatrix}
+1   &    0&       0&        0&                 0&                  0 \\ 
+1   &    0&       1&        0&                 0&                  0 \\ 
+1   &    0&       0&        1&                 0&                  0 \\ 
+1   &    1&       0&        0&                 0&                  0 \\ 
+1   &    1&       1&        0&                 1&                  0 \\ 
+1   &    1&       0&        1&                 0&                  1 \\ 
+\end{bmatrix}
+$$
+
+$$
+X = \begin{bmatrix}
+1 & 1 & 1 & 0 & 1 & 0 \\
+1 & 1 & 0 & 1 & 0 & 1 \\
+1 & 1 & 0 & 0 & 0 & 0 \\
+1 & 0 & 1 & 0 & 0 & 0 \\
+1 & 0 & 0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 \\
+\end{bmatrix}
+$$
+
+\newpage
+
+2. Using sum-to-zero constraints, report the six unique rows in the design matrix X and the parameter vector $\beta$ for this two-factor experiment.
+
+$$
+X = \begin{bmatrix} 
+1&       1&     1&     0&             1&             0 \\ 
+1&       1&     0&     1&             0&             1 \\ 
+1&       1&    -1&    -1&            -1&            -1 \\ 
+1&      -1&     1&     0&            -1&             0 \\ 
+1&      -1&     0&     1&             0&            -1 \\ 
+1&      -1&    -1&    -1&             1&             1 \\ 
+\end{bmatrix}
+$$
+$$
+X = \begin{bmatrix}
+1 & 1 & 1 & 0 & 1 & 0 \\
+1 & 1 & 0 & 1 & 0 & 1 \\
+1 & 1 & -1 & -1 & -1 & -1 \\
+1 & -1 & 1 & 0 & -1 & 0 \\
+1 & -1 & 0 & 1 & 0 & -1 \\
+1 & -1 & -1 & -1 & 1 & 1 \\
+\end{bmatrix}
+$$
+
+The dataset's structure confirms the full factorial design and the coding remains suitable for the two-factor analysis.
+
+\newpage
+
+3. Use the estimated parameters from the R output to calculate the six sample treatment means. 
+
+This question is to calculate the six sample treatment means or the cell means. 
+
 ```{r}
-interaction.plot(minnows$copper, minnows$zinc, minnows$protein,
-  main="Minnows Experiment",
-  xlab="Zinc Concentration",
-  ylab="Mean Protein Level",
-  trace.label="Copper\n Conc.")
-interaction.plot(minnows$zinc, minnows$copper, minnows$protein,
+aggregate(protein ~ copper + zinc, data = minnows, FUN = mean)
+```
+
+```{r}
+baseline.anova$coefficients
+```
+
+\newpage
+
+4. Use the ANOVA table from the R output to conduct the overall F-test for the effects of the six treatments on the minnow protein production. Interpret the results of the test in the context of the study.
+
+
+
+\newpage
+
+5. Use the ANOVA table from the R output to test for the main effect of copper concentration on the minnow protein production. Assuming there is no significant interaction, interpret the results of the test in the context of the study.
+
+```{r}
+sumto0.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
+summary(sumto0.anova)
+```
+
+## Copper (Main Effect):
+F-value: 1.809
+p-value: 0.227
+Interpretation: The p-value of 0.227 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that there is no significant difference in the mean protein content ($\mu$g/tank) between the two copper levels (0 ppm and 150 ppm). 
+
+\newpage
+
+6. Use the ANOVA table from the R output to test for the main effect of zinc concentration on the minnow protein production. Assuming there is no significant interaction, interpret the results of the test in the context of the study.
+
+```{r}
+sumto0.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
+summary(sumto0.anova)
+```
+
+## Zinc (Main Effect):
+
+F-value: 39.537
+p-value: 0.000351
+Interpretation: The p-value of 0.000351 meets the threshold of the $\alpha = 0.05$ level, such that we do have evidence to reject the null hypothesis that there is no significant difference in the mean protein content ($\mu$g/tank) between the three zinc levels levels (0, 750 or 1500 ppm). This suggests that at least one of the zinc levels (0, 750, or 1500 ppm) has a different mean protein content ($\mu$g/tank) in the minnow larvae.
+
+\newpage
+
+7. Use the ANOVA table from the R output to test for the interaction effect between copper and zinc concentrations on the minnow protein production. Interpret the results of the test in the context of the study.
+
+```{r}
+sumto0.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
+summary(sumto0.anova)
+```
+
+## Interaction (Copper × Zinc):
+F-value: 1.113
+p-value: 0.388
+Interpretation: The p-value of 0.388 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that the interaction between copper and zinc concentrations does not significantly influence the mean protein content ($\mu$g/tank). 
+
+\newpage
+
+8. Study the interaction plot in the R output. Explain why, based on this plot, the interaction is not significant in the model.
+
+```{r}
+interaction.plot(minnows$copper, minnows$zinc, minnows$protein, main="Minnows Experiment", xlab="Zinc Concentration", ylab="Mean Protein Level", trace.label="Copper\n Conc.") 
+interaction.plot(minnows$zinc, minnows$copper, minnows$protein, main="Minnows Experiment", xlab="Copper Concentration", ylab="Mean Protein Level", trace.label="Zinc\n Conc.")
+```
+
+```{r}
+interaction.plot(x.factor = minnows$copper, 
+                 trace.factor = minnows$zinc, 
+                 response = minnows$protein,
   main="Minnows Experiment",
   xlab="Copper Concentration",
   ylab="Mean Protein Level",
   trace.label="Zinc\n Conc.")
+
+interaction.plot(x.factor = minnows$zinc, 
+                 trace.factor = minnows$copper, 
+                 response = minnows$protein,
+  main="Minnows Experiment",
+  xlab="Zinc Concentration",
+  ylab="Mean Protein Level",
+  trace.label="Copper\n Conc.")
 ```
+
+Based on the interaction plots shown, it appears that the lines for different levels of zinc do not strongly deviate from being roughly parallel. In an interaction plot, if the lines representing different factor levels (in this case, copper and zinc) are nearly parallel, it indicates that there is little to no interaction effect.
+
+Parallel lines suggest that the effect of one factor (e.g., zinc) on the response variable (protein content) is consistent across the levels of the other factor (copper). In other words, changing the copper concentration does not significantly alter the effect that zinc concentration has on the mean protein content.
+
+When the interaction is significant, we would expect to see the lines crossing or diverging noticeably, indicating that the effect of zinc on protein content depends on the level of copper.
+
+Therefore, the interaction is not significant in the model because the interaction plot indicates that the effect of zinc concentration on mean protein content remains relatively consistent regardless of the copper level. This visual evidence aligns with the statistical result showing a non-significant interaction term in the ANOVA table.
+
+\newpage
+
+9. Use the LSD method to perform all pairwise comparisons of the cell means (simple effects) for the six treatments. Summarize any significant findings in the context of the study.
+
 ```{r}
 library(emmeans)
 simple.effects <- emmeans(sumto0.anova, c("copper", "zinc"))
 pairs(simple.effects, adjust=NULL)
 ```
+
+Using "significance" of $\alpha = 0.05$, we omit the following pairs: 
+  contrast                               estimate   SE df t.ratio p.value
+  copper0 zinc0 - copper150 zinc0            21.0 11.4  6   1.846  0.1144
+  copper0 zinc0 - copper0 zinc750            26.0 11.4  6   2.285  0.0623
+  copper0 zinc0 - copper150 zinc750          23.0 11.4  6   2.022  0.0897
+  copper150 zinc0 - copper0 zinc750           5.0 11.4  6   0.440  0.6757
+  copper150 zinc0 - copper150 zinc750         2.0 11.4  6   0.176  0.8662
+  copper0 zinc750 - copper150 zinc750        -3.0 11.4  6  -0.264  0.8008
+  copper0 zinc1500 - copper150 zinc1500       8.5 11.4  6   0.747  0.4832
+  
+The above pairs do not meet the alpha level such that we do not find evidence to reject the null hypothesis. In the above instances, we do not reject the null hypothesis that the mean protein content ($\mu$g/tank) for the combination of treatments on the left hand side is the same as the mean protein content ($\mu$g/tank) for the combination of treatments on the right hand side (they have a difference of zero). 
+  
+Meaning for "significant findings": 
+  contrast                               estimate   SE df t.ratio p.value
+  copper0 zinc0 - copper0 zinc1500           74.0 11.4  6   6.505  0.0006
+  copper0 zinc0 - copper150 zinc1500         82.5 11.4  6   7.252  0.0003
+  copper150 zinc0 - copper0 zinc1500         53.0 11.4  6   4.659  0.0035
+  copper150 zinc0 - copper150 zinc1500       61.5 11.4  6   5.406  0.0017
+  copper0 zinc750 - copper0 zinc1500         48.0 11.4  6   4.219  0.0056
+  copper0 zinc750 - copper150 zinc1500       56.5 11.4  6   4.967  0.0025
+  copper150 zinc750 - copper0 zinc1500       51.0 11.4  6   4.483  0.0042
+  copper150 zinc750 - copper150 zinc1500     59.5 11.4  6   5.230  0.0020
+
+The above pairs do meet the alpha level such that we have evidence to reject the null hypothesis. In the above instances, we have evidence to reject the null hypothesis at the alpha level that the mean protein content ($\mu$g/tank) for the combination of treatments on the left hand side is different from the mean protein content ($\mu$g/tank) for the combination of treatments on the right hand side (there is a non-zero difference between the two). Using this framework, we have evidence to believe the mean protein content ($\mu$g/tank) of the following pairwise combinations of treatments are different: 
+  copper0 zinc0 - copper0 zinc1500: No copper level changes but an increase of 1500 units of zinc
+  copper0 zinc0 - copper150 zinc1500: A simultaneous change of 150 units for copper with an increase of 1500 units of zinc
+  copper150 zinc0 - copper0 zinc1500: 
+  copper150 zinc0 - copper150 zinc1500:
+  copper0 zinc750 - copper0 zinc1500:
+  copper0 zinc750 - copper150 zinc1500:
+  copper150 zinc750 - copper0 zinc1500:
+  copper150 zinc750 - copper150 zinc1500:
+  
+\newpage
+
+10. Use Tukey’s HSD method to perform pairwise comparisons of the marginal means for the two copper concentrations (main effect of copper) and the marginal means for the three zinc concentrations (main effect of zinc). Summarize any significant findings in the context of the study.
 
 ```{r}
 copper.effects <- emmeans(sumto0.anova, "copper")
@@ -53,6 +236,15 @@ pairs(copper.effects, adjust="tukey")
 zinc.effects <- emmeans(sumto0.anova, "zinc")
 pairs(zinc.effects, adjust="tukey")
 ```
+
+Within the contest of the study, the following two differences have a statistically significant difference at the $\alpha = 0.05$ level. 
+
+zinc0 - zinc1500       67.8 8.04  6   8.422  0.0004
+zinc750 - zinc1500     53.8 8.04  6   6.682  0.0013
+
+\newpage
+
+11. Study the plots of the residuals versus: a) predicted value, b) the copper concentrations, and c) the zinc concentrations. Do these plots show any cause for concern?
 
 ```{r}
 plot(sumto0.anova$fitted.values, sumto0.anova$residuals,
@@ -65,6 +257,11 @@ plot(as.numeric(minnows$zinc), sumto0.anova$residuals,
 main="Diagnostic Plot for Minnows Experiment",
 xlab="Zinc Level", ylab="Residuals")
 ```
+
+\newpage
+
+12. Study the normal probability plot for the residuals. Is there anything of concern in this plot?
+
 ```{r}
 qqnorm(sumto0.anova$residuals)
 qqline(sumto0.anova$residuals, col="red")
@@ -78,49 +275,3 @@ median(sumto0.anova$residuals)
 skewness(sumto0.anova$residuals)
 kurtosis(sumto0.anova$residuals)-3
 ```
-
-1. Using baseline constraints, report the six unique rows in the design matrix X and the parameter vector $\beta$ for this two-factor experiment.
-
-\newpage
-
-2. Using sum-to-zero constraints, report the six unique rows in the design matrix X and the parameter vector $\beta$ for this two-factor experiment.
-
-\newpage
-
-3. Use the estimated parameters from the R output to calculate the six sample treatment means. 
-
-\newpage
-
-4. Use the ANOVA table from the R output to conduct the overall F-test for the effects of the six treatments on the minnow protein production. Interpret the results of the test in the context of the study.
-
-\newpage
-
-5. Use the ANOVA table from the R output to test for the main effect of copper concentration on the minnow protein production. Assuming there is no significant interaction, interpret the results of the test in the context of the study.
-
-\newpage
-
-6. Use the ANOVA table from the R output to test for the main effect of zinc concentration on the minnow protein production. Assuming there is no significant interaction, interpret the results of the test in the context of the study.
-
-\newpage
-
-7. Use the ANOVA table from the R output to test for the interaction effect between copper and zinc concentrations on the minnow protein production. Interpret the results of the test in the context of the study.
-
-\newpage
-
-8. Study the interaction plot in the R output. Explain why, based on this plot, the interaction is not significant in the model.
-
-\newpage
-
-9. Use the LSD method to perform all pairwise comparisons of the cell means (simple effects) for the six treatments. Summarize any significant findings in the context of the study.
-
-\newpage
-
-10. Use Tukey’s HSD method to perform pairwise comparisons of the marginal means for the two copper concentrations (main effect of copper) and the marginal means for the three zinc concentrations (main effect of zinc). Summarize any significant findings in the context of the study.
-
-\newpage
-
-11. Study the plots of the residuals versus: a) predicted value, b) the copper concentrations, and c) the zinc concentrations. Do these plots show any cause for concern?
-
-\newpage
-
-12. Study the normal probability plot for the residuals. Is there anything of concern in this plot?
