@@ -4,6 +4,14 @@ output: pdf_document
 date: "2024-10-27"
 ---
 
+# Q3 
+Do you calculate the actual cell means or estimate them based on the code provided?
+
+# Q5-7 
+Do you include "and across all interactions" in the interpretation? 
+
+# Overview
+
 Factor A: Concentration of copper (0 or 150 ppm)
 Factor B: Concentration of zinc (0, 750 or 1500 ppm)
 Response Variable: protein content ($\mu$g/tank)
@@ -41,17 +49,6 @@ X = \begin{bmatrix}
 \end{bmatrix}
 $$
 
-$$
-X = \begin{bmatrix}
-1 & 1 & 1 & 0 & 1 & 0 \\
-1 & 1 & 0 & 1 & 0 & 1 \\
-1 & 1 & 0 & 0 & 0 & 0 \\
-1 & 0 & 1 & 0 & 0 & 0 \\
-1 & 0 & 0 & 1 & 0 & 0 \\
-1 & 0 & 0 & 0 & 0 & 0 \\
-\end{bmatrix}
-$$
-
 \newpage
 
 # 2. 
@@ -67,16 +64,6 @@ model.matrix(sumto0.anova)
 ```
 
 $$
-X = \begin{bmatrix} 
-1&       1&     1&     0&             1&             0 \\ 
-1&       1&     0&     1&             0&             1 \\ 
-1&       1&    -1&    -1&            -1&            -1 \\ 
-1&      -1&     1&     0&            -1&             0 \\ 
-1&      -1&     0&     1&             0&            -1 \\ 
-1&      -1&    -1&    -1&             1&             1 \\ 
-\end{bmatrix}
-$$
-$$
 X = \begin{bmatrix}
 1 & 1 & 1 & 0 & 1 & 0 \\
 1 & 1 & 0 & 1 & 0 & 1 \\
@@ -87,15 +74,13 @@ X = \begin{bmatrix}
 \end{bmatrix}
 $$
 
-The dataset's structure confirms the full factorial design and the coding remains suitable for the two-factor analysis.
-
 \newpage
 
 # 3. 
 
 Use the estimated parameters from the R output to calculate the six sample treatment means. 
 
-This question is to calculate the six sample treatment means or the cell means. 
+The six sample treatment means is the same as the cell means. 
 
 ```{r}
 model <- lm(protein ~ copper + zinc + copper*zinc, data = minnows)
@@ -117,6 +102,7 @@ options(contrasts = c("contr.sum", "contr.sum"))
 summary(lm(protein ~ copper + zinc + copper*zinc, data = minnows))
 ```
 
+Overall F-statistic is 16.62 with a p-value of 0.001854. The overall F-statistic and associated test is whether there are any differences in the mean protein content across all treatments, i.e. $\mu_{copper0} = \mu_{copper1} = \mu_{zinc0} = \mu_{zinc1} = \mu_{zinc2}$. With a small p-value we have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that all the aforementioned mean protein contents are equal in favor of the alternative hypothesis that at least one mean protein content of a treatment is different from the mean protein content of the other treatments. 
 
 \newpage
 
@@ -132,7 +118,7 @@ summary(sumto0.anova)
 Copper (Main Effect):
 F-value: 1.809
 p-value: 0.227
-Interpretation: The p-value of 0.227 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that there is no significant difference in the mean protein content ($\mu$g/tank) between the two copper levels (0 ppm and 150 ppm). 
+Interpretation: The p-value of 0.227 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that there is no significant difference in the mean protein content ($\mu$g/tank) between the two copper levels (0 ppm and 150 ppm), when averaging across levels of zinc concentrations. 
 
 \newpage
 
@@ -149,7 +135,7 @@ Zinc (Main Effect):
 
 F-value: 39.537
 p-value: 0.000351
-Interpretation: The p-value of 0.000351 meets the threshold of the $\alpha = 0.05$ level, such that we do have evidence to reject the null hypothesis that there is no significant difference in the mean protein content ($\mu$g/tank) between the three zinc levels levels (0, 750 or 1500 ppm). This suggests that at least one of the zinc levels (0, 750, or 1500 ppm) has a different mean protein content ($\mu$g/tank) in the minnow larvae.
+Interpretation: The p-value of 0.000351 meets the threshold of the $\alpha = 0.05$ level, such that we do have evidence to reject the null hypothesis that there is no significant difference in the mean protein content ($\mu$g/tank) between the three zinc levels levels (0, 750 or 1500 ppm), when averaging across levels of copper. This suggests that at least one of the zinc levels (0, 750, or 1500 ppm) has a different mean protein content ($\mu$g/tank) in the minnow larvae, when averaging across levels of copper.
 
 \newpage
 
@@ -165,18 +151,13 @@ summary(sumto0.anova)
 Interaction (Copper × Zinc):
 F-value: 1.113
 p-value: 0.388
-Interpretation: The p-value of 0.388 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that the interaction between copper and zinc concentrations does not significantly influence the mean protein content ($\mu$g/tank). 
+Interpretation: The p-value of 0.388 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that the the mean protein content ($\mu$g/tank) of interactions is different across the pairs of interactions between copper and zinc concentrations. 
 
 \newpage
 
 # 8. 
 
 Study the interaction plot in the R output. Explain why, based on this plot, the interaction is not significant in the model.
-
-```{r}
-interaction.plot(minnows$copper, minnows$zinc, minnows$protein, main="Minnows Experiment", xlab="Zinc Concentration", ylab="Mean Protein Level", trace.label="Copper\n Conc.") 
-interaction.plot(minnows$zinc, minnows$copper, minnows$protein, main="Minnows Experiment", xlab="Copper Concentration", ylab="Mean Protein Level", trace.label="Zinc\n Conc.")
-```
 
 ```{r}
 interaction.plot(x.factor = minnows$copper, 
@@ -196,13 +177,11 @@ interaction.plot(x.factor = minnows$zinc,
   trace.label="Copper\n Conc.")
 ```
 
-Based on the interaction plots shown, it appears that the lines for different levels of zinc do not strongly deviate from being roughly parallel. In an interaction plot, if the lines representing different factor levels (in this case, copper and zinc) are nearly parallel, it indicates that there is little to no interaction effect.
+We have two interaction plots: One for "Copper" tracing on "Zinc" and one for "Zinc" tracing on "Copper". The conclusions of the two are similar/consistent, insomuch as we conclude the interaction is not significant in the model.
 
-Parallel lines suggest that the effect of one factor (e.g., zinc) on the response variable (protein content) is consistent across the levels of the other factor (copper). In other words, changing the copper concentration does not significantly alter the effect that zinc concentration has on the mean protein content.
+Overall, what we are looking for is consistency across the different levels, which looks like parallel, non-intersecting lines. Based on the interaction plots above, the lines for different levels of zinc do not strongly deviate from one another across levels of copper (are roughly parallel). Similarly, the lines for different levels of copper do not strongly deviate from one another across levels of zinc; while there is some intersection, I don't believe it is especially concerning since it is consistent in direction and magnitude across the two levels of the copper factor. 
 
-When the interaction is significant, we would expect to see the lines crossing or diverging noticeably, indicating that the effect of zinc on protein content depends on the level of copper.
-
-Therefore, the interaction is not significant in the model because the interaction plot indicates that the effect of zinc concentration on mean protein content remains relatively consistent regardless of the copper level. This visual evidence aligns with the statistical result showing a non-significant interaction term in the ANOVA table.
+Given the above, we do not have overwhelming nor consistent evidence that the interaction is significant in the model. 
 
 \newpage
 
@@ -239,15 +218,19 @@ Meaning for "significant findings":
   copper150 zinc750 - copper0 zinc1500       51.0 11.4  6   4.483  0.0042
   copper150 zinc750 - copper150 zinc1500     59.5 11.4  6   5.230  0.0020
 
-The above pairs do meet the alpha level such that we have evidence to reject the null hypothesis. In the above instances, we have evidence to reject the null hypothesis at the alpha level that the mean protein content ($\mu$g/tank) for the combination of treatments on the left hand side is different from the mean protein content ($\mu$g/tank) for the combination of treatments on the right hand side (there is a non-zero difference between the two). Using this framework, we have evidence to believe the mean protein content ($\mu$g/tank) of the following pairwise combinations of treatments are different: 
-  copper0 zinc0 - copper0 zinc1500: No copper level changes but an increase of 1500 units of zinc
-  copper0 zinc0 - copper150 zinc1500: A simultaneous change of 150 units for copper with an increase of 1500 units of zinc
-  copper150 zinc0 - copper0 zinc1500: 
-  copper150 zinc0 - copper150 zinc1500:
-  copper0 zinc750 - copper0 zinc1500:
-  copper0 zinc750 - copper150 zinc1500:
-  copper150 zinc750 - copper0 zinc1500:
-  copper150 zinc750 - copper150 zinc1500:
+The above pairs do meet the alpha level such that we have evidence to reject the null hypothesis at the $\alpha = 0.05$ level. In the above instances, we have evidence to reject the null hypothesis at the alpha level stated that the mean protein content ($\mu$g/tank) for the combination of treatments on the left hand side is different from the mean protein content ($\mu$g/tank) for the combination of treatments on the right hand side (there is a non-zero difference between the two). 
+
+Using this framework, we have evidence to believe the mean protein content ($\mu$g/tank) of the following pairwise combinations of treatments are different: 
+  copper0 zinc0 - copper0 zinc1500: No copper level changes but an increase of 1500 units of zinc concentration.
+  copper0 zinc0 - copper150 zinc1500: From no zinc and copper concentration, an increase of 150 units for copper concentration in addition to an increase of 1500 units of zinc concentration.
+  copper150 zinc0 - copper0 zinc1500: Copper concentration at 150 and zinc concentration at 0 and lowering copper concentration to 0 while increasing zinc concentration to 1500. 
+  copper150 zinc0 - copper150 zinc1500: Copper concentration remains at 150 but zinc concentration increases from 0 to 1500. 
+  copper0 zinc750 - copper0 zinc1500: No copper level changes but an increase from 750 to 1500 units of zinc concentration.
+  copper0 zinc750 - copper150 zinc1500: From no copper concentration with 750 zinc concentration to an increase of 150 units for copper concentration in addition to an increase of 750 units of zinc concentration (to 1500 total).
+  copper150 zinc750 - copper0 zinc1500: From 150 copper concentration with 750 zinc concentration to 0 copper concentration (decrease of 150 copper concentration) and an increase of 750 zinc concentration (total 1500 zinc concentration)
+  copper150 zinc750 - copper150 zinc1500: From a copper concentration fo 150 and zinc concentration of 750, keep copper concentration consistent and add an additional 750 zinc concentration (total of 1500 zinc concentration). 
+  
+Taking the numerous significant pairwise comparisons above, we find the mean protein content ($\mu$g/tank) when the zinc concentration increases to 1500 units tends to be different (smaller mean protein content ($\mu$g/tank) than what it is being compared to, whether starting from 0 or 750 zinc concentration, and without regard to a particular copper concentration or change in copper concentration). 
   
 \newpage
 
@@ -264,8 +247,17 @@ pairs(zinc.effects, adjust="tukey")
 
 Within the contest of the study, the following two differences have a statistically significant difference at the $\alpha = 0.05$ level. 
 
-zinc0 - zinc1500       67.8 8.04  6   8.422  0.0004
-zinc750 - zinc1500     53.8 8.04  6   6.682  0.0013
+Comparing marginal means, we have two results that have a p-value small enough to provide evidence at the $\alpha = 0.05$ level for rejecting the null hypothesis. 
+
+  contrast           estimate   SE df t.ratio p.value
+  zinc0 - zinc1500       67.8 8.04  6   8.422  0.0004
+  zinc750 - zinc1500     53.8 8.04  6   6.682  0.0013
+
+Zinc 0 - Zinc 1500: We have evidence at the $\alpha = 0.05$ level for rejecting the null hypothesis that mean protein content ($\mu$g/tank) for the zinc 0 concentrated water is the same as the mean protein content ($\mu$g/tank) for the zinc 1500 concentrated water, when averaging across levels of copper. This provides evidence to support the alternative hypothesis that that mean protein content ($\mu$g/tank) for the zinc 0 concentrated water is different from the mean protein content ($\mu$g/tank) for the zinc 1500 concentrated water, when averaging across levels of copper. 
+
+Zinc 750 - Zinc 1500: We have evidence at the $\alpha = 0.05$ level for rejecting the null hypothesis that mean protein content ($\mu$g/tank) for the zinc 750 concentrated water is the same as the mean protein content ($\mu$g/tank) for the zinc 1500 concentrated water, when averaging across levels of copper. This provides evidence to support the alternative hypothesis that that mean protein content ($\mu$g/tank) for the zinc 750 concentrated water is different from the mean protein content ($\mu$g/tank) for the zinc 1500 concentrated water, when averaging across levels of copper. 
+
+So we overall have evidence of treatment effects for Zinc when increasing zinc concentration in the water to 1500. 
 
 \newpage
 
@@ -273,17 +265,39 @@ zinc750 - zinc1500     53.8 8.04  6   6.682  0.0013
 
 Study the plots of the residuals versus: a) predicted value, b) the copper concentrations, and c) the zinc concentrations. Do these plots show any cause for concern?
 
+Since these are separate plots, if any of the below cause concern, then overall we may have cause for concern. 
+
 ```{r}
-plot(sumto0.anova$fitted.values, sumto0.anova$residuals,
-main="Diagnostic Plot for Minnows Experiment",
-xlab="Fitted Values", ylab="Residuals")
-plot(as.numeric(minnows$copper), sumto0.anova$residuals,
-main="Diagnostic Plot for Minnows Experiment",
-xlab="Copper Level", ylab="Residuals")
-plot(as.numeric(minnows$zinc), sumto0.anova$residuals,
-main="Diagnostic Plot for Minnows Experiment",
-xlab="Zinc Level", ylab="Residuals")
+plot(sumto0.anova$fitted.values, 
+     sumto0.anova$residuals,
+     main="Fitted Values - Diagnostic Plot for Minnows Experiment",
+     xlab="Fitted Values", 
+     ylab="Residuals")
 ```
+
+a) predicted value: We overall have a fairly random spread of residuals (both positive and negative), though there is a slight "trumpet" pattern that emerges at we fit larger values of our response variable protein content ($\mu$g/tank). We may not in fact have constant variance. However, these values do tend to taper back (decrease their variability) for fitted values greater than 180; it just so happens that the spread/variability of residuals increases a fair amount between fitted values between 160-180. 
+
+```{r}
+plot(as.numeric(minnows$copper), 
+     sumto0.anova$residuals,
+     main="Copper Level - Diagnostic Plot for Minnows Experiment",
+     xlab="Copper Level", 
+     ylab="Residuals")
+```
+
+b) the copper concentrations: Similar to the above, we notice the "spread" or variability of our residuals appear to increase for the larger level (higher concentration) of Copper levels. Though this increase in spread/variability is not dramatic, at least not enough that I would be concerned given it is within the same order of magnitude, there nonetheless is something potentially problematic in the above plot. 
+
+```{r}
+plot(as.numeric(minnows$zinc), 
+     sumto0.anova$residuals,
+     main="Zinc Level - Diagnostic Plot for Minnows Experiment",
+     xlab="Zinc Level", 
+     dylab="Residuals")
+```
+
+c) the zinc concentrations: Similar to (a), we observe rather consistent spread/variability of residuals at the tails/extremes of the Zinc levels. However, near the "middle", or near the Zinc concentration levels of "2" or 750 concentration, we observe the residual spread increases a bit. Again, the overall magnitude of the spread of residuals at this particular Zinc level is similar and consistent with the other levels, but it does indicate something potentially problematic. 
+
+Overall, all three residual plots do not appear to have cause for concern, though there is some slight evidence/indication that we do not have constant variance in our residuals. 
 
 \newpage
 
@@ -304,3 +318,7 @@ median(sumto0.anova$residuals)
 skewness(sumto0.anova$residuals)
 kurtosis(sumto0.anova$residuals)-3
 ```
+
+Reviewing the above QQ Plot to assess normality of residuals: We notice there is a rather subtle "S"-shaped curve to the plot. Despite this, it does appear that the residuals do closely follow along the reference line, with some additional deviations from the reference line near the tails of the quantiles. Overall, it does appear that the residuals are somewhat, or generally, normally distributed such that we have evidence that our assumption of normally distributed residuals is not being violated. 
+
+However, we have additional tests to consider and supplement the above QQ Plot interpretation. Namely: We have a large p-value which does not provide evidence for rejecting the null hypothesis that the residuals are normally distributed. Furthermore, summary statistics provide sample values of the mean and median of the residuals being very close (to one another as well as close to zero!) Additionally, when looking at the skewness and (excess) kurtosis of the residuals, we find that the skewness is very close to zero, and that we have slight negative excess kurtosis, or have evidence of residuals being slightly short-tailed. These results are consistent with the above interpretation of the QQ Plot, insomuch as there is not any glaring evidence of violating our assumption of normally distributed residuals. 

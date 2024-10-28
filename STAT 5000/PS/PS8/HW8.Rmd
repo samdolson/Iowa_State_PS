@@ -1,0 +1,232 @@
+---
+title: "HW 8"
+output: pdf_document
+date: "2024-10-28"
+---
+
+[Stat 5000]{.smallcaps}
+[Homework #8]{.smallcaps}\
+[Fall 2024]{.smallcaps} 
+[due Fri, November 1st @ 11:59 pm]{.smallcaps}
+[Name: Sam Olson]{.smallcaps} \
+[Collaborators: **The Hatman**]{.smallcaps} \
+
+# Q1 
+
+A completely randomized two-factor experiment consisted of burning fuel with levels of two additives in a laboratory setting and determining the carbon monoxide (CO) emissions released. Eighteen batches of a standard fuel were available for this study. Two of the batches were randomly assigned to each of nine combinations of two additives corresponding to three levels of added ethanol (0.1, 0.2, or 0.3) and three air/fuel ratio settings (14, 15, or 16). Units for the ethanol levels were not reported. CO emission concentrations (g/meter3) were determined by burning the same amount of fuel from each of the 18 batches. The data are shown below and are located in the file emissions.txt.
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1.png")
+```
+
+## (a) 
+
+Construct the full ANOVA table. Which factors or interactions have significant effects on CO concentrations in emissions? Interpret the results in the context of the study.
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1a.png")
+```
+
+\newpage
+
+## (b) 
+
+Partition the sum of squares for the ethanol effects, averaging across air/fuel ratio levels, into sums of squares for linear and quadratic components. The coefficients for these contrasts are (-1, 0, 1) and (-1, 2, -1). Is there a significant linear or quadratic effect in the model for the ethanol effects?
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1b.png")
+```
+
+\newpage
+
+## (c) 
+
+Partition the sum of squares for the air/fuel ratio effects, averaging across levels of ethanol, into sums of squares for linear and quadratic components. The coefficients for these contrasts are (-1, 0, 1) and (-1, 2, -1). Is there a significant linear or quadratic effect in the model for the air/fuel ratio effects?
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1c.png")
+```
+
+\newpage
+
+## (d) 
+
+Use Tukey’s HSD method to make pairwise comparisons of the marginal means for the three ethanol values. Summarize the results in the context of the study.
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1d.png")
+```
+
+\newpage
+
+## (e) 
+
+Use Tukey’s HSD method to make pairwise comparisons of the marginal means for the air/fuel ratio values. Summarize the results in the context of the study.
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1d2.png")
+```
+
+\newpage
+
+# Q2 
+
+In a study of the effects of exposure to UV-B radiation on egg hatch rates for three species of frogs, eggs were collected from two different locations (Three Creek and Sparks Lake) and then subjected to UV-B radiation using three different kinds of filters. Thirty-six enclosures were constructed at each location. Within each location, four enclosures were randomly assigned to each of the 9 combination of the two factors: frog species (Hyla regilla, Rana cascade, and Bufo boreas) and type of radiation filters (none, UV-B transmitting, and UV-B blocking). One hundred and fifty eggs for the designated frog species were placed in each enclosure. The response is the percentage of eggs that failed to hatch in each enclosure. The data is posted in the frogeggs.txt file and displayed in the following tables:
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2.png")
+```
+
+## (a) 
+
+What is the treatment design and what is the experimental design in this study?
+
+\newpage
+
+## (b) 
+
+Consider the model $Y_{ijkl} = \mu + \alpha_i + \tau_j + (\alpha \tau)_{ij} + \beta_k + \epsilon_{ijkl}$ where $\epsilon_{ijkl} \sim N(0, sigma^2)$ are random errors, $\beta_k \sim N(0, \sigma^2)$ are random block effects corresponding to locations, and any random error is independent of any random block effect. Imposing the baseline constraints $\alpha_3 = \tau_3 = (\alpha \tau )_{13} = (\alpha \tau )_{23} = (\alpha \tau )_{33} = (\alpha \tau )_{31} = (\alpha \tau )_{32} = 0$ then interpret the following
+parameters in the context of the study:
+
+### i. 
+
+$\mu$
+
+### ii. 
+
+$\alpha_1$
+
+### iii. 
+
+$\tau_2$
+
+### iv. 
+
+$(\alpha \tau)_{12}$
+
+### v. 
+
+$\mu + \alpha_1 + \tau_2 + (\alpha \tau)_{12}$
+
+### vi. 
+
+$(\alpha \tau)_{12} - (\alpha \tau )_{32} - (\alpha \tau )_{13} + (\alpha \tau )_{33}$
+
+\newpage
+
+## (c) 
+
+Examine the equal variance assumption. Summarize your findings and include supporting tables and/or figures.
+
+\newpage
+
+## (d) 
+
+Examine the normality assumption. Summarize your findings and include supporting tables and/or figures
+
+\newpage
+
+## (e) 
+
+Suppose that the diagnostics suggest the need for a transformation. Find which transformation of the responses is better, square root transformation, log transformation, or none? Summarize your findings and include supporting tables and/or figures.
+
+\newpage
+
+## (f) 
+
+For the best model specified in part (e), find the full ANOVA table. Summarize which factors and interactions are significant. Is there any evidence that the types of filter have different effects on egg hatch success? Explain.
+
+\newpage
+
+## (g) 
+
+For the best model specified in part (e): Examine a profile plot of the treatment means (do not hand it in), plotting the sample mean responses for the combinations of filters and frog species, averaging across locations. What does this plot suggest? Are your conclusions about interactions between types of filters and frog species supported by results in the ANOVA table?
+
+\newpage
+
+# Q3 
+
+The data shown in the table below are results from a study of amylace activity of malted wheat flour (Geddes, et al. 1941, Cereal Chem 18, 42-60.). Five factors, each at two levels, were examined:
+
+Factor s: type/species of wheat
+  Amber durum (1)
+  hard red spring (2)
+
+Factor p: wheat protein content
+  low (1)
+  high (2)
+
+Factor m: wheat moisture content
+  40 percent (1)
+  44 percent (2)
+
+Factor g: germination time
+  3 days (1)
+  5 days (2)
+
+Factor k: kiln temperature rising 
+  100F to 130F (1)
+  constant at 100F (2)
+
+Response: Amylace is a protein that helps you break down carbohydrates and starches into sugar, releasing carbon dioxide (CO2) in the process. Amylase activity was measured by the amount of malt from each flour that was required to produce 204.7ml of CO2. Measured amylase activity is reported in the data table in units of Y = [0.6 + log(amount of malt)] × 103
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3.png")
+```
+
+## (a) 
+
+The normal probability plot and table of estimates on the next page shows the values of main effects and interaction contrasts, for which the estimate of every contrast has the same variance. This information is used to determine which effects should be included in the analysis and which should be used to estimate the variance. Which effects appear to be large?
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3a1.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3a2.png")
+```
+
+\newpage
+
+## (b) 
+
+Using least squares estimation to fit the model that includes all main effects and all interaction effects that were identified as “non-zero” by the analysis in part (a), (including all main effects in this model, regardless of whether the plot suggests they are significant or not, then the sum of sums of squares for the interaction contrasts that are not included in
+the model can be pooled to obtain a MSerror), the corresponding ANOVA table is provided below.
+
+Examine the results of F-tests for terms kept in the model and summarize the results in the context of the study
+
+\newpage
+
+## (c) 
+
+Choose any significant two-way interaction for the model in part (b) and interpret it in the context of the study. Also interpret the significant three-way interaction for the model in part (b).
+
+\newpage
+
+## (d) 
+
+Comment on the normal probability plot of the residuals for the model in part (b), shown below.
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3d.png")
+```
+
+\newpage
+
+## (e) 
+
+Comment on the plot of the residuals versus the estimated mean yields for the model in part (b), shown below.
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3e.png")
+```
+
+\newpage
+
+## (f) 
+
+Interpret the value of each of the estimated effects of the five factors on amylase activity, shown below. Keep in mind that low values of the response variable correspond to combinations of factors that produce 204.7 ml of CO2 with the least amount of malt.
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3f.png")
+```
