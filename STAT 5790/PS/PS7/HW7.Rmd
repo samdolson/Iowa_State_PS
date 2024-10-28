@@ -19,7 +19,7 @@ attach(txhousing)
 
 ggplot(txhousing, aes(x = date, y = sales, color = city)) +
   geom_line() +
-  labs(title = "Monthly House Sales for Each Texas City",
+  labs(title = "Monthly House Sales of Texas Cities",
        x = "Date",
        y = "Sales",
        color = "City") +
@@ -46,9 +46,9 @@ We can fix one problem described in (a) by plotting sales in the log-scale. Plot
 ```{r}
 ggplot(txhousing, aes(x = date, y = log(sales), color = city)) +
   geom_line() +
-  labs(title = "Monthly House Sales for Each Texas City",
+  labs(title = "Monthly House Sales of Texas Cities",
        x = "Date",
-       y = "log of Sales",
+       y = "log(Sales)",
        color = "City") +
   theme_minimal() +
   theme(legend.position = "none") + 
@@ -61,16 +61,19 @@ We can fix another problem described in (a) by removing the strong seasonal tren
 
 ```{r}
 
-residuals_list <- tapply(X = seq_along(txhousing$sales), INDEX = txhousing$city, FUN = function(idx) {
-  lm_fit <- lm(log(txhousing$sales[idx]) ~ txhousing$month[idx], na.action = na.exclude)
-  residuals(lm_fit)
-})
+residualsList <- tapply(X = seq_along(txhousing$sales), 
+                        INDEX = txhousing$city, 
+                        FUN = function(idx) {
+                          lm_fit <- lm(log(txhousing$sales[idx]) ~ txhousing$month[idx], na.action = na.exclude)
+                          residuals(lm_fit)
+                          }
+                        )
 
-txhousing$rel_sales <- unlist(residuals_list)
+txhousing$rel_sales <- unlist(residualsList)
 
 ggplot(txhousing, aes(x = date, y = rel_sales, color = city)) +
   geom_line() +
-  labs(title = "Residual Sales Time Series for Each Texas City",
+  labs(title = "Residual Sales of Texas Cities",
        x = "Date",
        y = "Residuals of log(Sales)",
        color = "City") +
@@ -89,6 +92,8 @@ On the plot for (c), put in the mean curve using the function geom line() on the
 #   group_by(date) |>
 #   summarise(mean_rel_sales = mean(rel_sales, na.rm = TRUE))
 
+# I'll give in to the underscore instead of Camel case...
+# since it must be called rel_sales
 mean_rel_sales <- data.frame(
   date = unique(txhousing$date),
   mean_rel_sales = tapply(txhousing$rel_sales, txhousing$date, mean, na.rm = TRUE)
@@ -98,7 +103,7 @@ mean_rel_sales <- data.frame(
 ggplot(txhousing, aes(x = date, y = rel_sales, color = city)) +
   geom_line() +
   geom_line(data = mean_rel_sales, aes(x = date, y = mean_rel_sales), color = "black", size = 1.2, linetype = "solid") +
-  labs(title = "Residual Sales Time Series for Each Texas City",
+  labs(title = "Residual Sales of Texas Cities",
        x = "Date",
        y = "Residuals of log(Sales)",
        color = "City") +
@@ -125,7 +130,7 @@ ggplot(txhousing, aes(x = month, y = rel_sales, color = city)) +
   geom_line() +
   geom_line(data = mean_rel_sales, aes(x = month, y = mean_rel_sales), 
             color = "black", size = 1.2, linetype = "solid") +
-  labs(title = "Residual Sales Time Series by Month and Year",
+  labs(title = "Residual Sales of Texas Cities by Month, Year",
        x = "Month",
        y = "Residuals of log(Sales)",
        color = "City") +
@@ -146,14 +151,69 @@ When a cell phone relay tower is not working properly, wireless providers can lo
 
 Read the data set and name each column, the variables corresponding names, problem, severity and engineer, i.e., problem for low and high, severity for simple and complex and engineer for new or expert. The names for the last three columns are given by ”Assessment”,”Implementation”,”Resolution”. Note that the resolution is the sum of the time assessment of the problem and the implementation. 
 
+```{r}
+breakdown <- read.table("breakdown.dat")
+names(breakdown) <- c("Problem", "Severity", "Engineer", "Assessment","Implementation","Resolution")
+```
+
 ## (b) 
 
 For the engineer type as a categorical variable on the x axis, create a facet with boxplots for the variables. You may need to use the reshape2 package. Also rename the y-axis label. What difference can you tell for the engineer for each time?
+
+```{r}
+library(reshape2)
+library(ggplot2)
+
+breakdown_long <- melt(data = breakdown, 
+                       id.vars = c("Problem", "Severity", "Engineer"),
+                       measure.vars = c("Assessment", "Implementation", "Resolution"),
+                       variable.name = "Thing", 
+                       value.name = "Time")
+
+ggplot(breakdown_long, aes(x = Engineer, y = Time)) +
+  geom_boxplot() +
+  facet_wrap(~ Thing, scales = "free_y") +
+  labs(y = "Time", x = "Engineer Type", title = "Time Across Problems") +
+  theme_minimal()
+```
 
 ## (c) 
 
 The above boxplot may be hard to interpret for some. For the above, separate the levels severity and create side-by-side boxplots for each level of engineer. What conclusions can you draw from each of these plots? 
 
+```{r}
+ggplot(breakdown_long, aes(x = Engineer, y = Time, fill = Severity)) +
+  geom_boxplot(position = position_dodge(width = 0.8)) +
+  facet_wrap(~ Thing, scales = "free_y") +
+  labs(y = "Time", x = "Engineer Type", title = "Time Across Problems By Severity") +
+  scale_fill_brewer(palette = "Set1", name = "Severity") +
+  theme_minimal()
+```
+
 ## (d) 
 
 Now create a new faceting plot, by faceting with “Problem” and the three variables. Discuss the plot and draw appropriate conclusions, if any. 
+
+```{r}
+ggplot(breakdown_long, aes(x = Engineer, y = Time, fill = Severity)) +
+  geom_boxplot(position = position_dodge(width = 0.8)) +
+  facet_grid(Problem ~ Thing, scales = "free_y") +
+  scale_y_continuous(
+    name = "Time",
+    sec.axis = sec_axis(~ ., name = "Problem",)  
+  ) + 
+  labs(x = "Engineer Type", title = "Time Across Problems By Severity and Problem") +
+  scale_fill_brewer(palette = "Set1", name = "Severity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+In general, I find the above difficult to see (so tiny!) That point notwithstanding there tend to be three comparisons I find myself making: Guru vs. Novice comparisons, "High" vs. "Low" Severity comparisons, and "Complex" vs. "Simple" comparisons, all across the (secret fourth comparison) of Assessment, Implementation, and Resolution. As Resolution is a composite of Assessment and Implementation, results tended to be most consistent with observations for Assessment or Implementation individually. 
+
+Guru v. Novice: The Guru tends to have lower variability (greater precision) in time taken across all stages, and tends to take less time than the Novice regardless of task or complexity. By contrast the "Novice" shows more variability (less precision) particularly during the Implementation and Resolution. Though a bit difficult to see, Novice has significant outliers and longer times for resolving "Complex" problems, particularly in Implementation. 
+
+Complex v. Simple: For "Complex" problems, the Resolution stage takes longer for the Novice compared to the Guru (largest disparity, visually, from the two plots), which seems in large part due to differences in Implementation (this point isn't especially poignant since Resolution is a composite of the two components). 
+
+High v. Low: Assessment times do not vary much between "High" and "Low" severity (top vs. bottom graphs) though there are slight differences between Guru and Novice for Assessments. 
+
+Let's get down to Business: I need Gurus, more Gurus. But short of that, maybe there is something to be said about Novices difficulty in Implementation (since Resolution is a composite of Implementation and Assessment). 

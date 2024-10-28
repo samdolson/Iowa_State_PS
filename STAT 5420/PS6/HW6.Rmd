@@ -6,13 +6,13 @@ date: "2024-10-26"
 
 # Homework 6
 
-Outline: 
-  Q1: Started 
-  Q2: Started 
-  Q3: Started 
-  Q4: Started 
+# Outline: 
+  Q1: DONE 
+  Q2: DONE 
+  Q3: DONE  
+  Q4: DONE 
   Q5: Started 
-  Q6: Started
+  Q6: WIP
   Q7: Started
 
 # Q1: 4.17, Casella & Berger
@@ -37,12 +37,22 @@ Find the conditional distribution of X - 4 given $Y \geq 5$
 
 As defined, $Y = i + 1$, such that 
 
-$$Y \geq 5 \rightarrow i + 1 \geq 5 \rightarrow X \geq 4$$
+$$Y \geq 5 \iff i + 1 \geq 5 \iff X \geq 4$$
 Utilizing the distributions as defined and found, we then have
 
-$P(X - 4 \leq x | Y \geq 5) = P(X - 4 \leq 4 | X \geq 4) = P(X \leq x) = e^{-x}$
+$$
+P(X - 4 \leq x \mid Y \geq 5) = P(X - 4 \leq x \mid X \geq 4) = P(X \leq x + 4 \mid X \geq 4)
+$$
 
-With note of the memoryless property of the Exponential distribution. 
+$$
+P(X - 4 \leq x \mid Y \geq 5)  = P(X \leq x + 4 \mid X \geq 4) = 1 - P(X > x + 4 \mid X \geq 4) = 1 - P(X > x) = 1 - e^{-x}
+$$
+
+This sure looks like the memoryless property we observed previously! 
+
+$$
+P(X - 4 \leq x \mid Y \geq 5) = P(X \leq x) = 1 - e^{-x}
+$$
 
 \newpage
 
@@ -100,12 +110,15 @@ Expectation
 
 Show that any random variable X (with finite mean) has zero covariance with any real constant c, i.e. $Cov(X, c) = 0$
 
-To show that any random variable \( X \) with finite mean has zero covariance with any real constant \( c \), we start by using the definition of covariance.
-
-The covariance between two random variables \( X \) and \( Y \) is given by:
-
+The covariance of X and c may be written: 
 
 $$Cov(X, c) = E[(X - E[X])(c - E[c])] = E[(X - E[X])(c-c)] = E[(X - E[X])0] = E[0] = 0$$
+
+Such that we conclude:
+
+$$Cov(X, c) = 0$$
+
+And we must have the condition that X has a finite mean as $\infty * 0$ is undefined. 
 
 ## (b) 
 
@@ -118,48 +131,42 @@ for an x with pdf $f_X(x) > 0$ (You may also assume (X, Y) are jointly discrete)
 To show that 
 
 $$
-E[g(X)h(Y) \mid X = x] = g(x)E[h(Y) \mid X = x],
+E[g(X)h(Y) \mid X = x] = g(x)E[h(Y) \mid X = x]
 $$
 
-we start by recalling the definition of conditional expectation and use the fact that \(X\) and \(Y\) are jointly discrete random variables.
-
-For discrete random variables \(X\) and \(Y\), the conditional expectation of \(h(Y)\) given \(X = x\) is defined as:
+For jointly discrete random variables X and Y, the conditional expectation of h(Y) | X = x is:
 
 $$
-E[h(Y) \mid X = x] = \sum_y h(y) P(Y = y \mid X = x).
+E[h(Y) \mid X = x] = \sum_y h(y) P(Y = y \mid X = x)
 $$
 
-Similarly, the conditional expectation of \(g(X)h(Y)\) given \(X = x\) is:
+Similarly, the conditional expectation of g(X)h(Y) | X = x is:
 
 $$
-E[g(X)h(Y) \mid X = x] = \sum_y g(x)h(y) P(Y = y \mid X = x).
+E[g(X)h(Y) \mid X = x] = \sum_y g(x)h(y) P(Y = y \mid X = x)
 $$
 
-Since \(g(X)\) depends only on \(X\), and we are conditioning on \(X = x\), we can replace \(g(X)\) with \(g(x)\), which is a constant with respect to the summation over \(y\):
+We can simplify by recognizing there are terms in the above equations that do not depend on the index of the summation, specifically:
 
 $$
-E[g(X)h(Y) \mid X = x] = \sum_y g(x) h(y) P(Y = y \mid X = x).
+E[g(X)h(Y) \mid X = x] = \sum_y g(x) h(y) P(Y = y \mid X = x) = g(x) \sum_y h(y) P(Y = y \mid X = x)
 $$
 
-We can factor \(g(x)\) out of the summation:
+However, this is a very familiar formula to us! 
 
 $$
-E[g(X)h(Y) \mid X = x] = g(x) \sum_y h(y) P(Y = y \mid X = x).
+E[g(X)h(Y) \mid X = x] = g(x) \sum_y h(y) P(Y = y \mid X = x)
+=  g(x) E[h(Y) \mid X = x]
 $$
 
-The summation \(\sum_y h(y) P(Y = y \mid X = x)\) is precisely the definition of \(E[h(Y) \mid X = x]\):
+Note: 
+
+The condition $f_X(x) > 0$ is necessary as it ensures that $P(Y = y \mid X = x)$ is defined, because: 
 
 $$
-E[g(X)h(Y) \mid X = x] = g(x) E[h(Y) \mid X = x].
+P(Y = y \mid X = x) = \frac{P(X = x, Y = y)}{P(X = x)} \equiv \frac{P(X = x, Y = y)}{f_X(x)}
 $$
 
-This completes the proof:
-
-$$
-E[g(X)h(Y) \mid X = x] = g(x) E[h(Y) \mid X = x].
-$$
-
-The result holds for values of \(x\) such that the conditional probability \(P(X = x) > 0\).
 
 \newpage
 
@@ -171,30 +178,16 @@ Suppose that $X_i$ has mean $\mu_i$ and variance $\sigma_i^2$, for i = 1, 2, and
 
 $X_1 - 2X_2 + 8$
 
-Let $Y = X_1 - 2X_2 + 8$
-
 $$
-Var(Y) = Cov(Y, Y) = Cov(X_1 - 2X_2 + 8, X_1 - 2X_2 + 8).
+Var(X_1 - 2X_2 + 8) = Cov(X_1 - 2X_2 + 8, X_1 - 2X_2 + 8) = Cov(X_1 - 2X_2, X_1 - 2X_2)
 $$
 
 $$
-Var(Y) = Cov(X_1 - 2X_2 + 8, X_1 - 2X_2 + 8) = Cov(X_1 - 2X_2, X_1 - 2X_2).
+Cov(X_1 - 2X_2 + 8, X_1 - 2X_2 + 8) = Cov(X_1, X_1) - 2Cov(X_1, X_2) - 2Cov(X_2, X_1) + 4Cov(X_2, X_2) = \sigma_1^2 - 4\sigma_{12} + 4\sigma_2^2
 $$
 
 $$
-Var(Y) = Cov(X_1, X_1) - 2Cov(X_1, X_2) - 2Cov(X_2, X_1) + 4Cov(X_2, X_2).
-$$
-
-Simplifying gives us 
-
-$$
-Var(Y) = \sigma_1^2 - 4\sigma_{12} + 4\sigma_2^2.
-$$
-
-So we conclude: 
-
-$$
-Cov(X_1 - 2X_2 + 8) = Cov (X_1 - 2X_2) = \sigma_1^2 - 4\sigma_{12} + 4\sigma_2^2.
+Cov(X_1 - 2X_2 + 8, X_1 - 2X_2 + 8) = \sigma_1^2 - 4\sigma_{12} + 4\sigma_2^2.
 $$
 
 ## (b)  
@@ -207,12 +200,6 @@ $$
 
 $$
 Cov(3X_1 + X_2, 3X_1 + X_2) = 9\sigma_1^2 + 3\sigma_{12} + 3\sigma_{12} + \sigma_2^2
-$$
-
-We then conclude: 
-
-$$
-Cov(3X_1 + X_2, 3X_1 + X_2) = 9\sigma_1^2 + 6\sigma_{12} + \sigma_2^2
 $$
 
 \newpage
@@ -626,24 +613,10 @@ Suppose that $f(x, y) = e^{-y} \text{ for } 0 < x < y < \infty$
 
 Find the joint moment generating function for (X, Y). 
 
-To find the joint moment generating function (MGF) of \( (X, Y) \) with the joint probability density function \( f(x, y) = e^{-y} \) for \( 0 < x < y < \infty \), we proceed as follows.
-
-The joint moment generating function \( M_{X, Y}(t_1, t_2) \) is defined as:
+The joint moment generating function $M_{X, Y}(t_1, t_2)$ may be defined:
 
 $$
-M_{X, Y}(t_1, t_2) = \mathbb{E}\left[e^{t_1 X + t_2 Y}\right].
-$$
-
-This is the double integral of \( e^{t_1 x + t_2 y} \) with respect to the joint density function \( f(x, y) \):
-
-$$
-M_{X, Y}(t_1, t_2) = \int_0^\infty \int_0^y e^{t_1 x + t_2 y} e^{-y} \, dx \, dy.
-$$
-
-We can combine the exponentials:
-
-$$
-M_{X, Y}(t_1, t_2) = \int_0^\infty \int_0^y e^{t_1 x} e^{(t_2 - 1) y} \, dx \, dy.
+M_{X, Y}(t_1, t_2) = E\left[e^{t_1 X + t_2 Y}\right] = \int_0^\infty \int_0^y e^{t_1 x + t_2 y} e^{-y} \, dx \, dy = \int_0^\infty \int_0^y e^{t_1 x} e^{(t_2 - 1) y} \, dx \, dy
 $$
 
 First, integrate with respect to \( x \). The inner integral is:
