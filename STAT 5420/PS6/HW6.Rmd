@@ -11,7 +11,7 @@ Outline:
   Q2: Started 
   Q3: Started 
   Q4: Started 
-  Q5:  
+  Q5: Started 
   Q6: Started
   Q7: Started
 
@@ -227,21 +227,394 @@ $$f(x, y) = 3 (x + y) \text{ for } 0<x<1, 0<y<1, 0<x+y<1$$
 
 Find the marginal distribution of $f_X(x)$
 
+To find the marginal distribution \( f_X(x) \), we need to integrate the joint probability density function \( f(x, y) \) with respect to \( y \):
+
+$$
+f_X(x) = \int_{0}^{1} f(x, y) \, dy
+$$
+
+Given the joint pdf:
+
+$$
+f(x, y) = 3 (x + y) \quad \text{for } 0 < x < 1, \, 0 < y < 1, \, 0 < x + y < 1,
+$$
+
+the region where the pdf is nonzero is bounded by \( 0 < x < 1 \), \( 0 < y < 1 \), and \( 0 < x + y < 1 \). We need to integrate within these bounds.
+
+For a fixed \( x \), \( y \) must satisfy \( 0 < y < 1 - x \) to ensure \( 0 < x + y < 1 \).
+
+The marginal distribution \( f_X(x) \) is given by:
+
+$$
+f_X(x) = \int_{0}^{1-x} 3 (x + y) \, dy.
+$$
+
+$$
+f_X(x) = 3 \int_{0}^{1-x} (x + y) \, dy = 3 \left[ \int_{0}^{1-x} x \, dy + \int_{0}^{1-x} y \, dy \right].
+$$
+
+Evaluating these integrals:
+
+1. $$\int_{0}^{1-x} x \, dy = x(1 - x).$$
+2. $$\int_{0}^{1-x} y \, dy = \frac{(1 - x)^2}{2}.$$
+
+So, we have:
+
+$$
+f_X(x) = 3 \left[ x(1 - x) + \frac{(1 - x)^2}{2} \right] = 3 \left[ (1 - x) \left( x + \frac{1 - x}{2} \right) \right].
+$$
+
+Simplifying further:
+
+$$
+f_X(x) = 3 (1 - x) \left( \frac{2x + 1 - x}{2} \right) = 3 (1 - x) \left( \frac{x + 1}{2} \right) = \frac{3}{2} (1 - x)(x + 1).
+$$
+
+Thus, the marginal distribution is:
+
+$$
+f_X(x) = \frac{3}{2} (1 - x)(x + 1), \quad \text{for } 0 < x < 1.
+$$
+
 ## (b) 
 
 Find the conditional pdf of Y | X = x, given some 0<x<1. 
+
+To find the conditional probability density function of \( Y \) given \( X = x \), we use the definition:
+
+$$
+f_{Y | X}(y | x) = \frac{f(x, y)}{f_X(x)},
+$$
+
+where \( f(x, y) \) is the joint pdf and \( f_X(x) \) is the marginal pdf of \( X \).
+
+The joint pdf is:
+
+$$
+f(x, y) = 3 (x + y), \quad \text{for } 0 < x < 1, \, 0 < y < 1, \, 0 < x + y < 1.
+$$
+
+We found that:
+
+$$
+f_X(x) = \frac{3}{2} (1 - x)(x + 1), \quad \text{for } 0 < x < 1.
+$$
+
+The conditional pdf is given by:
+
+$$
+f_{Y | X}(y | x) = \frac{f(x, y)}{f_X(x)} = \frac{3 (x + y)}{\frac{3}{2} (1 - x)(x + 1)}.
+$$
+
+Simplifying the expression:
+
+$$
+f_{Y | X}(y | x) = \frac{2 (x + y)}{(1 - x)(x + 1)}.
+$$
+
+Given \( 0 < x < 1 \), the support for \( y \) is \( 0 < y < 1 - x \) to satisfy \( 0 < x + y < 1 \).
+
+Thus, the conditional pdf of \( Y \) given \( X = x \) is:
+
+$$
+f_{Y | X}(y | x) = \frac{2 (x + y)}{(1 - x)(x + 1)}, \quad \text{for } 0 < y < 1 - x.
+$$
 
 ## (c) 
 
 Find $E[Y | X = x]$
 
+To find the conditional expectation \( E[Y \mid X = x] \), we use the conditional probability density function \( f_{Y | X}(y | x) \):
+
+$$
+E[Y \mid X = x] = \int_{0}^{1-x} y \, f_{Y | X}(y | x) \, dy.
+$$
+
+From the previous result, the conditional pdf is:
+
+$$
+f_{Y | X}(y | x) = \frac{2 (x + y)}{(1 - x)(x + 1)}, \quad \text{for } 0 < y < 1 - x.
+$$
+
+The conditional expectation becomes:
+
+$$
+E[Y \mid X = x] = \int_{0}^{1-x} y \left( \frac{2 (x + y)}{(1 - x)(x + 1)} \right) \, dy.
+$$
+
+We have:
+
+$$
+E[Y \mid X = x] = \frac{2}{(1 - x)(x + 1)} \int_{0}^{1-x} y (x + y) \, dy.
+$$
+
+Expanding \( y(x + y) \), we get:
+
+$$
+y(x + y) = xy + y^2.
+$$
+
+So the integral becomes:
+
+$$
+E[Y \mid X = x] = \frac{2}{(1 - x)(x + 1)} \left( \int_{0}^{1-x} xy \, dy + \int_{0}^{1-x} y^2 \, dy \right).
+$$
+
+1. Evaluate \( \int_{0}^{1-x} xy \, dy \):
+
+$$
+\int_{0}^{1-x} xy \, dy = x \int_{0}^{1-x} y \, dy = x \left[ \frac{(1 - x)^2}{2} \right] = \frac{x (1 - x)^2}{2}.
+$$
+
+2. Evaluate \( \int_{0}^{1-x} y^2 \, dy \):
+
+$$
+\int_{0}^{1-x} y^2 \, dy = \left[ \frac{(1 - x)^3}{3} \right].
+$$
+
+The conditional expectation is:
+
+$$
+E[Y \mid X = x] = \frac{2}{(1 - x)(x + 1)} \left( \frac{x (1 - x)^2}{2} + \frac{(1 - x)^3}{3} \right).
+$$
+
+Factor out \( (1 - x)^2 \):
+
+$$
+E[Y \mid X = x] = \frac{2 (1 - x)^2}{(1 - x)(x + 1)} \left( \frac{x}{2} + \frac{1 - x}{3} \right).
+$$
+
+Simplify further:
+
+$$
+E[Y \mid X = x] = \frac{2 (1 - x)}{x + 1} \left( \frac{3x + 2 - 2x}{6} \right) = \frac{2 (1 - x)}{x + 1} \left( \frac{x + 2}{6} \right).
+$$
+
+Thus, the conditional expectation is:
+
+$$
+E[Y \mid X = x] = \frac{(1 - x)(x + 2)}{3 (x + 1)}.
+$$
+
 ## (d)
 
 Given the results in (a), (b), and (c), explain how you know $E[X | Y = y]$ without any further calculation
 
+We can determine \( E[X \mid Y = y] \) using the symmetry of the joint distribution \( f(x, y) \).
+
+The given joint pdf is:
+
+$$
+f(x, y) = 3 (x + y), \quad \text{for } 0 < x < 1, \, 0 < y < 1, \, 0 < x + y < 1.
+$$
+
+This joint distribution is symmetric in \( x \) and \( y \), meaning that if we interchange \( x \) and \( y \), the form of the joint pdf remains unchanged. Specifically, since \( f(x, y) \) depends only on the sum \( x + y \), it treats \( x \) and \( y \) symmetrically within the valid region.
+
+Because of this symmetry, the roles of \( X \) and \( Y \) are interchangeable. Thus, the conditional expectation \( E[X \mid Y = y] \) should have the same form as \( E[Y \mid X = x] \), with \( x \) replaced by \( y \).
+
+Given that:
+
+$$
+E[Y \mid X = x] = \frac{(1 - x)(x + 2)}{3 (x + 1)},
+$$
+
+by symmetry, we can immediately conclude that:
+
+$$
+E[X \mid Y = y] = \frac{(1 - y)(y + 2)}{3 (y + 1)}.
+$$
+
+This conclusion follows without any further calculation because the joint distribution's symmetry ensures that the conditional expectation expressions for \( X \) and \( Y \) will be identical, with the variables swapped.
+
 ## (e) 
 
-Find $E[E[2XY - Y[X]]$
+Find $E[E[2XY - Y|X]]$
+
+To find \( E[E[2XY - Y \mid X]] \), we use the law of iterated expectations, which states that:
+
+$$
+E[E[Z \mid X]] = E[Z],
+$$
+
+where \( Z = 2XY - Y \).
+
+According to the law of iterated expectations, we can rewrite \( E[E[2XY - Y \mid X]] \) as:
+
+$$
+E[E[2XY - Y \mid X]] = E[2XY - Y].
+$$
+
+Using the linearity of expectation, we get:
+
+$$
+E[2XY - Y] = 2E[XY] - E[Y].
+$$
+
+The marginal pdf of \( Y \), \( f_Y(y) \), is symmetric to the marginal pdf of \( X \), so it can be derived analogously. We previously found that the marginal pdf of \( X \) is:
+
+$$
+f_X(x) = \frac{3}{2} (1 - x)(x + 1), \quad \text{for } 0 < x < 1.
+$$
+
+Thus, \( E[Y] \) can be obtained by integrating \( y \) with respect to the marginal pdf of \( Y \), but given the symmetry of the joint pdf, we can directly conclude that:
+
+$$
+E[Y] = E[X].
+$$
+
+Now, we calculate \( E[X] \):
+
+$$
+E[X] = \int_0^1 x \cdot f_X(x) \, dx = \int_0^1 x \cdot \frac{3}{2} (1 - x)(x + 1) \, dx.
+$$
+
+Expanding \( (1 - x)(x + 1) \), we get:
+
+$$
+(1 - x)(x + 1) = 1 + x - x - x^2 = 1 - x^2.
+$$
+
+Thus,
+
+$$
+E[X] = \frac{3}{2} \int_0^1 x (1 - x^2) \, dx = \frac{3}{2} \left( \int_0^1 x \, dx - \int_0^1 x^3 \, dx \right).
+$$
+
+Evaluating these integrals:
+
+$$
+\int_0^1 x \, dx = \frac{1}{2}, \quad \int_0^1 x^3 \, dx = \frac{1}{4}.
+$$
+
+So,
+
+$$
+E[X] = \frac{3}{2} \left( \frac{1}{2} - \frac{1}{4} \right) = \frac{3}{2} \cdot \frac{1}{4} = \frac{3}{8}.
+$$
+
+Therefore, \( E[Y] = \frac{3}{8} \).
+
+To find \( E[XY] \), we integrate \( xy \cdot f(x, y) \) over the region \( 0 < x < 1 \), \( 0 < y < 1 \), and \( 0 < x + y < 1 \):
+
+$$
+E[XY] = \int_0^1 \int_0^{1-x} xy \cdot 3(x + y) \, dy \, dx.
+$$
+
+Expanding this integral will give the value of \( E[XY] \).
+
+After evaluating \( E[XY] \) and \( E[Y] \), we can find \( E[2XY - Y] = 2E[XY] - E[Y] \), which gives us the final result.
+
+Let's proceed to find the final result for \( E[E[2XY - Y \mid X]] = E[2XY - Y] \), which requires calculating \( 2E[XY] - E[Y] \).
+
+In the previous steps, we found:
+
+$$
+E[Y] = \frac{3}{8}.
+$$
+
+We need to evaluate:
+
+$$
+E[XY] = \int_0^1 \int_0^{1-x} xy \cdot 3(x + y) \, dy \, dx.
+$$
+
+Expanding this expression:
+
+$$
+E[XY] = 3 \int_0^1 \int_0^{1-x} xy (x + y) \, dy \, dx.
+$$
+
+Expanding \( xy(x + y) \), we get:
+
+$$
+xy(x + y) = x^2 y + xy^2.
+$$
+
+Thus, the integral becomes:
+
+$$
+E[XY] = 3 \int_0^1 \int_0^{1-x} (x^2 y + xy^2) \, dy \, dx.
+$$
+
+We will now evaluate these integrals separately.
+
+1. **Evaluate \( \int_0^1 \int_0^{1-x} x^2 y \, dy \, dx \):**
+
+$$
+\int_0^1 \int_0^{1-x} x^2 y \, dy \, dx = \int_0^1 x^2 \left( \frac{(1-x)^2}{2} \right) \, dx = \frac{1}{2} \int_0^1 x^2 (1 - x)^2 \, dx.
+$$
+
+Expanding \( (1 - x)^2 = 1 - 2x + x^2 \), we get:
+
+$$
+\frac{1}{2} \int_0^1 x^2 (1 - 2x + x^2) \, dx = \frac{1}{2} \left( \int_0^1 x^2 \, dx - 2 \int_0^1 x^3 \, dx + \int_0^1 x^4 \, dx \right).
+$$
+
+Evaluating these integrals:
+
+$$
+\int_0^1 x^2 \, dx = \frac{1}{3}, \quad \int_0^1 x^3 \, dx = \frac{1}{4}, \quad \int_0^1 x^4 \, dx = \frac{1}{5}.
+$$
+
+Thus,
+
+$$
+\frac{1}{2} \left( \frac{1}{3} - 2 \cdot \frac{1}{4} + \frac{1}{5} \right) = \frac{1}{2} \left( \frac{1}{3} - \frac{1}{2} + \frac{1}{5} \right) = \frac{1}{2} \left( \frac{10}{30} - \frac{15}{30} + \frac{6}{30} \right) = \frac{1}{2} \cdot \frac{1}{30} = \frac{1}{60}.
+$$
+
+2. **Evaluate \( \int_0^1 \int_0^{1-x} xy^2 \, dy \, dx \):**
+
+$$
+\int_0^1 \int_0^{1-x} xy^2 \, dy \, dx = \int_0^1 x \left( \frac{(1-x)^3}{3} \right) \, dx = \frac{1}{3} \int_0^1 x (1 - x)^3 \, dx.
+$$
+
+Expanding \( (1 - x)^3 = 1 - 3x + 3x^2 - x^3 \), we get:
+
+$$
+\frac{1}{3} \int_0^1 (x - 3x^2 + 3x^3 - x^4) \, dx = \frac{1}{3} \left( \frac{1}{2} - 3 \cdot \frac{1}{3} + 3 \cdot \frac{1}{4} - \frac{1}{5} \right).
+$$
+
+Evaluating these terms:
+
+$$
+\frac{1}{3} \left( \frac{1}{2} - 1 + \frac{3}{4} - \frac{1}{5} \right) = \frac{1}{3} \left( \frac{30}{60} - \frac{60}{60} + \frac{45}{60} - \frac{12}{60} \right) = \frac{1}{3} \cdot \frac{3}{60} = \frac{1}{60}.
+$$
+
+Adding the results, we obtain:
+
+$$
+E[XY] = 3 \left( \frac{1}{60} + \frac{1}{60} \right) = \frac{3}{30} = \frac{1}{10}.
+$$
+
+Now, we have:
+
+$$
+2E[XY] = 2 \cdot \frac{1}{10} = \frac{1}{5},
+$$
+
+and
+
+$$
+E[Y] = \frac{3}{8}.
+$$
+
+Thus,
+
+$$
+2E[XY] - E[Y] = \frac{1}{5} - \frac{3}{8}.
+$$
+
+Converting to a common denominator (40):
+
+$$
+2E[XY] - E[Y] = \frac{8}{40} - \frac{15}{40} = -\frac{7}{40}.
+$$
+
+Therefore, the final result is:
+
+$$
+E[E[2XY - Y \mid X]] = -\frac{7}{40}.
+$$
 
 \newpage
 
@@ -472,9 +845,6 @@ This is also the MGF of an **Exponential(1)** distribution. Therefore, the margi
 $$
 Y \sim \text{Exponential}(1).
 $$
-
-### Conclusion:
-
 - The marginal distribution of \( X \) is **Exponential(1)**.
 - The marginal distribution of \( Y \) is **Exponential(1)**.
 
