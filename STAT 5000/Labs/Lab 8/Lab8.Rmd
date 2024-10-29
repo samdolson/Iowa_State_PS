@@ -4,9 +4,6 @@ output: pdf_document
 date: "2024-10-27"
 ---
 
-# Q3 
-Do you calculate the actual cell means or estimate them based on the code provided?
-
 # Q5-7 
 Do you include "and across all interactions" in the interpretation? 
 
@@ -38,6 +35,13 @@ baseline.anova$coefficients
 model.matrix(baseline.anova)
 ```
 
+```{r}
+options(contrasts = c("contr.treatment", "contr.treatment"))
+baseline.anova <- aov(protein ~ copper + zinc + copper*zinc, data = minnows)
+summary(baseline.anova)
+baseline.anova$coefficients
+```
+
 $$
 X = \begin{bmatrix}
 1   &    0&       0&        0&                 0&                  0 \\ 
@@ -46,6 +50,24 @@ X = \begin{bmatrix}
 1   &    1&       0&        0&                 0&                  0 \\ 
 1   &    1&       1&        0&                 1&                  0 \\ 
 1   &    1&       0&        1&                 0&                  1 \\ 
+\end{bmatrix}
+$$
+
+$$
+\hat{\beta}_{\text{sum to zero}} = \begin{bmatrix}
+193.5 \\
+-21.0 \\
+-26.0  \\
+-74.0 \\
+24.0 \\
+12.5  \\
+\end{bmatrix} = \begin{bmatrix}
+\mu \\
+\alpha_1 \\
+\tau_1 \\
+\tau_2 \\
+(\alpha \tau)_{11} \\
+(\alpha \tau)_{12}  \\
 \end{bmatrix}
 $$
 
@@ -63,6 +85,11 @@ sumto0.anova$coefficients
 model.matrix(sumto0.anova)
 ```
 
+```{r}
+options(contrasts = c("contr.sum", "contr.sum"))
+summary(lm(protein ~ copper + zinc + copper*zinc, data = minnows))
+```
+
 $$
 X = \begin{bmatrix}
 1 & 1 & 1 & 0 & 1 & 0 \\
@@ -73,24 +100,6 @@ X = \begin{bmatrix}
 1 & -1 & -1 & -1 & 1 & 1 \\
 \end{bmatrix}
 $$
-
-\newpage
-
-# 3. 
-
-Use the estimated parameters from the R output to calculate the six sample treatment means. 
-
-The six sample treatment means is the same as the cell means. 
-
-```{r}
-options(contrasts = c("contr.sum", "contr.sum"))
-summary(lm(protein ~ copper + zinc + copper*zinc, data = minnows))
-```
-
-```{r}
-model <- lm(protein ~ copper + zinc + copper*zinc, data = minnows)
-summary(model)
-```
 
 $$
 \hat{\beta}_{\text{sum to zero}} = \begin{bmatrix}
@@ -110,11 +119,13 @@ $$
 \end{bmatrix}
 $$
 
-```{r}
-model_aov <- aov(protein ~ factor(copper) * factor(zinc), data = minnows)
+\newpage
 
-model.tables(model_aov, type = "means")
-```
+# 3. 
+
+Use the estimated parameters from the R output to calculate the six sample treatment means. 
+
+The six sample treatment means is the same as the cell means. 
 
 ```{r}
 tapply(X = minnows$protein, 
@@ -125,6 +136,50 @@ tapply(X = minnows$protein,
 ```{r}
 aggregate(protein ~ copper + zinc, data = minnows, FUN = mean)
 ```
+
+We can also use our estimated $\beta$ given in 1. to directly compute the sample treatment means:
+
+$$
+\hat{\beta}_{\text{sum to zero}} = \begin{bmatrix}
+193.5 \\
+-21.0 \\
+-26.0  \\
+-74.0 \\
+24.0 \\
+12.5  \\
+\end{bmatrix} = \begin{bmatrix}
+\mu \\
+\alpha_1 \\
+\tau_1 \\
+\tau_2 \\
+(\alpha \tau)_{11} \\
+(\alpha \tau)_{12}  \\
+\end{bmatrix}
+$$
+
+$$
+\mu_{Copper = 0, Zinc = 0} = \mu = 193.5
+$$
+
+$$
+\mu_{Copper = 0, Zinc = 750} = \mu + \tau_1 = 193.5 - 26 = 167.5
+$$
+
+$$
+\mu_{Copper = 0, Zinc = 1500} = \mu + \tau_2 = 193.5 - 74.0 = 119.5
+$$
+
+$$
+\mu_{Copper = 150, Zinc = 0} = \mu + \alpha_1 = 193.5 - 21 = 172.5
+$$
+
+$$
+\mu_{Copper = 150, Zinc = 750} = \mu + \alpha_1 + \tau_1 + (\alpha\tau)_{11} = 193.5 - 21.0 - 26 + 24 = 170.5		
+$$
+
+$$
+\mu_{Copper = 150, Zinc = 1500} = \mu + \alpha_1 + \tau_2 + (\alpha \tau)_{12} = 193.5 - 21 - 74 + 12.5 = 111 
+$$
 
 \newpage
 
@@ -137,7 +192,7 @@ options(contrasts = c("contr.sum", "contr.sum"))
 summary(lm(protein ~ copper + zinc + copper*zinc, data = minnows))
 ```
 
-Overall F-statistic is 16.62 with a p-value of 0.001854. The overall F-statistic and associated test is whether there are any differences in the mean protein content across all treatments, i.e. $\mu_{copper0} = \mu_{copper1} = \mu_{zinc0} = \mu_{zinc1} = \mu_{zinc2}$. With a small p-value we have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that all the aforementioned mean protein contents are equal in favor of the alternative hypothesis that at least one mean protein content of a treatment is different from the mean protein content of the other treatments. 
+Overall F-statistic is 16.62 with a p-value of 0.001854. The overall F-statistic and associated test is whether there are any differences in the mean protein content across all treatments, i.e. $\mu_{copper0} = \mu_{copper1} = \mu_{zinc0} = \mu_{zinc1} = \mu_{zinc2}$. With a small p-value we have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that all the aforementioned mean protein contents are equal across all treatments in favor of the alternative hypothesis that at least one mean protein content of a treatment is different from the mean protein content of the other treatments. 
 
 \newpage
 
@@ -313,6 +368,8 @@ abline(h = 0)
 
 a) predicted value: We overall have a fairly random spread of residuals (both positive and negative), though there is a slight "trumpet" pattern that emerges at we fit larger values of our response variable protein content ($\mu$g/tank). We may not in fact have constant variance. However, these values do tend to taper back (decrease their variability) for fitted values greater than 180; it just so happens that the spread/variability of residuals increases a fair amount between fitted values between 160-180. 
 
+However, it is also worth noting that the residuals appear to average around zero, which is another component of our assumption of the normality of residuals (normally distributed with mean 0 and constant variance $\sigma^2$). 
+
 In addition to potentially nonconstant variance, the data above looks symmetric across y=0. This is another indication that the residuals are not randomly spread across the plot, such that we may have reason to believe the additivity assumption may be violated. 
 
 ```{r}
@@ -326,6 +383,8 @@ abline(h = 0)
 
 b) the copper concentrations: Similar to the above, we notice the "spread" or variability of our residuals appear to increase for the larger level (higher concentration) of Copper levels. Though this increase in spread/variability is not dramatic, at least not enough that I would be concerned given it is within the same order of magnitude, there nonetheless is something potentially problematic in the above plot. 
 
+However, it is also worth noting that the residuals appear to average around zero, which is another component of our assumption of the normality of residuals (normally distributed with mean 0 and constant variance $\sigma^2$). 
+
 In addition to potentially nonconstant variance, the data above looks symmetric across y=0. This is another indication that the residuals are not randomly spread across the plot, such that we may have reason to believe the additivity assumption may be violated.
 
 ```{r}
@@ -338,6 +397,8 @@ abline(h = 0)
 ```
 
 c) the zinc concentrations: Similar to (a), we observe rather consistent spread/variability of residuals at the tails/extremes of the Zinc levels. However, near the "middle", or near the Zinc concentration levels of "2" or 750 concentration, we observe the residual spread increases a bit. Again, the overall magnitude of the spread of residuals at this particular Zinc level is similar and consistent with the other levels, but it does indicate something potentially problematic. 
+
+However, it is also worth noting that the residuals appear to average around zero, which is another component of our assumption of the normality of residuals (normally distributed with mean 0 and constant variance $\sigma^2$). 
 
 In addition to potentially nonconstant variance, the data above looks symmetric across y=0. This is another indication that the residuals are not randomly spread across the plot, such that we may have reason to believe the additivity assumption may be violated.
 

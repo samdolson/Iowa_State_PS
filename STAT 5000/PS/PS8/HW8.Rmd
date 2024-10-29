@@ -91,6 +91,10 @@ knitr::include_graphics("q2.png")
 
 What is the treatment design and what is the experimental design in this study?
 
+Treatment Design: We have 2 factors each with 3 levels, so it's a 3×3 factorial arrangement (3 distinct Species by 3 distinct Filter Types)
+
+Experimental Design: Randomized Complete Block Design (RCBD) with blocks defined by location (Two locations: Three Creek and Sparks Lake).
+
 \newpage
 
 ## (b) 
@@ -102,25 +106,37 @@ parameters in the context of the study:
 
 $\mu$
 
+The grand mean represents the overall average percentage of eggs that failed to hatch across all frog species, locations, and types of UV-B filters.
+
 ### ii. 
 
 $\alpha_1$
+
+This is the effect of the first level of factor 1 (frog species), representing the difference in the percentage of failed hatches for Hyla regilla relative to the baseline species, Bufo boreas. It quantifies how the average hatching failure for Hyla regilla deviates from the baseline species when other factors remain constant.
 
 ### iii. 
 
 $\tau_2$
 
+This is the effect of the second level of factor 2 (type of UV-B filter), specifically for the UV-B transmitting filter. It represents how much the percentage of failed hatches changes for enclosures with this filter type relative to the baseline filter type (UV-B blocking filter).
+
 ### iv. 
 
 $(\alpha \tau)_{12}$
+
+This parameter represents the interaction effect between the frog species Hyla regilla and the UV-B transmitting filter. It measures how much the combination of Hyla regilla and the UV-B transmitting filter influences the failure rate of egg hatching beyond what would be expected by considering the individual effects of the frog species and filter type alone.
 
 ### v. 
 
 $\mu + \alpha_1 + \tau_2 + (\alpha \tau)_{12}$
 
+This expression provides the cell mean for the treatment combination of Hyla regilla (level 1 of factor 1) and the UV-B transmitting filter (level 2 of factor 2). It estimates the average percentage of eggs that failed to hatch under this specific combination, incorporating the grand mean, the effects of species and filter, and their interaction.
+
 ### vi. 
 
 $(\alpha \tau)_{12} - (\alpha \tau )_{32} - (\alpha \tau )_{13} + (\alpha \tau )_{33}$
+
+This expression measures the difference in interaction effects. It quantifies how much the interaction between Hyla regilla with the UV-B transmitting filter differs from other interaction effects, adjusted by the interactions involving the baseline species, Bufo boreas. Specifically, it contrasts the joint effects of Hyla regilla with UV-B transmitting against those of other frog species and filter combinations, which helps in understanding if certain species-filter pairings affect hatching success differently than expected under simple additive effects.
 
 \newpage
 
@@ -128,11 +144,50 @@ $(\alpha \tau)_{12} - (\alpha \tau )_{32} - (\alpha \tau )_{13} + (\alpha \tau )
 
 Examine the equal variance assumption. Summarize your findings and include supporting tables and/or figures.
 
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2c.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2c2.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2c3.png")
+```
+
+For this assumption we review three residual plots: By fitted values, by levels of Factor 1 (Type of Filter), and by levels of Factor 2 (Frog Species). We are generally looking for a trend in these plots as evidence that our equal variances assumption is being violated. For small fitted values (left side of the fitted value plot), we do not observe any negative residuals, which is somewhat concerning. So there is some evidence that our equal variances assumption may be violated in this experiment, though the other two residual plots do not exhibit such a problematic trend. 
+
 \newpage
 
 ## (d) 
 
 Examine the normality assumption. Summarize your findings and include supporting tables and/or figures
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2d1.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2d2.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2d3.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2d4.png")
+```
+
+To assess this assumption we look at: 
+  Residual Summary statistics: Unfortunately, we see that Mean of Residuals $\neq$ Median of Residuals
+  Shapiro Wilk statistical test: Large p-value does not provide evidence to reject the null hypothesis that residuals are normally distributed
+  Histogram of residuals: We observe residuals do exhibit a slight bell-shaped distribution but there is visually some evidence of non-normality in skewnewss
+  Residual boxplot: Similar to the Histogram noted, the boxplot looks roughly normal, though there is not a symmetrical spread of residuals about the center
+  QQ Plot: The residuals roughly align with the reference line, though there are deviations, particularly about the center (0 Normal Quartile), as well as some deviations near the tails. This is not especially problematic, but is nonetheless a cause of concern
+
+Overall, we have some visual evidence to believe our residuals are not normally distributed, particularly with the histogram and QQ plot, though generally the above graphs and plots indicate the residuals are roughly normally distributed and that our normality assumption is not violated. We may certainly improve the normality of our residuals though, which we will do in the later parts of the problem.  
 
 \newpage
 
@@ -140,17 +195,63 @@ Examine the normality assumption. Summarize your findings and include supporting
 
 Suppose that the diagnostics suggest the need for a transformation. Find which transformation of the responses is better, square root transformation, log transformation, or none? Summarize your findings and include supporting tables and/or figures.
 
+Primarily compare the different transformations via "Visual" and "Statistical" Assessments. Graphs and plots are given below for these two categories. 
+
+### Visual Assessment
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2d2.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e1.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e2.png")
+```
+
+Visually, the log transformation of residuals produces the most relatively normal looking histogram, in which we're looking for a histogram with symmetry near the center (lack of skewness). By comparison, the original and sqrt transformed residuals still have some skewness in the histogram, whereas the log transformed residuals appear to minimize this spread.  
+
+### Statistical Tests
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2d1.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e3.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e4.png")
+```
+
+Via statistical tests, particularly the Shapiro-Wilk test, we are testing whether the residuals (original, sqrt, or log transformed) are not normally distributed; in all instances we observe rather large p-values such that we do not reject the null hypothesis in all three instances that the particular (original, sqrt, or log) residuals are normally distributed. 
+
+Overall, we observe that statistical tests are consistent across the residual types (original, sqrt, and log transformed), in that in all instances of Shapiro-Wilk we do not reject the null hypothesis that the (original/sqrt/log) residuals are normally distributed. So our choice ultimately comes down to the visual assessment, whereby we observe the most visually normal looking residuals from the log transformation, which becomes our choice for part (f). 
+
 \newpage
 
 ## (f) 
 
 For the best model specified in part (e), find the full ANOVA table. Summarize which factors and interactions are significant. Is there any evidence that the types of filter have different effects on egg hatch success? Explain.
 
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2f1.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2f2.png")
+```
+
 \newpage
 
 ## (g) 
 
 For the best model specified in part (e): Examine a profile plot of the treatment means (do not hand it in), plotting the sample mean responses for the combinations of filters and frog species, averaging across locations. What does this plot suggest? Are your conclusions about interactions between types of filters and frog species supported by results in the ANOVA table?
+
+
 
 \newpage
 
