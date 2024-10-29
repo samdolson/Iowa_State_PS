@@ -4,9 +4,6 @@ output: pdf_document
 date: "2024-10-27"
 ---
 
-# Q5-7 
-Do you include "and across all interactions" in the interpretation? 
-
 # Overview
 
 Factor A: Concentration of copper (0 or 150 ppm)
@@ -192,7 +189,9 @@ options(contrasts = c("contr.sum", "contr.sum"))
 summary(lm(protein ~ copper + zinc + copper*zinc, data = minnows))
 ```
 
-Overall F-statistic is 16.62 with a p-value of 0.001854. The overall F-statistic and associated test is whether there are any differences in the mean protein content across all treatments, i.e. $\mu_{copper0} = \mu_{copper1} = \mu_{zinc0} = \mu_{zinc1} = \mu_{zinc2}$. With a small p-value we have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that all the aforementioned mean protein contents are equal across all treatments in favor of the alternative hypothesis that at least one mean protein content of a treatment is different from the mean protein content of the other treatments. 
+Overall F-statistic is 16.62 with a p-value of 0.001854. The overall F-statistic and associated test is whether there are any differences in the mean protein content across all treatments, i.e. $\mu_{copper0} = \mu_{copper1} = \mu_{zinc0} = \mu_{zinc1} = \mu_{zinc2}$. With a small p-value we have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that all the aforementioned mean protein contents are equal across all treatments (combinations of copper and zinc concentrations) in favor of the alternative hypothesis that at least one mean protein content of a treatment (combination of copper and zinc concentration) is different from the mean protein content of the other treatments (combination of copper and zinc concentration). 
+
+In I'd say better phrasing: The null hypothesis is that the cell means of protein content are equal across all combinations of copper and zinc concentrations. So the alternative hypothesis, which we have evidence in favor of, is that at least one of the cell means, mean protein content for a particular combination of zinc and copper concentration, is different from another cell mean of the model, i.e. mean protein content of another particular combination of zinc and copper in our experiment/model.  
 
 \newpage
 
@@ -241,7 +240,7 @@ summary(sumto0.anova)
 Interaction (Copper × Zinc):
 F-value: 1.113
 p-value: 0.388
-Interpretation: The p-value of 0.388 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that the the mean protein content ($\mu$g/tank) of interactions is the same across the pairs of interactions between copper and zinc concentrations. 
+Interpretation: The p-value of 0.388 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that the the mean protein content ($\mu$g/tank) of interactions between copper and zinc concentrations is the same across all pairs of interactions between copper and zinc concentrations, i.e. that we have a consistent observed effect of zinc-copper combinations on mean protein content. This is to say we do not have evidence to reject the null hypothesis that the interaction effect of copper and zinc on the mean protein content ($\mu$g/tank) is different across the levels of copper and zinc concentrations. 
 
 \newpage
 
