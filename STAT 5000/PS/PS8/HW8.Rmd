@@ -9,7 +9,7 @@ date: "2024-10-28"
 [Fall 2024]{.smallcaps} 
 [due Fri, November 1st @ 11:59 pm]{.smallcaps}
 [Name: Sam Olson]{.smallcaps} \
-[Collaborators: **The Hatman**]{.smallcaps} \
+[Collaborators: Sarah, Sabrina, **The Hatman**]{.smallcaps} \
 
 # Q1 
 
@@ -27,6 +27,8 @@ Construct the full ANOVA table. Which factors or interactions have significant e
 knitr::include_graphics("q1a.png")
 ```
 
+It appears that all treatment variables (ethanol levels and air/fuel ratios) in addition to their interaction effects are significant, meaning we have evidence to reject the null hypothesis that the mean CO emission concentrations (g/meter3) are equal for all treatment levels when averaged across all other factors/treatments, i.e. we have evidence to support the following alternative hypotheses: 1. At least one mean CO emission concentrations (g/meter3) for ethanol levels is different from the other mean CO emission concentrations (g/meter3) averaging across air/fuel ratio levels, 2. At least one mean CO emission concentrations (g/meter3) for air/fuel ratio is different from the other mean CO emission concentrations (g/meter3) for air/fuel ratios when averaging across ethanol levels, and 3. The mean CO emission concentrations (g/meter3) for the interaction between ethanol and air/fuel ratio is different from the mean CO emission concentrations (g/meter3) of some other combination of ethanol/air/fuel ratio.
+
 \newpage
 
 ## (b) 
@@ -36,6 +38,8 @@ Partition the sum of squares for the ethanol effects, averaging across air/fuel 
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q1b.png")
 ```
+
+There are significant linear and quadratic effects in the model for ethanol effects, where significance is at the $\alpha = 0.05$ level. 
 
 \newpage
 
@@ -47,6 +51,8 @@ Partition the sum of squares for the air/fuel ratio effects, averaging across le
 knitr::include_graphics("q1c.png")
 ```
 
+There are also significant linear and quadratic effects in the model for the air/fuel ratio effects, where significance is at the $\alpha = 0.05$ level. 
+
 \newpage
 
 ## (d) 
@@ -57,6 +63,8 @@ Use Tukey’s HSD method to make pairwise comparisons of the marginal means for 
 knitr::include_graphics("q1d.png")
 ```
 
+For ethanol levels, we have evidence to reject the null hypothesis that the mean CO emission concentrations (g/meter3) for ethanol level 0.1 is the same as the mean CO emission concentrations (g/meter3) for ethanol level 0.2, when averaging across all air/fuel ratio levels. Similarly we have evidence to reject the null hypothesis that the mean CO emission concentrations (g/meter3) for ethanol level 0.1 is the same as the mean CO emission concentrations (g/meter3) for ethanol level 0.3, when averaging across all air/fuel ratio levels. The interpretations are based on meeting the significance threshold at the $\alpha = 0.05$ level. 
+
 \newpage
 
 ## (e) 
@@ -66,6 +74,8 @@ Use Tukey’s HSD method to make pairwise comparisons of the marginal means for 
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q1d2.png")
 ```
+
+For air/fuel ratio values, we have evidence to reject the null hypothesis that the mean CO emission concentrations (g/meter3) for air/fuel ratio 14 are the same as the mean CO emission concentrations (g/meter3) for air/fuel ratio 16, when averaging across all ethanol levels. Similarly we have evidence to reject the null hypothesis that the mean CO emission concentrations (g/meter3) for air/fuel ratio15 are the same as the mean CO emission concentrations (g/meter3) for air/fuel ratio 16, when averaging across all ethanol levels. The interpretations are based on meeting the significance threshold at the $\alpha = 0.05$ level. 
 
 \newpage
 
@@ -186,20 +196,70 @@ knitr::include_graphics("q3a1.png")
 knitr::include_graphics("q3a2.png")
 ```
 
+We are interested in the overall magnitude of the estimates of effects, specifically how far from zero they are. In the negative range, g, m, sg, pm, and p are all in magnitude greater than 15, while on the positive range only pg and sm have a magnitude greater than 15. If we were to include estimated effects greater in magnitude than 10, we'd also want to include spm, sp, and gk in addition to those listed previously. 
+
 \newpage
 
 ## (b) 
 
-Using least squares estimation to fit the model that includes all main effects and all interaction effects that were identified as “non-zero” by the analysis in part (a), (including all main effects in this model, regardless of whether the plot suggests they are significant or not, then the sum of sums of squares for the interaction contrasts that are not included in
-the model can be pooled to obtain a MSerror), the corresponding ANOVA table is provided below.
+Using least squares estimation to fit the model that includes all main effects and all interaction effects that were identified as “non-zero” by the analysis in part (a), (including all main effects in this model, regardless of whether the plot suggests they are significant or not, then the sum of sums of squares for the interaction contrasts that are not included in the model can be pooled to obtain a MSerror), the corresponding ANOVA table is provided below.
 
-Examine the results of F-tests for terms kept in the model and summarize the results in the context of the study
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3b.png")
+```
+
+Examine the results of F-tests for terms kept in the model and summarize the results in the context of the study. 
+
+Based on the ANOVA table provided, here is a summary of the F-tests for the terms retained in the model:
+
+1. Species (Pr > F = 0.3684): The F-test for the effect of wheat species is not significant at common significance levels, suggesting that the type of wheat (Amber durum vs. hard red spring) does not have a statistically significant effect on yield in terms of amylase activity.
+
+2. Protein (Pr > F = 0.0026): The F-test shows a significant effect of wheat protein content on yield. This implies that the protein content (low vs. high) has a notable impact on amylase activity.
+
+3. Moisture (Pr > F < 0.0001): Moisture content is highly significant, indicating that the moisture level (40% vs. 44%) has a substantial effect on yield.
+
+4. Germination (Pr > F < 0.0001): The germination time also has a highly significant effect on yield, suggesting that the length of germination (3 days vs. 5 days) plays an important role in amylase activity.
+
+5. Kiln Temperature (Pr > F < 0.0001): The effect of kiln temperature is very significant, indicating that the method of kiln temperature control (rising vs. constant) strongly impacts the yield.
+
+### Interaction Effects:
+6. Species-Germination (Pr > F < 0.0001): The interaction between species and germination is significant, suggesting that the effect of germination time on yield depends on the wheat species.
+  
+7. Protein-Germination (Pr > F = 0.0002): This interaction is also significant, implying that the effect of germination time on yield changes with protein content.
+
+8. Germination-Kiln Temperature (Pr > F < 0.0001): This interaction is significant, indicating that the effect of kiln temperature on yield varies with germination time.
+
+9. Species-Protein (Pr > F = 0.0008): The interaction between species and protein content is significant, suggesting that protein content impacts yield differently based on the wheat species.
+
+10. Protein-Moisture (Pr > F = 0.0003): This interaction is significant, meaning that the effect of moisture content on yield depends on protein content.
+
+11. Species-Moisture (Pr > F = 0.0031): The interaction between species and moisture is significant, indicating that moisture affects yield differently depending on the wheat species.
+
+12. Species-Protein-Moisture (Pr > F = 0.0035): The three-way interaction among species, protein, and moisture is significant, suggesting a complex interplay between these factors in influencing yield.
+
+### Summary:
+
+In this study, multiple main effects and interactions significantly impact amylase activity as measured by the yield. Key factors include protein, moisture, germination time, and kiln temperature, along with notable interactions among these factors. This suggests that amylase activity in wheat flour is influenced by a combination of these factors, highlighting the complexity of optimizing conditions for yield. Factors that are not significant (e.g., species alone) might not need emphasis in further analysis but could still be relevant in interaction with other factors.
 
 \newpage
 
 ## (c) 
 
 Choose any significant two-way interaction for the model in part (b) and interpret it in the context of the study. Also interpret the significant three-way interaction for the model in part (b).
+
+6. Species-Germination (Pr > F < 0.0001): The interaction between species and germination is significant, suggesting that the effect of germination time on yield depends on the wheat species.
+  
+7. Protein-Germination (Pr > F = 0.0002): This interaction is also significant, implying that the effect of germination time on yield changes with protein content.
+
+8. Germination-Kiln Temperature (Pr > F < 0.0001): This interaction is significant, indicating that the effect of kiln temperature on yield varies with germination time.
+
+9. Species-Protein (Pr > F = 0.0008): The interaction between species and protein content is significant, suggesting that protein content impacts yield differently based on the wheat species.
+
+10. Protein-Moisture (Pr > F = 0.0003): This interaction is significant, meaning that the effect of moisture content on yield depends on protein content.
+
+11. Species-Moisture (Pr > F = 0.0031): The interaction between species and moisture is significant, indicating that moisture affects yield differently depending on the wheat species.
+
+12. Species-Protein-Moisture (Pr > F = 0.0035): The three-way interaction among species, protein, and moisture is significant, suggesting a complex interplay between these factors in influencing yield.
 
 \newpage
 
@@ -211,6 +271,10 @@ Comment on the normal probability plot of the residuals for the model in part (b
 knitr::include_graphics("q3d.png")
 ```
 
+The above normal probability plot (QQ Plot) of the residuals for the model in part (b) has residual points which appear to closely follow the diagonal line, suggesting that the residuals are approximately normally distributed and that our assumption of normally distributed residuals is likely not being violated.
+
+We do not observe especially extreme deviations from the reference line, though we do observe a number of points not exactly aligned with the reference line. Therefore, we can conclude that the residuals meet the normality assumption, which supports the validity of the F-tests used in the model and for the interpretations from prior parts of this problem. 
+
 \newpage
 
 ## (e) 
@@ -221,6 +285,8 @@ Comment on the plot of the residuals versus the estimated mean yields for the mo
 knitr::include_graphics("q3e.png")
 ```
 
+The above residual plot against the estimated means (fitted values, I believe) appear randomly spread, i.e. we do not readily identify a particular trend in this data. This is good news, as this is what we would expect if our assumption of additivity holds and is evidence in favor of this particular assumption not being violated. 
+
 \newpage
 
 ## (f) 
@@ -230,3 +296,18 @@ Interpret the value of each of the estimated effects of the five factors on amyl
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q3f.png")
 ```
+
+Based on the table of estimated effects, here is an interpretation of each factor’s effect on amylase activity, keeping in mind that lower values of the response variable (amylase activity) indicate a more efficient process (requiring less malt to produce 204.7 ml of CO2):
+
+1. Species 1 (116.0625): Switching from species 2 (hard red spring) to species 1 (Amber durum) increases amylase activity by 116.06 units. This positive and highly significant effect (Pr < 0.0001) implies that Amber durum requires more malt to produce the same amount of CO2, making it less efficient in terms of amylase activity.
+
+2. Protein 1 (105.9375): Moving from high protein content (protein 2) to low protein content (protein 1) raises amylase activity by 105.94 units. This significant effect (Pr < 0.0001) indicates that low protein content increases the malt requirement, meaning it’s less efficient for CO2 production.
+
+3. Moisture 1 (148.0000): Lowering moisture content from 44% (moisture 2) to 40% (moisture 1) results in an increase in amylase activity by 148 units. This highly significant effect (Pr < 0.0001) suggests that lower moisture levels are less efficient, requiring more malt for the same CO2 output.
+
+4. Germination 1 (606.6250): Reducing germination time from 5 days (germination 2) to 3 days (germination 1) significantly increases amylase activity by 606.63 units, the largest effect among the factors (Pr < 0.0001). This indicates that shorter germination periods are much less efficient in terms of malt usage for CO2 production.
+
+5. Kiln Temperature 1 (-16.1250): Changing from a constant kiln temperature of 100°F (kiln temp 2) to a rising temperature from 100°F to 130°F (kiln temp 1) results in a decrease of 16.13 units in amylase activity. Although this effect is negative, indicating a more efficient process, it is not statistically significant (Pr > |t| = 0.2348), suggesting that kiln temperature may not have a meaningful impact on amylase activity in this experiment.
+
+### Summary:
+In summary, the factors that significantly affect amylase activity (in order of impact) are germination time, moisture content, wheat species, and protein content. Lower germination time, lower moisture, and low protein content result in higher amylase activity, requiring more malt for the same CO2 output, which implies reduced efficiency in these conditions. Kiln temperature, however, does not appear to have a significant effect on amylase activity.

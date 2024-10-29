@@ -83,8 +83,43 @@ Use the estimated parameters from the R output to calculate the six sample treat
 The six sample treatment means is the same as the cell means. 
 
 ```{r}
+options(contrasts = c("contr.sum", "contr.sum"))
+summary(lm(protein ~ copper + zinc + copper*zinc, data = minnows))
+```
+
+```{r}
 model <- lm(protein ~ copper + zinc + copper*zinc, data = minnows)
 summary(model)
+```
+
+$$
+\hat{\beta}_{\text{sum to zero}} = \begin{bmatrix}
+155.750 \\
+4.417 \\
+27.250 \\
+13.250 \\
+6.083 \\
+-5.917  \\
+\end{bmatrix} = \begin{bmatrix}
+\mu \\
+\alpha_1 \\
+\tau_1 \\
+\tau_2 \\
+(\alpha \tau)_{11} \\
+(\alpha \tau)_{12}  \\
+\end{bmatrix}
+$$
+
+```{r}
+model_aov <- aov(protein ~ factor(copper) * factor(zinc), data = minnows)
+
+model.tables(model_aov, type = "means")
+```
+
+```{r}
+tapply(X = minnows$protein, 
+       INDEX = list(minnows$copper,  minnows$zinc), 
+       FUN = mean)
 ```
 
 ```{r}
@@ -118,7 +153,7 @@ summary(sumto0.anova)
 Copper (Main Effect):
 F-value: 1.809
 p-value: 0.227
-Interpretation: The p-value of 0.227 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that there is no significant difference in the mean protein content ($\mu$g/tank) between the two copper levels (0 ppm and 150 ppm), when averaging across levels of zinc concentrations. 
+Interpretation: The p-value of 0.227 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that the mean protein content ($\mu$g/tank) is the same between between the two copper levels (0 ppm and 150 ppm), when averaging across levels of zinc concentrations. 
 
 \newpage
 
@@ -135,7 +170,7 @@ Zinc (Main Effect):
 
 F-value: 39.537
 p-value: 0.000351
-Interpretation: The p-value of 0.000351 meets the threshold of the $\alpha = 0.05$ level, such that we do have evidence to reject the null hypothesis that there is no significant difference in the mean protein content ($\mu$g/tank) between the three zinc levels levels (0, 750 or 1500 ppm), when averaging across levels of copper. This suggests that at least one of the zinc levels (0, 750, or 1500 ppm) has a different mean protein content ($\mu$g/tank) in the minnow larvae, when averaging across levels of copper.
+Interpretation: The p-value of 0.000351 meets the threshold of the $\alpha = 0.05$ level, such that we do have evidence to reject the null hypothesis that the mean protein content ($\mu$g/tank) is the same between the three zinc levels levels (0, 750 or 1500 ppm), when averaging across levels of copper. This suggests that at least one of the zinc levels (0, 750, or 1500 ppm) has a different mean protein content ($\mu$g/tank) in the minnow larvae, when averaging across levels of copper.
 
 \newpage
 
@@ -151,7 +186,7 @@ summary(sumto0.anova)
 Interaction (Copper × Zinc):
 F-value: 1.113
 p-value: 0.388
-Interpretation: The p-value of 0.388 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that the the mean protein content ($\mu$g/tank) of interactions is different across the pairs of interactions between copper and zinc concentrations. 
+Interpretation: The p-value of 0.388 does not meet our threshold of the $\alpha = 0.05$ level, such that we do not have evidence to reject the null hypothesis that the the mean protein content ($\mu$g/tank) of interactions is the same across the pairs of interactions between copper and zinc concentrations. 
 
 \newpage
 
@@ -273,9 +308,12 @@ plot(sumto0.anova$fitted.values,
      main="Fitted Values - Diagnostic Plot for Minnows Experiment",
      xlab="Fitted Values", 
      ylab="Residuals")
+abline(h = 0)
 ```
 
 a) predicted value: We overall have a fairly random spread of residuals (both positive and negative), though there is a slight "trumpet" pattern that emerges at we fit larger values of our response variable protein content ($\mu$g/tank). We may not in fact have constant variance. However, these values do tend to taper back (decrease their variability) for fitted values greater than 180; it just so happens that the spread/variability of residuals increases a fair amount between fitted values between 160-180. 
+
+In addition to potentially nonconstant variance, the data above looks symmetric across y=0. This is another indication that the residuals are not randomly spread across the plot, such that we may have reason to believe the additivity assumption may be violated. 
 
 ```{r}
 plot(as.numeric(minnows$copper), 
@@ -283,9 +321,12 @@ plot(as.numeric(minnows$copper),
      main="Copper Level - Diagnostic Plot for Minnows Experiment",
      xlab="Copper Level", 
      ylab="Residuals")
+abline(h = 0)
 ```
 
 b) the copper concentrations: Similar to the above, we notice the "spread" or variability of our residuals appear to increase for the larger level (higher concentration) of Copper levels. Though this increase in spread/variability is not dramatic, at least not enough that I would be concerned given it is within the same order of magnitude, there nonetheless is something potentially problematic in the above plot. 
+
+In addition to potentially nonconstant variance, the data above looks symmetric across y=0. This is another indication that the residuals are not randomly spread across the plot, such that we may have reason to believe the additivity assumption may be violated.
 
 ```{r}
 plot(as.numeric(minnows$zinc), 
@@ -293,11 +334,14 @@ plot(as.numeric(minnows$zinc),
      main="Zinc Level - Diagnostic Plot for Minnows Experiment",
      xlab="Zinc Level", 
      dylab="Residuals")
+abline(h = 0)
 ```
 
 c) the zinc concentrations: Similar to (a), we observe rather consistent spread/variability of residuals at the tails/extremes of the Zinc levels. However, near the "middle", or near the Zinc concentration levels of "2" or 750 concentration, we observe the residual spread increases a bit. Again, the overall magnitude of the spread of residuals at this particular Zinc level is similar and consistent with the other levels, but it does indicate something potentially problematic. 
 
-Overall, all three residual plots do not appear to have cause for concern, though there is some slight evidence/indication that we do not have constant variance in our residuals. 
+In addition to potentially nonconstant variance, the data above looks symmetric across y=0. This is another indication that the residuals are not randomly spread across the plot, such that we may have reason to believe the additivity assumption may be violated.
+
+Overall, all three residual plots do not appear to have cause for concern regarding the constant variance assumption of the residuals (a component of the $\epsilon \sim N(0, \sigma^2)$ assumption). However, what's more cause for concern is that the residuals do not appear randomly distributed, indicating moreso that tthe addivity assumption may be violated in this experiment. 
 
 \newpage
 
@@ -319,6 +363,6 @@ skewness(sumto0.anova$residuals)
 kurtosis(sumto0.anova$residuals)-3
 ```
 
-Reviewing the above QQ Plot to assess normality of residuals: We notice there is a rather subtle "S"-shaped curve to the plot. Despite this, it does appear that the residuals do closely follow along the reference line, with some additional deviations from the reference line near the tails of the quantiles. Overall, it does appear that the residuals are somewhat, or generally, normally distributed such that we have evidence that our assumption of normally distributed residuals is not being violated. 
+Reviewing the above QQ Plot to assess normality of residuals: We notice there is a rather subtle "S"-shaped curve to the plot. Despite this, it does appear that the residuals do closely follow along the reference line, with some additional deviations from the reference line near the tails of the quantiles. Overall, it does appear that the residuals are somewhat, or generally, normally distributed but there is some evidence that our assumption of normally distributed residuals may be violated since there are a number of points off from the reference line. 
 
 However, we have additional tests to consider and supplement the above QQ Plot interpretation. Namely: We have a large p-value which does not provide evidence for rejecting the null hypothesis that the residuals are normally distributed. Furthermore, summary statistics provide sample values of the mean and median of the residuals being very close (to one another as well as close to zero!) Additionally, when looking at the skewness and (excess) kurtosis of the residuals, we find that the skewness is very close to zero, and that we have slight negative excess kurtosis, or have evidence of residuals being slightly short-tailed. These results are consistent with the above interpretation of the QQ Plot, insomuch as there is not any glaring evidence of violating our assumption of normally distributed residuals. 
