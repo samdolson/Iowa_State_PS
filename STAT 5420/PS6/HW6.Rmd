@@ -6,15 +6,6 @@ date: "2024-10-26"
 
 # Homework 6
 
-# Outline: 
-  Q1: DONE 
-  Q2: DONE 
-  Q3: DONE  
-  Q4: DONE 
-  Q5: DONE 
-  Q6: WIP
-  Q7: DONE
-
 # Q1: 4.17, Casella & Berger
 
 Let X be an exponential(1) random variable, and define Y to be the integer part of X+1, that is: 
@@ -462,155 +453,192 @@ Find the joint moment generating function for (X, Y).
 The joint moment generating function $M_{X, Y}(t_1, t_2)$ may be defined:
 
 $$
-M_{X, Y}(t_1, t_2) = E\left[e^{t_1 X + t_2 Y}\right] = \int_0^\infty \int_0^y e^{t_1 x + t_2 y} e^{-y} \, dx \, dy = \int_0^\infty \int_0^y e^{t_1 x} e^{(t_2 - 1) y} \, dx \, dy
+M_{X, Y}(t_1, t_2) = E\left[e^{t_1 X + t_2 Y}\right] = \int_0^\infty \int_0^y e^{t_1 x + t_2 y} e^{-y} \, dx \, dy = \int_0^\infty \int_0^y e^{t_1 x} e^{(t_2 - 1) y} \, dx \, dy = \int_0^\infty e^{(t_2 - 1) y}\left( \int_0^y e^{t_1 x} \, dx \, \right) dy =  \int_0^\infty e^{(t_2 - 1) y} (\frac{1}{t_1}(e^{t_1y} - 1)) dy
 $$
 
-First, integrate with respect to \( x \). The inner integral is:
 
 $$
-\int_0^y e^{t_1 x} \, dx = \frac{1}{t_1} \left( e^{t_1 y} - 1 \right),
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \int_0^\infty e^{(t_2 - 1) y} (e^{t_1y} - 1) dy = \frac{1}{t_1} \int_0^\infty e^{(t_2 + t_1 - 1)y}  - e^{(t_2 - 1)y} dy
 $$
 
-assuming \( t_1 \neq 0 \).
-
-Substitute the result into the outer integral:
-
 $$
-M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \int_0^\infty \left( e^{(t_1 + t_2 - 1) y} - e^{(t_2 - 1) y} \right) \, dy.
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \int_0^\infty \left( e^{(t_1 + t_2 - 1) y} - e^{(t_2 - 1) y} \right) \, dy = \frac{1}{t_1} \left[ \int_0^\infty \left( e^{(t_1 + t_2 - 1) y} dy \right) - \int_0^\infty \left( e^{(t_2 - 1) y} \right) \right] dy
 $$
 
-Now, integrate term by term:
-
-For \( e^{(t_1 + t_2 - 1) y} \):
+### i. 
 
 $$
-\int_0^\infty e^{(t_1 + t_2 - 1) y} \, dy = \frac{1}{1 - t_1 - t_2} \quad \text{for} \, t_1 + t_2 < 1.
+\int_0^\infty e^{(t_1 + t_2 - 1) y} \, dy = \frac{1}{1 - t_1 - t_2} \quad \text{ for } \, t_1 + t_2 < 1
 $$
 
-For \( e^{(t_2 - 1) y} \):
+### ii. 
 
 $$
-\int_0^\infty e^{(t_2 - 1) y} \, dy = \frac{1}{1 - t_2} \quad \text{for} \, t_2 < 1.
+\int_0^\infty e^{(t_2 - 1) y} \, dy = \frac{1}{1 - t_2} \quad \text{ for } \, t_2 < 1
 $$
 
-Now, combine the two results:
+Combining the two parts above gives us the joint mgf: 
 
 $$
-M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right).
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right)
 $$
-
-Thus, the joint moment generating function for \( (X, Y) \) is:
-
-$$
-M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right),
-$$
-
-valid for \( t_1 + t_2 < 1 \) and \( t_2 < 1 \).
 
 ## (b) 
 
+## Overview
+
+From (c) we know: 
+
+$X \sim \text{Exponential}(1) \rightarrow f_X(x) = e^{-x}$
+$Y \sim \text{Gamma}(\alpha = 2, \beta = 1)$
+
+So
+
+$E[X] = 1, Var(X) = 1$
+
+$E[Y] = 2, Var(Y) = 2$
+
+This is here for my sanity because I keep messing up the calculations. 
+
+## Calculations using joint mgf 
+
 Use the joint moment generating function to find the variance of X, the variance of Y, and the covariance of X and Y. 
 
-To find the variances of \( X \), \( Y \), and the covariance between \( X \) and \( Y \) using the joint moment generating function (MGF), we will compute the necessary partial derivatives of the MGF.
-
-The joint MGF we found is:
+For a joint MGF of: 
 
 $$
-M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right),
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right)
 $$
 
-valid for \( t_1 + t_2 < 1 \) and \( t_2 < 1 \).
+## E[X] 
 
-To find the means of \( X \) and \( Y \), we use the following formulas for the partial derivatives of the MGF:
-
-- \( \mathbb{E}[X] = \frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} \),
-- \( \mathbb{E}[Y] = \frac{\partial}{\partial t_2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} \).
-
-First, we differentiate \( M_{X, Y}(t_1, t_2) \) with respect to \( t_1 \):
+To find the mean of X, we have: 
 
 $$
-\frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = \frac{-1}{t_1^2} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) + \frac{1}{t_1} \cdot \frac{1}{(1 - t_1 - t_2)^2}.
-$$
-
-Taking the limit as \( t_1 \to 0 \) and \( t_2 \to 0 \), we get:
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right)
+$$ 
 
 $$
-\mathbb{E}[X] = \frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} = \frac{1}{1^2} = 1.
+\frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = \frac{\partial}{\partial t_1} \left( \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) \right) = \frac{-1}{t_1^2} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) + \frac{1}{t_1}  \frac{1}{(1 - t_1 - t_2)^2}
 $$
 
-Now, we differentiate \( M_{X, Y}(t_1, t_2) \) with respect to \( t_2 \):
-
 $$
-\frac{\partial}{\partial t_2} M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{(1 - t_1 - t_2)^2} - \frac{1}{(1 - t_2)^2} \right).
+\lim_{t_1 \to 0, t_2 \to 0} \frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{-1}{(1 - t_1 - t_2)(1 - t_2)} + \frac{1}{(1 - t_1 - t_2)^2} \right) = (\frac{1}{t_1}) \frac{t_1}{(1 - t_1 - t_2)^2 (1 - t_2)} =  \frac{1}{(1 - t_1 - t_2)^2 (1 - t_2)} = \frac{1}{(1 - 0 - 0)^2 (1 - 0)} = \frac{1}{1^2 \cdot 1} = 1
 $$
 
-Taking the limit as \( t_1 \to 0 \) and \( t_2 \to 0 \), we get:
-
 $$
-\mathbb{E}[Y] = \frac{\partial}{\partial t_2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} = 1.
+E[X] = \lim_{t_1 \to 0, t_2 \to 0} \frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = 1
 $$
 
-The variance of \( X \) is given by:
+## E[Y]
+
+For the mean of Y, we have:
 
 $$
-\text{Var}(X) = \frac{\partial^2}{\partial t_1^2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0}.
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right)
 $$
 
-From the first derivative:
-
 $$
-\frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = \frac{-1}{t_1^2} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) + \frac{1}{t_1} \cdot \frac{1}{(1 - t_1 - t_2)^2}.
+\frac{\partial}{\partial t_2} M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{(1 - t_1 - t_2)^2} - \frac{1}{(1 - t_2)^2} \right)
 $$
 
-The second derivative is:
+Similar as before, as we cannot directly evaluate $(t_1, t_2) = (0, 0)$, we must then evaluate the limit as $t_1 \rightarrow \infty$, $t_2 \rightarrow \infty$: 
 
 $$
-\frac{\partial^2}{\partial t_1^2} M_{X, Y}(t_1, t_2) = \frac{2}{t_1^3} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) - \frac{2}{t_1^2} \cdot \frac{1}{(1 - t_1 - t_2)^2} + \frac{2}{t_1} \cdot \frac{1}{(1 - t_1 - t_2)^3}.
+\frac{\partial}{\partial t_2} M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{(1 - t_1 - t_2)^2} - \frac{1}{(1 - t_2)^2} \right) = (\frac{1}{t_1}) \frac{2t_1}{(1 - t_1 - t_2)^2 (1 - t_2)^2} = \frac{2}{(1 - t_1 - t_2)^2 (1 - t_2)^2}
 $$
 
-Evaluating at \( t_1 = 0 \) and \( t_2 = 0 \), we get:
-
 $$
-\text{Var}(X) = 1.
+E[Y] = \lim_{t_1 \to 0, t_2 \to 0} \frac{2}{(1 - t_1 - t_2)^2 (1 - t_2)^2} = 2
 $$
 
-Similarly, the variance of \( Y \) is:
+## Var(X)
+
+We then need to calculate the variance of both X and Y. Starting with X, we have: 
 
 $$
-\text{Var}(Y) = \frac{\partial^2}{\partial t_2^2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0}.
+E[X^2] = \frac{\partial^2}{\partial t_1^2} M_{X, Y}(t_1, t_2) = \frac{2}{t_1^3} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) - \frac{2}{t_1^2}  \frac{1}{(1 - t_1 - t_2)^2} + \frac{2}{t_1}  \frac{1}{(1 - t_1 - t_2)^3}
 $$
 
-This is:
-
 $$
-\frac{\partial^2}{\partial t_2^2} M_{X, Y}(t_1, t_2) = \frac{2}{t_1} \left( \frac{1}{(1 - t_1 - t_2)^3} - \frac{1}{(1 - t_2)^3} \right).
+E[X^2] = \frac{\partial^2}{\partial t_1^2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} = \frac{2}{t_1^3} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) - \frac{2}{t_1^2}  \frac{1}{(1 - t_1 - t_2)^2} + \frac{2}{t_1}  \frac{1}{(1 - t_1 - t_2)^3}
 $$
 
-Evaluating at \( t_1 = 0 \) and \( t_2 = 0 \), we get:
+Similar as before, as we cannot directly evaluate $(t_1, t_2) = (0, 0)$, we must then evaluate the limit as $t_1 \rightarrow \infty$, $t_2 \rightarrow \infty$: 
 
 $$
-\text{Var}(Y) = 1.
+E[X^2] = \frac{\partial^2}{\partial t_1^2} M_{X, Y}(t_1, t_2) = \frac{\partial}{\partial t_1} \left( \frac{1}{(1 - t_1 - t_2)^2 (1 - t_2)} \right) = \frac{2}{(1 - t_1 - t_2)^3 (1 - t_2)}
 $$
 
-The covariance of \( X \) and \( Y \) is given by:
-
 $$
-\text{Cov}(X, Y) = \frac{\partial^2}{\partial t_1 \partial t_2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0}.
+E[X^2] = \frac{\partial^2}{\partial t_1^2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} \frac{2}{(1 - t_1 - t_2)^3 (1 - t_2)} = \frac{2}{(1 - 0 - 0)^3 (1 - 0)} = 2
 $$
 
-From the derivative:
+Then for Var(X): 
 
 $$
-\frac{\partial}{\partial t_1} \frac{\partial}{\partial t_2} M_{X, Y}(t_1, t_2) = \frac{1}{(1 - t_1 - t_2)^2}.
+\text{Var}(X) = E(X^2) - [E(X)]^2 = 2 - 1 = 1
 $$
 
-Evaluating at \( t_1 = 0 \) and \( t_2 = 0 \), we get:
+## Var(Y) 
+
+For the variance of Y we then have: 
 
 $$
-\text{Cov}(X, Y) = 1.
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right)
 $$
 
-So, $Var(X) = 1, Var(Y) = 1, \text{ and } Cov(X, Y) = 1$.
+$$
+E[Y^2] = \frac{\partial^2}{\partial t_2^2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} \frac{2}{t_1} \left( \frac{1}{(1 - t_1 - t_2)^3} - \frac{1}{(1 - t_2)^3} \right)
+$$
+
+Similar as before, as we cannot directly evaluate $(t_1, t_2) = (0, 0)$, we must then evaluate the limit as $t_1 \rightarrow \infty$, $t_2 \rightarrow \infty$: 
+
+$$
+E[Y^2] = \frac{\partial^2}{\partial t_2^2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} \frac{2}{t_1} \left( \frac{(1 - t_2)^3 - (1 - t_1 - t_2)^3}{(1 - t_1 - t_2)^3 (1 - t_2)^3} \right) = \frac{2}{t_1} \left( \frac{3t_1}{(1 - t_1 - t_2)^3 (1 - t_2)^3}\right) = \frac{6}{(1 - t_1 - t_2)^3 (1 - t_2)^3}
+$$
+
+$$
+E[Y^2] =\lim_{t_1 \to 0, t_2 \to 0} \frac{6}{(1 - 0 - 0)^3 (1 - 0)^3} = \frac{6}{1} = 6
+$$
+
+$$
+Var(Y) = E(Y^2) - [E(Y)]^2 = 6 - 2^2 = 2
+$$
+
+## Cov(X, Y)
+
+To find Cov(X, Y), we have: 
+
+$$
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right)
+$$
+
+$$
+E[XY] = \frac{\partial^2}{\partial t_1 \partial t_2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0}
+$$
+
+$$
+\frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = \frac{-1}{t_1^2} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) + (\frac{1}{t_1}) \frac{1}{(1 - t_1 - t_2)^2} = \frac{1}{(1 - t_1 - t_2)^2 (1 - t_2)}
+$$
+
+Uno mas wrt $t_2$: 
+
+$$
+\frac{\partial^2}{\partial t_1 \partial t_2} M_{X, Y}(t_1, t_2) = \frac{\partial}{\partial t_2} \left( \frac{1}{(1 - t_1 - t_2)^2 (1 - t_2)} \right) = \frac{2}{(1 - t_1 - t_2)^3 (1 - t_2)} + \frac{1}{(1 - t_1 - t_2)^2 (1 - t_2)^2}
+$$
+
+$$
+E[XY] = \frac{\partial^2}{\partial t_1 \partial t_2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} \frac{2}{(1 - t_1 - t_2)^3 (1 - t_2)} + \frac{1}{(1 - t_1 - t_2)^2 (1 - t_2)^2} = \frac{2}{1} + \frac{1}{1} = 3
+$$
+
+
+
+$$
+Cov(X, Y) = E[XY] - E[X]E[Y] = 3 - 1(2) = 1
+$$
+
+So, $Var(X) = 1, Var(Y) = 2, \text{ and } Cov(X, Y) = 1$.
 
 ## (c)
 
@@ -619,13 +647,13 @@ Based on the joint moment generating function, identify the marginal distributio
 Given the joint moment generating function:
 
 $$
-M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right),
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right)
 $$
 
 For the marginal MGF of X, we set $(t_1, t_2) = (t_1, 0)$:
 
 $$
-M_X(t_1) = M_{X, Y}(t_1, 0) = \frac{1}{t_1} \left( \frac{1}{1 - t_1} - 1 \right) = \frac{1}{t_1} \left( \frac{1}{1 - t_1} - 1 \right) = \frac{1}{t_1} \left( \frac{1 - (1 - t_1)}{1 - t_1} \right) = \frac{t_1}{t_1(1 - t_1)} = \frac{1}{1 - t_1}
+M_X(t_1) = M_{X, Y}(t_1, 0) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) = \frac{1}{t_1} \left( \frac{1}{1 - t_1} - 1 \right) = \frac{1}{t_1} \left( \frac{1}{1 - t_1} - 1 \right) = \frac{1}{t_1} \left( \frac{1 - (1 - t_1)}{1 - t_1} \right) = \frac{t_1}{t_1(1 - t_1)} = \frac{1}{1 - t_1}
 $$
 
 This is the MGF of an Exponential(1) distribution, such that: 
@@ -634,28 +662,34 @@ $$
 X \sim \text{Exponential}(1) \rightarrow f_X(x) = e^{-x}
 $$
 
-Similarly, for the marginal MGF of X, we set $(t_1, t_2) = (0, t_2)$:
+Similarly, for the marginal MGF of Y, we set $(t_1, t_2) = (0, t_2)$:
 
 $$
-M_Y(t_2) = M_{X, Y}(0, t_2) = \frac{1}{0} \left( \frac{1}{1 - t_2} - \frac{1}{1 - t_2} \right),
+M_Y(t_2) = M_{X, Y}(0, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) = \frac{1}{0} \left( \frac{1}{1 - t_2} - \frac{1}{1 - t_2} \right)
 $$
 
-which simplifies directly to:
+Similar as before, as we cannot directly evaluate $(0, t_2)$, we must then evaluate the limit as $t_1 \rightarrow \infty$: 
 
 $$
-M_Y(t_2) = \frac{1}{1 - t_2}.
-$$
-
-This is also the MGF of an **Exponential(1)** distribution. Therefore, the marginal distribution of \( Y \) is:
+M_Y(t_2) = M_{X, Y}(0, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right)
+$$ 
 
 $$
-Y \sim \text{Exponential}(1).
+M_{X, Y}(t_1, t_2) =\frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} = \frac{(1 - t_2) - (1 - t_1 - t_2)}{(1 - t_1 - t_2)(1 - t_2)} \right) = \frac{1}{t_1} \left( \frac{1 - t_2 - 1 + t_1 + t_2}{(1 - t_1 - t_2)(1 - t_2)} \right) = \frac{1}{t_1} \frac{t_1}{(1 - t_1 - t_2)(1 - t_2)} = \frac{1}{(1 - t_1 - t_2)(1 - t_2)}
 $$
 
-- The marginal distribution of \( X \) is **Exponential(1)**.
-- The marginal distribution of \( Y \) is **Exponential(1)**.
+$$
+f_Y(y) = \lim_{t_1 \to 0} M_Y(t_2) = \lim_{t_1 \to 0} \frac{1}{(1 - t_1 - t_2)(1 - t_2)} = \frac{1}{(1 - t_2)(1 - t_2)} = \frac{1}{(1 - t_2)^2}
+$$
 
-Both \( X \) and \( Y \) are independently distributed as **Exponential(1)** random variables.
+Which is very similar to a Gamma distribution MGF, specifically: 
+
+$$
+Y \sim \text{Gamma}(\alpha = 2, \beta = 1)
+$$
+
+$X \sim \text{Exponential}(1) \rightarrow f_X(x) = e^{-x}$
+$Y \sim \text{Gamma}(\alpha = 2, \beta = 1) \rightarrow f_Y(y) = \frac{1}{\Gamma(2)} y e^{-y} = y e^{-y}$
 
 \newpage
 
