@@ -11,7 +11,7 @@ date: "2024-10-28"
 [Name: Sam Olson]{.smallcaps} \
 [Collaborators: Sarah, Sabrina, Ben, Andrew, **The Hatman**]{.smallcaps} \
 
-Q2 g
+Q1 b, c: Do we need to include an interpretation, even though it doesn't explicitly ask for one? 
 
 # Q1 
 
@@ -29,7 +29,22 @@ Construct the full ANOVA table. Which factors or interactions have significant e
 knitr::include_graphics("q1a.png")
 ```
 
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1a2.png")
+```
+
 It appears that all treatment variables (ethanol levels and air/fuel ratios) in addition to their interaction effects are significant, meaning we have evidence to reject the null hypothesis that the mean CO emission concentrations (g/meter3) are equal for all treatment levels when averaged across all other factors/treatments, i.e. we have evidence to support the following alternative hypotheses: 1. At least one mean CO emission concentrations (g/meter3) for ethanol levels is different from the other mean CO emission concentrations (g/meter3) averaging across air/fuel ratio levels, 2. At least one mean CO emission concentrations (g/meter3) for air/fuel ratio is different from the other mean CO emission concentrations (g/meter3) for air/fuel ratios when averaging across ethanol levels, and 3. The mean CO emission concentrations (g/meter3) for the interaction between ethanol and air/fuel ratio is different from the mean CO emission concentrations (g/meter3) of some other combination of ethanol/air/fuel ratio.
+
+When we then turn to individual comparisons, we have evidence to reject the null hypothesis at the $\alpha = 0.05$ level for:
+  eth 0.1: $H_0$: the mean CO emission concentrations (g/meter3) for the ethanol 0.1 level is equal to the the mean CO emission concentrations (g/meter3) for the ethanol 0.3 level when averaging across levels of air/fuel ratio
+  eth 0.2: $H_0$: the mean CO emission concentrations (g/meter3) for the ethanol 0.2 level is equal to the the mean CO emission concentrations (g/meter3) for the ethanol 0.3 level when averaging across levels of air/fuel ratio
+  airfuel 14: $H_0$: the mean CO emission concentrations (g/meter3) for air/fuel ratio 14 is equal to the the mean CO emission concentrations (g/meter3) for the air/fuel ratio 16 when averaging across levels of ethanol ratio
+  airfuel 15: $H_0$: the mean CO emission concentrations (g/meter3) for air/fuel ratio 15 is equal to the the mean CO emission concentrations (g/meter3) for the air/fuel ratio 16 when averaging across levels of ethanol ratio
+  eth 0.1 * airfuel 14: $H_0$: the mean CO emission concentrations (g/meter3) for the interaction between ethanol level 0.1 and air/fueld ratio 14 is the same as the mean CO emission concentrations (g/meter3) for the other interactions (combinations of) the factors ethanol level and air/fuel ratio
+  eth 0.1 * airfuel 15: $H_0$: the mean CO emission concentrations (g/meter3) for the interaction between ethanol level 0.1 and air/fueld ratio 15 is the same as the mean CO emission concentrations (g/meter3) for the other interactions (combinations of) the factors ethanol level and air/fuel ratio
+  eth 0.2 * airfuel 14: $H_0$: the mean CO emission concentrations (g/meter3) for the interaction between ethanol level 0.2 and air/fueld ratio 14 is the same as the mean CO emission concentrations (g/meter3) for the other interactions (combinations of) the factors ethanol level and air/fuel ratio
+
+So, in the context of the study we have evidence to support there being main effects of mean CO emission concentrations (g/meter3) for ethanol levels 0.1 and 0.2 different from ethanol level 0.3 when averaging across levels of air/fuel ratios, as well as evidence to support there being main effects of air/fuel ratio of mean CO emission concentrations (g/meter3) for air/fuel ratio 14 and 15 different from air/fuel ratio 16 when averaging across levels of ethanol. We also have evidence that some of the interactions involving the mean CO emission concentrations (g/meter3) for these factors and levels, specifically ethanol level 0.1, air/fueld ratio 14/15, and ethanol level 0.2 with air/fuel ratio 14, being different from the mean CO emission concentrations (g/meter3) for the other interactions of these two factors. 
 
 \newpage
 
@@ -43,6 +58,10 @@ knitr::include_graphics("q1b.png")
 
 There are significant linear and quadratic effects in the model for ethanol effects, where significance is at the $\alpha = 0.05$ level and respective p-values of 0.0002 and 0.0070. 
 
+The above interpretation: We have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that: 
+  Contrast 1: $H_0:$: The mean CO emission concentrations (g/meter3) for ethanol level 0.1 is the same as the mean CO emission concentrations (g/meter3) for ethanol level 0.3, averaging across levels of air/fuel ratio. 
+  Contrast 1: $H_0:$: The mean CO emission concentrations (g/meter3) for ethanol level 0.2 is the same as the mean CO emission concentrations (g/meter3) of the mean of ethanol levels 0.1 and 0.3, averaging across levels of air/fuel ratio. 
+
 \newpage
 
 ## (c) 
@@ -54,6 +73,10 @@ knitr::include_graphics("q1c.png")
 ```
 
 There are also significant linear and quadratic effects in the model for the air/fuel ratio effects, where significance is at the $\alpha = 0.05$ level and respective p-values of <0.0001 and 0.0214.
+
+The above interpretation: We have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that: 
+  Contrast 1: $H_0:$: The mean CO emission concentrations (g/meter3) for air/fuel ratio 14 is the same as the mean CO emission concentrations (g/meter3) for air/fuel ratio 16, averaging across levels of ethanol. 
+  Contrast 1: $H_0:$: The mean CO emission concentrations (g/meter3) for air/fuel ratio 15 is the same as the mean CO emission concentrations (g/meter3) of the mean of air/fuel ratios 14 and 16, averaging across levels of ethanol. 
 
 \newpage
 
@@ -206,7 +229,38 @@ Overall, we have some visual evidence to believe our residuals are not normally 
 
 Suppose that the diagnostics suggest the need for a transformation. Find which transformation of the responses is better, square root transformation, log transformation, or none? Summarize your findings and include supporting tables and/or figures.
 
-Primarily compare the different transformations via "Visual" and "Statistical" Assessments. Graphs and plots are given below for these two categories. 
+For assessing the equal variances assumption, and to more broadly compare/contrast the two additional transformations being considered, the following are used: 
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e5.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e6.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e7.png")
+```
+
+When comparing F statistics, an assessment of the overall model, we appear to maximize the observed F statistic when we utilize the square root transformation. What's more: 
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e7.png")
+knitr::include_graphics("q2e8.png")
+knitr::include_graphics("q2e9.png")
+knitr::include_graphics("q2e10.png")
+knitr::include_graphics("q2e11.png")
+knitr::include_graphics("q2e12.png")
+knitr::include_graphics("q2e13.png")
+knitr::include_graphics("q2e14.png")
+knitr::include_graphics("q2e15.png")
+knitr::include_graphics("q2e16.png")
+```
+
+From the assorted graphs/plots above, we observe the pattern of residuals for the different transformations when plotted against the 1. Fitted Values, 2. Different Levels of Factor 1 - Filter Types, and 3. Different Levels of Factor 2 - Frog Species. From the above, the transformation that most consistently creates a random spread of residuals is the Square Root transformation. Such that the above plots provide evidence in support of utilizing the square root transformation, as it most closely aligns with data that does not violate our assumnption of both equal variance (constant variance with mean 0 for the residuals), as well as for the assumption of additivity used in our model. We then turn to normality of residuals. 
+
+Primarily compare the different transformations for the assumption of normality, the broad categories of "Visual" and "Statistical" Assessments are used. Graphs and plots are given below for these two categories. 
 
 ### Visual Assessment
 
@@ -238,9 +292,17 @@ knitr::include_graphics("q2e3.png")
 knitr::include_graphics("q2e4.png")
 ```
 
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e17.png")
+knitr::include_graphics("q2e18.png")
+knitr::include_graphics("q2e19.png")
+```
+
 Via statistical tests, particularly the Shapiro-Wilk test, we are testing whether the residuals (original, sqrt, or log transformed) are not normally distributed; in all instances we observe rather large p-values such that we do not reject the null hypothesis in all three instances that the particular (original, sqrt, or log) residuals are normally distributed. 
 
-Overall, we observe that statistical tests are consistent across the residual types (original, sqrt, and log transformed), in that in all instances of Shapiro-Wilk we do not reject the null hypothesis that the (original/sqrt/log) residuals are normally distributed. So our choice ultimately comes down to the visual assessment, whereby we observe the most visually normal looking residuals from the log transformation, which becomes our choice for part (f). 
+Overall, we observe that statistical tests are consistent across the residual types (original, sqrt, and log transformed), in that in all instances of Shapiro-Wilk we do not reject the null hypothesis that the (original/sqrt/log) residuals are normally distributed. The same is roughly true when reviewing a visual assessment of either the histogram or of the associated QQ Plots. Overall, all three forms of our response (and residual) appear to be normally distributed. 
+
+Taken together, we overall decide to move forward with the square root transformation, as it provides the most solid evidence that none of our key assumptions for our model are being violated. 
 
 \newpage
 
@@ -256,21 +318,21 @@ knitr::include_graphics("q2f1.png")
 knitr::include_graphics("q2f2.png")
 ```
 
-response: the average percentage of failed hatches
+Response Variable: the average percentage of failed hatches
 
-Despite having a small p-value for location blocks, corresponding to rejecting the null hypothesis at the $\alpha = 0.05$ level for the average percentage of failed hatches for location 1 being the same as the the average percentage of failed hatches for location 2, because this is a block, when averaging across both filter and species factors, we will not draw any further conclusions for this particular parameter in the model. That being said: 
+Despite having a small p-value for location blocks, corresponding to rejecting the null hypothesis at the $\alpha = 0.05$ level for the average sqrt  percentage of failed hatches for location 1 being the same as the the average sqrt  percentage of failed hatches for location 2, because this is a block, when averaging across both filter and species factors, we will not draw any further conclusions for this particular parameter in the model. That being said: 
 
 The following parameters are all statistically significant at the $\alpha = 0.05$ level such that we reject their respective null hypotheses: 
 
-  species 1: $H_{0}$: the average percentage of failed hatches for frog species 1 is the same as the average percentage of failed hatches for frog species 3, when averaged across locations and filter types
-  species 2: $H_{0}$: the average percentage of failed hatches for frog species 2 is the same as the average percentage of failed hatches for frog species 3, when averaged across locations and filter types
-  filter 1: $H_{0}$: the average percentage of failed hatches for filter type 1 is the same as the average percentage of failed hatches for filter type 3, when averaged across locations and frog species
-  filter 2: $H_{0}$: the average percentage of failed hatches for filter type 1 is the same as the average percentage of failed hatches for filter type 2, when averaged across locations and frog species
-  species 1, filter 1: $H_{0}$: the average percentage of failed hatches for the interaction between frog species 1 and filter type 1 is the same as the average percentage of failed hatches for the interaction between other combinations of frog species and filter types
-  species 1, filter 2: $H_{0}$: the average percentage of failed hatches for the interaction between frog species 1 and filter type 2 is the same as the average percentage of failed hatches for the interaction between other combinations of frog species and filter types
-  species 2, filter 1: $H_{0}$: the average percentage of failed hatches for the interaction between frog species 2 and filter type 1 is the same as the average percentage of failed hatches for the interaction between other combinations of frog species and filter types
+  species 1: $H_{0}$: the average sqrt  percentage of failed hatches for frog species 1 is the same as the average sqrt  percentage of failed hatches for frog species 3, when averaged across locations and filter types
+  species 2: $H_{0}$: the average sqrt  percentage of failed hatches for frog species 2 is the same as the average sqrt  percentage of failed hatches for frog species 3, when averaged across locations and filter types
+  filter 1: $H_{0}$: the average sqrt  percentage of failed hatches for filter type 1 is the same as the average sqrt  percentage of failed hatches for filter type 3, when averaged across locations and frog species
+  filter 2: $H_{0}$: the average sqrt  percentage of failed hatches for filter type 1 is the same as the average sqrt  percentage of failed hatches for filter type 2, when averaged across locations and frog species
+  species 1, filter 1: $H_{0}$: the average sqrt  percentage of failed hatches for the interaction between frog species 1 and filter type 1 is the same as the average sqrt  percentage of failed hatches for the interaction between other combinations of frog species and filter types
+  species 1, filter 2: $H_{0}$: the average sqrt  percentage of failed hatches for the interaction between frog species 1 and filter type 2 is the same as the average sqrt  percentage of failed hatches for the interaction between other combinations of frog species and filter types
+  species 2, filter 1: $H_{0}$: the average sqrt  percentage of failed hatches for the interaction between frog species 2 and filter type 1 is the same as the average sqrt  percentage of failed hatches for the interaction between other combinations of frog species and filter types
   
-Given the above significant factors, for the question, "Is there any evidence that the types of filter have different effects on egg hatch success?", we have evidence to suggest that types of filter do have different effects on egg hatch success, specifically with regards to the average percentage of failed hatches for filter type 1 being different from the the average percentage of failed hatches for filter type 3 as well as for comparing the the average percentage of failed hatches for filter type 2 when compared to the the average percentage of failed hatches of filter type 3, when averaging across location and frog species. This specifically is comparing filter types None vs. UV-B Blocking as well as UB-B Transmitting vs. UB-V Blocking. So while the above does not directly compare None vs. UV-B Transmitting, we do have evidence for the pairwise comparisons noted previously being statistically different from one another with regards to the average percentage of failed hatches (when accounting for levels of the blocks, location, and other factor levels, frog species). 
+Given the above significant factors, for the question, "Is there any evidence that the types of filter have different effects on egg hatch success?", we have evidence to suggest that types of filter do have different effects on egg hatch success, specifically with regards to the average sqrt  percentage of failed hatches for filter type 1 being different from the the average sqrt  percentage of failed hatches for filter type 3 as well as for comparing the the average sqrt  percentage of failed hatches for filter type 2 when compared to the the average sqrt  percentage of failed hatches of filter type 3, when averaging across location and frog species. This specifically is comparing filter types None vs. UV-B Blocking as well as UB-B Transmitting vs. UB-V Blocking. So while the above does not directly compare None vs. UV-B Transmitting, we do have evidence for the pairwise comparisons noted previously being statistically different from one another with regards to the average sqrt  percentage of failed hatches (when accounting for levels of the blocks, location, and other factor levels, frog species). 
 
 In addition, we observe filter has both main effects, like those specified above, as well as interaction effects, as noted in the interaction effects interpretations above found to be statistically significant. 
 
@@ -288,9 +350,9 @@ knitr::include_graphics("q2g.png")
 
 For what I believe may actually be the Profile Plot, given above, 
 
-From the profile plot of treatment means, we can interpret the effects of different filter types on the average percentage of hatch failure across frog species.
+From the profile plot of treatment means, we can interpret the effects of different filter types on the average sqrt percentage of hatch failure across frog species.
 
-Species 1 consistently shows very low levels of hatch failure across all filter types, which suggests that Species 1 on average is relatively unaffected by changes in filter type and has overall lower average hatch failure rate. Species 2 shows a moderate level of average hatch failure rate with Filter 1 but has a sharp decrease in hatch failure as the filter types change (from 1 to 2 to 3). This may suggest that Species 2 is sensitive to the type of filter, and since filter "1" is "None", it may be more sensitive (benefit from) using some type of filter, particularly where more UV-B is blocked. Species 3 starts with a high average hatch failure rate under Filter 1, similar to Species 2, in addition to having average hatch failure rates decrease significantly as the filter moves from type 1 to type 3, indicating that this species also benefits from increased UV-B protection and filter effects.
+Species 1 consistently shows very low levels of hatch failure across all filter types, which suggests that Species 1 on average sqrt is relatively unaffected by changes in filter type and has overall lower average sqrt hatch failure rate. Species 2 shows a moderate level of average sqrt hatch failure rate with Filter 1 but has a sharp decrease in hatch failure as the filter types change (from 1 to 2 to 3). This may suggest that Species 2 is sensitive to the type of filter, and since filter "1" is "None", it may be more sensitive (benefit from) using some type of filter, particularly where more UV-B is blocked. Species 3 starts with a high average sqrt hatch failure rate under Filter 1, similar to Species 2, in addition to having average sqrt hatch failure rates decrease significantly as the filter moves from type 1 to type 3, indicating that this species also benefits from increased UV-B protection and filter effects.
 
 For interactions: The interactions are also consistent and clear with those detailed previously, in that Species 1 is largely unaffected by filter type (rather flag line), while Species 2 and Species 3 have more variability, improving for successive filter types (None to using some type of filter). 
 
