@@ -17,6 +17,8 @@ library(ggplot2)
 library(dplyr)
 attach(txhousing)
 
+# txhousing <- na.omit(txhousing, cols = c("sales", "city"))
+
 ggplot(txhousing, aes(x = date, y = sales, color = city)) +
   geom_line() +
   labs(title = "Monthly House Sales of Texas Cities",
@@ -60,7 +62,6 @@ ggplot(txhousing, aes(x = date, y = log(sales), color = city)) +
 We can fix another problem described in (a) by removing the strong seasonal trend present in the dataset. Fit a linear model with log(sales) against month for each city, then create a new column in txhousing, call it "rel_sales", which contains the residuals of the linear fits. Then plot a time series of rel sales against date for each city (on the same plot) using ggplot2
 
 ```{r}
-
 residualsList <- tapply(X = seq_along(txhousing$sales), 
                         INDEX = txhousing$city, 
                         FUN = function(idx) {
@@ -117,6 +118,12 @@ ggplot(txhousing, aes(x = date, y = rel_sales, color = city)) +
 Provide a page of plots of rel sales against month by year using the facet option on ggplot2 package. On each plot, put in the mean curve using geom line() options. 
 
 ```{r}
+# could also dplyr it, but I don't want to annoy the grading gods
+# Oh Gautham, I lament: Have mercy! 
+# mean_curve <- txhousing |>
+#   group_by(year, month) |>
+#   summarize(mean_rel_sales = mean(rel_sales, na.rm = TRUE), .groups = "drop")
+
 mean_rel_sales <- data.frame(
   year = rep(unique(txhousing$year), each = 12),
   month = 1:12,
@@ -125,6 +132,8 @@ mean_rel_sales <- data.frame(
                                      FUN = mean, 
                                      na.rm = TRUE))
 )
+
+mean_rel_sales <- na.omit(mean_rel_sales)
 
 ggplot(txhousing, aes(x = month, y = rel_sales, color = city)) +
   geom_line() +
