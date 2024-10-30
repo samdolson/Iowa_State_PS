@@ -11,8 +11,6 @@ date: "2024-10-28"
 [Name: Sam Olson]{.smallcaps} \
 [Collaborators: Sarah, Sabrina, Ben, Andrew, **The Hatman**]{.smallcaps} \
 
-Q1 b, c: Do we need to include an interpretation, even though it doesn't explicitly ask for one? 
-
 # Q1 
 
 A completely randomized two-factor experiment consisted of burning fuel with levels of two additives in a laboratory setting and determining the carbon monoxide (CO) emissions released. Eighteen batches of a standard fuel were available for this study. Two of the batches were randomly assigned to each of nine combinations of two additives corresponding to three levels of added ethanol (0.1, 0.2, or 0.3) and three air/fuel ratio settings (14, 15, or 16). Units for the ethanol levels were not reported. CO emission concentrations (g/meter3) were determined by burning the same amount of fuel from each of the 18 batches. The data are shown below and are located in the file emissions.txt.
@@ -190,7 +188,7 @@ knitr::include_graphics("q2c2.png")
 knitr::include_graphics("q2c3.png")
 ```
 
-For this assumption we review three residual plots: By fitted values, by levels of Factor 1 (Type of Filter), and by levels of Factor 2 (Frog Species). We are generally looking for a trend in these plots as evidence that our equal variances assumption is being violated. For small fitted values (left side of the fitted value plot), we do not observe any negative residuals, which is somewhat concerning. So there is some evidence that our equal variances assumption may be violated in this experiment, though the other two residual plots do not exhibit such a problematic trend. 
+For this assumption we review three residual plots: By fitted values, by levels of Factor 1 (Type of Filter), and by levels of Factor 2 (Frog Species). We are generally looking for a trend in these plots as evidence that our equal variances assumption is being violated. For small fitted values (left side of the fitted value plot), we do not observe any negative residuals, which is somewhat concerning. So there is some evidence that our equal variances assumption may be violated in this experiment, though the other two residual plots (residuals by factor frog species or by factor filter type) do not exhibit such a problematic trend, and appear to be both randomly spread across their values as well as having constant variance (similar spread) across the values. 
 
 \newpage
 
@@ -216,12 +214,12 @@ knitr::include_graphics("q2d4.png")
 
 To assess this assumption we look at: 
   Residual Summary statistics: Unfortunately, we see that Mean of Residuals $\neq$ Median of Residuals
-  Shapiro Wilk statistical test: Large p-value does not provide evidence to reject the null hypothesis that residuals are normally distributed
+  Shapiro Wilk statistical test: small p-value (0.0303) such that we have evidence to reject the null hypothesis of normally distributed residuals at the $\alpha = 0.05$ level
   Histogram of residuals: We observe residuals do exhibit a slight bell-shaped distribution but there is visually some evidence of non-normality in skewnewss
-  Residual boxplot: Similar to the Histogram noted, the boxplot looks roughly normal, though there is not a symmetrical spread of residuals about the center
-  QQ Plot: The residuals roughly align with the reference line, though there are deviations, particularly about the center (0 Normal Quartile), as well as some deviations near the tails. This is not especially problematic, but is nonetheless a cause of concern
+  Residual boxplot: Similar to the Histogram noted, the boxplot looks roughly normal, though there is not a symmetrical spread of residuals about the center in addition to mean residuals neq median residuals
+  QQ Plot: The residuals roughly align with the reference line, though there are deviations, particularly about the center (0 Normal Quartile), as well as some deviations near the tails
 
-Overall, we have some visual evidence to believe our residuals are not normally distributed, particularly with the histogram and QQ plot, though generally the above graphs and plots indicate the residuals are roughly normally distributed and that our normality assumption is not violated. We may certainly improve the normality of our residuals though, which we will do in the later parts of the problem.  
+Overall, we have some visual and statistical test-based evidence to believe our residuals are not normally distributed, particularly with the histogram and QQ plot and having evidence to reject the null hypothesis of the Shapiro-Wilk test. We may certainly improve the normality of our residuals, which we will do in the later parts of the problem.  
 
 \newpage
 
@@ -233,13 +231,7 @@ For assessing the equal variances assumption, and to more broadly compare/contra
 
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q2e5.png")
-```
-
-```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q2e6.png")
-```
-
-```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q2e7.png")
 ```
 
@@ -282,13 +274,7 @@ Visually, the log transformation of residuals produces the most relatively norma
 
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q2d1.png")
-```
-
-```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q2e3.png")
-```
-
-```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q2e4.png")
 ```
 
@@ -298,11 +284,11 @@ knitr::include_graphics("q2e18.png")
 knitr::include_graphics("q2e19.png")
 ```
 
-Via statistical tests, particularly the Shapiro-Wilk test, we are testing whether the residuals (original, sqrt, or log transformed) are not normally distributed; in all instances we observe rather large p-values such that we do not reject the null hypothesis in all three instances that the particular (original, sqrt, or log) residuals are normally distributed. 
+Via statistical tests, particularly the Shapiro-Wilk test, we are testing whether the residuals (original, sqrt, or log transformed) are not normally distributed; we reject the null hypothesis at the $\alpha = 0.05$ level for the original and log-transformed residuals, but we do not reject the null hypothesis at the same level for the sqrt-transformed residuals. This is evidence in favor of the original and log transformed residuals not being normally distributed, and evidence in favor of the sqrt-transformed residuals being normally distributed. 
 
-Overall, we observe that statistical tests are consistent across the residual types (original, sqrt, and log transformed), in that in all instances of Shapiro-Wilk we do not reject the null hypothesis that the (original/sqrt/log) residuals are normally distributed. The same is roughly true when reviewing a visual assessment of either the histogram or of the associated QQ Plots. Overall, all three forms of our response (and residual) appear to be normally distributed. 
+So, despite visual inspections of the barplots and QQ plots being relatively consistent, the statistical tests provide more varied interpretations, insomuch as to provide evidence that the sqrt-transformation specifically appears to best normalize the residuals.
 
-Taken together, we overall decide to move forward with the square root transformation, as it provides the most solid evidence that none of our key assumptions for our model are being violated. 
+Taken together, we overall decide to move forward with the square root transformation, as it provides the most solid evidence that none of our key assumptions for our model are being violated, from the equal variances assumption, to the additivity assumption, as well as our normality assumption. 
 
 \newpage
 
