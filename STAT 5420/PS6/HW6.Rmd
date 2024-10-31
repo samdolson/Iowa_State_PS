@@ -16,7 +16,7 @@ $$Y = i + 1 \text{ iff } i \leq X < i+1, i = 0, 1, 2, ...$$
 
 Find the distribution of Y. What well-known distribution does Y have? 
 
-$$P(Y = i + 1) = \int\limits_{i}^{i+1}e^{-x} dx = -e^{-x} \big|_{x = i}^{i+1} = -e^{-(i+1)} + e^{-i} = e^{-i}(1-e^{-1})$$
+$$P(Y = i + 1) = \int\limits_{i}^{i+1}e^{-x} dx = -e^{-x} \Big|_{x = i}^{i+1} = -e^{-(i+1)} + e^{-i} = e^{-i}(1-e^{-1})$$
 
 This is a geometric distribution with $p = 1-e^{-1}$, such that
 
@@ -57,39 +57,51 @@ $$Y | \Lambda \sim Poisson(\Lambda) \text{ and } \Lambda \sim Gamma(\alpha, \bet
 
 find the marginal distribution, mean, and variance of Y. Show that the marginal distribution of Y is a negative binomial if $\alpha$ is an integer. 
 
-For y = 0, 1, ..., we may write the conditional distribution of Y = y as: 
+For y = 0, 1, ..., the marginal distribution of Y is: 
 
-$$P(Y = y | \lambda) = \sum\limits_{n=y}^{\infty} P(Y = y | N = n, \lambda) P(N = n | \lambda) = \sum\limits_{n=y}^{\infty} {n \choose y} p^{y} (1-p)^{n-y} \frac{e^{-\lambda} \lambda^n}{n!}$$
+$$
+f_Y(y) = \int_{\lambda = 0}^\infty f_Y(y | \lambda) f_\Lambda(\lambda) d\lambda = \int_{\lambda = 0}^\infty \frac{\lambda ^{y}e^{-\lambda}}{y!} \frac{1}{\beta^{\alpha} \Gamma(\alpha)} \lambda^{\alpha - 1} e^{-\lambda / \beta} d \lambda
+$$
 
-$$P(Y = y | \lambda) = \sum\limits_{n=y}^{\infty} \frac{1}{y!(n-y)!} (\frac{p}{1-p})^{y} [(1-p)\lambda]^{n}e^{-\lambda}$$
+$$
+f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{\lambda = 0}^\infty \lambda ^{y}e^{-\lambda} \lambda^{\alpha - 1} e^{-\frac{\lambda}{\beta}} d \lambda = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{\lambda = 0}^\infty\lambda^{y + \alpha - 1} e^{\frac{-\lambda}{\frac{\beta}{(1+\beta)}}} d \lambda
+$$
 
-Define $m = n - y$, such that we may rewrite the above as: 
+Note the right-hand term is a Gamma function, i.e. for $u = \lambda(\frac{1+\beta}{\beta}) \rightarrow \lambda = u(\frac{\beta}{1 + \beta}) \rightarrow d\lambda = du (\frac{\beta}{1 + \beta})$ and we have: 
 
-$$P(Y = y | \lambda) = \sum\limits_{n=y}^{\infty} \frac{e^{-\lambda}}{y!m!} (\frac{p}{1-p})^{y} [(1-p)\lambda)^{m}] = \sum\limits_{n=y}^{\infty} \frac{e^{-\lambda}}{y!} (\frac{p}{1-p})^{y} \frac{[(1-p)\lambda)^{m}]}{m!}$$
+$$
+f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{u = 0}^\infty u^{y + \alpha - 1} e^{-u} (\frac{\beta}{1+\beta})^{y + \alpha} du = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} (\frac{\beta}{1+\beta})^{y + \alpha} \int_{u = 0}^\infty  u^{y + \alpha - 1} e^{-u} du = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} (\frac{\beta}{1+\beta})^{y + \alpha} \Gamma(\alpha + y)
+$$
 
-After gathering the terms, we see quite a lot of this does not depend on m, such that we may take it out of the summation and write: 
+Simplifying gives us: 
 
-$$P(Y = y | \lambda) = \frac{e^{-\lambda}}{y!} (\frac{p}{1-p})^{y} \sum\limits_{n=y}^{\infty}  \frac{[(1-p)\lambda)^{m}]}{m!}$$
+$$
+f_Y(y) = {y + \alpha - 1 \choose y} \frac{\beta}{1 + \beta} \frac{1}{1 + \beta}
+$$
 
-After simplifying, we then take advantage that 
+Or, $Y \sim NB(\alpha, \frac{1}{1+\beta})$, where $\alpha \in \mathbb{Z}^+$ for the Gamma function to be evaluated (integral to evaluate/not diverge). 
 
-$$\sum\limits_{n=y}^{\infty}  \frac{[(1-p)\lambda)^{m}]}{m!} = e^{(1-p)\lambda}$$
+Knowing the distribution of Y allows us to directly compute it's mean and variance, specifically: 
 
-And may write: 
+$$
+E[Y] = \alpha \frac{1 - \frac{1}{1+\beta}}{\frac{1}{1+\beta}} = \alpha \frac{\frac{\beta}{1+\beta}}{\frac{1}{1+\beta}} = \alpha \beta
+$$
 
-$$P(Y = y | \lambda) = e^{-\lambda}(p\lambda)^{y}e^{(1-p)\lambda}= \frac{(p\lambda)^{y}e^{-p\lambda}}{y!}$$
+However, we may also calculate it using conditional expectation, specifically: 
 
-Note the above is a type of Poisson, specifically: 
+$$
+E[Y] = E(E[Y|\Lambda]) = E[\Lambda] = \alpha \beta
+$$
 
-$$Y | \Lambda \sim Poisson(p\lambda)$$
+$$
+Var(Y) = \alpha \frac{1 - \frac{1}{1 + \beta}}{(\frac{1}{1+\beta})^2} = \alpha \frac{\frac{\beta}{1 + \beta}}{(\frac{1}{1+\beta})^2} = \alpha \beta (1 + \beta)
+$$
 
-From this we may "extract" the pmf of Y (pmf as both the conditional of Y and $\Lambda$ are both Poisson distributed), specifically for $y = 0 , 1, ...$, 
+Alternatively we have, via EVVE
 
-$$f_Y(y) = \frac{1}{\Gamma(\alpha) y! (p\beta)^{\alpha}} \Gamma(y + \alpha) (\frac{p\beta}{1+p\beta})^{y + \alpha}$$
-
-For a positive integer $\alpha$, the above provides a pmf for a negative binomial distribution, specifically: 
-
-$$Y \sim NB(\alpha, \frac{1}{1 + p\beta}$$
+$$
+Var(Y) = Var(E[Y|\Lambda]) + E(Var(Y | \Lambda)) = Var(\Lambda)  + E[\Lambda] = \alpha \beta^2 + \alpha \beta = \alpha \beta (\beta + 1)
+$$ 
 
 \newpage
 

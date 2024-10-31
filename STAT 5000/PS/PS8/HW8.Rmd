@@ -11,20 +11,6 @@ date: "2024-10-28"
 [Name: Sam Olson]{.smallcaps} \
 [Collaborators: Sarah, Sabrina, Ben, Andrew, **The Hatman**]{.smallcaps} \
 
-# Office Hours Questions
-
-Q1 (a) && Q2 (f): Need to do factor-level effect interpretations, or general "treatment effect" interpretations? 
-
-Q2 (g): Examine a profile plot of the treatment means (do not hand it in). Just want to double check this. 
-
-Q3 (b), (c): 2k factorial study, interpret like a SLR and not like an ANOVA? 
-
-Q3 study design: Correct interpretation, want lower response variable values. Higher response means lower efficiency which is not what we want? Can we also invert an interpretation, i.e. using A v. B to using B v. A? 
-
-Response: Amylace is a protein that helps you break down carbohydrates and starches into sugar, releasing carbon dioxide (CO2) in the process. Amylase activity was measured by the amount of malt from each flour that was required to produce 204.7ml of CO2. Measured amylase activity is reported in the data table in units of Y = [0.6 + log(amount of malt)] × 103
-
-Keep in mind that low values of the response variable correspond to combinations of factors that produce 204.7 ml of CO2 with the least amount of malt.
-
 # Q1 
 
 A completely randomized two-factor experiment consisted of burning fuel with levels of two additives in a laboratory setting and determining the carbon monoxide (CO) emissions released. Eighteen batches of a standard fuel were available for this study. Two of the batches were randomly assigned to each of nine combinations of two additives corresponding to three levels of added ethanol (0.1, 0.2, or 0.3) and three air/fuel ratio settings (14, 15, or 16). Units for the ethanol levels were not reported. CO emission concentrations (g/meter3) were determined by burning the same amount of fuel from each of the 18 batches. The data are shown below and are located in the file emissions.txt.
@@ -44,6 +30,18 @@ knitr::include_graphics("q1a.png")
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q1a2.png")
 ```
+
+### Main effects Interpretation and Overall Model: 
+
+For all factors and the associated interaction effects, we have evidence at the $\alpha = 0.05$ level to reject the null hypothesis, which is to say the Ethanol and Air/Fuel Ratio factors have significant effects on the mean CO emission concentrations (g/meter3), in addition to their interactions. The null hypotheses we have evidence to reject are: 
+
+Ethanol: p-value of < 0.0001 we have evidence to reject $H_0$: The mean CO emission concentrations (g/meter3) of an Ethanol level is the same for all Ethanol levels, averaging across levels of Air/Fuel Ratios. 
+
+Air/Fuel Ratio: p-value of 0.0002 we have evidence to reject $H_0$: The mean CO emission concentrations (g/meter3) of an Air/Fuel Ratio is the same for all Air/Fuel Ratio levels, averaging across levels of Ethanol. 
+
+Interaction of Ethanol and Air/Fuel Ratio: p-value of 0.0002 we have evidence to reject $H_0$: The mean CO emission concentrations (g/meter3) of the interaction between a particular combination of levels of Ethanol and Air/Fuel Ratio are the same for all combination of levels of Ethanol and Air/Fuel Ratios.  
+
+### Factor-Level Specific Interpretation: 
 
 It appears that all treatment variables (ethanol levels and air/fuel ratios) in addition to their interaction effects are significant, meaning we have evidence to reject the null hypothesis that the mean CO emission concentrations (g/meter3) are equal for all treatment levels when averaged across all other factors/treatments, i.e. we have evidence to support the following alternative hypotheses: 1. At least one mean CO emission concentrations (g/meter3) for ethanol levels is different from the other mean CO emission concentrations (g/meter3) averaging across air/fuel ratio levels, 2. At least one mean CO emission concentrations (g/meter3) for air/fuel ratio is different from the other mean CO emission concentrations (g/meter3) for air/fuel ratios when averaging across ethanol levels, and 3. The mean CO emission concentrations (g/meter3) for the interaction between ethanol and air/fuel ratio is different from the mean CO emission concentrations (g/meter3) of some other combination of ethanol/air/fuel ratio.
 
@@ -322,7 +320,19 @@ knitr::include_graphics("q2f2.png")
 
 Response Variable: the average percentage of failed hatches
 
-Despite having a small p-value for location blocks, corresponding to rejecting the null hypothesis at the $\alpha = 0.05$ level for the average sqrt  percentage of failed hatches for location 1 being the same as the the average sqrt  percentage of failed hatches for location 2, because this is a block, when averaging across both filter and species factors, we will not draw any further conclusions for this particular parameter in the model. That being said: 
+### Main Effects Interpretation: 
+
+For all factors and the associated interaction effects, we have evidence at the $\alpha = 0.05$ level to reject the null hypothesis, which is to say the factors Filter Type and Frog Species have significant effects on average sqrt percentage of failed hatches, in addition to their interactions. The null hypotheses we have evidence to reject are: 
+
+Filter Type: p-value of < 0.0001 we have evidence to reject $H_0$: The average sqrt percentage of failed hatches are the same for all Filter Types, averaging across levels of frog species and locations. 
+
+Frog Species: p-value of < 0.0001 we have evidence to reject $H_0$: The average sqrt percentage of failed hatches are the same for all Frog Species, averaging across levels of filter types and locations. 
+
+Interaction of Frog Species and Filter Type: p-value of 0.0015 we have evidence to reject $H_0$: The average sqrt percentage of failed hatches of the interaction between a particular combination of Frog Species and Filter Type are the same for all combinations of levels of Frog Species and Filter Type, averaged across locations.  
+
+### Factor-Level Specific Interpretation: 
+
+Despite having a small p-value for location blocks, corresponding to rejecting the null hypothesis at the $\alpha = 0.05$ level for the average sqrt percentage of failed hatches for location 1 being the same as the the average sqrt  percentage of failed hatches for location 2, because this is a block, when averaging across both filter and species factors, we will not draw any further conclusions for this particular parameter in the model. That being said: 
 
 The following parameters are all statistically significant at the $\alpha = 0.05$ level such that we reject their respective null hypotheses: 
 
@@ -345,12 +355,6 @@ In addition, we observe filter has both main effects, like those specified above
 For the best model specified in part (e): Examine a profile plot of the treatment means (do not hand it in), plotting the sample mean responses for the combinations of filters and frog species, averaging across locations. 
 
 What does this plot suggest? Are your conclusions about interactions between types of filters and frog species supported by results in the ANOVA table?
-
-```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
-knitr::include_graphics("q2g.png")
-```
-
-For what I believe may actually be the Profile Plot, given above, 
 
 From the profile plot of treatment means, we can interpret the effects of different filter types on the average sqrt percentage of hatch failure across frog species.
 
@@ -526,6 +530,6 @@ The above interpretation holds when all factors aside from moisture content are 
 
 The above interpretation holds when all factors aside from germination are held constant, i.e. we only change the germination.  
 
-5. Kiln Temperature 1 (p-value = 0.2348): We do not have evidence at the $\alpha = 0.05$ level to reject the null hypothesis that average amylase activity for kiln temperature of 100F compared to average amylase activity for kiln temperature of 100F to 130F is the same, despite the estimated effect of the 100F kiln temperature (staying constant) improving the efficiency of the malt usage for C02 production (estimated a not statistically significant 16.13 units decrease). 
+5. Kiln Temperature 1 (p-value = 0.2348): We do not have evidence at the $\alpha = 0.05$ level to reject the null hypothesis that average amylase activity for kiln temperature of 100F compared to average amylase activity for kiln temperature of 100F to 130F is the same, despite the estimated effect of the 100F kiln temperature (temperature of kiln staying constant at 100F) improving the efficiency of the malt usage for C02 production (estimated a not statistically significant 16.13 units decrease). 
 
-Despite being not a statistically significant finding, the above interpretation holds when all factors aside from kiln temperature are held constant, i.e. we only change the kilm temperature.   
+Despite being not a statistically significant finding, i.e. we do not reject the null hypothesis that the estimated effect of kiln temperature at 100F constant on average amylase activity is the same as average amylase activity when changing kiln temperature to to 130F, it is nonetheless an estimated effect of decreasing the response variable which corresponds to an increased efficiency for the desired CO2 level (when all other factors are held constant).
