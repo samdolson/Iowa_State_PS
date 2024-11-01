@@ -64,8 +64,8 @@ We can fix another problem described in (a) by removing the strong seasonal tren
 ```{r}
 residualsList <- tapply(X = seq_along(txhousing$sales), 
                         INDEX = txhousing$city, 
-                        FUN = function(idx) {
-                          lm_fit <- lm(log(txhousing$sales[idx]) ~ txhousing$month[idx], na.action = na.exclude)
+                        FUN = function(index) {
+                          lm_fit <- lm(log(txhousing$sales[index]) ~ txhousing$month[index], na.action = na.exclude)
                           residuals(lm_fit)
                           }
                         )
@@ -148,7 +148,8 @@ ggplot(txhousing, aes(x = month, y = rel_sales, color = city)) +
   theme(legend.position = "none")
 ```
 
-
+Note: The above plot had breaks in the fit line until I added the following code 
+`mean_rel_sales <- na.omit(mean_rel_sales)`
 
 \newpage
 
@@ -186,6 +187,8 @@ ggplot(breakdown_long, aes(x = Engineer, y = Time)) +
   theme_minimal()
 ```
 
+From the above plot, we see that on average the "Guru" tends to take less time than the "Novice" across the three types of problems in our dataset. 
+
 ## (c) 
 
 The above boxplot may be hard to interpret for some. For the above, separate the levels severity and create side-by-side boxplots for each level of engineer. What conclusions can you draw from each of these plots? 
@@ -199,9 +202,23 @@ ggplot(breakdown_long, aes(x = Engineer, y = Time, fill = Severity)) +
   theme_minimal()
 ```
 
+We see that "Complex" problems (regardless of which type of Problem) tend to take more time than "Simple" problems. Furthermore, we notice the above trend from part (b) of Guru's being more efficient with their time than Novices, still holds across the severity types. What's more, the difference appears more pronounced in the "Implementation" stage of the problem, though this generally also holds and is noticeable when looking at "Complex" problems by stage of the problem and looking at the lack of overlap between Novice and Guru. 
+
 ## (d) 
 
 Now create a new faceting plot, by faceting with “Problem” and the three variables. Discuss the plot and draw appropriate conclusions, if any. 
+
+```{r}
+ggplot(breakdown_long, aes(x = Engineer, y = Time)) +
+  geom_boxplot() +
+  facet_wrap(Problem ~ Thing, scales = "fixed") +
+  labs(title = "Breakdown of Times by Experience and Problem",
+       x = "Engineer Type",
+       y = "Time"
+       ) +
+  theme_minimal()
+
+```
 
 ```{r}
 ggplot(breakdown_long, aes(x = Engineer, y = Time, fill = Severity)) +
@@ -211,11 +228,13 @@ ggplot(breakdown_long, aes(x = Engineer, y = Time, fill = Severity)) +
     name = "Time",
     sec.axis = sec_axis(~ ., name = "Problem",)  
   ) + 
-  labs(x = "Engineer Type", title = "Time Across Problems By Severity and Problem") +
+  labs(x = "Engineer Type", title = "Breakdown of Time Across Problems By Severity and Problem") +
   scale_fill_brewer(palette = "Set1", name = "Severity") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
+Hello again, Gautham. For this problem, I felt there was a bit of ambiguity as to whether this part also needed the breakdown (fill) by Severity, i.e. what "and the three variables" was referring to (stages of a problem each initially as their own column or for Engineer Type, Time, and Severity). So I included both plots. The overall conclusions remain the same though, just the added complication of Severity in the assessment. That being said: 
 
 In general, I find the above difficult to see (so tiny!) That point notwithstanding there tend to be three comparisons I find myself making: Guru vs. Novice comparisons, "High" vs. "Low" Severity comparisons, and "Complex" vs. "Simple" comparisons, all across the (secret fourth comparison) of Assessment, Implementation, and Resolution. As Resolution is a composite of Assessment and Implementation, results tended to be most consistent with observations for Assessment or Implementation individually. 
 
@@ -226,3 +245,7 @@ Complex v. Simple: For "Complex" problems, the Resolution stage takes longer for
 High v. Low: Assessment times do not vary much between "High" and "Low" severity (top vs. bottom graphs) though there are slight differences between Guru and Novice for Assessments. 
 
 Let's get down to Business: I need Gurus, more Gurus. But short of that, maybe there is something to be said about Novices difficulty in Implementation (since Resolution is a composite of Implementation and Assessment). 
+
+```{r, echo=FALSE, fig.cap="Spiderman", out.width = '100%'}
+knitr::include_graphics("spiderman.jpg")
+```
