@@ -4,6 +4,15 @@ output: pdf_document
 date: "2024-11-03"
 ---
 
+Outline
+Q1: PARTIAL check (b), (c)
+Q2: DONE 
+Q3: DONE(ish)
+Q4: DONE(ish)
+Q5: PARTIAL 
+Q6: DONE(ish)
+Q7: 
+
 # Q1 
 
 Consider continuous random vector (X, Y) where $X \sim N(0, 1)$ (standard normaly) and $Y | X = x \sim N(x, 1)$ (the conditional distribution of Y given X= x is normal with mean x and variance 1). 
@@ -12,19 +21,110 @@ Consider continuous random vector (X, Y) where $X \sim N(0, 1)$ (standard normal
 
 Find the joint pdf of (X, Y).
 
+$$
+f_X(x) = \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{x^2}{2}\right)}
+$$
+
+$$
+f_{Y|X}(y \mid x) = \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{(y - x)^2}{2}\right)}
+$$
+
+$$
+f_{X,Y}(x, y) = f_X(x) f_{Y|X}(y | x) = \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{x^2}{2}\right)} \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{(y - x)^2}{2}\right)} = \frac{1}{2\pi} e^{\left(-\frac{x^2}{2} - \frac{(y - x)^2}{2}\right)}
+$$
+
 ## (b) 
 
 Find the marginal distribution of Y. 
 
+$$
+f_Y(y) = \int_{-\infty}^{\infty} f_{X,Y}(x, y) dx = \int_{-\infty}^{\infty} \frac{1}{2\pi} e^{\left(-\frac{x^2}{2} - \frac{(y - x)^2}{2}\right)} dx
+$$
+Simplifying the expression in the exponent, we have: 
+
+$$
+-\frac{x^2}{2} - \frac{(y - x)^2}{2} = -\frac{x^2}{2} - \frac{y^2 - 2xy + x^2}{2} = -\frac{y^2}{2} - \frac{1}{2} \left[ x^2 - 2xy \right] = -\frac{y^2}{2} - \frac{1}{2} (x - y)^2
+$$
+
+$$
+f_Y(y) = \frac{1}{2\pi} e^{\left(-\frac{y^2}{2}\right)} \int_{-\infty}^{\infty} e^{\left(-\frac{(x - y)^2}{2}\right)} dx
+$$
+Looking at just the term(s) in the inside of the integral, we have: 
+
+$$
+\int_{-\infty}^{\infty} e^{\left(-\frac{(x - y)^2}{2}\right)} dx = \sqrt{2\pi}
+$$
+
+Such that we can evaluate the full expression now as: 
+
+$$
+f_Y(y) = \frac{1}{2\pi} e^{\left(-\frac{y^2}{2}\right)} \sqrt{2\pi} = \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{y^2}{2}\right)}
+$$
+This pdf is the standard normal! Such that we say the marginal of Y given above describes the random variable Y as: 
+
+$$
+Y \sim N(0, 1)
+$$
+
+
 ## (c) 
 
 Consider random vector (V, W) where $W \sim N(0, 2)$ (normal with mean 0 and variance 2). How should the conditional distribution V | W = w be chosen so that (V, W) has the same distribution as (X, Y)? 
+
+$$
+\begin{pmatrix}
+X \\
+Y
+\end{pmatrix}
+\sim N\left(
+\begin{pmatrix}
+0 \\
+0
+\end{pmatrix},
+\begin{pmatrix}
+1 & 1 \\
+1 & 2
+\end{pmatrix}
+\right)
+$$
+
+$$
+\text{E}(V \mid W = w) = \frac{Cov(V, W)}{Var(W)} \times w = \frac{1}{2} w
+$$
+     
+$$
+Var(V | W = w) = Var(V) - \frac{Cov(V, W)^2}{Var(W)} = 1 - \frac{1^2}{2} = \frac{1}{2}
+$$
+
+$$
+V \mid W = w \sim N\left(\frac{1}{2} w, \frac{1}{2}\right)
+$$
+
+$$
+V \mid W = w \sim N\left(\frac{1}{2} w, \frac{1}{2}\right)
+$$
 
 \newpage
 
 # Q2: 4.7 Casella & Berger
 
 A woman leaves for work between 8AM and 8:30AM and takes between 40 and 50 minutes to get there. Let the random variable X denote her time of departure, and the random variable Y the travel time. Assuming that these variables are independent and uniformly distributed, find the probability the the woman arrives at work before 9AM. 
+
+$$
+X \sim U(0, 30), Y \sim U(40, 50)
+$$
+
+Given X and Y are both Uniformly distributed and independent, then:
+
+$$
+f_{X, Y}(x,y) = f_X(x)f_Y(y) = \frac{1}{30}(\frac{1}{50-40}) = \frac{1}{300}
+$$
+
+Define the random variable Z = X + Y, then we want to know the probability Z < 60 (1 hour, 60 minutes starting at the earliest time 8:00AM): 
+
+$$
+P(Z < 60) = P(X + Y < 60) = \int\limits_{40}^{50} \int\limits_{0}^{60-y} f_{X, Y}(x,y) dx dy = \int\limits_{40}^{50} \int\limits_{0}^{60-y} \frac{1}{300} dx dy = \int\limits_{40}^{50} \frac{60-y}{300}dy = -\frac{(y-120(y)}{600} \big|_{y=40}^{50}= \frac{1}{2}
+$$
 
 \newpage
 
@@ -40,9 +140,37 @@ knitr::include_graphics("dist.png")
 
 Show that X and Y are dependent. 
 
+To show that two variables are not independent (are dependent), we need to show that the product of the marginal probabilities is not equal to joint probability. To that end: 
+
+$$
+P(X = 1) = \frac{1}{12} + \frac{1}{6} = \frac{3}{12} = \frac{1}{4}
+$$
+
+$$
+P(Y = 4) = \frac{1}{3}
+$$ 
+
+$$
+P(X = 1, Y = 4) = 0
+$$
+
+$$
+P(X = 1, Y = 4) = 0 \neq \frac{1}{12} = \frac{1}{4}(\frac{1}{3}) = P(X = 1)P(Y = 4)
+$$
+
 ## (b) 
 
 Give a probability table for random variables U and V that have the same marginals as X and Y but are independent. 
+
+We need probabilities of the rows to all be equal to one another. We need P(U = 1) = P(U = 3), and P(V = 2) = P(V = 3) = P(V = 4). To satisfy these conditions we have: 
+
+|       |     U       |       |       |
+|-------|------------------------|-------|-------|
+|   V   | 1| 2 | 3 |
+|-------|------------|------------|------------|
+| 2     | 1/12       | 1/6        | 1/12       |
+| 3     | 1/12       | 1/6        | 1/12       |
+| 4     | 1/12       | 1/6        | 1/12       |
 
 \newpage
 
@@ -50,11 +178,91 @@ Give a probability table for random variables U and V that have the same margina
 
 Suppose X and Y are independent random variables, where both have the same (marginal) geometric(p) distribution for 0 < p < 1. Find the conditional distribution of X given X + Y = k (integer k $\geq 2$).
 
+$$
+P(X = x | S = k) = \frac{P(X = x,  S = k)}{P(S = k)}
+$$
+
+For the top part of the equation: 
+
+$$
+P(X = x, Y  = k - x) = P(X = x) P(Y = k - x)
+$$
+And:
+
+$$
+P(X = x) = (1 - p)^{x - 1} p 
+$$
+
+And: 
+
+$$
+P(Y = k - x) = (1 - p)^{k - x - 1} p
+$$
+
+Given X and Y are independent:
+
+$$
+P(X = x, S = k) = (1 - p)^{x - 1} p (1 - p)^{k - x - 1} p = P(X = x, S = k) = (1 - p)^{k - 2} p^2
+$$
+
+Consider then the bottom of the initial formula: 
+
+$$
+P(S = k) = \sum_{x=1}^{k-1} P(X =x, Y  = k - x) = (k - 1) (1 - p)^{k - 2} p^2
+$$
+
+Returning then to the conditional formula, we have: 
+
+$$
+P(X = x | S = k) = \frac{P(X = x,  S = k)}{P(S = k)} = \frac{(1 - p)^{k - 2} p^2}{(k - 1) (1 - p)^{k - 2} p^2} = \frac{1}{k - 1}
+$$
+
+For x = 1, 2, ..., k - 1
+
+We then conclude
+
+$$
+X | (X + Y = k) \sim U(1, k - 1)
+$$
+
 \newpage
 
 # Q5: 4.27 Casella & Berger 
 
 Let $X \sim n(\mu, \sigma^2)$, and let $Y \sim n(\gamma, \sigma^2)$. Suppose X and Y are independent. Define: U = X + Y and V = X - Y. Show that U and V are independent normal random variables. Find the distribution of each of them. 
+
+$$
+U \sim n(\mu + \gamma , 2\sigma^2)
+$$
+
+$$
+V \sim n(\mu - \gamma, 2\sigma^2)
+$$
+
+For X and Y independent, we may write the joint pdf as the product of the marginals: 
+
+$$
+f_{X, Y}(x, y) = f_X(x) f_Y(f) = \frac{1}{\sqrt{2\pi\sigma^2}}e^{\frac{-(x-\mu)^2}{2\sigma^2}} \frac{1}{\sqrt{2\pi\sigma^2}}e^{\frac{-(y-\gamma)^2}{2\sigma^2}} = \frac{1}{2\pi\sigma^2}e^{\frac{-\left((x-\mu)^2 + (y - \gamma)^2\right)}{2\sigma^2}}
+$$
+$$
+U = X + Y and V = X - Y \rightarrow X = \frac{1}{2}(U + V), Y - \frac{1}{2}(U - V)
+$$
+We then have the Jacobian: 
+
+$$
+|J| = \left| \begin{array}{cc}
+\frac{1}{2} & \frac{1}{2} \\
+\frac{1}{2} & -\frac{1}{2}
+\end{array} \right| = |- \frac{1}{4} - \frac{1}{4} | = |-\frac{1}{2}| = \frac{1}{2}
+$$
+
+And we have the new support of U, V as: 
+
+$$
+(u, v) \in (-\infty, \infty) \text{x} (-\infty, \infty)
+$$
+
+Using the above relations, we have: 
 
 \newpage
 
@@ -66,6 +274,24 @@ Said differently, we want to find:
 
 $$
 Cov(XY, Y)
+$$
+
+$$
+\rho_{XY, Y} = \frac{\text{Cov}(XY, Y)}{\sigma_{XY} \sigma_Y} = \frac{E(XY^2) - \mu_X \mu_Y}{\sigma_{XY} \sigma_Y} = \frac{EX EY^2 - \mu_X \mu_Y \mu_Y}{\sigma_{XY} \sigma_Y}
+$$
+
+$$
+\sigma_{XY}^2 = E(XY)^2 - [E(XY)]^2 = EX^2 EY^2 - (EX)^2 (EY)^2 
+$$
+
+$$
+= (\sigma_X^2 + \mu_X^2)(\sigma_Y^2 + \mu_Y^2) - \mu_X^2 \mu_Y^2 = \sigma_X^2 \sigma_Y^2 + \sigma_X^2 \mu_Y^2 + \sigma_Y^2 \mu_X^2
+$$
+
+And: 
+
+$$
+\rho_{XY, Y} = \frac{\mu_X (\sigma_Y^2 + \mu_Y^2) - \mu_X \mu_Y^2}{(\sigma_X^2 \sigma_Y^2 + \sigma_X^2 \mu_Y^2 + \sigma_Y^2 \mu_X^2)^{1/2} \sigma_Y} = \frac{\mu_X \sigma_Y}{(\mu_X^2 \sigma_Y^2 + \mu_Y^2 \sigma_X^2 + \sigma_X^2 \sigma_Y^2)^{1/2}}
 $$
 
 \newpage
