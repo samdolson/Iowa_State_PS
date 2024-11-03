@@ -6,6 +6,8 @@ date: "2024-10-26"
 
 # Homework 6
 
+Howdy! I realized my equations were getting cut off at times. To address this I've added some redundancy and extra lines to most of the longer equations. If anything is still cut off, please let me know--I will happily provide the RMD or attempt further modifications. 
+
 # Q1: 4.17, Casella & Berger
 
 Let X be an exponential(1) random variable, and define Y to be the integer part of X+1, that is: 
@@ -64,13 +66,21 @@ f_Y(y) = \int_{\lambda = 0}^\infty f_Y(y | \lambda) f_\Lambda(\lambda) d\lambda 
 $$
 
 $$
-f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{\lambda = 0}^\infty \lambda ^{y}e^{-\lambda} \lambda^{\alpha - 1} e^{-\frac{\lambda}{\beta}} d \lambda = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{\lambda = 0}^\infty\lambda^{y + \alpha - 1} e^{\frac{-\lambda}{\frac{\beta}{(1+\beta)}}} d \lambda
+f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{\lambda = 0}^\infty \lambda ^{y}e^{-\lambda} \lambda^{\alpha - 1} e^{-\frac{\lambda}{\beta}} d \lambda
+$$
+
+$$
+f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{\lambda = 0}^\infty\lambda^{y + \alpha - 1} e^{\frac{-\lambda}{\frac{\beta}{(1+\beta)}}} d \lambda
 $$
 
 Note the right-hand term is a Gamma function, i.e. for $u = \lambda(\frac{1+\beta}{\beta}) \rightarrow \lambda = u(\frac{\beta}{1 + \beta}) \rightarrow d\lambda = du (\frac{\beta}{1 + \beta})$ and we have: 
 
 $$
-f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{u = 0}^\infty u^{y + \alpha - 1} e^{-u} (\frac{\beta}{1+\beta})^{y + \alpha} du = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} (\frac{\beta}{1+\beta})^{y + \alpha} \int_{u = 0}^\infty  u^{y + \alpha - 1} e^{-u} du = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} (\frac{\beta}{1+\beta})^{y + \alpha} \Gamma(\alpha + y)
+f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{u = 0}^\infty u^{y + \alpha - 1} e^{-u} (\frac{\beta}{1+\beta})^{y + \alpha} du
+$$
+
+$$ 
+f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} (\frac{\beta}{1+\beta})^{y + \alpha} \int_{u = 0}^\infty  u^{y + \alpha - 1} e^{-u} du = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} (\frac{\beta}{1+\beta})^{y + \alpha} \Gamma(\alpha + y)
 $$
 
 Simplifying gives us: 
@@ -184,7 +194,11 @@ Cov(X_1 - 2X_2 + 8, 3X_1 + X_2) = Cov(X_1 - 2X_2, 3X_1 + X_2)
 $$
 
 $$
-Cov(X_1 - 2X_2, 3X_1 + X_2) = Cov(X_1, 3X_1) + Cov(X_1, X_2) - Cov(2X_2, 3X_1) - Cov(2X_2, X_2) = 3 Cov(X_1, X_1) + Cov (X_1, X_2) - 6 Cov(X_1, X_2) - 2 Cov (X_2, X_2)
+Cov(X_1 - 2X_2, 3X_1 + X_2) = Cov(X_1, 3X_1) + Cov(X_1, X_2) - Cov(2X_2, 3X_1) - Cov(2X_2, X_2)
+$$
+
+$$ 
+Cov(X_1 - 2X_2, 3X_1 + X_2) = 3 Cov(X_1, X_1) + Cov (X_1, X_2) - 6 Cov(X_1, X_2) - 2 Cov (X_2, X_2)
 $$
 
 $$
@@ -273,7 +287,11 @@ Find $E[Y | X = x]$
 Using what we derived in part (b), we have: 
 
 $$
-E[Y \mid X = x] = \int_{0}^{1-x} y \, f_{Y | X}(y | x) \, dy = \int_{0}^{1-x} y \frac{2 (x + y)}{(1 - x)(x + 1)} = \frac{2}{(1 - x)(x + 1)} \int_{0}^{1-x} y (x + y) \, dy = \frac{2}{(1 - x)(x + 1)} \int_{0}^{1-x} yx + y^2 dy
+E[Y \mid X = x] = \int_{0}^{1-x} y \, f_{Y | X}(y | x) \, dy = \int_{0}^{1-x} y \frac{2 (x + y)}{(1 - x)(x + 1)}
+$$
+
+$$
+E[Y \mid X = x] = \frac{2}{(1 - x)(x + 1)} \int_{0}^{1-x} y (x + y) \, dy = \frac{2}{(1 - x)(x + 1)} \int_{0}^{1-x} yx + y^2 dy
 $$
 
 $$
@@ -285,6 +303,7 @@ $$
 $$
 \int_{0}^{1-x} xy \, dy = x \int_{0}^{1-x} y \, dy = x \left[ \frac{(1 - x)^2}{2} \right] = \frac{x (1 - x)^2}{2}
 $$
+
 ### ii. 
 
 $$
@@ -360,6 +379,7 @@ So if we calculate $E[X]$, we effectively get $E[Y]$. Let's do that!
 $$
 E[X] = \int_0^1 x \cdot f_X(x) \, dx = \int_0^1 x \frac{3}{2} (1 - x)(x + 1) \, dx = \int_0^1 \frac{3x}{2} (1 - x^2) = \frac{3}{2} \int_0^1 x (1 - x^2) \, dx = \frac{3}{2} \left( \int_0^1 x \, dx - \int_0^1 x^3 \, dx \right)
 $$
+
 ### i. 
 
 $$
@@ -381,7 +401,11 @@ And $E[Y] = \frac{3}{8}$ too.
 Last part now, we need to evaluate $E[XY]$: 
 
 $$
-E[XY] = \int_0^1 \int_0^{1-x} xy f(x,y) dy dx = \int_0^1 \int_0^{1-x} xy  3(x + y) dy dx = 3 \int_0^1 \int_0^{1-x} xy (x + y) =  dy dx = 3 \int_0^1 \int_0^{1-x} (x^2 y + xy^2) dy dx
+E[XY] = \int_0^1 \int_0^{1-x} xy f(x,y) dy dx = \int_0^1 \int_0^{1-x} xy  3(x + y) dy dx
+$$
+
+$$ 
+E[XY] = 3 \int_0^1 \int_0^{1-x} xy (x + y) =  dy dx = 3 \int_0^1 \int_0^{1-x} (x^2 y + xy^2) dy dx
 $$
 
 Separating the integrals: 
@@ -457,7 +481,11 @@ Find the joint moment generating function for (X, Y).
 The joint moment generating function $M_{X, Y}(t_1, t_2)$ may be defined:
 
 $$
-M_{X, Y}(t_1, t_2) = E\left[e^{t_1 X + t_2 Y}\right] = \int_0^\infty \int_0^y e^{t_1 x + t_2 y} e^{-y} \, dx \, dy = \int_0^\infty \int_0^y e^{t_1 x} e^{(t_2 - 1) y} \, dx \, dy = \int_0^\infty e^{(t_2 - 1) y}\left( \int_0^y e^{t_1 x} \, dx \, \right) dy =  \int_0^\infty e^{(t_2 - 1) y} (\frac{1}{t_1}(e^{t_1y} - 1)) dy
+M_{X, Y}(t_1, t_2) = E\left[e^{t_1 X + t_2 Y}\right] = \int_0^\infty \int_0^y e^{t_1 x + t_2 y} e^{-y} \, dx \, dy = \int_0^\infty \int_0^y e^{t_1 x} e^{(t_2 - 1) y} \, dx \, dy
+$$ 
+
+$$
+M_{X, Y}(t_1, t_2) = E\left[e^{t_1 X + t_2 Y}\right] = \int_0^\infty e^{(t_2 - 1) y}\left( \int_0^y e^{t_1 x} \, dx \, \right) dy =  \int_0^\infty e^{(t_2 - 1) y} (\frac{1}{t_1}(e^{t_1y} - 1)) dy
 $$
 
 
@@ -527,7 +555,11 @@ $$
 $$
 
 $$
-\lim_{t_1 \to 0, t_2 \to 0} \frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{-1}{(1 - t_1 - t_2)(1 - t_2)} + \frac{1}{(1 - t_1 - t_2)^2} \right) = (\frac{1}{t_1}) \frac{t_1}{(1 - t_1 - t_2)^2 (1 - t_2)} =  \frac{1}{(1 - t_1 - t_2)^2 (1 - t_2)} = \frac{1}{(1 - 0 - 0)^2 (1 - 0)} = \frac{1}{1^2 \cdot 1} = 1
+\lim_{t_1 \to 0, t_2 \to 0} \frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{-1}{(1 - t_1 - t_2)(1 - t_2)} + \frac{1}{(1 - t_1 - t_2)^2} \right)
+$$
+
+$$
+\lim_{t_1 \to 0, t_2 \to 0} \frac{\partial}{\partial t_1} M_{X, Y}(t_1, t_2) = (\frac{1}{t_1}) \frac{t_1}{(1 - t_1 - t_2)^2 (1 - t_2)} =  \frac{1}{(1 - t_1 - t_2)^2 (1 - t_2)} = \frac{1}{(1 - 0 - 0)^2 (1 - 0)} = \frac{1}{1^2 \cdot 1} = 1
 $$
 
 $$
@@ -599,11 +631,19 @@ $$
 Similar as before, as we cannot directly evaluate $(t_1, t_2) = (0, 0)$, we must then evaluate the limit as $t_1 \rightarrow \infty$, $t_2 \rightarrow \infty$: 
 
 $$
-E[Y^2] = \frac{\partial^2}{\partial t_2^2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} \frac{2}{t_1} \left( \frac{(1 - t_2)^3 - (1 - t_1 - t_2)^3}{(1 - t_1 - t_2)^3 (1 - t_2)^3} \right) = \frac{2}{t_1} \left( \frac{3t_1}{(1 - t_1 - t_2)^3 (1 - t_2)^3}\right) = \frac{2}{t_1} \frac{t_1(t_1^2 - 3t_1 + 3 - 6t_2 + 3t_1t_2 + 3t_2^2)}{(1 - t_1 - t_2)^3 (1 - t_2)^3}
+E[Y^2] = \frac{\partial^2}{\partial t_2^2} M_{X, Y}(t_1, t_2) \Big|_{t_1 = 0, t_2 = 0} \frac{2}{t_1} \left( \frac{(1 - t_2)^3 - (1 - t_1 - t_2)^3}{(1 - t_1 - t_2)^3 (1 - t_2)^3} \right)
 $$
 
 $$
-E[Y^2] =  \lim_{t_1 \to 0, t_2 \to 0} \frac{2}{t_1} \frac{t_1(t_1^2 - 3t_1 + 3 - 6t_2 + 3t_1t_2 + 3t_2^2)}{(1 - t_1 - t_2)^3 (1 - t_2)^3} = \lim_{t_1 \to 0, t_2 \to 0} \frac{6}{(1 - t_1 - t_2)^3 (1 - t_2)^3} = \lim_{t_1 \to 0, t_2 \to 0} \frac{6}{(1 - 0 - 0)^3 (1 - 0)^3} = \frac{6}{1} = 6
+E[Y^2] = \frac{2}{t_1} \left( \frac{3t_1}{(1 - t_1 - t_2)^3 (1 - t_2)^3}\right) = \frac{2}{t_1} \frac{t_1(t_1^2 - 3t_1 + 3 - 6t_2 + 3t_1t_2 + 3t_2^2)}{(1 - t_1 - t_2)^3 (1 - t_2)^3}
+$$
+
+$$
+E[Y^2] =  \lim_{t_1 \to 0, t_2 \to 0} \frac{2}{t_1} \frac{t_1(t_1^2 - 3t_1 + 3 - 6t_2 + 3t_1t_2 + 3t_2^2)}{(1 - t_1 - t_2)^3 (1 - t_2)^3}
+$$
+
+$$
+E[Y^2] = \lim_{t_1 \to 0, t_2 \to 0} \frac{6}{(1 - t_1 - t_2)^3 (1 - t_2)^3} = \lim_{t_1 \to 0, t_2 \to 0} \frac{6}{(1 - 0 - 0)^3 (1 - 0)^3} = \frac{6}{1} = 6
 $$
 
 $$
@@ -657,7 +697,11 @@ $$
 For the marginal MGF of X, we set $(t_1, t_2) = (t_1, 0)$:
 
 $$
-M_X(t_1) = M_{X, Y}(t_1, 0) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) = \frac{1}{t_1} \left( \frac{1}{1 - t_1} - 1 \right) = \frac{1}{t_1} \left( \frac{1}{1 - t_1} - 1 \right) = \frac{1}{t_1} \left( \frac{1 - (1 - t_1)}{1 - t_1} \right) = \frac{t_1}{t_1(1 - t_1)} = \frac{1}{1 - t_1}
+M_X(t_1) = M_{X, Y}(t_1, 0) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} \right) = \frac{1}{t_1} \left( \frac{1}{1 - t_1} - 1 \right)
+$$
+
+$$
+M_X(t_1) = M_{X, Y}(t_1, 0) = \frac{1}{t_1} \left( \frac{1}{1 - t_1} - 1 \right) = \frac{1}{t_1} \left( \frac{1 - (1 - t_1)}{1 - t_1} \right) = \frac{t_1}{t_1(1 - t_1)} = \frac{1}{1 - t_1}
 $$
 
 This is the MGF of an Exponential distribution with parameter 1, such that: 
@@ -679,7 +723,11 @@ M_Y(t_2) = M_{X, Y}(0, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \fr
 $$ 
 
 $$
-M_{X, Y}(t_1, t_2) =\frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} = \frac{(1 - t_2) - (1 - t_1 - t_2)}{(1 - t_1 - t_2)(1 - t_2)} \right) = \frac{1}{t_1} \left( \frac{1 - t_2 - 1 + t_1 + t_2}{(1 - t_1 - t_2)(1 - t_2)} \right) = \frac{1}{t_1} \frac{t_1}{(1 - t_1 - t_2)(1 - t_2)} = \frac{1}{(1 - t_1 - t_2)(1 - t_2)}
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1}{1 - t_1 - t_2} - \frac{1}{1 - t_2} = \frac{(1 - t_2) - (1 - t_1 - t_2)}{(1 - t_1 - t_2)(1 - t_2)} \right)
+$$
+
+$$
+M_{X, Y}(t_1, t_2) = \frac{1}{t_1} \left( \frac{1 - t_2 - 1 + t_1 + t_2}{(1 - t_1 - t_2)(1 - t_2)} \right) = \frac{1}{t_1} \frac{t_1}{(1 - t_1 - t_2)(1 - t_2)} = \frac{1}{(1 - t_1 - t_2)(1 - t_2)}
 $$
 
 $$

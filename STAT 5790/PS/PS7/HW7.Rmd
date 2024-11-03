@@ -62,8 +62,10 @@ ggplot(txhousing, aes(x = date, y = log(sales), color = city)) +
 We can fix another problem described in (a) by removing the strong seasonal trend present in the dataset. Fit a linear model with log(sales) against month for each city, then create a new column in txhousing, call it "rel_sales", which contains the residuals of the linear fits. Then plot a time series of rel sales against date for each city (on the same plot) using ggplot2
 
 ```{r}
-residualsList <- tapply(X = seq_along(txhousing$sales), 
-                        INDEX = txhousing$city, 
+# use seq_along to keep order to the index used in the udf 
+# but effectively the index = INDEX = "city" 
+residualsList <- tapply(X = seq_along(txhousing$sales),
+                        INDEX = txhousing$city,
                         FUN = function(index) {
                           lm_fit <- lm(log(txhousing$sales[index]) ~ txhousing$month[index], na.action = na.exclude)
                           residuals(lm_fit)
