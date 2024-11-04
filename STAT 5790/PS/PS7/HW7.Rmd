@@ -50,11 +50,26 @@ ggplot(txhousing, aes(x = date, y = log(sales), color = city)) +
   geom_line() +
   labs(title = "Monthly House Sales of Texas Cities",
        x = "Date",
-       y = "log(Sales)",
+       y = "log of Sales",
        color = "City") +
   theme_minimal() +
   theme(legend.position = "none") + 
   annotate("text", x = 2005, y = 2.25, label = "Oh yeah, that helped a bunch...", size = 4, hjust = 0.5)
+```
+
+Because of what Prof. Maitra noted about the exam, I also did it without directly converting y into log(Sales). This was done by doing the following: 
+
+```{r}
+ggplot(txhousing, aes(x = date, y = sales, color = city)) +
+  geom_line() +
+  scale_y_log10() +
+  labs(title = "Monthly House Sales of Texas Cities",
+       x = "Date",
+       y = "Sales (Log Scale)",
+       color = "City") +
+  theme_minimal() +
+  theme(legend.position = "none") + 
+  annotate("text", x = 2005, y = 2.25, label = "Still very helpful", size = 4, hjust = 0.5)
 ```
 
 ## (c) 

@@ -7,15 +7,15 @@ date: "2024-11-03"
 Outline
 Q1: PARTIAL check (b), (c)
 Q2: DONE 
-Q3: DONE(ish)
-Q4: DONE(ish)
-Q5: PARTIAL 
-Q6: DONE(ish)
+Q3: DONE
+Q4: DONE
+Q5: DONE(ish)
+Q6: DONE
 Q7: 
 
 # Q1 
 
-Consider continuous random vector (X, Y) where $X \sim N(0, 1)$ (standard normaly) and $Y | X = x \sim N(x, 1)$ (the conditional distribution of Y given X= x is normal with mean x and variance 1). 
+Consider continuous random vector (X, Y) where $X \sim N(0, 1)$ (standard normal) and $Y | X = x \sim N(x, 1)$ (the conditional distribution of Y given X= x is normal with mean x and variance 1). 
 
 ## (a) 
 
@@ -211,7 +211,7 @@ $$
 P(S = k) = \sum_{x=1}^{k-1} P(X =x, Y  = k - x) = (k - 1) (1 - p)^{k - 2} p^2
 $$
 
-Returning then to the conditional formula, we have: 
+Returning the overall, conditional formula, we have: 
 
 $$
 P(X = x | S = k) = \frac{P(X = x,  S = k)}{P(S = k)} = \frac{(1 - p)^{k - 2} p^2}{(k - 1) (1 - p)^{k - 2} p^2} = \frac{1}{k - 1}
@@ -264,34 +264,68 @@ $$
 
 Using the above relations, we have: 
 
-\newpage
-
-# Q6: 4.42 Casella & Berger  
-
-Let X and Y be independent random variables with means $\mu_X, \mu_Y$ and variances $\sigma_X^2, \sigma_Y^2$. Find an epxression for the correlation of XY and Y in terms of these means and variances. 
-
-Said differently, we want to find: 
-
 $$
-Cov(XY, Y)
+f_{UV}(u, v) = \frac{1}{2 \pi \sigma^2} e^{-\frac{1}{2 \sigma^2} \left[ \left( \frac{u+v}{2} - \mu \right)^2 + \left( \frac{u-v}{2} - \gamma \right)^2 \right]} \frac{1}{2}
 $$
 
 $$
-\rho_{XY, Y} = \frac{\text{Cov}(XY, Y)}{\sigma_{XY} \sigma_Y} = \frac{E(XY^2) - \mu_X \mu_Y}{\sigma_{XY} \sigma_Y} = \frac{EX EY^2 - \mu_X \mu_Y \mu_Y}{\sigma_{XY} \sigma_Y}
+f_{UV}(u, v) = \frac{1}{4 \pi \sigma^2} e^{-\frac{1}{2 \sigma^2} \left[ 2 \left( \frac{u}{2} \right)^2 - u (\mu + \gamma) + \left( \frac{\mu + \gamma}{2} \right)^2 + 2 \left( \frac{v}{2} \right)^2 - v (\mu - \gamma) + \left( \frac{\mu - \gamma}{2} \right)^2 \right]}
 $$
 
 $$
-\sigma_{XY}^2 = E(XY)^2 - [E(XY)]^2 = EX^2 EY^2 - (EX)^2 (EY)^2 
+f_{UV}(u, v) = g(u) \frac{1}{4 \pi \sigma^2} e^{-\frac{1}{2(2 \sigma^2)} \left( u - (\mu + \gamma) \right)^2} h(v) e^{-\frac{1}{2(2 \sigma^2)} \left( v - (\mu - \gamma) \right)^2}
 $$
+Such that we have shown: 
+
+For: 
 
 $$
-\sigma_{XY}^2 = (\sigma_X^2 + \mu_X^2)(\sigma_Y^2 + \mu_Y^2) - \mu_X^2 \mu_Y^2 = \sigma_X^2 \sigma_Y^2 + \sigma_X^2 \mu_Y^2 + \sigma_Y^2 \mu_X^2
+f_{U}(u) = g(u) \frac{1}{4 \pi \sigma^2} e^{-\frac{1}{2(2 \sigma^2)} \left( u - (\mu + \gamma) \right)^2}
 $$
 
 And: 
 
 $$
-\rho_{XY, Y} = \frac{\mu_X (\sigma_Y^2 + \mu_Y^2) - \mu_X \mu_Y^2}{(\sigma_X^2 \sigma_Y^2 + \sigma_X^2 \mu_Y^2 + \sigma_Y^2 \mu_X^2)^{1/2} \sigma_Y} = \frac{\mu_X \sigma_Y}{(\mu_X^2 \sigma_Y^2 + \mu_Y^2 \sigma_X^2 + \sigma_X^2 \sigma_Y^2)^{1/2}}
+f_{V}(v) = h(v) e^{-\frac{1}{2(2 \sigma^2)} \left( v - (\mu - \gamma) \right)^2}
+$$ 
+
+$$
+f_{UV}(u, v) = f_{U}(u) f_{V}(v)
+$$
+and we conclude that U and V are independent. 
+
+\newpage
+
+# Q6: 4.42 Casella & Berger  
+
+Let X and Y be independent random variables with means $\mu_X, \mu_Y$ and variances $\sigma_X^2, \sigma_Y^2$. Find an expression for the correlation of XY and Y in terms of these means and variances. 
+
+Said differently, we want to find: $\rho_{XY, Y}$
+
+$$
+\rho_{XY, Y} = \frac{Cov(XY, Y)}{\sigma_{XY} \sigma_Y} = \frac{E(XY^2) - \mu_X \mu_Y}{\sigma_{XY} \sigma_Y} = \frac{EX EY^2 - \mu_X \mu_Y \mu_Y}{\sigma_{XY} \sigma_Y}
+$$
+
+$$
+\rho_{XY, Y} = \frac{\mu_{X} (\sigma_{Y}^2 + \mu_{Y}^2) - \mu_X \mu_Y \mu_Y}{\sigma_{XY} \sigma_Y} = \frac{\mu_{X} (\sigma_{Y}^2)}{\sigma_{XY} \sigma_Y}
+$$
+
+With note of X and Y being independent, we then have the denominator: 
+
+$$
+\sigma_{XY}^2 = E(XY)^2 - [E(XY)]^2 = EX^2 EY^2 - (EX)^2 (EY)^2 = (Var(X) + E[X]^2)(Var(Y) + E[Y]^2) - (EX)^2 (EY)^2
+$$
+
+Evaluating with known quantities, we have: 
+
+$$
+\sigma_{XY}^2 = (\sigma_X^2 + \mu_X^2)(\sigma_Y^2 + \mu_Y^2) - \mu_X^2 \mu_Y^2 = \sigma_X^2 \sigma_Y^2 + \sigma_X^2 \mu_Y^2 + \sigma_Y^2 \mu_X^2 + \mu_X^2 \mu_Y^2 - \mu_X^2 \mu_Y^2 = \sigma_X^2 \sigma_Y^2 + \sigma_X^2 \mu_Y^2 + \sigma_Y^2 \mu_X^2
+$$
+
+Substituting into the original equation gives us: 
+
+$$
+\rho_{XY, Y} = \frac{\mu_{X} (\sigma_{Y}^2)}{\sqrt{(\sigma_X^2 \sigma_Y^2 + \sigma_X^2 \mu_Y^2 + \sigma_Y^2 \mu_X^2)} \sigma_Y} = \frac{\mu_X \sigma_Y}{\sqrt{(\mu_X^2 \sigma_Y^2 + \mu_Y^2 \sigma_X^2 + \sigma_X^2 \sigma_Y^2)}}
 $$
 
 \newpage
