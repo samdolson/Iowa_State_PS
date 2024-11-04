@@ -62,31 +62,31 @@ find the marginal distribution, mean, and variance of Y. Show that the marginal 
 For y = 0, 1, ..., the marginal distribution of Y is: 
 
 $$
-f_Y(y) = \int_{\lambda = 0}^\infty f_Y(y | \lambda) f_\Lambda(\lambda) d\lambda = \int_{\lambda = 0}^\infty \frac{\lambda ^{y}e^{-\lambda}}{y!} \frac{1}{\beta^{\alpha} \Gamma(\alpha)} \lambda^{\alpha - 1} e^{-\lambda / \beta} d \lambda
+f_\Lambda(\lambda) = \frac{\beta^\alpha}{\Gamma(\alpha)} \lambda^{\alpha - 1} e^{-\beta \lambda}
 $$
 
 $$
-f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{\lambda = 0}^\infty \lambda ^{y}e^{-\lambda} \lambda^{\alpha - 1} e^{-\frac{\lambda}{\beta}} d \lambda
+f_Y(y) = \int_{\lambda = 0}^\infty f_Y(y \mid \lambda) f_\Lambda(\lambda) d\lambda
 $$
 
 $$
-f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{\lambda = 0}^\infty\lambda^{y + \alpha - 1} e^{\frac{-\lambda}{\frac{\beta}{(1+\beta)}}} d \lambda
+f_Y(y) = \int_{\lambda = 0}^\infty \frac{\lambda^y e^{-\lambda}}{y!} \frac{\beta^\alpha}{\Gamma(\alpha)} \lambda^{\alpha - 1} e^{-\beta \lambda} d\lambda = \frac{\beta^\alpha}{y! \Gamma(\alpha)} \int_{\lambda = 0}^\infty \lambda^{y + \alpha - 1} e^{-\lambda (1 + \beta)} d\lambda
 $$
 
-Note the right-hand term is a Gamma function, i.e. for $u = \lambda(\frac{1+\beta}{\beta}) \rightarrow \lambda = u(\frac{\beta}{1 + \beta}) \rightarrow d\lambda = du (\frac{\beta}{1 + \beta})$ and we have: 
+Note then, the inside term of the integral can be evaluated to a known quantity, namely:
 
 $$
-f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} \int_{u = 0}^\infty u^{y + \alpha - 1} e^{-u} (\frac{\beta}{1+\beta})^{y + \alpha} du
+\int_{\lambda = 0}^\infty \lambda^{y + \alpha - 1} e^{-\lambda (1 + \beta)} d\lambda = \frac{\Gamma(y + \alpha)}{(1 + \beta)^{y + \alpha}}
 $$
 
-$$ 
-f_Y(y) = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} (\frac{\beta}{1+\beta})^{y + \alpha} \int_{u = 0}^\infty  u^{y + \alpha - 1} e^{-u} du = \frac{1}{y!\beta^{\alpha} \Gamma(\alpha)} (\frac{\beta}{1+\beta})^{y + \alpha} \Gamma(\alpha + y)
+$$
+f_Y(y) = \frac{\beta^\alpha}{y! \Gamma(\alpha)} \frac{\Gamma(y + \alpha)}{(1 + \beta)^{y + \alpha}} = \frac{\beta^\alpha \Gamma(y + \alpha)}{y! \Gamma(\alpha) (1 + \beta)^{y + \alpha}}
 $$
 
-Simplifying gives us: 
+Simplifying the above expression gives us:
 
 $$
-f_Y(y) = {y + \alpha - 1 \choose y} \frac{\beta}{1 + \beta} \frac{1}{1 + \beta}
+f_Y(y) = {y + \alpha - 1 \choose y} \frac{\beta^y}{(1 + \beta)^{y + \alpha}}
 $$
 
 Or, $Y \sim NB(\alpha, \frac{1}{1+\beta})$, where $\alpha \in \mathbb{Z}^+$ for the Gamma function to be evaluated (integral to evaluate/not diverge). 
@@ -97,7 +97,7 @@ $$
 E[Y] = \alpha \frac{1 - \frac{1}{1+\beta}}{\frac{1}{1+\beta}} = \alpha \frac{\frac{\beta}{1+\beta}}{\frac{1}{1+\beta}} = \alpha \beta
 $$
 
-However, we may also calculate it using conditional expectation, specifically: 
+However, we may also calculate it using conditional expectation, using the alternative parametrization of the Gamma, specifically: 
 
 $$
 E[Y] = E(E[Y|\Lambda]) = E[\Lambda] = \alpha \beta
@@ -112,6 +112,8 @@ Alternatively we have, via EVVE
 $$
 Var(Y) = Var(E[Y|\Lambda]) + E(Var(Y | \Lambda)) = Var(\Lambda)  + E[\Lambda] = \alpha \beta^2 + \alpha \beta = \alpha \beta (\beta + 1)
 $$ 
+
+Such that we arrive at the same derivations for the variance and expected value of Y, again noting that to confirm our calculations we used the alternative parametrization of the Gamma. 
 
 \newpage
 
@@ -202,7 +204,7 @@ Cov(X_1 - 2X_2, 3X_1 + X_2) = 3 Cov(X_1, X_1) + Cov (X_1, X_2) - 6 Cov(X_1, X_2)
 $$
 
 $$
-Cov(X_1 - 2X_2 + 8, 3X_1 + X_2)  = 3 \sigma_1^2 - 5 \sigma_1\sigma_2 - 2 \sigma_2^2
+Cov(X_1 - 2X_2 + 8, 3X_1 + X_2)  = 3 \sigma_1^2 - 5 \sigma_{12} - 2 \sigma_2^2
 $$
 
 \newpage
