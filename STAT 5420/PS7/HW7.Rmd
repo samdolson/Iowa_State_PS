@@ -4,22 +4,6 @@ output: pdf_document
 date: "2024-11-03"
 ---
 
-Outline
-
-Q1: DONE
-
-Q2: DONE 
-
-Q3: DONE
-
-Q4: DONE
-
-Q5: WIP
-
-Q6: DONE
-
-Q7: DONE
-
 # Q1 
 
 Consider continuous random vector (X, Y) where $X \sim N(0, 1)$ (standard normal) and $Y | X = x \sim N(x, 1)$ (the conditional distribution of Y given X = x is normal with mean x and variance 1). 
@@ -289,14 +273,6 @@ Let $X \sim n(\mu, \sigma^2)$, and let $Y \sim n(\gamma, \sigma^2)$. Suppose X a
 
 Hey, so I am not entirely sure why this problem uses n to represent the normal instead of N as we usually do, but for this problem I just stayed (or attempted to stay) consistent with their format. 
 
-$$
-U \sim n(\mu + \gamma , 2\sigma^2)
-$$
-
-$$
-V \sim n(\mu - \gamma, 2\sigma^2)
-$$
-
 For X and Y independent, we may write the joint pdf as the product of the marginals: 
 
 $$
@@ -308,17 +284,6 @@ U = X + Y \text{ and } V = X - Y \rightarrow X = \frac{1}{2}(U + V), Y - \frac{1
 $$
 
 We then have the Jacobian: 
-
-$$
-J = \begin{pmatrix}
-\frac{\partial X}{\partial U} & \frac{\partial X}{\partial V} \\
-\frac{\partial Y}{\partial U} & \frac{\partial Y}{\partial V}
-\end{pmatrix}
-= \begin{pmatrix}
-\frac{1}{2} & \frac{1}{2} \\
-\frac{1}{2} & -\frac{1}{2}
-\end{pmatrix}
-$$
 
 $$
 |J| = \left| 
@@ -333,13 +298,13 @@ $$
 \end{array} \right| = |- \frac{1}{4} - \frac{1}{4} | = |-\frac{1}{2}| = \frac{1}{2}
 $$
 
-And we have the new support of U, V as: 
+And we have the new support, that being the support of U, V as: 
 
 $$
 (u, v) \in (-\infty, \infty) \text{x} (-\infty, \infty)
 $$
 
-Using the above relations, we have: 
+Using the above relations, we may calculate the joint pdf of (U, V): 
 
 $$
 f_{UV}(u, v) = \frac{1}{2 \pi \sigma^2} e^{-\frac{1}{2 \sigma^2} \left[ \left( \frac{u+v}{2} - \mu \right)^2 + \left( \frac{u-v}{2} - \gamma \right)^2 \right]} \frac{1}{2}
@@ -353,25 +318,39 @@ $$
 f_{UV}(u, v) = g(u) \frac{1}{4 \pi \sigma^2} e^{-\frac{1}{2(2 \sigma^2)} \left( u - (\mu + \gamma) \right)^2} h(v) e^{-\frac{1}{2(2 \sigma^2)} \left( v - (\mu - \gamma) \right)^2}
 $$
 
-Such that we have shown: 
+However, we already know the distributions of U and V, namely: 
 
-For: 
+The marginal pdf of U is: 
 
 $$
 f_{U}(u) = g(u) \frac{1}{4 \pi \sigma^2} e^{-\frac{1}{2(2 \sigma^2)} \left( u - (\mu + \gamma) \right)^2}
 $$
 
-And: 
+With:
+
+$$
+U \sim N(\mu + \gamma, 2\sigma^2)
+$$
+
+And the marginal pdf of V is: 
 
 $$
 f_{V}(v) = h(v) e^{-\frac{1}{2(2 \sigma^2)} \left( v - (\mu - \gamma) \right)^2}
 $$ 
 
+With:
+
+$$
+V \sim N(\mu - \gamma, 2\sigma^2)
+$$
+
+Taken together, we have: 
+
 $$
 f_{UV}(u, v) = f_{U}(u) f_{V}(v)
 $$
 
-and we conclude that U and V are independent. 
+Such that we have shown that the joint pdf of (U, V) is equal to the product of the marginal pdfs of U and V and conclude that U and V are independent. 
 
 \newpage
 
