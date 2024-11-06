@@ -5,13 +5,13 @@ date: "2024-11-03"
 ---
 
 Outline
-Q1: PARTIAL check (b), (c)
+Q1: DONE - ish
 Q2: DONE 
 Q3: DONE
 Q4: DONE
-Q5: DONE(ish)
+Q5: DONE - ish
 Q6: DONE
-Q7: DONE(ish)
+Q7: DONE
 
 # Q1 
 
@@ -71,6 +71,12 @@ $$
 
 Consider random vector (V, W) where $W \sim N(0, 2)$ (normal with mean 0 and variance 2). How should the conditional distribution V | W = w be chosen so that (V, W) has the same distribution as (X, Y)? 
 
+First, consider the joint distribution of (X, Y); we know this is a multivariate normal distribution. As such, given $W \sim N(0, 2)$, $V \sim N(0,1)$, we know that the random variable V | W = w must also be normally distributed. Our goal then is to obtain the parameters of this normal distribution to uniquely characterize its distribution. To that end: 
+
+Consider the random vector (X, Y), made up of the Mean vector and Covariance Matrix: 
+
+Recall also that we know the Covariance Matrix as $Y | X = x \sim N(x, 1)$, meaning Cov(X, Y) = 1 = Cov(Y, X). Taking this into account then: 
+
 $$
 \begin{pmatrix}
 X \\
@@ -88,17 +94,23 @@ Y
 \right)
 $$
 
+As $\mu_V = 0$: 
+
 $$
-\text{E}(V \mid W = w) = \frac{Cov(V, W)}{Var(W)} \times w = \frac{1}{2} w
+\text{E}(V \mid W = w) = \mu_V + \frac{Cov(V, W)}{Var(W)} (w-\mu_W) = \mu_V + \frac{Cov(V, W)}{Var(W)} (w-0) = \frac{1}{2} w
 $$
+
+$$
+\text{E}(V \mid W = w) = \mu_V + \frac{Cov(V, W)}{Var(W)} w = 0 + \frac{Cov(V, W)}{Var(W)} w = \frac{1}{2} w
+$$
+
+As Var(V) = 1
      
 $$
 Var(V | W = w) = Var(V) - \frac{Cov(V, W)^2}{Var(W)} = 1 - \frac{1^2}{2} = \frac{1}{2}
 $$
 
-$$
-V \mid W = w \sim N\left(\frac{1}{2} w, \frac{1}{2}\right)
-$$
+Furthermore, as we have found the mean and variance of V given W = w, we may describe its distribution as: 
 
 $$
 V \mid W = w \sim N\left(\frac{1}{2} w, \frac{1}{2}\right)
@@ -231,6 +243,8 @@ $$
 
 Let $X \sim n(\mu, \sigma^2)$, and let $Y \sim n(\gamma, \sigma^2)$. Suppose X and Y are independent. Define: U = X + Y and V = X - Y. Show that U and V are independent normal random variables. Find the distribution of each of them. 
 
+Hey, so I am not entirely sure why this problem uses n to represent the normal instead of N as we usually do, but for this problem I just stayed (or attempted to stay) consistent with their format. 
+
 $$
 U \sim n(\mu + \gamma , 2\sigma^2)
 $$
@@ -245,12 +259,29 @@ $$
 f_{X, Y}(x, y) = f_X(x) f_Y(f) = \frac{1}{\sqrt{2\pi\sigma^2}}e^{\frac{-(x-\mu)^2}{2\sigma^2}} \frac{1}{\sqrt{2\pi\sigma^2}}e^{\frac{-(y-\gamma)^2}{2\sigma^2}} = \frac{1}{2\pi\sigma^2}e^{\frac{-\left((x-\mu)^2 + (y - \gamma)^2\right)}{2\sigma^2}}
 $$
 $$
-U = X + Y and V = X - Y \rightarrow X = \frac{1}{2}(U + V), Y - \frac{1}{2}(U - V)
+U = X + Y \text{ and } V = X - Y \rightarrow X = \frac{1}{2}(U + V), Y - \frac{1}{2}(U - V)
 $$
 We then have the Jacobian: 
 
 $$
-|J| = \left| \begin{array}{cc}
+J = \begin{pmatrix}
+\frac{\partial X}{\partial U} & \frac{\partial X}{\partial V} \\
+\frac{\partial Y}{\partial U} & \frac{\partial Y}{\partial V}
+\end{pmatrix}
+= \begin{pmatrix}
+\frac{1}{2} & \frac{1}{2} \\
+\frac{1}{2} & -\frac{1}{2}
+\end{pmatrix}
+$$
+
+$$
+|J| = \left| 
+\begin{pmatrix}
+\frac{\partial X}{\partial U} & \frac{\partial X}{\partial V} \\
+\frac{\partial Y}{\partial U} & \frac{\partial Y}{\partial V}
+\end{pmatrix}
+\right| 
+= \left| \begin{array}{cc}
 \frac{1}{2} & \frac{1}{2} \\
 \frac{1}{2} & -\frac{1}{2}
 \end{array} \right| = |- \frac{1}{4} - \frac{1}{4} | = |-\frac{1}{2}| = \frac{1}{2}
@@ -275,6 +306,7 @@ $$
 $$
 f_{UV}(u, v) = g(u) \frac{1}{4 \pi \sigma^2} e^{-\frac{1}{2(2 \sigma^2)} \left( u - (\mu + \gamma) \right)^2} h(v) e^{-\frac{1}{2(2 \sigma^2)} \left( v - (\mu - \gamma) \right)^2}
 $$
+
 Such that we have shown: 
 
 For: 
@@ -292,6 +324,7 @@ $$
 $$
 f_{UV}(u, v) = f_{U}(u) f_{V}(v)
 $$
+
 and we conclude that U and V are independent. 
 
 \newpage
@@ -344,185 +377,84 @@ No they are not independent, as knowing the value of one of the random variables
 
 Find the marginal pdf of $X_2$ and identify the distribution of $X_2$ as a member of an important family of distributions. 
 
-To find the marginal pdf of \( X_2 \), we need to integrate out \( X_1 \) and \( X_3 \) from the joint pdf \( f(x_1, x_2, x_3) = 6 \) for \( 0 < x_1 < x_2 < x_3 < 1 \).
+Let us first calculate the marginal of $X_2$: 
 
-The marginal pdf of \( X_2 \) is given by
-\[
-f_{X_2}(x_2) = \int_0^{x_2} \int_{x_2}^1 6 \, dx_3 \, dx_1.
-\]
+$$
+f_{X_2}(x_2) = \int_0^{x_2} \int_{x_2}^1 6 \, dx_3 \, dx_1 = \int_{x_2}^1 6 \, dx_3 = 6(1 - x_2)
+$$
 
-**Step 1: Integrate with respect to \( x_3 \)**
-\[
-\int_{x_2}^1 6 \, dx_3 = 6(1 - x_2).
-\]
+$$
+f_{X_2}(x_2) = \int_0^{x_2} 6(1 - x_2) \, dx_1 = 6(1 - x_2) \int_0^{x_2} 1 \, dx_1 = 6(1 - x_2)x_2
+$$
 
-**Step 2: Integrate with respect to \( x_1 \)**
-\[
-f_{X_2}(x_2) = \int_0^{x_2} 6(1 - x_2) \, dx_1 = 6(1 - x_2) \int_0^{x_2} 1 \, dx_1 = 6(1 - x_2)x_2.
-\]
+As $0 < x_2 < 1$, the range of $x_2$ gives us a clue as to the distribution of $X_2$. Specifically: 
 
-**Marginal pdf of \( X_2 \):**
-\[
-f_{X_2}(x_2) = 6x_2(1 - x_2) \quad \text{for } 0 < x_2 < 1.
-\]
-
-### Identifying the Distribution
-The form \( f_{X_2}(x_2) = 6x_2(1 - x_2) \) resembles the probability density function of a **Beta distribution** with parameters \( \alpha = 2 \) and \( \beta = 2 \).
-
-Hence, \( X_2 \) follows a Beta distribution:
-\[
-X_2 \sim \text{Beta}(2, 2).
-\]
+$$
+X_2 \sim Beta(2, 2)
+$$
 
 ## (c) 
 
 Find the conditional pdf $f(x_1, x_3 | x_2)$ of $X_1, X_3 \text{ given } X_2 = x_2 \in (0,1)$.
 
-To find the conditional pdf \( f(x_1, x_3 \mid x_2) \) of \( X_1 \) and \( X_3 \) given \( X_2 = x_2 \), we use the relation
-
-\[
-f(x_1, x_3 \mid x_2) = \frac{f(x_1, x_2, x_3)}{f_{X_2}(x_2)},
-\]
-
-where \( f(x_1, x_2, x_3) \) is the joint pdf and \( f_{X_2}(x_2) \) is the marginal pdf of \( X_2 \).
-
-### Given Information
-- The joint pdf: \( f(x_1, x_2, x_3) = 6 \) for \( 0 < x_1 < x_2 < x_3 < 1 \).
-- The marginal pdf: \( f_{X_2}(x_2) = 6x_2(1 - x_2) \) for \( 0 < x_2 < 1 \).
-
-### Conditional pdf Calculation
-We focus on the range of \( x_1 \) and \( x_3 \) given \( x_2 \):
-\[
-0 < x_1 < x_2 \quad \text{and} \quad x_2 < x_3 < 1.
-\]
-
-The conditional pdf is given by
-\[
-f(x_1, x_3 \mid x_2) = \frac{f(x_1, x_2, x_3)}{f_{X_2}(x_2)} = \frac{6}{6x_2(1 - x_2)} = \frac{1}{x_2(1 - x_2)}.
-\]
-
-### Range of \( x_1 \) and \( x_3 \)
-- \( 0 < x_1 < x_2 \)
-- \( x_2 < x_3 < 1 \)
-
-### Final Form
-\[
-f(x_1, x_3 \mid x_2) = \frac{1}{x_2 (1 - x_2)} \quad \text{for } 0 < x_1 < x_2 \text{ and } x_2 < x_3 < 1.
-\]
+$$
+f(x_1, x_3 \mid x_2) = \frac{f(x_1, x_2, x_3)}{f_{X_2}(x_2)} = \frac{6}{6x_2(1 - x_2)} = \frac{1}{x_2(1 - x_2)}
+$$
 
 ## (d) 
 
 Show that $X_1, X_3$ are independent given $X_2 = x_2 \in (0, 1)$ (i.e., think of what must be true of the conditional pdf of $f(x_1, x_3 | x_2)$ in this case). 
 
-To show that \( X_1 \) and \( X_3 \) are independent given \( X_2 = x_2 \), we need to establish that the conditional joint pdf \( f(x_1, x_3 \mid x_2) \) can be written as a product of the marginal conditional pdfs of \( X_1 \) and \( X_3 \) given \( X_2 \).
+Let us start by considering the joint pdf: 
 
-### Step 1: Write the Conditional pdf
-We have already found that the conditional pdf is given by
-\[
-f(x_1, x_3 \mid x_2) = \frac{1}{x_2 (1 - x_2)} \quad \text{for } 0 < x_1 < x_2 \text{ and } x_2 < x_3 < 1.
-\]
+$$
+f(x_1, x_3 \mid x_2) = \frac{1}{x_2 (1 - x_2)}
+$$
 
-### Step 2: Determine the Marginal Conditional pdfs
-To determine the marginal conditional pdfs, we need to consider the distributions of \( X_1 \) and \( X_3 \) separately given \( X_2 = x_2 \):
+Let us turn then to the marginals, with the goal of showing the product of the marginals is equal to the joint as specified. To that end:
 
-1. **Marginal pdf of \( X_1 \mid X_2 = x_2 \)**
-   \[
-   f_{X_1 \mid X_2}(x_1 \mid x_2) = \frac{1}{x_2} \quad \text{for } 0 < x_1 < x_2.
-   \]
-   This comes from the fact that \( X_1 \) is uniformly distributed over \( (0, x_2) \).
+### i. 
 
-2. **Marginal pdf of \( X_3 \mid X_2 = x_2 \)**
-   \[
-   f_{X_3 \mid X_2}(x_3 \mid x_2) = \frac{1}{1 - x_2} \quad \text{for } x_2 < x_3 < 1.
-   \]
-   This comes from the fact that \( X_3 \) is uniformly distributed over \( (x_2, 1) \).
+$$
+f_{X_1 \mid X_2}(x_1 \mid x_2) = \int_{x_2}^1 f(x_1, x_3 \mid x_2) \, dx_3 = \int_{x_2}^1 \frac{1}{x_2 (1 - x_2)} \, dx_3
+$$
 
-### Step 3: Verify Independence
-To prove that \( X_1 \) and \( X_3 \) are independent given \( X_2 = x_2 \), we check if
-\[
-f(x_1, x_3 \mid x_2) = f_{X_1 \mid X_2}(x_1 \mid x_2) \times f_{X_3 \mid X_2}(x_3 \mid x_2).
-\]
+$$
+f_{X_1 \mid X_2}(x_1 \mid x_2) = \frac{1}{x_2 (1 - x_2)} \int_{x_2}^1 1 \, dx_3 = \frac{1}{x_2 (1 - x_2)} (1 - x_2) = \frac{1}{x_2}
+$$
 
-Substituting the expressions:
-\[
-f_{X_1 \mid X_2}(x_1 \mid x_2) \times f_{X_3 \mid X_2}(x_3 \mid x_2) = \frac{1}{x_2} \times \frac{1}{1 - x_2} = \frac{1}{x_2 (1 - x_2)}.
-\]
+### ii. 
 
-This matches \( f(x_1, x_3 \mid x_2) \), which implies that
-\[
-f(x_1, x_3 \mid x_2) = f_{X_1 \mid X_2}(x_1 \mid x_2) \times f_{X_3 \mid X_2}(x_3 \mid x_2).
-\]
+$$
+f_{X_3 \mid X_2}(x_3 \mid x_2) = \int_0^{x_2} f(x_1, x_3 \mid x_2) \, dx_1 = \int_0^{x_2} \frac{1}{x_2 (1 - x_2)} \, dx_1
+$$
 
-### Conclusion
-Since the conditional joint pdf can be written as a product of the marginal conditional pdfs, \( X_1 \) and \( X_3 \) are independent given \( X_2 = x_2 \).
+$$
+f_{X_3 \mid X_2}(x_3 \mid x_2) = \frac{1}{x_2 (1 - x_2)} \int_0^{x_2} 1 \, dx_1 = \frac{1}{x_2 (1 - x_2)} x_2 = \frac{1}{1 - x_2}
+$$
+
+Taking the results of i. and ii., we then have: 
+
+$$
+f_{X_1 \mid X_2}(x_1 \mid x_2) = \frac{1}{x_2}
+$$
+
+$$
+f_{X_3 \mid X_2}(x_3 \mid x_2) = \frac{1}{1 - x_2}
+$$
+
+$$
+f(x_1, x_3 \mid x_2) = \frac{1}{x_2 (1 - x_2)} = f_{X_1 \mid X_2}(x_1 \mid x_2) f_{X_3 \mid X_2}(x_3 \mid x_2)
+$$
+
+Since the conditional joint pdf can be written as a product of the marginal conditional pdfs, $X_1$ and $X_3$ are independent given $X_2 = x_2$.
 
 ## (e) 
 
-Find the covariance of $X_1 \text{ and } X_2$ given $X_2 = x_2$.
+Find the covariance of $X_1 \text{ and } X_3$ given $X_2 = x_2$.
 
-To find the covariance of \( X_1 \) and \( X_3 \) given \( X_2 = x_2 \), we use the definition of covariance:
+From part (d), we know that $X_1$ and $X_3$ are independent given $X_2 = x_2$, so we know that conditional on/given $X_2 = x_2$ that the covariance of $X_1$ and $X_3$ would be zero, or: 
 
-\[
-\text{Cov}(X_1, X_3 \mid X_2 = x_2) = \mathbb{E}[X_1 X_3 \mid X_2 = x_2] - \mathbb{E}[X_1 \mid X_2 = x_2] \mathbb{E}[X_3 \mid X_2 = x_2].
-\]
-
-### Step 1: Compute \( \mathbb{E}[X_1 \mid X_2 = x_2] \)
-Given that \( X_1 \) is uniformly distributed over \( (0, x_2) \):
-\[
-\mathbb{E}[X_1 \mid X_2 = x_2] = \frac{0 + x_2}{2} = \frac{x_2}{2}.
-\]
-
-### Step 2: Compute \( \mathbb{E}[X_3 \mid X_2 = x_2] \)
-Given that \( X_3 \) is uniformly distributed over \( (x_2, 1) \):
-\[
-\mathbb{E}[X_3 \mid X_2 = x_2] = \frac{x_2 + 1}{2}.
-\]
-
-### Step 3: Compute \( \mathbb{E}[X_1 X_3 \mid X_2 = x_2] \)
-We use the conditional joint pdf \( f(x_1, x_3 \mid x_2) = \frac{1}{x_2(1 - x_2)} \) for \( 0 < x_1 < x_2 \) and \( x_2 < x_3 < 1 \):
-
-\[
-\mathbb{E}[X_1 X_3 \mid X_2 = x_2] = \iint_{0 < x_1 < x_2, x_2 < x_3 < 1} x_1 x_3 \cdot \frac{1}{x_2 (1 - x_2)} \, dx_3 \, dx_1.
-\]
-
-**Computing the integral:**
-
-1. Integrate with respect to \( x_3 \):
-   \[
-   \int_{x_2}^1 x_3 \, dx_3 = \left[ \frac{x_3^2}{2} \right]_{x_2}^1 = \frac{1}{2} - \frac{x_2^2}{2}.
-   \]
-
-2. Integrate with respect to \( x_1 \):
-   \[
-   \int_0^{x_2} x_1 \, dx_1 = \left[ \frac{x_1^2}{2} \right]_0^{x_2} = \frac{x_2^2}{2}.
-   \]
-
-Combining these, we get
-\[
-\mathbb{E}[X_1 X_3 \mid X_2 = x_2] = \frac{1}{x_2 (1 - x_2)} \cdot \frac{x_2^2}{2} \left( \frac{1}{2} - \frac{x_2^2}{2} \right).
-\]
-
-Simplifying,
-\[
-\mathbb{E}[X_1 X_3 \mid X_2 = x_2] = \frac{x_2}{4} - \frac{x_2^3}{4}.
-\]
-
-### Step 4: Compute the Covariance
-\[
-\text{Cov}(X_1, X_3 \mid X_2 = x_2) = \left( \frac{x_2}{4} - \frac{x_2^3}{4} \right) - \left( \frac{x_2}{2} \right) \left( \frac{x_2 + 1}{2} \right).
-\]
-
-Simplifying:
-\[
-\text{Cov}(X_1, X_3 \mid X_2 = x_2) = \frac{x_2}{4} - \frac{x_2^3}{4} - \frac{x_2 (x_2 + 1)}{4}.
-\]
-
-Further simplification yields:
-\[
-\text{Cov}(X_1, X_3 \mid X_2 = x_2) = -\frac{x_2 (1 - x_2)}{12}.
-\]
-
-### Final Answer
-\[
-\text{Cov}(X_1, X_3 \mid X_2 = x_2) = -\frac{x_2 (1 - x_2)}{12}.
-\]
+$$
+Cov(X_1, X_3 | X_2 = x_2) = 0
+$$
