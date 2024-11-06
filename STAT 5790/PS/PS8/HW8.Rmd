@@ -22,6 +22,8 @@ $$
 
 Call the function defined above for n = 6 and k = 5, and provide the matrix you obtain.
 
+One with a for loop, one without. 
+
 ```{r}
 create_matrix <- function(n, k) {
   mat <- matrix(0, n, n)
@@ -42,20 +44,16 @@ matrix_result
 
 ```{r}
 create_matrix <- function(n, k) {
-  # Create an n x n matrix filled with zeros
   mat <- matrix(0, n, n)
   
-  # Fill the diagonal with k
   diag(mat) <- k
   
-  # Fill the diagonals above and below the main diagonal with 1
   mat[row(mat) == col(mat) + 1] <- 1
   mat[row(mat) == col(mat) - 1] <- 1
   
   return(mat)
 }
 
-# Call the function for n = 6 and k = 5
 matrix_result <- create_matrix(6, 5)
 matrix_result
 ```
@@ -89,7 +87,10 @@ tmpFn <- function(xVec) {
 }
 
 
-xValues <- seq(-3, 3, length.out = 100)
+xValues <- seq(from = -3, 
+               to = 3, 
+               length.out = 100)
+
 yValues <- tmpFn(xValues)
 
 plot(x = xValues, y = yValues, 
@@ -123,6 +124,7 @@ gcd <- function(m, n) {
 ```
 
 ```{r}
+# Testing examples 
 gcd(4*7, 4*4*4*7)
 gcd(47, 93)
 ```
@@ -295,50 +297,49 @@ The KS test results strongly suggest that the columns of the normalized matrix z
 
 Obtain polar representations of $\mathbf{y}$ using your function polaroid and test whether $R^2 \sim \chi^2_5$ distribution. Provide a page of histograms or boxplots of $\theta_1, \theta_2, \theta_3, \theta_4$. Test whether these are from the uniform distributions on their respective ranges, i.e., $[0, 2\pi)$ for $\theta_1 \text{ and } [0, \pi)$ for $\theta_2, \theta_3, \theta_4$. 
 
-```{r, warning = F}
-set.seed(37) 
-
+```{r}
 polaroid <- function(x) {
-  # Calculate R
   R <- sqrt(sum(x^2))
   
-  # If R is zero, return R with no angles (undefined case)
-  if (R == 0) return(c(R))
+  # If R is numerically zero, return just the radius
+  if (abs(R) < .Machine$double.eps) return(c(R))
   
-  # Calculate the first angle theta1 using atan2
+  # Compute theta1 in the range [0, 2 * pi]
   theta1 <- atan2(x[2], x[1])
   if (theta1 < 0) theta1 <- theta1 + 2 * pi
   
   p <- length(x)
   
-  # Calculate the remaining angles, only if p > 2
+  # Only calculate additional angles if there are more than two dimensions
   if (p > 2) {
     numerators <- sqrt(rev(cumsum(rev(x[-c(1, 2)]^2))))
     denominators <- sqrt(cumsum(rev(x[-1]^2))[-1])
     
-    # Ensure lengths match for division
+    # Ensure numerators and denominators are of the same length
     if (length(numerators) != length(denominators)) {
-      stop("Numerators and denominators lengths do not match.")
+      warning("Length mismatch: Check the input vector for inconsistencies.")
+      return(NA)
     }
     
-    # Calculate theta_rest and clamp values to be in [-1, 1]
+    # Compute cosine values and restrict them to the range [-1, 1]
     cos_values <- numerators / denominators
-    cos_values <- pmin(pmax(cos_values, -1), 1)  # Clamp values to [-1, 1]
+    cos_values <- pmin(pmax(cos_values, -1), 1)
+    
     theta_rest <- acos(cos_values)
   } else {
-    theta_rest <- numeric(0)  # No additional angles if p <= 2
+    theta_rest <- numeric(0)  
   }
   
-  # Return the polar representation
   return(c(R, theta1, theta_rest))
 }
+```
 
-# Test the function on a matrix y
-set.seed(123)
+```{r, warning = F}
+set.seed(37) 
+
 y <- matrix(rnorm(1000 * 5), nrow = 1000, ncol = 5)
 polar_representation <- t(apply(y, 1, polaroid))
 
-# Extract R values and theta values
 R_values <- polar_representation[, 1]
 theta_values <- if (ncol(polar_representation) > 1) polar_representation[, -1] else NULL
 ```
