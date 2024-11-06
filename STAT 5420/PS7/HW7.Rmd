@@ -5,17 +5,24 @@ date: "2024-11-03"
 ---
 
 Outline
-Q1: DONE - ish
+
+Q1: DONE
+
 Q2: DONE 
+
 Q3: DONE
+
 Q4: DONE
-Q5: DONE - ish
+
+Q5: WIP
+
 Q6: DONE
+
 Q7: DONE
 
 # Q1 
 
-Consider continuous random vector (X, Y) where $X \sim N(0, 1)$ (standard normal) and $Y | X = x \sim N(x, 1)$ (the conditional distribution of Y given X= x is normal with mean x and variance 1). 
+Consider continuous random vector (X, Y) where $X \sim N(0, 1)$ (standard normal) and $Y | X = x \sim N(x, 1)$ (the conditional distribution of Y given X = x is normal with mean x and variance 1). 
 
 ## (a) 
 
@@ -38,32 +45,33 @@ $$
 Find the marginal distribution of Y. 
 
 $$
-f_Y(y) = \int_{-\infty}^{\infty} f_{X,Y}(x, y) dx = \int_{-\infty}^{\infty} \frac{1}{2\pi} e^{\left(-\frac{x^2}{2} - \frac{(y - x)^2}{2}\right)} dx
-$$
-Simplifying the expression in the exponent, we have: 
-
-$$
--\frac{x^2}{2} - \frac{(y - x)^2}{2} = -\frac{x^2}{2} - \frac{y^2 - 2xy + x^2}{2} = -\frac{y^2}{2} - \frac{1}{2} \left[ x^2 - 2xy \right] = -\frac{y^2}{2} - \frac{1}{2} (x - y)^2
+f_Y(y) = \int_{-\infty}^{\infty} f_{X,Y}(x, y) \, dx = \int_{-\infty}^{\infty} \frac{1}{2\pi} e^{\left(-\frac{x^2}{2} - \frac{(y - x)^2}{2}\right)} \, dx
 $$
 
 $$
-f_Y(y) = \frac{1}{2\pi} e^{\left(-\frac{y^2}{2}\right)} \int_{-\infty}^{\infty} e^{\left(-\frac{(x - y)^2}{2}\right)} dx
-$$
-Looking at just the term(s) in the inside of the integral, we have: 
-
-$$
-\int_{-\infty}^{\infty} e^{\left(-\frac{(x - y)^2}{2}\right)} dx = \sqrt{2\pi}
+f_Y(y) = \int_{-\infty}^{\infty} \frac{1}{2\pi} e^{-\frac{x^2}{2} - \frac{y^2 - 2yx + x^2}{2}} \, dx = \int_{-\infty}^{\infty} \frac{1}{2\pi} e^{-\frac{y^2}{2} + yx - x^2} \, dx
 $$
 
-Such that we can evaluate the full expression now as: 
+$$
+f_Y(y) = \int_{-\infty}^{\infty} \frac{1}{2\pi} e^{-\frac{y^2}{2} + \frac{y^2}{4}} e^{-\left(x - \frac{y}{2}\right)^2} \, dx
+$$
 
 $$
-f_Y(y) = \frac{1}{2\pi} e^{\left(-\frac{y^2}{2}\right)} \sqrt{2\pi} = \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{y^2}{2}\right)}
+f_Y(y) = \int_{-\infty}^{\infty} \frac{1}{2\pi} e^{-\frac{y^2}{4}} e^{-\left(x - \frac{y}{2}\right)^2} \, dx
 $$
-This pdf is the standard normal! Such that we say the marginal of Y given above describes the random variable Y as: 
 
 $$
-Y \sim N(0, 1)
+f_Y(y) = \frac{1}{2\pi} e^{-\frac{y^2}{4}} \int_{-\infty}^{\infty} e^{-\left(x - \frac{y}{2}\right)^2} \, dx
+$$
+
+Take advantage of "knowing" $\int_{-\infty}^{\infty} e^{-\left(x - \frac{y}{2}\right)^2} \, dx = \sqrt{\pi}$
+
+$$
+f_Y(y) = \frac{1}{2\pi} e^{-\frac{y^2}{4}} \sqrt{\pi} = \frac{1}{2\sqrt{\pi}} e^{-\frac{y^2}{4}}
+$$
+
+$$
+Y \sim N(0, 2)
 $$
 
 
@@ -97,11 +105,11 @@ $$
 As $\mu_V = 0$: 
 
 $$
-\text{E}(V \mid W = w) = \mu_V + \frac{Cov(V, W)}{Var(W)} (w-\mu_W) = \mu_V + \frac{Cov(V, W)}{Var(W)} (w-0) = \frac{1}{2} w
+E(V \mid W = w) = \mu_V + \frac{Cov(V, W)}{Var(W)} (w-\mu_W) = \mu_V + \frac{Cov(V, W)}{Var(W)} (w-0) = \frac{1}{2} w
 $$
 
 $$
-\text{E}(V \mid W = w) = \mu_V + \frac{Cov(V, W)}{Var(W)} w = 0 + \frac{Cov(V, W)}{Var(W)} w = \frac{1}{2} w
+E(V \mid W = w) = \mu_V + \frac{Cov(V, W)}{Var(W)} w = 0 + \frac{Cov(V, W)}{Var(W)} w = \frac{1}{2} w
 $$
 
 As Var(V) = 1
@@ -114,6 +122,42 @@ Furthermore, as we have found the mean and variance of V given W = w, we may des
 
 $$
 V \mid W = w \sim N\left(\frac{1}{2} w, \frac{1}{2}\right)
+$$
+
+### A Brief Alternative Formulation
+
+We may also find the distribution of $V \mid W = w$ directly by calculating the closed form of its pdf. The following does so for $X \mid Y = y$, which we know to be $V \mid W = w$ given equivalence of the random variable X $\equiv$ V, Y $\equiv$ W. To that end: 
+
+$$
+f_{X | Y = y}(x) = \frac{f_{X,Y}(x, y)}{f_Y(y)} = \frac{\frac{1}{2\pi} e^{-\frac{2x^2 - 2xy + y^2}{2}}}{\frac{1}{2\sqrt{\pi}} e^{-\frac{y^2}{4}}}
+$$
+
+$$
+f_{X | Y = y}(x) = \frac{1}{\sqrt{\pi}} e^{-\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4}}
+$$
+
+Simplifying (or at least attempting to simplify) the exponent: 
+
+$$
+-\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4} = -\frac{2x^2}{2} + \frac{2xy}{2} - \frac{y^2}{2} + \frac{y^2}{4} = -x^2 + xy - \frac{y^2}{4}
+$$
+
+$$
+-\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4} = \left(x - \frac{y}{2}\right)^2 - \frac{y^2}{4} = -\left(x - \frac{y}{2}\right)^2
+$$
+
+$$
+f_{X | Y = y}(x) = \frac{1}{\sqrt{\pi}} e^{-\frac{(x - \frac{y}{2})^2}{2(\frac{1}{2})}}
+$$
+
+$$
+X | Y = y \sim N\left(\frac{y}{2}, \frac{1}{2}\right)
+$$
+
+So, similar to the evaluation given in part (c) above, we do indeed have: 
+
+$$
+V | W = w \sim N\left(\frac{w}{2}, \frac{1}{2}\right)
 $$
 
 \newpage
@@ -258,9 +302,11 @@ For X and Y independent, we may write the joint pdf as the product of the margin
 $$
 f_{X, Y}(x, y) = f_X(x) f_Y(f) = \frac{1}{\sqrt{2\pi\sigma^2}}e^{\frac{-(x-\mu)^2}{2\sigma^2}} \frac{1}{\sqrt{2\pi\sigma^2}}e^{\frac{-(y-\gamma)^2}{2\sigma^2}} = \frac{1}{2\pi\sigma^2}e^{\frac{-\left((x-\mu)^2 + (y - \gamma)^2\right)}{2\sigma^2}}
 $$
+
 $$
 U = X + Y \text{ and } V = X - Y \rightarrow X = \frac{1}{2}(U + V), Y - \frac{1}{2}(U - V)
 $$
+
 We then have the Jacobian: 
 
 $$
