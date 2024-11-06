@@ -25,25 +25,26 @@ Call the function defined above for n = 6 and k = 5, and provide the matrix you 
 One with a for loop, one without. 
 
 ```{r}
-create_matrix <- function(n, k) {
-  mat <- matrix(0, n, n)
-  
-  diag(mat) <- k
-  
-  for (i in 1:(n-1)) {
-    mat[i, i+1] <- 1
-    mat[i+1, i] <- 1
-  }
-  
-  return(mat)
-}
-
-matrix_result <- create_matrix(6, 5)
-matrix_result
+# nkMatFor <- function(n, k) {
+#   mat <- matrix(0, n, n)
+#   
+#   diag(mat) <- k
+#   
+#   for (i in 1:(n-1)) {
+#     mat[i, i+1] <- 1
+#     mat[i+1, i] <- 1
+#   }
+#   
+#   return(mat)
+# }
+# 
+# n6k5 <- nkMatFor(n = 6,
+#               k = 5)
+# n6k5
 ```
 
 ```{r}
-create_matrix <- function(n, k) {
+nkMat <- function(n, k) {
   mat <- matrix(0, n, n)
   
   diag(mat) <- k
@@ -54,8 +55,9 @@ create_matrix <- function(n, k) {
   return(mat)
 }
 
-matrix_result <- create_matrix(6, 5)
-matrix_result
+n6k5 <- nkMat(n = 6,
+              k = 5)
+n6k5
 ```
 
 \newpage
@@ -83,15 +85,19 @@ tmpFn <- function(xVec) {
   result[xVec >= 0 & xVec < 2] <- xVec[xVec >= 0 & xVec < 2] + 3
   result[xVec >= 2] <- xVec[xVec >= 2]^2 + 4 * xVec[xVec >= 2] - 7
   
-  return(result)
+  result
 }
 
+```
 
+```{r}
 xValues <- seq(from = -3, 
                to = 3, 
-               length.out = 100)
+               length.out = 1000)
 
-yValues <- tmpFn(xValues)
+yValues <- tmpFn(xVec = xValues)
+
+length(xValues) == length(yValues)
 
 plot(x = xValues, y = yValues, 
      type = "l",
@@ -99,7 +105,7 @@ plot(x = xValues, y = yValues,
      lwd = 1.5,
      xlab = "x", 
      ylab = "f(x)", 
-     main = "Plot of f(x) for -3 < x < 3")
+     main = "f(x) for -3 < x < 3")
 ```
 
 \newpage
@@ -119,14 +125,16 @@ gcd <- function(m, n) {
     n <- remainder
   }
   
-  return(m)
+  m
 }
 ```
 
 ```{r}
 # Testing examples 
-gcd(4*7, 4*4*4*7)
-gcd(47, 93)
+gcd(m = 4*7, 
+    n = 4*4*4*7)
+gcd(m = 47, 
+    n = 93)
 ```
 
 \newpage
@@ -136,24 +144,29 @@ gcd(47, 93)
 eQTL mapping. (The following problem was suggested by Professor Dan Nettleton.) Write a function order.matrix which takes in a matrix x and returns a matrix containing the row and column indices of the sorted values of x. Test this function on a 4X3 matrix of independent $\chi_{1}^2$ pseudo-random deviates. 
 
 ```{r}
-order.matrix <- function(x) {
-  sorted_indices <- order(x)
+order.matrix <- function(mat) {
+  sorted.indices <- order(mat)
   
-  row_indices <- (sorted_indices - 1) %% nrow(x) + 1
-  col_indices <- (sorted_indices - 1) %/% nrow(x) + 1
+  row.indices <- (sorted.indices - 1) %% nrow(mat) + 1
+  col.indices <- (sorted.indices - 1) %/% nrow(mat) + 1
   
-  result <- cbind(row_indices, col_indices)
-  return(result)
+  result <- cbind(row = row.indices, 
+                  col = col.indices)
+  result
 }
+```
 
-set.seed(37)  
-test_matrix <- matrix(rchisq(4 * 3, df = 1), nrow = 4, ncol = 3)
-dim(test_matrix)
-test_matrix
+```{r}
+set.seed(42)  
+testMat <- matrix(data = rchisq(4 * 3, df = 1), 
+                      nrow = 4, 
+                      ncol = 3)
+dim(testMat)
+testMat
 
-indices <- order.matrix(test_matrix)
-indices
-dim(indices)
+testResults <- order.matrix(mat = testMat)
+testResults
+dim(testResults)
 ```
 
 \newpage
@@ -183,56 +196,33 @@ Write a function polaroid which takes in an arbitrary p-dimensional vector $\mat
 polaroid <- function(x) {
   R <- sqrt(sum(x^2))
   
-  p <- length(x)
-  theta <- numeric(p - 1)
-  
-  if (R > 0) {
-    theta[1] <- atan2(x[2], x[1])
-    if (theta[1] < 0) {
-      theta[1] <- theta[1] + 2 * pi  
-    }
-    
-    for (i in 2:(p - 1)) {
-      numerator <- sqrt(sum(x[(i + 1):p]^2))
-      denominator <- sqrt(sum(x[i:p]^2))
-      theta[i] <- acos(numerator / denominator)
-    }
-  }
-  
-  return(c(R, theta))
-}
-
-x <- c(1, 2, 3)
-polar_representation <- polaroid(x)
-polar_representation
-```
-
-```{r}
-polaroid <- function(x) {
-  R <- sqrt(sum(x^2))
-  
   if (R == 0) return(c(R))
   
-  theta1 <- atan2(x[2], x[1])
-  if (theta1 < 0) {
-    theta1 <- theta1 + 2 * pi  
+  theta <- numeric(length(x) - 1)
+  
+  theta[1] <- atan2(x[2], x[1])
+  if (theta[1] < 0) {
+    theta[1] <- theta[1] + 2 * pi 
   }
   
   p <- length(x)
   if (p > 2) {
-    numerators <- sqrt(rev(cumsum(rev(x[-c(1, 2)]^2))))
-    denominators <- sqrt(cumsum(rev(x[-1]^2)))
-    theta_rest <- acos(numerators / denominators)
-  } else {
-    theta_rest <- numeric(0)  
+    for (i in 2:(p - 1)) {
+      numerator <- sqrt(sum(x[i:p]^2))
+      denominator <- sqrt(sum(x[(i-1):p]^2))
+      theta[i] <- acos(numerator / denominator)
+    }
   }
   
-  return(c(R, theta1, theta_rest))
+  dat <- c(R, theta)
+  dat 
 }
+```
 
+```{r}
 x <- c(1, 2, 3)
-polar_representation <- polaroid(x)
-print(polar_representation)
+polarRep <- polaroid(x)
+print(polarRep)
 ```
 
 ## (b)
@@ -241,131 +231,135 @@ Write a function normalize which takes in a matrix and returns its normalized fo
 
 ```{r}
 normalize <- function(x) {
-  row_norms <- sqrt(rowSums(x^2))
+  rowNorm <- sqrt(rowSums(x^2))
+  normMat <- x / rowNorm
   
-  normalized_matrix <- x / row_norms
-  
-  normalized_matrix[is.nan(normalized_matrix)] <- 0
-  
-  return(normalized_matrix)
+  normMat[is.nan(normMat)] <- 0
+  normMat
 }
+
+# normalize <- function(x) {
+#   rowNorm <- sqrt(rowSums(x^2))
+#   normMat <- sweep(x, 1, row_norms, FUN = "/")
+#   normMat[is.nan(normMat)] <- 0
+#   normMat
+# }
 ```
 
 ```{r}
-set.seed(37)  
-test_matrix <- matrix(rnorm(12), nrow = 4, ncol = 3)
-test_matrix
-rowSums(test_matrix^2)
+set.seed(42)  
+testMat <- matrix(data = rnorm(12), 
+                  nrow = 4, 
+                  ncol = 3)
+testMat
+rowSums(testMat^2)
 
-normalized_matrix <- normalize(test_matrix)
-normalized_matrix
-rowSums(normalized_matrix^2)
+normMatEx <- normalize(x = testMat)
+normMatEx
+rowSums(normMatEx^2)
 ```
 
 ## (c)
 
 Obtain a 1000X5 matrix $\mathbf{y}$ of $N(0, 1)$ pseudo-random deviates. Use apply and normalize to obtain the normalized values. Call this matrix $\mathbf{z}$. We test whether the columns of $\mathbf{z}$ are uniform on $U(-1, 1)$. One may test whether a sample $x \sim U(-1, 1)$ using ks.test(x, "punif", min=-1, max=1) where punif represents the cumulative distribution function of the uniform over range $(-1, 1)$. Summarize your results. 
 
-```{r}
-set.seed(37)  
+```{r, warning = F}
+set.seed(42)  
 
-y <- matrix(rnorm(1000 * 5), nrow = 1000, ncol = 5)
-
-normalize <- function(x) {
-  row_norms <- sqrt(rowSums(x^2))
-  normalized_matrix <- sweep(x, 1, row_norms, FUN = "/")
-  normalized_matrix[is.nan(normalized_matrix)] <- 0
-  return(normalized_matrix)
-}
+y <- matrix(data = rnorm(1000 * 5), 
+            nrow = 1000, 
+            ncol = 5)
 
 z <- apply(X = y, 
            MARGIN = 2,
-           FUN = function(col) normalize(matrix(col, ncol = 1))
+           FUN = function(col) {
+             normalize(x = matrix(col, ncol = 1))
+             }
            )
 
-ks_tests <- apply(X = z, 
+ksTests <- apply(X = z, 
                   MARGIN = 2, 
-                  FUN = function(column) ks.test(column, "punif", min = -1, max = 1)
+                  FUN = function(column) {
+                    ks.test(column, "punif", min = -1, max = 1)
+                    }
                   )
 
-ks_tests
+ksTests
 ```
 
-The KS test results strongly suggest that the columns of the normalized matrix z are not uniformly distributed on (-1,1). The deviations are significant, implying that the normalization did not transform the data into a uniform distribution over this range. Further investigation or a different transformation might be needed if the goal is to achieve a uniform distribution.
+The KS tests provide small p-values, which is evidence to support rejecting the null hypothesis that the vectors are normally distributed. As we have evidence to suggest the vectors are not normally distributed, then we have evidence that our efforts to normalize the vectors did not effectively transform the data into a uniform distribution over this range (at least when normalizing the sum of squares of each row).
 
 ## (d)
 
-Obtain polar representations of $\mathbf{y}$ using your function polaroid and test whether $R^2 \sim \chi^2_5$ distribution. Provide a page of histograms or boxplots of $\theta_1, \theta_2, \theta_3, \theta_4$. Test whether these are from the uniform distributions on their respective ranges, i.e., $[0, 2\pi)$ for $\theta_1 \text{ and } [0, \pi)$ for $\theta_2, \theta_3, \theta_4$. 
+Obtain polar representations of $\mathbf{y}$ using your function polaroid and test whether $R^2 \sim \chi^2_5$ distribution. 
+
+Provide a page of histograms or boxplots of $\theta_1, \theta_2, \theta_3, \theta_4$. Test whether these are from the uniform distributions on their respective ranges, i.e., $[0, 2\pi)$ for $\theta_1$, and $[0, \pi)$ for $\theta_2, \theta_3, \theta_4$. 
+
+```{r, warning = F}
+polarRep <- t(apply(X = y,
+                    MARGIN = 1,
+                    FUN = polaroid))
+
+rVal <- polarRep[, 1]
+thetaVal <- polarRep[, -1]
+# thetaVal <- if (ncol(polarRep) > 1) polarRep[, -1] else NA
+```
 
 ```{r}
-polaroid <- function(x) {
-  R <- sqrt(sum(x^2))
-  
-  # If R is numerically zero, return just the radius
-  if (abs(R) < .Machine$double.eps) return(c(R))
-  
-  # Compute theta1 in the range [0, 2 * pi]
-  theta1 <- atan2(x[2], x[1])
-  if (theta1 < 0) theta1 <- theta1 + 2 * pi
-  
-  p <- length(x)
-  
-  # Only calculate additional angles if there are more than two dimensions
-  if (p > 2) {
-    numerators <- sqrt(rev(cumsum(rev(x[-c(1, 2)]^2))))
-    denominators <- sqrt(cumsum(rev(x[-1]^2))[-1])
-    
-    # Ensure numerators and denominators are of the same length
-    if (length(numerators) != length(denominators)) {
-      warning("Length mismatch: Check the input vector for inconsistencies.")
-      return(NA)
-    }
-    
-    # Compute cosine values and restrict them to the range [-1, 1]
-    cos_values <- numerators / denominators
-    cos_values <- pmin(pmax(cos_values, -1), 1)
-    
-    theta_rest <- acos(cos_values)
-  } else {
-    theta_rest <- numeric(0)  
-  }
-  
-  return(c(R, theta1, theta_rest))
-}
+rSq <- rVal^2
+csTest <- ks.test(rSq, "pchisq", df = 5)
+csTest
+```
+
+```{r}
+par(mfrow = c(2, 2))
+
+hist(thetaVal[, 1], 
+     breaks = 30, 
+     main = expression(theta[1]), 
+     xlab = expression(theta[1]), 
+     xlim = c(0, 2 * pi))
+
+hist(thetaVal[, 2], 
+     breaks = 30, 
+     main = expression(theta[2]), 
+     xlab = expression(theta[2]), 
+     xlim = c(0, pi))
+
+hist(thetaVal[, 3], 
+     breaks = 30, 
+     main = expression(theta[3]), 
+     xlab = expression(theta[3]), 
+     xlim = c(0, pi))
+
+hist(thetaVal[, 4], 
+     breaks = 30, 
+     main = expression(theta[4]), 
+     xlab = expression(theta[4]), 
+     xlim = c(0, pi))
+
 ```
 
 ```{r, warning = F}
-set.seed(37) 
+theta1Test <- ks.test(x = thetaVal[, 1] / (2 * pi), 
+                      y = "punif", 
+                      min = 0, 
+                      max = 1)
+theta2Test <- ks.test(x = thetaVal[, 2] / pi, 
+                      y = "punif", 
+                      min = 0, 
+                      max = 1)
+theta3Test <- ks.test(x = thetaVal[, 3] / pi, 
+                      y = "punif", 
+                      min = 0, 
+                      max = 1)
+theta4Test <- ks.test(x = thetaVal[, 4] / pi, 
+                      y = "punif", 
+                      min = 0, 
+                      max = 1)
 
-y <- matrix(rnorm(1000 * 5), nrow = 1000, ncol = 5)
-polar_representation <- t(apply(y, 1, polaroid))
-
-R_values <- polar_representation[, 1]
-theta_values <- if (ncol(polar_representation) > 1) polar_representation[, -1] else NULL
-```
-
-```{r}
-R_squared <- R_values^2
-
-chisq_test <- ks.test(R_squared, "pchisq", df = 5)
-chisq_test
-```
-
-```{r}
-hist(theta_values[, 1], breaks = 30, main = expression(theta[1]), xlab = expression(theta[1]), xlim = c(0, 2 * pi))
-
-hist(theta_values[, 2], breaks = 30, main = expression(theta[2]), xlab = expression(theta[2]), xlim = c(0, pi))
-hist(theta_values[, 3], breaks = 30, main = expression(theta[3]), xlab = expression(theta[3]), xlim = c(0, pi))
-hist(theta_values[, 4], breaks = 30, main = expression(theta[4]), xlab = expression(theta[4]), xlim = c(0, pi))
-```
-
-```{r}
-theta1_test <- ks.test(theta_values[, 1] / (2 * pi), "punif", min = 0, max = 1)
-
-theta2_test <- ks.test(theta_values[, 2] / pi, "punif", min = 0, max = 1)
-theta3_test <- ks.test(theta_values[, 3] / pi, "punif", min = 0, max = 1)
-theta4_test <- ks.test(theta_values[, 4] / pi, "punif", min = 0, max = 1)
-
-list(theta1_test = theta1_test, theta2_test = theta2_test,
-     theta3_test = theta3_test, theta4_test = theta4_test)
+list(theta1 = theta1Test, 
+     theta2 = theta2Test,
+     theta3 = theta3Test, 
+     theta4 = theta4Test)
 ```

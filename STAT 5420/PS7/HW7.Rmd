@@ -202,7 +202,12 @@ $$
 
 Give a probability table for random variables U and V that have the same marginals as X and Y but are independent. 
 
-We need probabilities of the rows to all be equal to one another. We need P(U = 1) = P(U = 3), and P(V = 2) = P(V = 3) = P(V = 4). To satisfy these conditions we have: 
+We need the sum of the probabilities of the rows to all be equal to one another, as well as the sum of the probabilities of column U = 1 and U = 3 to be equal to one another (with the sum of probabilities of column U = 2 equal to twice that). We can effectively treat this as a system of linear equations satisfying: 
+  1. P(U = 1) = P(U = 3) = 3/12
+  2. P(V = 2) = P(V = 3) = P(V = 4) = 1/3
+  3. P(U = 2) = P(U = 1) + P(U - 3) 
+  
+To satisfy these conditions we have: 
 
 |       |     U       |       |       |
 |-------|------------------------|-------|-------|
@@ -211,6 +216,14 @@ We need probabilities of the rows to all be equal to one another. We need P(U = 
 | 2     | 1/12       | 1/6        | 1/12       |
 | 3     | 1/12       | 1/6        | 1/12       |
 | 4     | 1/12       | 1/6        | 1/12       |
+
+And to verify independence, take one example: 
+
+$$
+P(U = 1, V = 2) = \frac{1}{12} = \frac{1}{4} (\frac{1}{3}) = P(U=1)P(V=2)
+$$
+
+We would need to run through all possible combinations to validate, but given the form of the above table, it suffices to say that U and V are independent. 
 
 \newpage
 
@@ -326,7 +339,7 @@ $$
 f_{U}(u) = g(u) \frac{1}{4 \pi \sigma^2} e^{-\frac{1}{2(2 \sigma^2)} \left( u - (\mu + \gamma) \right)^2}
 $$
 
-With:
+With note of Corollary 4.6.10:
 
 $$
 U \sim N(\mu + \gamma, 2\sigma^2)
@@ -338,7 +351,7 @@ $$
 f_{V}(v) = h(v) e^{-\frac{1}{2(2 \sigma^2)} \left( v - (\mu - \gamma) \right)^2}
 $$ 
 
-With:
+Again with note of Corollary 4.6.10:
 
 $$
 V \sim N(\mu - \gamma, 2\sigma^2)
