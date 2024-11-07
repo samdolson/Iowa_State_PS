@@ -231,16 +231,22 @@ We would need to run through all possible combinations to validate, but given th
 
 Suppose X and Y are independent random variables, where both have the same (marginal) geometric(p) distribution for 0 < p < 1. Find the conditional distribution of X given X + Y = k (integer k $\geq 2$).
 
-$$
-P(X = x | S = k) = \frac{P(X = x,  S = k)}{P(S = k)}
-$$
-
-For the top part of the equation: 
+First, note: 
 
 $$
-P(X = x, Y  = k - x) = P(X = x) P(Y = k - x)
+P(X + Y = k) \equiv P(Y = k - X)
 $$
-And:
+
+$$
+P(X = x | X + Y = k) = \frac{P(X = x,  X + Y = k)}{P(X + Y = k)}
+$$
+
+For the top part of the equation, note X and Y are independent, such that: 
+
+$$
+P(X = x, X + Y = k)  = P(X = x, Y  = k - x) = P(X = x) P(Y = k - x)
+$$
+We then evaluate using:
 
 $$
 P(X = x) = (1 - p)^{x - 1} p 
@@ -252,30 +258,34 @@ $$
 P(Y = k - x) = (1 - p)^{k - x - 1} p
 $$
 
-Given X and Y are independent:
+Again, given X and Y are independent, we evaluate the top as:
 
 $$
-P(X = x, S = k) = (1 - p)^{x - 1} p (1 - p)^{k - x - 1} p = P(X = x, S = k) = (1 - p)^{k - 2} p^2
+P(X = x, Y  = k - X) = P(X = 1, Y = k-1) + P(X = 2, Y = k-2) + ... + P(X = k-1, Y = 1)
 $$
 
-Consider then the bottom of the initial formula: 
-
 $$
-P(S = k) = \sum_{x=1}^{k-1} P(X =x, Y  = k - x) = (k - 1) (1 - p)^{k - 2} p^2
+P(X = x, Y  = k - X) = (1 - p)^{k - 2} p^2 + ... + (1 - p)^{k - 2} p^2 = \sum_{x=1}^{k-1} P(X =x, Y  = k - x)
 $$
 
-Returning the overall, conditional formula, we have: 
+Then we evaluate the bottom of the initial formula: 
 
 $$
-P(X = x | S = k) = \frac{P(X = x,  S = k)}{P(S = k)} = \frac{(1 - p)^{k - 2} p^2}{(k - 1) (1 - p)^{k - 2} p^2} = \frac{1}{k - 1}
+P(X = x, Y  = k - X) = \sum_{x=1}^{k-1} P(X =x, Y  = k - x) = \sum_{x=1}^{k-1} (1 - p)^{k - 2} p^2 = (k - 1) (1 - p)^{k - 2} p^2
 $$
 
-For x = 1, 2, ..., k - 1
-
-We then conclude
+Returning the overall formula, we evaluate as: 
 
 $$
-X | (X + Y = k) \sim U(1, k - 1)
+P(X = x | Y  = k - X) = \frac{P(X = x,  Y  = k - X)}{P(Y  = k - X)} = \frac{(1 - p)^{k - 2} p^2}{(k - 1) (1 - p)^{k - 2} p^2} = \frac{1}{k - 1}
+$$
+
+For x = 1, 2, ..., k - 1, y = 1, 2, ..., k - 1
+
+We then conclude:
+
+$$
+X | (X + Y = k) \sim U(1, k)
 $$
 
 \newpage

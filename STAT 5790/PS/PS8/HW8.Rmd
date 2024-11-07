@@ -146,14 +146,25 @@ eQTL mapping. (The following problem was suggested by Professor Dan Nettleton.) 
 ```{r}
 order.matrix <- function(mat) {
   sorted.indices <- order(mat)
-  
-  row.indices <- (sorted.indices - 1) %% nrow(mat) + 1
-  col.indices <- (sorted.indices - 1) %/% nrow(mat) + 1
-  
-  result <- cbind(row = row.indices, 
-                  col = col.indices)
+  result <- arrayInd(sorted.indices, dim(mat))
+  colnames(result) <- c("row", "col")
   result
 }
+```
+
+Had a previous version of this before discovering arrayInd: 
+
+```{r}
+# order.matrix <- function(mat) {
+#   sorted.indices <- order(mat)
+#   
+#   row.indices <- (sorted.indices - 1) %% nrow(mat) + 1
+#   col.indices <- (sorted.indices - 1) %/% nrow(mat) + 1
+#   
+#   result <- cbind(row = row.indices, 
+#                   col = col.indices)
+#   result
+# }
 ```
 
 ```{r}
@@ -190,22 +201,27 @@ where $0 \leq R < \infty, 0 \leq \theta_1 < 2\pi \text{ and } 0 \leq \theta_i < 
 
 ## (a)
 
-Write a function polaroid which takes in an arbitrary p-dimensional vector $\mathbf{x}$ and provides its polar representation as a vector, with the first element as $R$ and the remainder being $\theta_1, \theta_2, \dots, \theta_{p-1}$. 
+Write a function polaroid which takes in an arbitrary p-dimensional vector $\mathbf{x}$ and provides its polar representation as a vector, with the first element as $R$ and the remainder being $\theta_1, \theta_2, \dots, \theta_{p-1}$.
 
 ```{r}
 polaroid <- function(x) {
   R <- sqrt(sum(x^2))
   
+  # if radius is length 0, then no angles
   if (R == 0) return(c(R))
   
+  # for an n length input, return length n, but n-1 are thetas
   theta <- numeric(length(x) - 1)
   
+  # atan for arctan 
   theta[1] <- atan2(x[2], x[1])
   if (theta[1] < 0) {
     theta[1] <- theta[1] + 2 * pi 
   }
   
   p <- length(x)
+  # only need to do function once if input is 2
+  # else need to start iterating 
   if (p > 2) {
     for (i in 2:(p - 1)) {
       numerator <- sqrt(sum(x[i:p]^2))
@@ -222,7 +238,7 @@ polaroid <- function(x) {
 ```{r}
 x <- c(1, 2, 3)
 polarRep <- polaroid(x)
-print(polarRep)
+polarRep
 ```
 
 ## (b)
@@ -238,6 +254,7 @@ normalize <- function(x) {
   normMat
 }
 
+# here's one using sweep 
 # normalize <- function(x) {
 #   rowNorm <- sqrt(rowSums(x^2))
 #   normMat <- sweep(x, 1, row_norms, FUN = "/")
@@ -279,19 +296,19 @@ z <- apply(X = y,
 
 ksTests <- apply(X = z, 
                   MARGIN = 2, 
-                  FUN = function(column) {
-                    ks.test(column, "punif", min = -1, max = 1)
+                  FUN = function(col) {
+                    ks.test(col, "punif", min = -1, max = 1)
                     }
                   )
 
 ksTests
 ```
 
-The KS tests provide small p-values, which is evidence to support rejecting the null hypothesis that the vectors are normally distributed. As we have evidence to suggest the vectors are not normally distributed, then we have evidence that our efforts to normalize the vectors did not effectively transform the data into a uniform distribution over this range (at least when normalizing the sum of squares of each row).
+The KS tests provide small p-values, which is evidence to support rejecting the null hypothesis that the column vectors are distributed by $U(-1, 1)$, each of the five vectors each column. As we have evidence to suggest the vectors are not distributed by $U(-1, 1)$, then we have evidence that our efforts to normalize the vectors did not effectively transform the data into a uniform distribution over this range (at least when normalizing the sum of squares of each row).
 
 ## (d)
 
-Obtain polar representations of $\mathbf{y}$ using your function polaroid and test whether $R^2 \sim \chi^2_5$ distribution. 
+Obtain polar representations of $\mathbf{y}$ using your function polaroid and test whether $R^2 \sim \chi^2_5$ distribution.
 
 Provide a page of histograms or boxplots of $\theta_1, \theta_2, \theta_3, \theta_4$. Test whether these are from the uniform distributions on their respective ranges, i.e., $[0, 2\pi)$ for $\theta_1$, and $[0, \pi)$ for $\theta_2, \theta_3, \theta_4$. 
 
@@ -310,6 +327,8 @@ rSq <- rVal^2
 csTest <- ks.test(rSq, "pchisq", df = 5)
 csTest
 ```
+
+The large p-value provides evidence in support of not rejecting the null hypothesis that $R^2 \sim \chi^2_5$, such that we have evidence that $R^2 \sim \chi^2_5$. 
 
 ```{r}
 par(mfrow = c(2, 2))
@@ -363,3 +382,13 @@ list(theta1 = theta1Test,
      theta3 = theta3Test, 
      theta4 = theta4Test)
 ```
+
+The above statistical tests may be summarized as follows: 
+
+$H_0: \theta_1 \sim U[0, 2\pi)$
+
+$H_0: \text{individually and respectively } \theta_2, \theta_3, \theta_4 \sim U[0, \pi)$
+
+We do not have evidence in support or rejecting the null hypothesis that $\theta_1 \sim U[0, 2\pi)$ such that we have evidence in support of $\theta_1 \sim U[0, 2\pi)$. 
+
+However, we have small p-values in evidence of rejecting the null hypotheses that $\text{individually and respectively } \theta_2, \theta_3, \theta_4 \sim U[0, \pi)$, which is evidence in support of $\theta_2, \theta_3, \text{ and } \theta_4$ not having distributions of $U[0, \pi)$. 
