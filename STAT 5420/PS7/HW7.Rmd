@@ -231,61 +231,85 @@ We would need to run through all possible combinations to validate, but given th
 
 Suppose X and Y are independent random variables, where both have the same (marginal) geometric(p) distribution for 0 < p < 1. Find the conditional distribution of X given X + Y = k (integer k $\geq 2$).
 
+Define two new random variables, U and V, such that: 
+
+$$
+U = X
+$$
+
+$$
+V = X + Y
+$$
+
+Note then that we may write X and Y as: 
+
+$$
+X = U
+$$
+
+$$
+Y = V - U
+$$
+
+Furthermore, we have: 
+
+$$
+|J| = \left| 
+\begin{pmatrix}
+\frac{\partial X}{\partial U} & \frac{\partial X}{\partial V} \\
+\frac{\partial Y}{\partial U} & \frac{\partial Y}{\partial V}
+\end{pmatrix}
+\right| 
+= \left| \begin{array}{cc}
+1 & 0 \\
+-1 & 1
+\end{array} \right| = |1 - 0| = 1
+$$
+
+Then, we have: 
+
+$$
+f(U|V) f(V) = f(U,V) \rightarrow f(U|V) = \frac{f(U,V)}{f(V)}
+$$
+
 First, note: 
 
-$$
-P(X + Y = k) \equiv P(Y = k - X)
-$$
+Let us take each part of this fraction to evaluate the point in question: 
 
 $$
-P(X = x | X + Y = k) = \frac{P(X = x,  X + Y = k)}{P(X + Y = k)}
+f(U,V) = f_{X,Y}(u, v-u)|J| = f_{X,Y}(u, v-u) = f_X(u)f_Y(v-u)
 $$
 
-For the top part of the equation, note X and Y are independent, such that: 
+With note of independence between X and Y. This simplifies and can be evaluated to: 
 
 $$
-P(X = x, X + Y = k)  = P(X = x, Y  = k - x) = P(X = x) P(Y = k - x)
-$$
-We then evaluate using:
-
-$$
-P(X = x) = (1 - p)^{x - 1} p 
+f(U,V) = (1 - p)^{x - 1} p \left((1 - p)^{k - x - 1} p\right) = (1-p)^{k-2}p^2
 $$
 
-And: 
+Then we evaluate the bottom of the initial formula, noting that $f(V)$ is the marginal distribution of V: 
 
 $$
-P(Y = k - x) = (1 - p)^{k - x - 1} p
-$$
-
-Again, given X and Y are independent, we evaluate the top as:
-
-$$
-P(X = x, Y  = k - X) = P(X = 1, Y = k-1) + P(X = 2, Y = k-2) + ... + P(X = k-1, Y = 1)
-$$
-
-$$
-P(X = x, Y  = k - X) = (1 - p)^{k - 2} p^2 + ... + (1 - p)^{k - 2} p^2 = \sum_{x=1}^{k-1} P(X =x, Y  = k - x)
-$$
-
-Then we evaluate the bottom of the initial formula: 
-
-$$
-P(X = x, Y  = k - X) = \sum_{x=1}^{k-1} P(X =x, Y  = k - x) = \sum_{x=1}^{k-1} (1 - p)^{k - 2} p^2 = (k - 1) (1 - p)^{k - 2} p^2
+f(V) = \sum_{u \in U} f(U,V) = \sum_{u=1}^{k-1} f(U,V) = \sum_{u=1}^{k-1} (1 - p)^{k - 2} p^2 = (k - 1) (1 - p)^{k - 2} p^2
 $$
 
 Returning the overall formula, we evaluate as: 
 
 $$
-P(X = x | Y  = k - X) = \frac{P(X = x,  Y  = k - X)}{P(Y  = k - X)} = \frac{(1 - p)^{k - 2} p^2}{(k - 1) (1 - p)^{k - 2} p^2} = \frac{1}{k - 1}
+P(U | V) = \frac{P(U,V)}{P(V)} = \frac{f(U,V)}{f(V)} = \frac{(1 - p)^{k - 2} p^2}{(k - 1) (1 - p)^{k - 2} p^2} = \frac{1}{k - 1}
 $$
 
-For x = 1, 2, ..., k - 1, y = 1, 2, ..., k - 1
+For u = 1, 2, ..., k - 1, v = 1, 2, ..., k - 1. 
+
+So we have: 
+
+$$
+f(U|V) = \frac{f(U,V)}{f(V)} = \frac{1}{k-1}
+$$
 
 We then conclude:
 
 $$
-X | (X + Y = k) \sim U(1, k)
+U | V \sim Uniform(1, k) \rightarrow X | (X + Y = k) \sim Uniform(1, k)
 $$
 
 \newpage
