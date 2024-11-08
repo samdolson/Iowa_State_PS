@@ -63,11 +63,77 @@ $$
 
 Consider random vector (V, W) where $W \sim N(0, 2)$ (normal with mean 0 and variance 2). How should the conditional distribution V | W = w be chosen so that (V, W) has the same distribution as (X, Y)? 
 
+### First Method 
+
+We may find the distribution of $V \mid W = w$ directly by calculating the closed form of its pdf. The following does so for $X \mid Y = y$, which we know to be $V \mid W = w$ given equivalence of the random variable X $\equiv$ V, Y $\equiv$ W. To that end: 
+
+$$
+f_{X | Y = y}(x) = \frac{f_{X,Y}(x, y)}{f_Y(y)} = \frac{\frac{1}{2\pi} e^{-\frac{2x^2 - 2xy + y^2}{2}}}{\frac{1}{2\sqrt{\pi}} e^{-\frac{y^2}{4}}}
+$$
+
+$$
+f_{X | Y = y}(x) = \frac{1}{\sqrt{\pi}} e^{-\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4}}
+$$
+
+Simplifying (or at least attempting to simplify) the exponent: 
+
+$$
+-\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4} = -\frac{2x^2}{2} + \frac{2xy}{2} - \frac{y^2}{2} + \frac{y^2}{4} = -x^2 + xy - \frac{y^2}{4}
+$$
+
+$$
+-\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4} = \left(x - \frac{y}{2}\right)^2 - \frac{y^2}{4} = -\left(x - \frac{y}{2}\right)^2
+$$
+
+$$
+f_{X | Y = y}(x) = \frac{1}{\sqrt{\pi}} e^{-\frac{(x - \frac{y}{2})^2}{2(\frac{1}{2})}}
+$$
+
+$$
+X | Y = y \sim N\left(\frac{y}{2}, \frac{1}{2}\right)
+$$
+
+So, similar to the evaluation given in part (c) above, we do indeed have: 
+
+$$
+V | W = w \sim N\left(\frac{w}{2}, \frac{1}{2}\right)
+$$
+
+### A Brief Alternative Formulation
+
 First, consider the joint distribution of (X, Y); we know this is a multivariate normal distribution. As such, given $W \sim N(0, 2)$, $V \sim N(0,1)$, we know that the random variable V | W = w must also be normally distributed. Our goal then is to obtain the parameters of this normal distribution to uniquely characterize its distribution. To that end: 
 
 Consider the random vector (X, Y), made up of the Mean vector and Covariance Matrix: 
 
-Recall also that we know the Covariance Matrix as $Y | X = x \sim N(x, 1)$, meaning Cov(X, Y) = 1 = Cov(Y, X). Taking this into account then: 
+Recall also that we know the Covariance Matrix as $Y | X = x \sim N(x, 1)$, meaning Cov(X, Y) = 1 = Cov(Y, X). 
+
+More details on why Cov(X, Y) = 1: 
+
+$$
+Cov(X, Y) = E[X Y] - E[X] E[Y]
+$$
+
+And: 
+
+$$
+E[X Y] = E[E[X Y | X]] = E[X E[Y | X]] = E[X(X)] = E[X^2] 
+$$
+
+$$
+E[X Y] = E[X^2] = \text{Var}(X) - E[X]^2 = 1 - 0^2 = 1
+$$
+
+Then, we have: 
+
+$$
+Cov(X, Y) = 1 - E[X] E[Y] = 1 - 0(0) = 1
+$$
+
+$$
+Cov(X, Y) = 1
+$$
+
+Taking this into account then: 
 
 $$
 \begin{pmatrix}
@@ -106,42 +172,6 @@ Furthermore, as we have found the mean and variance of V given W = w, we may des
 
 $$
 V \mid W = w \sim N\left(\frac{1}{2} w, \frac{1}{2}\right)
-$$
-
-### A Brief Alternative Formulation
-
-We may also find the distribution of $V \mid W = w$ directly by calculating the closed form of its pdf. The following does so for $X \mid Y = y$, which we know to be $V \mid W = w$ given equivalence of the random variable X $\equiv$ V, Y $\equiv$ W. To that end: 
-
-$$
-f_{X | Y = y}(x) = \frac{f_{X,Y}(x, y)}{f_Y(y)} = \frac{\frac{1}{2\pi} e^{-\frac{2x^2 - 2xy + y^2}{2}}}{\frac{1}{2\sqrt{\pi}} e^{-\frac{y^2}{4}}}
-$$
-
-$$
-f_{X | Y = y}(x) = \frac{1}{\sqrt{\pi}} e^{-\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4}}
-$$
-
-Simplifying (or at least attempting to simplify) the exponent: 
-
-$$
--\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4} = -\frac{2x^2}{2} + \frac{2xy}{2} - \frac{y^2}{2} + \frac{y^2}{4} = -x^2 + xy - \frac{y^2}{4}
-$$
-
-$$
--\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4} = \left(x - \frac{y}{2}\right)^2 - \frac{y^2}{4} = -\left(x - \frac{y}{2}\right)^2
-$$
-
-$$
-f_{X | Y = y}(x) = \frac{1}{\sqrt{\pi}} e^{-\frac{(x - \frac{y}{2})^2}{2(\frac{1}{2})}}
-$$
-
-$$
-X | Y = y \sim N\left(\frac{y}{2}, \frac{1}{2}\right)
-$$
-
-So, similar to the evaluation given in part (c) above, we do indeed have: 
-
-$$
-V | W = w \sim N\left(\frac{w}{2}, \frac{1}{2}\right)
 $$
 
 \newpage
