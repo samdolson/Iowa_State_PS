@@ -12,13 +12,19 @@ Consider continuous random vector (X, Y) where $X \sim N(0, 1)$ (standard normal
 
 Find the joint pdf of (X, Y).
 
+As $X \sim N(0, 1)$, we know the marginal distribution of X is: 
+
 $$
 f_X(x) = \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{x^2}{2}\right)}
 $$
 
+And given $Y | X = x \sim N(x, 1)$, we know the conditional distribution: 
+
 $$
 f_{Y|X}(y \mid x) = \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{(y - x)^2}{2}\right)}
 $$
+
+Using these two formulas, we may calculate the joint distribution function by: 
 
 $$
 f_{X,Y}(x, y) = f_X(x) f_{Y|X}(y | x) = \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{x^2}{2}\right)} \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{(y - x)^2}{2}\right)} = \frac{1}{2\pi} e^{\left(-\frac{x^2}{2} - \frac{(y - x)^2}{2}\right)}
@@ -27,6 +33,8 @@ $$
 ## (b) 
 
 Find the marginal distribution of Y. 
+
+To find the marginal distribution of Y, we may use the results from (a) to integrate the joint with respect to X. To that end: 
 
 $$
 f_Y(y) = \int_{-\infty}^{\infty} f_{X,Y}(x, y) \, dx = \int_{-\infty}^{\infty} \frac{1}{2\pi} e^{\left(-\frac{x^2}{2} - \frac{(y - x)^2}{2}\right)} \, dx
@@ -48,11 +56,13 @@ $$
 f_Y(y) = \frac{1}{2\pi} e^{-\frac{y^2}{4}} \int_{-\infty}^{\infty} e^{-\left(x - \frac{y}{2}\right)^2} \, dx
 $$
 
-Take advantage of "knowing" $\int_{-\infty}^{\infty} e^{-\left(x - \frac{y}{2}\right)^2} \, dx = \sqrt{\pi}$
+Take advantage of "knowing" $\int_{-\infty}^{\infty} e^{-\left(x - \frac{y}{2}\right)^2} \, dx = \sqrt{\pi}$ (used in a prior problem set): 
 
 $$
 f_Y(y) = \frac{1}{2\pi} e^{-\frac{y^2}{4}} \sqrt{\pi} = \frac{1}{2\sqrt{\pi}} e^{-\frac{y^2}{4}}
 $$
+
+Notice the above marginal distribution corresponds to a particular normal distribution, specifically:
 
 $$
 Y \sim N(0, 2)
@@ -78,10 +88,6 @@ $$
 Simplifying (or at least attempting to simplify) the exponent: 
 
 $$
--\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4} = -\frac{2x^2}{2} + \frac{2xy}{2} - \frac{y^2}{2} + \frac{y^2}{4} = -x^2 + xy - \frac{y^2}{4}
-$$
-
-$$
 -\frac{2x^2 - 2xy + y^2}{2} + \frac{y^2}{4} = \left(x - \frac{y}{2}\right)^2 - \frac{y^2}{4} = -\left(x - \frac{y}{2}\right)^2
 $$
 
@@ -93,7 +99,7 @@ $$
 X | Y = y \sim N\left(\frac{y}{2}, \frac{1}{2}\right)
 $$
 
-So, similar to the evaluation given in part (c) above, we do indeed have: 
+So, given the relationship between (X,Y) and (V,W), we have: 
 
 $$
 V | W = w \sim N\left(\frac{w}{2}, \frac{1}{2}\right)
@@ -140,7 +146,7 @@ $$
 X \\
 Y
 \end{pmatrix}
-\sim N\left(
+\sim \bf{N}\left(
 \begin{pmatrix}
 0 \\
 0
@@ -152,23 +158,40 @@ Y
 \right)
 $$
 
-As $\mu_V = 0$: 
+As we want the joint distribution of V, W, to be the same as X, Y, and since we have equivalence between X and V, Y and W, we have: 
+
+$$
+\begin{pmatrix}
+V \\
+W
+\end{pmatrix}
+\sim \bf{N}\left(
+\begin{pmatrix}
+0 \\
+0
+\end{pmatrix},
+\begin{pmatrix}
+1 & 1 \\
+1 & 2
+\end{pmatrix}
+\right)
+$$
+
+Since we have a multivariate normal distribution, it will be sufficient to find the parameters $\mu, \sigma^2$ to characterize the distribution of the conditional. To that end,  
+
+As $\mu_V = 0$, we calculate the mean of the conditional distribution: 
 
 $$
 E(V \mid W = w) = \mu_V + \frac{Cov(V, W)}{Var(W)} (w-\mu_W) = \mu_V + \frac{Cov(V, W)}{Var(W)} (w-0) = \frac{1}{2} w
 $$
 
-$$
-E(V \mid W = w) = \mu_V + \frac{Cov(V, W)}{Var(W)} w = 0 + \frac{Cov(V, W)}{Var(W)} w = \frac{1}{2} w
-$$
-
-As Var(V) = 1
+Similarly, as Var(V) = 1: 
      
 $$
 Var(V | W = w) = Var(V) - \frac{Cov(V, W)^2}{Var(W)} = 1 - \frac{1^2}{2} = \frac{1}{2}
 $$
 
-Furthermore, as we have found the mean and variance of V given W = w, we may describe its distribution as: 
+As we have found the mean and variance of V given W = w, we may describe its distribution as: 
 
 $$
 V \mid W = w \sim N\left(\frac{1}{2} w, \frac{1}{2}\right)
@@ -307,39 +330,39 @@ First, note:
 Let us take each part of this fraction to evaluate the point in question: 
 
 $$
-f(U,V) = f_{X,Y}(u, v-u)|J| = f_{X,Y}(u, v-u) = f_X(u)f_Y(v-u)
+f_{(U,V)}(u,v) = f_{X,Y}(u, v-u)|J| = f_{X,Y}(u, v-u) (1) = f_X(u)f_Y(v-u)
 $$
 
-With note of independence between X and Y. This simplifies and can be evaluated to: 
+With note of independence between X and Y (we separate the joint as the product of the marginals). This simplifies and can be evaluated to: 
 
 $$
-f(U,V) = (1 - p)^{x - 1} p \left((1 - p)^{k - x - 1} p\right) = (1-p)^{k-2}p^2
+f_{(U,V)}(u,v)  = (1 - p)^{x - 1} p \left((1 - p)^{k - x - 1} p\right) = (1-p)^{k-2}p^2
 $$
 
 Then we evaluate the bottom of the initial formula, noting that $f(V)$ is the marginal distribution of V: 
 
 $$
-f(V) = \sum_{u \in U} f(U,V) = \sum_{u=1}^{k-1} f(U,V) = \sum_{u=1}^{k-1} (1 - p)^{k - 2} p^2 = (k - 1) (1 - p)^{k - 2} p^2
+f_V(v) = \sum_{u \in U} f_{(U,V)}(u,v)  = \sum_{u=1}^{k-1} f_{(U,V)}(u,v)  = \sum_{u=1}^{k-1} (1 - p)^{k - 2} p^2 = (k - 1) (1 - p)^{k - 2} p^2
 $$
 
 Returning the overall formula, we evaluate as: 
 
 $$
-P(U | V) = \frac{P(U,V)}{P(V)} = \frac{f(U,V)}{f(V)} = \frac{(1 - p)^{k - 2} p^2}{(k - 1) (1 - p)^{k - 2} p^2} = \frac{1}{k - 1}
+P(U | V) = \frac{P(U,V)}{P(V)} = \frac{f_{(U,V)}(u,v)}{f_V(v)} = \frac{(1 - p)^{k - 2} p^2}{(k - 1) (1 - p)^{k - 2} p^2} = \frac{1}{k - 1}
 $$
 
-For u = 1, 2, ..., k - 1, v = 1, 2, ..., k - 1. 
+For u = 1, 2, ..., k - 1 as $k \geq 2$. 
 
 So we have: 
 
 $$
-f(U|V) = \frac{f(U,V)}{f(V)} = \frac{1}{k-1}
+f(U|V = v) = \frac{f_{(U,V)}(u,v)}{f_V(v)} = \frac{1}{k-1}
 $$
 
 We then conclude:
 
 $$
-U | V \sim Uniform(1, k) \rightarrow X | (X + Y = k) \sim Uniform(1, k)
+U | V = v \sim Uniform(1, k) \rightarrow X | (X + Y = k) \sim Uniform(1, k)
 $$
 
 \newpage
@@ -348,16 +371,20 @@ $$
 
 Let $X \sim n(\mu, \sigma^2)$, and let $Y \sim n(\gamma, \sigma^2)$. Suppose X and Y are independent. Define: U = X + Y and V = X - Y. Show that U and V are independent normal random variables. Find the distribution of each of them. 
 
-Hey, so I am not entirely sure why this problem uses n to represent the normal instead of N as we usually do, but for this problem I just stayed (or attempted to stay) consistent with their format. 
+Hey, so I am not entirely sure why this problem uses n to represent the normal instead of N as we usually do, but for this problem I just stayed (or attempted to stay) consistent with their format.
 
-For X and Y independent, we may write the joint pdf as the product of the marginals: 
+Also, note Example 4.3.4 in Casella: 
+
+For X and Y independent random variables, we may write the joint pdf as the product of the marginals: 
 
 $$
 f_{X, Y}(x, y) = f_X(x) f_Y(f) = \frac{1}{\sqrt{2\pi\sigma^2}}e^{\frac{-(x-\mu)^2}{2\sigma^2}} \frac{1}{\sqrt{2\pi\sigma^2}}e^{\frac{-(y-\gamma)^2}{2\sigma^2}} = \frac{1}{2\pi\sigma^2}e^{\frac{-\left((x-\mu)^2 + (y - \gamma)^2\right)}{2\sigma^2}}
 $$
 
+Given the definition of the random variables U and V, we write X and Y as a function of U and V:  
+
 $$
-U = X + Y \text{ and } V = X - Y \rightarrow X = \frac{1}{2}(U + V), Y - \frac{1}{2}(U - V)
+U = X + Y \text{ and } V = X - Y \rightarrow X = \frac{1}{2}(U + V), Y = \frac{1}{2}(U - V)
 $$
 
 We then have the Jacobian: 
@@ -378,21 +405,26 @@ $$
 And we have the new support, that being the support of U, V as: 
 
 $$
-(u, v) \in (-\infty, \infty) \text{x} (-\infty, \infty)
+(x, y) \in (-\infty, \infty) \text{x} (-\infty, \infty)
+ \rightarrow (u, v) \in (-\infty, \infty) \text{x} (-\infty, \infty)
 $$
 
 Using the above relations, we may calculate the joint pdf of (U, V): 
 
 $$
-f_{UV}(u, v) = \frac{1}{2 \pi \sigma^2} e^{-\frac{1}{2 \sigma^2} \left[ \left( \frac{u+v}{2} - \mu \right)^2 + \left( \frac{u-v}{2} - \gamma \right)^2 \right]} \frac{1}{2}
+f_{(U,V)}(u, v) = f_{(X,Y)}(h(u,v), g(u,v)) |J| = \frac{1}{2 \pi \sigma^2} e^{-\frac{1}{2 \sigma^2} \left[ \left( \frac{u+v}{2} - \mu \right)^2 + \left( \frac{u-v}{2} - \gamma \right)^2 \right]} \frac{1}{2}
 $$
+
+Simplifying: 
 
 $$
 f_{UV}(u, v) = \frac{1}{4 \pi \sigma^2} e^{-\frac{1}{2 \sigma^2} \left[ 2 \left( \frac{u}{2} \right)^2 - u (\mu + \gamma) + \left( \frac{\mu + \gamma}{2} \right)^2 + 2 \left( \frac{v}{2} \right)^2 - v (\mu - \gamma) + \left( \frac{\mu - \gamma}{2} \right)^2 \right]}
 $$
 
+With note of the example in the textbook, we see that after some simplifcations and rearrangement of terms that uv terms cancel, such that we have: 
+
 $$
-f_{UV}(u, v) = g(u) \frac{1}{4 \pi \sigma^2} e^{-\frac{1}{2(2 \sigma^2)} \left( u - (\mu + \gamma) \right)^2} h(v) e^{-\frac{1}{2(2 \sigma^2)} \left( v - (\mu - \gamma) \right)^2}
+f_{UV}(u, v) = \frac{1}{2 \sqrt{\pi \sigma^2}} e^{-\frac{1}{2(2 \sigma^2)} \left( u - (\mu + \gamma) \right)^2} \frac{1}{2 \sqrt{\pi \sigma^2}} e^{-\frac{1}{2(2 \sigma^2)} \left( v - (\mu - \gamma) \right)^2} = \frac{1}{2\sqrt{\pi}} e^{-\frac{u^2}{4}} \frac{1}{2\sqrt{\pi}} e^{-\frac{v^2}{4}} 
 $$
 
 However, we already know the distributions of U and V, namely: 
@@ -427,7 +459,7 @@ $$
 f_{UV}(u, v) = f_{U}(u) f_{V}(v)
 $$
 
-Such that we have shown that the joint pdf of (U, V) is equal to the product of the marginal pdfs of U and V and conclude that U and V are independent. 
+Such that we have shown that the joint pdf of (U, V) is equal to the product of the marginal pdfs of U and V and conclude that U and V are independent. We may also have noted that via the results of Example 4.3.4 we know that U and V as defined here are independent. 
 
 \newpage
 
@@ -473,7 +505,7 @@ Suppose that random variables $X_1, X_2, X_3$ have joint pdf $f(x_1, x_2, x_3) =
 
 Are $X_1, X_2, X_3$ independent? Give an intuitive explanation. 
 
-No they are not independent, as knowing the value of one of the random variables limits the range of possible values that the other random variables can take. 
+No they are not independent, as knowing the value of one of the random variables limits the range of possible values that the other random variables ($X_1, X_3$ can take. 
 
 ## (b) 
 
@@ -513,7 +545,7 @@ $$
 f(x_1, x_3 \mid x_2) = \frac{1}{x_2 (1 - x_2)}
 $$
 
-Let us turn then to the marginals, with the goal of showing the product of the marginals is equal to the joint as specified. To that end:
+Let us turn then to the marginals, with the goal of showing the product of the marginals is equal to the joint as specified previously. To that end:
 
 ### i. 
 
