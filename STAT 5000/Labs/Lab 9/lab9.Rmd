@@ -22,7 +22,7 @@ plot(x = armspan$Height,
 cor(armspan$Height, armspan$ArmSpan)
 ```
 
-The height and arm span appear to be positively linearly related to one another. 
+The height and arm span appear to be positively and linearly related to one another. 
 
 \newpage
 
@@ -30,11 +30,17 @@ The height and arm span appear to be positively linearly related to one another.
 
 Write the simple linear regression (SLR) model for this problem. Give the definition of the parameter values $\beta_0, \beta_1, \text{ and } \sigma^2$ in the context of the response and explanatory variables.
 
-$\beta_0$: 
+$$
+Y_i = \beta_o + \beta_1X_i + \epsilon_i
+$$
 
-$\beta_1$: 
+For Y (response) of arm span (cm) and $X_i$ (explanatory) of height (cm). 
 
-$\sigma^2$: 
+$\beta_0$: mean arm span (cm) when height (cm) is 0. Yes, this is not especially realistic (arm span at 0 height) 
+
+$\beta_1$: the increase in mean arm span (cm) when height (cm) increases by 1 cm
+
+$\sigma^2$: the expected value of the mean-squared error of the residuals, or the variance of the residuals, where the residual is the vertical distance between observed value of arm span (cm) and the predicted value of arm span (cm)
 
 \newpage
 
@@ -48,7 +54,7 @@ summary(slr)
 ```
 
 $$
-\hat{y} = b_0 + b_1x + \epsilon = 1.22306 + 0.98922x
+\hat{Y} = b_0 + b_1x = 1.22306 + 0.98922x
 $$
 
 \newpage
@@ -57,7 +63,7 @@ $$
 
 For the fitted SLR model, what is the interpretation of b1?
 
-b1 is the model-estimated value of the parameter $\beta_1$
+b1 is the model-estimated value of the parameter $\beta_1$, also know as the estimated increase in mean arm span (cm) when height (cm) increases by 1 cm
 
 \newpage
 
@@ -70,17 +76,27 @@ get.SS <- aov(ArmSpan ~ Height, data=armspan)
 summary(get.SS)
 ```
 
+$H_0: \beta_1 = 0$
+$H_a: \beta_1 \neq 0$
+
+F = 428.4 with p-value <2e-16, provides overwhelming evidence to reject the null hypothesis (can also say this meets the $\alpha = 0.05$ level significance), such that we have evidence that there is a significant linear relationship between arm span (in cm) and height (in cm). 
+
 \newpage
 
 # 6. 
 
 Give the value of $R^2$ for the SLR model. Show this value is equal to the ratio of the $SS_{Model}$ to $SS_{Total}$ using the ANOVA Table. Give an interpretation of this value.
 
+```{r}
+summary(slr)
+summary(get.SS)
+```
+
 $R^2$: 0.6839
 
 $\frac{SS_{Model}}{SS_{Total}} = \frac{SS_{Model}}{SS_{Model} + SS_{Residuals}}$ = 27738 / (27738 + 12819) =  0.6839263
 
-"percent of variability in Y is captured using the X and Y model" 
+68.39% of the variation in arm span (cm) can be explained by the linear regression model with height (cm). 
 
 \newpage
 
@@ -94,8 +110,10 @@ cor(armspan$Height, armspan$ArmSpan)
 
 Correlation Coefficient: 0.8269918 
 
-Correlation Coefficient^2 = $R^2$, as per: 
+Correlation Coefficient^2 = $R^2$, as: 
 0.8269918^2 = 0.6839154
+
+The values are related to one another, as noted above. 
 
 \newpage
 
@@ -120,8 +138,7 @@ Obtain a 95% confidence interval for the conditional mean arm span of all studen
 predict.lm(slr, interval='confidence', newdata=data.frame(Height=170))
 ```
 
-95% confident 
-168.2409 to 170.5413
+We are 95% confident, that the true estimated mean arm span for individuals who are 170 cm tall is between 168.2409 cm to 170.5413 cm. 
 
 \newpage
 
@@ -133,8 +150,7 @@ Obtain a 95% prediction interval for the predicted arm span of a student in the 
 predict.lm(slr, interval='prediction', newdata=data.frame(Height=188))
 ```
 
-95% confident 
-171.1708 to 203.2234
+We are 95% confident, that the true estimated mean arm span for individuals who are 188 cm tall is between 171.1708 cm to 203.2234 cm. 
 
 \newpage
 
@@ -169,6 +185,18 @@ qqnorm(stdresids)
 qqline(stdresids, col="red")
 ```
 
+The following assumptions were primarily evaluated using the studentized residuals, though the non-studentized residual diagnostics are also included above and are consistent with the overall observations noted below. 
+
+Taking as a given that the independence and fixed-values-for-x assumptions are met, we evaluate the following assumptions of our linear model. 
+
+Linearity: Upon reviewing the residual plot (by fitted values) we generally observe a random spread of residuals across the range of fitted values. We do not observe any trends or noticeable patterns in the above plots, such that we have reason to believe our linearity assumption is not being violated. Furthermore, when again reviewing the scatterplot from Q1, we see a general linear trend between our observed responses (arm span) and our one explanatory variable (height), further suggesting evidence that linearity is not being violated. 
+
+Constant Variance: We observe in the residual plot (by fitted values) that the spread of residuals tends to be consistent across the range of fitted values, though there are a few outlying points (both positive and negative) present in the above graphs. Generally, it appears that we do have constant variance, though with the possibility of some outliers in our data. 
+
+Normality: Based on the above QQ (Quantile) plot of the residuals, we tend to observe our residuals plot fairly closely with the reference line, albeit with some deviations away from the reference line when looking at the tails of the distribution. This generally is evidence to suppose that normality is not being violated. 
+
+Generally, we do not have any substantial evidence to suppose our three key assumptions are being violated from the above analysis and plots. 
+
 \newpage
 
 # 12. 
@@ -179,5 +207,18 @@ Conduct the F-test for lack-of-fit and report the results.
 cell.means <- aov(ArmSpan ~ as.factor(Height), data=armspan)
 summary(cell.means)
 anova(slr, cell.means)
+qf(df1 = 44, df2 =  154, p = .95)
 ```
 
+$H_0: E(Y_{ij} | X_i) = \beta_0 + \beta_1X_i$
+$H_A: E(Y_{ij} | X_I) = \mu_i = \beta_0 + \beta_1X_i + g(X_i)$
+
+$F = \frac{MS_{\text{Lack of Fit}}}{MS_{\text{Pure Error}}} = \frac{(\frac{3316.1}{44})}{61.7} = 1.2213$ with p-value 0.1883. 
+
+Where $F_{(df_{LoF}, df{PE}), 0.95} = 1.455475$, we have 1.2213 < 1.455475 ($F < F_{(df_{LoF}, df{PE}), 0.95}$) such that we do not reject the null hypothesis stated above at the $\alpha = 0.05$ level. 
+
+Our conclusion is that using Y = Arm Span (cm) as the response, the data are consistent with the straight line model using height (cm) as our one response, specifically:
+
+$$
+Y_{ij} = \beta_0 + \beta_1X_i + \epsilon_i
+$$
