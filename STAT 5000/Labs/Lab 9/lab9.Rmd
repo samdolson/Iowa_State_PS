@@ -1,0 +1,183 @@
+---
+title: "Lab9"
+output: pdf_document
+date: "2024-11-11"
+---
+
+```{r}
+library(readr)
+armspan <- read_csv("armspan.csv")
+```
+
+# 1. 
+
+Look at the scatterplot of the arm span and height values from the random sample of 200 students in Canada. What do you notice about the relationship between these two values?
+
+```{r}
+plot(x = armspan$Height, 
+     y = armspan$ArmSpan, 
+     main="StatCan Arm Span Study",
+     xlab="Height (cm)", 
+     ylab="Arm Span (cm)")
+cor(armspan$Height, armspan$ArmSpan)
+```
+
+The height and arm span appear to be positively linearly related to one another. 
+
+\newpage
+
+# 2. 
+
+Write the simple linear regression (SLR) model for this problem. Give the definition of the parameter values $\beta_0, \beta_1, \text{ and } \sigma^2$ in the context of the response and explanatory variables.
+
+$\beta_0$: 
+
+$\beta_1$: 
+
+$\sigma^2$: 
+
+\newpage
+
+# 3. 
+
+Give the equation of the least squares regression line to predict the value of a student’s arm span from their height.
+
+```{r}
+slr <- lm(ArmSpan ~ Height, data=armspan)
+summary(slr)
+```
+
+$$
+\hat{y} = b_0 + b_1x + \epsilon = 1.22306 + 0.98922x
+$$
+
+\newpage
+
+# 4. 
+
+For the fitted SLR model, what is the interpretation of b1?
+
+b1 is the model-estimated value of the parameter $\beta_1$
+
+\newpage
+
+# 5. 
+
+Give the ANOVA Table for the SLR model. Use the ANOVA Table to conduct a test of significance for the SLR model.
+
+```{r}
+get.SS <- aov(ArmSpan ~ Height, data=armspan)
+summary(get.SS)
+```
+
+\newpage
+
+# 6. 
+
+Give the value of $R^2$ for the SLR model. Show this value is equal to the ratio of the $SS_{Model}$ to $SS_{Total}$ using the ANOVA Table. Give an interpretation of this value.
+
+$R^2$: 0.6839
+
+$\frac{SS_{Model}}{SS_{Total}} = \frac{SS_{Model}}{SS_{Model} + SS_{Residuals}}$ = 27738 / (27738 + 12819) =  0.6839263
+
+"percent of variability in Y is captured using the X and Y model" 
+
+\newpage
+
+# 7. 
+
+Report the correlation coefficient between height and arm span. How does this value relate to the value of $R^2$ from the SLR model?
+
+```{r}
+cor(armspan$Height, armspan$ArmSpan)
+```
+
+Correlation Coefficient: 0.8269918 
+
+Correlation Coefficient^2 = $R^2$, as per: 
+0.8269918^2 = 0.6839154
+
+\newpage
+
+# 8. 
+
+Obtain the 95% confidence interval for the slope parameter in the SLR model. Give an interpretation of this interval.
+
+```{r}
+confint(slr)
+```
+
+95% confident 
+0.8949754  to 1.083472
+
+\newpage
+
+# 9. 
+
+Obtain a 95% confidence interval for the conditional mean arm span of all students in the population who are 170 cm tall. Give the interpretation of this interval.
+
+```{r}
+predict.lm(slr, interval='confidence', newdata=data.frame(Height=170))
+```
+
+95% confident 
+168.2409 to 170.5413
+
+\newpage
+
+# 10. 
+
+Obtain a 95% prediction interval for the predicted arm span of a student in the population who is 188 cm tall. Give the interpretation of this interval.
+
+```{r}
+predict.lm(slr, interval='prediction', newdata=data.frame(Height=188))
+```
+
+95% confident 
+171.1708 to 203.2234
+
+\newpage
+
+# 11. 
+
+Assuming that the independence and fixed-values-for-x assumptions are met, check the assumptions of linearity, constant variance, and normality. Summarize your findings.
+
+```{r}
+plot(slr$fitted.values, slr$residuals, main="StatCan Arm Span Study",
+xlab="Fitted Values", ylab="Residuals")
+abline(h=0, col="red")
+```
+
+```{r}
+qqnorm(slr$residuals)
+qqline(slr$residuals, col="red")
+```
+
+```{r}
+library(MASS)
+stdresids <- studres(slr)
+```
+
+```{r}
+plot(slr$fitted.values, stdresids, main="StatCan Arm Span Study",
+xlab="Fitted Values", ylab="Studentized Residuals")
+abline(h=0, col="red")
+```
+
+```{r}
+qqnorm(stdresids)
+qqline(stdresids, col="red")
+```
+
+\newpage
+
+# 12. 
+
+Conduct the F-test for lack-of-fit and report the results.
+
+```{r}
+cell.means <- aov(ArmSpan ~ as.factor(Height), data=armspan)
+summary(cell.means)
+anova(slr, cell.means)
+```
+
