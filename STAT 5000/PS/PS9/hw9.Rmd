@@ -32,44 +32,155 @@ $$
 
 Report values for the estimated coefficients (\( b_0 \) and \( b_1 \)) and their standard errors (\( S_{b_0} \) and \( S_{b_1} \)).
 
+```{r}
+# Given data
+temperature <- c(150, 200, 250, 300)
+sample_mean <- c(66, 81, 89, 92)
+sample_variance <- c(1.15, 1.00, 1.35, 0.90)
+sample_size <- c(6, 6, 6, 6)
+
+# Compute the weights based on sample variances and sample sizes
+weights <- sample_size / sample_variance
+
+# Weighted means of temperature and yield
+weighted_mean_x <- sum(weights * temperature) / sum(weights)
+weighted_mean_y <- sum(weights * sample_mean) / sum(weights)
+
+# Weighted sums of squares
+SS_xy <- sum(weights * (temperature - weighted_mean_x) * (sample_mean - weighted_mean_y))
+SS_xx <- sum(weights * (temperature - weighted_mean_x)^2)
+
+# Compute b1 and b0
+b1 <- SS_xy / SS_xx
+b0 <- weighted_mean_y - b1 * weighted_mean_x
+
+# Calculate standard errors for b0 and b1
+s_squared <- sum(weights * (sample_mean - b0 - b1 * temperature)^2) / (sum(weights) - 2)
+Sb1 <- sqrt(s_squared / SS_xx)
+Sb0 <- sqrt(s_squared * (1 / sum(weights) + weighted_mean_x^2 / SS_xx))
+
+# Display results
+list(
+  "Estimated Intercept (b0)" = b0,
+  "Estimated Slope (b1)" = b1,
+  "Standard Error of b0 (Sb0)" = Sb0,
+  "Standard Error of b1 (Sb1)" = Sb1
+)
+```
+
 ## (b) 
 
 Complete the following ANOVA table:
 
 | Source of Variation | Degrees of Freedom | Sum of Squares | Mean Square |
 |---------------------|--------------------|----------------|-------------|
-| Regression on X     |                    |                |             |
-| Residuals           |                    |                |             |
-| - Lack-of-fit       |                    |                |             |
-| - Pure error        |                    |                |             |
-| Total               |                    |                |             |
+| Regression on X     | 1                  | 2022.0969      | 2022.096857 |
+| Residuals           | 22                 | 200.9148       | 9.132492    |
+| - Lack-of-fit       | 2                  | 178.9148       | 89.457413   |
+| - Pure error        | 20                 | 22.0000        | 1.100000    |
+| Total               | 23                 | 2223.0117      | NA          |
+
+
+```{r}
+# Given data and results from previous calculations
+sample_size <- c(6, 6, 6, 6)
+sample_mean <- c(66, 81, 89, 92)
+sample_variance <- c(1.15, 1.00, 1.35, 0.90)
+
+# Total sample size and number of groups
+N <- sum(sample_size)
+r <- length(sample_size)
+
+# Weighted mean for sample means
+weights <- sample_size / sample_variance
+overall_weighted_mean <- sum(weights * sample_mean) / sum(weights)
+
+# SST: Total Sum of Squares
+SST <- sum(weights * (sample_mean - overall_weighted_mean)^2)
+
+# Regression SS (SSR) using previously computed b1 and SS_xy
+SSR <- b1 * SS_xy
+
+# Residual SS (SSE)
+SSE <- SST - SSR
+
+# Pure Error SS (SSPE)
+SSPE <- sum((sample_size - 1) * sample_variance)
+
+# Lack-of-Fit SS (SSLF)
+SSLF <- SSE - SSPE
+
+# Degrees of Freedom
+df_total <- N - 1
+df_regression <- 1
+df_residual <- N - 2
+df_lack_of_fit <- r - 2
+df_pure_error <- N - r
+
+# Mean Squares
+MSR <- SSR / df_regression
+MSE <- SSE / df_residual
+MSLF <- SSLF / df_lack_of_fit
+MSPE <- SSPE / df_pure_error
+
+# ANOVA Table
+anova_table <- data.frame(
+  "Source of Variation" = c("Regression on X", "Residuals", "  - Lack-of-fit", "  - Pure error", "Total"),
+  "Degrees of Freedom" = c(df_regression, df_residual, df_lack_of_fit, df_pure_error, df_total),
+  "Sum of Squares" = c(SSR, SSE, SSLF, SSPE, SST),
+  "Mean Square" = c(MSR, MSE, MSLF, MSPE, NA)
+)
+
+anova_table
+```
 
 ## (c) 
 
 Compute the F-statistic for the lack-of-fit test and report the corresponding degrees freedom. Suppose the p-value is 0.0001, then interpret this result in the context of the study
 
+\[
+F = \frac{\text{MSLF}}{\text{MSPE}} = = \frac{89.457413}{1.100000} \approx 81.32
+\]
+
+**MSLF (Mean Square for Lack of Fit)** = 89.457413
+**MSPE (Mean Square for Pure Error)** = 1.100000
+
+**Numerator degrees of freedom** (for Lack of Fit) = 2
+**Denominator degrees of freedom** (for Pure Error) = 20
+
+So, the computed **F-statistic for the lack-of-fit test** is approximately **81.32** with degrees of freedom \( (2, 20) \).
+
+A p-value of 0.0001 is very small (much less than a typical significance level, such as 0.05). This indicates strong evidence against the null hypothesis of the lack-of-fit test, which states that the simple linear regression model is adequate for the data. 
+
 \newpage
 
 # Q2 
 
-The Berkeley Guidance Study enrolled children born in Berkeley, California, between
-January 1928 and June 1929, and then measure each child periodically until age 18. The data
-for all of the girls in the study who were measured at age 18 are posted in the file BGSgirls.dat
-in our course’s shared folder on SAS Studio. There is one line for each girl in this data file,
-with the subject identification number, weight (in kilograms), and height (in centimeters), in
-that order from left to right
+The Berkeley Guidance Study enrolled children born in Berkeley, California, between January 1928 and June 1929, and then measure each child periodically until age 18. The data for all of the girls in the study who were measured at age 18 are posted in the file BGSgirls.dat in our course’s shared folder on SAS Studio. There is one line for each girl in this data file, with the subject identification number, weight (in kilograms), and height (in centimeters), in that order from left to right
 
-## 
+## (a) 
 
-(a) Compute least square estimates of the intercept (\( \beta_0 \)) and slope (\( \beta_1 \)) of a simple linear regression model for predicting weight (\( Y \)) from height (\( x \)). Report the parameter estimates and their standard errors. Is height a significant predictor of weight (yes or no)? Briefly justify your choice.
+Compute least square estimates of the intercept (\( \beta_0 \)) and slope (\( \beta_1 \)) of a simple linear regression model for predicting weight (\( Y \)) from height (\( x \)). Report the parameter estimates and their standard errors. Is height a significant predictor of weight (yes or no)? Briefly justify your choice.
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("2a.png")
+```
 
 ## (b) 
 
 Plot weight versus height and insert the estimated regression line on the plot, and include the plot in your submission. What does this plot suggest?
 
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("2b2.png")
+```
+
 ## (c) 
 
 Construct a plot of the studentized residuals versus \( \hat{Y}_i \), where \( \hat{Y}_i = b_0 + b_1 x_i \), and include the plot in your submission. What does this plot indicate?
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("2c.png")
+```
 
 ## (d) 
 
@@ -83,19 +194,27 @@ Or you can use only the subset of data by
 
 Re-fit the simple linear regression model. Do the diagnostic plots now appear to show that the data conform to the assumptions of the proposed regression model? If not, what problems remain? Include all relevant plots in your submission.
 
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("2d1.png")
+```
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("2d2.png")
+```
+
 ## (e) 
 
 Plot the estimated regression lines with the extreme observation included and the extreme observation removed on the same plot. Include the plot in your submission. Did deleting the observation in part (d) have a large effect on any of the parameter estimates? Briefly justify your response.
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("2e.png")
+```
 
 \newpage
 
 # Q3 
 
-One factor that may explain the price of a diamond is the weight of the diamond.
-Data were collected for a sample of 48 diamonds, including the weight in grams (g) and the
-price (in Singapore dollars) of each diamond. These data are located in the file diamonds.csv
-posted in Canvas. The R code that generated the output below is included in Canvas in the
-diamonds Hmwk9.R file for your reference.
+One factor that may explain the price of a diamond is the weight of the diamond. Data were collected for a sample of 48 diamonds, including the weight in grams (g) and the price (in Singapore dollars) of each diamond. These data are located in the file diamonds.csv posted in Canvas. The R code that generated the output below is included in Canvas in the diamonds Hmwk9.R file for your reference.
 
 ## (a) 
 
