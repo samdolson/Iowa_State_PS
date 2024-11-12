@@ -36,9 +36,9 @@ $$
 
 For Y (response) of arm span (cm) and $X_i$ (explanatory) of height (cm). 
 
-$\beta_0$: mean arm span (cm) when height (cm) is 0. Yes, this is not especially realistic (arm span at 0 height) 
+$\beta_0$: mean arm span (cm) when height is 0 cm (the conditional mean of the response when the explanatory variable is 0). Yes, this is not especially realistic (having arm span at 0 height) 
 
-$\beta_1$: the increase in mean arm span (cm) when height (cm) increases by 1 cm
+$\beta_1$: the increase (or change) in mean arm span (cm) (change in conditional mean of the response) when height (cm) increases by 1 cm
 
 $\sigma^2$: the expected value of the mean-squared error of the residuals, or the variance of the residuals, where the residual is the vertical distance between observed value of arm span (cm) and the predicted value of arm span (cm)
 
@@ -57,13 +57,25 @@ $$
 \hat{Y} = b_0 + b_1x = 1.22306 + 0.98922x
 $$
 
+Where $b_0, b_1$ are the estimated values of the coefficients that minimize: 
+
+$$
+g(b_0, b_1) = \sum\limits_{i=1}^{n}[Y_i - (b_0 + b_1x_i)]^2
+$$
+
 \newpage
 
 # 4. 
 
 For the fitted SLR model, what is the interpretation of b1?
 
-b1 is the model-estimated value of the parameter $\beta_1$, also know as the estimated increase in mean arm span (cm) when height (cm) increases by 1 cm
+b1 is the model-estimated value of the parameter $\beta_1$, also know as the estimated increase (or change) in mean arm span (cm) when height (cm) increases by 1 cm (estimated change in conditional mean of the response when height increases by 1 cm)
+
+We may also interpret b1 as the estimated value of $\beta_1$ that, along with $b_0$, minimizes: 
+
+$$
+g(b_0, b_1) = \sum\limits_{i=1}^{n}[Y_i - (b_0 + b_1x_i)]^2
+$$
 
 \newpage
 
@@ -79,7 +91,7 @@ summary(get.SS)
 $H_0: \beta_1 = 0$
 $H_a: \beta_1 \neq 0$
 
-F = 428.4 with p-value <2e-16, provides overwhelming evidence to reject the null hypothesis (can also say this meets the $\alpha = 0.05$ level significance), such that we have evidence that there is a significant linear relationship between arm span (in cm) and height (in cm). 
+F = 428.4 with p-value <2e-16, provides overwhelming evidence (based on the thresholds we established) to reject the null hypothesis (can also say this meets the $\alpha = 0.05$ level significance), such that we have evidence that there is a significant linear relationship between arm span (in cm) and height (in cm). 
 
 \newpage
 
@@ -125,8 +137,9 @@ Obtain the 95% confidence interval for the slope parameter in the SLR model. Giv
 confint(slr)
 ```
 
-95% confident 
-0.8949754  to 1.083472
+We are 95% confident, that the true estimated value of b1 is between 0.8949754 to 1.083472. 
+
+Also, we are 95% confident that the estimated increase (or change) in mean arm span (cm) when height (cm) increases by 1 cm (estimated change in conditional mean of the response when height increases by 1 cm) is between 0.8949754 cm to 1.083472 cm. 
 
 \newpage
 
@@ -217,7 +230,7 @@ $F = \frac{MS_{\text{Lack of Fit}}}{MS_{\text{Pure Error}}} = \frac{(\frac{3316.
 
 Where $F_{(df_{LoF}, df{PE}), 0.95} = 1.455475$, we have 1.2213 < 1.455475 ($F < F_{(df_{LoF}, df{PE}), 0.95}$) such that we do not reject the null hypothesis stated above at the $\alpha = 0.05$ level. 
 
-Our conclusion is that using Y = Arm Span (cm) as the response, the data are consistent with the straight line model using height (cm) as our one response, specifically:
+Our conclusion is that using Y = Arm Span (cm) as the response, the data are consistent with the straight line model using height (cm) as our one response, specifically the model as specified by:
 
 $$
 Y_{ij} = \beta_0 + \beta_1X_i + \epsilon_i
