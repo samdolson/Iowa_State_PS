@@ -33,33 +33,29 @@ $$
 Report values for the estimated coefficients (\( b_0 \) and \( b_1 \)) and their standard errors (\( S_{b_0} \) and \( S_{b_1} \)).
 
 ```{r}
-# Given data
 temperature <- c(150, 200, 250, 300)
 sample_mean <- c(66, 81, 89, 92)
 sample_variance <- c(1.15, 1.00, 1.35, 0.90)
 sample_size <- c(6, 6, 6, 6)
 
-# Compute the weights based on sample variances and sample sizes
 weights <- sample_size / sample_variance
 
-# Weighted means of temperature and yield
+# Weighted means
 weighted_mean_x <- sum(weights * temperature) / sum(weights)
 weighted_mean_y <- sum(weights * sample_mean) / sum(weights)
 
-# Weighted sums of squares
+# Weighted SS
 SS_xy <- sum(weights * (temperature - weighted_mean_x) * (sample_mean - weighted_mean_y))
 SS_xx <- sum(weights * (temperature - weighted_mean_x)^2)
 
-# Compute b1 and b0
 b1 <- SS_xy / SS_xx
 b0 <- weighted_mean_y - b1 * weighted_mean_x
 
-# Calculate standard errors for b0 and b1
+# SE
 s_squared <- sum(weights * (sample_mean - b0 - b1 * temperature)^2) / (sum(weights) - 2)
 Sb1 <- sqrt(s_squared / SS_xx)
 Sb0 <- sqrt(s_squared * (1 / sum(weights) + weighted_mean_x^2 / SS_xx))
 
-# Display results
 list(
   "Estimated Intercept (b0)" = b0,
   "Estimated Slope (b1)" = b1,
@@ -82,48 +78,38 @@ Complete the following ANOVA table:
 
 
 ```{r}
-# Given data and results from previous calculations
 sample_size <- c(6, 6, 6, 6)
 sample_mean <- c(66, 81, 89, 92)
 sample_variance <- c(1.15, 1.00, 1.35, 0.90)
-
-# Total sample size and number of groups
 N <- sum(sample_size)
 r <- length(sample_size)
 
-# Weighted mean for sample means
+# Weighted mean 
 weights <- sample_size / sample_variance
 overall_weighted_mean <- sum(weights * sample_mean) / sum(weights)
 
-# SST: Total Sum of Squares
+# SS
 SST <- sum(weights * (sample_mean - overall_weighted_mean)^2)
 
-# Regression SS (SSR) using previously computed b1 and SS_xy
 SSR <- b1 * SS_xy
-
-# Residual SS (SSE)
 SSE <- SST - SSR
-
-# Pure Error SS (SSPE)
 SSPE <- sum((sample_size - 1) * sample_variance)
-
-# Lack-of-Fit SS (SSLF)
 SSLF <- SSE - SSPE
 
-# Degrees of Freedom
+# DF
 df_total <- N - 1
 df_regression <- 1
 df_residual <- N - 2
 df_lack_of_fit <- r - 2
 df_pure_error <- N - r
 
-# Mean Squares
+# MSEs
 MSR <- SSR / df_regression
 MSE <- SSE / df_residual
 MSLF <- SSLF / df_lack_of_fit
 MSPE <- SSPE / df_pure_error
 
-# ANOVA Table
+# Table
 anova_table <- data.frame(
   "Source of Variation" = c("Regression on X", "Residuals", "  - Lack-of-fit", "  - Pure error", "Total"),
   "Degrees of Freedom" = c(df_regression, df_residual, df_lack_of_fit, df_pure_error, df_total),
@@ -138,19 +124,16 @@ anova_table
 
 Compute the F-statistic for the lack-of-fit test and report the corresponding degrees freedom. Suppose the p-value is 0.0001, then interpret this result in the context of the study
 
-\[
-F = \frac{\text{MSLF}}{\text{MSPE}} = = \frac{89.457413}{1.100000} \approx 81.32
-\]
+Our General Approach: 
 
-**MSLF (Mean Square for Lack of Fit)** = 89.457413
-**MSPE (Mean Square for Pure Error)** = 1.100000
+$$
+F = \frac{{MS_{\text{Lack of Fit}}}}{MS_{\text{Pure Error}}} = \frac{89.457413}{1.100000} \approx 81.32
+$$
+For comparison with the F Statistic, we have: 
+Lack of Fit Df = 2
+Pure Error Df = 20
 
-**Numerator degrees of freedom** (for Lack of Fit) = 2
-**Denominator degrees of freedom** (for Pure Error) = 20
-
-So, the computed **F-statistic for the lack-of-fit test** is approximately **81.32** with degrees of freedom \( (2, 20) \).
-
-A p-value of 0.0001 is very small (much less than a typical significance level, such as 0.05). This indicates strong evidence against the null hypothesis of the lack-of-fit test, which states that the simple linear regression model is adequate for the data. 
+So, the computed F-statistic for the lack-of-fit test is 81.32 with degrees of freedom (2, 20). Given the provided p-value of of 0.0001 is very small (much less the typical $\alpha = 0.05$), we have overwhelming evidence to reject the null hypothesis that the simple linear regression model is adequate (fits the relationship well) for the data provided. 
 
 \newpage
 
@@ -166,6 +149,13 @@ Compute least square estimates of the intercept (\( \beta_0 \)) and slope (\( \b
 knitr::include_graphics("2a.png")
 ```
 
+b0: -69.21339
+b0 SE: 19.0509
+b1: 0.771
+b1 SE: 0.11428
+
+Is height a significant predictor of weight? Despite being a somewhat small estimate of the slope for b1, we do find overwhelming evidence to reject the null hypothesis that Height has 0 predictive power in estimating mean weight. 
+
 ## (b) 
 
 Plot weight versus height and insert the estimated regression line on the plot, and include the plot in your submission. What does this plot suggest?
@@ -174,6 +164,8 @@ Plot weight versus height and insert the estimated regression line on the plot, 
 knitr::include_graphics("2b2.png")
 ```
 
+The plot suggests that generally height and weight are postiively and linearly correlated. However, given the spread of values from the best fit line there is some evidence that there may be other factors or relationships to consider between height and weight. 
+
 ## (c) 
 
 Construct a plot of the studentized residuals versus \( \hat{Y}_i \), where \( \hat{Y}_i = b_0 + b_1 x_i \), and include the plot in your submission. What does this plot indicate?
@@ -181,6 +173,8 @@ Construct a plot of the studentized residuals versus \( \hat{Y}_i \), where \( \
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("2c.png")
 ```
+
+This plot indicates that we generally see a random spread of (studentized) residuals across predicted values. However, we also observe a somewhat larger (wider) spread of residual values around predictions of 60kg, suggesting that there may be outliers to consider. 
 
 ## (d) 
 
@@ -198,9 +192,17 @@ Re-fit the simple linear regression model. Do the diagnostic plots now appear to
 knitr::include_graphics("2d1.png")
 ```
 
+The above is a snippet from the diagnostic plots provided by SAS, specifically the QQ (Quantile) plot to test whether the residuals of our model are normally distributed. We do generally observe the residuals fall in-line with the reference line, suggesting that normality is likely not violated. 
+
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("2d3.png")
+```
+
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("2d2.png")
 ```
+
+To analyze whether Linearity or Equal Variance assumptions are being violated, we then turn to the residual plot by fitted values. We observe, similar to the interpretation given previously, that we tend to see a random spread of residuals across values. However, we do observe some outlying points near the middle. Overall, we have evidence to believe that both Linearity and Equal variance assumptions are not being violated. 
 
 ## (e) 
 
@@ -209,6 +211,8 @@ Plot the estimated regression lines with the extreme observation included and th
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("2e.png")
 ```
+
+We observe the two fit lines to be remarkably close to one another. Suggesting that despite removing an obvious outlying point, the overall impact that point had on our predicted best fit line was negligible. 
 
 \newpage
 
@@ -220,9 +224,39 @@ One factor that may explain the price of a diamond is the weight of the diamond.
 
 Write the simple linear regression model for this problem (including assumptions). Give the definition of the parameter values \( \beta_0 \), \( \beta_1 \), and \( \sigma^2 \) in the context of the response and explanatory variables.
 
+Assumptions: We have the independence and fixed-values-for-x assumptions, as well as linearity, constant variance, and normality. 
+
+$$
+Y = \beta_0 + \beta_1 X_i + \epsilon_i
+$$
+
+Where
+
+$$
+\epsilon \sim N(0, \sigma^2)
+$$
+
 ## (b) 
 
 Write the simple linear regression model for this problem in vector-matrix notation. Give the first 4 rows of the design matrix \( \mathbf{X} \).
+
+Certainly!
+
+The overall simple linear regression model is:
+$$
+\mathbf{Y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}
+$$
+Where 
+
+$$
+\boldsymbol{\epsilon} \sim N(\mathbf{0}, \sigma^2 \mathbf{I})
+$$
+
+The first 4 rows of the design matrix $\mathbf{X}$ are:
+
+$$
+\mathbf{X} = \begin{bmatrix} 1 & X_1 \\ 1 & X_2 \\ 1 & X_3 \\ 1 & X_4 \end{bmatrix}
+$$
 
 ## (c) 
 
@@ -232,6 +266,8 @@ Describe the scatterplot, shown below, of the weight and price of the 48 diamond
 knitr::include_graphics("3c.png")
 ```
 
+We see that generally weight and price have a positive linear relationship with one another. 
+
 ## (d) 
 
 The output below includes the sample correlation coefficient between the weight and price of the diamonds. How does the value of the correlation reinforce your description from part (c).
@@ -239,6 +275,8 @@ The output below includes the sample correlation coefficient between the weight 
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("3d.png")
 ```
+
+The above correlation reinforces both the direction of the relationship (positive) as well as the strength of their linear fit (strong). 
 
 ## (e) 
 
@@ -248,6 +286,10 @@ Using the output shown below, give the equation for the least squares regression
 knitr::include_graphics("3e.png")
 ```
 
+$$
+\hat{Y} = b_0 + b_1 x_i = -229.94 + 3612.50x_i
+$$
+
 ## (f) 
 
 Use the ANOVA Table shown below to conduct a test of significance for the linear regression model
@@ -255,6 +297,11 @@ Use the ANOVA Table shown below to conduct a test of significance for the linear
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("3f.png")
 ```
+
+$H_0: \beta_1 = 0$
+$H_a: \beta_1 \neq 0$
+
+With an F statistic of 574.2 and a p-value of <2e-16, we have overwhelming evidence to reject the null hypothesis in favor of the alternative hypothesis that $\beta_1 \neq 0$. 
 
 ## (g) 
 
@@ -272,6 +319,8 @@ A 95% confidence interval for the conditional mean price of all diamonds in the 
 knitr::include_graphics("3h.png")
 ```
 
+We are 95% confident, that the true estimated mean price for diamonds weighting 0.2g is between \$475.46 to \$509.66. 
+
 ## (i) 
 
 A 95% prediction interval for the price of a diamond in the population with a weight of 0.3 grams is shown below. Give the interpretation of this interval.
@@ -280,6 +329,8 @@ A 95% prediction interval for the price of a diamond in the population with a we
 knitr::include_graphics("3i.png")
 ```
 
+We are 95% confident, that the true estimated mean price for diamonds weighting 0.3g is between \$730.56 to \$977.05. 
+
 ## (j)  
 
 Examine the residual plots shown below. Is there any reason to suspect the model assumptions do not hold or that there are influence points?
@@ -287,3 +338,9 @@ Examine the residual plots shown below. Is there any reason to suspect the model
 ```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("3j.png")
 ```
+
+Linearity: We would anticipate the spread of residuals to appear rather random across the range of fitted values, however, we tend to see clusters of either positive or negative residual values (in addition to one particular outlying value). Because of this, I have some concerns that our linearity assumption is being violated. 
+
+Equal Variance: We generally observe the spread of residuals to be consistent across the range of fitted values, such that we would have reason to believe that our equal variance assumption is not being violated. 
+
+Normality: Given the above QQ (Quantile) Plot, we observe the residuals track rather nicely against the reference line, with some deviations from the reference line for higher/larger values of the tail. Generally, this is good and would indicate that normality is likely not being violated in our model.
