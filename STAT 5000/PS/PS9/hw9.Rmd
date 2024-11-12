@@ -9,7 +9,7 @@ date: "2024-11-11"
 [Fall 2024]{.smallcaps} 
 [due Fri, November 15th @ 11:59 pm]{.smallcaps}
 [Name: Sam Olson]{.smallcaps} \
-[Collaborators: **The Hatman**]{.smallcaps} \
+[Collaborators: Craig, **The Hatman**]{.smallcaps} \
 
 # Q1 
 
@@ -27,7 +27,7 @@ Suppose that six observations of the yield (Y ) of a chemical process were taken
 Use this information to compute the least squares estimates of \( \beta_0 \) and \( \beta_1 \) for the simple linear regression model:
 
 $$
-Y_{ij} = \beta_0 + \beta_1 x_i + \epsilon_{ij}
+Y_{i} = \beta_0 + \beta_1 x_i + \epsilon_{i}
 $$
 
 Report values for the estimated coefficients (\( b_0 \) and \( b_1 \)) and their standard errors (\( S_{b_0} \) and \( S_{b_1} \)).
@@ -57,10 +57,10 @@ Sb1 <- sqrt(s_squared / SS_xx)
 Sb0 <- sqrt(s_squared * (1 / sum(weights) + weighted_mean_x^2 / SS_xx))
 
 list(
-  "Estimated Intercept (b0)" = b0,
-  "Estimated Slope (b1)" = b1,
-  "Standard Error of b0 (Sb0)" = Sb0,
-  "Standard Error of b1 (Sb1)" = Sb1
+  "Estimated b0" = b0,
+  "Estimated b1" = b1,
+  "SE b0" = Sb0,
+  "SE b1" = Sb1
 )
 ```
 
@@ -202,7 +202,11 @@ knitr::include_graphics("2d3.png")
 knitr::include_graphics("2d2.png")
 ```
 
-To analyze whether Linearity or Equal Variance assumptions are being violated, we then turn to the residual plot by fitted values. We observe, similar to the interpretation given previously, that we tend to see a random spread of residuals across values. However, we do observe some outlying points near the middle. Overall, we have evidence to believe that both Linearity and Equal variance assumptions are not being violated. 
+```{r, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("2b2.png")
+```
+
+To analyze whether Linearity or Equal Variance assumptions are being violated, we then turn to the residual plot by fitted values. We observe, similar to the interpretation given previously, that we tend to see a random spread of residuals across values. However, we do observe some outlying points near the middle. Overall, we have evidence to believe that both Linearity and Equal variance assumptions are not being violated. Furthermore, when reviewing the scatterplot of height and weight we do generally observe a positive linear relationship between the two variables, such that we have further reason to believe this assumption (linearity) is not being violated. 
 
 ## (e) 
 
@@ -212,7 +216,7 @@ Plot the estimated regression lines with the extreme observation included and th
 knitr::include_graphics("2e.png")
 ```
 
-We observe the two fit lines to be remarkably close to one another. Suggesting that despite removing an obvious outlying point, the overall impact that point had on our predicted best fit line was negligible. 
+We observe the two fit lines to be remarkably close to one another, with a slight divergence for heights less than 170cm. This suggests that despite removing an obvious outlying point, the overall impact that point had on our predicted best fit line was negligible, or doesn't dramatically change the magnitude nor signage of the estimated regression line. 
 
 \newpage
 
@@ -240,9 +244,8 @@ $$
 
 Write the simple linear regression model for this problem in vector-matrix notation. Give the first 4 rows of the design matrix \( \mathbf{X} \).
 
-Certainly!
-
 The overall simple linear regression model is:
+
 $$
 \mathbf{Y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}
 $$
@@ -252,10 +255,79 @@ $$
 \boldsymbol{\epsilon} \sim N(\mathbf{0}, \sigma^2 \mathbf{I})
 $$
 
+Or: 
+
+$$
+\begin{bmatrix}
+Y_1 \\
+Y_2 \\
+Y_3 \\
+Y_4 \\
+\vdots \\
+Y_n \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 & X_1 \\
+1 & X_2 \\
+1 & X_3 \\
+1 & X_4 \\
+\vdots & \vdots \\
+1 & X_n \\
+\end{bmatrix}
+\begin{bmatrix}
+b_0 \\
+b_1 \\
+\end{bmatrix}
++
+\begin{bmatrix}
+\epsilon_1 \\
+\epsilon_2 \\
+\epsilon_3 \\
+\epsilon_4 \\
+\vdots \\
+\epsilon_n \\
+\end{bmatrix}
+$$
+
+$$
+\begin{bmatrix}
+355 \\
+328 \\
+350 \\
+325 \\
+\vdots \\
+316 \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 & 0.17 \\
+1 & 0.16 \\
+1 & 0.17 \\
+1 & 0.18 \\
+\vdots & \vdots \\
+1 & 0.15 \\
+\end{bmatrix}
+\begin{bmatrix}
+-229.94 \\
+3612.5 \\
+\end{bmatrix}
++
+\begin{bmatrix}
+\epsilon_1 \\
+\epsilon_2 \\
+\epsilon_3 \\
+\epsilon_4 \\
+\vdots \\
+\epsilon_{48} \\
+\end{bmatrix}
+$$
+
+
 The first 4 rows of the design matrix $\mathbf{X}$ are:
 
 $$
-\mathbf{X} = \begin{bmatrix} 1 & X_1 \\ 1 & X_2 \\ 1 & X_3 \\ 1 & X_4 \end{bmatrix}
+\mathbf{X} = \begin{bmatrix} 1 & X_1 \\ 1 & X_2 \\ 1 & X_3 \\ 1 & X_4 \end{bmatrix} = \begin{bmatrix} 1 & 0.17 \\ 1 & 0.16 \\ 1 & 0.17 \\ 1 & 0.18 \end{bmatrix}
 $$
 
 ## (c) 
@@ -287,7 +359,7 @@ knitr::include_graphics("3e.png")
 ```
 
 $$
-\hat{Y} = b_0 + b_1 x_i = -229.94 + 3612.50x_i
+\hat{Y_i} = b_0 + b_1 x_i = -229.94 + 3612.50x_i
 $$
 
 ## (f) 
@@ -311,6 +383,10 @@ A 95% confidence interval for the slope parameter in the simple linear regressio
 knitr::include_graphics("3g.png")
 ```
 
+We are 95% confident, that the true expected value of b1 is between 3309.0375 to 3915.953. 
+
+Also, we are 95% confident that the true expected increase (or change) in mean price when diamond weight increases by 1g (estimated change in conditional mean of the response when weight increases by 1g) is between \$3309.04 to \$3915.95. 
+
 ## (h) 
 
 A 95% confidence interval for the conditional mean price of all diamonds in the population with a weight of 0.2 grams is shown below. Give the interpretation of this interval.
@@ -319,7 +395,7 @@ A 95% confidence interval for the conditional mean price of all diamonds in the 
 knitr::include_graphics("3h.png")
 ```
 
-We are 95% confident, that the true estimated mean price for diamonds weighting 0.2g is between \$475.46 to \$509.66. 
+We are 95% confident, that the true mean price for diamonds weighting 0.2g is between \$475.46 to \$509.66. 
 
 ## (i) 
 
@@ -329,7 +405,7 @@ A 95% prediction interval for the price of a diamond in the population with a we
 knitr::include_graphics("3i.png")
 ```
 
-We are 95% confident, that the true estimated mean price for diamonds weighting 0.3g is between \$730.56 to \$977.05. 
+We are 95% confident, that the true mean price for diamonds weighting 0.3g is between \$730.56 to \$977.05. 
 
 ## (j)  
 
