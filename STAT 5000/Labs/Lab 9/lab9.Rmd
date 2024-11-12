@@ -34,6 +34,12 @@ $$
 Y_i = \beta_o + \beta_1X_i + \epsilon_i
 $$
 
+Where: 
+
+$$
+\epsilon \sim N(0, \sigma^2)
+$$
+
 For Y (response) of arm span (cm) and $X_i$ (explanatory) of height (cm). 
 
 $\beta_0$: mean arm span (cm) when height is 0 cm (the conditional mean of the response when the explanatory variable is 0). Yes, this is not especially realistic (having arm span at 0 height) 
@@ -71,7 +77,7 @@ For the fitted SLR model, what is the interpretation of b1?
 
 b1 is the model-estimated value of the parameter $\beta_1$, also know as the estimated increase (or change) in mean arm span (cm) when height (cm) increases by 1 cm (estimated change in conditional mean of the response when height increases by 1 cm)
 
-We may also interpret b1 as the estimated value of $\beta_1$ that, along with $b_0$, minimizes: 
+We may also interpret b1 as the estimated value of $\beta_1$ that, along with $b_0$, minimizes the function of the data: 
 
 $$
 g(b_0, b_1) = \sum\limits_{i=1}^{n}[Y_i - (b_0 + b_1x_i)]^2
@@ -91,7 +97,7 @@ summary(get.SS)
 $H_0: \beta_1 = 0$
 $H_a: \beta_1 \neq 0$
 
-F = 428.4 with p-value <2e-16, provides overwhelming evidence (based on the thresholds we established) to reject the null hypothesis (can also say this meets the $\alpha = 0.05$ level significance), such that we have evidence that there is a significant linear relationship between arm span (in cm) and height (in cm). 
+F = 428.4 with p-value <2e-16, provides overwhelming evidence (based on the thresholds we established previously for p-value interpretations) to reject the null hypothesis (can also say this meets the $\alpha = 0.05$ level significance), such that we have evidence that there is a significant linear relationship between arm span (in cm) and height (in cm). 
 
 \newpage
 
@@ -137,9 +143,9 @@ Obtain the 95% confidence interval for the slope parameter in the SLR model. Giv
 confint(slr)
 ```
 
-We are 95% confident, that the true estimated value of b1 is between 0.8949754 to 1.083472. 
+We are 95% confident, that the true expected value of b1 is between 0.8949754 to 1.083472. 
 
-Also, we are 95% confident that the estimated increase (or change) in mean arm span (cm) when height (cm) increases by 1 cm (estimated change in conditional mean of the response when height increases by 1 cm) is between 0.8949754 cm to 1.083472 cm. 
+Also, we are 95% confident that the true expected increase (or change) in mean arm span (cm) when height (cm) increases by 1 cm (estimated change in conditional mean of the response when height increases by 1 cm) is between 0.8949754 cm to 1.083472 cm. 
 
 \newpage
 
@@ -151,7 +157,7 @@ Obtain a 95% confidence interval for the conditional mean arm span of all studen
 predict.lm(slr, interval='confidence', newdata=data.frame(Height=170))
 ```
 
-We are 95% confident, that the true estimated mean arm span for individuals who are 170 cm tall is between 168.2409 cm to 170.5413 cm. 
+We are 95% confident, that the true mean arm span for individuals who are 170 cm tall is between 168.2409 cm to 170.5413 cm. 
 
 \newpage
 
@@ -163,7 +169,7 @@ Obtain a 95% prediction interval for the predicted arm span of a student in the 
 predict.lm(slr, interval='prediction', newdata=data.frame(Height=188))
 ```
 
-We are 95% confident, that the true estimated mean arm span for individuals who are 188 cm tall is between 171.1708 cm to 203.2234 cm. 
+We are 95% confident, that the true mean arm span for individuals who are 188 cm tall is between 171.1708 cm to 203.2234 cm. 
 
 \newpage
 
@@ -202,13 +208,11 @@ The following assumptions were primarily evaluated using the studentized residua
 
 Taking as a given that the independence and fixed-values-for-x assumptions are met, we evaluate the following assumptions of our linear model. 
 
-Linearity: Upon reviewing the residual plot (by fitted values) we generally observe a random spread of residuals across the range of fitted values. We do not observe any trends or noticeable patterns in the above plots, such that we have reason to believe our linearity assumption is not being violated. Furthermore, when again reviewing the scatterplot from Q1, we see a general linear trend between our observed responses (arm span) and our one explanatory variable (height), further suggesting evidence that linearity is not being violated. 
+Linearity: Upon reviewing the residual plot (by fitted values) we generally observe a random spread of residuals across the range of fitted values (there is not a clear trend present in the residual plot above). We do not observe any trends or noticeable patterns in the above plots, such that we have reason to believe our linearity assumption is not being violated. Furthermore, when again reviewing the scatterplot from Q1, we see a general linear trend between our observed responses (arm span) and our one explanatory variable (height), further suggesting evidence that linearity is not being violated. 
 
-Constant Variance: We observe in the residual plot (by fitted values) that the spread of residuals tends to be consistent across the range of fitted values, though there are a few outlying points (both positive and negative) present in the above graphs. Generally, it appears that we do have constant variance, though with the possibility of some outliers in our data. 
+Constant Variance: We observe in the residual plot (by fitted values) that the spread of residuals tends to decrease somewhat following predicted (fitted values) greater than 160, though the spread may be thought of as relatively consistent after removing outliers from consideration. Generally, it appears that we do have constant variance, though with the possibility of some outliers in our data such that I have vague anxiety that this assumption is possibly being violated. 
 
-Normality: Based on the above QQ (Quantile) plot of the residuals, we tend to observe our residuals plot fairly closely with the reference line, albeit with some deviations away from the reference line when looking at the tails of the distribution. This generally is evidence to suppose that normality is not being violated. 
-
-Generally, we do not have any substantial evidence to suppose our three key assumptions are being violated from the above analysis and plots. 
+Normality: Based on the above QQ (Quantile) plot of the residuals, we tend to observe our residuals plot fairly closely with the reference line, at least within the range of +1 to -1 theoretical quantiles. However, outside of these quantiles we observe deviations from the reference line, especially when looking at the tails of the distribution. This generally is evidence to suppose that normality is possibly being violated. 
 
 \newpage
 
@@ -228,9 +232,9 @@ $H_A: E(Y_{ij} | X_I) = \mu_i = \beta_0 + \beta_1X_i + g(X_i)$
 
 $F = \frac{MS_{\text{Lack of Fit}}}{MS_{\text{Pure Error}}} = \frac{(\frac{3316.1}{44})}{61.7} = 1.2213$ with p-value 0.1883. 
 
-Where $F_{(df_{LoF}, df{PE}), 0.95} = 1.455475$, we have 1.2213 < 1.455475 ($F < F_{(df_{LoF}, df{PE}), 0.95}$) such that we do not reject the null hypothesis stated above at the $\alpha = 0.05$ level. 
+Where $F_{(df_{LoF}, df{PE}), 0.95} = 1.455475$, we have 1.2213 < 1.455475 ($F < F_{(df_{LoF}, df{PE}), 0.95} = F_{(44, 154), ), 0.95}$) such that we do not reject the null hypothesis stated above at the $\alpha = 0.05$ level. 
 
-Our conclusion is that using Y = Arm Span (cm) as the response, the data are consistent with the straight line model using height (cm) as our one response, specifically the model as specified by:
+Our conclusion is that using Y = Arm Span (cm) as the response, the data are consistent with the straight line model using height (cm) as our explanatory variable, specifically the model as specified by:
 
 $$
 Y_{ij} = \beta_0 + \beta_1X_i + \epsilon_i
