@@ -13,7 +13,7 @@ date: "2024-11-11"
 
 # Q1 
 
-Suppose that six observations of the yield (Y ) of a chemical process were taken at each of four temperature levels (X) for running the process, but you are only given information on the sample means and standard deviations for the observed yields at each temperature. The summary data are
+Suppose that six observations of the yield (Y) of a chemical process were taken at each of four temperature levels (X) for running the process, but you are only given information on the sample means and standard deviations for the observed yields at each temperature. The summary data are
 
 | Temperature (°C) | Sample Mean | Sample Variance | Sample Size |
 |------------------|-------------|-----------------|-------------|
@@ -38,30 +38,29 @@ sample_mean <- c(66, 81, 89, 92)
 sample_variance <- c(1.15, 1.00, 1.35, 0.90)
 sample_size <- c(6, 6, 6, 6)
 
-weights <- sample_size / sample_variance
+temperatureMean <- mean(temperature)
+responseMean <- mean(sample_mean)
 
-# Weighted means
-weighted_mean_x <- sum(weights * temperature) / sum(weights)
-weighted_mean_y <- sum(weights * sample_mean) / sum(weights)
+num <- sum(6 * (temperature - temperatureMean)*(sample_mean - responseMean))
+denom <- sum(6 * (temperature - temperatureMean)^2) 
+b1 <- num/denom
+b0 <- responseMean - (b1*temperatureMean)
 
-# Weighted SS
-SS_xy <- sum(weights * (temperature - weighted_mean_x) * (sample_mean - weighted_mean_y))
-SS_xx <- sum(weights * (temperature - weighted_mean_x)^2)
+b1
+b0 
+```
 
-b1 <- SS_xy / SS_xx
-b0 <- weighted_mean_y - b1 * weighted_mean_x
+```{r}
+n_i <- 6
+SS_xx <- sum((temperature - temperatureMean)^2)
+RSS <- sum((n_i - 1) * sample_variance + n_i * (sample_mean - (b0 + b1 * temperature))^2)
+s_squared <- RSS / (length(temperature) * n_i - 2)
 
-# SE
-s_squared <- sum(weights * (sample_mean - b0 - b1 * temperature)^2) / (sum(weights) - 2)
-Sb1 <- sqrt(s_squared / SS_xx)
-Sb0 <- sqrt(s_squared * (1 / sum(weights) + weighted_mean_x^2 / SS_xx))
+SEb1 <- sqrt(s_squared / SS_xx)
+SEb0 <- sqrt(s_squared * (1 / (length(temperature) * n_i) + (temperatureMean^2) / SS_xx))
 
-list(
-  "Estimated b0" = b0,
-  "Estimated b1" = b1,
-  "SE b0" = Sb0,
-  "SE b1" = Sb1
-)
+SEb0
+SEb1
 ```
 
 \newpage
@@ -72,54 +71,61 @@ Complete the following ANOVA table:
 
 | Source of Variation | Degrees of Freedom | Sum of Squares | Mean Square |
 |---------------------|--------------------|----------------|-------------|
-| Regression on X     | 1                  | 2022.0969      | 2022.096857 |
-| Residuals           | 22                 | 200.9148       | 9.132492    |
-| - Lack-of-fit       | 2                  | 178.9148       | 89.457413   |
+| Regression on X     | 1                  | 2436.0000      | 2436.000000 |
+| Residuals           | 22                 | 2468.158       | 112.189     |
+| - Lack-of-fit       | 2                  | 2446.158       | 1223.079	  |
 | - Pure error        | 20                 | 22.0000        | 1.100000    |
-| Total               | 23                 | 2223.0117      | NA          |
+| Total               | 23                 | 4904.158       |             |
 
 
 ```{r}
-sample_size <- c(6, 6, 6, 6)
-sample_mean <- c(66, 81, 89, 92)
-sample_variance <- c(1.15, 1.00, 1.35, 0.90)
-N <- sum(sample_size)
-r <- length(sample_size)
+temperature <- c(150, 200, 250, 300)  
+sample_mean <- c(66, 81, 89, 92)      
+sample_variances <- c(1.15, 1.00, 1.35, 0.90) 
+n_i <- 6  
 
-# Weighted mean 
-weights <- sample_size / sample_variance
-overall_weighted_mean <- sum(weights * sample_mean) / sum(weights)
+temperatureMean <- mean(temperature)
+responseMean <- mean(sample_mean)
 
-# SS
-SST <- sum(weights * (sample_mean - overall_weighted_mean)^2)
-
-SSR <- b1 * SS_xy
-SSE <- SST - SSR
-SSPE <- sum((sample_size - 1) * sample_variance)
-SSLF <- SSE - SSPE
-
-# DF
-df_total <- N - 1
 df_regression <- 1
-df_residual <- N - 2
-df_lack_of_fit <- r - 2
-df_pure_error <- N - r
+df_residual <- length(temperature) * n_i - 2
+df_lack_of_fit <- length(temperature) - 2
+df_pure_error <- df_residual - df_lack_of_fit
+df_total <- length(temperature) * n_i - 1
 
-# MSEs
+# because expected value of regression is expected value of response 
+SSR <- sum(n_i * (sample_mean - responseMean)^2)  
+
+SSLOF <- sum(n_i * (sample_mean - (responseMean + (sample_mean - responseMean) * (temperature - temperatureMean) / SS_xx))^2)
+SSPE <- sum((n_i - 1) * sample_variances)
+
+SSE <- SSLOF + SSPE 
+SST <- SSR + SSE
+
 MSR <- SSR / df_regression
 MSE <- SSE / df_residual
-MSLF <- SSLF / df_lack_of_fit
+MSLOF <- SSLOF / df_lack_of_fit
 MSPE <- SSPE / df_pure_error
 
-# Table
+# sources <- c("Regression on X", "Residuals", "Lack-of-fit", "Pure error", "Total")
+# dfs <- c(df_regression, df_residual, df_lack_of_fit, df_pure_error, df_total)
+# SS <- c(SSR, SSE, SSLOF, SSPE, SST)
+# MSE <-  c(MSR, MSE, MSLOF, MSPE)
+
+# sources 
+# dfs 
+# SS 
+# MSE 
+
 anova_table <- data.frame(
-  "Source of Variation" = c("Regression on X", "Residuals", "  - Lack-of-fit", "  - Pure error", "Total"),
+  "Source of Variation" = c("Regression on X", "Residuals", "- Lack-of-fit", "- Pure error", "Total"),
   "Degrees of Freedom" = c(df_regression, df_residual, df_lack_of_fit, df_pure_error, df_total),
-  "Sum of Squares" = c(SSR, SSE, SSLF, SSPE, SST),
-  "Mean Square" = c(MSR, MSE, MSLF, MSPE, NA)
+  "Sum of Squares" = c(SSR, SSE, SSLOF, SSPE, SST),
+  "Mean Square" = c(MSR, MSE, MSLOF, MSPE, NA)
 )
 
-anova_table
+# Display the table
+print(anova_table)
 ```
 
 \newpage
@@ -131,13 +137,13 @@ Compute the F-statistic for the lack-of-fit test and report the corresponding de
 Our General Approach: 
 
 $$
-F = \frac{{MS_{\text{Lack of Fit}}}}{MS_{\text{Pure Error}}} = \frac{89.457413}{1.100000} \approx 81.32
+F = \frac{{MS_{\text{Lack of Fit}}}}{MS_{\text{Pure Error}}} = \frac{1223.079}{1.100000} \approx 1111.89
 $$
 For comparison with the F Statistic, we have: 
 Lack of Fit Df = 2
 Pure Error Df = 20
 
-So, the computed F-statistic for the lack-of-fit test is 81.32 with degrees of freedom (2, 20). Given the provided p-value of of 0.0001 is very small (much less the typical $\alpha = 0.05$), we have overwhelming evidence to reject the null hypothesis that the simple linear regression model is adequate (fits the relationship well) for the data provided. 
+So, the computed F-statistic for the lack-of-fit test is 1111.89 with degrees of freedom (2, 20). Given the provided p-value of of 0.0001 is very small (much less the typical $\alpha = 0.05$), we have overwhelming evidence to reject the null hypothesis that the simple linear regression model is adequate (fits the relationship well) for the data provided. 
 
 \newpage
 
