@@ -33,6 +33,7 @@ Var(X) = \sigma^2 = \frac{1}{n-1} \sum\limits_{i=1}^{n} (x_i - \bar{x})^2
 $$
 
 Week 10, Slide 10 
+
 $$
 b_0 = \bar{Y} - b_1 \bar{x}
 $$
@@ -181,13 +182,18 @@ responseMean <- mean(sampleMean)
 
 varB0 <- 1/n + (temperatureMean^2 / sum(6 * (temperature - temperatureMean)^2) )
 SEb0 <- sqrt(varB0)
-varB0 <- 1 / sum(6 * (temperature - temperatureMean)^2)
-SEB1 <- sqrt(varB0)
+varB1 <- 1 / sum(6 * (temperature - temperatureMean)^2)
+SEB1 <- sqrt(varB1)
 
 hatY <- b0 + b1*temperature
 hatYRep <- rep(hatY, each = 6)
-SSLack <- sum((sampleMean - hatYRep)^2)
+sampleMeanRep <- rep(sampleMean, each = 6)
+SSLack <- sum((sampleMeanRep - hatYRep)^2)
 SSLack
+
+hatY <- b0 + b1*temperature
+SSLack2 <- sum((sampleMean - hatY)^2)
+SSLack2
 ```
 
 $$
@@ -195,11 +201,11 @@ SS_{pure error} = \sum\limits_i \sum\limits_j (Y_{ij} - \bar{Y_i}) = \sum_{i=1}^
 $$
 
 $$
-\hat{\sigma}_i^2 = \frac{1}{n_i - 1} \sum_{j=1}^{n_i} (Y_{ij} - \bar{Y}_{i.})^2
+s_i^2 = \frac{1}{n_i - 1} \sum_{j=1}^{n_i} (Y_{ij} - \bar{Y}_{i.})^2
 $$
 
 $$
-SS_{pure error} = \sum_{i=1}^{4} \sum_{j=1}^{n_i} (Y_{ij} - \bar{Y}_{i.})^2 = \sum_{i=1}^{4} (n_i - 1) \hat{\sigma}_i^2
+SS_{pure error} = \sum_{i=1}^{4} \sum_{j=1}^{n_i} (Y_{ij} - \bar{Y}_{i.})^2 = \sum_{i=1}^{4} (n_i - 1) s_i^2
 $$
 ```{r}
 n <- 24 
@@ -216,6 +222,7 @@ responseMean <- mean(sampleMean)
 SSPure <- sum((n_i - 1) * sampleVariance)
 SSPure
 ```
+
 
 ```{r}
 temperature <- c(150, 200, 250, 300)  
@@ -260,11 +267,10 @@ Giving the following table
 | Source of Variation | Degrees of Freedom | Sum of Squares | Mean Square |
 |---------------------|--------------------|----------------|-------------|
 | Regression on X     | 1                  |  12900         | 12900       |
-| Residuals           | 22                 |  4092          | 186         |
-| - Lack-of-fit       | 2                  |  4070          | 2035        |
+| Residuals           | 22                 |  239.2         | 10.87273	  |
+| - Lack-of-fit       | 2                  |  217.2         | 108.60000	  |
 | - Pure error        | 20                 |  22            | 1.1         |
-| Total               | 23                 |  16992         |             |
-
+| Total               | 23                 |  13139.2       |             |
 
 
 \newpage
