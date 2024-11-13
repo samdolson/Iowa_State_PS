@@ -33,7 +33,6 @@ Var(X) = \sigma^2 = \frac{1}{n-1} \sum\limits_{i=1}^{n} (x_i - \bar{x})^2
 $$
 
 Week 10, Slide 10 
-
 $$
 b_0 = \bar{Y} - b_1 \bar{x}
 $$
@@ -63,11 +62,23 @@ b0
 Week 10 Slide 15 
 
 $$
-Var(b_0) = \frac{1}{n} + \frac{\bar{x}^2}{\sum\limits_{i=1}^{n}(x_i - \bar{x})^2}
+Var(b_0) = \sigma^2 * \left( \frac{1}{n} + \frac{\bar{x}^2}{\sum\limits_{i=1}^{n}(x_i - \bar{x})^2} \right)
 $$
 
 $$
-Var(b_1) = \frac{1}{\sum\limits_{i=1}^{n}(x_i - \bar{x})^2}
+Var(b_1) = \sigma^2 * \frac{1}{\sum\limits_{i=1}^{n}(x_i - \bar{x})^2}
+$$
+
+Week 10 Slide 26 
+
+$$
+\hat{\sigma}^2 = MS_{error} = SS_{error} / (n-2)
+$$
+
+See below (ANOVA table calculations for reasoning)
+
+$$
+SS_{error} = \sum\limits_{j=1}^{4} (n_j - 1) \hat\sigma_j^2
 $$
 
 ```{r}
@@ -80,26 +91,44 @@ temperatureMean <- mean(temperature)
 tempVar <- var(temperature)
 responseMean <- mean(sampleMean)
 
-varB0 <- 1/n + (temperatureMean^2 / sum(6 * (temperature - temperatureMean)^2) )
-SEb0 <- sqrt(varB0)
-SEb0
+nRep <- rep(6, 4)
+pooledVariance <- sum((nRep - 1) * sampleVariance) / sum(nRep - 1)
+pooledVariance
+```
 
-varB0 <- 1 / sum(6 * (temperature - temperatureMean)^2)
-SEB1 <- sqrt(varB0)
-SEB1
+```{r}
+temperature <- c(150, 200, 250, 300)
+sampleMean <- c(66, 81, 89, 92)
+sampleVariance <- c(1.15, 1.00, 1.35, 0.90)
+
+temperatureMean <- mean(temperature)
+tempVar <- var(temperature) * length(temperature)
+
+n_i <- 6
+SS_error <- sum((n_i - 1) * sampleVariance)
+sigma2 <- SS_error / (n - 2)
+
+Varb1 <- sigma2 / tempVar
+Varb0 <- sigma2 * ((1/n) + (temperatureMean^2 / tempVar))
+
+SEb1 <- sqrt(Varb1)
+SEb0 <- sqrt(Varb0)
+
+SEb0
+SEb1
 ```
 
 ```{r}
 b1
 b0 
 SEb0
-SEB1
+SEb1
 ```
 Our estimates are: 
 $b_0 = 43.3$
-$SE(b_0) = 0.8465617$
+$SE(b_0) = 1.754755$
 $b_1 = 0.172$
-$SE(b_1) = 0.003651484$
+$SE(b_1) = 0.007745967$
 
 \newpage
 
