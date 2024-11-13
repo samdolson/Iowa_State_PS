@@ -13,6 +13,8 @@ date: "2024-11-11"
 
 # Q1 
 
+## (a) 
+
 Suppose that six observations of the yield (Y) of a chemical process were taken at each of four temperature levels (X) for running the process, but you are only given information on the sample means and standard deviations for the observed yields at each temperature. The summary data are
 
 | Temperature (°C) | Sample Mean | Sample Variance | Sample Size |
@@ -22,26 +24,34 @@ Suppose that six observations of the yield (Y) of a chemical process were taken 
 | 250              | 89          | 1.35            | 6           |
 | 300              | 92          | 0.90            | 6           |
 
-## (a) 
-
-Use this information to compute the least squares estimates of \( \beta_0 \) and \( \beta_1 \) for the simple linear regression model:
-
 $$
-Y_{i} = \beta_0 + \beta_1 x_i + \epsilon_{i}
+\mu = \frac{1}{n} \sum\limits_{i=1}^{n} x_i 
 $$
 
-Report values for the estimated coefficients (\( b_0 \) and \( b_1 \)) and their standard errors (\( S_{b_0} \) and \( S_{b_1} \)).
+$$
+Var(X) = \sigma^2 = \frac{1}{n-1} \sum\limits_{i=1}^{n} (x_i - \bar{x})^2
+$$
+
+Week 10, Slide 10 
+
+$$
+b_0 = \bar{Y} - b_1 \bar{x}
+$$
+
+$$
+b_1 = \frac{\sum\limits_{i=1}^{n} (x_i - \bar{x})(Y_i - \bar{Y})}{\sum\limits_{i=1}^{n}(x_i - \bar{x})^2} = \frac{\sum\limits_{i=1}^{n}(x_i - \bar{x})Y_i}{\sum\limits_{i=1}^{n}(x_i - \bar{x})^2}
+$$
 
 ```{r}
 temperature <- c(150, 200, 250, 300)
-sample_mean <- c(66, 81, 89, 92)
-sample_variance <- c(1.15, 1.00, 1.35, 0.90)
-sample_size <- c(6, 6, 6, 6)
+sampleMean <- c(66, 81, 89, 92)
+sampleVariance <- c(1.15, 1.00, 1.35, 0.90)
 
 temperatureMean <- mean(temperature)
-responseMean <- mean(sample_mean)
+tempVar <- var(temperature)
+responseMean <- mean(sampleMean)
 
-num <- sum(6 * (temperature - temperatureMean)*(sample_mean - responseMean))
+num <- sum(6 * (temperature - temperatureMean)*(sampleMean - responseMean))
 denom <- sum(6 * (temperature - temperatureMean)^2) 
 b1 <- num/denom
 b0 <- responseMean - (b1*temperatureMean)
@@ -50,39 +60,143 @@ b1
 b0 
 ```
 
+Week 10 Slide 15 
+
+$$
+Var(b_0) = \frac{1}{n} + \frac{\bar{x}^2}{\sum\limits_{i=1}^{n}(x_i - \bar{x})^2}
+$$
+
+$$
+Var(b_1) = \frac{1}{\sum\limits_{i=1}^{n}(x_i - \bar{x})^2}
+$$
+
 ```{r}
-n_i <- 6
-SS_xx <- sum((temperature - temperatureMean)^2)
-RSS <- sum((n_i - 1) * sample_variance + n_i * (sample_mean - (b0 + b1 * temperature))^2)
-s_squared <- RSS / (length(temperature) * n_i - 2)
+n <- 24 
+temperature <- c(150, 200, 250, 300)
+sampleMean <- c(66, 81, 89, 92)
+sampleVariance <- c(1.15, 1.00, 1.35, 0.90)
 
-SEb1 <- sqrt(s_squared / SS_xx)
-SEb0 <- sqrt(s_squared * (1 / (length(temperature) * n_i) + (temperatureMean^2) / SS_xx))
+temperatureMean <- mean(temperature)
+tempVar <- var(temperature)
+responseMean <- mean(sampleMean)
 
+varB0 <- 1/n + (temperatureMean^2 / sum(6 * (temperature - temperatureMean)^2) )
+SEb0 <- sqrt(varB0)
 SEb0
-SEb1
+
+varB0 <- 1 / sum(6 * (temperature - temperatureMean)^2)
+SEB1 <- sqrt(varB0)
+SEB1
 ```
+
+```{r}
+b1
+b0 
+SEb0
+SEB1
+```
+Our estimates are: 
+$b_0 = 43.3$
+$SE(b_0) = 0.8465617$
+$b_1 = 0.172$
+$SE(b_1) = 0.003651484$
 
 \newpage
 
 ## (b) 
 
-Complete the following ANOVA table:
+Week 10 Slide 23 
 
-| Source of Variation | Degrees of Freedom | Sum of Squares | Mean Square |
-|---------------------|--------------------|----------------|-------------|
-| Regression on X     | 1                  | 2436.0000      | 2436.000000 |
-| Residuals           | 22                 | 2468.158       | 112.189     |
-| - Lack-of-fit       | 2                  | 2446.158       | 1223.079	  |
-| - Pure error        | 20                 | 22.0000        | 1.100000    |
-| Total               | 23                 | 4904.158       |             |
+$$
+SS_{model} = b_1^{2}\sum\limits_{i=1}^{n}(x_i - \bar{x})^2
+$$
 
+```{r}
+SSModel <- b1 * sum(6 * (temperature - temperatureMean)^2)
+SSModel
+```
+
+Week 10 Slide 25 
+
+$$
+SS_{model} = \sum\limits_{i=1}^{n} (\hat{Y}_i - \bar{Y}_i)^2
+$$
+
+$$
+SS_{error} = \sum\limits_{i=1}^{n} (Y_i - \hat{Y}_i)^2
+$$
+
+Week 11 Slide 40 
+
+$$
+SS_{error} = SS_{pure error} + SS_{lack-of-fit}
+$$
+
+$$
+SS_{lack-of-fit} = \sum\limits_i \sum\limits_j (\bar{Y}_{i.} - \hat{Y}_i)^2 
+$$
+
+$$
+\hat{Y}_i = b_0 + b_1x_i
+$$
+
+```{r}
+n <- 24 
+temperature <- c(150, 200, 250, 300)
+sampleMean <- c(66, 81, 89, 92)
+sampleVariance <- c(1.15, 1.00, 1.35, 0.90)
+
+temperatureMean <- mean(temperature)
+tempVar <- var(temperature)
+responseMean <- mean(sampleMean)
+
+varB0 <- 1/n + (temperatureMean^2 / sum(6 * (temperature - temperatureMean)^2) )
+SEb0 <- sqrt(varB0)
+varB0 <- 1 / sum(6 * (temperature - temperatureMean)^2)
+SEB1 <- sqrt(varB0)
+
+hatY <- b0 + b1*temperature
+hatYRep <- rep(hatY, each = 6)
+SSLack <- sum((sampleMean - hatYRep)^2)
+SSLack
+```
+
+$$
+SS_{pure error} = \sum\limits_i \sum\limits_j (Y_{ij} - \bar{Y_i}) = \sum_{i=1}^{4} \sum_{j=1}^{6} (Y_{ij} - \bar{Y}_{i.})^2
+$$
+
+$$
+\hat{\sigma}_i^2 = \frac{1}{n_i - 1} \sum_{j=1}^{n_i} (Y_{ij} - \bar{Y}_{i.})^2
+$$
+
+$$
+SS_{pure error} = \sum_{i=1}^{4} \sum_{j=1}^{n_i} (Y_{ij} - \bar{Y}_{i.})^2 = \sum_{i=1}^{4} (n_i - 1) \hat{\sigma}_i^2
+$$
+```{r}
+n <- 24 
+n_i <- 6 
+
+temperature <- c(150, 200, 250, 300)
+sampleMean <- c(66, 81, 89, 92)
+sampleVariance <- c(1.15, 1.00, 1.35, 0.90)
+
+temperatureMean <- mean(temperature)
+tempVar <- var(temperature)
+responseMean <- mean(sampleMean)
+
+SSPure <- sum((n_i - 1) * sampleVariance)
+SSPure
+```
 
 ```{r}
 temperature <- c(150, 200, 250, 300)  
 sample_mean <- c(66, 81, 89, 92)      
 sample_variances <- c(1.15, 1.00, 1.35, 0.90) 
 n_i <- 6  
+
+SSPE <- SSPure
+SSLOF <- SSLack
+SSR <- SSModel
 
 temperatureMean <- mean(temperature)
 responseMean <- mean(sample_mean)
@@ -93,12 +207,6 @@ df_lack_of_fit <- length(temperature) - 2
 df_pure_error <- df_residual - df_lack_of_fit
 df_total <- length(temperature) * n_i - 1
 
-# because expected value of regression is expected value of response 
-SSR <- sum(n_i * (sample_mean - responseMean)^2)  
-
-SSLOF <- sum(n_i * (sample_mean - (responseMean + (sample_mean - responseMean) * (temperature - temperatureMean) / SS_xx))^2)
-SSPE <- sum((n_i - 1) * sample_variances)
-
 SSE <- SSLOF + SSPE 
 SST <- SSR + SSE
 
@@ -106,16 +214,6 @@ MSR <- SSR / df_regression
 MSE <- SSE / df_residual
 MSLOF <- SSLOF / df_lack_of_fit
 MSPE <- SSPE / df_pure_error
-
-# sources <- c("Regression on X", "Residuals", "Lack-of-fit", "Pure error", "Total")
-# dfs <- c(df_regression, df_residual, df_lack_of_fit, df_pure_error, df_total)
-# SS <- c(SSR, SSE, SSLOF, SSPE, SST)
-# MSE <-  c(MSR, MSE, MSLOF, MSPE)
-
-# sources 
-# dfs 
-# SS 
-# MSE 
 
 anova_table <- data.frame(
   "Source of Variation" = c("Regression on X", "Residuals", "- Lack-of-fit", "- Pure error", "Total"),
@@ -128,6 +226,18 @@ anova_table <- data.frame(
 print(anova_table)
 ```
 
+Giving the following table 
+
+| Source of Variation | Degrees of Freedom | Sum of Squares | Mean Square |
+|---------------------|--------------------|----------------|-------------|
+| Regression on X     | 1                  |  12900         | 12900       |
+| Residuals           | 22                 |  4092          | 186         |
+| - Lack-of-fit       | 2                  |  4070          | 2035        |
+| - Pure error        | 20                 |  22            | 1.1         |
+| Total               | 23                 |  16992         |             |
+
+
+
 \newpage
 
 ## (c) 
@@ -137,13 +247,18 @@ Compute the F-statistic for the lack-of-fit test and report the corresponding de
 Our General Approach: 
 
 $$
-F = \frac{{MS_{\text{Lack of Fit}}}}{MS_{\text{Pure Error}}} = \frac{1223.079}{1.100000} \approx 1111.89
+F = \frac{{MS_{\text{Lack of Fit}}}}{MS_{\text{Pure Error}}} = \frac{2035}{1.100000} = 1850
 $$
+
+```{r}
+qf(p = 1 - .0001, df1 = 2, df2 = 20)
+```
+
 For comparison with the F Statistic, we have: 
 Lack of Fit Df = 2
 Pure Error Df = 20
 
-So, the computed F-statistic for the lack-of-fit test is 1111.89 with degrees of freedom (2, 20). Given the provided p-value of of 0.0001 is very small (much less the typical $\alpha = 0.05$), we have overwhelming evidence to reject the null hypothesis that the simple linear regression model is adequate (fits the relationship well) for the data provided. 
+So, the computed F-statistic for the lack-of-fit test is 1850 with degrees of freedom (2, 20). Given the provided p-value of of 0.0001 is very small (much less the typical $\alpha = 0.05$, and the F statistic much larger than the calculated F statistic of comparison, 15.11886), we have overwhelming evidence to reject the null hypothesis that the simple linear regression model is adequate (fits the relationship well) for the data provided. 
 
 \newpage
 
@@ -164,7 +279,7 @@ b0 SE: 19.0509
 b1: 0.771
 b1 SE: 0.11428
 
-Is height a significant predictor of weight? Despite being a somewhat small estimate of the slope for b1, we do find overwhelming evidence to reject the null hypothesis that Height has 0 predictive power in estimating mean weight. 
+Is height a significant predictor of weight? Despite being a somewhat small estimate of the slope for b1 (magnitude smaller than 1), we do find overwhelming evidence to reject the null hypothesis that Height has 0 predictive power in estimating mean weight (have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that the slope is 0). 
 
 \newpage
 
@@ -188,7 +303,7 @@ Construct a plot of the studentized residuals versus \( \hat{Y}_i \), where \( \
 knitr::include_graphics("2c.png")
 ```
 
-This plot indicates that we generally see a random spread of (studentized) residuals across predicted values. However, we also observe a somewhat larger (wider) spread of residual values around predictions of 60kg, suggesting that there may be outliers to consider. 
+This plot indicates that we generally see a random spread of (studentized) residuals across predicted values. However, we also observe a somewhat larger (wider) spread of residual values around predictions of 60kg, suggesting that there may be outliers to consider, considering this "spread" is primarily being caused by the large studentized residual at fitted value (weight in kg) of 60. 
 
 \newpage
 
@@ -234,7 +349,7 @@ Plot the estimated regression lines with the extreme observation included and th
 knitr::include_graphics("2e.png")
 ```
 
-We observe the two fit lines to be remarkably close to one another, with a slight divergence for heights less than 170cm. This suggests that despite removing an obvious outlying point, the overall impact that point had on our predicted best fit line was negligible, or doesn't dramatically change the magnitude nor signage of the estimated regression line. 
+We observe the two fit lines to be remarkably close to one another, with a slight divergence for heights less than 170cm. This suggests that despite removing an obvious outlying point, the overall impact that point had on our predicted best fit line was negligible, or doesn't dramatically change the magnitude nor does it change the signage of the slope of the estimated regression line. The intercept term of the fit line is also different, but again, not especially so in terms of the value corresponding to the intercept term (though not explicitly shown in the above graph).  
 
 \newpage
 
@@ -246,10 +361,10 @@ One factor that may explain the price of a diamond is the weight of the diamond.
 
 Write the simple linear regression model for this problem (including assumptions). Give the definition of the parameter values \( \beta_0 \), \( \beta_1 \), and \( \sigma^2 \) in the context of the response and explanatory variables.
 
-Assumptions: We have the independence and fixed-values-for-x assumptions, as well as linearity, constant variance, and normality. 
+Assumptions: We have the independence and fixed-values-for-x assumptions, as well as linearity, constant variance, and normality (particularly and specifically for the error terms/residuals). 
 
 $$
-Y = \beta_0 + \beta_1 X_i + \epsilon_i
+Y_i = \beta_0 + \beta_1 x_i + \epsilon_i
 $$
 
 Where
@@ -257,6 +372,12 @@ Where
 $$
 \epsilon \sim N(0, \sigma^2)
 $$
+
+$\beta_0$: the conditional mean price of the diamond(s) when weight of the diamond is 0g 
+
+$\beta_1$: the increase (or change) in the conditional mean price of the diamond(s) (change in conditional mean of the response) when weight of the diamond is increased by 1g
+
+$\sigma^2$: the expected value of the mean-squared error of the residuals, or the variance of the residuals, where the residual is the vertical distance between observed value of diamond price and the predicted value of diamond price 
 
 \newpage
 
@@ -269,6 +390,7 @@ The overall simple linear regression model is:
 $$
 \mathbf{Y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}
 $$
+
 Where 
 
 $$
@@ -310,6 +432,8 @@ b_1 \\
 \end{bmatrix}
 $$
 
+Where we have observed values and estimates:
+
 $$
 \begin{bmatrix}
 355 \\
@@ -347,7 +471,7 @@ $$
 The first 4 rows of the design matrix $\mathbf{X}$ are:
 
 $$
-\mathbf{X} = \begin{bmatrix} 1 & X_1 \\ 1 & X_2 \\ 1 & X_3 \\ 1 & X_4 \end{bmatrix} = \begin{bmatrix} 1 & 0.17 \\ 1 & 0.16 \\ 1 & 0.17 \\ 1 & 0.18 \end{bmatrix}
+\mathbf{X} = \begin{bmatrix} 1 & x_1 \\ 1 & x_2 \\ 1 & x_3 \\ 1 & x_4 \end{bmatrix} = \begin{bmatrix} 1 & 0.17 \\ 1 & 0.16 \\ 1 & 0.17 \\ 1 & 0.18 \end{bmatrix}
 $$
 
 \newpage
@@ -372,7 +496,7 @@ The output below includes the sample correlation coefficient between the weight 
 knitr::include_graphics("3d.png")
 ```
 
-The above correlation reinforces both the direction of the relationship (positive) as well as the strength of their linear fit (strong). 
+The above correlation reinforces both the direction of the relationship (positive and linear) as well as the strength of their linear fit (value close to 1 being a strong linear correlation). 
 
 \newpage
 
