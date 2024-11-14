@@ -3,6 +3,11 @@ output:
   pdf_document: default
 ---
 
+# To-Do Notes
+
+  - Review explicit naming within functions
+  - Transition `for` loops into apply statements, when possible 
+
 # Q1:
 
 The following distribution has the density function:
@@ -24,24 +29,31 @@ Suppose that \( (3.91, 4.85, 2.28, 4.06, 3.70, 4.04, 5.46, 3.53, 2.28, 1.96, 2.5
 Plot the log likelihood \( \ell(\theta) \) in the range \( -\pi < \theta < \pi \). 
 
 ```{r}
-# Given observed sample data
 x <- c(3.91, 4.85, 2.28, 4.06, 3.70, 4.04, 5.46, 3.53, 2.28, 1.96, 
        2.53, 3.88, 2.22, 3.47, 4.82, 2.46, 2.99, 2.54, 0.52, 2.50)
 
-# Define the log-likelihood function
-log_likelihood <- function(theta, x) {
+logLike <- function(theta, x) {
   n <- length(x)
   -n * log(2 * pi) + sum(log(1 - cos(x - theta)))
 }
 
-# Generate values of theta over the range -pi to pi
-theta_values <- seq(-pi, pi, length.out = 100)
-log_lik_values <- sapply(theta_values, log_likelihood, x = x)
+thetaVal <- seq(from = -pi,
+                    to = pi, 
+                    length.out = 100)
 
-# Plot the log-likelihood function
-plot(theta_values, log_lik_values, type = "l", lwd = 2, col = "blue",
+logLikeVal <- sapply(X = thetaVal, 
+                         FUN = logLike, 
+                         x = x)
+
+plot(x = thetaVal, 
+     y = logLikeVal, 
+     type = "l", 
+     lwd = 2, 
+     col = "black",
      main = expression("Log-Likelihood Function for " * theta),
-     xlab = expression(theta), ylab = expression(ell(theta)))
+     xlab = expression(theta), 
+     ylab = expression(ell(theta))
+     )
 ```
 
 ### (b)
@@ -49,22 +61,16 @@ plot(theta_values, log_lik_values, type = "l", lwd = 2, col = "blue",
 Use the R function `optimize()` to find the maximum likelihood estimate of \( \theta \). 
 
 ```{r}
-# Define the log-likelihood function
-log_likelihood <- function(theta, x) {
-  n <- length(x)
-  -n * log(2 * pi) + sum(log(1 - cos(x - theta)))
-}
+mleEst <- optimize(f = logLike, 
+                       interval = c(-pi, pi), 
+                       x = x, 
+                       maximum = TRUE)
 
-# Find the maximum likelihood estimate of theta using optimize
-mle_result <- optimize(log_likelihood, interval = c(-pi, pi), x = x, maximum = TRUE)
-
-# Display the MLE of theta and the corresponding log-likelihood value
-theta_mle <- mle_result$maximum
-log_lik_mle <- mle_result$objective
+theta_mle <- mleEst$maximum
+log_lik_mle <- mleEst$objective
 
 cat("The maximum likelihood estimate of theta is:", theta_mle, "\n")
 cat("The maximum log-likelihood value is:", log_lik_mle, "\n")
-
 ```
 
 ### (c)
@@ -72,26 +78,17 @@ cat("The maximum log-likelihood value is:", log_lik_mle, "\n")
 Use function `newton()` in the class handout to find the maximum likelihood estimate of \( \theta \) by solving \( \ell'(\theta) = 0 \) using the starting value of \( \theta_{(0)} = 0 \). 
 
 ```{r}
-# Given observed sample data
-x <- c(3.91, 4.85, 2.28, 4.06, 3.70, 4.04, 5.46, 3.53, 2.28, 1.96, 
-       2.53, 3.88, 2.22, 3.47, 4.82, 2.46, 2.99, 2.54, 0.52, 2.50)
-
-# Define the first derivative of the log-likelihood function (ell')
-log_likelihood_prime <- function(theta) {
+logLikePrime <- function(theta) {
   -sum(sin(x - theta) / (1 - cos(x - theta)))
 }
 
-# Define the second derivative of the log-likelihood function (ell'')
-log_likelihood_double_prime <- function(theta) {
+logLikeDP <- function(theta) {
   -sum(1 / (1 - cos(x - theta)))
 }
 
-# Initial value for theta
-theta_start <- 0
-# Tolerance level
+init <- 0
 tolerance <- 1e-6
 
-# Provided newton function from the image
 newton <- function(fun, derf, x0, eps) {
   iter <- 0
   repeat {
@@ -105,8 +102,10 @@ newton <- function(fun, derf, x0, eps) {
   return(x1)
 }
 
-# Use the newton function to find the MLE of theta
-theta_mle <- newton(log_likelihood_prime, log_likelihood_double_prime, theta_start, tolerance)
+theta_mle <- newton(fun = logLikePrime, 
+                    derf = logLikeDP, 
+                    x0 = init, 
+                    eps = tolerance)
 
 cat("The maximum likelihood estimate of theta using Newton's method is:", theta_mle, "\n")
 
@@ -117,16 +116,21 @@ cat("The maximum likelihood estimate of theta using Newton's method is:", theta_
 What happens if you use \( \theta_{(0)} = -2.0 \) and \( -2.7 \), respectively, as starting values? Explain why. 
 
 ```{r}
-# Test with starting value theta_start = -2.0
-cat("Starting with theta_start = -2.0\n")
-theta_mle_2_0 <- newton(log_likelihood_prime, log_likelihood_double_prime, -2.0, tolerance)
-cat("The MLE of theta with theta_start = -2.0 is:", theta_mle_2_0, "\n\n")
+# x0 = -2.0
+cat("Starting with initial value = -2.0\n")
+theta_mle_2_0 <- newton(fun = logLikePrime, 
+                        derf = logLikeDP, 
+                        x0 = -2.0, 
+                        eps = tolerance)
+cat("The MLE of theta with initial value = -2.0 is:", theta_mle_2_0, "\n\n")
 
-# Test with starting value theta_start = -2.7
-cat("Starting with theta_start = -2.7\n")
-theta_mle_2_7 <- newton(log_likelihood_prime, log_likelihood_double_prime, -2.7, tolerance)
-cat("The MLE of theta with theta_start = -2.7 is:", theta_mle_2_7, "\n")
-
+# x0= -2.7
+cat("Starting with initial value = -2.7\n")
+theta_mle_2_7 <- newton(fun = logLikePrime, 
+                        derf = logLikeDP, 
+                        x0 = -2.7, 
+                        eps = tolerance)
+cat("The MLE of theta with initial value = -2.7 is:", theta_mle_2_7, "\n")
 ```
 
 Convergence: If these points are near enough to the true maximum or within a region where Newton’s method successfully iterates toward the maximum.
@@ -157,19 +161,19 @@ $$
 Represent the heights of the current generation as a dataframe with two variables, \( M \) and \( F \) for the two sexes. Randomly generate a population at generation 1, as for males with \( X_1, X_2, \ldots, X_{100} \sim N(125, 25^2) \), and for females \( X_1, X_2, \ldots, X_{100} \sim N(125, 15^2) \). 
 
 ```{r}
-# Set seed for reproducibility
-set.seed(123)
+set.seed(43)
 
-# Generate heights for males and females in generation 1
-male_heights <- rnorm(100, mean = 125, sd = 25)
-female_heights <- rnorm(100, mean = 125, sd = 15)
+maleHeights <- rnorm(n = 100, 
+                      mean = 125, 
+                      sd = 25)
+femaleHeights <- rnorm(n = 100, 
+                        mean = 125, 
+                        sd = 15)
 
-# Create a dataframe to represent the current generation
-generation1 <- data.frame(M = male_heights, F = female_heights)
+gen1 <- data.frame(M = maleHeights, 
+                   F = femaleHeights)
 
-# Display the first few rows of the dataframe
-head(generation1)
-
+# head(generation1)
 ```
 
 ## (b)
@@ -177,27 +181,22 @@ head(generation1)
 Take the dataframe from (a) and randomly permute the ordering of men. Men and women are then paired according to rows, and heights for the next generation are calculated by taking the mean of each row. The function should return a dataframe with the same structure, giving the heights of the next generation. You will need to use the `sample(x, size = n)` function to return a random sample of size \( n \) from the vector \( x \). You will also need to use the `apply()` function. 
 
 ```{r}
-# Function to generate the next generation's heights
-generate_next_generation <- function(df) {
-  # Randomly permute the order of male heights
-  permuted_males <- sample(df$M, size = nrow(df))
+genNextGen <- function(df) {
+  permM <- sample(df$M, size = nrow(df))
   
-  # Create a new dataframe with permuted males and original females
-  next_generation <- data.frame(M = permuted_males, F = df$F)
-  
-  # Calculate the mean height of each pair (male, female) for the next generation
-  next_generation$Mean_Height <- apply(next_generation, 1, function(row) mean(row))
-  
-  # Keep only the Mean_Height column and rename it to M and F to match the structure of df
-  next_generation <- data.frame(M = next_generation$Mean_Height, F = next_generation$Mean_Height)
-  
-  return(next_generation)
+  nextGen <- data.frame(M = permM, F = df$F)
+  # get values for update
+  nextGen$Mean_Height <- apply(X = nextGen, 
+                               MARGIN = 1, 
+                               FUN = function(row) {mean(row)}
+                               )
+  # update dataset
+  nextGen <- data.frame(M = nextGen$Mean_Height, F = nextGen$Mean_Height)
+  nextGen
 }
 
-# Example usage
-next_gen <- generate_next_generation(generation1)
-head(next_gen)
-
+nextGen <- genNextGen(df = gen1)
+head(nextGen)
 ```
 
 ## (c)
@@ -206,36 +205,33 @@ Use the above function to generate nine generations, then use `ggplot2` to facet
 
 
 ```{r}
-# Load ggplot2
 library(ggplot2)
 
-# Function to generate multiple generations
-generate_multiple_generations <- function(df, num_generations) {
+genMGen <- function(df, nGen) {
   generations <- list()
-  generations[[1]] <- df$M  # Store the male heights of the first generation
+  generations[[1]] <- df$M  
   
-  # Loop to generate successive generations
-  for (i in 2:num_generations) {
-    df <- generate_next_generation(df)
-    generations[[i]] <- df$M  # Store the male heights of each generation
+  for (i in 2:nGen) {
+    df <- genNextGen(df)
+    generations[[i]] <- df$M 
   }
   
-  # Convert the list to a data frame for plotting
-  generation_data <- data.frame(
-    Generation = rep(1:num_generations, each = nrow(df)),
+  genDat <- data.frame(
+    Generation = rep(1:nGen, each = nrow(df)),
     Male_Height = unlist(generations)
   )
   
-  return(generation_data)
+  genDat
 }
 
-# Generate data for nine generations
-num_generations <- 9
-generation_data <- generate_multiple_generations(generation1, num_generations)
+nGenData <- genMGen(df = gen1, 
+                           nGen = 9)
+```
 
-# Plot the male heights for each generation using ggplot2
-ggplot(generation_data, aes(x = Male_Height)) +
-  geom_histogram(binwidth = 5, color = "black", fill = "skyblue") +
+```{r}
+ggplot(data = nGenData, 
+       aes(x = Male_Height)) +
+  geom_histogram(binwidth = 5, color = "black", fill = "pink") +
   facet_wrap(~ Generation, nrow = 3) +
   labs(
     title = "Distribution of Male Heights Across Generations",
@@ -243,7 +239,6 @@ ggplot(generation_data, aes(x = Male_Height)) +
     y = "Frequency"
   ) +
   theme_minimal()
-
 ```
 
 # Q3:
@@ -275,12 +270,9 @@ The objective here is to write a function which will read one of the files above
 To do this, we can use the `readLines` function to read the file line-by-line (each line will be read in as a character string). Then, we can use multiple string-matching methods to parse the first line to obtain the number of clusters. The second line is a blank line. The first line after each blank line contains the size of the cluster (with memberships following in the next lines). Again, we will use string-splitting and matching techniques (e.g., `strsplit`) to obtain the cluster size. The next lines are converted from character strings to integers. Write the above function. 
 
 ```{r}
-# Improved function with debugging output to parse the clustering output file
 parse_cluster_file <- function(filename) {
-  # Read the file line-by-line
   lines <- readLines(filename)
   
-  # Check if the first line contains the number of clusters
   if (grepl("Number of clusters", lines[1])) {
     num_clusters <- as.numeric(strsplit(lines[1], ": ")[[1]][2])
     cat("Number of clusters:", num_clusters, "\n")
@@ -288,73 +280,52 @@ parse_cluster_file <- function(filename) {
     stop("The file format is incorrect: 'Number of clusters' not found in the first line.")
   }
   
-  # Initialize an empty vector for cluster assignments
   cluster_vector <- numeric()
-  
-  # Start reading from the third line (after the blank line)
   line_index <- 3
   
-  # Loop through each cluster ID
   for (cluster_id in 0:(num_clusters - 1)) {
-    # Debug output to inspect the line being processed
     cat("Processing line", line_index, ":", lines[line_index], "\n")
     
-    # Check if the current line contains cluster size information
     if (grepl("Cluster", lines[line_index])) {
-      # Try extracting cluster size using a more flexible method
       cluster_info <- unlist(strsplit(lines[line_index], "[;= ]"))
       cluster_size <- as.numeric(cluster_info[which(cluster_info == "size") + 1])
       
-      # Ensure cluster_size was parsed correctly
       if (is.na(cluster_size)) {
         stop("Failed to parse cluster size on line ", line_index, ": ", lines[line_index])
       }
       
-      # Attempt to extract observation indices for the current cluster
       observation_lines <- lines[(line_index + 1):(line_index + cluster_size)]
       observation_indices <- as.numeric(observation_lines)
       
-      # Check for any NAs in observation indices and handle them
       if (any(is.na(observation_indices))) {
         warning("NAs introduced by coercion when parsing observation indices.")
         observation_indices <- observation_indices[!is.na(observation_indices)]
       }
       
-      # Assign cluster ID to these indices in the cluster vector
       cluster_vector[observation_indices] <- cluster_id
       
-      # Move to the next cluster's line (skip the blank line after the current cluster)
       line_index <- line_index + cluster_size + 2
     } else {
       stop("Expected cluster information on line ", line_index, " but not found.")
     }
   }
-  
-  return(cluster_vector)
+  cluster_vector
 }
-
-# Example usage
-# cluster_vector_1 <- parse_cluster_file("Iris1.out")
-# print(cluster_vector_1)
-
 ```
 
 ## (b)
 
 Cross-tabulate the results of a call to the above function on the file `Iris1.out` and the file `Iris2.out`. 
+
 ```{r}
-# Parse the clustering results from each file
-# Apply the function to Iris1.out
 cluster_vector_1 <- parse_cluster_file("Iris1.out")
-print(cluster_vector_1)
+cluster_vector_1
 
 cluster_vector_2 <- parse_cluster_file("Iris2.out")
-print(cluster_vector_2)
-# Cross-tabulate the two cluster assignments
-cluster_table <- table(cluster_vector_1, cluster_vector_2)
+cluster_vector_2
 
-# Display the cross-tabulation table
-print(cluster_table)
+cluster_table <- table(cluster_vector_1, cluster_vector_2)
+cluster_table
 ```
 
 # Q4:
@@ -370,28 +341,28 @@ Let \( X \sim N_3(\mu, \Sigma) \), where \( \mu = \left(\frac{1}{\sqrt{3}}, \fra
 Write a function in R which generates a sample of \( Y \) of size \( n \) as outlined above. 
 
 ```{r}
-# Function to generate a sample of Y
+library(MASS)
+
 generate_Y_sample <- function(n, rho) {
-  # Define mean vector and covariance matrix
   mu <- rep(1 / sqrt(3), 3)
   Sigma <- matrix(rho, nrow = 3, ncol = 3)
-  diag(Sigma) <- 1  # Set diagonal elements to 1
+  diag(Sigma) <- 1 
   
-  # Generate multivariate normal samples for X
-  library(MASS)
-  X <- mvrnorm(n, mu = mu, Sigma = Sigma)
-  
-  # Standardize X to get Y
-  Y <- t(apply(X, 1, function(x) x / sqrt(sum(x^2))))
+  X <- mvrnorm(n, 
+               mu = mu, 
+               Sigma = Sigma)
+  Y <- t(apply(X = X, 
+               MARGIN = 1, 
+               FUN = function(x) {x / sqrt(sum(x^2))} 
+               ))
   
   return(Y)
 }
 
-# Example usage
-set.seed(123)
-Y_sample <- generate_Y_sample(n = 100, rho = 0.5)
+set.seed(43)
+Y_sample <- generate_Y_sample(n = 100, 
+                              rho = 0.5)
 head(Y_sample)
-
 ```
 
 ## (b)
@@ -399,28 +370,25 @@ head(Y_sample)
 For different \( \rho \in \{-0.5, -0.25, 0, 0.25, 0.5\} \), display the observations in three dimensions. You may use \( n = 100 \) as the sample size in each case. Comment. 
 
 ```{r}
-# Load necessary libraries
-library(MASS)
 library(scatterplot3d)
 
-# Function to generate and plot Y for a single rho value
 plot_Y_for_single_rho <- function(n, rho) {
-  # Generate the sample of Y
   Y <- generate_Y_sample(n, rho)
   
-  # Plot in 3D
-  scatterplot3d(Y[,1], Y[,2], Y[,3], main = paste("rho =", rho),
-                xlab = "Y1", ylab = "Y2", zlab = "Y3")
+  scatterplot3d(x = Y[,1], 
+                y = Y[,2], 
+                z = Y[,3], 
+                main = paste("rho =", rho),
+                xlab = "Y1", 
+                ylab = "Y2", 
+                zlab = "Y3")
 }
 
-# Define rho values and sample size
 rho_values <- c(-0.5, -0.25, 0, 0.25, 0.5)
 n <- 100
 
-# Generate and plot samples for each rho in individual plots
 for (rho in rho_values) {
   plot_Y_for_single_rho(n, rho)
-  Sys.sleep(0.5)  # Pause briefly to ensure each plot displays separately in certain environments
+  # Sys.sleep(0.5)  
 }
-
 ```
