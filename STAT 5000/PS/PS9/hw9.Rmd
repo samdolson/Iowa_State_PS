@@ -98,19 +98,48 @@ pooledVariance
 ```
 
 ```{r}
+n <- 24 
+n_i <- 6 
+
+temperature <- c(150, 200, 250, 300)
+sampleMean <- c(66, 81, 89, 92)
+sampleVariance <- c(1.15, 1.00, 1.35, 0.90)
+
+temperatureMean <- mean(temperature)
+tempVar <- var(temperature)
+responseMean <- mean(sampleMean)
+
+hatY <- b0 + b1*temperature
+hatYRep <- rep(hatY, each = 6)
+sampleMeanRep <- rep(sampleMean, each = 6)
+SSLack <- sum((sampleMeanRep - hatYRep)^2)
+SSLack
+
+nRep <- rep(6, 4)
+pooledVariance <- sum((nRep - 1) * sampleVariance) / sum(nRep - 1)
+pooledVariance
+
+SSPure <- sum((n_i - 1) * sampleVariance)
+SSPure
+
+SSPE <- SSPure
+SSLOF <- SSLack
+SSE <- SSLOF + SSPE 
+SS_error <- SSE 
+MSE <- SS_error / 22
+```
+
+```{r}
 temperature <- c(150, 200, 250, 300)
 sampleMean <- c(66, 81, 89, 92)
 sampleVariance <- c(1.15, 1.00, 1.35, 0.90)
 
 temperatureMean <- mean(temperature)
 tempVar <- var(temperature) * length(temperature)
+tempRep <- rep(temperature, each = 6)
 
-n_i <- 6
-SS_error <- sum((n_i - 1) * sampleVariance)
-sigma2 <- SS_error / (n - 2)
-
-Varb1 <- sigma2 / tempVar
-Varb0 <- sigma2 * ((1/n) + (temperatureMean^2 / tempVar))
+Varb1 <- MSE / sum((tempRep - temperatureMean)^2)
+Varb0 <- MSE * ((1/n) + (temperatureMean^2 /sum((tempRep - temperatureMean)^2)))
 
 SEb1 <- sqrt(Varb1)
 SEb0 <- sqrt(Varb0)
@@ -127,9 +156,9 @@ SEb1
 ```
 Our estimates are: 
 $b_0 = 43.3$
-$SE(b_0) = 1.754755$
+$SE(b_0) = 2.791437$
 $b_1 = 0.172$
-$SE(b_1) = 0.007745967$
+$SE(b_1) = 0.01204034$
 
 \newpage
 
@@ -142,7 +171,7 @@ SS_{model} = b_1^{2}\sum\limits_{i=1}^{n}(x_i - \bar{x})^2
 $$
 
 ```{r}
-SSModel <- b1 * sum(6 * (temperature - temperatureMean)^2)
+SSModel <- b1^2 * sum(6 * (temperature - temperatureMean)^2)
 SSModel
 ```
 
@@ -266,11 +295,11 @@ Giving the following table
 
 | Source of Variation | Degrees of Freedom | Sum of Squares | Mean Square |
 |---------------------|--------------------|----------------|-------------|
-| Regression on X     | 1                  |  12900         | 12900       |
+| Regression on X     | 1                  |  2218.8        | 2218.8      |
 | Residuals           | 22                 |  239.2         | 10.87273	  |
-| - Lack-of-fit       | 2                  |  217.2         | 108.60000	  |
+| - Lack-of-fit       | 2                  |  217.2         | 108.60  	  |
 | - Pure error        | 20                 |  22            | 1.1         |
-| Total               | 23                 |  13139.2       |             |
+| Total               | 23                 |  2458          |             |
 
 
 \newpage
@@ -282,7 +311,7 @@ Compute the F-statistic for the lack-of-fit test and report the corresponding de
 Our General Approach: 
 
 $$
-F = \frac{{MS_{\text{Lack of Fit}}}}{MS_{\text{Pure Error}}} = \frac{2035}{1.100000} = 1850
+F = \frac{{MS_{\text{Lack of Fit}}}}{MS_{\text{Pure Error}}} = \frac{108.60}{1.100000} = 98.72727
 $$
 
 ```{r}
@@ -293,7 +322,7 @@ For comparison with the F Statistic, we have:
 Lack of Fit Df = 2
 Pure Error Df = 20
 
-So, the computed F-statistic for the lack-of-fit test is 1850 with degrees of freedom (2, 20). Given the provided p-value of of 0.0001 is very small (much less the typical $\alpha = 0.05$, and the F statistic much larger than the calculated F statistic of comparison, 15.11886), we have overwhelming evidence to reject the null hypothesis that the simple linear regression model is adequate (fits the relationship well) for the data provided. 
+So, the computed F-statistic for the lack-of-fit test is 98.72727 with degrees of freedom (2, 20). Given the provided p-value of of 0.0001 is very small (much less the typical $\alpha = 0.05$, and the F statistic much larger than the calculated F statistic of comparison, 15.11886), we have overwhelming evidence to reject the null hypothesis that the simple linear regression model is adequate (fits the relationship well) for the data provided. 
 
 \newpage
 
@@ -572,9 +601,9 @@ A 95% confidence interval for the slope parameter in the simple linear regressio
 knitr::include_graphics("3g.png")
 ```
 
-We are 95% confident, that the true expected value of b1 is between 3309.0375 to 3915.953. 
+We are 95% confident, that the population slope is between 3309.0375 to 3915.953. 
 
-Also, we are 95% confident that the true expected increase (or change) in mean price when diamond weight increases by 1g (estimated change in conditional mean of the response when weight increases by 1g) is between \$3309.04 to \$3915.95. 
+Also, we are 95% confident that the true expected increase (or change) in mean price (conditional mean price) when diamond weight increases by 1g is between \$3309.04 to \$3915.95. 
 
 \newpage
 
@@ -586,7 +615,7 @@ A 95% confidence interval for the conditional mean price of all diamonds in the 
 knitr::include_graphics("3h.png")
 ```
 
-We are 95% confident, that the true mean price for diamonds weighting 0.2g is between \$475.46 to \$509.66. 
+We are 95% confident, that the true mean price (conditional mean price) for diamonds weighting 0.2g is between \$475.46 to \$509.66. 
 
 \newpage
 
@@ -598,7 +627,7 @@ A 95% prediction interval for the price of a diamond in the population with a we
 knitr::include_graphics("3i.png")
 ```
 
-We are 95% confident, that the true mean price for diamonds weighting 0.3g is between \$730.56 to \$977.05. 
+We are 95% confident, that the price for a diamond weighting 0.3g is between \$730.56 to \$977.05. 
 
 \newpage
 

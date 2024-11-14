@@ -15,9 +15,9 @@ Suppose that six observations of the yield (Y) of a chemical process were taken 
 | 250              | 89          | 1.35            | 6           |
 | 300              | 92          | 0.90            | 6           |
 
-# Formulas 
 
-General Form
+General Equations 
+
 $$
 \mu = \frac{1}{n} \sum\limits_{i=1}^{n} x_i 
 $$
@@ -78,6 +78,8 @@ $$
 
 ```{r}
 n <- 24 
+n_i <- 6 
+
 temperature <- c(150, 200, 250, 300)
 sampleMean <- c(66, 81, 89, 92)
 sampleVariance <- c(1.15, 1.00, 1.35, 0.90)
@@ -86,9 +88,24 @@ temperatureMean <- mean(temperature)
 tempVar <- var(temperature)
 responseMean <- mean(sampleMean)
 
+hatY <- b0 + b1*temperature
+hatYRep <- rep(hatY, each = 6)
+sampleMeanRep <- rep(sampleMean, each = 6)
+SSLack <- sum((sampleMeanRep - hatYRep)^2)
+SSLack
+
 nRep <- rep(6, 4)
 pooledVariance <- sum((nRep - 1) * sampleVariance) / sum(nRep - 1)
 pooledVariance
+
+SSPure <- sum((n_i - 1) * sampleVariance)
+SSPure
+
+SSPE <- SSPure
+SSLOF <- SSLack
+SSE <- SSLOF + SSPE 
+SS_error <- SSE 
+MSE <- SS_error / 22
 ```
 
 ```{r}
@@ -98,25 +115,16 @@ sampleVariance <- c(1.15, 1.00, 1.35, 0.90)
 
 temperatureMean <- mean(temperature)
 tempVar <- var(temperature) * length(temperature)
+tempRep <- rep(temperature, each = 6)
 
-n_i <- 6
-# SS_error <- sum((n_i - 1) * sampleVariance)
-sigma2 <- SSE / (n - 2)
-
-Varb1 <- sigma2 / tempVar
-Varb0 <- sigma2 * ((1/n) + (temperatureMean^2 / tempVar))
+Varb1 <- MSE / sum((tempRep - temperatureMean)^2)
+Varb0 <- MSE * ((1/n) + (temperatureMean^2 /sum((tempRep - temperatureMean)^2)))
 
 SEb1 <- sqrt(Varb1)
 SEb0 <- sqrt(Varb0)
 
 SEb0
 SEb1
-```
-
-```{r}
-239.2 
-SSE
-SS_error
 ```
 
 Week 10 Slide 23 
@@ -126,7 +134,7 @@ SS_{model} = b_1^{2}\sum\limits_{i=1}^{n}(x_i - \bar{x})^2
 $$
 
 ```{r}
-SSModel <- b1 * sum(6 * (temperature - temperatureMean)^2)
+SSModel <- b1^2 * sum(6 * (temperature - temperatureMean)^2)
 SSModel
 ```
 
@@ -174,13 +182,7 @@ hatYRep <- rep(hatY, each = 6)
 sampleMeanRep <- rep(sampleMean, each = 6)
 SSLack <- sum((sampleMeanRep - hatYRep)^2)
 SSLack
-
-hatY <- b0 + b1*temperature
-SSLack2 <- sum((sampleMean - hatY)^2)
-SSLack2
 ```
-
-# SS_{pure error} 
 
 $$
 SS_{pure error} = \sum\limits_i \sum\limits_j (Y_{ij} - \bar{Y_i}) = \sum_{i=1}^{4} \sum_{j=1}^{6} (Y_{ij} - \bar{Y}_{i.})^2
@@ -193,6 +195,7 @@ $$
 $$
 SS_{pure error} = \sum_{i=1}^{4} \sum_{j=1}^{n_i} (Y_{ij} - \bar{Y}_{i.})^2 = \sum_{i=1}^{4} (n_i - 1) s_i^2
 $$
+
 ```{r}
 n <- 24 
 n_i <- 6 
@@ -213,11 +216,11 @@ Giving the following table
 
 | Source of Variation | Degrees of Freedom | Sum of Squares | Mean Square |
 |---------------------|--------------------|----------------|-------------|
-| Regression on X     | 1                  |  12900         | 12900       |
+| Regression on X     | 1                  |  2218.8        | 2218.8      |
 | Residuals           | 22                 |  239.2         | 10.87273	  |
 | - Lack-of-fit       | 2                  |  217.2         | 108.60000	  |
 | - Pure error        | 20                 |  22            | 1.1         |
-| Total               | 23                 |  13139.2       |             |
+| Total               | 23                 |  2458          |             |
 
 
 ```{r}
@@ -256,9 +259,4 @@ anova_table <- data.frame(
 
 # Display the table
 print(anova_table)
-```
-
-```{r}
-MSE <- sum(n_i * (n_i - 1) * sampleVariance) / (n-2)
-MSE
 ```
