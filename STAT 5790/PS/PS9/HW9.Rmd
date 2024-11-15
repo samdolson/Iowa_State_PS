@@ -19,7 +19,7 @@ $$
 
 Suppose that \( (3.91, 4.85, 2.28, 4.06, 3.70, 4.04, 5.46, 3.53, 2.28, 1.96, 2.53, 3.88, 2.22, 3.47, 4.82, 2.46, 2.99, 2.54, 0.52, 2.50) \) is an observed random sample from the above distribution.
 
-### (a)
+## (a)
 
 Plot the log likelihood \( \ell(\theta) \) in the range \( -\pi < \theta < \pi \). 
 
@@ -33,12 +33,12 @@ logLike <- function(theta, x) {
 }
 
 thetaVal <- seq(from = -pi,
-                    to = pi, 
-                    length.out = 100)
+                to = pi, 
+                length.out = 100)
 
 logLikeVal <- sapply(X = thetaVal, 
-                         FUN = logLike, 
-                         x = x)
+                     FUN = logLike, 
+                     x = x)
 
 plot(x = thetaVal, 
      y = logLikeVal, 
@@ -51,7 +51,7 @@ plot(x = thetaVal,
      )
 ```
 
-### (b)
+## (b)
 
 Use the R function `optimize()` to find the maximum likelihood estimate of \( \theta \). 
 
@@ -64,11 +64,11 @@ mleEst <- optimize(f = logLike,
 theta_mle <- mleEst$maximum
 log_lik_mle <- mleEst$objective
 
-cat("The maximum likelihood estimate of theta is:", theta_mle, "\n")
-cat("The maximum log-likelihood value is:", log_lik_mle, "\n")
+cat(paste0("The maximum likelihood estimate of theta is:", theta_mle, "\n"))
+cat(paste0("The maximum log-likelihood value is:", log_lik_mle, "\n"))
 ```
 
-### (c)
+## (c)
 
 Use function `newton()` in the class handout to find the maximum likelihood estimate of \( \theta \) by solving \( \ell'(\theta) = 0 \) using the starting value of \( \theta_{(0)} = 0 \). 
 
@@ -105,7 +105,7 @@ theta_mle <- newton(fun = logLikePrime,
 cat(paste0("The maximum likelihood estimate is: ", theta_mle))
 ```
 
-### (d)
+## (d)
 
 What happens if you use \( \theta_{(0)} = -2.0 \) and \( -2.7 \), respectively, as starting values? Explain why. 
 
