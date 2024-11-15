@@ -3,11 +3,6 @@ output:
   pdf_document: default
 ---
 
-# To-Do Notes
-
-  - Review explicit naming within functions
-  - Transition `for` loops into apply statements, when possible 
-
 # Q1:
 
 The following distribution has the density function:
@@ -62,9 +57,9 @@ Use the R function `optimize()` to find the maximum likelihood estimate of \( \t
 
 ```{r}
 mleEst <- optimize(f = logLike, 
-                       interval = c(-pi, pi), 
-                       x = x, 
-                       maximum = TRUE)
+                   interval = c(-pi, pi), 
+                   x = x, 
+                   maximum = TRUE)
 
 theta_mle <- mleEst$maximum
 log_lik_mle <- mleEst$objective
@@ -107,8 +102,7 @@ theta_mle <- newton(fun = logLikePrime,
                     x0 = init, 
                     eps = tolerance)
 
-cat("The maximum likelihood estimate of theta using Newton's method is:", theta_mle, "\n")
-
+cat(paste0("The maximum likelihood estimate is: ", theta_mle))
 ```
 
 ### (d)
@@ -117,25 +111,21 @@ What happens if you use \( \theta_{(0)} = -2.0 \) and \( -2.7 \), respectively, 
 
 ```{r}
 # x0 = -2.0
-cat("Starting with initial value = -2.0\n")
 theta_mle_2_0 <- newton(fun = logLikePrime, 
                         derf = logLikeDP, 
                         x0 = -2.0, 
                         eps = tolerance)
-cat("The MLE of theta with initial value = -2.0 is:", theta_mle_2_0, "\n\n")
+# Cheeky lil line break, eh?
+cat(paste0("The MLE of theta with initial value -2.0 is: ", theta_mle_2_0, "\n"))
 
 # x0= -2.7
-cat("Starting with initial value = -2.7\n")
 theta_mle_2_7 <- newton(fun = logLikePrime, 
                         derf = logLikeDP, 
                         x0 = -2.7, 
                         eps = tolerance)
-cat("The MLE of theta with initial value = -2.7 is:", theta_mle_2_7, "\n")
+cat(paste0("The MLE of theta with initial value -2.7 is:", theta_mle_2_7))
 ```
-
-Convergence: If these points are near enough to the true maximum or within a region where Newton’s method successfully iterates toward the maximum.
-
-Divergence or Slow Convergence: If these starting points are far from a peak or in a flat region, Newton’s method might fail to converge or take many iterations to do so.
+In both instances we achieve convergence to a local maximums. This happens because the method used doesn't look over a large enough range of values, i.e. it finds a sufficient area for searching and either peaks or flat areas of a curve can cause the procedure to converge not to the global maximum. This is because the `newton` function as-written is sensitive to local maximums, such that we are able to satisfy the exit criteria of the optimization process without converging to the global maximum. 
 
 \newpage 
 
@@ -172,8 +162,6 @@ femaleHeights <- rnorm(n = 100,
 
 gen1 <- data.frame(M = maleHeights, 
                    F = femaleHeights)
-
-# head(generation1)
 ```
 
 ## (b)
@@ -205,17 +193,19 @@ Use the above function to generate nine generations, then use `ggplot2` to facet
 
 
 ```{r}
-library(ggplot2)
+# me-ow
+library(purrr)
 
 genMGen <- function(df, nGen) {
-  generations <- list()
-  generations[[1]] <- df$M  
+  # Create a list of generations by iterating over 1:nGen
+  generations <- map(1:nGen, function(i) {
+    if (i > 1) {
+      df <<- genNextGen(df)  # Update df for each generation
+    }
+    df$M
+  })
   
-  for (i in 2:nGen) {
-    df <- genNextGen(df)
-    generations[[i]] <- df$M 
-  }
-  
+  # Combine into a data frame
   genDat <- data.frame(
     Generation = rep(1:nGen, each = nrow(df)),
     Male_Height = unlist(generations)
@@ -224,17 +214,21 @@ genMGen <- function(df, nGen) {
   genDat
 }
 
-nGenData <- genMGen(df = gen1, 
-                           nGen = 9)
+# Call the function with your parameters
+nGenData <- genMGen(df = gen1, nGen = 9)
 ```
 
 ```{r}
+library(ggplot2)
+
 ggplot(data = nGenData, 
        aes(x = Male_Height)) +
-  geom_histogram(binwidth = 5, color = "black", fill = "pink") +
+  # you wouldn't believe how to spell turquoise, would you? 
+  # I got it wrong like twice before checking with the ol' Google
+  geom_histogram(binwidth = 2.5, color = "black", fill = "turquoise") +
   facet_wrap(~ Generation, nrow = 3) +
   labs(
-    title = "Distribution of Male Heights Across Generations",
+    title = "Male Heights Across Generations",
     x = "Male Height",
     y = "Frequency"
   ) +
@@ -270,47 +264,39 @@ The objective here is to write a function which will read one of the files above
 To do this, we can use the `readLines` function to read the file line-by-line (each line will be read in as a character string). Then, we can use multiple string-matching methods to parse the first line to obtain the number of clusters. The second line is a blank line. The first line after each blank line contains the size of the cluster (with memberships following in the next lines). Again, we will use string-splitting and matching techniques (e.g., `strsplit`) to obtain the cluster size. The next lines are converted from character strings to integers. Write the above function. 
 
 ```{r}
-parse_cluster_file <- function(filename) {
-  lines <- readLines(filename)
+parseClusterFile <- function(file) {
+  allLines <- readLines(file)
+  groups <- cumsum(allLines == "")
+  splitVec <- split(allLines[allLines != ""], groups[allLines != ""])
   
-  if (grepl("Number of clusters", lines[1])) {
-    num_clusters <- as.numeric(strsplit(lines[1], ": ")[[1]][2])
-    cat("Number of clusters:", num_clusters, "\n")
-  } else {
-    stop("The file format is incorrect: 'Number of clusters' not found in the first line.")
-  }
+  # Initialize cluster assignments as NA
+  clusterAssignment <<- rep(NA, length(allLines))
   
-  cluster_vector <- numeric()
-  line_index <- 3
-  
-  for (cluster_id in 0:(num_clusters - 1)) {
-    cat("Processing line", line_index, ":", lines[line_index], "\n")
+  # Process each cluster 
+  lapply(seq_along(splitVec), function(i) {
+    elements <- splitVec[[i]]
+    elements <- elements[!grepl("[A-Za-z]", elements)] 
+    elements <- as.numeric(elements) 
     
-    if (grepl("Cluster", lines[line_index])) {
-      cluster_info <- unlist(strsplit(lines[line_index], "[;= ]"))
-      cluster_size <- as.numeric(cluster_info[which(cluster_info == "size") + 1])
-      
-      if (is.na(cluster_size)) {
-        stop("Failed to parse cluster size on line ", line_index, ": ", lines[line_index])
-      }
-      
-      observation_lines <- lines[(line_index + 1):(line_index + cluster_size)]
-      observation_indices <- as.numeric(observation_lines)
-      
-      if (any(is.na(observation_indices))) {
-        warning("NAs introduced by coercion when parsing observation indices.")
-        observation_indices <- observation_indices[!is.na(observation_indices)]
-      }
-      
-      cluster_vector[observation_indices] <- cluster_id
-      
-      line_index <- line_index + cluster_size + 2
-    } else {
-      stop("Expected cluster information on line ", line_index, " but not found.")
-    }
-  }
-  cluster_vector
+    clusterAssignment[elements] <<- i - 1
+  })
+  
+  return(as.vector(na.omit(clusterAssignment)))
 }
+```
+
+```{r}
+string_list <- c(
+  "Gautham", "I", "beg", "of", "you,", 
+  "have", "mercy", "upon", "me", "for", "committing", "the", "grave", "sin", "of", "writing", "a", "for", "loop,",
+  "forgive", "me", "my", "sins", "of", "not", "believing", "us", "to", "be", "rational,", 
+  "and", "forgive", "me", "most", "of", "all", "for", "not", "having", "yet", "learned", "how", "to", "play", "Bridge."
+)
+
+for (word in string_list) {
+  print(word)
+}
+
 ```
 
 ## (b)
@@ -318,14 +304,14 @@ parse_cluster_file <- function(filename) {
 Cross-tabulate the results of a call to the above function on the file `Iris1.out` and the file `Iris2.out`. 
 
 ```{r}
-cluster_vector_1 <- parse_cluster_file("Iris1.out")
-cluster_vector_1
+Iris1 <- parseClusterFile("Iris1.out")
+Iris1
 
-cluster_vector_2 <- parse_cluster_file("Iris2.out")
-cluster_vector_2
+Iris2 <- parseClusterFile("Iris2.out")
+Iris2
 
-cluster_table <- table(cluster_vector_1, cluster_vector_2)
-cluster_table
+irisTable <- table(Iris1, Iris2)
+irisTable
 ```
 
 # Q4:
@@ -345,18 +331,23 @@ library(MASS)
 
 generate_Y_sample <- function(n, rho) {
   mu <- rep(1 / sqrt(3), 3)
-  Sigma <- matrix(rho, nrow = 3, ncol = 3)
-  diag(Sigma) <- 1 
+  sigma <- matrix(rho, nrow = 3, ncol = 3)
+  diag(sigma) <- 1 
   
   X <- mvrnorm(n, 
                mu = mu, 
-               Sigma = Sigma)
-  Y <- t(apply(X = X, 
-               MARGIN = 1, 
-               FUN = function(x) {x / sqrt(sum(x^2))} 
-               ))
+               Sigma = sigma)
+  # Y <- t(apply(X = X, 
+  #              MARGIN = 1, 
+  #              FUN = function(x) {x / sqrt(sum(x^2))} 
+  #              ))
   
-  return(Y)
+  # Calculate the norms (sqrt of sum of squares) for each row
+  row_norms <- sqrt(rowSums(X^2))
+  # Use sweep to divide each row by its corresponding norm
+  Y <- sweep(X, MARGIN = 1, STATS = row_norms, FUN = "/")
+  
+  Y
 }
 
 set.seed(43)
@@ -392,3 +383,38 @@ for (rho in rho_values) {
   # Sys.sleep(0.5)  
 }
 ```
+
+Comment: Boy, sure is a bit difficult to compare these plots, amiright? 
+
+But for serious, I'm replotting again for some perspective. 
+
+```{r}
+library(scatterplot3d)
+
+plot_Y_for_single_rho <- function(n, rho, angle = 45, phi = 20) {
+  Y <- generate_Y_sample(n, rho)
+  
+  scatterplot3d(
+    x = Y[,1], 
+    y = Y[,2], 
+    z = Y[,3], 
+    main = paste("rho =", rho),
+    xlab = "Y1", 
+    ylab = "Y2", 
+    zlab = "Y3",
+    angle = angle,   # horizontal angle
+    phi = phi        # vertical angle
+  )
+}
+
+rho_values <- c(-0.5, -0.25, 0, 0.25, 0.5)
+n <- 100
+
+# Plot with a fixed perspective different than default
+for (rho in rho_values) {
+  plot_Y_for_single_rho(n, rho, angle = 45, phi = 20)
+  # Sys.sleep(0.5)  
+}
+```
+
+Lower values of Rho (correlation) tend to exhibit a greater spread/dispersion of observations/values. By contrast we see something more akin to a 3-dimensional diagonal line. Positive rho values tend to cluster about positive values (x, y, z), whereas negative rho values tend to cluster about opposite ends of the quadrants, i.e. exhibiting positive-negative-positive, negative-positive-negative, etc. combinations of pairs for observations. 
