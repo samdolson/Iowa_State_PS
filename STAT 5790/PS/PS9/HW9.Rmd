@@ -361,6 +361,39 @@ head(Y_sample)
 For different \( \rho \in \{-0.5, -0.25, 0, 0.25, 0.5\} \), display the observations in three dimensions. You may use \( n = 100 \) as the sample size in each case. Comment. 
 
 ```{r}
+library(rgl)
+library(knitr)
+library(rmarkdown)
+
+# This makes pngs, but doesn't include them inline/indocument 
+
+plot_Y_for_single_rho <- function(n, rho) {
+  Y <- generate_Y_sample(n, rho)
+  open3d()
+  plot3d(x = Y[, 1], 
+         y = Y[, 2], 
+         z = Y[, 3], 
+         col = "black", 
+         type = "s", 
+         size = 0.5, 
+         xlab = "Y1", 
+         ylab = "Y2", 
+         zlab = "Y3", 
+         main = paste("rho =", rho))
+  
+  rglwidget()
+}
+
+rho_values <- c(-0.5, -0.25, 0, 0.25, 0.5)
+n <- 100
+
+for (rho in rho_values) {
+  plot_Y_for_single_rho(n, rho)
+  # Sys.sleep(0.5)  
+}
+```
+
+```{r}
 library(scatterplot3d)
 
 plot_Y_for_single_rho <- function(n, rho) {
