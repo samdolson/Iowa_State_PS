@@ -7,7 +7,11 @@ output: pdf_document
 [Fall 2024]{.smallcaps} 
 [due Fri, November 22nd @ 11:59 pm]{.smallcaps}
 [Name: Sam Olson]{.smallcaps} \
-[Collaborators: **The Hatman**]{.smallcaps} \
+[Collaborators: The Hatman]{.smallcaps} \
+
+```{r, eval = T, results = F, echo = F, warning=F, message=F}
+library(knitr)
+```
 
 # Q1 
 
@@ -35,9 +39,146 @@ Use R to complete the following exercises:
 
 Compute the sample correlations between BMI at age 18 and each of the following explanatory variables HT2, HT9, WT2, WT9, and ST9. Which of these explanatory variables have significant correlations with BMI at age 18?
 
+```{r}
+data <- read.table("BGSgirls2.txt", header = F)
+
+colnames(data) <- c(
+  "ID",       # Girl identification number
+  "WT2",      # Weight (kg) at 2 years
+  "HT2",      # Height (cm) at 2 years
+  "WT9",      # Weight (kg) at 9 years
+  "HT9",      # Height (cm) at 9 years
+  "LG9",      # Leg circumference (cm) at 9 years
+  "ST9",      # Strength (kg) at 9 years
+  "WT18",     # Weight (kg) at 18 years
+  "HT18",     # Height (cm) at 18 years
+  "LG18",     # Leg circumference (cm) at 18 years
+  "ST18",     # Strength (kg) at 18 years
+  "BMI",      # Body Mass Index at 18 years
+  "SOMA"      # Somatotype (SOMA), on a scale from 1, very thin, to 7, very obese
+)
+
+response_var <- "BMI"
+explanatory_vars <- c("HT2", "HT9", "WT2", "WT9", "ST9")
+
+correlations <- sapply(explanatory_vars, function(var) {
+  cor(data[[var]], data[[response_var]])
+})
+print(correlations)
+
+correlation_results <- sapply(explanatory_vars, function(var) {
+  test <- cor.test(data[[var]], data[[response_var]])
+  c(Correlation = test$estimate, P_Value = test$p.value)
+})
+
+correlation_results_df <- as.data.frame(t(correlation_results))
+correlation_results_df <- cbind(Variable = explanatory_vars, correlation_results_df)
+print(correlation_results_df)
+```
+
+1. HT2:
+   - Correlation: $0.0426$
+   - $p$-value: $0.7264$
+   - Not Significant: The correlation is very weak and the p-value indicates no evidence to reject the null hypothesis.
+
+2. HT9:
+   - Correlation: $0.2369$
+   - $p$-value: $0.0483$
+   - Significant: The correlation is moderate, and the p-value is below 0.05, indicating evidence of a relationship between HT9 and BMI at age 18.
+
+3. WT2:
+   - Correlation: $0.1909$
+   - $p$-value: $0.1133$
+   - Not Significant: While the correlation is moderate, the p-value is above 0.05, suggesting insufficient evidence of a relationship.
+
+4. WT9:
+   - Correlation: $0.5459$
+   - $p$-value: $1.018837 \times 10^{-6}$
+   - Significant: The correlation is strong, and the extremely low p-value indicates a highly significant relationship between WT9 and BMI at age 18.
+
+5. ST9:
+   - Correlation: $0.0056$
+   - $p$-value: $0.9633$
+   - Not Significant: The correlation is negligible, and the p-value indicates no evidence of a relationship.
+
+The explanatory variables HT9 and WT9 have statistically significant correlations with BMI at age 18 ($p < 0.05$). Among these, WT9 shows the strongest relationship. The other variables ($\text{HT2}, \text{WT2}, \text{ST9}$) do not have significant correlations.
+
 ## (b) 
 
 Compute the sample correlations among the five explanatory variables HT2, HT9, WT2, WT9, and ST9. Which of these explanatory variables have significant correlations with other explanatory variables?
+
+```{r}
+# Subset the data for the explanatory variables
+explanatory_vars <- c("HT2", "HT9", "WT2", "WT9", "ST9")
+explanatory_data <- data[, explanatory_vars]
+
+# Compute the correlation matrix
+cor_matrix <- cor(explanatory_data)
+
+# Compute the p-values for correlations
+n <- nrow(explanatory_data) # Sample size
+p_values <- matrix(NA, nrow = length(explanatory_vars), ncol = length(explanatory_vars))
+rownames(p_values) <- colnames(p_values) <- explanatory_vars
+
+for (i in 1:length(explanatory_vars)) {
+  for (j in 1:length(explanatory_vars)) {
+    if (i != j) {
+      test <- cor.test(explanatory_data[[i]], explanatory_data[[j]])
+      p_values[i, j] <- test$p.value
+    }
+  }
+}
+
+# Identify significant correlations
+significant_correlations <- which(p_values < 0.05, arr.ind = TRUE)
+significant_results <- data.frame(
+  Var1 = rownames(p_values)[significant_correlations[, 1]],
+  Var2 = colnames(p_values)[significant_correlations[, 2]],
+  Correlation = cor_matrix[significant_correlations],
+  P_Value = p_values[significant_correlations]
+)
+
+# Remove duplicates (Var1 == Var2 or reversed pairs)
+significant_results <- significant_results[!duplicated(t(apply(significant_results, 1, sort))), ]
+
+# Print the results
+print(significant_results)
+```
+
+The table lists pairs of variables with significant correlations ($p < 0.05$). Below is a summary of the relationships:
+
+1. Variables with significant correlations with $\text{HT2}$:
+   - $\text{HT9}$ ($r = 0.7384$, $p \approx 3.00 \times 10^{-13}$): Strong positive correlation.
+   - $\text{WT2}$ ($r = 0.6445$, $p \approx 1.73 \times 10^{-9}$): Strong positive correlation.
+   - $\text{WT9}$ ($r = 0.5229$, $p \approx 3.42 \times 10^{-6}$): Moderate positive correlation.
+   - $\text{ST9}$ ($r = 0.3617$, $p \approx 2.09 \times 10^{-3}$): Weak positive correlation.
+
+2. Variables with significant correlations with $\text{HT9}$:
+   - $\text{HT2}$ ($r = 0.7384$, $p \approx 3.00 \times 10^{-13}$): Strong positive correlation.
+   - $\text{WT2}$ ($r = 0.6071$, $p \approx 2.52 \times 10^{-8}$): Strong positive correlation.
+   - $\text{WT9}$ ($r = 0.7276$, $p \approx 9.69 \times 10^{-13}$): Strong positive correlation.
+   - $\text{ST9}$ ($r = 0.6034$, $p \approx 3.23 \times 10^{-8}$): Strong positive correlation.
+
+3. Variables with significant correlations with $\text{WT2}$:
+   - $\text{HT2}$ ($r = 0.6445$, $p \approx 1.73 \times 10^{-9}$): Strong positive correlation.
+   - $\text{HT9}$ ($r = 0.6071$, $p \approx 2.52 \times 10^{-8}$): Strong positive correlation.
+   - $\text{WT9}$ ($r = 0.6925$, $p \approx 3.11 \times 10^{-11}$): Strong positive correlation.
+   - $\text{ST9}$ ($r = 0.4516$, $p \approx 8.71 \times 10^{-5}$): Moderate positive correlation.
+
+4. Variables with significant correlations with $\text{WT9}$:
+   - $\text{HT2}$ ($r = 0.5229$, $p \approx 3.42 \times 10^{-6}$): Moderate positive correlation.
+   - $\text{HT9}$ ($r = 0.7276$, $p \approx 9.69 \times 10^{-13}$): Strong positive correlation.
+   - $\text{WT2}$ ($r = 0.6925$, $p \approx 3.11 \times 10^{-11}$): Strong positive correlation.
+   - $\text{ST9}$ ($r = 0.4530$, $p \approx 8.22 \times 10^{-5}$): Moderate positive correlation.
+
+5. Variables with significant correlations with $\text{ST9}$:
+   - $\text{HT2}$ ($r = 0.3617$, $p \approx 2.09 \times 10^{-3}$): Weak positive correlation.
+   - $\text{HT9}$ ($r = 0.6034$, $p \approx 3.23 \times 10^{-8}$): Strong positive correlation.
+   - $\text{WT2}$ ($r = 0.4516$, $p \approx 8.71 \times 10^{-5}$): Moderate positive correlation.
+   - $\text{WT9}$ ($r = 0.4530$, $p \approx 8.22 \times 10^{-5}$): Moderate positive correlation.
+
+- $\text{HT9}, \text{WT9}, \text{WT2}$, and $\text{ST9}$ are strongly or moderately correlated with multiple other variables.
+- These relationships are important to consider when building models to avoid issues like multicollinearity.
 
 ## (c) 
 
@@ -49,6 +190,57 @@ $$
 
 Is the slope significantly different from zero? What do the residual plots reveal?
 
+```{r}
+# Fit the linear regression model
+model <- lm(BMI ~ ST9, data = data)
+
+# Display the summary of the model
+summary(model)
+```
+
+```{r}
+# Residual plot
+plot(data$ST9, resid(model), main = "Residuals vs ST9", xlab = "ST9 (Strength at 9)", ylab = "Residuals")
+abline(h = 0, col = "red")
+
+# Normal Q-Q plot for residuals
+qqnorm(resid(model))
+qqline(resid(model), col = "red")
+
+```
+
+1. Least Squares Estimates:
+From the regression summary:
+- $\hat{\beta}_0 = 21.471$: This is the estimated intercept, meaning that the predicted BMI for a girl with $\text{ST9} = 0$ is 21.471.
+- $\hat{\beta}_1 = 0.001$: This is the estimated slope, meaning that for each one-unit increase in strength at age 9 ($\text{ST9}$), the predicted BMI increases by 0.001 on average.
+
+2. Significance of Slope:
+- Null Hypothesis ($H_0$): The slope $\beta_1 = 0$ (strength at age 9 has no effect on BMI at age 18).
+- Alternative Hypothesis ($H_a$): The slope $\beta_1 \neq 0$ (strength at age 9 affects BMI at age 18).
+
+- $t$-value for the slope: $t = 0.046$.
+- $p$-value for the slope: $p = 0.963$.
+
+Since $p = 0.963$, which is much greater than $\alpha = 0.05$, we fail to reject the null hypothesis. The slope is not significantly different from zero, meaning that strength at age 9 does not significantly predict BMI at age 18.
+
+3. Residual Plots:
+- Residuals vs. ST9:
+  - The residuals are scattered randomly around 0, which indicates no clear pattern and suggests that the assumption of linearity is reasonable.
+  - However, there is one potential outlier with a residual near 15, which could affect the results.
+
+- Normal Q-Q Plot:
+  - The residuals generally follow the red line, indicating approximate normality.
+  - However, the tails deviate slightly, suggesting that the normality assumption might not hold perfectly, particularly due to the outlier.
+
+4. Model Fit:
+- $R^2 = 0.00003139$: This indicates that only 0.003% of the variation in BMI at age 18 is explained by strength at age 9. This is an extremely poor fit.
+- Adjusted $R^2 = -0.01467$: The adjusted $R^2$ is negative, which further confirms that the model does not explain the data well.
+
+Overall: 
+- Strength at age 9 ($\text{ST9}$) does not significantly predict BMI at age 18, as indicated by the non-significant slope ($p = 0.963$).
+- The residual plots do not reveal major violations of assumptions, but there is a potential outlier that may influence the analysis.
+- Overall, this model is not suitable for explaining the variability in BMI at age 18. Alternative predictors should be explored to better understand BMI at age 18.
+
 ## (d) 
 
 Now compute the multiple regression of the body mass index at age 18 on both weight at age 9 and strength at age 9, i.e. fit the model
@@ -57,7 +249,43 @@ $$
 BMI_i = \beta_0 + \beta_1 ST9_i + \beta_2 WT9_i + \epsilon_i, \text{ for } i = 1, ..., 70
 $$
 
-Is the estimate of $\beta_1$ for this model, the coefficient for strength at age 9, the same as the estimate of $\beta_1$ for the model in part (c)? Did you expect the estimates to be different? Explain. Is the effect of strength at age 9 significant in this model?
+Is the estimate of $\beta_1$for this model, the coefficient for strength at age 9, the same as the estimate of $\beta_1$for the model in part (c)? Did you expect the estimates to be different? Explain. Is the effect of strength at age 9 significant in this model?
+
+```{r}
+# Fit the multiple regression model
+multi_model <- lm(BMI ~ ST9 + WT9, data = data)
+
+# Display the summary of the model
+summary(multi_model)
+
+```
+
+1. Estimate of $\beta_1$ (Effect of Strength at Age 9):
+- From the multiple regression model: $\hat{\beta}_1 = -0.05552$ (slope for $\text{ST9}$).
+- From the simple regression model in part (c): $\hat{\beta}_1 = 0.001023$.
+
+Comparison:
+- The estimates for $\beta_1$ differ significantly. 
+- In the simple regression model, the estimate reflects the total (unadjusted) association between $\text{ST9}$ and BMI. 
+- In the multiple regression model, the estimate reflects the unique contribution of $\text{ST9}$ to BMI, after adjusting for $\text{WT9}$. The negative coefficient in the multiple regression suggests that, after accounting for weight at age 9, greater strength is associated with lower BMI.
+
+Explanation:
+- This change is expected because $\text{WT9}$ and $\text{ST9}$ are likely correlated, and including $\text{WT9}$ in the model adjusts for its effect. This adjustment alters the interpretation of $\beta_1$.
+
+2. Is the Effect of Strength at Age 9 Significant?
+- The $t$-value for $\beta_1$: $t = -2.799$.
+- The $p$-value for $\beta_1$: $p = 0.00668$.
+
+Since $p < 0.05$, the effect of strength at age 9 ($\text{ST9}$) is statistically significant in the multiple regression model. This indicates that strength at age 9 has a significant relationship with BMI at age 18, after adjusting for weight at age 9 ($\text{WT9}$).
+
+3. Model Fit:
+- $R^2 = 0.3715$: About 37.15% of the variation in BMI at age 18 is explained by the model including $\text{ST9}$ and $\text{WT9}$. This is a substantial improvement compared to the simple regression model ($R^2 \approx 0.00003$).
+- Adjusted $R^2 = 0.3528$: Adjusted for the number of predictors, this still shows a significant improvement in explanatory power.
+
+Conclusion:
+1. The estimate of $\beta_1$ (effect of $\text{ST9}$) in the multiple regression model differs from the simple regression model due to adjustment for $\text{WT9}$. This is expected because $\text{WT9}$ and $\text{ST9}$ are correlated.
+2. In the multiple regression model, the effect of $\text{ST9}$ is significant ($p = 0.00668$), indicating that strength at age 9 contributes uniquely to predicting BMI at age 18, after accounting for weight at age 9.
+3. Adding $\text{WT9}$ significantly improves the model fit, as shown by the increase in $R^2$.
 
 ## (e) 
 
@@ -67,11 +295,69 @@ $$
 BMI_i = \beta_0 + \beta_1 WT2_i + \beta_2 HT2_i + \beta_3 WT9_i + \beta_4 HT9_i + \beta_5 ST9_i + \epsilon_i, \text{ for } i = 1, ..., 70
 $$
 
-Report and interpret in context the $R^2$ value.
+Report and interpret in context the $R^2$value.
+
+```{r}
+# Fit the multiple regression model
+full_model <- lm(BMI ~ WT2 + HT2 + WT9 + HT9 + ST9, data = data)
+
+# Display the summary of the model
+summary(full_model)
+```
+
+$R^2$ Value:
+  - $R^2 = 0.4431$:
+  - This indicates that 44.31% of the variability in BMI at age 18 is explained by the model, which includes weight and height at ages 2 and 9 ($\text{WT2}, \text{HT2}, \text{WT9}, \text{HT9}$), and strength at age 9 ($\text{ST9}$).
+
+The model explains a moderate portion of the variation in BMI at age 18 using early-life measurements of weight, height, and strength. This suggests that these predictors collectively have a meaningful, though not complete, ability to account for differences in BMI at age 18 among the individuals in the dataset. While other factors not included in the model likely contribute to the remaining unexplained variability (approximately 55.69%), the predictors used provide useful insights into BMI development from early and middle childhood characteristics.
 
 ## (f) 
 
 Report estimates of the six partial regression coefficients for the model in part (e), their standard errors, and the value of the corresponding t-tests and p-values (for two-sided alternatives to the null hypothesis). For each t-test, explicitly state the null hypothesis that is tested and interpret the result in context.
+
+### Estimates, Standard Errors, t-Values, and p-Values:
+
+From the provided regression output for the model:
+
+```{r}
+summary(full_model)
+```
+
+
+1. Intercept ($\beta_0$):
+- Null Hypothesis ($H_0$): $\beta_0 = 0$ (BMI at age 18 is 0 when all predictors are 0).
+- Alternative Hypothesis ($H_a$): $\beta_0 \neq 0$.
+- Interpretation: The intercept is significant ($p = 0.0008$), indicating that the predicted baseline BMI (when all predictors are 0) is non-zero. However, the intercept may not be meaningful in this context due to the lack of real-world relevance for predictors being zero.
+
+2. Weight at Age 2 ($\beta_1$):
+- Null Hypothesis ($H_0$): $\beta_1 = 0$ (Weight at age 2 has no effect on BMI at age 18, after accounting for other predictors).
+- Alternative Hypothesis ($H_a$): $\beta_1 \neq 0$.
+- Interpretation: The coefficient for $\text{WT2}$ is not significant ($p = 0.2585$), suggesting that weight at age 2 does not significantly predict BMI at age 18 after adjusting for other variables.
+
+3. Height at Age 2 ($\beta_2$):
+- Null Hypothesis ($H_0$): $\beta_2 = 0$ (Height at age 2 has no effect on BMI at age 18, after accounting for other predictors).
+- Alternative Hypothesis ($H_a$): $\beta_2 \neq 0$.
+- Interpretation: The coefficient for $\text{HT2}$ is not significant ($p = 0.1430$), suggesting that height at age 2 does not significantly predict BMI at age 18 after adjusting for other variables.
+
+4. Weight at Age 9 ($\beta_3$):
+- Null Hypothesis ($H_0$): $\beta_3 = 0$ (Weight at age 9 has no effect on BMI at age 18, after accounting for other predictors).
+- Alternative Hypothesis ($H_a$): $\beta_3 \neq 0$.
+- Interpretation: The coefficient for $\text{WT9}$ is highly significant ($p = 5.2 \times 10^{-7}$), indicating that weight at age 9 is a strong predictor of BMI at age 18, after adjusting for other predictors.
+
+5. Height at Age 9 ($\beta_4$):
+- Null Hypothesis ($H_0$): $\beta_4 = 0$ (Height at age 9 has no effect on BMI at age 18, after accounting for other predictors).
+- Alternative Hypothesis ($H_a$): $\beta_4 \neq 0$.
+- Interpretation: The coefficient for $\text{HT9}$ is not significant ($p = 0.9336$), suggesting that height at age 9 does not significantly predict BMI at age 18 after adjusting for other variables.
+
+6. Strength at Age 9 ($\beta_5$):
+- Null Hypothesis ($H_0$): $\beta_5 = 0$ (Strength at age 9 has no effect on BMI at age 18, after accounting for other predictors).
+- Alternative Hypothesis ($H_a$): $\beta_5 \neq 0$.
+- Interpretation: The coefficient for $\text{ST9}$ is marginally significant ($p = 0.0499$), indicating that strength at age 9 has a small but significant effect on BMI at age 18, after adjusting for other predictors. The negative sign suggests that greater strength at age 9 is associated with a slightly lower BMI at age 18.
+
+Summary:
+- The strongest predictor of BMI at age 18 is weight at age 9 ($\text{WT9}$), with a large positive effect and a highly significant result.
+- Other variables, such as weight and height at age 2 and height at age 9, do not significantly contribute to predicting BMI at age 18 after adjusting for the other predictors.
+- Strength at age 9 ($\text{ST9}$) has a small but significant negative effect on BMI at age 18.
 
 \newpage 
 
@@ -103,14 +389,68 @@ knitr::include_graphics("2a.png")
 
 Give a description of the parameters ($\beta$’s) for Living Area and Age in the multiple linear regression model.
 
+In the context of the multiple linear regression model predicting Sale Price ($Y$) from Living Area ($X_1$) and Age ($X_2$), the parameters $\beta$ have the following interpretations:
+
+1. Intercept ($\beta_0$):  
+   The intercept represents the expected Sale Price of a house when both Living Area ($X_1$) and Age ($X_2$) are 0. From the output, $\beta_0 = 66,464$. This value is only meaningful if 0 is within the range of the observed data for both predictors.
+
+2. Living Area ($\beta_1$):  
+   The parameter $\beta_1 = 102.62349$ represents the expected change in Sale Price for each additional square foot of Living Area, holding Age constant. This suggests that, on average, a one-square-foot increase in Living Area is associated with an increase of approximately $102.62 in Sale Price.
+
+3. Age ($\beta_2$):  
+   The parameter $\beta_2 = -1072.88363$ represents the expected change in Sale Price for each additional year of Age, holding Living Area constant. This indicates that, on average, each additional year in the house's age is associated with a decrease of approximately $1,072.88 in Sale Price.
+
+### Context
+These coefficients quantify the individual contributions of Living Area and Age to the Sale Price of homes in Ames, Iowa, while controlling for the other variable in the model.
+
 ## (b) 
 
-What is the value of $R^2$ and its interpretation for the model including Living Area and Age?
+What is the value of $R^2$and its interpretation for the model including Living Area and Age?
+
+An $R^2$of 0.6865 means that approximately 68.65% of the variability in Sale Price is explained by the linear regression model that includes Living Area and Age as predictors.
 
 ## (c) 
 
 Using the ANOVA table, conduct the F-test for the overall significance of the model. Report the null and alternative hypotheses, test statistic and p-value, and interpret the result in context.
 
+$$
+H_0: \beta_1 = \beta_2 = 0
+$$
+
+$$
+H_a: \text{At least one } \beta_i \neq 0 \text{ (for } i = 1, 2\text{)}.
+$$
+
+From the ANOVA table:
+- Model Sum of Squares (SSM): $1.283227 \times 10^{13}$
+- Error Sum of Squares (SSE): $5.85885 \times 10^{12}$
+- Total Sum of Squares (SST): $1.869112 \times 10^{13}$
+- Degrees of Freedom for the Model: $2$
+- Degrees of Freedom for Error: $2922$
+
+The F-test statistic is given by:  
+
+$$
+F = \frac{\text{MSM}}{\text{MSE}}
+$$
+
+$$
+\text{MSM} = \frac{\text{SSM}}{\text{DF}_{\text{Model}}}, \quad \text{MSE} = \frac{\text{SSE}}{\text{DF}_{\text{Error}}}
+$$
+
+- $\text{MSM} = \frac{1.283227 \times 10^{13}}{2} = 6.416137 \times 10^{12}$
+- $\text{MSE} = \frac{5.85885 \times 10^{12}}{2922} = 2005082271$
+
+$$
+F = \frac{6.416137 \times 10^{12}}{2005082271} \approx 3199.94
+$$
+
+
+From the output, the p-value is reported as $< 0.0001$. This indicates extremely strong evidence against the null hypothesis.
+
+Given the extremely small p-value ($< 0.0001$), we reject the null hypothesis at any reasonable significance level (e.g., $\alpha = 0.05$).
+
+The F-test indicates that the regression model including Living Area and Age is statistically significant overall. This means that the predictors (Living Area and Age) collectively explain a significant proportion of the variability in Sale Price. In other words, the model has significant explanatory power.
 
 ## (d) 
 
@@ -120,9 +460,53 @@ Give the t-test for the significance of each explanatory variable in the model. 
 
 Living Area
 
+$$
+H_0: \beta_1 = 0
+$$
+
+$$
+H_a: \beta_1 \neq 0
+$$
+
+From the regression output:
+- Parameter Estimate ($\hat{\beta}_1$): $102.62349$
+- Standard Error (SE): $1.74084$
+
+$$
+t = \frac{\hat{\beta}_1}{\text{SE}} = \frac{102.62349}{1.74084} \approx 58.95
+$$
+
+From the output, the p-value for Living Area is reported as $< 0.0001$, indicating strong evidence against the null hypothesis.
+
+Since the p-value is much smaller than any reasonable significance level (e.g., $\alpha = 0.05$), we reject the null hypothesis.
+
+The t-test for Living Area indicates that it is a statistically significant predictor of Sale Price. Specifically, after controlling for Age, there is strong evidence that Living Area is associated with changes in Sale Price. For each additional square foot of Living Area, the Sale Price is expected to increase by approximately $102.62, on average.
+
 ### ii. 
 
 Age 
+
+$$
+H_0: \beta_2 = 0
+$$
+
+$$
+H_a: \beta_2 \neq 0
+$$
+
+From the regression output:
+- Parameter Estimate ($\hat{\beta}_2$): $-1072.88363$
+- Standard Error (SE): $28.21248$
+
+$$
+t = \frac{\hat{\beta}_2}{\text{SE}} = \frac{-1072.88363}{28.21248} \approx -38.03
+$$
+
+From the output, the p-value for Age is reported as $< 0.0001$, indicating strong evidence against the null hypothesis.
+
+Since the p-value is much smaller than any reasonable significance level (e.g., $\alpha = 0.05$), we reject the null hypothesis.
+
+The t-test for Age indicates that it is a statistically significant predictor of Sale Price. Specifically, after controlling for Living Area, there is strong evidence that Age is associated with changes in Sale Price. For each additional year of Age, the Sale Price is expected to decrease by approximately $1,072.88, on average. This suggests that older homes tend to sell for lower prices, holding Living Area constant.
 
 ## (e) 
 
@@ -138,7 +522,56 @@ knitr::include_graphics("2e.png")
 
 How much is the reduction to the Sums of Squares for Error for adding Basement Area and Total Room to the model with Living Area and Age?
 
+To calculate the reduction in the Sum of Squares for Error ($\text{SSE}$) due to adding Basement Area and Total Room to the model, we compare the SSE from the initial model (with Living Area and Age only) to the updated model (with Living Area, Age, Basement Area, and Total Room).
+
+- SSE for the initial model (Living Area and Age): $5.85885 \times 10^{12}$
+- SSE for the updated model (Living Area, Age, Basement Area, Total Room): $4.36077 \times 10^{12}$
+
+$$
+\text{Reduction in SSE} = \text{SSE (initial model)} - \text{SSE (updated model)}
+$$
+
+$$
+\text{Reduction in SSE} = 5.85885 \times 10^{12} - 4.36077 \times 10^{12}
+$$
+
+$$
+\text{Reduction in SSE} = 1.49808 \times 10^{12}
+$$
+
+By adding Basement Area and Total Room to the model, the Sum of Squares for Error was reduced by $1.49808 \times 10^{12}$, indicating that these two variables contribute significantly to explaining the variation in Sale Price.
+
 ### ii. 
 
 Provide the partial F-test for the significance of Basement Area and Total Room in the model with Living Area and Age. Report the null and alternative hypotheses, test statistic and p-value, and interpret the result in context.
 
+$$
+H_0: \beta_{\text{BasementArea}} = \beta_{\text{TotalRoom}} = 0
+$$
+
+$$
+H_a: \text{At least one of } \beta_{\text{BasementArea}} \text{ or } \beta_{\text{TotalRoom}} \neq 0
+$$
+
+$$
+F = \frac{\left( \frac{\text{Reduction in SSE}}{\text{DF}_{\text{new}} - \text{DF}_{\text{old}}} \right)}{\text{MSE (updated model)}}
+$$
+
+From the output:
+- Reduction in SSE: $1.49808 \times 10^{12}$ (calculated in part i)
+- Degrees of Freedom for new variables: $\text{DF}_{\text{new}} - \text{DF}_{\text{old}} = 4 - 2 = 2$
+- Mean Squared Error (MSE) of the updated model: $1493926329$
+
+$$
+F = \frac{\left( \frac{1.49808 \times 10^{12}}{2} \right)}{1493926329}
+$$
+
+$$
+F = \frac{7.4904 \times 10^{11}}{1493926329} \approx 5014.58
+$$
+
+Using the output and the extremely large F-value of $5014.58$, the p-value is reported as $< 0.0001$. This indicates strong evidence against the null hypothesis.
+
+Since the p-value is much smaller than any reasonable significance level (e.g., $\alpha = 0.05$), we reject the null hypothesis.
+
+The partial F-test shows that adding Basement Area and Total Room significantly improves the model for predicting Sale Price, beyond what is explained by Living Area and Age alone. These variables contribute additional explanatory power to the model and should be included.
