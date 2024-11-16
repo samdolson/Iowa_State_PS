@@ -272,31 +272,33 @@ parseClusterFile <- function(file) {
   # Initialize cluster assignments as NA
   clusterAssignment <<- rep(NA, length(allLines))
   
-  # Process each cluster 
+  # tbh this used to be a crazy for loop operation (who would've guessed?) 
+  # but then I saw the "monstrocity" Craig made 
+  # and this is loosely adapted off that 
   lapply(seq_along(splitVec), function(i) {
     elements <- splitVec[[i]]
     elements <- elements[!grepl("[A-Za-z]", elements)] 
     elements <- as.numeric(elements) 
     
+    # and yes, this breaks when I don't do a global assignment 
     clusterAssignment[elements] <<- i - 1
   })
   
-  return(as.vector(na.omit(clusterAssignment)))
+  as.vector(na.omit(clusterAssignment))
 }
 ```
 
-```{r}
+```{r, echo = T, results = F, eval = F}
 string_list <- c(
-  "Gautham", "I", "beg", "of", "you,", 
+  "Gautham", "I", "beg", "of", "you,",
   "have", "mercy", "upon", "me", "for", "committing", "the", "grave", "sin", "of", "writing", "a", "for", "loop,",
-  "forgive", "me", "my", "sins", "of", "not", "believing", "us", "to", "be", "rational,", 
+  "forgive", "me", "my", "sins", "of", "not", "believing", "us", "to", "be", "rational,",
   "and", "forgive", "me", "most", "of", "all", "for", "not", "having", "yet", "learned", "how", "to", "play", "Bridge."
 )
 
 for (word in string_list) {
   print(word)
 }
-
 ```
 
 ## (b)
@@ -326,128 +328,119 @@ Let \( X \sim N_3(\mu, \Sigma) \), where \( \mu = \left(\frac{1}{\sqrt{3}}, \fra
 
 Write a function in R which generates a sample of \( Y \) of size \( n \) as outlined above. 
 
-```{r}
-library(MASS)
-
-generate_Y_sample <- function(n, rho) {
-  mu <- rep(1 / sqrt(3), 3)
-  sigma <- matrix(rho, nrow = 3, ncol = 3)
-  diag(sigma) <- 1 
+```{r} 
+library(MASS) 
+mu <- c(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3))
+generate_Y <- function(n, mu, Sigma) {
+  X <- MASS::mvrnorm(n, mu = mu, Sigma = Sigma)
   
-  X <- mvrnorm(n, 
-               mu = mu, 
-               Sigma = sigma)
-  # Y <- t(apply(X = X, 
-  #              MARGIN = 1, 
-  #              FUN = function(x) {x / sqrt(sum(x^2))} 
-  #              ))
-  
-  # Calculate the norms (sqrt of sum of squares) for each row
+  # still unsure if this normalizing/standardizing is right 
   row_norms <- sqrt(rowSums(X^2))
-  # Use sweep to divide each row by its corresponding norm
   Y <- sweep(X, MARGIN = 1, STATS = row_norms, FUN = "/")
-  
   Y
 }
-
-set.seed(43)
-Y_sample <- generate_Y_sample(n = 100, 
-                              rho = 0.5)
-head(Y_sample)
 ```
 
 ## (b)
 
 For different \( \rho \in \{-0.5, -0.25, 0, 0.25, 0.5\} \), display the observations in three dimensions. You may use \( n = 100 \) as the sample size in each case. Comment. 
 
-```{r}
-library(rgl)
-library(knitr)
-library(rmarkdown)
-
-# This makes pngs, but doesn't include them inline/indocument 
-
-plot_Y_for_single_rho <- function(n, rho) {
-  Y <- generate_Y_sample(n, rho)
-  open3d()
-  plot3d(x = Y[, 1], 
-         y = Y[, 2], 
-         z = Y[, 3], 
-         col = "black", 
-         type = "s", 
-         size = 0.5, 
-         xlab = "Y1", 
-         ylab = "Y2", 
-         zlab = "Y3", 
-         main = paste("rho =", rho))
-  
-  rglwidget()
-}
-
-rho_values <- c(-0.5, -0.25, 0, 0.25, 0.5)
-n <- 100
-
-for (rho in rho_values) {
-  plot_Y_for_single_rho(n, rho)
-  # Sys.sleep(0.5)  
-}
-```
-
-```{r}
+```{r, echo = T, message = F, warnings = F, results = T}
+# library(rgl)
+# library(knitr)
+# library(rmarkdown)
+# mainly use this scatterplot3d 
+# b/c the rgl stuff wouldn't play well with knitting together
 library(scatterplot3d)
 
-plot_Y_for_single_rho <- function(n, rho) {
-  Y <- generate_Y_sample(n, rho)
-  
-  scatterplot3d(x = Y[,1], 
-                y = Y[,2], 
-                z = Y[,3], 
-                main = paste("rho =", rho),
-                xlab = "Y1", 
-                ylab = "Y2", 
-                zlab = "Y3")
-}
-
 rho_values <- c(-0.5, -0.25, 0, 0.25, 0.5)
 n <- 100
 
-for (rho in rho_values) {
-  plot_Y_for_single_rho(n, rho)
-  # Sys.sleep(0.5)  
+par(mfrow = c(2, 3)) 
+set.seed(43)
+
+# for loop BAD, very BAD 
+# no more for loops
+# for loop BAD 
+# for (rho in rho_values) {
+#   Sigma <- matrix(rho, nrow = 3, ncol = 3)
+#   diag(Sigma) <- 1
+#   Y <- generate_Y(n, mu, Sigma)
+#     scatterplot3d::scatterplot3d(x =Y[, 1], 
+#                                  y = Y[, 2], 
+#                                  z = Y[, 3],
+#                                  color = "black",
+#                                  pch = 16,
+#                                  main = paste("Corr =", rho),
+#                                  xlab = "X1",
+#                                  ylab = "X2",
+#                                  zlab = "X3")
+# }
+
+plot_Rho <- function(rho) {
+  Sigma <- matrix(rho, nrow = 3, ncol = 3)
+  diag(Sigma) <- 1
+  Y <- generate_Y(n, mu, Sigma)
+  scatterplot3d::scatterplot3d(x = Y[, 1], 
+                                y = Y[, 2], 
+                                z = Y[, 3],
+                                color = "black",
+                                pch = 16,
+                                main = paste("Corr =", rho),
+                                xlab = "X1",
+                                ylab = "X2",
+                                zlab = "X3")
 }
+
+par(mfrow = c(2, 3))
+
+# need this or you'll get like 10 extra pages of nonsense of my R console smh
+invisible(lapply(X = rho_values, 
+                 FUN = plot_Rho))
+
 ```
 
-Comment: Boy, sure is a bit difficult to compare these plots, amiright? 
+Smaller (or Zero) correlation (Rho): There's more dispersion (across variables/ across dimensions) over the sphere when Rho has a smaller magnitude (-.25, 0, and .25). 
 
-But for serious, I'm replotting again for some perspective. 
+Positive correlation (larger Rho): Positive Rho values mean positive correlation (across variables/ across dimensions), causing observations to cluster more tightly together (lower dispersion, at times appearing more like a diagonal line across the surface of the sphere). 
 
-```{r}
+Negative correlation (negative Rho): Negative Rho values mean negative correlation (across variables/ across dimensions). This pushes the observations toward opposite quadrants (quadrants of a sphere? anyways, I mean we see things more like the pairs (+x, -y, +z) or (-x, +y, -z)).
+
+Zero correlation (Rho): When Rho is zero then the variables are uncorrelated, resulting in observations that spread more uniformly on the sphere, without strong clustering in any particular direction.
+
+\newpage 
+
+Alternative, incorrect (I believe) code given below, for reference. Thank you again, Gautham, for clarifying your understanding of this question. 
+
+```{r, echo = T, results = F, eval = F}
+# REFERENCE, NOT MY ANSWER 
+# no sphere, no beers, amiright
+library(MASS)
 library(scatterplot3d)
 
-plot_Y_for_single_rho <- function(n, rho, angle = 45, phi = 20) {
-  Y <- generate_Y_sample(n, rho)
-  
-  scatterplot3d(
-    x = Y[,1], 
-    y = Y[,2], 
-    z = Y[,3], 
-    main = paste("rho =", rho),
-    xlab = "Y1", 
-    ylab = "Y2", 
-    zlab = "Y3",
-    angle = angle,   # horizontal angle
-    phi = phi        # vertical angle
-  )
+# alternative method
+sampleYs<- function(n,rho) {
+  Sigma<- matrix(c(1,rho,rho,rho,1,rho,rho,rho,1),nrow=3,ncol=3)
+  X<-mvrnorm(n,mu,Sigma)
+  Y<- X/norm(X)
+  return(Y)
 }
 
+# rho, rho, rho your boat
 rho_values <- c(-0.5, -0.25, 0, 0.25, 0.5)
-n <- 100
+par(mfrow = c(2, 3)) 
 
-# Plot with a fixed perspective different than default
-for (rho in rho_values) {
-  plot_Y_for_single_rho(n, rho, angle = 45, phi = 20)
-  # Sys.sleep(0.5)  
-}
+invisible(lapply(X = rho_values, 
+                 FUN = function(rho) {
+  Y <- sampleYs(100, rho) 
+  scatterplot3d::scatterplot3d(x = Y[, 1], 
+                               y = Y[, 2], 
+                               z= Y[, 3],
+                               color = "black",
+                               pch = 16,
+                               main = paste("Corr =", rho),
+                               xlab = "X1",
+                               ylab = "X2",
+                               zlab = "X3")
+}))
 ```
-
-Lower values of Rho (correlation) tend to exhibit a greater spread/dispersion of observations/values. By contrast we see something more akin to a 3-dimensional diagonal line. Positive rho values tend to cluster about positive values (x, y, z), whereas negative rho values tend to cluster about opposite ends of the quadrants, i.e. exhibiting positive-negative-positive, negative-positive-negative, etc. combinations of pairs for observations. 
