@@ -64,6 +64,8 @@ mleEst <- optimize(f = logLike,
 theta_mle <- mleEst$maximum
 log_lik_mle <- mleEst$objective
 
+# adding messages like the newton function
+# pretty nifty, yeah?
 cat(paste0("The maximum likelihood estimate of theta is:", theta_mle, "\n"))
 cat(paste0("The maximum log-likelihood value is:", log_lik_mle, "\n"))
 ```
@@ -92,6 +94,7 @@ newton <- function(fun, derf, x0, eps) {
     if (abs(x0 - x1) < eps || abs(fun(x1)) < 1e-10)
       break
     x0 <- x1
+    # me-ow, again
     cat("****** Iter. No:", iter, " Current Iterate =", x1, "\n", fill = TRUE)
   }
   return(x1)
@@ -125,7 +128,7 @@ theta_mle_2_7 <- newton(fun = logLikePrime,
                         eps = tolerance)
 cat(paste0("The MLE of theta with initial value -2.7 is:", theta_mle_2_7))
 ```
-In both instances we achieve convergence to a local maximums. This happens because the method used doesn't look over a large enough range of values, i.e. it finds a sufficient area for searching and either peaks or flat areas of a curve can cause the procedure to converge not to the global maximum. This is because the `newton` function as-written is sensitive to local maximums, such that we are able to satisfy the exit criteria of the optimization process without converging to the global maximum. 
+In both instances we achieve convergence to a local maximum. This happens because the method used doesn't look over a large enough range of values, i.e. it finds a sufficient area for searching finds the "peaks" of those areas, not always arriving at the global maximum. This is because the `newton` function as-written, but also somewhat generally, encounters this issue, as we are able to satisfy convergence criteria without guanrenteeing we found the global maximum over the entire range of values being considered. (I think this is an illustration of why we sometimes add random noise to optimization procedures, as a way to "escape" local max or mins.) 
 
 \newpage 
 
@@ -140,7 +143,6 @@ $$
 $$
 \frac{\partial^2 \ell}{\partial \theta^2} = - \sum_{i=1}^n \frac{1}{1 - \cos(x_i - \theta)}
 $$
-
 
 # Q2:
 
@@ -173,16 +175,16 @@ genNextGen <- function(df) {
   permM <- sample(df$M, size = nrow(df))
   
   nextGen <- data.frame(M = permM, F = df$F)
-  # get values for update
   nextGen$Mean_Height <- apply(X = nextGen, 
                                MARGIN = 1, 
                                FUN = function(row) {mean(row)}
                                )
-  # update dataset
+  # update
   nextGen <- data.frame(M = nextGen$Mean_Height, F = nextGen$Mean_Height)
   nextGen
 }
 
+# start with gen1
 nextGen <- genNextGen(df = gen1)
 head(nextGen)
 ```
@@ -197,15 +199,14 @@ Use the above function to generate nine generations, then use `ggplot2` to facet
 library(purrr)
 
 genMGen <- function(df, nGen) {
-  # Create a list of generations by iterating over 1:nGen
   generations <- map(1:nGen, function(i) {
     if (i > 1) {
-      df <<- genNextGen(df)  # Update df for each generation
+      # update
+      df <<- genNextGen(df)  
     }
     df$M
   })
   
-  # Combine into a data frame
   genDat <- data.frame(
     Generation = rep(1:nGen, each = nrow(df)),
     Male_Height = unlist(generations)
@@ -214,7 +215,9 @@ genMGen <- function(df, nGen) {
   genDat
 }
 
-# Call the function with your parameters
+# iterate until we reach 9th generation
+# FUN FACT WE ARE ON THE 9TH GENERATION OF POKEMON
+# COINCIDENCE!?!?
 nGenData <- genMGen(df = gen1, nGen = 9)
 ```
 
@@ -263,13 +266,47 @@ The objective here is to write a function which will read one of the files above
 
 To do this, we can use the `readLines` function to read the file line-by-line (each line will be read in as a character string). Then, we can use multiple string-matching methods to parse the first line to obtain the number of clusters. The second line is a blank line. The first line after each blank line contains the size of the cluster (with memberships following in the next lines). Again, we will use string-splitting and matching techniques (e.g., `strsplit`) to obtain the cluster size. The next lines are converted from character strings to integers. Write the above function. 
 
+Notes: 
+  
+  - Iris1: 37, 50, 63
+  - Iris2: 100, 50 
+  - Want rows, columns to add up to above dimensions 
+
 ```{r}
-parseClusterFile <- function(file) {
+# for loop 
+# "BAD" version
+parseClusterFileLoop <- function(file) {
+  allLines <- readLines(file)
+  groups <- cumsum(allLines == "")
+  splitVec <- split(allLines[allLines != ""], groups[allLines != ""])
+  clusterAssignment <- list()
+  
+  for (i in seq_along(splitVec)) {
+    elements <- splitVec[[i]]
+    elements <- elements[!grepl("[A-Za-z]", elements)] 
+    elements <- as.numeric(elements)
+    
+    if (length(elements) == 0) next
+      clusterAssignment[[i]] <- data.frame(
+      observation = elements,
+      cluster = i - 1 
+    )
+  }
+  
+  result <- do.call(rbind, clusterAssignment)
+  result <- result[order(result$observation), "cluster"]
+  return(result)
+}
+
+
+# non for loop
+# requires global assignment 
+parseClusterFileGlobal <- function(file) {
   allLines <- readLines(file)
   groups <- cumsum(allLines == "")
   splitVec <- split(allLines[allLines != ""], groups[allLines != ""])
   
-  # Initialize cluster assignments as NA
+  # GLOBAL
   clusterAssignment <<- rep(NA, length(allLines))
   
   # tbh this used to be a crazy for loop operation (who would've guessed?) 
@@ -286,7 +323,88 @@ parseClusterFile <- function(file) {
   
   as.vector(na.omit(clusterAssignment))
 }
+
+# non for loop
+# no global assignment 
+parseClusterFile <- function(file) {
+  allLines <- readLines(file)
+  groups <- cumsum(allLines == "")
+  splitVec <- split(allLines[allLines != ""], groups[allLines != ""])
+  
+  clusterAssignments <- unlist(
+    mapply(function(group, index) {
+      elements <- as.numeric(group[!grepl("[A-Za-z]", group)])
+      setNames(rep(index - 1, length(elements)), elements)
+    }, 
+    splitVec, seq_along(splitVec))
+  )
+  
+  clusterAssignments <- clusterAssignments[order(as.numeric(names(clusterAssignments)))]
+  return(as.vector(clusterAssignments))
+}
+
 ```
+
+### An Alternative Method? 
+
+Issues with alternative: 
+  
+  - Pre-initializes/loads in the data, then processes it
+  - Assumes fixed positions (are Iris 1 and Iris 2 structured exactly the same?)
+
+```{r}
+iris1<- readLines("Iris1.out")
+iris2<- readLines("Iris2.out")
+
+# Ethan's version
+# weirdFn<- function(iris_i) {
+#   num_clusters<- as.numeric(sub(pattern = "Number of clusters : *",
+#   replacement = "", x = iris_i[1]))
+#   blanks<- which(nchar(iris_i)==0)
+#   cluster_sizes<- as.numeric(sub(pattern = "Cluster . ; size=*",
+#   replacement = "", x = iris_i[(blanks[1:num_clusters]+1)]))
+#   group_indicators<-c()
+#   
+#   for (i in 1:(length(blanks)-1)) {
+#     x<- rep(i-1,cluster_sizes[i])
+#     group_indicators<- c(group_indicators,x)
+#   }
+#   return(group_indicators)
+# }
+
+weirdFn <- function(iris_i) {
+  num_clusters <- as.numeric(sub(
+    pattern = "Number of clusters : *",
+    replacement = "",
+    x = iris_i[1]
+  ))
+  
+  blanks <- which(nchar(x = iris_i) == 0)
+  cluster_sizes <- as.numeric(sub(
+    pattern = "Cluster . ; size=*",
+    replacement = "",
+    x = iris_i[(blanks[1:num_clusters] + 1)]
+  ))
+  
+  group_indicators <- unlist(
+    mapply(
+      FUN = function(index, size) rep(x = index - 1, length.out = size),
+      seq_along(cluster_sizes), 
+      cluster_sizes           
+    )
+  )
+  
+  return(group_indicators)
+}
+
+## weird, this gives slightly different answers than my "main" method
+# iris1Out <- weirdFn(iris1)
+# iris2Out <- weirdFn(iris2)
+# 
+# table(iris1Out, iris2Out)
+```
+
+### A Message for Gautham 
 
 ```{r, echo = T, results = F, eval = F}
 string_list <- c(
@@ -316,6 +434,47 @@ irisTable <- table(Iris1, Iris2)
 irisTable
 ```
 
+The above method using `parseClusterFile` corresponds to the output given by "Ethan's method". This is such a headache. Whew! 
+
+### Alternate Methods
+
+This alternative methods provides slightly different answers. I feel not great about that, but for the purposes of grading I'm just including these for comparison. I stand by the above method and its output in terms of which one I "choose" as an answer.
+
+```{r}
+# global assignment method 
+Iris1 <- parseClusterFileGlobal("Iris1.out")
+Iris1
+
+Iris2 <- parseClusterFileGlobal("Iris2.out")
+Iris2
+
+irisTable <- table(Iris1, Iris2)
+irisTable
+```
+
+```{r}
+# for loop method 
+Iris1 <- parseClusterFileLoop("Iris1.out")
+Iris1
+
+Iris2 <- parseClusterFileLoop("Iris2.out")
+Iris2
+
+irisTable <- table(Iris1, Iris2)
+irisTable
+```
+
+```{r}
+# Ethan's method
+iris1Out <- weirdFn(iris1)
+iris2Out <- weirdFn(iris2)
+
+iris1Out
+iris2Out
+
+table(iris1Out, iris2Out)
+```
+
 # Q4:
 
 Multivariate Normal Sampling and Standardization
@@ -323,6 +482,16 @@ Multivariate Normal Sampling and Standardization
 Let \( X \sim N_3(\mu, \Sigma) \), where \( \mu = \left(\frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}}\right)' \) and \( \Sigma \) is a \( 3 \times 3 \) diagonal matrix with diagonal elements 1 and off-diagonal elements \( \rho \). Consider standardizing \( X \) to get \( Y = \frac{X}{\|X\|} \).
 
 (Estimating parameters in the general scenario, for large \( p \), and factorial structure of \( \Sigma \) where we specify \( \Sigma = \Lambda \Lambda' + \Psi \), with the basics first introduced in Stat 5010, was part of the Fall 2020 dissertation of Fan Dai from Iowa State University.)
+
+## Gautham Commentary: 
+
+My understanding of Q4.a) is that:
+
+  - using just X doesn't answer the question
+  - to get one sample of Y, you would need one sample of X (a multivariate normal sample, which can be any 3D value), and normalize it so it ends up on the surface of the unit sphere.
+  - For n samples of Y, we can probably write an apply with a custom function, use the rowNorm/sweep code given below, or   equivalents
+
+Q4.b) then asks how the sampled data looks visually. How does the covariance matrix affect distribution on the sphere? Using just X, you don't get data on a sphere, so 4.b) becomes harder to answer.
 
 ## (a)
 
