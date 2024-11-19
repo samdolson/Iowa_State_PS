@@ -4,13 +4,6 @@ output: pdf_document
 date: "2024-11-11"
 ---
 
-# Clarifications
-
-  - Q1 (d): Interpretation of significance, does it require note of the other explanatory variables? 
-  - Q2 (c): Partial F-test or overall; if partial, how do you get the p-value 
-  - Q3 (b): Same question as Q1 (d) 
-  - Anything additional for us to add aside from overall model summary comparisons? 
-
 # Q1 
 
 Use SAS to run the multiple linear regression model for cityCO2 with Engine, Cylinder, and CityMPG as explanatory variables. Use the output to complete the following exercises.
@@ -43,7 +36,7 @@ p-value: < 0.0001
 $H_0: \beta_1 = \beta_2 = \beta_3 = 0$
 $H_A: \text{at least one } \beta_i \neq 0 \text{ for i = 1, 2, 3}$
 
-Interpretation: We have overwhelming evidence to reject the null hypothesis (at the $\alpha = 0.05$ level in particular) in favor of evidence of the alternative hypothesis that at least one of our explantatory variables is significantly different from zero. Said differently, there is evidence that at least one of the following variables is statistically significant in predicting the mean C02 emissions of vehicles in city driving: Engine displacement, number of cylinders, and Fuel economy in city driving. 
+Interpretation: We have overwhelming evidence to reject the null hypothesis (at the $\alpha = 0.05$ level in particular) in favor of evidence of the alternative hypothesis that at least one of our explanatory variables is significantly different from zero (the value of the estimated slope of the parameters). Said differently, there is evidence that at least one of the following variables has a linear relationship with the response variable, which is to say at least one of the explanatory variables is statistically significant in predicting the mean C02 emissions of vehicles in city driving: Engine displacement, number of cylinders, and Fuel economy in city driving. 
 
 ## (c) 
 
@@ -63,7 +56,7 @@ $H_A: \beta_1 \neq 0 \text{ or } \beta_{Engine} = 0$
 
 Where the slope parameter for the Engine explanatory variable corresponds to the index value 1 in our model. 
 
-Interpretation: We have evidence to reject the null hypothesis at the $\alpha  = 0.05$ level, such that we have evidence to support the alternative hypothesis that the slope parameter for the Engine explanatory variable (displacement of the engine in liters) is not equal to zero. This suggests evidence that increasing the displacement of the engine (in liters) is associated with an increase in C02 emissions, all else being equal (or holding the other explanatory variables in the above model constant). 
+Interpretation: We have evidence to reject the null hypothesis at the $\alpha  = 0.05$ level, such that we have evidence in support of the alternative hypothesis that the slope parameter for the Engine explanatory variable (displacement of the engine in liters) is not equal to zero in the model that includes Cylinder and CityMPG. This suggests evidence that increasing the displacement of the engine (in liters) is associated with an increase in C02 emissions, all else being equal (or given the other explanantory variables). 
 
 \newpage
 
@@ -91,7 +84,7 @@ $$
 
 Difference: $SS_{error, model 1} - SS_{error, model 2}$ = 173480 - 164229 = 9251
 
-Sum of Squared errors is reduced by 9251 by adding the Gears explanatory variable to the prior model. 
+Sum of Squared errors is reduced by 9251 by adding the Gears explanatory variable to the prior model (model that includes engine, cylinder, and cityMPG). 
 
 ## (b) 
 
@@ -105,9 +98,9 @@ $$
 R^2_{model 2} = 0.94
 $$
 
-Difference: $SS_{error, model 2} - SS_{error, model 1}$ = 0.94 - 0.9366 = 0.0034
+Difference: $R^2_{model 2} - R^2_{model 1}$ = 0.94 - 0.9366 = 0.0034
 
-$R^2$ increases by 0.0034, or we add an additional 0.34% of variability being explained. 
+$R^2$ increases by 0.0034, or we add an additional 0.34% of variability being explained by adding the Gears variable to the model with Engine, Cylinder, and cityMPG. 
 
 ## (c) 
 
@@ -128,10 +121,12 @@ p_value
 F-statistic: 10.98431
 p-value: 0.0011 (From the model output). 
 
-$H_0: \beta_{Gears} = 0$ 
-$H_A: \beta_{Gears} \neq 0$ 
+$H_0: \beta_{Gears} = 0$  ($\beta_{Gears} = \beta_4$, the additional explanatory variable)
+$H_A: \beta_{Gears} \neq 0$ ($\beta_{Gears} = \beta_4$, the additional explanatory variable)
 
-We have evidence to reject the null hypothesis at the $\alpha = 0.05$ level, such that we have evidence in support of the alternative hypothesis that the slope of the Gears explanatory variable is not zero. This is to say that we have evidence that increasing the number of the gears (in a car) is associated with an decrease in C02 emissions, all else being equal (or holding the other explanatory variables in the above model constant). We have evidence to suggest  that including Gears as an explanatory variable improves the model's ability to explain variability in CO2 emissions. 
+We have evidence to reject the null hypothesis at the $\alpha = 0.05$ level, such that we have evidence in support of the alternative hypothesis that the slope of the Gears explanatory variable is not zero in the model that also includes Engine, Cylinder, and cityMPG. This is to say that we have evidence of a negative linear relationship between the Gears variable and the response variable of C02 emissions, in the model that includes the explanatory variables of Engine, Cylinder, and cityMPG (aka given other explanatory variables). 
+
+This is to say we have evidence that increasing the number of the gears (in a car) is associated with an decrease in C02 emissions (when we treat the other explanatory variables fixed). We also have evidence to suggest that including Gears as an explanatory variable to the model with Engine, Cylinder, and cityMPG further improves the model's ability to explain variability in CO2 emissions. 
 
 \newpage
 
@@ -149,7 +144,7 @@ knitr::include_graphics("m3.png")
 
 Give the equation for predicting the cityCO2 values from the four explanatory variables for vehicles with two intake valves per cylinder and for vehicles that do not have two intake valves per cylinder. What is the difference in these two equations?
 
-With 2 exhaust vales per cylinder:
+With 2 exhaust vales per cylinder (Intake = 1):
 
 $$
 \hat{Y_i} = b_0 + b_1x_{(i, engine)} + b_2x_{(i, cylinder)} + b_3x_{(i, cityMP{G})} + b_4x_{(i, Gears)} + b_4x_+{(i, Intake)}
@@ -163,7 +158,7 @@ $$
 \hat{Y_i} = 682.358 + 1.3773x_{(i, engine)} + 22.3167x_{(i, cylinder)} -15.3258x_{(i, cityMPG)} - 5.48x_{(i, Gears)}
 $$
 
-Without 2 exhaust vales per cylinder:
+Without 2 exhaust vales per cylinder (Intake = 0):
 
 $$
 \hat{Y_i} = b_0 + b_1x_{(i, engine)} + b_2x_{(i, cylinder)} + b_3x_{(i, cityMP{G})} + b_4x_{(i, Gears)}
@@ -185,7 +180,11 @@ p-value: 0.0275
 $H_0: \beta_{Intake} = 0$ 
 $H_A: \beta_{Intake} \neq 0$ 
 
-Interpretation: We have evidence to reject the null hypothesis at the $\alpha  = 0.05$ level, such that we have evidence to support the alternative hypothesis that the slope parameter for the Intake explanatory variable (having 2 exhaust valves per cylinder) is not equal to zero. This suggests evidence that changing the number of intake values per cylinder to 2 is associated with a decrease in C02 emissions, all else being equal (or holding the other explanatory variables in the above model constant). 
+significant effect when you have 0 intake valves 
+
+Note: Intake of "1" means we have 2 intake valves per cylinder, and "0" means we do not have 2 intake valves per cylinder. 
+
+Interpretation: We have evidence to reject the null hypothesis at the $\alpha  = 0.05$ level, such that we have evidence to support the alternative hypothesis that the beta coefficient for the Intake explanatory variable (having 2 exhaust valves per cylinder) is not equal to zero for the model that includes Engine, Cylinder, cityMPG, and Gears explanatory variables. This suggests evidence that changing the number of intake values per cylinder to 2 is associated with a decrease in C02 emissions (holding the other explanatory variables in our model fixed). 
 
 \newpage
 
