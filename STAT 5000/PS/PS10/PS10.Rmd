@@ -148,7 +148,9 @@ significant_results <- significant_results[!duplicated(t(apply(significant_resul
 significant_results
 ```
 
-$\text{HT9}, \text{WT9}, \text{WT2}$, and $\text{ST9}$ are strongly or moderately correlated with multiple other variables, where "strongly" or "moderately" is whether the magnitude of correlation (|Rho|) is greater than or equal to 0.35 (for moderate, 0.50 for strong). Pairwise comparisons are listed below for variables with correlations stronger in magnitude than 0.05, which is all of them. Please pardon the redundancies as Cor(HT9, HT2) = Cor(HT2, HT9): 
+$\text{HT9}, \text{WT9}, \text{WT2}$, and $\text{ST9}$ are strongly or moderately correlated with multiple other variables, where "strongly" or "moderately" is whether the magnitude of correlation (|Rho|) is greater than or equal to 0.35 (for moderate, 0.50 for strong). Pairwise comparisons are listed below for variables with correlations stronger in magnitude than 0.05, which is all of them. Additionally, all of the pairwise comparisons considered had significant p-values, or p-values whose values are below the $\alpha = 0.05$ threshold. 
+
+Please pardon the redundancies as Cor(HT9, HT2) = Cor(HT2, HT9): 
 
 ### HT2
 
@@ -208,34 +210,40 @@ qqnorm(resid(model))
 qqline(resid(model), col = "black")
 ```
 
-### Least Squares Estimates:
+### Least Squares Formula:
 
-From the regression summary:
-  - $\hat{\beta}_0 = 21.471$: This is the estimated intercept, meaning that the predicted BMI for a girl with $\text{ST9} = 0$ is 21.471.
-  - $\hat{\beta}_1 = 0.001$: This is the estimated slope, meaning that for each one-unit increase in strength at age 9 ($\text{ST9}$), the predicted BMI increases by 0.001 on average.
+$$
+\hat{Y_i} = b_0 + b_1x_{(i, ST9)} 
+$$
+
+$$
+\hat{Y_i} = 21.471009 + 0.001023x_{(i, ST9)}
+$$
+
+So our estimated intercept of the least squares model, $b_0$ is 21.471009, and for $b_1$ we have 0.001023. 
 
 ### Significance of Slope:
 
-  - Null Hypothesis ($H_0$): The slope $\beta_1 = 0$ (strength at age 9 has no effect on BMI at age 18).
-  - Alternative Hypothesis ($H_a$): The slope $\beta_1 \neq 0$ (strength at age 9 affects BMI at age 18).
+  - $H_0$: $\beta_1 = 0$ 
+  - $H_a$: $\beta_1 \neq 0$ 
   - $t$-value for the slope: $t = 0.046$.
   - $p$-value for the slope: $p = 0.963$.
 
-Since $p = 0.963$, which is much greater than $\alpha = 0.05$, we fail to reject the null hypothesis. The slope is not significantly different from zero, meaning that strength at age 9 does not significantly predict BMI at age 18.
+For $p = 0.963$, we do not meet the threshold of $\alpha = 0.05$, such that we fail to reject the null hypothesis. This means we do not have evidence to support the slope of the linear regression to be significantly different from zero. (We do not have evidence to reject that strength at age 9 does not significantly predict BMI at age 18.) 
 
 ### Residual Plots:
 
-  - Residuals vs. ST9:
-    - The residuals are scattered randomly around 0, which indicates no clear pattern and suggests that the assumption of linearity is reasonable.
-    - However, there is one potential outlier with a residual near 15, which could affect the results.
-  - Normal Q-Q Plot:
-    - The residuals generally follow the red line, indicating approximate normality.
-    - However, the tails deviate slightly, suggesting that the normality assumption might not hold perfectly, particularly due to the outlier.
+#### Residuals Plot:
 
-### Model Fit:
+  - The residuals are scattered randomly around 0, which indicates no clear pattern and suggests that the assumption of linearity is reasonable.
+  - The aforementioned point is conditional on the removal of outliers. There are a few points that could be outliers in the data, such that their removal would provide a residual plot that looks good, i.e. conforms to our expectations were our assumptions (of linearity and of equal variances) not being violated.
 
-  - $R^2 = 0.00003139$: This indicates that only 0.003% of the variation in BMI at age 18 is explained by strength at age 9. This is an extremely poor fit.
-  - Adjusted $R^2 = -0.01467$: The adjusted $R^2$ is negative, which further confirms that the model does not explain the data well.
+#### Normal Q-Q Plot:
+
+  - The residuals generally follow the reference line for the first few theoretical quantiles, though we do observe some deviations from the reference line at the tails of the distribution. Generally, it appears that our assumption of normality of errors is not being violated. 
+  - Again, we do observe some points that could be considered outliers, such that their possible removal would help to further validate our assumptions are not being violated.
+
+A Quick Note on Model Fit: $R^2 = 0.00003139$: This indicates that only 0.003% of the variation in BMI at age 18 is explained by strength at age 9. And Adj. $R^2 = -0.01467$ is negative. So this really is not an especially great model fit. 
 
 ## (d) 
 
@@ -254,33 +262,21 @@ summary(multi_model)
 
 ### Estimate of $\beta_1$ (Effect of Strength at Age 9):
 
-  - From the multiple regression model: $\hat{\beta}_1 = -0.05552$ (slope for $\text{ST9}$).
-  - From the simple regression model in part (c): $\hat{\beta}_1 = 0.001023$.
+  - From the multiple regression model: $\hat{\beta}_1 = -0.05552$ 
+  - From the simple regression model in part (c): $\hat{\beta}_1 = 0.001023$
 
 ### Comparison:
 
-  - The estimates for $\beta_1$ differ significantly. 
-  - In the simple regression model, the estimate reflects the total (unadjusted) association between $\text{ST9}$ and BMI. 
-  - In the multiple regression model, the estimate reflects the unique contribution of $\text{ST9}$ to BMI, after adjusting for $\text{WT9}$. The negative coefficient in the multiple regression suggests that, after accounting for weight at age 9, greater strength is associated with lower BMI.
+  - Between the two models, the estimates for $\beta_1$ differ significantly, both in sign (positive to negative), to magnitude (from decimal place of hundreths to decimal place of thousanths). 
+  - This is somewhat understandable though, as their interpretations between models differ: In the simple regression model, the estimate reflects the total (unadjusted) association between $\text{ST9}$ and BMI. By contrast, in the multiple regression model, the estimate reflects the unique contribution of $\text{ST9}$ to BMI, after adjusting for $\text{WT9}$. The negative coefficient in the multiple regression suggests that, after accounting for weight at age 9, greater strength is associated with lower BMI.
+  - I would argue that this change is not unexpected, but instead expected, because $\text{WT9}$ and $\text{ST9}$ are likely correlated given our prior correlations (the two variables ST9 and WT9 in our multiple regression are positively correlated with one another). 
 
-### Explanation:
-  - This change is expected because $\text{WT9}$ and $\text{ST9}$ are likely correlated, and including $\text{WT9}$ in the model adjusts for its effect. This adjustment alters the interpretation of $\beta_1$.
+### Is the Effect of Strength at Age 9 Significant (In the Multiple Regression Model)?
 
-### Is the Effect of Strength at Age 9 Significant?
+  - The $t$-value (test statistic) for ST9: $t = -2.799$.
+  - The $p$-value for the estimated parameter ST9: $p = 0.00668$.
 
-  - The $t$-value for $\beta_1$: $t = -2.799$.
-  - The $p$-value for $\beta_1$: $p = 0.00668$.
-
-Since $p < 0.05$, the effect of strength at age 9 ($\text{ST9}$) is statistically significant in the multiple regression model. This indicates that strength at age 9 has a significant relationship with BMI at age 18, after adjusting for weight at age 9 ($\text{WT9}$).
-
-### Model Fit:
-    - $R^2 = 0.3715$: About 37.15% of the variation in BMI at age 18 is explained by the model including $\text{ST9}$ and $\text{WT9}$. This is a substantial improvement compared to the simple regression model ($R^2 \approx 0.00003$).
-    - Adjusted $R^2 = 0.3528$: Adjusted for the number of predictors, this still shows a significant improvement in explanatory power.
-
-### Conclusion:
-  - The estimate of $\beta_1$ (effect of $\text{ST9}$) in the multiple regression model differs from the simple regression model due to adjustment for $\text{WT9}$. This is expected because $\text{WT9}$ and $\text{ST9}$ are correlated.
-  - In the multiple regression model, the effect of $\text{ST9}$ is significant ($p = 0.00668$), indicating that strength at age 9 contributes uniquely to predicting BMI at age 18, after accounting for weight at age 9.
-  - Adding $\text{WT9}$ significantly improves the model fit, as shown by the increase in $R^2$.
+Since the above p-value is smaller than the $\alpha = 0.05$ level threshold, we have evidence to reject the null hypothesis. This means we have evidence that strength at age 9 ($\text{ST9}$) is statistically significant in the multiple regression model estimating BMI at age 18 that includes WT9 as an explanatory variable. This indicates that strength at age 9 has a significant relationship with BMI at age 18, after adjusting for weight at age 9 ($\text{WT9}$) (or for a constant/fixed value of WT9).
 
 ## (e) 
 
@@ -311,38 +307,62 @@ summary(full_model)
 
 ### Intercept ($\beta_0$):
 
-  - Null Hypothesis ($H_0$): $\beta_0 = 0$ (BMI at age 18 is 0 when all predictors are 0).
-  - Alternative Hypothesis ($H_a$): $\beta_0 \neq 0$.
+  - $H_0$: $\beta_0 = 0$ (BMI at age 18 is 0 when all predictors are 0).
+  - $H_a$: $\beta_0 \neq 0$.
+  - Estimate: 30.855335
+  - SE: 8.781156 
+  - t-test: 3.514
+  - p-value: 0.000817
   - Interpretation: The intercept is significant ($p = 0.0008$), indicating that the predicted baseline BMI (when all predictors are 0) is non-zero. However, the intercept may not be meaningful in this context due to the lack of real-world relevance for predictors being zero.
 
 ### Weight at Age 2 ($\beta_1$):
 
-  - Null Hypothesis ($H_0$): $\beta_1 = 0$ (Weight at age 2 has no effect on BMI at age 18, after accounting for other predictors).
-  - Alternative Hypothesis ($H_a$): $\beta_1 \neq 0$.
+  - $H_0$: $\beta_1 = 0$ (Weight at age 2 has no effect on BMI at age 18, after accounting for other predictors).
+  - $H_a$: $\beta_1 \neq 0$.
+  - Estimate: -0.317779
+  - SE: 0.278736
+  - t-test: -1.140    
+  - p-value: 0.258505
   - Interpretation: The coefficient for $\text{WT2}$ is not significant ($p = 0.2585$), suggesting that weight at age 2 does not significantly predict BMI at age 18 after adjusting for other variables.
 
 ### Height at Age 2 ($\beta_2$):
 
-  - Null Hypothesis ($H_0$): $\beta_2 = 0$ (Height at age 2 has no effect on BMI at age 18, after accounting for other predictors).
-  - Alternative Hypothesis ($H_a$): $\beta_2 \neq 0$.
+  - $H_0$: $\beta_2 = 0$ (Height at age 2 has no effect on BMI at age 18, after accounting for other predictors).
+  - $H_a$: $\beta_2 \neq 0$.
+  - Estimate: -0.193997
+  - SE: 0.130819
+  - t-test: -1.483 
+  - p-value: 0.142996
   - Interpretation: The coefficient for $\text{HT2}$ is not significant ($p = 0.1430$), suggesting that height at age 2 does not significantly predict BMI at age 18 after adjusting for other variables.
 
 ### Weight at Age 9 ($\beta_3$):
 
-  - Null Hypothesis ($H_0$): $\beta_3 = 0$ (Weight at age 9 has no effect on BMI at age 18, after accounting for other predictors).
-  - Alternative Hypothesis ($H_a$): $\beta_3 \neq 0$.
+  - $H_0$: $\beta_3 = 0$ (Weight at age 9 has no effect on BMI at age 18, after accounting for other predictors).
+  - $H_a$: $\beta_3 \neq 0$.
+  - Estimate: 0.419762
+  - SE: 0.075211
+  - t-test: 5.581
+  - p-value: 5.2e-07
   - Interpretation: The coefficient for $\text{WT9}$ is highly significant ($p = 5.2 \times 10^{-7}$), indicating that weight at age 9 is a strong predictor of BMI at age 18, after adjusting for other predictors.
 
 ### Height at Age 9 ($\beta_4$):
 
-  - Null Hypothesis ($H_0$): $\beta_4 = 0$ (Height at age 9 has no effect on BMI at age 18, after accounting for other predictors).
-  - Alternative Hypothesis ($H_a$): $\beta_4 \neq 0$.
+  - $H_0$: $\beta_4 = 0$ (Height at age 9 has no effect on BMI at age 18, after accounting for other predictors).
+  - $H_a$: $\beta_4 \neq 0$.
+  - Estimate: 0.008057
+  - SE: 0.096344
+  - t-test: 0.084
+  - p-value: 0.933613
   - Interpretation: The coefficient for $\text{HT9}$ is not significant ($p = 0.9336$), suggesting that height at age 9 does not significantly predict BMI at age 18 after adjusting for other variables.
 
 ### Strength at Age 9 ($\beta_5$):
 
-  - Null Hypothesis ($H_0$): $\beta_5 = 0$ (Strength at age 9 has no effect on BMI at age 18, after accounting for other predictors).
-  - Alternative Hypothesis ($H_a$): $\beta_5 \neq 0$.
+  - $H_0$: $\beta_5 = 0$ (Strength at age 9 has no effect on BMI at age 18, after accounting for other predictors).
+  - $H_a$: $\beta_5 \neq 0$.
+  - Estimate: -0.044416
+  - SE: 0.022219
+  - t-test: -1.999
+  - p-value: 0.049853
   - Interpretation: The coefficient for $\text{ST9}$ is marginally significant ($p = 0.0499$), indicating that strength at age 9 has a small but significant effect on BMI at age 18, after adjusting for other predictors. The negative sign suggests that greater strength at age 9 is associated with a slightly lower BMI at age 18.
 
 \newpage 
@@ -511,7 +531,7 @@ Reduction in SSE: $1.49808 e12$ (calculated in part i)
 Mean Squared Error (MSE) of the "full" model: $1493926329$
 
 $$
-F = \frac{\frac{SSE_{reduction}}{m}}{MSE_{full}} = \frac{\left( \frac{1.49808 \times 10^{12}}{2} \right)}{1493926329}  \approx 5014.58
+F = \frac{\frac{SSE_{reduction}}{m}}{MSE_{full}} = \frac{\left( \frac{1.49808 \times 10^{12}}{2} \right)}{1493926329}  \approx 501.3902
 $$
 
-Using the output and the extremely large F-value of $5014.58$, the p-value is reported as $< 0.0001$. This indicates overwhelming evidence in favor of rejecting the the null hypothesis. Interpretation: The partial F-test shows that adding Basement Area and Total Room significantly improves the model for predicting Sale Price, beyond what is explained by Living Area and Age alone. 
+Using the output and the extremely large F-value of $501.3902$, the p-value is reported as $< 0.0001$. This indicates overwhelming evidence in favor of rejecting the the null hypothesis. Interpretation: The partial F-test shows that adding Basement Area and Total Room significantly improves the model for predicting Sale Price, beyond what is explained by Living Area and Age alone. 
