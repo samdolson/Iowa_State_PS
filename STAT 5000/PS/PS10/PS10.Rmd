@@ -61,38 +61,42 @@ colnames(data) <- c(
 response_var <- "BMI"
 explanatory_vars <- c("HT2", "HT9", "WT2", "WT9", "ST9")
 
-correlations <- sapply(explanatory_vars, function(var) {
-  cor(data[[var]], data[[response_var]])
-})
-print(correlations)
+correlations <- sapply(X = explanatory_vars, 
+                       FUN = function(var) {
+                         cor(data[[var]], data[[response_var]])
+                         })
+correlations
 
-correlation_results <- sapply(explanatory_vars, function(var) {
-  test <- cor.test(data[[var]], data[[response_var]])
-  c("correlation" = round(test$estimate, 4), "p-value" = round(test$p.value, 4))
-})
+correlation_results <- sapply(X = explanatory_vars, 
+                              FUN = function(var) {
+                                test <- cor.test(data[[var]], data[[response_var]])
+                                c("correlation" = round(test$estimate, 4), "p-value" = round(test$p.value, 4))
+                                })
 
 correlation_results_df <- as.data.frame(t(correlation_results))
-correlation_results_df <- cbind(Variable = explanatory_vars, correlation_results_df)
+correlation_results_df <- cbind(variable = explanatory_vars, correlation_results_df)
 correlation_results_df
 ```
 
-Using `cor.test` we are able to extract both the correlation coefficient as well as its associated p-value for determining significance. For something to be "significant", we evaluate it at the $\alpha = 0.05$ level, such that we are testing whether the explanatory variable in question has a correlation coefficient with the response variable (BMI) significantly different from 0. That being said: 
+Using `cor.test` we are able to extract both the correlation coefficient as well as its associated p-value for determining significance. For something to be "significant", we evaluate it at the $\alpha = 0.05$ level, such that we are testing whether the explanatory variable in question has a correlation coefficient with the response variable (BMI) significantly different from 0 (null hypothesis, alternative being the correlation is not zero). That being said: 
 
-### Significant 
+### Significant Findings
 
-The only significant explanatory variables are for WT9 and HT9
+The only significant explanatory variables are for WT9 and HT9 at the level specified above are: 
 
-WT9:
+WT9: Weight (kg) at 9 years
    - Correlation: $0.5459$
    - $p$-value: $1.018837 e{-6}$
    - Significant: The correlation is strong, greater in magnitude to 0.5, and the p-value is smaller than our reference threshold. 
 
-HT9:
+HT9: Height (cm) at 9 years
    - Correlation: $0.2369$
    - $p$-value: $0.0483$
    - Significant: The correlation is not especially strong, but the p-value is below the 0.05 threshold.
 
-### Not Significant 
+### Not Significant Findings
+
+The other explanatory variables considered had small (close to zero estimated sample) correlations, and as such are found not to meet the significance threshold. 
 
 ST9:
    - Correlation: $0.0056$
@@ -121,6 +125,8 @@ n <- nrow(explanatory_data)
 p_values <- matrix(NA, nrow = length(explanatory_vars), ncol = length(explanatory_vars))
 rownames(p_values) <- colnames(p_values) <- explanatory_vars
 
+# For loops are allowed
+# Yipee! 
 for (i in 1:length(explanatory_vars)) {
   for (j in 1:length(explanatory_vars)) {
     if (i != j) {
@@ -142,42 +148,42 @@ significant_results <- significant_results[!duplicated(t(apply(significant_resul
 significant_results
 ```
 
-$\text{HT9}, \text{WT9}, \text{WT2}$, and $\text{ST9}$ are strongly or moderately correlated with multiple other variables. Pairwise comparisons are listed below for variables with correlations stronger in magnitude than 0.05, which is all of them. Please pardon the redundancies as Cor(HT9, HT2) = Cor(HT2, HT9): 
+$\text{HT9}, \text{WT9}, \text{WT2}$, and $\text{ST9}$ are strongly or moderately correlated with multiple other variables, where "strongly" or "moderately" is whether the magnitude of correlation (|Rho|) is greater than or equal to 0.35 (for moderate, 0.50 for strong). Pairwise comparisons are listed below for variables with correlations stronger in magnitude than 0.05, which is all of them. Please pardon the redundancies as Cor(HT9, HT2) = Cor(HT2, HT9): 
 
-### Variables with significant correlations with $\text{HT2}$:
+### HT2
 
-   - $\text{HT9}$ ($r = 0.7384$, $p \approx 3.00 \times 10^{-13}$): Strong positive correlation.
-   - $\text{WT2}$ ($r = 0.6445$, $p \approx 1.73 \times 10^{-9}$): Strong positive correlation.
-   - $\text{WT9}$ ($r = 0.5229$, $p \approx 3.42 \times 10^{-6}$): Moderate positive correlation.
-   - $\text{ST9}$ ($r = 0.3617$, $p \approx 2.09 \times 10^{-3}$): Weak positive correlation.
+   - $\text{HT9}$ $r = 0.7384$, $p \approx 3.00 e-13$
+   - $\text{WT2}$ $r = 0.6445$, $p \approx 1.73 e-9$
+   - $\text{WT9}$ $r = 0.5229$, $p \approx 3.42 e-6$
+   - $\text{ST9}$ $r = 0.3617$, $p \approx 2.09 e-3$
 
-### Variables with significant correlations with $\text{HT9}$:
+### HT9
 
-   - $\text{HT2}$ ($r = 0.7384$, $p \approx 3.00 \times 10^{-13}$): Strong positive correlation.
-   - $\text{WT2}$ ($r = 0.6071$, $p \approx 2.52 \times 10^{-8}$): Strong positive correlation.
-   - $\text{WT9}$ ($r = 0.7276$, $p \approx 9.69 \times 10^{-13}$): Strong positive correlation.
-   - $\text{ST9}$ ($r = 0.6034$, $p \approx 3.23 \times 10^{-8}$): Strong positive correlation.
+   - $\text{HT2}$ $r = 0.7384$, $p \approx 3.00 e-13$
+   - $\text{WT9}$ $r = 0.7276$, $p \approx 9.69 e-13$
+   - $\text{WT2}$ $r = 0.6071$, $p \approx 2.52 e-8$
+   - $\text{ST9}$ $r = 0.6034$, $p \approx 3.23 e-8$
 
-### Variables with significant correlations with $\text{WT2}$:
+### WT2
 
-   - $\text{HT2}$ ($r = 0.6445$, $p \approx 1.73 \times 10^{-9}$): Strong positive correlation.
-   - $\text{HT9}$ ($r = 0.6071$, $p \approx 2.52 \times 10^{-8}$): Strong positive correlation.
-   - $\text{WT9}$ ($r = 0.6925$, $p \approx 3.11 \times 10^{-11}$): Strong positive correlation.
-   - $\text{ST9}$ ($r = 0.4516$, $p \approx 8.71 \times 10^{-5}$): Moderate positive correlation.
+   - $\text{WT9}$ $r = 0.6925$, $p \approx 3.11 e-11$
+   - $\text{HT2}$ $r = 0.6445$, $p \approx 1.73 e-9$
+   - $\text{HT9}$ $r = 0.6071$, $p \approx 2.52 e-8$
+   - $\text{ST9}$ $r = 0.4516$, $p \approx 8.71 e-5$
 
-### Variables with significant correlations with $\text{WT9}$:
+### WT9
 
-   - $\text{HT2}$ ($r = 0.5229$, $p \approx 3.42 \times 10^{-6}$): Moderate positive correlation.
-   - $\text{HT9}$ ($r = 0.7276$, $p \approx 9.69 \times 10^{-13}$): Strong positive correlation.
-   - $\text{WT2}$ ($r = 0.6925$, $p \approx 3.11 \times 10^{-11}$): Strong positive correlation.
-   - $\text{ST9}$ ($r = 0.4530$, $p \approx 8.22 \times 10^{-5}$): Moderate positive correlation.
+   - $\text{HT9}$ $r = 0.7276$, $p \approx 9.69 e-13$
+   - $\text{WT2}$ $r = 0.6925$, $p \approx 3.11 e-11$
+   - $\text{HT2}$ $r = 0.5229$, $p \approx 3.42 e-6$
+   - $\text{ST9}$ $r = 0.4530$, $p \approx 8.22 e-5$
 
-### Variables with significant correlations with $\text{ST9}$:
+### ST9
 
-   - $\text{HT2}$ ($r = 0.3617$, $p \approx 2.09 \times 10^{-3}$): Weak positive correlation.
-   - $\text{HT9}$ ($r = 0.6034$, $p \approx 3.23 \times 10^{-8}$): Strong positive correlation.
-   - $\text{WT2}$ ($r = 0.4516$, $p \approx 8.71 \times 10^{-5}$): Moderate positive correlation.
-   - $\text{WT9}$ ($r = 0.4530$, $p \approx 8.22 \times 10^{-5}$): Moderate positive correlation.
+   - $\text{HT9}$ $r = 0.6034$, $p \approx 3.23 e-8$
+   - $\text{WT2}$ $r = 0.4516$, $p \approx 8.71 e-5$
+   - $\text{WT9}$ $r = 0.4530$, $p \approx 8.22 e-5$
+   - $\text{HT2}$ $r = 0.3617$, $p \approx 2.09 e-3$
 
 ## (c) 
 
@@ -196,10 +202,10 @@ summary(model)
 
 ```{r}
 plot(data$ST9, resid(model), main = "Residuals vs ST9", xlab = "ST9 (Strength at 9)", ylab = "Residuals")
-abline(h = 0, col = "red")
+abline(h = 0, col = "black")
 
 qqnorm(resid(model))
-qqline(resid(model), col = "red")
+qqline(resid(model), col = "black")
 ```
 
 ### Least Squares Estimates:
@@ -239,7 +245,7 @@ $$
 BMI_i = \beta_0 + \beta_1 ST9_i + \beta_2 WT9_i + \epsilon_i, \text{ for } i = 1, ..., 70
 $$
 
-Is the estimate of $\beta_1$for this model, the coefficient for strength at age 9, the same as the estimate of $\beta_1$for the model in part (c)? Did you expect the estimates to be different? Explain. Is the effect of strength at age 9 significant in this model?
+Is the estimate of $\beta_1$ for this model, the coefficient for strength at age 9, the same as the estimate of $\beta_1$ for the model in part (c)? Did you expect the estimates to be different? Explain. Is the effect of strength at age 9 significant in this model?
 
 ```{r}
 multi_model <- lm(BMI ~ ST9 + WT9, data = data)
@@ -375,17 +381,17 @@ knitr::include_graphics("2a.png")
 
 Give a description of the parameters ($\beta$’s) for Living Area and Age in the multiple linear regression model.
 
-Intercept ($\beta_0$): The intercept represents the expected Sale Price of a house when both Living Area ($X_1$) and Age ($X_2$) are 0. From the output, $\beta_0 = 66,464$. This value is only meaningful if 0 is within the range of the observed data for both predictors.
+Intercept ($b_0$): The intercept represents the expected Sale Price of a house when both Living Area ($X_1$) and Age ($X_2$) are 0. From the output, we estimate $b_0 = 66,464$. However, I cannot reasonably say that having Living Area and Age both set to input 0 makes sense in interpretation. 
 
-Living Area ($\beta_1$): The parameter $\beta_1 = 102.62349$ represents the expected change in Sale Price for each additional square foot of Living Area, holding Age constant. This suggests that, on average, a one-square-foot increase in Living Area is associated with an increase of approximately $102.62 in Sale Price.
+Living Area ($b_1$): The parameter $b_1 = 102.62349$ represents the expected change in Sale Price for each additional square foot of Living Area, holding Age constant. This suggests that, on average, a one-square-foot increase in Living Area is associated with an increase of approximately $102.62 in Sale Price when holding Age constant.
 
-Age ($\beta_2$): The parameter $\beta_2 = -1072.88363$ represents the expected change in Sale Price for each additional year of Age, holding Living Area constant. This indicates that, on average, each additional year in the house's age is associated with a decrease of approximately $1,072.88 in Sale Price.
+Age ($b_2$): The parameter $b_2 = -1072.88363$ represents the expected change in Sale Price for each additional year of Age, holding Living Area constant. This indicates that, on average, each additional year in the house's age is associated with a decrease of approximately $1,072.88 in Sale Price when holding Living Area constant.
 
 ## (b) 
 
-What is the value of $R^2$and its interpretation for the model including Living Area and Age?
+What is the value of $R^2$ and its interpretation for the model including Living Area and Age?
 
-An $R^2$of 0.6865 means that approximately 68.65% of the variability in Sale Price is explained by the linear regression model that includes Living Area and Age as explanatory variables (while also including an intercept term). 
+An $R^2$ of 0.6865 means that approximately 68.65% of the variability in Sale Price is explained by the linear regression model that includes Living Area and Age as explanatory variables (while also including an intercept term). 
 
 ## (c) 
 
