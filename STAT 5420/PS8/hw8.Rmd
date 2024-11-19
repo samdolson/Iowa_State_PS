@@ -6,14 +6,14 @@ date: "2024-11-19"
 
 # Outline 
   
-  - Q1 
-  - Q2 
-  - Q3 
-  - Q4
-  - Q5 
-  - Q6 
-  - Q7
-  - Q8
+  - Q1: DRAFT
+  - Q2: DRAFT 
+  - Q3: DRAFT 
+  - Q4: 
+  - Q5: DRAFT 
+  - Q6: DRAFT 
+  - Q7: 
+  - Q8: 
 
 # Q1 
 
@@ -23,13 +23,145 @@ Let $X_1$ and $X_2$ be independent exponential random variables with mean $\thet
 
 Find the joint moment generating function of $X_1$ and $X_2$.
 
+The **moment generating function (MGF)** of a random variable $X$ is defined as:
+
+$$
+M_X(t) = \mathbb{E}[e^{tX}]
+$$
+
+For an $\text{Exponential}(\theta)$ random variable, the mean is $\theta$, and the rate parameter $\lambda = 1/\theta$. The MGF of $X \sim \text{Exponential}(\lambda)$ is:
+
+$$
+M_X(t) = \frac{\lambda}{\lambda - t}, \quad t < \lambda.
+$$
+
+### Joint MGF of $X_1$ and $X_2$:
+
+Since $X_1$ and $X_2$ are independent exponential random variables, the joint MGF is the product of the individual MGFs:
+
+$$
+M_{X_1, X_2}(t_1, t_2) = \mathbb{E}[e^{t_1 X_1 + t_2 X_2}]
+$$
+
+Using independence:
+
+$$
+M_{X_1, X_2}(t_1, t_2) = \mathbb{E}[e^{t_1 X_1}] \cdot \mathbb{E}[e^{t_2 X_2}] = M_{X_1}(t_1) \cdot M_{X_2}(t_2).
+$$
+
+Each $M_{X_i}(t)$ has the same form as the MGF of an exponential random variable. Substituting $\lambda = 1/\theta$, we get:
+
+$$
+M_{X_1}(t_1) = \frac{\frac{1}{\theta}}{\frac{1}{\theta} - t_1} = \frac{1}{1 - \theta t_1}, \quad t_1 < \frac{1}{\theta}.
+$$
+
+$$
+M_{X_2}(t_2) = \frac{\frac{1}{\theta}}{\frac{1}{\theta} - t_2} = \frac{1}{1 - \theta t_2}, \quad t_2 < \frac{1}{\theta}.
+$$
+
+Thus, the joint MGF is:
+
+$$
+M_{X_1, X_2}(t_1, t_2) = \frac{1}{(1 - \theta t_1)} \cdot \frac{1}{(1 - \theta t_2)} = \frac{1}{(1 - \theta t_1)(1 - \theta t_2)}, \quad t_1, t_2 < \frac{1}{\theta}.
+$$
+
 ## (b) 
 
 Give the definition of the moment generating function of $X_1 - X_2$ and show how this can be obtained from part (a).
 
+### Definition of the Moment Generating Function
+
+The **moment generating function (MGF)** of a random variable $X$ is defined as:
+
+$$
+M_X(t) = \mathbb{E}[e^{tX}].
+$$
+
+For the random variable $X_1 - X_2$, the MGF is given by:
+
+$$
+M_{X_1 - X_2}(t) = \mathbb{E}[e^{t(X_1 - X_2)}].
+$$
+
+### Using the Joint MGF to Find $M_{X_1 - X_2}(t)$
+
+From part (a), the joint MGF of $X_1$ and $X_2$ is:
+
+$$
+M_{X_1, X_2}(t_1, t_2) = \frac{1}{(1 - \theta t_1)(1 - \theta t_2)}, \quad t_1, t_2 < \frac{1}{\theta}.
+$$
+
+To find the MGF of $X_1 - X_2$, substitute $t_1 = t$ and $t_2 = -t$ into the joint MGF, because $t(X_1 - X_2) = tX_1 - tX_2$:
+
+$$
+M_{X_1 - X_2}(t) = M_{X_1, X_2}(t, -t).
+$$
+
+Substituting into the expression for the joint MGF:
+
+$$
+M_{X_1 - X_2}(t) = \frac{1}{(1 - \theta t)(1 - \theta(-t))}.
+$$
+
+Simplify the denominator:
+
+$$
+M_{X_1 - X_2}(t) = \frac{1}{(1 - \theta t)(1 + \theta t)}.
+$$
+
+Expand the product in the denominator:
+
+$$
+M_{X_1 - X_2}(t) = \frac{1}{1 - (\theta t)^2}, \quad |t| < \frac{1}{\theta}.
+$$
+
+### Final Result
+
+The moment generating function of $X_1 - X_2$ is:
+
+$$
+M_{X_1 - X_2}(t) = \frac{1}{1 - (\theta t)^2}, \quad |t| < \frac{1}{\theta}.
+$$
+
 ## (c) 
 
 Find the distribution of $Y = X_1 - X_2$. Using the mgf, one can find that this is a so-called Laplace or double-exponential distribution.
+
+### Finding the Distribution of \( Y = X_1 - X_2 \)
+
+To find the distribution of \( Y = X_1 - X_2 \), we use the moment generating function (MGF) obtained in part (b):
+
+$$
+M_Y(t) = \frac{1}{1 - (\theta t)^2}, \quad |t| < \frac{1}{\theta}.
+$$
+
+#### Step 1: Recognizing the MGF of the Laplace Distribution
+
+The MGF of a Laplace (double-exponential) random variable \( Y \) with location parameter \( \mu \) and scale parameter \( b \) is:
+
+$$
+M_Y(t) = \frac{1}{1 - b^2 t^2}, \quad |t| < \frac{1}{b}.
+$$
+
+By comparing this with the MGF derived above, we identify that \( b = \theta \) and \( \mu = 0 \). Therefore, \( Y \) follows a **Laplace distribution** with location parameter \( \mu = 0 \) and scale parameter \( b = \theta \).
+
+#### Step 2: The Probability Density Function (PDF) of the Laplace Distribution
+
+The probability density function of a Laplace random variable \( Y \) with parameters \( \mu = 0 \) and \( b = \theta \) is:
+
+$$
+f_Y(y) = \frac{1}{2\theta} \exp\left(-\frac{|y|}{\theta}\right), \quad y \in \mathbb{R}.
+$$
+
+Thus, the distribution of \( Y = X_1 - X_2 \) is:
+
+$$
+f_Y(y) = \frac{1}{2\theta} \exp\left(-\frac{|y|}{\theta}\right), \quad y \in \mathbb{R}.
+$$
+
+#### Step 3: Interpretation
+
+This result confirms that the difference of two independent exponential random variables (with the same mean) follows a Laplace distribution centered at 0, with scale parameter equal to the mean of the exponential distribution. This distribution is often called a **double-exponential distribution** because it has exponential decay in both positive and negative directions.
 
 \newpage
 
@@ -41,9 +173,262 @@ Suppose the distribution of $Y$, conditional on $X = x$, is $N(x, x^2)$ and that
 
 Find $E[Y]$, $\text{Var}[Y]$, and $\text{Cov}(X, Y)$.
 
+To find \( E[Y] \), \( \text{Var}[Y] \), and \( \text{Cov}(X, Y) \), we use the law of total expectation and total variance.
+
+---
+
+### **Step 1: Conditional Distribution of \( Y | X = x \)**
+
+We are given that \( Y | X = x \sim N(x, x^2) \), so:
+- The conditional mean is \( \mathbb{E}[Y | X = x] = x \).
+- The conditional variance is \( \text{Var}(Y | X = x) = x^2 \).
+
+---
+
+### **(a) \( E[Y] \): Using the Law of Total Expectation**
+
+The law of total expectation states:
+
+$$
+\mathbb{E}[Y] = \mathbb{E}[\mathbb{E}[Y | X]].
+$$
+
+From the conditional mean, \( \mathbb{E}[Y | X = x] = x \). Thus:
+
+$$
+\mathbb{E}[Y] = \mathbb{E}[X].
+$$
+
+Since \( X \sim \text{Uniform}(0, 1) \), we know:
+
+$$
+\mathbb{E}[X] = \frac{1}{2}.
+$$
+
+Therefore:
+
+$$
+\mathbb{E}[Y] = \frac{1}{2}.
+$$
+
+---
+
+### **(b) \( \text{Var}[Y] \): Using the Law of Total Variance**
+
+The law of total variance states:
+
+$$
+\text{Var}(Y) = \mathbb{E}[\text{Var}(Y | X)] + \text{Var}(\mathbb{E}[Y | X]).
+$$
+
+- From the conditional variance, \( \text{Var}(Y | X = x) = x^2 \). Thus:
+
+$$
+\mathbb{E}[\text{Var}(Y | X)] = \mathbb{E}[x^2].
+$$
+
+Since \( X \sim \text{Uniform}(0, 1) \), \( \mathbb{E}[x^2] \) is the second moment of a uniform distribution:
+
+$$
+\mathbb{E}[x^2] = \int_0^1 x^2 \, dx = \frac{x^3}{3} \Big|_0^1 = \frac{1}{3}.
+$$
+
+- From the conditional mean, \( \mathbb{E}[Y | X = x] = x \), so:
+
+$$
+\text{Var}(\mathbb{E}[Y | X]) = \text{Var}(X).
+$$
+
+For \( X \sim \text{Uniform}(0, 1) \), \( \text{Var}(X) \) is:
+
+$$
+\text{Var}(X) = \frac{1}{12}.
+$$
+
+Substitute these results into the law of total variance:
+
+$$
+\text{Var}(Y) = \mathbb{E}[x^2] + \text{Var}(X) = \frac{1}{3} + \frac{1}{12}.
+$$
+
+Simplify:
+
+$$
+\text{Var}(Y) = \frac{4}{12} + \frac{1}{12} = \frac{5}{12}.
+$$
+
+---
+
+### **(c) \( \text{Cov}(X, Y) \): Using the Covariance Definition**
+
+The covariance is given by:
+
+$$
+\text{Cov}(X, Y) = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y].
+$$
+
+From \( \mathbb{E}[Y | X = x] = x \), we have:
+
+$$
+\mathbb{E}[XY] = \mathbb{E}[X \cdot \mathbb{E}[Y | X]] = \mathbb{E}[X^2].
+$$
+
+For \( X \sim \text{Uniform}(0, 1) \), \( \mathbb{E}[X^2] = \frac{1}{3} \). Also, we know \( \mathbb{E}[X] = \frac{1}{2} \) and \( \mathbb{E}[Y] = \frac{1}{2} \). Thus:
+
+$$
+\text{Cov}(X, Y) = \mathbb{E}[X^2] - \mathbb{E}[X]\mathbb{E}[Y] = \frac{1}{3} - \frac{1}{2} \cdot \frac{1}{2}.
+$$
+
+Simplify:
+
+$$
+\text{Cov}(X, Y) = \frac{1}{3} - \frac{1}{4} = \frac{4}{12} - \frac{3}{12} = \frac{1}{12}.
+$$
+
+---
+
+### **Final Results**
+
+1. \( \mathbb{E}[Y] = \frac{1}{2} \),
+2. \( \text{Var}(Y) = \frac{5}{12} \),
+3. \( \text{Cov}(X, Y) = \frac{1}{12} \).
+
 ## (b) 
 
 Prove that $\frac{Y}{X}$ and $X$ are independent.
+
+To prove that \(\frac{Y}{X}\) and \(X\) are independent, we need to show that the joint probability density function (PDF) of \((\frac{Y}{X}, X)\) can be written as the product of the marginal PDFs of \(\frac{Y}{X}\) and \(X\).
+
+---
+
+### Step 1: Joint PDF of \(X\) and \(Y\)
+
+The marginal distribution of \(X\) is uniform \((0, 1)\), so its PDF is:
+
+$$
+f_X(x) = 
+\begin{cases} 
+1, & 0 < x < 1, \\ 
+0, & \text{otherwise}.
+\end{cases}
+$$
+
+The conditional distribution of \(Y | X = x\) is \(N(x, x^2)\), so the conditional PDF is:
+
+$$
+f_{Y | X}(y | x) = \frac{1}{\sqrt{2\pi x^2}} \exp\left(-\frac{(y - x)^2}{2x^2}\right), \quad -\infty < y < \infty.
+$$
+
+The joint PDF of \(X\) and \(Y\) is:
+
+$$
+f_{X, Y}(x, y) = f_{Y | X}(y | x) f_X(x).
+$$
+
+Substituting \(f_X(x) = 1\) for \(0 < x < 1\):
+
+$$
+f_{X, Y}(x, y) = 
+\begin{cases} 
+\frac{1}{\sqrt{2\pi x^2}} \exp\left(-\frac{(y - x)^2}{2x^2}\right), & 0 < x < 1, \, -\infty < y < \infty, \\ 
+0, & \text{otherwise}.
+\end{cases}
+$$
+
+---
+
+### Step 2: Transformation to New Variables
+
+Define \(Z = \frac{Y}{X}\) and \(X = X\). Then:
+
+$$
+Y = Z \cdot X.
+$$
+
+The Jacobian of the transformation is:
+
+$$
+\begin{vmatrix}
+\frac{\partial Y}{\partial Z} & \frac{\partial Y}{\partial X} \\
+\frac{\partial X}{\partial Z} & \frac{\partial X}{\partial X}
+\end{vmatrix}
+=
+\begin{vmatrix}
+X & Z \\
+0 & 1
+\end{vmatrix}
+= X.
+$$
+
+Thus, the joint PDF of \((Z, X)\) is:
+
+$$
+f_{Z, X}(z, x) = f_{X, Y}(x, y) \cdot \left| \text{Jacobian} \right| = f_{X, Y}(x, z \cdot x) \cdot x.
+$$
+
+Substitute \(Y = z \cdot x\) into \(f_{X, Y}(x, y)\):
+
+$$
+f_{X, Y}(x, y) = \frac{1}{\sqrt{2\pi x^2}} \exp\left(-\frac{(y - x)^2}{2x^2}\right),
+$$
+
+so:
+
+$$
+f_{Z, X}(z, x) = \frac{1}{\sqrt{2\pi x^2}} \exp\left(-\frac{(z \cdot x - x)^2}{2x^2}\right) \cdot x.
+$$
+
+Simplify \(z \cdot x - x = x(z - 1)\):
+
+$$
+f_{Z, X}(z, x) = \frac{x}{\sqrt{2\pi x^2}} \exp\left(-\frac{(x(z - 1))^2}{2x^2}\right).
+$$
+
+Cancel \(x\) terms in the denominator:
+
+$$
+f_{Z, X}(z, x) = \frac{1}{\sqrt{2\pi}} \exp\left(-\frac{(z - 1)^2}{2}\right) \cdot f_X(x).
+$$
+
+Since \(f_X(x) = 1\) for \(0 < x < 1\), we have:
+
+$$
+f_{Z, X}(z, x) = \frac{1}{\sqrt{2\pi}} \exp\left(-\frac{(z - 1)^2}{2}\right) \cdot 1.
+$$
+
+---
+
+### Step 3: Marginal PDFs
+
+- The marginal PDF of \(Z = \frac{Y}{X}\) is:
+
+$$
+f_Z(z) = \frac{1}{\sqrt{2\pi}} \exp\left(-\frac{(z - 1)^2}{2}\right), \quad -\infty < z < \infty.
+$$
+
+- The marginal PDF of \(X\) is:
+
+$$
+f_X(x) = 1, \quad 0 < x < 1.
+$$
+
+---
+
+### Step 4: Independence
+
+The joint PDF \(f_{Z, X}(z, x)\) factors as:
+
+$$
+f_{Z, X}(z, x) = f_Z(z) \cdot f_X(x).
+$$
+
+Since the joint PDF is the product of the marginal PDFs, \(Z = \frac{Y}{X}\) and \(X\) are independent.
+
+---
+
+### Conclusion
+
+\(\frac{Y}{X}\) and \(X\) are independent.
 
 \newpage
 
@@ -52,6 +437,94 @@ Prove that $\frac{Y}{X}$ and $X$ are independent.
 Find the pdf of $\prod_{i=1}^n X_i$, where the $X_i$'s are independent uniform $(0, 1)$ random variables.
 
 *(Hint: Try to calculate the cdf, and remember the relationship between uniforms and exponentials.)*
+
+To find the PDF of \( W = \prod_{i=1}^n X_i \), where the \( X_i \)'s are independent \(\text{Uniform}(0, 1)\) random variables, we proceed as follows:
+
+---
+
+### Step 1: Understanding the Problem
+
+Each \( X_i \sim \text{Uniform}(0, 1) \), meaning:
+
+$$
+f_{X_i}(x) = 
+\begin{cases} 
+1, & 0 \leq x \leq 1, \\ 
+0, & \text{otherwise}.
+\end{cases}
+$$
+
+We define \( W = \prod_{i=1}^n X_i \), which maps the product of the \( X_i \)'s into a single random variable \( W \) on \((0, 1)\). 
+
+---
+
+### Step 2: CDF of \( W \)
+
+To find the PDF of \( W \), we first compute its CDF, \( F_W(w) = P(W \leq w) \), and then differentiate.
+
+#### (a) Start with the definition of the CDF:
+$$
+F_W(w) = P(W \leq w) = P\left(\prod_{i=1}^n X_i \leq w\right).
+$$
+
+#### (b) Transform the inequality:
+Take the logarithm on both sides (recall that \( \ln \) is monotonic and \(\ln(w) < 0\) for \(w \in (0, 1)\)):
+
+$$
+P\left(\prod_{i=1}^n X_i \leq w\right) = P\left(\sum_{i=1}^n \ln(X_i) \leq \ln(w)\right).
+$$
+
+Let \( Y_i = -\ln(X_i) \). Each \( Y_i \) is an **Exponential(1)** random variable because if \( X_i \sim \text{Uniform}(0, 1) \), then \( -\ln(X_i) \sim \text{Exponential}(1) \). Thus, the sum \( S = \sum_{i=1}^n Y_i \) follows a **Gamma distribution** with shape parameter \( n \) and rate parameter \( 1 \), denoted \( S \sim \text{Gamma}(n, 1) \). 
+
+The PDF of \( S \) is:
+
+$$
+f_S(s) = \frac{s^{n-1} e^{-s}}{\Gamma(n)}, \quad s > 0.
+$$
+
+Thus:
+
+$$
+F_W(w) = P\left(\sum_{i=1}^n Y_i \leq -\ln(w)\right) = P(S \leq -\ln(w)).
+$$
+
+---
+
+### Step 3: Compute the PDF of \( W \)
+
+The CDF of \( W \) is:
+
+$$
+F_W(w) = \int_0^{-\ln(w)} \frac{s^{n-1} e^{-s}}{\Gamma(n)} \, ds, \quad 0 < w \leq 1.
+$$
+
+The PDF of \( W \) is the derivative of the CDF:
+
+$$
+f_W(w) = \frac{d}{dw} \left[ \int_0^{-\ln(w)} \frac{s^{n-1} e^{-s}}{\Gamma(n)} \, ds \right].
+$$
+
+Using the fundamental theorem of calculus and the chain rule, we get:
+
+$$
+f_W(w) = \frac{1}{w} \cdot \frac{(-\ln(w))^{n-1} e^{-\ln(w)}}{\Gamma(n)}, \quad 0 < w \leq 1.
+$$
+
+Simplify \( e^{-\ln(w)} = \frac{1}{w} \):
+
+$$
+f_W(w) = \frac{(-\ln(w))^{n-1}}{\Gamma(n) w^{n}}, \quad 0 < w \leq 1.
+$$
+
+---
+
+### Final Result
+
+The PDF of \( W = \prod_{i=1}^n X_i \) is:
+
+$$
+f_W(w) = \frac{(-\ln(w))^{n-1}}{\Gamma(n) w^n}, \quad 0 < w \leq 1.
+$$
 
 \newpage
 
@@ -83,6 +556,88 @@ Show that the joint distribution of $Z$ and $Y$ is not bivariate normal. *(Hint:
 
 Bullets are fired at the origin of an $(x, y)$ coordinate system, and the point hit, say $(X, Y)$, is a random variable. The variables $X$ and $Y$ are taken to be independent $N(0, 1)$ random variables. If two bullets are fired independently, what is the distribution of the distance between them?
 
+### Problem Overview
+
+Two bullets are fired independently at points \((X_1, Y_1)\) and \((X_2, Y_2)\), where \(X_1, Y_1, X_2, Y_2 \sim N(0, 1)\) are independent standard normal random variables. The distance between the two points is given by:
+
+$$
+R = \sqrt{(X_2 - X_1)^2 + (Y_2 - Y_1)^2}.
+$$
+
+We aim to find the distribution of \(R\).
+
+---
+
+### Step 1: Distribution of \(X_2 - X_1\) and \(Y_2 - Y_1\)
+
+Since \(X_1, X_2 \sim N(0, 1)\) are independent, the difference \(X_2 - X_1\) is also normally distributed:
+
+$$
+X_2 - X_1 \sim N(0, 2).
+$$
+
+Similarly, \(Y_2 - Y_1 \sim N(0, 2)\).
+
+---
+
+### Step 2: Distribution of the Squared Distance \(R^2\)
+
+The squared distance is:
+
+$$
+R^2 = (X_2 - X_1)^2 + (Y_2 - Y_1)^2.
+$$
+
+Let \(Z_1 = X_2 - X_1\) and \(Z_2 = Y_2 - Y_1\). Then \(Z_1, Z_2 \sim N(0, 2)\), and they are independent. The squared terms are:
+
+$$
+Z_1^2 \sim \text{Scaled-Chi-Square}(1, \sigma^2 = 2), \quad Z_2^2 \sim \text{Scaled-Chi-Square}(1, \sigma^2 = 2).
+$$
+
+For a standard normal variable \(Z \sim N(0, 1)\), \(Z^2 \sim \chi^2(1)\). Scaling by \(\sigma^2 = 2\), \(Z_1^2\) and \(Z_2^2\) are scaled \(\chi^2(1)\):
+
+$$
+Z_1^2 \sim 2 \cdot \chi^2(1), \quad Z_2^2 \sim 2 \cdot \chi^2(1).
+$$
+
+Since \(Z_1^2 + Z_2^2\) is the sum of two independent scaled \(\chi^2(1)\) variables, it follows that:
+
+$$
+Z_1^2 + Z_2^2 \sim 2 \cdot \chi^2(2).
+$$
+
+A \(\chi^2(2)\) distribution is equivalent to an \(\text{Exponential}(1)\) distribution. Scaling by 2, we have:
+
+$$
+R^2 \sim \text{Exponential}\left(\frac{1}{2}\right).
+$$
+
+---
+
+### Step 3: Distribution of \(R\)
+
+The random variable \(R = \sqrt{R^2}\) is the square root of an \(\text{Exponential}\left(\frac{1}{2}\right)\) random variable. The PDF of \(R^2 \sim \text{Exponential}\left(\frac{1}{2}\right)\) is:
+
+$$
+f_{R^2}(r^2) = \frac{1}{2} e^{-r^2 / 2}, \quad r^2 \geq 0.
+$$
+
+To find the PDF of \(R\), we apply the change of variables \(R^2 = r^2\) with \(R = \sqrt{r^2}\), giving:
+
+$$
+f_R(r) = f_{R^2}(r^2) \cdot \left| \frac{d(r^2)}{dr} \right| = \frac{1}{2} e^{-r^2 / 2} \cdot 2r = r e^{-r^2 / 2}, \quad r \geq 0.
+$$
+
+---
+
+### Final Result
+
+The distance \(R\) between the two bullets follows a **Rayleigh distribution** with scale parameter \(\sigma = \sqrt{2}\):
+
+$$
+f_R(r) = r e^{-r^2 / 2}, \quad r \geq 0.
+$$
+
 \newpage
 
 # Q6: 4.55, Casella & Berger
@@ -92,6 +647,82 @@ A **parallel system** is one that functions as long as at least one component of
 A particular parallel system is composed of three independent components, each of which has a lifetime with an exponential $(\lambda)$ distribution. The lifetime of the system is the maximum of the individual lifetimes. 
 
 What is the distribution of the lifetime of the system?
+
+### Problem Overview
+
+Let the lifetimes of the three components be \( X_1, X_2, X_3 \), where each \( X_i \sim \text{Exponential}(\lambda) \), and the lifetimes are independent. The lifetime of the parallel system is the maximum of the individual lifetimes:
+
+$$
+T = \max(X_1, X_2, X_3).
+$$
+
+We aim to find the distribution of \(T\).
+
+---
+
+### Step 1: CDF of \(T\)
+
+To determine the distribution of \(T\), we first compute its **CDF**, \(F_T(t)\), defined as:
+
+$$
+F_T(t) = P(T \leq t).
+$$
+
+The maximum \(T \leq t\) if and only if all the individual lifetimes satisfy \(X_1 \leq t\), \(X_2 \leq t\), and \(X_3 \leq t\). Because the \(X_i\) are independent, the joint probability is the product of the individual probabilities:
+
+$$
+P(T \leq t) = P(X_1 \leq t) \cdot P(X_2 \leq t) \cdot P(X_3 \leq t).
+$$
+
+For an exponential random variable \( X \sim \text{Exponential}(\lambda) \), the CDF is:
+
+$$
+P(X \leq t) = 1 - e^{-\lambda t}, \quad t \geq 0.
+$$
+
+Thus, the CDF of \(T\) becomes:
+
+$$
+F_T(t) = [P(X_1 \leq t)] \cdot [P(X_2 \leq t)] \cdot [P(X_3 \leq t)] = [1 - e^{-\lambda t}]^3, \quad t \geq 0.
+$$
+
+---
+
+### Step 2: PDF of \(T\)
+
+To find the PDF of \(T\), we differentiate the CDF:
+
+$$
+f_T(t) = \frac{d}{dt} F_T(t) = \frac{d}{dt} [1 - e^{-\lambda t}]^3.
+$$
+
+Using the chain rule:
+
+$$
+f_T(t) = 3 [1 - e^{-\lambda t}]^2 \cdot \frac{d}{dt} [1 - e^{-\lambda t}].
+$$
+
+The derivative of \(1 - e^{-\lambda t}\) is:
+
+$$
+\frac{d}{dt} [1 - e^{-\lambda t}] = \lambda e^{-\lambda t}.
+$$
+
+Substitute this into the expression for \(f_T(t)\):
+
+$$
+f_T(t) = 3 [1 - e^{-\lambda t}]^2 \cdot \lambda e^{-\lambda t}, \quad t \geq 0.
+$$
+
+---
+
+### Final Result
+
+The lifetime of the parallel system \(T = \max(X_1, X_2, X_3)\) has the PDF:
+
+$$
+f_T(t) = 3 \lambda [1 - e^{-\lambda t}]^2 e^{-\lambda t}, \quad t \geq 0.
+$$
 
 \newpage
 

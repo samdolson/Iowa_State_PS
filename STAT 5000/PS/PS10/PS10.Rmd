@@ -290,7 +290,7 @@ $$
 BMI_i = \beta_0 + \beta_1 WT2_i + \beta_2 HT2_i + \beta_3 WT9_i + \beta_4 HT9_i + \beta_5 ST9_i + \epsilon_i, \text{ for } i = 1, ..., 70
 $$
 
-Report and interpret in context the $R^2$value.
+Report and interpret in context the $R^2$ value.
 
 ```{r}
 full_model <- lm(BMI ~ WT2 + HT2 + WT9 + HT9 + ST9, data = data)
@@ -299,7 +299,7 @@ summary(full_model)
 
 $R^2 = 0.4431$:
 
-Interpretation: 44.31% of the variability in BMI at age 18 is explained by the model that uses weight and height at ages 2 and 9 ($\text{WT2}, \text{HT2}, \text{WT9}, \text{HT9}$), and strength at age 9 ($\text{ST9}$) as explanatory variables. We can explain less than half the variability in what we are attempting to estimate, such that I would argue that this model could be improved in terms of its predictive capabilities. 
+Interpretation: 44.31% of the variability in BMI at age 18 is explained by the multiple linear regression that uses weight and height at ages 2 and 9 ($\text{WT2}, \text{HT2}, \text{WT9}, \text{HT9}$), and strength at age 9 ($\text{ST9}$) as explanatory variables. Frankly, this isn't especially great, as we can explain less than half the variability in what we are attempting to estimate. 
 
 ## (f) 
 
@@ -344,12 +344,6 @@ summary(full_model)
   - Null Hypothesis ($H_0$): $\beta_5 = 0$ (Strength at age 9 has no effect on BMI at age 18, after accounting for other predictors).
   - Alternative Hypothesis ($H_a$): $\beta_5 \neq 0$.
   - Interpretation: The coefficient for $\text{ST9}$ is marginally significant ($p = 0.0499$), indicating that strength at age 9 has a small but significant effect on BMI at age 18, after adjusting for other predictors. The negative sign suggests that greater strength at age 9 is associated with a slightly lower BMI at age 18.
-
-### Summary:
-
-  - The strongest predictor of BMI at age 18 is weight at age 9 ($\text{WT9}$), with a large positive effect and a highly significant result.
-  - Other variables, such as weight and height at age 2 and height at age 9, do not significantly contribute to predicting BMI at age 18 after adjusting for the other predictors.
-  - Strength at age 9 ($\text{ST9}$) has a small but significant negative effect on BMI at age 18.
 
 \newpage 
 
@@ -406,9 +400,9 @@ H_a: \text{At least one } \beta_i \neq 0 \text{ (for } i = 1, 2\text{)}.
 $$
 
 From the ANOVA table:
-- Model Sum of Squares (SSM): $1.283227 \times 10^{13}$
-- Error Sum of Squares (SSE): $5.85885 \times 10^{12}$
-- Total Sum of Squares (SST): $1.869112 \times 10^{13}$
+- Model Sum of Squares (SSM): $1.283227 e13$
+- Error Sum of Squares (SSE): $5.85885 e12$
+- Total Sum of Squares (SST): $1.869112 e13$
 - Degrees of Freedom for the Model: $2$
 - Degrees of Freedom for Error: $2922$
 
@@ -430,9 +424,7 @@ F = \frac{6.416137 \times 10^{12}}{2005082271} \approx 3199.94
 $$
 
 
-From the output, the p-value is reported as $< 0.0001$. This indicates extremely strong evidence against the null hypothesis. Given the extremely small p-value ($< 0.0001$), we reject the null hypothesis at any reasonable significance level (e.g., $\alpha = 0.05$).
-
-The F-test indicates that the regression model including Living Area and Age is statistically significant overall. This means that at least one of the predictors (Living Area and Age) are significantly different from 0 in their slope terms, which is to say that at least one of the explanatory variables is able to improve the amount of variability we are able to explain in Sales Price for our model.
+From the output, the p-value is reported as $< 0.0001$. This indicates overwhelming evidence in favor of rejecting the null hypothesis, which is evidence in favor of the alternative hypothesis (as stated above). Interpretation: The F-test interpretation stated previously is evidence that at least one of the predictors (Living Area and Age) are significantly different from 0 in their estimated slopes, which is to say that at least one of the explanatory variables is able to improve the amount of variability we are able to explain in Sales Price by using a multiple linear regression.
 
 ## (d) 
 
@@ -457,9 +449,7 @@ $$
 \text{Test Statistic} = t = \frac{\hat{\beta}_1}{\text{SE}} = \frac{102.62349}{1.74084} \approx 58.95
 $$
 
-From the output, the p-value for Living Area is reported as $< 0.0001$, indicating strong evidence against the null hypothesis. Since the p-value is much smaller than any reasonable significance level (e.g., $\alpha = 0.05$), we reject the null hypothesis.
-
-The t-test for Living Area indicates that it is a statistically significant predictor of Sale Price. Specifically, after controlling for Age, there is strong evidence that Living Area is associated with changes in Sale Price. For each additional square foot of Living Area, the Sale Price is expected to increase by approximately $102.62, on average.
+From the output, the p-value $< 0.0001$ for Living Area, indicating overwhelming evidence in favor of rejecting the null hypothesis. Interpretation: The t-test for Living Area indicates that it is a statistically significant predictor of Sale Price (we estimate the slope of the Living Area parameter to be not equal to zero). This is to say that, after controlling for Age, there is strong evidence that Living Area is associated with changes in Sale Price, specifically that for each additional square foot of Living Area, the Sale Price is expected to increase by approximately $102.62.
 
 ### ii. 
 
@@ -480,9 +470,7 @@ $$
 \text{Test Statistic} = t = \frac{\hat{\beta}_2}{\text{SE}} = \frac{-1072.88363}{28.21248} \approx -38.03
 $$
 
-From the output, the p-value for Age is reported as $< 0.0001$, indicating strong evidence against the null hypothesis. Since the p-value is much smaller than any reasonable significance level (e.g., $\alpha = 0.05$), we reject the null hypothesis.
-
-The t-test for Age indicates that it is a statistically significant predictor of Sale Price. Specifically, after controlling for Living Area, there is strong evidence that Age is associated with changes in Sale Price. For each additional year of Age, the Sale Price is expected to decrease by approximately $1,072.88, on average. This suggests that older homes tend to sell for lower prices, holding Living Area constant.
+From the output, the p-value $< 0.0001$ for Age, indicating overwhelming evidence in favor of rejecting the null hypothesis. Interpretation: The t-test for Age indicates that it is a statistically significant predictor of Sale Price (we estimate the slope of the Age parameter to be not equal to zero). This is to say that, after controlling for Living Area, there is strong evidence that Age is associated with changes in Sale Price, specifically that for each additional year of Age, the Sale Price is expected to decrease by approximately $1,072.88. 
 
 ## (e) 
 
@@ -498,14 +486,14 @@ knitr::include_graphics("2e.png")
 
 How much is the reduction to the Sums of Squares for Error for adding Basement Area and Total Room to the model with Living Area and Age?
 
-SSE for the initial model (Living Area and Age): $5.85885 \times 10^{12}$
-SSE for the updated model (Living Area, Age, Basement Area, Total Room): $4.36077 \times 10^{12}$
+SSE for the initial model (Living Area and Age): $5.85885 e12$
+SSE for the updated model (Living Area, Age, Basement Area, Total Room): $4.36077 e12$
 
 $$
 \text{Reduction in SSE} = \text{SSE (initial model)} - \text{SSE (updated model)} = 5.85885 \times 10^{12} - 4.36077 \times 10^{12} =  1.49808 \times 10^{12}
 $$
 
-By adding Basement Area and Total Room to the model, the Sum of Squares for Error was reduced by $1.49808 \times 10^{12}$.
+By adding Basement Area and Total Room to the model, the Sum of Squares for Error was reduced by $1.49808 e12$.
 
 ### ii. 
 
@@ -518,15 +506,12 @@ $$
 $$
 H_a: \text{At least one of } \beta_{\text{BasementArea}} \text{ or } \beta_{\text{TotalRoom}} \neq 0
 $$
-
-Reduction in SSE: $1.49808 \times 10^{12}$ (calculated in part i)
-Degrees of Freedom for new variables: $\text{DF}_{\text{new}} - \text{DF}_{\text{old}} = 4 - 2 = 2$
-Mean Squared Error (MSE) of the updated model: $1493926329$
+Our "m" is 2 as we add 2 additional explanatory variables. 
+Reduction in SSE: $1.49808 e12$ (calculated in part i)
+Mean Squared Error (MSE) of the "full" model: $1493926329$
 
 $$
-F = \frac{\left( \frac{\text{Reduction in SSE}}{\text{DF}_{\text{new}} - \text{DF}_{\text{old}}} \right)}{\text{MSE (updated model)}} = \frac{\left( \frac{1.49808 \times 10^{12}}{2} \right)}{1493926329}  \approx 5014.58
+F = \frac{\frac{SSE_{reduction}}{m}}{MSE_{full}} = \frac{\left( \frac{1.49808 \times 10^{12}}{2} \right)}{1493926329}  \approx 5014.58
 $$
 
-Using the output and the extremely large F-value of $5014.58$, the p-value is reported as $< 0.0001$. This indicates strong evidence against the null hypothesis. Since the p-value is much smaller than any reasonable significance level (e.g., $\alpha = 0.05$), we reject the null hypothesis.
-
-The partial F-test shows that adding Basement Area and Total Room significantly improves the model for predicting Sale Price, beyond what is explained by Living Area and Age alone. These variables contribute additional explanatory power to the model and should be included.
+Using the output and the extremely large F-value of $5014.58$, the p-value is reported as $< 0.0001$. This indicates overwhelming evidence in favor of rejecting the the null hypothesis. Interpretation: The partial F-test shows that adding Basement Area and Total Room significantly improves the model for predicting Sale Price, beyond what is explained by Living Area and Age alone. 
