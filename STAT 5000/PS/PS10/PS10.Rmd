@@ -7,7 +7,7 @@ output: pdf_document
 [Fall 2024]{.smallcaps} 
 [due Fri, November 22nd @ 11:59 pm]{.smallcaps}
 [Name: Sam Olson]{.smallcaps} \
-[Collaborators: The Hatman]{.smallcaps} \
+[Collaborators: Craig, Ethan, Ben, Sabrina, Olivia, The Hatman]{.smallcaps} \
 
 ```{r, eval = T, results = F, echo = F, warning=F, message=F}
 library(knitr)
@@ -205,9 +205,18 @@ summary(model)
 ```{r}
 plot(data$ST9, resid(model), main = "Residuals vs ST9", xlab = "ST9 (Strength at 9)", ylab = "Residuals")
 abline(h = 0, col = "black")
-
 qqnorm(resid(model))
 qqline(resid(model), col = "black")
+```
+
+```{r}
+library(MASS)
+stdresids <- studres(model) 
+
+plot(data$ST9, stdresids, main = "Studentized Residuals vs ST9", xlab = "ST9 (Strength at 9)", ylab = "Studentized Residuals")
+abline(h = 0, col = "black")
+qqnorm(stdresids)
+qqline(stdresids, col = "black")
 ```
 
 ### Least Squares Formula:
@@ -222,6 +231,8 @@ $$
 
 So our estimated intercept of the least squares model, $b_0$ is 21.471009, and for $b_1$ we have 0.001023. 
 
+Our response variable for the above model is BMI at at 18 years old. 
+
 ### Significance of Slope:
 
   - $H_0$: $\beta_1 = 0$ 
@@ -232,6 +243,8 @@ So our estimated intercept of the least squares model, $b_0$ is 21.471009, and f
 For $p = 0.963$, we do not meet the threshold of $\alpha = 0.05$, such that we fail to reject the null hypothesis. This means we do not have evidence to support the slope of the linear regression to be significantly different from zero. (We do not have evidence to reject that strength at age 9 does not significantly predict BMI at age 18.) 
 
 ### Residual Plots:
+
+Note, the interpretation of both the Residual Plots vs. Fitted and the QQ-Plot are consistent for both the non-studentized as well as the studentized residuals. 
 
 #### Residuals Plot:
 
@@ -313,7 +326,7 @@ summary(full_model)
   - SE: 8.781156 
   - t-test: 3.514
   - p-value: 0.000817
-  - Interpretation: The intercept is significant ($p = 0.0008$), indicating that the predicted baseline BMI (when all predictors are 0) is non-zero. However, the intercept may not be meaningful in this context due to the lack of real-world relevance for predictors being zero.
+  - Interpretation: We have evidence to reject the null hypothesis at the $\alpha = 0.05$ level given the p-value $p = 0.0008$. We have evidence in favor of the alternative hypothesis, namely that that the predicted BMI when all predictors are 0 is not zero (we estimate it to be 30.855335 BMI). Though our interpretation of this is really for a baseline, as we cannot reasonably say an individual would live if they have 0 for all of the explanatory variables used in our multiple linear regression.  
 
 ### Weight at Age 2 ($\beta_1$):
 
@@ -323,7 +336,8 @@ summary(full_model)
   - SE: 0.278736
   - t-test: -1.140    
   - p-value: 0.258505
-  - Interpretation: The coefficient for $\text{WT2}$ is not significant ($p = 0.2585$), suggesting that weight at age 2 does not significantly predict BMI at age 18 after adjusting for other variables.
+  - Interpretation: We do not have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that the beta coefficient for Weight at Age 2 is zero, for the model that also uses the explanatory variable Height at 2, Weight at 9, Height at 9 and Strength at 9. This is to say that the variable Weight at Age 2 is not statistically significant from zero when adjusting for other explanatory variables, and that this explanatory variable is not statistically significant for the purposes of predicting BMI at 18 for the model that includes the other explanatory variables named previously. 
+  - Said plainly: Weight at Age 2 is not predictive of BMI when we adjust/account for the effects of the other explanatory variables. 
 
 ### Height at Age 2 ($\beta_2$):
 
@@ -333,7 +347,8 @@ summary(full_model)
   - SE: 0.130819
   - t-test: -1.483 
   - p-value: 0.142996
-  - Interpretation: The coefficient for $\text{HT2}$ is not significant ($p = 0.1430$), suggesting that height at age 2 does not significantly predict BMI at age 18 after adjusting for other variables.
+  - Interpretation: We do not have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that the beta coefficient for Height at Age 2 is zero, for the model that also uses the explanatory variable Weight at 2, Weight at 9, Height at 9 and Strength at 9. This is to say that the variable Height at Age 2 is not statistically significant from zero when adjusting for other explanatory variables, and that this explanatory variable is not statistically significant for the purposes of predicting BMI at 18 for the model that includes the other explanatory variables named previously. 
+  - Said plainly: Height at Age 2 is not predictive of BMI when we adjust/account for the effects of the other explanatory variables. 
 
 ### Weight at Age 9 ($\beta_3$):
 
@@ -343,7 +358,8 @@ summary(full_model)
   - SE: 0.075211
   - t-test: 5.581
   - p-value: 5.2e-07
-  - Interpretation: The coefficient for $\text{WT9}$ is highly significant ($p = 5.2 \times 10^{-7}$), indicating that weight at age 9 is a strong predictor of BMI at age 18, after adjusting for other predictors.
+  - Interpretation: We have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that the beta coefficient for Weight at Age 9 is zero, for the model that also uses the explanatory variable Weight at 2, Height at 2, Height at 9 and Strength at 9. This is to say that the variable Weight at Age 9 is statistically significant and different from zero when adjusting for other explanatory variables, and that this explanatory variable is statistically significant for the purposes of predicting BMI at 18 for the model that includes the other explanatory variables named previously. 
+  - Said plainly: Weight at Age 9 is predictive of BMI when we adjust/account for the effects of the other explanatory variables. We expect for every additional 1 kg of Weight at age 9 the predicted BMI at age 18 will increase by 0.419762 BMI points, fixing or keeping constant the other explanatory variables. 
 
 ### Height at Age 9 ($\beta_4$):
 
@@ -353,7 +369,8 @@ summary(full_model)
   - SE: 0.096344
   - t-test: 0.084
   - p-value: 0.933613
-  - Interpretation: The coefficient for $\text{HT9}$ is not significant ($p = 0.9336$), suggesting that height at age 9 does not significantly predict BMI at age 18 after adjusting for other variables.
+  - Interpretation: We do not have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that the beta coefficient for Height at Age 2 is zero, for the model that also uses the explanatory variable Weight at 2, Height at 2, Weight at 9 and Strength at 9. This is to say that the variable Height at Age 9 is not statistically significant from zero when adjusting for other explanatory variables, and that this explanatory variable is not statistically significant for the purposes of predicting BMI at 18 for the model that includes the other explanatory variables named previously. 
+  - Said plainly: Height at Age 9 is not predictive of BMI when we adjust/account for the effects of the other explanatory variables.
 
 ### Strength at Age 9 ($\beta_5$):
 
@@ -363,7 +380,8 @@ summary(full_model)
   - SE: 0.022219
   - t-test: -1.999
   - p-value: 0.049853
-  - Interpretation: The coefficient for $\text{ST9}$ is marginally significant ($p = 0.0499$), indicating that strength at age 9 has a small but significant effect on BMI at age 18, after adjusting for other predictors. The negative sign suggests that greater strength at age 9 is associated with a slightly lower BMI at age 18.
+  - Interpretation: We have evidence to reject the null hypothesis at the $\alpha = 0.05$ level that the beta coefficient for Strength at Age 9 is zero, for the model that also uses the explanatory variable Weight at 2, Height at 2, Height at 9 and Weight at 9. This is to say that the variable Strength at Age 9 is statistically significant and different from zero when adjusting for other explanatory variables, and that this explanatory variable is statistically significant for the purposes of predicting BMI at 18 for the model that includes the other explanatory variables named previously. 
+  - Said plainly: Strength at Age 9 is predictive of BMI when we adjust/account for the effects of the other explanatory variables. We expect for every additional 1 kg of Strength at age 9 the predicted BMI at age 18 will decrease by 0.044416 (decrease by 0.044416 equivalent to saying increase by -0.044416 semantically) BMI points, fixing or keeping constant the other explanatory variables. 
 
 \newpage 
 
