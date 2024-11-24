@@ -1,0 +1,116 @@
+---
+title: "HW10"
+output: pdf_document
+date: "2024-11-24"
+---
+
+# 1. 
+
+Magnetic Resonance Imaging (MRI) is a noninvasive radiologic technique used to image tissue structure and physiology. The imaging modality works on the principle of characterizing tissues based on the basis of their physical and chemical properties which can be adequately summarized in terms of three physical quantities: the longitudinal or spin-lattice relaxation time ($T_1$), spin-spin relaxation time ($T_2$), and the proton density ($\rho$). These physical quantities are themselves not directly observable but together determine image intensity with respect to photon density. Determination of image contrast is achieved by changing user-defined pulse sequence parameters which modulate the influence of the $T_1$, $T_2$, and $\rho$ values at a voxel, and hence the photon intensity. 
+
+In spin-echo imaging, there are two design parameters – these are the repetition time (TR) and the echo time (TE). The relationship between $T_1$, $T_2$, $\rho$, and the true MR signal, in the spin-echo sequence of MR imaging, denoted by $\nu$, can be expressed in terms of a solution to the Bloch equation, an empirical expression describing nuclear magnetic resonance phenomena. Thus, the true MR signal ($\nu_{i,j,k}$) at the image pixel (or matrix element) $(i,j)$ for the $j$th set of design parameters (TE$_k$, TR$_k$) is given by:
+
+$$
+\nu_{i,j,k} = F(\rho_{ij}, T_{1ij}, T_{2ij}; \text{TE}_k, \text{TR}_k) = \rho_{ij} \exp\left(-\frac{\text{TE}_k}{T_{2ij}}\right) \left\{1 - \exp\left(-\frac{\text{TR}_k}{T_{1ij}}\right)\right\}.
+$$
+
+Different pairs of (TE, TR) values can be used to highlight contrasts between different tissue types. In a clinical context, this means that tuning the design parameters at different settings can be used to highlight various tissue types, providing a method for tissue classification in individuals. Therefore, in principle at least, a radiologist can acquire images for a range of values and then select from these images to optimize the contrasts between different tissue types. However, the optimal control parameters are patient- and/or application-specific and generally not known in advance. A systematic exploration of plausible (TE, TR) pairs is impractical because of constraints in time and expense and also because of patient motion and image registration issues. So, therefore a few (typically no more than three) are acquired. Once obtained, the radiologist could estimate the ($\rho$, $T_1$, $T_2$) at the $(i,j)$ voxel and use these estimates to synthetically predict images (Digital Object Identifier [10.1109/TMI.2009.2039487](https://doi.org/10.1109/TMI.2009.2039487)) at other (unobserved) (TE, TR) values.
+
+The file 2dMRI-SE-phantom.dat contains intensity values of MRI images of a physical phantom (man-made object) acquired at 18 settings (in seconds) of (TE, TR) = $\{0.03, 0.06, 0.04, 0.08, 0.05, 0.10\} \times \{1, 2, 3\}$. For your convenience, these settings are also provided in the file te-tr.dat. The file 2dMRI-SE-phantom.dat should be read in as a vector and further the sequence of images is as follows: the first 256\(^2\) values are for the MR image acquired at the first (TE, TR) setting (i.e., at (0.03, 1.0)), the next 256\(^2\) values are for the MR image acquired at the second (TE, TR) setting (i.e., at (0.06, 1.0)), and so on.
+
+## (a) 
+
+Read in the dataset and store as a three-dimensional array. [5 points]  
+
+## (b) 
+
+Display the data as 18 images on one page. Make sure that all the 18 images have the same scale and use a scale of light to dark (in grays) to display the images. (Consider using the "GE" logo that exists on the phantom to make sure that your images are correctly displayed.) [10 points]  
+
+## (c) 
+
+Write a function in R that takes in values of ($\rho$, $T_1$, $T_2$) and (TE, TR) and returns the mean observed intensity value for that setting as per Equation 1. [10 points]  
+
+## (d) 
+
+Obtain the least-squares (LS) estimates of ($\rho$, $T_1$, $T_2$) given the observed image intensities at the set (TE, TR)s. Our goal therefore is to find ($\rho_{ij}$, $T_{1ij}$, $T_{2ij}$) at the $(i,j)$th image coordinate (matrix entry) that minimizes  
+
+$$
+\psi(\rho_{ij}, T_{1ij}, T_{2ij}; (\text{TE}_k, \text{TR}_k), Y_{i,j,k}, k = 1, 2, \dots, 18) = \sum_{k=1}^{18} \left[Y_{i,j,k} > 0\right] \left[Y_{i,j,k} - F(\rho_{ij}, T_{1ij}, T_{2ij}; \text{TE}_k, \text{TR}_k)\right]^2.
+$$
+
+## (e) 
+
+We will now estimate ($\rho_{ij}, T_{1ij}, T_{2ij}$) for each imaging coordinate given the 18 values.  
+
+In so doing, note that the value is indeterminate if there are no more than two $Y_{i,j,k}$s that are non-zero for any $(i,j)$. For these cases, we will set $\rho_{ij} = 0$, $T_{1ij} = 4.0$, and $T_{2ij} = 0.001$. For the other $(i,j)$s, use the R function `optim` (note: not `optimize`) to estimate ($\rho_{ij}, T_{1ij}, T_{2ij}$). Restrict $\rho$ to be in $[0,3000]$, $T_1$ to be in $[0.01, 4.0]$, and $T_2$ to be in $[0.001,2.0]$ by writing your function such that if these values are breached in any case, then the value returned is $\infty$. The function `optim` also needs initial values: use (1500, 1.5, 0.1) as starting values. Store the estimated $\rho, T_1, T_2$ values in three 256 $\times$ 256 matrices. [25 points]  
+
+## (f) 
+
+Display the $\rho, T_1$, and $T_2$ images estimated as per part (e) above. [5 points] 
+
+## (g) 
+
+Our final objective here is to plug in the 18 (TE, TR) values to the $\rho, T_1$, and $T_2$ images estimated as per part (e) and to obtain fitted images at the 18 (TE, TR) settings. Use the function you wrote in part (c) along with the estimates obtained in part (e) to obtain the fitted images. Display these images using the same scale as in part 1b above. [15 points]  
+
+\newpage 
+
+# 2 
+
+The dataset MPRAGE0.nii.gz contains the anatomic MR image volume of a healthy female in NIFTI format. The R package oro.nifti is required to read this file, with the function `readNIfTI`. The component `.Data` in the stored object (accessed via the `@` operator) contains the three-dimensional array containing the image voxel values. Display the volume via a three-dimensional contour display such as using the `contour3d` function in the misc3d package. Note that slices do not have the same dimensions (in particular, the vertical axis in the volume has slices that are 1.5 mm apart while the slices on the other two axes are 0.94 mm apart). Account for these differences by scaling the axes appropriately by checking out the recordings from the last virtual asynchronously recorded lecture on 3D graphics. Also test out several viewpoints and display the view that portrays the image the best in your opinion. [30 points]
+
+\newpage 
+
+# 3 
+
+The K-means algorithm iteratively partitions a dataset $\{X_1, X_2, \dots, X_n\}$ into groups $G_k$ for $k = 1, 2, \dots, K$ and group mean vectors for the observations in that partition by minimizing the objective function:
+
+$$
+SSW = \min \sum_{i=1}^n \sum_{k=1}^K I[X_i \in G_k] \|X_i - \mu_k\|^2. \tag{3}
+$$
+
+Both $I[X_i \in G_k]$ and $\mu_k$ are parameters that are estimated by the algorithm which finds locally optimizing solutions in the vicinity of its initialization, therefore it is recommended that the algorithm be run to completion from several starting points. However, this approach is time-consuming so Maitra (2009) ([Digital Object Identifier no. 10.1109/TCBB.2007.70244](https://doi.org/10.1109/TCBB.2007.70244)) suggested running the K-means algorithm for one iteration from multiple ($M$) starting points and then choosing the one that has the lowest values of $SSW$ and then running that to convergence. A further modification would choose the starting points with the $m$ lowest values of $SSW$ and then running K-means to convergence for each of these $m$ values and then choosing the one with the lowest $SSW$ as the optimal partitioning. 
+
+The thinking behind this approach is that algorithms with poorer starting values can not hope to recover much and need not be labored over, but rather that the time can be more profitably used by searching over a larger set of initializing values. A further unpublished suggestion, made by former Iowa State University student Wei-Chien Chen (Ph.D., Statistics, 2013) can be modified to run the K-means algorithm not to convergence but for a small number ($I$) of iterations and then performing the evaluations suggested by Maitra (2009). We will use the R function `kmeans` to easily implement the smorgasbord of suggestions resulting from Maitra (2009) in an embarrassingly parallel setting. [30 points]
+
+## (a) 
+
+Write a function in which R’s `kmeans` function in parallel for $M$ randomly initialized starting points and runs each initialized K-means algorithm for $I$ iterations, chooses the $m$ best solutions and then runs each to convergence, finally choosing the solution with the lowest $SSW$. Note that the `kmeans` function in R has all the arguments (`iter.max`, `nstart`) that you need and in particular that the function returns the objective function (tot.withinss) as well as the centers (`centers`) and grouping (`cluster` at iteration). [30 points]
+
+## (b) 
+
+K-means color quantization is used in computer graphics to reduce the number of colors in an image without appreciably losing its visual quality. The importance of this process comes from a need to display images on devices that are not completely capable of dealing with multicolor images. It is also used for some image storing standards such as the Graphics Interchange Format (GIF).
+
+Each pixel in an image is represented in terms of its primary components namely Red, Green, and Blue. Therefore, each pixel has a certain amount of Red, a certain amount of Green, and a certain amount of Blue. This way of representing color is known as RGB format. So, every picture can be presented as a three-dimensional dataset with the number of observations depending on its size: thus an image of size $P \times Q$ pixels is transformed into a dataset with $M = N$ observations. K-means color quantization ([Digital Object Identifier: 10.1080/01621459.2011.646935](https://doi.org/10.1080/01621459.2011.646935)) applies the K-means algorithm, suitably initialized, to such a dataset to yield a palette of $K$ colors for representing the image. We note that K-means represents one of several approaches to color quantization. We use the function written in part 3a to represent an image using 16 colors.
+
+### i. 
+
+Reading in a TIFF image.  
+The file provided jubabrinda.tif in the usual places provides a digital file in the Tagged Image File Format (TIFF) of bamboo-handiwork decorations at a street-side exhibit during Kolkata’s (formerly, Calcutta) famed (Sharadiyutsab) fall festival. The currently archived R package rtiff can read in this file as follows:
+
+`library(rtiff)`
+`juba <- readTIFF(fn="jubabrinda.tif")`
+`plot(juba)`
+
+The amount of the primary colors at each pixel can be obtained from the read TIFF file by using: `juba@red`, `juba@green`, `juba@blue`. Note that these are all matrices of the same dimension as the image. (Make sure that you look at the help on `pixmap-class` to get an idea of what the components of `pixmap` are). Note also that these values are all between 0 and 1.
+
+The alternative R package tiff may also be used. To read in the file, we use:
+
+`library(tiff)`
+`xx <- readTIFF(source="jubabrinda.tif")`
+`img <- as.raster(xx)`
+`plot(img)`
+
+The object `xx` is a 3-dimensional array with RGB values in the last dimension. (If it is a 4-dimensional array, it has alpha, that is, transparency values, in the last dimension.)  
+
+Read in the TIFF image and convert to a dataset of 375000 3-dimensional observations. [10 points]
+
+### ii. 
+
+Use K-means with $K = 16$ and your function in part 3a with $M = 10000$, $I = 3$, and $m = 10$.  
+(If your resources permit, you may try larger values of $M$.) Note that this exercise may take up to an hour. Pack the cluster output from your K-means function into a matrix of the size of the image and display using the image function and a categorical palette (e.g., Set2 of RColorBrewer). [20 points]
+
+### iii. 
+
+Replace the cluster indicator for each pixel with the means obtained from your function.  
+
+Thus we get a matrix for the red (consisting of 16 distinct values), another matrix for the green (consisting of 16 distinct values), and a third matrix for the blues (again having 16 distinct values). Use `pixmap` to combine these matrices and the function `writeTIFF` to write to a TIFF file your quantized image. Display using R as in part 3(b)i. Comment on how well your quantized image reproduced the original. [30 points]

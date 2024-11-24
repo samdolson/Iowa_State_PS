@@ -1,0 +1,264 @@
+---
+output: pdf_document
+---
+
+[Stat 5000]{.smallcaps}
+[Homework #10]{.smallcaps}\
+[Fall 2024]{.smallcaps} 
+[due Fri, November 22nd @ 11:59 pm]{.smallcaps}
+[Name: Sam Olson]{.smallcaps} \
+[Collaborators: **The Hatman**]{.smallcaps} \
+
+```{r, eval = T, results = F, echo = F, warning=F, message=F}
+library(knitr)
+```
+
+```{r, eval = F, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("XXX.png")
+```
+
+# 1
+
+Berkeley Guidance Study 
+
+The dataset is located in `BGSgirls2.txt`. It contains one line of data for each of 70 girls with the following variables:
+
+- ID: Girl identification number
+- WT2: Weight (kg) at 2 years
+- HT2: Height (cm) at 2 years
+- WT9: Weight (kg) at 9 years
+- HT9: Height (cm) at 9 years
+- LG9: Leg circumference (cm) at 9 years
+- ST9: Strength (kg) at 9 years
+- WT18: Weight (kg) at 18 years
+- HT18: Height (cm) at 18 years
+- LG18: Leg circumference (cm) at 18 years
+- ST18: Strength (kg) at 18 years
+- BMI: Body Mass Index at 18 years
+- SOMA: Somatotype (SOMA), on a scale from 1 (very thin) to 7 (very obese)
+
+USE SAS TO COMPLETE THE FOLLOWING EXERCISES: 
+
+## (a) 
+
+Fit a multiple regression model:
+
+$$
+BMI_i = \beta_0 + \beta_1 \text{WT2}_i + \beta_2 \text{HT2}_i + \beta_3 \text{WT9}_i + \beta_4 \text{HT9}_i + \beta_5 \text{ST9}_i + \epsilon_i
+$$
+
+for i=1, ..., 70. 
+
+And use the following diagnostics to assess model assumptions. (Do not submit the output; just examine the results and briefly describe the insight provided by each).
+
+### i. 
+
+Normal Q-Q plot of residuals and the related Shapiro-Wilk test.
+
+### ii. 
+
+Plot of the residuals versus the estimates of the conditional means for BMI
+
+### iii. 
+
+Individual plots of the residuals versus each of the five explanatory variables
+
+## (b) 
+
+Given that an outlier should be detected from part (a), refit the model and recheck the diagnostics listed in (a) to assess whether model assumptions are violated or not. (HINT: You can filter observations from the dataset using the where statement inside the reg procedure in SAS.)
+
+## (c) 
+
+For the 69 observations (without the outlier that was detected from part (a)), use a backward selection procedure to search for a model using $\alpha_{stay}$ = 0.05. For this question, just consider the five variables mentioned in part (a): WT2, HT2, WT9, HT9, ST9. For your final model, report the estimated coefficients and their standard errors.
+
+## (d) 
+
+For the 69 observations (without the outlier that was detected from part (a)), check all possible models that could be constructed using at most the five variables WT2, HT2, WT9, HT9, ST9 and then give the best one that you recommend. Justify your choice.
+
+## (e) 
+
+Are there concerns about multicollinearity for the explanatory variables of the model you picked in part (d)?
+
+\newpage 
+
+# 2
+
+Ames Housing (+25)
+
+A dataset (introduced in the previous homework assignment) was collected from home sales in Ames, Iowa between 2006 and 2010. The variables collected are:
+
+  - Year Built: The year the house was built
+  - Basement Area (in sq. ft): The amount of area in the house below ground level
+  - Living Area (in sq. ft): The living area in the home (includes Basement Area)
+  - Total Room: The number of rooms in the house
+  - Garage Cars: The number of cars that can be placed in the garage
+  - Year Sold: The year the home was sold
+  - Sale Price: The sale price of the home (the response variable)
+  - Garage Size: S = Small (Garage Cars = 0,1) or L = Large (Garage Cars = 2+)
+  - Age (in yrs.): Age of house = Year Sold - Year Built
+
+Use SAS to complete the following exercises:
+
+The data from 999 sales can be found in the file housing train.csv and for the remaining 1,924 sales in the file housing eval.csv in our course’s shared folder in SAS Studio. You will determine a final multiple linear regression model for predicting sale price from the explanatory variables: Basement Area, Living Area, Total Room, Garage Size, and Age.
+
+## (a) 
+
+Fit the full model using all 5 explanatory variables listed above to the training data
+(housing train.csv).
+
+### i. 
+
+Find and interpret the $R^2$ value for the full model.
+
+### ii. 
+
+Interpret the value of the estimated regression coefficient corresponding to the Garage Size variable for the full model.
+
+## (b) 
+
+Use forward selection to fit a reduced model to the training data using some subset of the 5 explanatory variables listed above. Provide an equation for the estimated MLR model.
+
+## (c) 
+
+How does the adjusted $R^2$ value for the reduced model compare to the full model?
+
+## (d) 
+
+Using the reduced model, check for:
+
+### i. 
+
+outliers 
+
+
+### ii. 
+
+high leverage points
+
+### iii. 
+
+potential influence points
+
+## (e) 
+
+Fit the reduced model from part (b) to the evaluation data (housing eval.csv). Compare the mean squared error from fitting the model to the testing data to the mean squared error from fitting the model to the evaluation data. What does this imply?
+
+\newpage
+
+# 3
+
+The dataset for this exercise is called diamonds and it is available directly in the ggplot2 package in R. The data set contains prices (response variable – in US dollars) of over 50,000 diamonds, which we will try to explain using the quantitative size measurements (carat – weight, x – length in mm, y – width in mm, z – depth in mm, depth – total depth percentage = z
+/ mean(x, y), table – width of top of diamond relative to widest point) and categorical quality (cut, color, and clarity) of the diamonds. The R code used to create the figures below is
+provided in the diamonds Hmwk11.R file posted in Canvas.
+
+## (a) 
+
+Summarize your findings from examining the pairwise scatterplots (on the next page) and correlation matrix (shown below).
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3a1.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("BIG.png")
+```
+
+## (b) 
+
+Discuss whether the VIFs, shown in the plot below, indicate any explanatory variables exhibiting moderate or extreme multicollinearity.
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3b.png")
+```
+
+## (c) 
+
+Summarize the backward elimination method of model selection by providing:
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3c.png")
+```
+
+### i. 
+
+an ordered list of which variable was removed from the model at each step;
+
+### ii. 
+
+a list of which variables remained in the final model;
+
+### iii. 
+
+a summary of the partial regression coefficients effects tests for the final model.
+
+## (d) 
+
+Summarize the forward selection method of model selection by providing:
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3f1.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3f2.png")
+```
+
+### i. 
+
+an ordered list of which variable was added to the model at each step;
+
+### ii. 
+
+a list of which variables never entered the final model;
+
+### iii. 
+
+a summary of the partial regression coefficients effects tests for the final model.
+
+## (e) 
+
+Summarize the all-possible-subsets method of model selection by providing:
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3e.png")
+```
+
+### i. 
+
+Which model would you choose based on the adjusted R2 values?
+
+### ii. 
+
+Which model would you choose based on the Mallow’s Cp criteria?
+
+### iii. 
+
+Which model would you choose based on the BIC values?
+
+## (f) 
+
+Interpret the values of the estimated regression coefficients for the final model selected:
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3f.png")
+```
+
+### i. 
+
+one of the values corresponding to the categorical variable of your choice;
+
+### ii. 
+
+one of the values corresponding to the quantitative variable of your choice.
+
+## (g) 
+
+Summarize your findings from examining all the residual plots used to diagnose the MLR model assumptions. Are there any assumptions that aren’t met for this analysis? Briefly justify your response.
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3g1.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3g2.png")
+```
