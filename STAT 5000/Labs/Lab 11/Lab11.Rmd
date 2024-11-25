@@ -4,9 +4,28 @@ output: pdf_document
 date: "2024-11-24"
 ---
 
+```{r}
+library(readr)
+bodyfat <- read_table("bodyfat.txt", col_types = cols(density = col_skip()))
+```
+
 # 1. 
 
 Summarize your findings from examining the pairwise scatterplots and correlation matrix.
+
+```{r}
+pairs(bodyfat)
+```
+
+```{r}
+cor(bodyfat)
+```
+
+For our response variable (Y) of "fat" (bodyfat), all of our potential explanatory variables have at least a magnitude of 0.15, and a majority (all but one) appear to be positively linearly related to "fat". The strongest correlation (largest in magnitude) is approximately 0.79 for the explanatory variable abdomen, such that we overall have reason to believe that a linear fit between our explanatory variables with the response would be appropriate at first glance. 
+
+However, when we compare the correlations and pairwise plots between explanatory variables we also observe potentially strong linear relationships (not always, but a fair number, particularly for explanatory variables of hip, thigh, and knee). Generally speaking, we observe fairly strong correlations between parts of the body close in proximity to one another, such as the three variables mentioned previously. 
+
+Despite having some potential concerns about multicollinearity (to be explored in later questions), we also see that a number of explanatory variables have a very weak linear relationship between one another, such as ankle and age having only a magnitude of correlation of 0.08, or other body combinations with the "age" explanatory variable. This means we have potential reason to believe including more than one explanatory variable could be helpful for our model without excessive risk of multicollinearity. 
 
 \newpage
 
@@ -14,24 +33,55 @@ Summarize your findings from examining the pairwise scatterplots and correlation
 
 Discuss whether the VIFs indicate any explanatory variables exhibiting extreme multicollinearity.
 
+```{r}
+full.fat <- lm(fat~., data=bodyfat)
+summary(full.fat)
+```
+
+```{r}
+library(car)
+vif.fat <- vif(full.fat)
+barplot(vif.fat, xaxt = "n", main = "Variance Inflation Factor", ylab = "VIF")
+# barplot(vif.fat)
+abline(h=10, col="red", lty=2)
+axis(1, at = seq_along(vif.fat), labels = names(vif.fat), las = 2)
+```
+
+Given the prompt, "VIF values larger than 10 indicate severe multicollinearity", we observe three explanatory variables having a VIF value larger than 10 and have reason to suspect potential issues of multicollinearity. The explanatory variables of note are "weight", "abdomen", and "hip". 
+
 \newpage 
 
 # 3. 
 
 Summarize the backward elimination method of model selection by providing:
 
+```{r}
+back.fat <- step(full.fat, direction="backward")
+summary(back.fat)
+```
+
 ## (a) 
 
 An ordered list of which variable was removed from the model at each step;
 
+Step 1: "chest" removed
+Step 2: "bicep" removed
+Step 3: "knee" removed
+Step 4: "height" removed 
 
 ## (b) 
 
 A list of which variables remained in the final model;
 
+Variables kept: "age", "weight", "neck", "abdomen", "hip", "thigh", "ankle", "foearm", and "wrist" 
+
 ## (c) 
 
 A summary of the partial regression coefficients effects tests for the final model.
+
+Final model partial regression coefficients that meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level: "forearm", "wrist", "thigh", "abdomen", "neck", "weight", and "intercept" terms
+
+Final model partial regression coefficients that do not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level: "ankle", "hip", and "neck". 
 
 \newpage 
 
@@ -39,17 +89,42 @@ A summary of the partial regression coefficients effects tests for the final mod
 
 Summarize the forward selection method of model selection by providing:
 
+```{r}
+null.fat <- lm(fat~1, data=bodyfat)
+summary(null.fat)
+
+for.fat <- step(null.fat, scope=formula(full.fat), direction="forward")
+summary(for.fat)
+```
+
 ## (a) 
 
 An ordered list of which variable was added to the model at each step;
+
+Step 1: "abdomen" added
+Step 2: "weight" added
+Step 3: "forearm" added
+Step 4: "wrist" added
+Step 5: "age" added
+Step 6: "ankle" added
+Step 7: "thigh" added 
+Step 8: "neck" added
+Step 9: "hip" added
 
 ## (b) 
 
 A list of which variables never entered the final model;
 
+Never entered: "height", "chest", "knee", and "biceps" 
+
 ## (c) 
 
 A summary of the partial regression coefficients effects tests for the final model.
+
+Final model partial regression coefficients that meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level:
+"abdomen", "weight", "forearm", "wrist", "age", "thigh", and "intercept"          
+
+Final model partial regression coefficients that do not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level: "ankle", "hip", and "neck". 
 
 \newpage 
 
@@ -57,17 +132,49 @@ A summary of the partial regression coefficients effects tests for the final mod
 
 Summarize the all-possible-subsets method of model selection by providing:
 
+```{r}
+library(leaps)
+all.subsets <- regsubsets(fat~., data=bodyfat, method="exhaustive")
+summary(all.subsets)
+summary(all.subsets)$adjr2
+```
+
 ## (a) 
 
 Which model would you choose based on the adjusted $R^2$ values?
+
+The highest adjusted $R^2$ value is 0.7511467 for the model 8, the model that uses: "ankle", "forearm", "wrist", "thigh", "abdomen", "neck", "weight", and "age", including an intercept term
 
 ## (b) 
 
 Which model would you choose based on the Mallow's $C_p$ criteria?
 
+```{r}
+summary_object <- summary(all.subsets)
+
+summary(all.subsets)$cp
+
+included_matrix <- summary_object$which
+num_vars_per_model <- rowSums(included_matrix) - 1
+num_vars_per_model
+
+abs(summary(all.subsets)$cp - num_vars_per_model)
+```
+
+The "best" Mallow's $C_p$ value is the value that corresponds the closest to the number of explanatory variables in the model. Given the above output, we'd choose model 7, which has the explanatory variables: "ankle", "forearm", "wrist", "thigh", "abdomen",  "weight", and "age", including an intercept term. 
+
 ## (c) 
 
 Which model would you choose based on the $BIC$ values?
+
+```{r}
+summary(all.subsets)$bic
+
+min(summary(all.subsets)$bic)
+which.min(summary(all.subsets)$bic)
+```
+
+The "best" BIC value is the one that is minimized across the models considered. The BIC value is minimized in model 5, the model that uses the explanatory variables: "forearm", "wrist", "abdomen",  "weight", and "age", including an intercept term. 
 
 \newpage 
 
@@ -75,13 +182,35 @@ Which model would you choose based on the $BIC$ values?
 
 Interpret the values of the estimated regression coefficients in the context of the study for:
 
+```{r}
+ageCat <- vector(mode="character", length=length(bodyfat$age))
+ageCat[bodyfat$age<39] = "under39" # lower quartile
+ageCat[bodyfat$age>52] = "over52" # upper quartile
+ageCat[bodyfat$age>38 & bodyfat$age<53] = "mid" # middle 50%
+bodyfat = cbind(bodyfat, ageCat)
+```
+
+```{r}
+cat.fat <- lm(fat ~ ageCat + weight + neck + abdomen + hip + thigh +
+ankle + forearm + wrist, data = bodyfat)
+summary(cat.fat)
+```
+
 ## (a) 
 
 The two values corresponding to the categorical age variable;
 
+"Baseline" for comparisons is individuals Age between 39 to 52
+
+We reject the null hypothesis at the $\alpha = 0.05$ level that there is no difference in mean bodyfat between individuals under 39 years of age compared to mean bodyfat for individuals between 39 to 52 years of age. This is to say we have evidence in favor of the alternative hypothesis, specifically that all else being equal, we expect individuals under 39 years of age to have 2.06578 lbs less bodyfat than individuals between 39 to 52 years of age. 
+
+We reject the null hypothesis at the $\alpha = 0.05$ level that there is no difference in mean bodyfat between individuals over 52 years of age compared to mean bodyfat for individuals between 39 to 52 years of age. This is to say we have evidence in favor of the alternative hypothesis, specifically that all else being equal, we expect individuals over 52 years of age to have 1.98494 lbs more bodyfat than individuals between 39 to 52 years of age. 
+
 ## (b) 
 
 One of the values corresponding to the quantitative variable of your choice.
+
+We have evidence at the $\alpha = 0.05$ level to reject the null hypothesis that increasing the circumfrence of the abdomen on average does not affect the bodyfat of an individual. This is evidence in favor of the alternative hypothesis, specifically that increasing the circumfrance of the abdomen by 1cm is associated with an increase of bodyfat in pounds of 0.98274, all else being equal. 
 
 \newpage 
 
@@ -89,9 +218,74 @@ One of the values corresponding to the quantitative variable of your choice.
 
 Summarize your findings from examining all the residual plots used to diagnose the MLR model assumptions. Are there any assumptions that aren’t met for this analysis?
 
+```{r}
+best.fat <- back.fat
+summary(best.fat)
+anova(best.fat)
+```
+
+```{r}
+qqnorm(best.fat$residuals)
+qqline(best.fat$residuals, col="red")
+```
+
+```{r}
+library(MASS)
+stdresids <- stdres(best.fat)
+stdresids[which(abs(stdresids)>2)]
+plot(best.fat$fitted.values, stdresids, main="MLR for Body Fat Study",
+xlab="Fitted Values", ylab="Studentized Residuals")
+abline(h=0, col="gray")
+abline(h=-2, col="red", lty=2)
+abline(h=2, col="red", lty=2)
+```
+
+```{r}
+plot(best.fat)
+```
+
+Residual Plot: Constant variance and form of the model assumptions appear to be met, as the overall spread and distribution of residuals across fitted values appears as a random spread. Specifically, we have a random spread and not a funnel shape (for assessing constant variance), and we tend to see the same number of positive residuals as we do negative residual values (for assessing form of the model). Overall, our assumptions of equal variance as well as form of the model do not appear to be violated. 
+
+QQ Plot: Residuals track and align well against the reference line, with some slight deviations at the tails of the distribution. This is evidence in favor of the normality assumption not being violated. 
+We do observe some clustering of points together though, such that we have some potential issues. 
+
 \newpage 
 
 # 8. 
 
 Summarize your findings from examining the case diagnostic values/plots. Are there any outliers, leverage points, or influential observations?
 
+```{r}
+leverage <- hatvalues(best.fat)
+leverage[which(abs(leverage)>(20/length(leverage)))]
+plot(leverage, type = 'h', main="MLR for Body Fat Study",
+ylab="Leverage (hi)")
+abline(h=(20/length(leverage)), col="red", lty=2)
+```
+
+```{r}
+cooks <- cooks.distance(best.fat)
+# cooks[which(abs(cooks)>(2*sqrt(2/length(cooks))))]
+plot(cooks, type = 'h', main="MLR for Body Fat Study",
+ylab="Cook’s Distance (Di)")
+abline(h=2*sqrt(2/length(leverage)), col="red", lty=2)
+```
+
+```{r}
+dff <- dffits(best.fat)
+# dff[which(abs(dff) > 2*sqrt(20/length(dff)))]
+plot(abs(dff), type = 'h', main="MLR for Body Fat Study",
+ylab="Absolute Value of DFFITS")
+abline(h=2*sqrt(20/length(dff)), col="red", lty=2)
+```
+
+```{r}
+dfb <- dfbetas(best.fat)
+# dfb[which(abs(dfb) > 2/sqrt(length(dfb)))]
+plot(dfb[,1], type = 'h', main="MLR for Body Fat Study",
+ylab="DFBETA", xlab="(Intercept)")
+abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+```
+
+We do appear to have a number of outliers, leverage points, and influential points in our data, as shown in a number of plots above.
