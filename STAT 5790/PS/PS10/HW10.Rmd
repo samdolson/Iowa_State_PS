@@ -1,6 +1,9 @@
 ---
 title: "HW10"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 date: "2024-11-24"
 ---
 
@@ -22,21 +25,101 @@ The file 2dMRI-SE-phantom.dat contains intensity values of MRI images of a physi
 
 Read in the dataset and store as a three-dimensional array. [5 points]  
 
+```{r}
+nx <- 256
+ny <- 256
+nz <- 18
+
+data <- scan("2dMRI-SE-phantom.dat")
+phantomArr <- array(data, dim = c(nx, ny, nz))
+dim(phantomArr)
+```
+
 ## (b) 
 
 Display the data as 18 images on one page. Make sure that all the 18 images have the same scale and use a scale of light to dark (in grays) to display the images. (Consider using the "GE" logo that exists on the phantom to make sure that your images are correctly displayed.) [10 points]  
+
+```{r}
+teTrSettings <- read.table("te-tr.dat", header = FALSE)
+colnames(teTrSettings) <- c("TE", "TR")
+
+par(mfrow = c(3, 6), mar = c(2, 2, 2, 2)) 
+globalMin <- min(phantomArr)
+globalMax <- max(phantomArr)
+
+# yucky for loop
+# for (i in 1:nz) {
+#   image(
+#     matrix(phantomArr[, , i], nrow = nx, byrow = TRUE),
+#     col = gray.colors(256, start = 1, end = 0), 
+#     zlim = c(globalMin, globalMax), 
+#     axes = FALSE,
+#     main = paste0("TE=", teTrSettings$TE[i], ", TR=", teTrSettings$TR[i])
+#   )
+# }
+
+mapply(
+  function(slice, te, tr) {
+    image(
+      t(matrix(slice, nrow = nx, byrow = TRUE)[nx:1, ]), # Flip vertically
+      col = gray.colors(256, start = 1, end = 0), # Light to dark grayscale
+      zlim = c(globalMin, globalMax), # Consistent scaling
+      axes = FALSE,
+      main = paste0("TE=", te, ", TR=", tr)
+    )
+  },
+  slice = split(phantomArr, rep(1:nz, each = nx * ny)), # Extract slices as list
+  te = teTrSettings$TE,
+  tr = teTrSettings$TR
+)
+```
 
 ## (c) 
 
 Write a function in R that takes in values of ($\rho$, $T_1$, $T_2$) and (TE, TR) and returns the mean observed intensity value for that setting as per Equation 1. [10 points]  
 
+```{r}
+meanIntensity <- function(rho, T1, T2, TE, TR) {
+  if (!all(dim(rho) == dim(T1), dim(T1) == dim(T2))) {
+    stop("rho, T1, and T2 must have the same dimensions")
+  }
+  signal <- rho * exp(-TE / T2) * (1 - exp(-TR / T1))
+  mean(signal)
+}
+```
+
 ## (d) 
 
-Obtain the least-squares (LS) estimates of ($\rho$, $T_1$, $T_2$) given the observed image intensities at the set (TE, TR)s. Our goal therefore is to find ($\rho_{ij}$, $T_{1ij}$, $T_{2ij}$) at the $(i,j)$th image coordinate (matrix entry) that minimizes  
+Obtain the least-squares (LS) estimates of ($\rho$, $T_1$, $T_2$) given the observed image intensities at the set (TE, TR)s. Our goal therefore is to find ($\rho_{ij}$, $T_{1ij}$, $T_{2ij}$) at the $(i,j)$th image coordinate (matrix entry) that minimizes
 
 $$
 \psi(\rho_{ij}, T_{1ij}, T_{2ij}; (\text{TE}_k, \text{TR}_k), Y_{i,j,k}, k = 1, 2, \dots, 18) = \sum_{k=1}^{18} \left[Y_{i,j,k} > 0\right] \left[Y_{i,j,k} - F(\rho_{ij}, T_{1ij}, T_{2ij}; \text{TE}_k, \text{TR}_k)\right]^2.
 $$
+
+```{r}
+objectiveFun <- function(params, Y, TE, TR) {
+  rho <- params[1]
+  T1 <- params[2]
+  T2 <- params[3]
+  predicted <- rho * exp(-TE / T2) * (1 - exp(-TR / T1))
+  mask <- Y > 0
+  sum((Y[mask] - predicted[mask])^2)
+}
+
+estimate_params <- function(Y, TE, TR, init = c(1, 1000, 100)) {
+  result <- optim(
+    par = init,
+    fn = objectiveFun,
+    Y = Y,
+    TE = TE,
+    TR = TR,
+    method = "L-BFGS-B",
+    lower = c(0, 0, 0) 
+  )
+  
+  list(rho = result$par[1], T1 = result$par[2], T2 = result$par[3], value = result$value)
+}
+```
 
 ## (e) 
 
@@ -44,19 +127,294 @@ We will now estimate ($\rho_{ij}, T_{1ij}, T_{2ij}$) for each imaging coordinate
 
 In so doing, note that the value is indeterminate if there are no more than two $Y_{i,j,k}$s that are non-zero for any $(i,j)$. For these cases, we will set $\rho_{ij} = 0$, $T_{1ij} = 4.0$, and $T_{2ij} = 0.001$. For the other $(i,j)$s, use the R function `optim` (note: not `optimize`) to estimate ($\rho_{ij}, T_{1ij}, T_{2ij}$). Restrict $\rho$ to be in $[0,3000]$, $T_1$ to be in $[0.01, 4.0]$, and $T_2$ to be in $[0.001,2.0]$ by writing your function such that if these values are breached in any case, then the value returned is $\infty$. The function `optim` also needs initial values: use (1500, 1.5, 0.1) as starting values. Store the estimated $\rho, T_1, T_2$ values in three 256 $\times$ 256 matrices. [25 points]  
 
+```{r}
+objectiveFun <- function(params, Y, TE, TR) {
+  rho <- params[1]
+  T1 <- params[2]
+  T2 <- params[3]
+  
+  # Validate parameter bounds
+  if (rho < 0 || rho > 3000 || T1 < 0.01 || T1 > 4.0 || T2 < 0.001 || T2 > 2.0) {
+    return(Inf)
+  }
+  
+  # Compute predicted intensities
+  predicted <- rho * exp(-TE / T2) * (1 - exp(-TR / T1))
+  
+  # Validate predicted values
+  if (any(is.na(predicted)) || any(is.nan(predicted)) || any(!is.finite(predicted))) {
+    return(Inf)
+  }
+  
+  # Compute RSS for Y > 0
+  mask <- Y > 0
+  if (!any(mask)) return(Inf) # Ensure there are valid Y values
+  rss <- sum((Y[mask] - predicted[mask])^2)
+  
+  # Validate RSS
+  if (is.na(rss) || is.nan(rss) || !is.finite(rss)) {
+    return(Inf)
+  }
+  
+  return(rss)
+}
+```
+
+```{r}
+estimatePixelPar <- function(Y, TE, TR) {
+  # Handle cases with <= 2 non-zero Y values
+  if (sum(Y > 0) <= 2) {
+    return(c(0, 4.0, 0.001)) 
+  }
+  
+  # Validate Y values
+  if (any(is.na(Y)) || any(is.nan(Y)) || any(!is.finite(Y))) {
+    return(c(0, 4.0, 0.001))
+  }
+  
+  # Perform optimization
+  result <- tryCatch({
+    optim(
+      par = c(1500, 1.5, 0.1), 
+      fn = objectiveFun,
+      Y = Y,
+      TE = TE,
+      TR = TR,
+      method = "L-BFGS-B",
+      lower = c(0, 0.01, 0.001),
+      upper = c(3000, 4.0, 2.0)
+    )
+  }, error = function(e) {
+    # Handle optimization failure
+    return(list(par = c(0, 4.0, 0.001)))
+  })
+  
+  return(result$par)
+}
+```
+
+```{r}
+# yucky for loop 
+# estimate_image_params <- function(image_data, TE, TR) {
+#   nx <- dim(image_data)[1]
+#   ny <- dim(image_data)[2]
+#   nz <- dim(image_data)[3]
+#   
+#   rho_matrix <- matrix(0, nrow = nx, ncol = ny)
+#   T1_matrix <- matrix(0, nrow = nx, ncol = ny)
+#   T2_matrix <- matrix(0, nrow = nx, ncol = ny)
+#   
+#   for (i in 1:nx) {
+#     for (j in 1:ny) {
+#       Y <- image_data[i, j, ]
+#       params <- estimatePixelPar(Y, TE, TR)
+#       rho_matrix[i, j] <- params[1]
+#       T1_matrix[i, j] <- params[2]
+#       T2_matrix[i, j] <- params[3]
+#     }
+#   }
+#   list(rho = rho_matrix, T1 = T1_matrix, T2 = T2_matrix)
+# }
+```
+
+```{r}
+estimateImgPar <- function(image_data, TE, TR, progress = TRUE) {
+  nx <- dim(image_data)[1]
+  ny <- dim(image_data)[2]
+  nz <- dim(image_data)[3]
+  
+  # Validate dimensions
+  if (nz != length(TE) || nz != length(TR)) {
+    stop("Mismatch between image_data and TE/TR dimensions.")
+  }
+  
+  # Reshape image data into 2D matrix for row-wise processing
+  image_data_2d <- matrix(image_data, nrow = nx * ny, ncol = nz, byrow = TRUE)
+  
+  # Apply parameter estimation to each pixel
+  results <- t(apply(image_data_2d, 1, function(Y) {
+    estimatePixelPar(Y, TE, TR)
+  }))
+  
+  # Reshape results back into matrices
+  rho_matrix <- matrix(results[, 1], nrow = nx, ncol = ny)
+  T1_matrix <- matrix(results[, 2], nrow = nx, ncol = ny)
+  T2_matrix <- matrix(results[, 3], nrow = nx, ncol = ny)
+  
+  if (progress) cat("Estimation completed.\n")
+  
+  # Return results
+  list(rho = rho_matrix, T1 = T1_matrix, T2 = T2_matrix)
+}
+```
+
+```{r, cache = T}
+TE <- teTrSettings$TE 
+TR <- teTrSettings$TR
+test_data <- phantomArr[1:10, 1:10, ]
+# results <- estimate_image_params(image_data = test_data, TE = TE, TR = TR)
+results <- estimateImgPar(image_data = phantomArr, TE = TE, TR = TR)
+
+rho_matrix <- results$rho
+T1_matrix <- results$T1
+T2_matrix <- results$T2
+```
+
 ## (f) 
 
 Display the $\rho, T_1$, and $T_2$ images estimated as per part (e) above. [5 points] 
 
+```{r}
+displayEstImg <- function(rho_matrix, T1_matrix, T2_matrix) {
+  par(mfrow = c(1, 3)) 
+
+  image(
+    t(rho_matrix[nrow(rho_matrix):1, ]), 
+    col = heat.colors(256), 
+    main = expression(rho),
+    xlab = "X Coordinate",
+    ylab = "Y Coordinate"
+  )
+  
+  image(
+    t(T1_matrix[nrow(T1_matrix):1, ]), 
+    col = heat.colors(256), 
+    main = expression(T[1]),
+    xlab = "X Coordinate",
+    ylab = "Y Coordinate"
+  )
+  
+  image(
+    t(T2_matrix[nrow(T2_matrix):1, ]), 
+    col = heat.colors(256), 
+    main = expression(T[2]),
+    xlab = "X Coordinate",
+    ylab = "Y Coordinate"
+  )
+}
+
+displayEstImg(rho_matrix, T1_matrix, T2_matrix)
+```
+
 ## (g) 
 
 Our final objective here is to plug in the 18 (TE, TR) values to the $\rho, T_1$, and $T_2$ images estimated as per part (e) and to obtain fitted images at the 18 (TE, TR) settings. Use the function you wrote in part (c) along with the estimates obtained in part (e) to obtain the fitted images. Display these images using the same scale as in part 1b above. [15 points]  
+
+```{r}
+# for loop version 
+# compute_fitted_images <- function(rho_matrix, T1_matrix, T2_matrix, TE, TR) {
+#   nx <- nrow(rho_matrix)
+#   ny <- ncol(rho_matrix)
+#   n_settings <- length(TE)
+#   
+#   fitted_images <- array(0, dim = c(nx, ny, n_settings))
+#   
+#   for (k in 1:n_settings) {
+#     fitted_images[, , k] <- rho_matrix * exp(-TE[k] / T2_matrix) * (1 - exp(-TR[k] / T1_matrix))
+#   }
+#   
+#   return(fitted_images)
+# }
+
+compute_fitted_images <- function(rho_matrix = rho_matrix, 
+                                  T1_matrix = T1_matrix,
+                                  T2_matrix = T2_matrix, 
+                                  TE = TE, 
+                                  TR = TR) {
+  nx <- nrow(rho_matrix)
+  ny <- ncol(rho_matrix)
+  n_settings <- length(TE)
+  
+  TE_array <- array(TE, dim = c(nx, ny, n_settings))
+  TR_array <- array(TR, dim = c(nx, ny, n_settings))
+  
+  rho_array <- array(rho_matrix, dim = c(nx, ny, n_settings))
+  T1_array <- array(T1_matrix, dim = c(nx, ny, n_settings))
+  T2_array <- array(T2_matrix, dim = c(nx, ny, n_settings))
+  
+  fitted_images <- rho_array * exp(-TE_array / T2_array) * (1 - exp(-TR_array / T1_array))
+  
+  return(fitted_images)
+}
+```
+
+```{r}
+fitted_images <- compute_fitted_images(rho_matrix, T1_matrix, T2_matrix, teTrSettings$TE, teTrSettings$TR)
+
+globalMin <- min(fitted_images, na.rm = TRUE)
+globalMax <- max(fitted_images, na.rm = TRUE)
+```
+
+```{r}
+# for loop version 
+# par(mfrow = c(3, 6), mar = c(2, 2, 2, 2))
+# for (k in 1:18) {
+#   image(
+#     t(fitted_images[, , k][nrow(fitted_images):1, ]),
+#     col = gray.colors(256, start = 1, end = 0),
+#     zlim = c(globalMin, globalMax),
+#     axes = FALSE,
+#     main = paste0("TE=", teTrSettings$TE[k], ", TR=", teTrSettings$TR[k])
+#   )
+# }
+
+par(mfrow = c(3, 6), mar = c(2, 2, 2, 2))
+mapply(
+  function(k, te, tr) {
+    image_slice <- fitted_images[, , k]
+    image(
+      t(image_slice[nrow(image_slice):1, ]),
+      col = gray.colors(256, start = 1, end = 0),
+      zlim = c(globalMin, globalMax),
+      axes = FALSE,
+      main = paste0("TE=", te, ", TR=", tr)
+    )
+  },
+  k = 1:dim(fitted_images)[3],
+  te = teTrSettings$TE,
+  tr = teTrSettings$TR
+)
+```
 
 \newpage 
 
 # 2 
 
 The dataset MPRAGE0.nii.gz contains the anatomic MR image volume of a healthy female in NIFTI format. The R package oro.nifti is required to read this file, with the function `readNIfTI`. The component `.Data` in the stored object (accessed via the `@` operator) contains the three-dimensional array containing the image voxel values. Display the volume via a three-dimensional contour display such as using the `contour3d` function in the misc3d package. Note that slices do not have the same dimensions (in particular, the vertical axis in the volume has slices that are 1.5 mm apart while the slices on the other two axes are 0.94 mm apart). Account for these differences by scaling the axes appropriately by checking out the recordings from the last virtual asynchronously recorded lecture on 3D graphics. Also test out several viewpoints and display the view that portrays the image the best in your opinion. [30 points]
+
+```{r}
+library("oro.nifti")
+library("misc3d")
+library("rgl")
+
+nifti_data <- readNIfTI("MPRAGEco.nii.gz", reorient = FALSE)
+image_volume <- nifti_data@.Data
+
+dims <- dim(image_volume)
+spacing <- c(0.94, 0.94, 1.5) 
+
+x <- seq(0, dims[1] - 1) * spacing[1]
+y <- seq(0, dims[2] - 1) * spacing[2]
+z <- seq(0, dims[3] - 1) * spacing[3]
+
+contour3d(
+  image_volume, 
+  x = x, y = y, z = z,
+  level = mean(image_volume), 
+  alpha = 0.2,                
+  draw = TRUE
+)
+
+# used this for messing around and getting the image I then knit 
+# I crashed my computer a few times for this 
+# view3d(theta = 45, phi = 30, zoom = 0.8)
+# rglwidget()
+# rgl.snapshot("3d_plot_snapshot.png")
+```
+
+```{r, eval = T, echo = T, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("3d_plot_snapshot.png")
+```
 
 \newpage 
 
@@ -75,6 +433,38 @@ The thinking behind this approach is that algorithms with poorer starting values
 ## (a) 
 
 Write a function in which R’s `kmeans` function in parallel for $M$ randomly initialized starting points and runs each initialized K-means algorithm for $I$ iterations, chooses the $m$ best solutions and then runs each to convergence, finally choosing the solution with the lowest $SSW$. Note that the `kmeans` function in R has all the arguments (`iter.max`, `nstart`) that you need and in particular that the function returns the objective function (tot.withinss) as well as the centers (`centers`) and grouping (`cluster` at iteration). [30 points]
+
+```{r}
+library(parallel)
+
+optimized_kmeans <- function(data, K, M, I, m) {
+  # data: Dataset to be clustered
+  # K: Number of clusters
+  # M: Number of initial random starts
+  # I: Number of iterations for each initialization
+  # m: Number of best solutions to refine
+
+  cl <- makeCluster(detectCores() - 1) 
+  clusterExport(cl, varlist = c("data", "K", "I"), envir = environment())
+  initial_results <- parLapply(cl, 1:M, function(x) {
+    kmeans(data, centers = K, iter.max = I, nstart = 1)
+  })
+  stopCluster(cl) 
+
+  initial_ssw <- sapply(initial_results, function(res) res$tot.withinss)
+  best_indices <- order(initial_ssw)[1:m]
+  best_initializations <- initial_results[best_indices]
+  final_results <- lapply(best_initializations, function(init_res) {
+    kmeans(data, centers = init_res$centers, iter.max = 100, nstart = 1)
+  })
+
+  final_ssw <- sapply(final_results, function(res) res$tot.withinss)
+  best_solution_index <- which.min(final_ssw)
+  best_solution <- final_results[[best_solution_index]]
+
+  return(best_solution)
+}
+```
 
 ## (b) 
 
@@ -104,13 +494,136 @@ The object `xx` is a 3-dimensional array with RGB values in the last dimension. 
 
 Read in the TIFF image and convert to a dataset of 375000 3-dimensional observations. [10 points]
 
+```{r}
+library("tiff")
+xx <- readTIFF(source="jubabrinda.tif")
+img <- as.raster(xx)
+plot(img)
+```
+
+```{r}
+image_array <- readTIFF(source = "jubabrinda.tif")
+data_matrix <- matrix(image_array, ncol = 3, byrow = FALSE)
+
+dim(image_array)
+# head(image_array)
+dim(data_matrix)
+# head(data_matrix) 
+```
+
 ### ii. 
 
 Use K-means with $K = 16$ and your function in part 3a with $M = 10000$, $I = 3$, and $m = 10$.  
+
 (If your resources permit, you may try larger values of $M$.) Note that this exercise may take up to an hour. Pack the cluster output from your K-means function into a matrix of the size of the image and display using the image function and a categorical palette (e.g., Set2 of RColorBrewer). [20 points]
+
+```{r, cache = T}
+# optimized_kmeans <- function(data, K, M, I, m)
+# data might be image_matrix? 
+# I MADE A BAILOUT 
+# I LOVE MY COMPUTER 
+# result <- optimized_kmeans(data = data_matrix, 
+#                            K = 16, 
+#                            M = 10000, 
+#                            I = 3, 
+#                            m = 10)
+# saveRDS(result, file = "optimized_kmeans_result.rds")
+```
+
+```{r}
+result <- readRDS("optimized_kmeans_result.rds")
+```
+
+```{r}
+image_height <- dim(image_array)[1]
+image_width <- dim(image_array)[2]
+clustered_image <- matrix(result$cluster, 
+                          nrow = image_height, 
+                          ncol = image_width)
+```
+
+```{r}
+library(RColorBrewer)
+
+transposed_image <- t(clustered_image)
+flipped_image <- transposed_image[, ncol(transposed_image):1]
+
+image(
+  flipped_image,                       
+  col = brewer.pal(16, "Set2"), 
+  main = "K-means Clustering with K=16",
+  useRaster = TRUE,                   
+  xlab = "", ylab = ""
+)
+```
 
 ### iii. 
 
 Replace the cluster indicator for each pixel with the means obtained from your function.  
 
 Thus we get a matrix for the red (consisting of 16 distinct values), another matrix for the green (consisting of 16 distinct values), and a third matrix for the blues (again having 16 distinct values). Use `pixmap` to combine these matrices and the function `writeTIFF` to write to a TIFF file your quantized image. Display using R as in part 3(b)i. Comment on how well your quantized image reproduced the original. [30 points]
+
+```{r, cache = T}
+library("pixmap")
+library("tiff")
+
+cluster_centers <- result$centers
+quantized_data <- cluster_centers[result$cluster, ] 
+
+cluster_centers <- result$centers
+quantized_data <- cluster_centers[result$cluster, ] 
+
+image_height <- dim(image_array)[1]
+image_width <- dim(image_array)[2]
+
+quantized_image_array <- array(quantized_data, 
+                                dim = c(image_height, image_width, 3)
+                               )
+
+quantized_image <- pixmapRGB(data = quantized_image_array)
+# saveRDS(quantized_image, file = "quantized_image.rds")
+```
+
+```{r}
+quantized_image <- readRDS("quantized_image.rds")
+```
+
+```{r}
+# Display original image
+plot(as.raster(image_array))
+```
+
+```{r}
+# K Means
+transposed_image <- t(clustered_image)
+flipped_image <- transposed_image[, ncol(transposed_image):1]
+
+image(
+  flipped_image,
+  col = brewer.pal(16, "Set2"),
+  main = "K-means Clustering with K=16",
+  useRaster = TRUE,
+  xlab = "", ylab = ""
+)
+```
+
+```{r}
+library(pixmap)
+# Display quantized image
+# quantized_raster <- as.raster(quantized_image)
+plot(quantized_image)
+```
+
+#### Fun Fact 
+
+```{r}
+object.size(image_array)
+object.size(quantized_image)
+
+testImage <- pixmapRGB(data = image_array)
+object.size(testImage)
+```
+
+Hey, so the amount of data required to locally hold/store the original array and the quantized image are nearly identical (the K-means one is slightly larger). Uh oh! 
+
+This is possibly due to storage as objects of different classes though, fingers crossed!  
