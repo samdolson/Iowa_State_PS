@@ -7,8 +7,8 @@ date: "2024-11-19"
 # Outline 
   
   - Q1: DRAFT
-  - Q2: DRAFT 
-  - Q3: DRAFT 
+  - Q2: DONE 
+  - Q3: WIP 
   - Q4: DRAFT
   - Q5: DRAFT 
   - Q6: DRAFT 
@@ -26,7 +26,7 @@ Find the joint moment generating function of $X_1$ and $X_2$.
 We start with the single variable MGF: 
 
 $$
-M_X(t) = \mathbb{E}[e^{tX}]
+M_X(t) = E[e^{tX}]
 $$
 
 For an $\text{Exponential}(\theta)$ random variable, the mean is $\theta$, and the rate parameter $\lambda = 1/\theta$. The MGF of $X \sim \text{Exponential}(\lambda)$ is:
@@ -38,13 +38,13 @@ $$
 Since $X_1$ and $X_2$ are independent exponential random variables, the joint MGF is the product of the individual MGFs:
 
 $$
-M_{X_1, X_2}(t_1, t_2) = \mathbb{E}[e^{t_1 X_1 + t_2 X_2}]
+M_{X_1, X_2}(t_1, t_2) = E[e^{t_1 X_1 + t_2 X_2}]
 $$
 
 Using independence:
 
 $$
-M_{X_1, X_2}(t_1, t_2) = \mathbb{E}[e^{t_1 X_1}] \cdot \mathbb{E}[e^{t_2 X_2}] = M_{X_1}(t_1) \cdot M_{X_2}(t_2).
+M_{X_1, X_2}(t_1, t_2) = E[e^{t_1 X_1}] \cdot E[e^{t_2 X_2}] = M_{X_1}(t_1) \cdot M_{X_2}(t_2).
 $$
 
 Each $M_{X_i}(t)$ has the same form as the MGF of an exponential random variable. Substituting $\lambda = 1/\theta$, we get:
@@ -70,13 +70,13 @@ Give the definition of the moment generating function of $X_1 - X_2$ and show ho
 We start with the MGF of a single variable: 
 
 $$
-M_X(t) = \mathbb{E}[e^{tX}].
+M_X(t) = E[e^{tX}].
 $$
 
 For the random variable $X_1 - X_2$, the MGF is given by:
 
 $$
-M_{X_1 - X_2}(t) = \mathbb{E}[e^{t(X_1 - X_2)}].
+M_{X_1 - X_2}(t) = E[e^{t(X_1 - X_2)}].
 $$
 
 From part (a), the joint MGF of $X_1$ and $X_2$ is:
@@ -157,149 +157,93 @@ Suppose the distribution of $Y$, conditional on $X = x$, is $N(x, x^2)$ and that
 
 Find $E[Y]$, $\text{Var}[Y]$, and $\text{Cov}(X, Y)$.
 
-To find $E[Y]$, $\text{Var}[Y]$, and $\text{Cov}(X, Y)$, we use the law of total expectation and total variance.
-
-We are given that $Y | X = x \sim N(x, x^2)$, so:
-- The conditional mean is $\mathbb{E}[Y | X = x] = x$.
-- The conditional variance is $\text{Var}(Y | X = x) = x^2$.
-
 The law of total expectation states:
 
 $$
-\mathbb{E}[Y] = \mathbb{E}[\mathbb{E}[Y | X]].
+E[Y] = E[E[Y | X]] = E[X] = \frac{1}{2}
 $$
-
-From the conditional mean, $\mathbb{E}[Y | X = x] = x$. Thus:
-
-$$
-\mathbb{E}[Y] = \mathbb{E}[X].
-$$
-
-Since $X \sim \text{Uniform}(0, 1)$, we know:
+Consider then, $\text{Cov}(X, Y)$. We know: 
 
 $$
-\mathbb{E}[X] = \frac{1}{2}.
+\text{Var}(Y) = E[\text{Var}(Y | X)] + \text{Var}(E[Y | X]) = E[X^2] + \text{Var}(E[Y | X])
 $$
-
-Therefore:
-
-$$
-\mathbb{E}[Y] = \frac{1}{2}.
-$$
-
-The law of total variance states:
+And 
 
 $$
-\text{Var}(Y) = \mathbb{E}[\text{Var}(Y | X)] + \text{Var}(\mathbb{E}[Y | X]).
+E[\text{Var}(Y | X)] = E[X^2] = \int_0^1 x^2 \, dx = \frac{x^3}{3} \Big|_0^1 = \frac{1}{3}
 $$
 
-- From the conditional variance, $\text{Var}(Y | X = x) = x^2$. Thus:
+Also, we have: 
 
 $$
-\mathbb{E}[\text{Var}(Y | X)] = \mathbb{E}[x^2].
+\text{Var}(E[Y | X]) = \text{Var}(X) = \frac{1}{12}
 $$
 
-Since $X \sim \text{Uniform}(0, 1)$, $\mathbb{E}[x^2]$ is the second moment of a uniform distribution:
+Again, with note that $X \sim \text{Uniform}(0, 1)$. 
+
+Simplfying gives us: 
 
 $$
-\mathbb{E}[x^2] = \int_0^1 x^2 \, dx = \frac{x^3}{3} \Big|_0^1 = \frac{1}{3}.
+\text{Var}(Y) = E[X^2] + \text{Var}(X) = \frac{1}{3} + \frac{1}{12} = \frac{5}{12}
 $$
 
-- From the conditional mean, $\mathbb{E}[Y | X = x] = x$, so:
+We then need to find $\text{Cov}(X, Y)$. To that end, we have: 
 
 $$
-\text{Var}(\mathbb{E}[Y | X]) = \text{Var}(X).
+E[XY] = E[X E[Y | X]] = E[X^2] = \frac{1}{3}
 $$
 
-For $X \sim \text{Uniform}(0, 1)$, $\text{Var}(X)$ is:
+We then have everything we need to calculate $\text{Cov}(X, Y)$, namely: 
 
 $$
-\text{Var}(X) = \frac{1}{12}.
+\text{Cov}(X, Y) = E[XY] - E[X]E[Y] = E[X^2] - E[X]E[Y] = \frac{1}{3} - \frac{1}{2}(\frac{1}{2}) = \frac{1}{12}
 $$
-
-Substitute these results into the law of total variance:
-
-$$
-\text{Var}(Y) = \mathbb{E}[x^2] + \text{Var}(X) = \frac{1}{3} + \frac{1}{12}.
-$$
-
-Simplify:
-
-$$
-\text{Var}(Y) = \frac{4}{12} + \frac{1}{12} = \frac{5}{12}.
-$$
-
-The covariance is given by:
-
-$$
-\text{Cov}(X, Y) = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y].
-$$
-
-From $\mathbb{E}[Y | X = x] = x$, we have:
-
-$$
-\mathbb{E}[XY] = \mathbb{E}[X \cdot \mathbb{E}[Y | X]] = \mathbb{E}[X^2].
-$$
-
-For $X \sim \text{Uniform}(0, 1)$, $\mathbb{E}[X^2] = \frac{1}{3}$. Also, we know $\mathbb{E}[X] = \frac{1}{2}$ and $\mathbb{E}[Y] = \frac{1}{2}$. Thus:
-
-$$
-\text{Cov}(X, Y) = \mathbb{E}[X^2] - \mathbb{E}[X]\mathbb{E}[Y] = \frac{1}{3} - \frac{1}{2} \cdot \frac{1}{2}.
-$$
-
-Simplify:
-
-$$
-\text{Cov}(X, Y) = \frac{1}{3} - \frac{1}{4} = \frac{4}{12} - \frac{3}{12} = \frac{1}{12}.
-$$
-In Summary: 
-
-1. $\mathbb{E}[Y] = \frac{1}{2}$,
-2. $\text{Var}(Y) = \frac{5}{12}$,
-3. $\text{Cov}(X, Y) = \frac{1}{12}$.
 
 ## (b) 
 
 Prove that $\frac{Y}{X}$ and $X$ are independent.
 
-To prove that $\frac{Y}{X}$ and $X$ are independent, we need to show that the joint probability density function (PDF) of $(\frac{Y}{X}, X)$ can be written as the product of the marginal PDFs of $\frac{Y}{X}$ and $X$.
+To prove that $\frac{Y}{X}$ and $X$ are independent, we need to show that the joint probability density function (PDF) of $(\frac{Y}{X}, X)$ can be written as the product of the marginal PDFs of $\frac{Y}{X}$ and $X$ (using a bivariate transformation). 
 
-The marginal distribution of $X$ is uniform $(0, 1)$, so its PDF is:
+To that end let us start with the PDF of X, which we know given $X \sim \text{Uniform}(0, 1)$ is: 
 
 $$
 f_X(x) = 
 \begin{cases} 
-1, & 0 < x < 1, \\ 
-0, & \text{otherwise}.
+1 & \text{for } 0 < x < 1 \\ 
+0 & \text{otherwise}
 \end{cases}
 $$
 
-The conditional distribution of $Y | X = x$ is $N(x, x^2)$, so the conditional PDF is:
+We then note the conditional distribution of $Y | X = x$ is $N(x, x^2)$, so the conditional PDF is:
 
 $$
-f_{Y | X}(y | x) = \frac{1}{\sqrt{2\pi x^2}} \exp\left(-\frac{(y - x)^2}{2x^2}\right), \quad -\infty < y < \infty.
+f_{Y | X}(y | x) = \frac{1}{\sqrt{2\pi x^2}} e^{\left(-\frac{(y - x)^2}{2x^2}\right)}
 $$
 
-The joint PDF of $X$ and $Y$ is:
+for $-\infty < y < \infty$
+
+Let us then consider the joint PDF of $X$ and $Y$:
 
 $$
-f_{X, Y}(x, y) = f_{Y | X}(y | x) f_X(x).
+f_{X, Y}(x, y) = f_{Y | X}(y | x) f_X(x) = f_{Y | X}(y | x) (1)
 $$
 
-Substituting $f_X(x) = 1$ for $0 < x < 1$:
+Because the pdf of X is 1, we may simplfy as: 
 
 $$
 f_{X, Y}(x, y) = 
-\begin{cases} 
-\frac{1}{\sqrt{2\pi x^2}} \exp\left(-\frac{(y - x)^2}{2x^2}\right), & 0 < x < 1, \, -\infty < y < \infty, \\ 
-0, & \text{otherwise}.
-\end{cases}
+\frac{1}{\sqrt{2\pi x^2}} e^{\left(-\frac{(y - x)^2}{2x^2}\right)}
 $$
 
-Define $Z = \frac{Y}{X}$ and $X = X$. Then:
+For $0 < x < 1 \text{ and } -\infty < y < \infty$
+
+Let us then define the new random variable $Z = \frac{Y}{X}$. 
+
+As, 
 
 $$
-Y = Z \cdot X.
+Y = Z X
 $$
 
 The Jacobian of the transformation is:
@@ -311,69 +255,33 @@ $$
 \end{vmatrix}
 =
 \begin{vmatrix}
-X & Z \\
+x & z \\
 0 & 1
 \end{vmatrix}
-= X.
+= x
 $$
 
-Thus, the joint PDF of $(Z, X)$ is:
+Using the above Jacobian, we then have the joint PDF of $(Z, X)$ may be written :
 
 $$
-f_{Z, X}(z, x) = f_{X, Y}(x, y) \cdot \left| \text{Jacobian} \right| = f_{X, Y}(x, z \cdot x) \cdot x.
+f_{Z, X}(z, x) = f_{X, Y}(x, y) \cdot \left| J \right| = f_{X, Y}(x, z  x) | x | = f_{X, Y}(x, z  x) x 
 $$
 
-Substitute $Y = z \cdot x$ into $f_{X, Y}(x, y)$:
+With note that X is always positive. 
+
+We may further simplify the above joint pdf as: 
 
 $$
-f_{X, Y}(x, y) = \frac{1}{\sqrt{2\pi x^2}} \exp\left(-\frac{(y - x)^2}{2x^2}\right),
-$$
-
-so:
-
-$$
-f_{Z, X}(z, x) = \frac{1}{\sqrt{2\pi x^2}} \exp\left(-\frac{(z \cdot x - x)^2}{2x^2}\right) \cdot x.
-$$
-
-Simplify $z \cdot x - x = x(z - 1)$:
-
-$$
-f_{Z, X}(z, x) = \frac{x}{\sqrt{2\pi x^2}} \exp\left(-\frac{(x(z - 1))^2}{2x^2}\right).
-$$
-
-Cancel $x$ terms in the denominator:
-
-$$
-f_{Z, X}(z, x) = \frac{1}{\sqrt{2\pi}} \exp\left(-\frac{(z - 1)^2}{2}\right) \cdot f_X(x).
+f_{Z, X}(z, x) = \frac{1}{\sqrt{2\pi x^2}} e^{\left(-\frac{(z x - x)^2}{2x^2}\right)} x = \frac{x}{\sqrt{2\pi x^2}} e^{\left(-\frac{(x(z - 1))^2}{2x^2}\right)} = \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{(z - 1)^2}{2}\right)} (1)
 $$
 
 Since $f_X(x) = 1$ for $0 < x < 1$, we have:
 
 $$
-f_{Z, X}(z, x) = \frac{1}{\sqrt{2\pi}} \exp\left(-\frac{(z - 1)^2}{2}\right) \cdot 1.
+f_{Z, X}(z, x) = \frac{1}{\sqrt{2\pi}} e^{\left(-\frac{(z - 1)^2}{2}\right)} f_X(x) = f_Z(z)f_X(x)
 $$
 
-- The marginal PDF of $Z = \frac{Y}{X}$ is:
-
-$$
-f_Z(z) = \frac{1}{\sqrt{2\pi}} \exp\left(-\frac{(z - 1)^2}{2}\right), \quad -\infty < z < \infty.
-$$
-
-- The marginal PDF of $X$ is:
-
-$$
-f_X(x) = 1, \quad 0 < x < 1.
-$$
-
-The joint PDF $f_{Z, X}(z, x)$ factors as:
-
-$$
-f_{Z, X}(z, x) = f_Z(z) \cdot f_X(x).
-$$
-
-Since the joint PDF is the product of the marginal PDFs, $Z = \frac{Y}{X}$ and $X$ are independent.
-
-$\frac{Y}{X}$ and $X$ are independent.
+And we conclude that $\frac{Y}{X}$ and $X$ are independent as we may write the joint PDF as the product of the marginal PDFs. 
 
 \newpage
 
@@ -383,51 +291,63 @@ Find the pdf of $\prod_{i=1}^n X_i$, where the $X_i$'s are independent uniform $
 
 *(Hint: Try to calculate the cdf, and remember the relationship between uniforms and exponentials.)*
 
-To find the PDF of $W = \prod_{i=1}^n X_i$, where the $X_i$'s are independent $\text{Uniform}(0, 1)$ random variables, we proceed as follows:
-
-Each $X_i \sim \text{Uniform}(0, 1)$, meaning:
+Note: Each $X_i \sim \text{Uniform}(0, 1)$, and each has PDF:
 
 $$
 f_{X_i}(x) = 
 \begin{cases} 
-1, & 0 \leq x \leq 1, \\ 
-0, & \text{otherwise}.
+1 & \text{ for } 0 \leq x \leq 1 \\ 
+0 & \text{otherwise}
 \end{cases}
 $$
 
-We define $W = \prod_{i=1}^n X_i$, which maps the product of the $X_i$'s into a single random variable $W$ on $(0, 1)$. 
-
-To find the PDF of $W$, we first compute its CDF, $F_W(w) = P(W \leq w)$, and then differentiate.
+Define a new random variable W as:
 
 $$
-F_W(w) = P(W \leq w) = P\left(\prod_{i=1}^n X_i \leq w\right).
+W = \prod_{i=1}^n X_i
 $$
 
-Take the logarithm on both sides (recall that $\ln$ is monotonic and $\ln(w) < 0$ for $w \in (0, 1)$):
+As each $X_i$ has support [0,1], the support of W is also [0, 1]. 
+
+The PDF of $W$ is then: 
 
 $$
-P\left(\prod_{i=1}^n X_i \leq w\right) = P\left(\sum_{i=1}^n \ln(X_i) \leq \ln(w)\right).
+F_W(w) = P(W \leq w) = P\left(\prod_{i=1}^n X_i \leq w\right) = P\left(\sum_{i=1}^n \ln(X_i) \leq \ln(w)\right)
 $$
 
-Let $Y_i = -\ln(X_i)$. Each $Y_i$ is an **Exponential(1)** random variable because if $X_i \sim \text{Uniform}(0, 1)$, then $-\ln(X_i) \sim \text{Exponential}(1)$. Thus, the sum $S = \sum_{i=1}^n Y_i$ follows a **Gamma distribution** with shape parameter $n$ and rate parameter $1$, denoted $S \sim \text{Gamma}(n, 1)$. 
+Note that log transformation is a monotonic transformation. 
 
-The PDF of $S$ is:
+Let us then define the random variables $Y_i$ as follows:
 
 $$
-f_S(s) = \frac{s^{n-1} e^{-s}}{\Gamma(n)}, \quad s > 0.
+Y_i = -\ln(X_i)
+$$ 
+
+As $X_i \sim \text{Uniform}(0, 1)$, $Y_i \sim Exponential(1)$
+
+Let us then define the random variable S as the sum of $Y_i$. We similarly know the distribution of S as $S \sim \text{Gamma}(n, 1)$.
+
+Specifically the PDF of $S$ is:
+
 $$
+f_S(s) = \frac{s^{n-1} e^{-s}}{\Gamma(n)}
+$$
+
+For $s > 0$
 
 Thus:
 
 $$
-F_W(w) = P\left(\sum_{i=1}^n Y_i \leq -\ln(w)\right) = P(S \leq -\ln(w)).
+F_W(w) = P\left(\sum_{i=1}^n Y_i \leq -\ln(w)\right) = P(S \leq -\ln(w))
 $$
 
 The CDF of $W$ is:
 
 $$
-F_W(w) = \int_0^{-\ln(w)} \frac{s^{n-1} e^{-s}}{\Gamma(n)} \, ds, \quad 0 < w \leq 1.
+F_W(w) = \int_0^{-\ln(w)} \frac{s^{n-1} e^{-s}}{\Gamma(n)} \, ds
 $$
+
+For $0 < w \leq 1$
 
 The PDF of $W$ is the derivative of the CDF:
 
@@ -435,22 +355,14 @@ $$
 f_W(w) = \frac{d}{dw} \left[ \int_0^{-\ln(w)} \frac{s^{n-1} e^{-s}}{\Gamma(n)} \, ds \right].
 $$
 
-Using the fundamental theorem of calculus and the chain rule, we get:
-
 $$
-f_W(w) = \frac{1}{w} \cdot \frac{(-\ln(w))^{n-1} e^{-\ln(w)}}{\Gamma(n)}, \quad 0 < w \leq 1.
-$$
-
-Simplify $e^{-\ln(w)} = \frac{1}{w}$:
-
-$$
-f_W(w) = \frac{(-\ln(w))^{n-1}}{\Gamma(n) w^{n}}, \quad 0 < w \leq 1.
+f_W(w) = \frac{1}{w} \left( \frac{(-\ln(w))^{n-1} e^{-\ln(w)}}{\Gamma(n)} \right) = \frac{(-\ln(w))^{n-1}}{\Gamma(n) w^{n}}
 $$
 
 The PDF of $W = \prod_{i=1}^n X_i$ is:
 
 $$
-f_W(w) = \frac{(-\ln(w))^{n-1}}{\Gamma(n) w^n}, \quad 0 < w \leq 1.
+f_W(w) = \frac{(-\ln(w))^{n-1}}{\Gamma(n) w^n} \quad 0 < w \leq 1.
 $$
 
 \newpage
@@ -471,9 +383,7 @@ $$
 
 ## (a) 
 
-Show that $Z$ has a normal distribution.
-
-Our goal is to show that $Z \sim N(0, 1)$.
+Show that $Z$ has a normal distribution, specifically $Z \sim N(0, 1)$.
 
 The condition $XY > 0$ corresponds to $X$ and $Y$ having the same sign:
 - $X > 0, Y > 0$,
@@ -1072,19 +982,19 @@ $$
 The covariance for a bivariate normal random variable $(X, Y)$ is given by the parameter $\rho$:
 
 $$
-\text{Cov}(X, Y) = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y].
+\text{Cov}(X, Y) = E[XY] - E[X]E[Y].
 $$
 
-Since both $X$ and $Y$ are standard normal random variables, $\mathbb{E}[X] = \mathbb{E}[Y] = 0$. Therefore:
+Since both $X$ and $Y$ are standard normal random variables, $E[X] = E[Y] = 0$. Therefore:
 
 $$
-\text{Cov}(X, Y) = \mathbb{E}[XY].
+\text{Cov}(X, Y) = E[XY].
 $$
 
 For a bivariate normal random variable with correlation $\rho$, it is a known result that:
 
 $$
-\mathbb{E}[XY] = \rho.
+E[XY] = \rho.
 $$
 
 Thus:
@@ -1115,56 +1025,56 @@ Using this, we calculate the necessary terms.
 We use the law of total expectation:
 
 $$
-\mathbb{E}[X^2 Y^2] = \mathbb{E}[X^2 \cdot \mathbb{E}[Y^2 | X]].
+E[X^2 Y^2] = E[X^2 \cdot E[Y^2 | X]].
 $$
 
-The conditional variance and mean of $Y$ given $X$ allow us to compute $\mathbb{E}[Y^2 | X]$:
+The conditional variance and mean of $Y$ given $X$ allow us to compute $E[Y^2 | X]$:
 
 $$
-\mathbb{E}[Y^2 | X] = \text{Var}(Y | X) + (\mathbb{E}[Y | X])^2.
+E[Y^2 | X] = \text{Var}(Y | X) + (E[Y | X])^2.
 $$
 
 Here:
 - $\text{Var}(Y | X) = 1 - \rho^2$,
-- $\mathbb{E}[Y | X] = \rho X$.
+- $E[Y | X] = \rho X$.
 
 Thus:
 
 $$
-\mathbb{E}[Y^2 | X] = (1 - \rho^2) + (\rho X)^2 = 1 - \rho^2 + \rho^2 X^2.
+E[Y^2 | X] = (1 - \rho^2) + (\rho X)^2 = 1 - \rho^2 + \rho^2 X^2.
 $$
 
-Substitute this into $\mathbb{E}[X^2 Y^2]$:
+Substitute this into $E[X^2 Y^2]$:
 
 $$
-\mathbb{E}[X^2 Y^2] = \mathbb{E}[X^2 \cdot (1 - \rho^2 + \rho^2 X^2)].
+E[X^2 Y^2] = E[X^2 \cdot (1 - \rho^2 + \rho^2 X^2)].
 $$
 
 Expand:
 
 $$
-\mathbb{E}[X^2 Y^2] = \mathbb{E}[X^2] \cdot (1 - \rho^2) + \rho^2 \mathbb{E}[X^4].
+E[X^2 Y^2] = E[X^2] \cdot (1 - \rho^2) + \rho^2 E[X^4].
 $$
 
 Since $X \sim N(0, 1)$, the moments are:
-- $\mathbb{E}[X^2] = 1$,
-- $\mathbb{E}[X^4] = 3$ (from properties of normal distribution).
+- $E[X^2] = 1$,
+- $E[X^4] = 3$ (from properties of normal distribution).
 
 Thus:
 
 $$
-\mathbb{E}[X^2 Y^2] = (1)(1 - \rho^2) + \rho^2(3) = 1 - \rho^2 + 3\rho^2 = 1 + 2\rho^2.
+E[X^2 Y^2] = (1)(1 - \rho^2) + \rho^2(3) = 1 - \rho^2 + 3\rho^2 = 1 + 2\rho^2.
 $$
 
 The covariance is:
 
 $$
-\text{Cov}(X^2, Y^2) = \mathbb{E}[X^2 Y^2] - \mathbb{E}[X^2]\mathbb{E}[Y^2].
+\text{Cov}(X^2, Y^2) = E[X^2 Y^2] - E[X^2]E[Y^2].
 $$
 
-From above, $\mathbb{E}[X^2 Y^2] = 1 + 2\rho^2$. Also:
-- $\mathbb{E}[X^2] = 1$,
-- $\mathbb{E}[Y^2] = 1$.
+From above, $E[X^2 Y^2] = 1 + 2\rho^2$. Also:
+- $E[X^2] = 1$,
+- $E[Y^2] = 1$.
 
 Thus:
 
@@ -1175,7 +1085,7 @@ $$
 The variance of $X^2$ is:
 
 $$
-\text{Var}(X^2) = \mathbb{E}[X^4] - (\mathbb{E}[X^2])^2.
+\text{Var}(X^2) = E[X^4] - (E[X^2])^2.
 $$
 
 From above:
