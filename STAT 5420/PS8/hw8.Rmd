@@ -10,9 +10,9 @@ date: "2024-11-19"
   - Q2: DONE 
   - Q3: DONE 
   - Q4: DONE
-  - Q5: DRAFT 
+  - Q5: WIP 
   - Q6: DONE 
-  - Q7: DRAFT
+  - Q7: DONE
   - Q8: DONE
 
 # Q1 
@@ -403,69 +403,91 @@ This is incompatible with a bivariate normal distribution, which allows for the 
 
 Bullets are fired at the origin of an $(x, y)$ coordinate system, and the point hit, say $(X, Y)$, is a random variable. The variables $X$ and $Y$ are taken to be independent $N(0, 1)$ random variables. If two bullets are fired independently, what is the distribution of the distance between them?
 
-Two bullets are fired independently at points $(X_1, Y_1)$ and $(X_2, Y_2)$, where $X_1, Y_1, X_2, Y_2 \sim N(0, 1)$ are independent standard normal random variables. The distance between the two points is given by:
+The distance between the two points is given by the equation:
 
 $$
-R = \sqrt{(X_2 - X_1)^2 + (Y_2 - Y_1)^2}.
+R = \sqrt{(X_2 - X_1)^2 + (Y_2 - Y_1)^2}
 $$
 
-We aim to find the distribution of $R$.
+Our goal then is to find the distribution of $R$.
 
 Since $X_1, X_2 \sim N(0, 1)$ are independent, the difference $X_2 - X_1$ is also normally distributed:
 
 $$
-X_2 - X_1 \sim N(0, 2).
+X_2 - X_1 \sim N(0, 2)
 $$
 
-Similarly, $Y_2 - Y_1 \sim N(0, 2)$.
+And similarly, $Y_2 - Y_1 \sim N(0, 2)$.
 
-The squared distance is:
-
-$$
-R^2 = (X_2 - X_1)^2 + (Y_2 - Y_1)^2.
-$$
-
-Let $Z_1 = X_2 - X_1$ and $Z_2 = Y_2 - Y_1$. Then $Z_1, Z_2 \sim N(0, 2)$, and they are independent. The squared terms are:
+The squared distance is then the sum of two N(0, 2) random variables:
 
 $$
-Z_1^2 \sim \text{Scaled-Chi-Square}(1, \sigma^2 = 2), \quad Z_2^2 \sim \text{Scaled-Chi-Square}(1, \sigma^2 = 2).
+R^2 = (X_2 - X_1)^2 + (Y_2 - Y_1)^2
 $$
 
-For a standard normal variable $Z \sim N(0, 1)$, $Z^2 \sim \chi^2(1)$. Scaling by $\sigma^2 = 2$, $Z_1^2$ and $Z_2^2$ are scaled $\chi^2(1)$:
+Let us define two new random variables as follows: 
+
+Let $Z_1 = X_2 - X_1$, 
+and 
+Let $Z_2 = Y_2 - Y_1$. 
+
+Then $Z_1, Z_2 \sim N(0, 2)$, and they are independent. The squared terms are:
 
 $$
-Z_1^2 \sim 2 \cdot \chi^2(1), \quad Z_2^2 \sim 2 \cdot \chi^2(1).
+Z_1^2 \sim \text{Scaled-Chi-Square}(1, \sigma^2 = 2)
 $$
 
-Since $Z_1^2 + Z_2^2$ is the sum of two independent scaled $\chi^2(1)$ variables, it follows that:
+and
 
 $$
-Z_1^2 + Z_2^2 \sim 2 \cdot \chi^2(2).
+Z_2^2 \sim \text{Scaled-Chi-Square}(1, \sigma^2 = 2)
 $$
 
-A $\chi^2(2)$ distribution is equivalent to an $\text{Exponential}(1)$ distribution. Scaling by 2, we have:
+For a standard normal variable $Z \sim N(0, 1)$, $Z^2 \sim \chi^2(1)$. 
+
+Scaling by $\sigma^2 = 2$, $Z_1^2$ and $Z_2^2$ are scaled $\chi^2(1)$:
 
 $$
-R^2 \sim \text{Exponential}\left(\frac{1}{2}\right).
+Z_1^2 \sim 2 \chi^2(1)
 $$
 
-The random variable $R = \sqrt{R^2}$ is the square root of an $\text{Exponential}\left(\frac{1}{2}\right)$ random variable. The PDF of $R^2 \sim \text{Exponential}\left(\frac{1}{2}\right)$ is:
+and
+
+$$
+Z_2^2 \sim 2 \chi^2(1)
+$$
+
+Since $Z_1^2 + Z_2^2$ is the sum of two independent, scaled $\chi^2(1)$ variables, it follows that:
+
+$$
+Z_1^2 + Z_2^2 \sim 2 \chi^2(2)
+$$
+
+We then note that a $\chi^2(2)$ distribution (Chi-squared distribution with 2 degrees of freedom) is equivalent to an $\text{Exponential}(1)$ distribution.
+
+However, as we have a Scaled Chi-squared distribution, we similarly need to scale the Exponential distribution (by 2). When we do so, we have: 
+
+$$
+R^2 \sim \text{Exponential}\left(\frac{1}{2}\right)
+$$
+
+The random variable $R = \sqrt{R^2}$ is the square root of an $\text{Exponential}\left(\frac{1}{2}\right)$ random variable. 
+
+The PDF of $R^2 \sim \text{Exponential}\left(\frac{1}{2}\right)$ is:
 
 $$
 f_{R^2}(r^2) = \frac{1}{2} e^{-r^2 / 2}, \quad r^2 \geq 0.
 $$
 
-To find the PDF of $R$, we apply the change of variables $R^2 = r^2$ with $R = \sqrt{r^2}$, giving:
+To find the PDF of $R$, we apply the change of variables $R^2 = r^2$ with $R = \sqrt{r^2}$, giving us:
 
 $$
-f_R(r) = f_{R^2}(r^2) \cdot \left| \frac{d(r^2)}{dr} \right| = \frac{1}{2} e^{-r^2 / 2} \cdot 2r = r e^{-r^2 / 2}, \quad r \geq 0.
+f_R(r) = f_{R^2}(r^2) \left| \frac{d(r^2)}{dr} \right| = \frac{1}{2} e^{-r^2 / 2} 2r = r e^{-r^2 / 2}
 $$
 
-The distance $R$ between the two bullets follows a **Rayleigh distribution** with scale parameter $\sigma = \sqrt{2}$:
+Where $r \geq 0$
 
-$$
-f_R(r) = r e^{-r^2 / 2}, \quad r \geq 0.
-$$
+Note: This is a specially named distribution! The distance $R$ between the two bullets follows a Rayleigh distribution with scale parameter $\sigma = \sqrt{2}$!
 
 \newpage
 
@@ -535,47 +557,53 @@ Let $X$ and $Y$ be independent standard normal random variables.
 
 Show that $\frac{X}{X + Y}$ has a Cauchy distribution.
 
-To show that $\frac{X}{X + Y}$ has a Cauchy distribution, let's proceed as follows:
+Define a new random variable $Z = \frac{X}{X + Y}$.
 
-Let $Z = \frac{X}{X + Y}$. To study the distribution of $Z$, rewrite it as:
-
-$$
-Z = \frac{X}{X + Y}.
-$$
-
-This can be rearranged to express $X$ in terms of $Z$ and $Y$:
+This may also be written: 
 
 $$
-X = Z(X + Y).
+X = Z(X + Y)
 $$
 
-Expanding this gives:
+Furthermore
 
 $$
-X = ZX + ZY \quad \Rightarrow \quad X(1 - Z) = ZY \quad \Rightarrow \quad X = \frac{ZY}{1 - Z},
+X = ZX + ZY \Rightarrow \quad X(1 - Z) = ZY \Rightarrow \quad X = \frac{ZY}{1 - Z}
 $$
 
-where $Z \neq 1$ to avoid division by zero.
+Where $Z \neq 1$ (no dividing by zero). 
 
-Since $X \sim N(0, 1)$ and $Y \sim N(0, 1)$ are independent, the joint probability density function (PDF) is:
-
-$$
-f_{X,Y}(x, y) = f_X(x)f_Y(y) = \frac{1}{2\pi} e^{-\frac{x^2 + y^2}{2}}.
-$$
-
-Let:
+Given $X \sim N(0, 1)$ and $Y \sim N(0, 1)$ are independent, the joint PDF is equal to the product of the marginals:
 
 $$
-U = X + Y, \quad V = Z = \frac{X}{X + Y}.
+f_{X,Y}(x, y) = f_X(x)f_Y(y) = \frac{1}{2\pi} e^{-\frac{x^2 + y^2}{2}}
 $$
 
-This transformation is invertible. The inverse is:
+Let us use a transformation, specifically:
 
 $$
-X = VU, \quad Y = U - X = U - VU = U(1 - V).
+U = X + Y
 $$
 
-The Jacobian of the transformation is:
+And: 
+
+$$
+V = Z = \frac{X}{X + Y}
+$$
+
+Note: This transformation is invertible, specifically:
+
+$$
+X = VU
+$$
+
+And
+
+$$
+Y = U - X = U - VU = U(1 - V)
+$$
+
+The Jacobian of this transformation is:
 
 $$
 \begin{vmatrix}
@@ -584,85 +612,59 @@ $$
 \end{vmatrix}
 =
 \begin{vmatrix}
-V & U \\[5pt]
-1 - V & -U
+v & u \\[5pt]
+1 - v & -u
 \end{vmatrix}
-= (-VU) - U(1 - V) = U.
+= (-vu) - u(1 - v) = u
 $$
 
-The absolute value of the Jacobian determinant is $|U|$.
-
-The joint PDF of $U$ and $V$ is:
+We may then write the joint PDF of $U$ and $V$ is:
 
 $$
-f_{U,V}(u, v) = f_{X,Y}(x, y) \cdot |J|,
+f_{U,V}(u, v) = f_{X,Y}(vu, u(1-v)) |J| = f_{X,Y}(vu, u(1-v)) |u|
 $$
 
-where $(X, Y)$ are expressed in terms of $(U, V)$:
+Explicitly, this may be written: 
 
 $$
-f_{U,V}(u, v) = \frac{1}{2\pi} \exp\left(-\frac{(vu)^2 + (u(1 - v))^2}{2}\right) |u|.
+f_{U,V}(u, v) = \frac{1}{2\pi} e^{\left(-\frac{(vu)^2 + (u(1 - v))^2}{2}\right)} |u| = \frac{1}{2\pi} e^{\left(-\frac{u^2(1 + v^2)}{2}\right)} |u|
 $$
 
-Simplifying the exponent:
+Now that we have the joint PDF of U and V, we may derive the marginal distribution of $V = Z$, by integration by u:
 
 $$
-(vu)^2 + (u(1 - v))^2 = u^2(v^2 + (1 - v)^2) = u^2(v^2 + 1 - 2v + v^2) = u^2(1 + v^2).
+f_V(v) = \int_{-\infty}^\infty f_{U,V}(u, v) du = \int_{-\infty}^\infty \frac{1}{2\pi} e^{\left(-\frac{u^2(1 + v^2)}{2}\right)} |u| du
 $$
 
-Thus:
+We simplify, with note of symmetry of the normal distribution: 
 
 $$
-f_{U,V}(u, v) = \frac{1}{2\pi} \exp\left(-\frac{u^2(1 + v^2)}{2}\right) |u|.
+f_V(v) = \int_{-\infty}^\infty \frac{1}{2\pi} e^{\left(-\frac{u^2(1 + v^2)}{2}\right)} |u| du = \int_{0}^\infty \frac{1}{\pi} e^{\left(-\frac{u^2(1 + v^2)}{2}\right)} u du = \frac{1}{\pi(1 + v^2)}
 $$
 
-To find the marginal distribution of $V = Z$, integrate out $u$:
-
-$$
-f_V(v) = \int_{-\infty}^\infty f_{U,V}(u, v) \, du.
-$$
-
-Substitute $f_{U,V}(u, v)$:
-
-$$
-f_V(v) = \int_{-\infty}^\infty \frac{1}{2\pi} \exp\left(-\frac{u^2(1 + v^2)}{2}\right) |u| \, du.
-$$
-
-Factorize the integral using the symmetry of the normal distribution and recognize a Gaussian integral:
-
-$$
-\int_{-\infty}^\infty \exp\left(-\frac{u^2(1 + v^2)}{2}\right) |u| \, du = \frac{1}{1 + v^2}.
-$$
-
-Thus:
-
-$$
-f_V(v) = \frac{1}{\pi(1 + v^2)}.
-$$
-
-The PDF $f_V(v) = \frac{1}{\pi(1 + v^2)}$ is the PDF of a standard Cauchy distribution. Therefore, $\frac{X}{X + Y}$ has a Cauchy distribution.
+The PDF $f_V(v) = \frac{1}{\pi(1 + v^2)}$ is the PDF of a standard Cauchy distribution. Therefore, $V \equiv Z \equiv \frac{X}{X + Y} \sim \text{Cauchy}(0,1)$, and $\frac{X}{X + Y}$ has a Cauchy distribution.
 
 ## (b) 
 
 Find the distribution of $\frac{X}{|Y|}$.
 
-To find the distribution of $\frac{X}{|Y|}$, where $X$ and $Y$ are independent standard normal random variables, let's proceed step by step.
+Similar to part (a), let us define a new random variable Z, where $Z = \frac{X}{|Y|}$. 
 
-Let $Z = \frac{X}{|Y|}$. To determine the distribution of $Z$, we calculate its PDF.
+Again, mirroring the procedure we did in part (a), we may derive the PDF of $Z$.
 
 We know $X \sim N(0, 1)$ and $Y \sim N(0, 1)$. The joint PDF of $X$ and $Y$ is:
 
 $$
-f_{X,Y}(x, y) = \frac{1}{2\pi} e^{-\frac{x^2 + y^2}{2}}.
+f_{X,Y}(x, y) = \frac{1}{2\pi} e^{-\frac{x^2 + y^2}{2}}
 $$
 
-Since $|Y| = |y|$, the PDF of $|Y|$ is given by:
+However, since $|Y| = |y|$, the PDF of $|Y|$ is given by:
 
 $$
 f_{|Y|}(y) = 
 \begin{cases} 
-\sqrt{\frac{2}{\pi}} e^{-\frac{y^2}{2}}, & y \geq 0, \\
-0, & y < 0.
+\sqrt{\frac{2}{\pi}} e^{-\frac{y^2}{2}} & y \geq 0, \\
+0 & y < 0
 \end{cases}
 $$
 
@@ -671,20 +673,29 @@ Thus, the joint PDF of $X$ and $|Y|$ is:
 $$
 f_{X,|Y|}(x, y) = 
 \begin{cases} 
-\frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} \cdot \sqrt{\frac{2}{\pi}} e^{-\frac{y^2}{2}}, & y \geq 0, \\
-0, & y < 0.
+\frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}}  \sqrt{\frac{2}{\pi}} e^{-\frac{y^2}{2}} & y \geq 0 \\
+0 & y < 0
 \end{cases}
 $$
 
-For $y \geq 0$, this simplifies to:
+This simplifies to:
 
 $$
-f_{X,|Y|}(x, y) = \frac{1}{\pi} e^{-\frac{x^2 + y^2}{2}}.
+f_{X,|Y|}(x, y) = 
+\begin{cases} 
+\frac{1}{\pi} e^{-\frac{x^2 + y^2}{2}} & y \geq 0 \\
+0 & y < 0
+\end{cases}
 $$
 
-Let $Z = \frac{X}{|Y|}$ and $W = |Y|$. Then:
+Let us define another random variable W, where $W = |Y|$. We then have a transformation of X and Y using Z and W, specifically for: 
+
 $$
-X = ZW \quad \text{and} \quad |Y| = W.
+X = ZW 
+$$
+
+$$
+|Y| = W
 $$
 
 The Jacobian of this transformation is:
@@ -696,58 +707,38 @@ $$
 \end{vmatrix}
 =
 \begin{vmatrix}
-W & Z \\[5pt]
+w & z \\[5pt]
 0 & 1
 \end{vmatrix}
-= W.
+= w
 $$
 
 Thus, the joint PDF of $Z$ and $W$ is:
 
 $$
-f_{Z,W}(z, w) = f_{X,|Y|}(zw, w) \cdot |W| = \frac{1}{\pi} e^{-\frac{(zw)^2 + w^2}{2}} \cdot w.
+f_{Z,W}(z, w) = f_{X,|Y|}(zw, w) |w| = \frac{1}{\pi} e^{-\frac{(zw)^2 + w^2}{2}} w
 $$
 
-The marginal PDF of $Z$ is obtained by integrating out $W$:
+As we now have the joint distribution of Z and W, we may derive the marginal PDF of $Z$ by integrating with respect to $W$:
 
 $$
-f_Z(z) = \int_0^\infty f_{Z,W}(z, w) \, dw.
+f_Z(z) = \int_0^\infty f_{Z,W}(z, w) dw = \int_0^\infty \frac{1}{\pi} e^{-\frac{(zw)^2 + w^2}{2}} w dw 
 $$
 
-Substitute $f_{Z,W}(z, w)$:
-$$
-f_Z(z) = \int_0^\infty \frac{1}{\pi} e^{-\frac{(zw)^2 + w^2}{2}} w \, dw.
-$$
+Evaluating the above requires (at least for me) a change variables. 
 
-Factorize the exponent:
+Let $u = \frac{w^2(z^2 + 1)}{2}$, such that $w^2 = \frac{2u}{z^2 + 1}$ and $dw = \frac{du}{w(z^2 + 1)}$. 
 
-$$
-(zw)^2 + w^2 = w^2(z^2 + 1),
-$$
-so:
-$$
-f_Z(z) = \int_0^\infty \frac{1}{\pi} e^{-\frac{w^2(z^2 + 1)}{2}} w \, dw.
-$$
-
-Change variables to simplify the integral. Let $u = \frac{w^2(z^2 + 1)}{2}$, so $w^2 = \frac{2u}{z^2 + 1}$ and $dw = \frac{du}{w(z^2 + 1)}$. When $w = 0$, $u = 0$; as $w \to \infty$, $u \to \infty$. Substituting, we get:
-$$
-f_Z(z) = \int_0^\infty \frac{1}{\pi} e^{-u} \cdot \frac{1}{z^2 + 1} \, du.
-$$
-
-The integral of $e^{-u}$ from $0$ to $\infty$ is $1$, so:
-$$
-f_Z(z) = \frac{1}{\pi(z^2 + 1)}.
-$$
-
-The PDF of $Z = \frac{X}{|Y|}$ is:
-$$
-f_Z(z) = \frac{1}{\pi(1 + z^2)}.
-$$
-
-This is the standard Cauchy distribution. Therefore:
+Then we may rewrite the above as: 
 
 $$
-\frac{X}{|Y|} \sim \text{Cauchy}(0, 1).
+f_Z(z) = \int_0^\infty \frac{1}{\pi} e^{-u} \frac{1}{z^2 + 1} du = \frac{1}{\pi(z^2 + 1)}
+$$
+
+The PDF of $Z = \frac{X}{|Y|}$ is the standard Cauchy distribution. Therefore:
+
+$$
+Z \equiv \frac{X}{|Y|} \sim \text{Cauchy}(0, 1)
 $$
 
 
@@ -755,43 +746,71 @@ $$
 
 Is the answer to part (b) surprising? Can you formulate a general theorem?
 
-At first glance, the result that \(\frac{X}{|Y|}\) has a standard Cauchy distribution might seem surprising because \(|Y|\) (the absolute value of a standard normal random variable) is strictly positive and not symmetrically distributed like \(X\). Despite this, the independence of \(X\) and \(|Y|\) and the particular relationship between their distributions result in a cancellation of dependencies, yielding the familiar Cauchy distribution. This is a remarkable property of the ratio of independent normal and scaled distributions, arising due to specific symmetry properties.
+I was not surprised that the answer to part (b) is a Cauchy distribution, but I was surprised to learn that both part (a) and part (b) are distributed the same and by the standard Cauchy distribution. 
+
+We may be able to draw some insights and formulate a general theorem though. To that end:
 
 The result in parts (a) and (b) can be unified under a broader theorem:
 
-Let \(X\) and \(Y\) be independent \(N(0, \sigma^2)\) random variables. Define \(R = \frac{X}{aY + b}\), where \(a, b \in \mathbb{R}\) and \(a \neq 0\). Then:
+Start by noting the location-scale family of the Cauchy distribution. 
+
+Furthermore, let X and Y be independent $N(0, \sigma^2)$ random variables. 
+
+Define $Z = \frac{X}{aY + b}$, where $a, b \in \mathbb{R}$ and $a \neq 0$, to avoid dividing by zero. 
+
+Then:
 
 $$
-R \sim \text{Cauchy}\left(0, \frac{\sigma}{|a|}\right).
+Z \sim \text{Cauchy}\left(0, \frac{\sigma}{|a|}\right).
 $$
 
-1. **Case 1 (Part (b)):**
-   When \(a = 1\) and \(b = 0\), \(R = \frac{X}{Y}\), and the result is a standard Cauchy distribution:
-   $$
-   R \sim \text{Cauchy}(0, \sigma).
-   $$
+### Some Cases to aid in the above generalization
 
-2. **Case 2 (Part (b), absolute value modification):**
-   When \(R = \frac{X}{|Y|}\), we use the symmetry of \(Y\). The absolute value does not alter the result since the distribution depends on the magnitude of \(Y\), not its sign. Thus:
-   $$
-   R \sim \text{Cauchy}(0, \sigma).
-   $$
+#### Case 1: results from part (a) 
 
-3. **Case 3 (Scaled and shifted denominator):**
-   When \(a \neq 1\) or \(b \neq 0\), the location parameter is adjusted by the shift in the denominator, but the scale depends only on \(a\).
+When a = 1 and b = 0, $Z = \frac{X}{Y}$, and the result is a standard Cauchy distribution:
 
-The theorem can be explained through the invariance of the ratio of independent Gaussian variables under scaling and translation:
+$$
+Z \sim \text{Cauchy}(0, \sigma)
+$$
 
-- The numerator \(X\) introduces symmetry in the numerator.
-- The denominator \(aY + b\) shifts and scales the variable but does not change the overall form of the distribution due to the independence of \(X\) and \(Y\).
+And for $\sigma^2 = 1$, 
 
-This property of the ratio of independent Gaussians is tied to the definition of the Cauchy distribution, which arises naturally in this context.
+$$
+Z \sim \text{Cauchy}(0, 1)
+$$
+
+#### Case 2: 
+
+When $Z = \frac{X}{|Y|}$, we use the symmetry of Y given its Normally distributed. The absolute value does not alter the result since the distribution depends on the magnitude of Y, not its sign. Thus:
+   
+$$
+Z \sim \text{Cauchy}(0, \sigma)
+$$
+
+And for $\sigma^2 = 1$, 
+
+$$
+Z \sim \text{Cauchy}(0, 1)
+$$
+
+#### Case 3: Scaled and shifted
+
+When $a \neq 1$ or $b \neq 0$, the location parameter is adjusted by the shift in the denominator, but the scale depends only on a.
+
+#### Some properties of note: 
+
+The theorem can be explained through the invariance of the ratio of independent Gaussian variables under scaling and translation (the rules/properties found individually for the location-scale family of Gaussian random variables):
+
+The numerator, random variable X, introduces symmetry in the numerator.
+
+The denominator, a linear combination of the random variable Y, aY + b, shifts and scales the variable but does not change the overall form of the distribution due to the independence of X and Y.
 
 \newpage
 
 # Q8: 4.50, Casella & Berger
 
-If $(X, Y)$ has the bivariate normal probability density function (pdf):
+If $(X, Y)$ has the bivariate normasl probability density function (pdf):
 
 $$
 f(x, y) = \frac{1}{2\pi(1-\rho^2)^{1/2}} \exp \left( -\frac{1}{2(1-\rho^2)} \left( x^2 - 2\rho xy + y^2 \right) \right),
