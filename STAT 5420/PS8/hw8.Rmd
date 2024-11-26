@@ -8,8 +8,8 @@ date: "2024-11-19"
   
   - Q1: DONE? Q on (c) 
   - Q2: DONE 
-  - Q3: WIP 
-  - Q4: DRAFT
+  - Q3: DONE 
+  - Q4: DONE
   - Q5: DRAFT 
   - Q6: DONE 
   - Q7: DRAFT
@@ -245,69 +245,45 @@ f_{X_i}(x) =
 \end{cases}
 $$
 
-Define a new random variable W as:
+Define a new random variable Y as:
 
 $$
-W = \prod_{i=1}^n X_i
+Y = \prod_{i=1}^n X_i
 $$
 
-As each $X_i$ has support [0,1], the support of W is also [0, 1]. 
+As each $X_i$ has support [0,1], the support of Y is also [0, 1]. 
 
-The PDF of $W$ is then: 
+The PDF of $Y$ is then: 
 
 $$
-F_W(w) = P(W \leq w) = P\left(\prod_{i=1}^n X_i \leq w\right) = P\left(\sum_{i=1}^n \ln(X_i) \leq \ln(w)\right)
+F_Y(y) = P(Y \leq y) = P\left(\prod_{i=1}^n X_i \leq y \right) = P\left( \sum_{i=1}^n - \ln(X_i) \geq - \ln(y )\right)
 $$
 
 Note that log transformation is a monotonic transformation. 
 
-Let us then define the random variables $Y_i$ as follows:
+Let us then examine the distribution of $- ln(X_i)$:
+
+As $X_i \sim \text{Uniform}(0, 1)$, $ln(X_i) \sim Exponential(1) \equiv Gamma (1, 1)$
+
+Furthermore, we know that since $X_i \sim \text{Uniform}(0, 1) \forall i$, we know that $\sum_{i=1}^n - \ln(X_i) \sim \text{Gamma}(n, 1)$.
+
+Turning then back to the CDF of Y, we may write: 
 
 $$
-Y_i = -\ln(X_i)
-$$ 
-
-As $X_i \sim \text{Uniform}(0, 1)$, $Y_i \sim Exponential(1)$
-
-Let us then define the random variable S as the sum of $Y_i$. We similarly know the distribution of S as $S \sim \text{Gamma}(n, 1)$.
-
-Specifically the PDF of $S$ is:
-
-$$
-f_S(s) = \frac{s^{n-1} e^{-s}}{\Gamma(n)}
+F_Y(y) = \int\limits_{- ln(y)}^{\infty} \frac{1}{\Gamma(n)} z^{n-1}e^{-z}dz 
 $$
 
-For $s > 0$
-
-Thus:
+To find the PDF of Y, we take the derivative of the CDF with respect to y, and write: 
 
 $$
-F_W(w) = P\left(\sum_{i=1}^n Y_i \leq -\ln(w)\right) = P(S \leq -\ln(w))
-$$
-
-The CDF of $W$ is:
-
-$$
-F_W(w) = \int_0^{-\ln(w)} \frac{s^{n-1} e^{-s}}{\Gamma(n)} \, ds
-$$
-
-For $0 < w \leq 1$
-
-The PDF of $W$ is the derivative of the CDF:
-
-$$
-f_W(w) = \frac{d}{dw} \left[ \int_0^{-\ln(w)} \frac{s^{n-1} e^{-s}}{\Gamma(n)} \, ds \right].
+f_Y(y) = \frac{d}{dy} \int_{-ln(y)}^\infty \frac{1}{\Gamma(n)} z^{n-1}e^{-z}dz = -\frac{1}{\Gamma(n)}(-ln(y))^{n-1}e^{-\log y} \frac{d}{dy}(-ln(y))
 $$
 
 $$
-f_W(w) = \frac{1}{w} \left( \frac{(-\ln(w))^{n-1} e^{-\ln(w)}}{\Gamma(n)} \right) = \frac{(-\ln(w))^{n-1}}{\Gamma(n) w^{n}}
+F_Y(y) = \frac{1}{\Gamma(n)}(-ln(y))^{n-1} e^{-ln(y)} \left( \frac{1}{y} \right) = \frac{(-ln(y))^{n-1}}{\Gamma(n) y^2}
 $$
 
-The PDF of $W = \prod_{i=1}^n X_i$ is:
-
-$$
-f_W(w) = \frac{(-\ln(w))^{n-1}}{\Gamma(n) w^n} \quad 0 < w \leq 1.
-$$
+For $0 < y < 1$ 
 
 \newpage
 
@@ -329,142 +305,97 @@ $$
 
 Show that $Z$ has a normal distribution, specifically $Z \sim N(0, 1)$.
 
-The condition $XY > 0$ corresponds to $X$ and $Y$ having the same sign:
-- $X > 0, Y > 0$,
-- $X < 0, Y < 0$.
+As given from the definition of Z, Z takes either positive or negative values. However, there are two distinct cases for taking a positive or negative value: Z is positive if X and Y are both positive, or if X and Y are both negative. Similarly, Z is negative if X is positive and Y is negative, or if X  is negative and Y is positive. 
 
-The condition $XY < 0$ corresponds to $X$ and $Y$ having opposite signs:
-- $X > 0, Y < 0$,
-- $X < 0, Y > 0$.
+With this in mind we proceed as follows: 
 
-Thus, $Z = X$ when $X$ and $Y$ have the same sign, and $Z = -X$ when $X$ and $Y$ have opposite signs.
-
-This occurs when $XY > 0$, which happens in two subcases:
-1. $X > 0, Y > 0$,
-2. $X < 0, Y < 0$.
+### Positive Case
 
 The probability that $XY > 0$ is the same as the probability that $X$ and $Y$ have the same sign. Due to independence and symmetry of the standard normal distribution:
 
 $$
-P(XY > 0) = P(X > 0, Y > 0) + P(X < 0, Y < 0).
+P(XY > 0) = P(X > 0, Y > 0) + P(X < 0, Y < 0) = P(X > 0)P(Y > 0) = \frac{1}{2}  (\frac{1}{2}) = \frac{1}{4}
 $$
 
-By independence:
+For the other positive case, X and Y both negative, we have
 
 $$
-P(X > 0, Y > 0) = P(X > 0)P(Y > 0) = \frac{1}{2} \cdot \frac{1}{2} = \frac{1}{4},
+P(X < 0, Y < 0) = \frac{1}{4}
 $$
 
-and similarly:
+Taken together, we have: 
 
 $$
-P(X < 0, Y < 0) = \frac{1}{4}.
+P(XY > 0) = P(X < 0)P(Y < 0) + P(X < 0)P(Y < 0) = \frac{1}{4} + \frac{1}{4} = \frac{1}{2}
 $$
 
-Thus:
-
-$$
-P(XY > 0) = \frac{1}{4} + \frac{1}{4} = \frac{1}{2}.
-$$
-
-This occurs when $XY < 0$, which happens in two subcases:
-1. $X > 0, Y < 0$,
-2. $X < 0, Y > 0$.
+### The Negative Case 
 
 The probability that $XY < 0$ is:
 
 $$
-P(XY < 0) = P(X > 0, Y < 0) + P(X < 0, Y > 0).
+P(XY < 0) = P(X > 0, Y < 0) + P(X < 0, Y > 0) = P(X > 0)P(Y < 0) = \frac{1}{4}
 $$
 
-Similarly:
+For the other negative case, X negative and Y positive, we similarly have: 
 
 $$
-P(X > 0, Y < 0) = P(X > 0)P(Y < 0) = \frac{1}{4},
+P(X < 0, Y > 0) = \frac{1}{4}
 $$
 
-and:
+Taken together then, 
 
 $$
-P(X < 0, Y > 0) = \frac{1}{4}.
+P(XY < 0) = P(X > 0)P(Y < 0) + P(X < 0, Y > 0) = \frac{1}{4} + \frac{1}{4} = \frac{1}{2}
 $$
 
-Thus:
+### Conclusion 
+
+From the above cases, we know there is symmetry to the distribution of Z, and that the "component" random variables of Z are standard normal distributions. 
+
+Furthermore, we have $P(Z \leq z) = P(X \leq x)$, such that Z and X follow the same distribution. 
+
+This is all to say that: 
 
 $$
-P(XY < 0) = \frac{1}{4} + \frac{1}{4} = \frac{1}{2}.
-$$
-
-From the definition of $Z$, we see that:
-- With probability $\frac{1}{2}$, $Z = X$,
-- With probability $\frac{1}{2}$, $Z = -X$.
-
-Thus, $Z$ is distributed as $X$ with equal probability of flipping the sign. The symmetry of the normal distribution ensures that flipping the sign does not alter the distribution. Therefore:
-
-$$
-Z \sim N(0, 1).
-$$
-
-We have shown that $Z$ has the same distribution as $X$, which is $N(0, 1)$. Thus:
-
-$$
-Z \sim N(0, 1).
+Z \sim N(0, 1)
 $$
 
 ## (b) 
 
-Show that the joint distribution of $Z$ and $Y$ is not bivariate normal. *(Hint: Show that $$Z$$ and $$Y$$ always have the same sign.)*
+Show that the joint distribution of $Z$ and $Y$ is not bivariate normal. 
 
-To show that the joint distribution of $Z$ and $Y$ is not bivariate normal, we analyze their dependence and demonstrate that $Z$ and $Y$ always have the same sign, violating a property of bivariate normal distributions.
+*(Hint: Show that $$Z$$ and $$Y$$ always have the same sign.)*
 
-From the definition of $Z$:
+To show that the joint distribution of $Z$ and $Y$ is not bivariate normal, we must show that $Z$ and $Y$ always have the same sign, a case that does not occur for a bivariate normal distribution.
+
+To that end, we recall the definition of the random variable Z: 
+
 $$
 Z =
 \begin{cases}
 X & \text{if } XY > 0, \\
--X & \text{if } XY < 0.
+-X & \text{if } XY < 0
 \end{cases}
 $$
 
-- **Case 1: When $XY > 0$:**  
-  If $XY > 0$, $X$ and $Y$ have the same sign. In this case, $Z = X$, and $Z$ retains the same sign as $X$, which matches the sign of $Y$.  
-  Therefore, $Z$ and $Y$ have the same sign.
+Again, similar to part (a), there are two cases to consider: 
 
-- **Case 2: When $XY < 0$:**  
-  If $XY < 0$, $X$ and $Y$ have opposite signs. In this case, $Z = -X$, so $Z$ flips the sign of $X$. Since $X$ and $Y$ already have opposite signs, flipping the sign of $X$ ensures that $Z$ and $Y$ have the same sign.
+### Case 1 $XY > 0$:
 
-In both cases, we conclude:
-$$
-\text{$Z$ and $Y$ always have the same sign.}
-$$
+If $XY > 0$, $X$ and $Y$ have the same sign. In this case, $Z = X$, and $Z$ retains the same sign as $X$, which matches the sign of $Y$.  
 
-For two random variables $Z$ and $Y$ to follow a bivariate normal distribution:
-- Any linear combination of $Z$ and $Y$ must also have a normal distribution.
-- The joint PDF of $(Z, Y)$ would not impose deterministic constraints on their values.
+Therefore, $Z$ and $Y$ have the same sign.
 
-However, the fact that $Z$ and $Y$ always share the same sign imposes a **deterministic relationship**:
-- If $Z > 0$, then $Y > 0$.  
-- If $Z < 0$, then $Y < 0$.  
+### Case 2 $XY < 0$:
 
-This deterministic relationship violates the independence and symmetry properties expected of bivariate normal variables. Specifically:
-- In a bivariate normal distribution, the joint distribution must allow the variables to take any values within their range, subject only to their covariance structure.
-- The joint restriction that $Z$ and $Y$ must have the same sign introduces a nonlinear dependence, which is incompatible with bivariate normality.
+If $XY < 0$, $X$ and $Y$ have opposite signs. In this case, $Z = -X$, so $Z$ flips the sign of $X$. Since $X$ and $Y$ already have opposite signs, flipping the sign of $X$ ensures that $Z$ and $Y$ have the same sign. This is the same regardless of whether Y > 0 or Y < 0. 
 
-The support of the joint distribution of $(Z, Y)$ is constrained to:
+### Conclusion 
 
-$$
-\{(z, y): z > 0 \text{ and } y > 0\} \cup \{(z, y): z < 0 \text{ and } y < 0\}.
-$$
+In both cases above, we conclude that $Z$ and $Y$ always have the same sign, and the two cases exhaustively describe the possible values of Z and Y. This provides a constraint on the joint PDF of Z and Y (that it lies/has positive probability within the plane of Z and Y being the same sign and 0 otherwise). 
 
-This means that the joint density of $(Z, Y)$ has **zero probability** in the regions where $Z$ and $Y$ have opposite signs, such as:
-- $Z > 0$ and $Y < 0$,
-- $Z < 0$ and $Y > 0$.
-
-This behavior is incompatible with a bivariate normal distribution, whose joint density would assign nonzero probability to all regions in \(\mathbb{R}^2\).
-
-The joint distribution of $Z$ and $Y$ is not bivariate normal because:
-- $Z$ and $Y$ always have the same sign, which imposes a deterministic nonlinear constraint on their values.  
-- This behavior violates the symmetry and independence properties required for a bivariate normal distribution.
+This is incompatible with a bivariate normal distribution, which allows for the two random variables composing it to carry opposite signs (a bivariate normal distribution has full support over $\mathbb{R}^2$. This is because a bivariate normal distribution has independence of signs (but not necessarily independence of the random variables), which the above provides evidence of being violated. 
 
 \newpage
 
