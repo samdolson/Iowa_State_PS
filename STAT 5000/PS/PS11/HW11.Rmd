@@ -7,7 +7,7 @@ output: pdf_document
 [Fall 2024]{.smallcaps} 
 [due Fri, November 22nd @ 11:59 pm]{.smallcaps}
 [Name: Sam Olson]{.smallcaps} \
-[Collaborators: **The Hatman**]{.smallcaps} \
+[Collaborators: Ethan, **The Hatman**]{.smallcaps} \
 
 ```{r, eval = T, results = F, echo = F, warning=F, message=F}
 library(knitr)
@@ -55,29 +55,88 @@ And use the following diagnostics to assess model assumptions. (Do not submit th
 
 Normal Q-Q plot of residuals and the related Shapiro-Wilk test.
 
+The QQ plot closely aligns with the reference line within the first theoretical quantile, but there are deviations past the first (positive/negative) quantile. 
+
+The Shapiro-Wilk test provides a small p-value (<0.0001) such that we would have evidence to reject the null hypothesis that the residuals are normally distributed. 
+
+Overall, we have reason to suspect our normality assumption is being violated. 
+
 ### ii. 
 
 Plot of the residuals versus the estimates of the conditional means for BMI
+
+We generally observe a random spread of residual values across fitted values. However, there are two negative residuals around predicted BMI 25+, such that we'd consider these points to either be candidates for removal or that we may in fact be violating our assumption of form of the model. 
+
+This notwithstanding, we generally have reason to believe our form of the model and constant variance assumptions are not being violated. 
 
 ### iii. 
 
 Individual plots of the residuals versus each of the five explanatory variables
 
+Plots of residuals versus each of the five explanatory variables are generally consistent with the depictions present from the residual v. fitted values graph, insomuch as we may have a few problematic points to address but generally do not have reason to suspect our assumptions are being violated. 
+
 ## (b) 
 
 Given that an outlier should be detected from part (a), refit the model and recheck the diagnostics listed in (a) to assess whether model assumptions are violated or not. (HINT: You can filter observations from the dataset using the where statement inside the reg procedure in SAS.)
+
+The QQ plot looks better, insomuch as it more closely tracks with the reference line, and this is consistent with a larger Shapiro-Wilk test statistics, such that we would not have evidence to reject the null hypothesis that the residuals are normally distributed. As such we have reason not to suspect the normality assumption is being violated as it was in part (a). 
+
+Furthermore, the residual plots consistently (across the x-axis of fitted values as well as individually across the explanatory variables) appear to be randomly spread, such that our constant variance and form of the model assumptions are likely not being violated either. 
+
+However, it is worth noting that we still appear to have a potential outlier. 
+
+\newpage 
 
 ## (c) 
 
 For the 69 observations (without the outlier that was detected from part (a)), use a backward selection procedure to search for a model using $\alpha_{stay}$ = 0.05. For this question, just consider the five variables mentioned in part (a): WT2, HT2, WT9, HT9, ST9. For your final model, report the estimated coefficients and their standard errors.
 
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1c.png")
+```
+
+\newpage 
+
 ## (d) 
 
 For the 69 observations (without the outlier that was detected from part (a)), check all possible models that could be constructed using at most the five variables WT2, HT2, WT9, HT9, ST9 and then give the best one that you recommend. Justify your choice.
 
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1d1.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1d2.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1d3.png")
+```
+
+Choose: WT2, WT9, HT9 model 
+
+\newpage 
+
 ## (e) 
 
 Are there concerns about multicollinearity for the explanatory variables of the model you picked in part (d)?
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1e.png")
+```
+
+VIF values are not especially large (less than cutoff for "moderate" of 3/5), so minimal issue with multicollinearity. 
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1e2.png")
+```
+
+However, when looking at the Condition Index for the Eigenvalues, we do observe a rather high value (larger than 30), and the 93.13 corresponds to a significant proportion of variation for Interccept, WT9, and HT9, or potentially extreme multicollinearity between WT9 and HT9. 
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q1e3.png")
+```
+
+The above is further corroborated by the correlation coefficient between WT9 and HT9 being greater than 0.7 (0.73096). 
 
 \newpage 
 
@@ -106,21 +165,55 @@ The data from 999 sales can be found in the file housing train.csv and for the r
 Fit the full model using all 5 explanatory variables listed above to the training data
 (housing train.csv).
 
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2a.png")
+```
+
 ### i. 
 
 Find and interpret the $R^2$ value for the full model.
+
+78.31% of variability in Sales price can be explained using the multiple linear regression using Basement Area, Living Area, Total Room, Garage Size, and Age as explanatory variables (and including an intercept term). 
 
 ### ii. 
 
 Interpret the value of the estimated regression coefficient corresponding to the Garage Size variable for the full model.
 
+Increasing Garage Size by 1 car is associated with an increased Sales Price of $15,833, all else being equal. s
+
+\newpage 
+
 ## (b) 
 
 Use forward selection to fit a reduced model to the training data using some subset of the 5 explanatory variables listed above. Provide an equation for the estimated MLR model.
 
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2b.png")
+```
+
+I used the model with "Age" removed, corresponding to the above output and the following equation: 
+
+$$
+\widehat{\text{Sale Price}} = -29334 + 63.08 \times \text{Basement Area} + 97.53 \times \text{Living Area} - 7527.76 \times \text{Total Room} + 26551 \times \text{Garage Size}
+$$
+
+\newpage 
+
 ## (c) 
 
 How does the adjusted $R^2$ value for the reduced model compare to the full model?
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2c.png")
+```
+
+Full: 0.7820 
+Reduced: 0.7531 
+Difference: 0.0289
+
+The difference of 0.0289 corresponds to a difference of 2.89% between the two models. 
+
+\newpage 
 
 ## (d) 
 
@@ -130,18 +223,67 @@ Using the reduced model, check for:
 
 outliers 
 
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2d1.png")
+```
+
+We do observe there being some potential outliers in the training data. 
 
 ### ii. 
 
 high leverage points
 
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2d2.png")
+```
+
+We do observe there being some leverage points in the training data. 
+
 ### iii. 
 
 potential influence points
 
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2d3.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2d4.png")
+```
+
+We do observe there being some potential influence points in the training data. 
+
+\newpage 
+
 ## (e) 
 
 Fit the reduced model from part (b) to the evaluation data (housing eval.csv). Compare the mean squared error from fitting the model to the testing data to the mean squared error from fitting the model to the evaluation data. What does this imply?
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e1.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q2e2.png")
+```
+
+
+$$
+\text{MSE}_{\text{train}} = 1.693569893 \times 10^8
+$$
+
+$$
+\text{MSE}_{\text{eval}} = 1.617144789 \times 10^8 
+$$
+
+
+$$
+\text{MSE}_{\text{eval}} < \text{MSE}_{\text{train}}
+$$
+
+The fact that the evaluation MSE is slightly lower than the training MSE suggests that the model generalizes well to unseen data. This also indicates there is no significant overfitting, as the model performs similarly on both the training and evaluation datasets.
+
+The similar MSE values for training and evaluation datasets imply that the model performs consistently across different data splits and has a good balance of complexity and predictive power. The model is reliable for predicting housing sale prices in this context.
 
 \newpage
 
@@ -163,6 +305,10 @@ knitr::include_graphics("q3a1.png")
 knitr::include_graphics("BIG.png")
 ```
 
+Many of the variables are highly correlated with each other; the variables with |r| > 0.7 are: Carat and price, carat and x, carat and y, carat and z, price and x, price and y, price and z, x and y, x and z, y and z all have |r| > 0.7. 
+
+\newpage 
+
 ## (b) 
 
 Discuss whether the VIFs, shown in the plot below, indicate any explanatory variables exhibiting moderate or extreme multicollinearity.
@@ -170,6 +316,12 @@ Discuss whether the VIFs, shown in the plot below, indicate any explanatory vari
 ```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q3b.png")
 ```
+
+Carat, x, y, and z all have VIF > 4, indicating moderate multicollinearity. 
+
+The output does not explicitly state if any are greater than 10, and values appear to be cut off at the 7 VIF value, so for "extreme" corresponding to a VIF greater than 10, we cannot determine explicitly if the "x" explanatory variable exhibits extreme multicollinearity.
+
+\newpage 
 
 ## (c) 
 
@@ -183,13 +335,19 @@ knitr::include_graphics("q3c.png")
 
 an ordered list of which variable was removed from the model at each step;
 
+Step 1: variable "y" was removed. There are no more explanatory variables eliminated. 
+
 ### ii. 
 
 a list of which variables remained in the final model;
 
+Explanatory variables that remained: Carat, cut, color, clarity, depth, and table. 
+
 ### iii. 
 
 a summary of the partial regression coefficients effects tests for the final model.
+
+\newpage 
 
 ## (d) 
 
@@ -207,13 +365,28 @@ knitr::include_graphics("q3f2.png")
 
 an ordered list of which variable was added to the model at each step;
 
+First Step: carat, 
+Second Step: clarity, 
+Third Step: color, 
+Fourth Step: x, 
+Fifth Step: cut, 
+Sixth Step: depth, 
+Seventh Step: table, 
+Eighth Step: z
+
 ### ii. 
 
 a list of which variables never entered the final model;
 
+The explanatory variable "y" never entered the final model. 
+
 ### iii. 
 
 a summary of the partial regression coefficients effects tests for the final model.
+
+[Add Summary here] 
+
+\newpage 
 
 ## (e) 
 
@@ -227,13 +400,21 @@ knitr::include_graphics("q3e.png")
 
 Which model would you choose based on the adjusted R2 values?
 
+Model 8, using the explanatory variables of carat, color, and clarity (possibly with an intercept term as well). 
+
 ### ii. 
 
 Which model would you choose based on the Mallow’s Cp criteria?
 
+Model 8, using the explanatory variables of carat, color, and clarity (possibly with an intercept term as well). 
+
 ### iii. 
 
 Which model would you choose based on the BIC values?
+
+Model 8, using the explanatory variables of carat, color, and clarity (possibly with an intercept term as well). 
+
+\newpage 
 
 ## (f) 
 
@@ -247,9 +428,15 @@ knitr::include_graphics("q3f.png")
 
 one of the values corresponding to the categorical variable of your choice;
 
+The conditional mean price of diamonds that are cut 2 are priced $580.325 more than diamonds that are cut 1, holding all other variables constant.
+
 ### ii. 
 
 one of the values corresponding to the quantitative variable of your choice.
+
+For a 1 carat increase in weight, the conditional mean price of diamonds will increase by $11257.752, holding all other variables constant.
+
+\newpage 
 
 ## (g) 
 
@@ -262,3 +449,31 @@ knitr::include_graphics("q3g1.png")
 ```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q3g2.png")
 ```
+
+The residual plot has a clearly obvious non-random-scattering trend, suggesting the linearity and equal variance assumptions may be violated.
+
+The QQ is roughly linear close the middle, but show strong deviations in the left tail and right of the middle, suggesting the normality assumption is violated.
+
+Taken together, we have reason to be concerned that our key assumptions are being violated, with regards to the residuals. 
+
+\newpage 
+
+## (h) 
+
+Summarize your findings from examining the case diagnostic values/plots. Are there any
+outliers, leverage points, or influential observations?
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3h1.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3h2.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("q3h3.png")
+```
+
+From the studentized residual plot, there appear to be many outliers (studentized residuals exceed 2). From the leverage plot, there appears to be many high leverage points (exceeding 2*(8+1)/50000 = 0.00036). From the cook’s D plot, there appear to be several high influence points (exceeding
+2*sqrt(2/50000) = 0.01264911)
