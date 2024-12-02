@@ -10,7 +10,7 @@ date: "2024-11-19"
   - Q2: DONE 
   - Q3: DONE 
   - Q4: DONE
-  - Q5: WIP 
+  - Q5: DONE 
   - Q6: DONE 
   - Q7: DONE
   - Q8: DONE
@@ -409,7 +409,7 @@ $$
 R = \sqrt{(X_2 - X_1)^2 + (Y_2 - Y_1)^2}
 $$
 
-Our goal then is to find the distribution of $R$.
+As defined above, our goal is to find the distribution of $R$.
 
 Since $X_1, X_2 \sim N(0, 1)$ are independent, the difference $X_2 - X_1$ is also normally distributed:
 
@@ -417,7 +417,7 @@ $$
 X_2 - X_1 \sim N(0, 2)
 $$
 
-And similarly, $Y_2 - Y_1 \sim N(0, 2)$.
+And similarly, by symmetry, $Y_2 - Y_1 \sim N(0, 2)$.
 
 The squared distance is then the sum of two N(0, 2) random variables:
 
@@ -428,50 +428,64 @@ $$
 Let us define two new random variables as follows: 
 
 Let $Z_1 = X_2 - X_1$, 
+
 and 
+
 Let $Z_2 = Y_2 - Y_1$. 
 
-Then $Z_1, Z_2 \sim N(0, 2)$, and they are independent. The squared terms are:
+Then $Z_1, Z_2 \sim N(0, 2)$, and they are independent. 
+
+The sum of two squared standard normal variables is a Chi-Squared distribution with 2 degrees of freedom (a squared standard normal is Chi-Squared with 1 degree of freedom). Similarly, the sum of two squared normal distributions is s scaled Chi-Squared distribution (a squared normal distribution is a scaled Chi-Squared distribution with 1 degree of freedom). 
+
+Given this property, we know:
 
 $$
-Z_1^2 \sim \text{Scaled-Chi-Square}(1, \sigma^2 = 2)
+Z_1^2 \sim \text{Scaled-Chi-Square}(1)
 $$
 
 and
 
 $$
-Z_2^2 \sim \text{Scaled-Chi-Square}(1, \sigma^2 = 2)
+Z_2^2 \sim \text{Scaled-Chi-Square}(1)
 $$
 
-For a standard normal variable $Z \sim N(0, 1)$, $Z^2 \sim \chi^2(1)$. 
+(Note: As noted less succinctly above, for a standard normal variable $Z \sim N(0, 1)$, $Z^2 \sim \chi^2(1)$.)
 
-Scaling by $\sigma^2 = 2$, $Z_1^2$ and $Z_2^2$ are scaled $\chi^2(1)$:
+To be more specific about the distributions of $Z_1^2, Z_2^2$, we must take note of the "scaled" aspect of the Scaled-Chi-Square. To that end: 
+
+Scaling by $\sigma^2 = 2$, $Z_1^2$ and $Z_2^2$ are scaled $\chi^2(1)$ (Scaled Chi-Squared distributions). Specifically, we know:
+
+$Z \sim N(0, \sigma^2) \rightarrow Z^2 \sim \sigma^2 \chi^2(1)$
+
+Such that: 
 
 $$
 Z_1^2 \sim 2 \chi^2(1)
 $$
 
-and
+and, by symmetry: 
 
 $$
 Z_2^2 \sim 2 \chi^2(1)
 $$
 
-Since $Z_1^2 + Z_2^2$ is the sum of two independent, scaled $\chi^2(1)$ variables, it follows that:
+Since $Z_1^2 + Z_2^2$ is the sum of two independent, scaled $\chi^2(1)$ variables, it follows from the properties of the family of Chi-Squared distributions that:
 
 $$
 Z_1^2 + Z_2^2 \sim 2 \chi^2(2)
 $$
 
-We then note that a $\chi^2(2)$ distribution (Chi-squared distribution with 2 degrees of freedom) is equivalent to an $\text{Exponential}(1)$ distribution.
+(We keep the scaling factor, and the sum increases the degrees of freedom of the Chi-Square, with note that $Z_1^2, Z_2^2$ are independent and identically distributed.)
 
-However, as we have a Scaled Chi-squared distribution, we similarly need to scale the Exponential distribution (by 2). When we do so, we have: 
+Note then: A $\chi^2(2)$ distribution (Chi-squared distribution with 2 degrees of freedom) is equivalent to an $\text{Exponential}(1)$ distribution.
+
+However, as we have a Scaled Chi-squared distribution, we similarly need to scale the Exponential distribution (by 2, the scale factor of the Chi-Squared distributions we've been using up to this point). When we do so, we have: 
 
 $$
 R^2 \sim \text{Exponential}\left(\frac{1}{2}\right)
 $$
 
-The random variable $R = \sqrt{R^2}$ is the square root of an $\text{Exponential}\left(\frac{1}{2}\right)$ random variable. 
+However, this is for $R^2$! We must then convert back to the distance, R. To that end we define another random variable $R = \sqrt{R^2}$, the square root of an $\text{Exponential}\left(\frac{1}{2}\right)$ random variable.
 
 The PDF of $R^2 \sim \text{Exponential}\left(\frac{1}{2}\right)$ is:
 
@@ -479,13 +493,13 @@ $$
 f_{R^2}(r^2) = \frac{1}{2} e^{-r^2 / 2}, \quad r^2 \geq 0.
 $$
 
-To find the PDF of $R$, we apply the change of variables $R^2 = r^2$ with $R = \sqrt{r^2}$, giving us:
+We may use this PDF to find the PDF of R via transformation. We have: 
 
 $$
 f_R(r) = f_{R^2}(r^2) \left| \frac{d(r^2)}{dr} \right| = \frac{1}{2} e^{-r^2 / 2} 2r = r e^{-r^2 / 2}
 $$
 
-Where $r \geq 0$
+Where $r \geq 0$ (cannot have 0 or negative distance between the two bullets). 
 
 Note: This is a specially named distribution! The distance $R$ between the two bullets follows a Rayleigh distribution with scale parameter $\sigma = \sqrt{2}$!
 
