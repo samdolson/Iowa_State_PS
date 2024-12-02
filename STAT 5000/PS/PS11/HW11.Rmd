@@ -9,6 +9,13 @@ output: pdf_document
 [Name: Sam Olson]{.smallcaps} \
 [Collaborators: Ethan, **The Hatman**]{.smallcaps} \
 
+# Outline 
+  - 1 overall: include absolutely no outputs or plots? 
+  - 1 (d) "best" model 
+  - 2 (d) actually calculate and give precise threshold values?
+  - 3 (c) iii, general interpretation; see lab when solutions posted
+  - 3 (e) inclusion of intercept? 
+
 ```{r, eval = T, results = F, echo = F, warning=F, message=F}
 library(knitr)
 ```
@@ -65,7 +72,7 @@ Overall, we have reason to suspect our normality assumption is being violated.
 
 Plot of the residuals versus the estimates of the conditional means for BMI
 
-We generally observe a random spread of residual values across fitted values. However, there are two negative residuals around predicted BMI 25+, such that we'd consider these points to either be candidates for removal or that we may in fact be violating our assumption of form of the model. 
+We generally observe a random spread of residual values across fitted values. However, there are two negative residuals around predicted BMI 25+, such that we'd consider these points to either be candidates for removal (due to being outliers) or that we may in fact be violating our assumption of form of the model. 
 
 This notwithstanding, we generally have reason to believe our form of the model and constant variance assumptions are not being violated. 
 
@@ -83,7 +90,7 @@ The QQ plot looks better, insomuch as it more closely tracks with the reference 
 
 Furthermore, the residual plots consistently (across the x-axis of fitted values as well as individually across the explanatory variables) appear to be randomly spread, such that our constant variance and form of the model assumptions are likely not being violated either. 
 
-However, it is worth noting that we still appear to have a potential outlier. 
+However, it is worth noting that we still appear to have a potential outlier in our diagnostic plots. 
 
 \newpage 
 
@@ -95,6 +102,20 @@ For the 69 observations (without the outlier that was detected from part (a)), u
 knitr::include_graphics("q1c.png")
 ```
 
+In the final model from the method described, we have: 
+
+  Variable: Intercept
+    Coefficient: 29.648
+    Standard Error: 5.531
+  
+  Variable: HT2
+    Coefficient: -0.190
+    Standard Error: 0.070
+  
+  Variable: WT9
+    Coefficient: 0.262
+    Standard Error: 0.0409
+  
 \newpage 
 
 ## (d) 
@@ -113,7 +134,9 @@ knitr::include_graphics("q1d2.png")
 knitr::include_graphics("q1d3.png")
 ```
 
-Choose: WT2, WT9, HT9 model 
+My recommendation is to use the following model (choice of explanatory variables, while also including an intercept term): WT2, WT9, HT9 model. 
+
+This model has the best Adjusted $R^2$ for a model with 3 explanatory variables, and is the second best based on Adjusted $R^2$ compared to all models, and is only 0.0029 less than the first best. However, this model has the best Mallow's Cp value overall. 
 
 \newpage 
 
@@ -125,18 +148,21 @@ Are there concerns about multicollinearity for the explanatory variables of the 
 knitr::include_graphics("q1e.png")
 ```
 
-VIF values are not especially large (less than cutoff for "moderate" of 3/5), so minimal issue with multicollinearity. 
+VIF values are not especially large (less than cutoff for "moderate" of 3/5), so minimal issue with multicollinearity based on VIF criteria. 
 
 ```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q1e2.png")
 ```
 
-However, when looking at the Condition Index for the Eigenvalues, we do observe a rather high value (larger than 30), and the 93.13 corresponds to a significant proportion of variation for Interccept, WT9, and HT9, or potentially extreme multicollinearity between WT9 and HT9. 
+However, when looking at the Condition Index for the Eigenvalues, we do observe a rather high value (larger than 30), and the 93.13 corresponds to a significant proportion of variation for Interccept, WT9, and HT9, or an indication of potential extreme multicollinearity between WT9 and HT9. 
+
 ```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q1e3.png")
 ```
 
-The above is further corroborated by the correlation coefficient between WT9 and HT9 being greater than 0.7 (0.73096). 
+We additionally double check our observation of potential multicollinearity by looking at the correlation between our explanatory variables. To that end: The above is further corroborated by the correlation coefficient between WT9 and HT9 being greater than 0.7 (0.73096). 
+
+So overall, yes we do have reasonable concerns about multicollinearity for the model we chose in part (d). Unfortunate. 
 
 \newpage 
 
@@ -169,6 +195,8 @@ Fit the full model using all 5 explanatory variables listed above to the trainin
 knitr::include_graphics("q2a.png")
 ```
 
+And so it was fit. 
+
 ### i. 
 
 Find and interpret the $R^2$ value for the full model.
@@ -179,7 +207,7 @@ Find and interpret the $R^2$ value for the full model.
 
 Interpret the value of the estimated regression coefficient corresponding to the Garage Size variable for the full model.
 
-Increasing Garage Size by 1 car is associated with an increased Sales Price of $15,833, all else being equal. s
+Increasing Garage Size by 1 car is associated with an increased Sales Price of $15,833, all else being equal.
 
 \newpage 
 
@@ -191,7 +219,7 @@ Use forward selection to fit a reduced model to the training data using some sub
 knitr::include_graphics("q2b.png")
 ```
 
-I used the model with "Age" removed, corresponding to the above output and the following equation: 
+For the preceding problems, I used the model with "Age" removed, corresponding to the above output and the following equation: 
 
 $$
 \widehat{\text{Sale Price}} = -29334 + 63.08 \times \text{Basement Area} + 97.53 \times \text{Living Area} - 7527.76 \times \text{Total Room} + 26551 \times \text{Garage Size}
@@ -210,8 +238,9 @@ knitr::include_graphics("q2c.png")
 Full: 0.7820 
 Reduced: 0.7531 
 Difference: 0.0289
+Note: For Adjusted $R^2$
 
-The difference of 0.0289 corresponds to a difference of 2.89% between the two models. 
+The difference of 0.0289 corresponds to a difference of 2.89% between the two models. So the full model had a somewhat larger adjusted $R^2$ value. 
 
 \newpage 
 
@@ -227,7 +256,7 @@ outliers
 knitr::include_graphics("q2d1.png")
 ```
 
-We do observe there being some potential outliers in the training data. 
+We do observe there being some potential outliers in the training data, where an outlier is a studentized residual value greater in magnitude to 2, i.e. |r| > 2 where r is a residual. 
 
 ### ii. 
 
@@ -237,7 +266,7 @@ high leverage points
 knitr::include_graphics("q2d2.png")
 ```
 
-We do observe there being some leverage points in the training data. 
+We do observe there being some leverage points in the training data, where our leverage threshold value is calculated to be $\approx 0.01$. 
 
 ### iii. 
 
@@ -251,7 +280,7 @@ knitr::include_graphics("q2d3.png")
 knitr::include_graphics("q2d4.png")
 ```
 
-We do observe there being some potential influence points in the training data. 
+We do observe there being some potential influence points in the training data, particularly when evaluating based on the DFFITS method and a threshold value $\approx 0.45$, as illustrated above. 
 
 \newpage 
 
@@ -276,14 +305,11 @@ $$
 \text{MSE}_{\text{eval}} = 1.617144789 \times 10^8 
 $$
 
+Importantly, we see that $\text{MSE}_{\text{eval}} < \text{MSE}_{\text{train}}$, which is key to our insight! 
 
-$$
-\text{MSE}_{\text{eval}} < \text{MSE}_{\text{train}}
-$$
+The fact that the evaluation MSE is slightly lower than the training MSE suggests that the model generalizes well to unseen data. This also indicates there is no significant overfitting  in our model, as the model performs similarly on both the training and evaluation datasets (is consistent across the datasets considered).
 
-The fact that the evaluation MSE is slightly lower than the training MSE suggests that the model generalizes well to unseen data. This also indicates there is no significant overfitting, as the model performs similarly on both the training and evaluation datasets.
-
-The similar MSE values for training and evaluation datasets imply that the model performs consistently across different data splits and has a good balance of complexity and predictive power. The model is reliable for predicting housing sale prices in this context.
+We may hope to generalize: The model we chose is consistent for predicting housing sale prices in the context of our research/study.
 
 \newpage
 
@@ -312,7 +338,7 @@ knitr::include_graphics("q3a1.png")
 knitr::include_graphics("BIG.png")
 ```
 
-Many of the variables are highly correlated with each other; the variables with |r| > 0.7 are: Carat and price, carat and x, carat and y, carat and z, price and x, price and y, price and z, x and y, x and z, y and z all have |r| > 0.7. 
+Many of the variables are highly correlated with each other; this holds for combinations of variables with the response variable (price) as well as between explanatory variables. Using the "significance" threshold of |r| > 0.7, we have the following "signficant" correlations: Carat and price, carat and x, carat and y, carat and z, price and x, price and y, price and z, x and y, x and z, y and z. Of note is that all of the "significant" correlations are positive. Overall, we do corroborate these findings when looking at the pairwise scatter plots, insomuch as positive correlations generally show a positive linear relationship when looking at the respective graph. On the flip side, we see "small" correlations (|r| < 0.20, such as x and depth), exhibit a rather large "blob" of points, or for other pairs a general overall coverage of the plot area. This is understandable, as a small-in-magnitude correlation coefficient is evidence that there is not a significant linear relationship between the two variables.   
 
 \newpage 
 
@@ -326,7 +352,7 @@ knitr::include_graphics("q3b.png")
 
 Carat, x, y, and z all have VIF > 4, indicating moderate multicollinearity. 
 
-The output does not explicitly state if any are greater than 10, and values appear to be cut off at the 7 VIF value, so for "extreme" corresponding to a VIF greater than 10, we cannot determine explicitly if the "x" explanatory variable exhibits extreme multicollinearity.
+The output does not explicitly state if any of the VIF values are greater than 10, as values are cut off at the 7. So for "extreme multicolinearity" corresponding to a VIF greater than 10, we cannot determine explicitly if the "x" explanatory variable exhibits extreme multicollinearity (which is the only explanatory variable that *may* meet that criteria).
 
 \newpage 
 
@@ -342,7 +368,9 @@ knitr::include_graphics("q3c.png")
 
 an ordered list of which variable was removed from the model at each step;
 
-Step 1: variable "y" was removed. There are no more explanatory variables eliminated. 
+Step 1: variable "y" was removed. 
+
+There are no more explanatory variables eliminated. 
 
 ### ii. 
 
@@ -353,6 +381,10 @@ Explanatory variables that remained: Carat, cut, color, clarity, depth, and tabl
 ### iii. 
 
 a summary of the partial regression coefficients effects tests for the final model.
+
+All the final model partial regression coefficients meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level except for "z". There is only one partial regression coefficients in the final model that does not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level, "z". 
+
+The statistical significance test is to determine whether there is evidence to reject the null hypothesis that the estimated beta coefficient is equal to zero (statistical significance referring to being statistically significant from zero). 
 
 \newpage 
 
@@ -391,7 +423,11 @@ The explanatory variable "y" never entered the final model.
 
 a summary of the partial regression coefficients effects tests for the final model.
 
-[Add Summary here] 
+Consistent with the prior model, 
+
+All the final model partial regression coefficients meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level except for "z". There is only one partial regression coefficients in the final model that does not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level, "z". 
+
+The statistical significance test is to determine whether there is evidence to reject the null hypothesis that the estimated beta coefficient is equal to zero (statistical significance referring to being statistically significant from zero). 
 
 \newpage 
 
@@ -457,9 +493,11 @@ knitr::include_graphics("q3g1.png")
 knitr::include_graphics("q3g2.png")
 ```
 
+The key model assumptions we evaluate with the given plots and graphs are: Equal variance, linearity (form of the model), and normality. That being said: 
+
 The residual plot has a clearly obvious non-random-scattering trend, suggesting the linearity and equal variance assumptions may be violated.
 
-The QQ is roughly linear close the middle, but show strong deviations in the left tail and right of the middle, suggesting the normality assumption is violated.
+Additionally, the QQ is roughly linear as it follows the reference line closely in the middle of the plot. However, there are deviations in the left tail and right of the middle, suggesting the normality assumption is violated.
 
 Taken together, we have reason to be concerned that our key assumptions are being violated, with regards to the residuals. 
 
@@ -482,5 +520,10 @@ knitr::include_graphics("q3h2.png")
 knitr::include_graphics("q3h3.png")
 ```
 
-From the studentized residual plot, there appear to be many outliers (studentized residuals exceed 2). From the leverage plot, there appears to be many high leverage points (exceeding 2*(8+1)/50000 = 0.00036). From the cook’s D plot, there appear to be several high influence points (exceeding
-2*sqrt(2/50000) = 0.01264911)
+Outliers: Looking at the studentized residual plot, there appear to be many outliers (looking for observations where the studentized residuals exceed 2, based on magnitude, i.e. |r| for r residuals, as indicated by the dashed red lines). 
+
+Leverage: From the leverage plot, there appears to be many high leverage points (leverage values exceeding $2(8+1)/50000 \approx 0.00036$, as indicated by the red line).
+
+From the cook’s D plot, there appear to be several high influence points (influence value exceeding $2\sqrt{2/50000} \approx 0.01264911$, as indicated by the red line). 
+
+Overall, we have reason to believe there are outliers, leverage points, and influential points, such that we may recommend considering other models or undergoing a transformation of our data and reevaluating our assumptions again. As-is, we have reason to be suspect. 
