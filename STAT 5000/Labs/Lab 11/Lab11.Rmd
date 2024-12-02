@@ -4,6 +4,12 @@ output: pdf_document
 date: "2024-11-24"
 ---
 
+# Questions 
+
+  - Q3/4 (c): Do we add a note of the "intercept" for these problems? 
+  - Q6 (a): Units of "fat" variable; also, is it appropriate to use "conditional mean" since we're comparing "intercepts"? 
+  - Q7, Q8 
+
 ```{r}
 library(readr)
 bodyfat <- read_table("bodyfat.txt", col_types = cols(density = col_skip()))
@@ -26,6 +32,8 @@ For our response variable (Y) of "fat" (bodyfat), all of our potential explanato
 However, when we compare the correlations and pairwise plots between explanatory variables we also observe potentially strong linear relationships (not always, but a fair number, particularly for explanatory variables of hip, thigh, and knee). Generally speaking, we observe fairly strong correlations between parts of the body close in proximity to one another, such as the three variables mentioned previously. 
 
 Despite having some potential concerns about multicollinearity (to be explored in later questions), we also see that a number of explanatory variables have a very weak linear relationship between one another, such as ankle and age having only a magnitude of correlation of 0.08, or other body combinations with the "age" explanatory variable. This means we have potential reason to believe including more than one explanatory variable could be helpful for our model without excessive risk of multicollinearity. 
+
+That is all to say: I believe we are tasked with identifying "strong" correlation by whether |r| > 0.7. To that end the following are "strong" (or "significant") correlations: (1) Fat (response variable) and abdomen, for just comparisons amongst explanatory variables, there are many, including (2) weight and neck, chest, abdomen, hip, thigh, knee, biceps, and wrist, (3) neck and chest, abdomen, hip, and wrist, (4) chest and weight, neck, abdomen, hip, thigh, knee, and biceps, (5) abdomen and fat, weight, neck, chest, hip, thigh, and knee, (6) hip and weight, chest, abdomen, thigh, knee, and biceps, and more. 
 
 \newpage
 
@@ -73,15 +81,17 @@ Step 4: "height" removed
 
 A list of which variables remained in the final model;
 
-Variables kept: "age", "weight", "neck", "abdomen", "hip", "thigh", "ankle", "foearm", and "wrist" 
+Variables kept in final model: "age", "weight", "neck", "abdomen", "hip", "thigh", "ankle", "foearm", and "wrist". 
 
 ## (c) 
 
 A summary of the partial regression coefficients effects tests for the final model.
 
-Final model partial regression coefficients that meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level: "forearm", "wrist", "thigh", "abdomen", "neck", "weight", and "intercept" terms
+Final model partial regression coefficients that meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level: "forearm", "wrist", "thigh", "abdomen", "neck", "weight", and "intercept" terms. 
 
 Final model partial regression coefficients that do not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level: "ankle", "hip", and "neck". 
+
+The statistical significance test is to determine whether there is evidence to reject the null hypothesis that the estimated beta coefficient is equal to zero (statistical significance referring to being statistically significant from zero). 
 
 \newpage 
 
@@ -115,7 +125,7 @@ Step 9: "hip" added
 
 A list of which variables never entered the final model;
 
-Never entered: "height", "chest", "knee", and "biceps" 
+Never entered the final model: "height", "chest", "knee", and "biceps". 
 
 ## (c) 
 
@@ -125,6 +135,8 @@ Final model partial regression coefficients that meet statistical significance t
 "abdomen", "weight", "forearm", "wrist", "age", "thigh", and "intercept"          
 
 Final model partial regression coefficients that do not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level: "ankle", "hip", and "neck". 
+
+The statistical significance test is to determine whether there is evidence to reject the null hypothesis that the estimated beta coefficient is equal to zero (statistical significance referring to being statistically significant from zero). 
 
 \newpage 
 
@@ -200,17 +212,20 @@ summary(cat.fat)
 
 The two values corresponding to the categorical age variable;
 
-"Baseline" for comparisons is individuals Age between 39 to 52
+Note: 
+  - "Baseline" for comparisons is individuals Age between 39 to 52
+  - "Individuals" in the context of the study are 133 men, such that I'd argue the "population" we interpret with regards to is males 
+  - "Fat" is not noted to have a particular unit in the Lab notes, though "weight" is denoted in "lbs". For that reason I refer to units of "fat" and not "pounds of"
 
-We reject the null hypothesis at the $\alpha = 0.05$ level that there is no difference in mean bodyfat between individuals under 39 years of age compared to mean bodyfat for individuals between 39 to 52 years of age. This is to say we have evidence in favor of the alternative hypothesis, specifically that all else being equal, we expect individuals under 39 years of age to have 2.06578 lbs less bodyfat than individuals between 39 to 52 years of age. 
+We reject the null hypothesis at the $\alpha = 0.05$ level that there is no difference in mean bodyfat between male individuals under 39 years of age compared to mean bodyfat for individuals between 39 to 52 years of age (conditional mean of bodyfat, units were not provided for the response). This is to say we have evidence in favor of the alternative hypothesis, specifically that all else being equal, we expect individuals under 39 years of age to have 2.06578 units less bodyfat than individuals between 39 to 52 years of age. 
 
-We reject the null hypothesis at the $\alpha = 0.05$ level that there is no difference in mean bodyfat between individuals over 52 years of age compared to mean bodyfat for individuals between 39 to 52 years of age. This is to say we have evidence in favor of the alternative hypothesis, specifically that all else being equal, we expect individuals over 52 years of age to have 1.98494 lbs more bodyfat than individuals between 39 to 52 years of age. 
+We reject the null hypothesis at the $\alpha = 0.05$ level that there is no difference in mean bodyfat between male individuals over 52 years of age compared to mean bodyfat for individuals between 39 to 52 years of age (again, conditional mean with units of response variable not specified). This is to say we have evidence in favor of the alternative hypothesis, specifically that all else being equal, we expect individuals over 52 years of age to have 1.98494 units more bodyfat than individuals between 39 to 52 years of age. 
 
 ## (b) 
 
 One of the values corresponding to the quantitative variable of your choice.
 
-We have evidence at the $\alpha = 0.05$ level to reject the null hypothesis that increasing the circumfrence of the abdomen on average does not affect the bodyfat of an individual. This is evidence in favor of the alternative hypothesis, specifically that increasing the circumfrance of the abdomen by 1cm is associated with an increase of bodyfat in pounds of 0.98274, all else being equal. 
+We have evidence at the $\alpha = 0.05$ level to reject the null hypothesis that increasing the circumference of the abdomen is not associated with a change in the bodyfat of a male individual. This is evidence in favor of the alternative hypothesis, specifically that increasing the circumference of the abdomen by 1 cm is associated with an increase of bodyfat of 0.98274 units, all else being equal. 
 
 \newpage 
 
@@ -244,16 +259,101 @@ abline(h=2, col="red", lty=2)
 plot(best.fat)
 ```
 
-Residual Plot: Constant variance and form of the model assumptions appear to be met, as the overall spread and distribution of residuals across fitted values appears as a random spread. Specifically, we have a random spread and not a funnel shape (for assessing constant variance), and we tend to see the same number of positive residuals as we do negative residual values (for assessing form of the model). Overall, our assumptions of equal variance as well as form of the model do not appear to be violated. 
+Overall, the assumptions we are diagnosing are the equal variance, linearity, and normality assumptions. To that end: 
+
+Residual Plot: Constant variance and form of the model (linearity) assumptions appear to be met, as the overall spread and distribution of residuals across fitted values appears as a random spread. Specifically, we have a random spread and not a funnel shape (for assessing constant variance), or other types of trend that would indicate a deviation from linearity. Also, we tend to see the same number of positive residuals as we do negative residual values (for assessing form of the model). Overall, our assumptions of equal variance as well as form of the model do not appear to be violated. 
 
 QQ Plot: Residuals track and align well against the reference line, with some slight deviations at the tails of the distribution. This is evidence in favor of the normality assumption not being violated. 
 We do observe some clustering of points together though, such that we have some potential issues. 
+
+Note: The above findings are consistent when also considering the above plots using the studentized residuals. Furthermore, when we look at the residual plots of each explanatory variable, we also see that there are possibly outliers, which we will further investigate to identify if it is in fact an outlier and possibly a leverage/influential point. 
+
+Additional plots given below, maybe they're above, who knows with this knitting business: 
+
+```{r}
+library(MASS)
+stdresids <- stdres(best.fat)
+plot(best.fat$model$age, 
+     stdresids, 
+     main="MLR for Body Fat Study",
+     xlab="Age", 
+     ylab="Studentized Residuals")
+abline(h=0, col="red")
+
+plot(best.fat$model$weight, 
+     stdresids, 
+     main="MLR for Body Fat Study",
+     xlab="Weight", 
+     ylab="Studentized Residuals")
+abline(h=0, col="red")
+
+plot(best.fat$model$neck, 
+     stdresids, 
+     main="MLR for Body Fat Study",
+     xlab="Neck", 
+     ylab="Studentized Residuals")
+abline(h=0, col="red")
+
+plot(best.fat$model$abdomen, 
+     stdresids, 
+     main="MLR for Body Fat Study",
+     xlab="Abdomen", 
+     ylab="Studentized Residuals")
+abline(h=0, col="red")
+
+plot(best.fat$model$hip, 
+     stdresids, 
+     main="MLR for Body Fat Study",
+     xlab="Hip", 
+     ylab="Studentized Residuals")
+abline(h=0, col="red")
+
+plot(best.fat$model$thigh, 
+     stdresids, 
+     main="MLR for Body Fat Study",
+     xlab="Thigh", 
+     ylab="Studentized Residuals")
+abline(h=0, col="red")
+
+plot(best.fat$model$ankle, 
+     stdresids, 
+     main="MLR for Body Fat Study",
+     xlab="Ankle", 
+     ylab="Studentized Residuals")
+abline(h=0, col="red")
+
+plot(best.fat$model$forearm, 
+     stdresids, 
+     main="MLR for Body Fat Study",
+     xlab="Forearm", 
+     ylab="Studentized Residuals")
+abline(h=0, col="red")
+
+plot(best.fat$model$wrist, 
+     stdresids, 
+     main="MLR for Body Fat Study",
+     xlab="Wrist", 
+     ylab="Studentized Residuals")
+abline(h=0, col="red")
+```
 
 \newpage 
 
 # 8. 
 
 Summarize your findings from examining the case diagnostic values/plots. Are there any outliers, leverage points, or influential observations?
+
+```{r}
+stdresids <- studres(best.fat)
+stdresids[which(abs(stdresids)>2)]
+plot(best.fat$fitted.values, stdresids, main="MLR for Body Fat Study",
+xlab="Fitted Values", ylab="Studentized Residuals")
+abline(h=0, col="gray")
+abline(h=-2, col="red", lty=2)
+abline(h=2, col="red", lty=2)
+```
+
+Using the above plot of studentized residuals, we are able to potentially identify outliers in our dataset. We do observe some potential outliers using this method, where we look for residuals with a magnitude greater than 2. 
 
 ```{r}
 leverage <- hatvalues(best.fat)
@@ -264,12 +364,24 @@ abline(h=(20/length(leverage)), col="red", lty=2)
 ```
 
 ```{r}
+20/length(leverage)
+```
+
+We can find which observations have leverage exceeding $\pm 2(k+1)/n$ (0.1503759) where k (9) is the number of explanatory variables and n (133) is the total number of observations:
+
+Using the above threshold values for leverage, and the above plot, we see there are a number of observations in our dataset with high leverage (there are leverage points). 
+
+```{r}
 cooks <- cooks.distance(best.fat)
 # cooks[which(abs(cooks)>(2*sqrt(2/length(cooks))))]
 plot(cooks, type = 'h', main="MLR for Body Fat Study",
 ylab="Cook’s Distance (Di)")
 abline(h=2*sqrt(2/length(leverage)), col="red", lty=2)
 ```
+
+Cook's Threshold value: $\pm 2\sqrt{2/n} \approx 0.2452557$
+
+Cook's Distance is used to evaluate potential influence points. From the above plot and using the specified threshold given, we see there is at least one influence point via this method. 
 
 ```{r}
 dff <- dffits(best.fat)
@@ -278,6 +390,10 @@ plot(abs(dff), type = 'h', main="MLR for Body Fat Study",
 ylab="Absolute Value of DFFITS")
 abline(h=2*sqrt(20/length(dff)), col="red", lty=2)
 ```
+
+Another way to check for potential influence points is using DFFITS, with the threshold value of $\pm2\sqrt{(k + 1)/n} \approx 0.1503759$
+
+Using the above method, we see there are now potentially two influential points in the dataset used in this study/lab. 
 
 ```{r}
 dfb <- dfbetas(best.fat)
@@ -288,4 +404,88 @@ abline(h=2/sqrt(length(dfb)), col="red", lty=2)
 abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
 ```
 
-We do appear to have a number of outliers, leverage points, and influential points in our data, as shown in a number of plots above.
+```{r}
+# age, weight, neck, abdomen, hip, thigh, ankle, forearm, wrist
+
+# dfb <- dfbetas(best.fat)
+# # dfb[which(abs(dfb) > 2/sqrt(length(dfb)))]
+# plot(dfb[,1], type = 'h', main="MLR for Body Fat Study",
+# ylab="DFBETA", xlab="(Intercept)")
+# abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+# abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+
+plot(dfb[,2], 
+     type = 'h', 
+     main="MLR for Body Fat Study",
+     ylab="DFBETA", 
+     xlab="Age")
+abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+
+plot(dfb[,3], 
+     type = 'h', 
+     main="MLR for Body Fat Study",
+     ylab="DFBETA", 
+     xlab="Weight")
+abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+
+plot(dfb[,4], 
+     type = 'h', 
+     main="MLR for Body Fat Study",
+     ylab="DFBETA", 
+     xlab="Neck")
+abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+
+plot(dfb[,5], 
+     type = 'h', 
+     main="MLR for Body Fat Study",
+     ylab="DFBETA", 
+     xlab="Abdomen")
+abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+
+plot(dfb[,6], 
+     type = 'h', 
+     main="MLR for Body Fat Study",
+     ylab="DFBETA", 
+     xlab="Hip")
+abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+
+plot(dfb[,7], 
+     type = 'h', 
+     main="MLR for Body Fat Study",
+     ylab="DFBETA", 
+     xlab="Thigh")
+abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+
+plot(dfb[,8], 
+     type = 'h', 
+     main="MLR for Body Fat Study",
+     ylab="DFBETA", 
+     xlab="Ankle")
+abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+
+plot(dfb[,9], 
+     type = 'h', 
+     main="MLR for Body Fat Study",
+     ylab="DFBETA", 
+     xlab="Forearm")
+abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+
+plot(dfb[,10], 
+     type = 'h', 
+     main="MLR for Body Fat Study",
+     ylab="DFBETA", 
+     xlab="Wrist")
+abline(h=2/sqrt(length(dfb)), col="red", lty=2)
+abline(h=-2/sqrt(length(dfb)), col="red", lty=2)
+```
+
+There is also the DFBETA method for determining influential points, using the threshold value of $\pm2/\sqrt{n}$ for each explanatory variable. From (a number of these plots), we also identify potential influential points in the dataset. 
+Overall, we do appear to have a number of outliers, leverage points, and influential points in our data, as shown in a number of plots above. We should consider transforming our data and rerunning a number of our operations to identify a next "best" model and also to diagnose our assumptions for that model. 
