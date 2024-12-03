@@ -4,17 +4,6 @@ output: pdf_document
 date: "2024-11-19"
 ---
 
-# Outline 
-  
-  - Q1: DONE? Q on (c) 
-  - Q2: DONE 
-  - Q3: DONE 
-  - Q4: DONE
-  - Q5: DONE 
-  - Q6: DONE 
-  - Q7: DONE
-  - Q8: DONE
-
 # Q1 
 
 Let $X_1$ and $X_2$ be independent exponential random variables with mean $\theta$.
@@ -48,7 +37,7 @@ Where $t_1, t_2 < \frac{1}{\lambda}$
 However, as $X_1 \text{ and } X_2$ are iid, then $t_1 = t_2 = t$ and we may simplify further, such that: 
 
 $$
-M_{X_1, X_2}(t_1, t_2) = \frac{1}{(1 - \lambda t)(1 - \lambda t)} = \frac{1}{(1-\lambda)}
+M_{X_1, X_2}(t_1, t_2) = \frac{1}{(1 - \lambda t)(1 - \lambda t)} = \frac{1}{(1-\lambda t)^2}
 $$
 
 ## (b) 
@@ -75,21 +64,11 @@ $$
 
 For $|t| < \frac{1}{\lambda}$. 
 
-This MGF uniquely describes the distribution for the random variable Y defined by $Y = X_1 - X_2$ as the MGF is unique.
+Based on MGF in part (b), we know that this MGF is related to the Exponential distribution. Specifically, the above MGF of Y is a double exponential distribution, specifically the Laplace (and not the Gumbel) distribution. We know then that Y follows a Laplace distribution with parameter $\lambda$, or $Y \sim Laplace (\lambda)$. 
 
-Using the MGF, we may then find the PDF of Y, 
+We also know this MGF uniquely describes the distribution for the random variable Y defined by $Y = X_1 - X_2$ as the MGF is unique.
 
-As the MGF of Y follows a Laplace distribution with location parameter $\mu = 0$ and scale parameter $b = \lambda$, we know that the PDF of Y has the following form:
-
-$$
-f_Y(y) = \frac{1}{2\lambda} e^{\left(-\frac{|y|}{\lambda}\right)}
-$$
-
-Where $-\infty < y < \infty$. 
-
-### Note 
-
-To be frank, I was unsure what exactly was being asked for in part (c), as we found the MGF for Y in part (b) and know uniqueness of MGFs. So apologies in advance if any of the above is a bit of a hand wave. 
+Note: This is in part motivated by the "Table of Common Distributions" on pg. 627 of the textbook, which denotes $X_1 - X_2 \sim Double-Exponential(\lambda)$
 
 \newpage
 
@@ -208,10 +187,10 @@ $$
 Using the above Jacobian, we then have the joint PDF of $(Z, X)$ may be written :
 
 $$
-f_{Z, X}(z, x) = f_{X, Y}(x, y) \cdot \left| J \right| = f_{X, Y}(x, z  x) | x | = f_{X, Y}(x, z  x) x 
+f_{Z, X}(z, x) = f_{X, Y}(x, y) \left| J \right| = f_{X, Y}(x, z  x) | x | = f_{X, Y}(x, z  x) x 
 $$
 
-With note that X is always positive. 
+With note that X is always positive (0<x<1). 
 
 We may further simplify the above joint pdf as: 
 
@@ -888,7 +867,7 @@ $$
 We then have: 
 
 $$
-E[X^2 Y^2] = E[X^2 \cdot E[Y^2 | X]]
+E[X^2 Y^2] = E[X^2 E[Y^2 | X]]
 $$
 
 However, we know that $E[Y^2 | X]$ is given by: 

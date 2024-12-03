@@ -157,6 +157,8 @@ Which model would you choose based on the adjusted $R^2$ values?
 
 The highest adjusted $R^2$ value is 0.7511467 for the model 8, the model that uses: "ankle", "forearm", "wrist", "thigh", "abdomen", "neck", "weight", and "age", including an intercept term
 
+Note: Of the models considered using the above method, I stand by my answer. However, it is worth noting that we can consider models with more explanatory variables (13 possible explanatory variables to chose from, and from playing around I found a "better"/larger Adjusted R squared value for a model with 9 explanatory variables). The above code only looks at up to 8 explanatory variables in its output, without messing around with the `nvmax` parameter in the function.
+
 ## (b) 
 
 Which model would you choose based on the Mallow's $C_p$ criteria?
@@ -167,13 +169,13 @@ summary_object <- summary(all.subsets)
 summary(all.subsets)$cp
 
 included_matrix <- summary_object$which
-num_vars_per_model <- rowSums(included_matrix) - 1
+num_vars_per_model <- rowSums(included_matrix) + 1
 num_vars_per_model
 
 abs(summary(all.subsets)$cp - num_vars_per_model)
 ```
 
-The "best" Mallow's $C_p$ value is the value that corresponds the closest to the number of explanatory variables in the model. Given the above output, we'd choose model 7, which has the explanatory variables: "ankle", "forearm", "wrist", "thigh", "abdomen",  "weight", and "age", including an intercept term. 
+The "best" Mallow's $C_p$ value is the value that corresponds the closest to the number of explanatory variables in the model (including an intercept, also more "magnitude" in terms of signage). Given the above output, we'd choose model 6, which has the explanatory variables: "ankle", "forearm", "wrist", "abdomen", "weight", and "age", including an intercept term. 
 
 ## (c) 
 
@@ -213,7 +215,7 @@ summary(cat.fat)
 The two values corresponding to the categorical age variable;
 
 Note: 
-  - "Baseline" for comparisons is individuals Age between 39 to 52
+  - "Baseline" for comparisons is male individuals Age between 39 to 52
   - "Individuals" in the context of the study are 133 men, such that I'd argue the "population" we interpret with regards to is males 
   - "Fat" is not noted to have a particular unit in the Lab notes, though "weight" is denoted in "lbs". For that reason I refer to units of "fat" and not "pounds of"
 
@@ -264,7 +266,8 @@ Overall, the assumptions we are diagnosing are the equal variance, linearity, an
 Residual Plot: Constant variance and form of the model (linearity) assumptions appear to be met, as the overall spread and distribution of residuals across fitted values appears as a random spread. Specifically, we have a random spread and not a funnel shape (for assessing constant variance), or other types of trend that would indicate a deviation from linearity. Also, we tend to see the same number of positive residuals as we do negative residual values (for assessing form of the model). Overall, our assumptions of equal variance as well as form of the model do not appear to be violated. 
 
 QQ Plot: Residuals track and align well against the reference line, with some slight deviations at the tails of the distribution. This is evidence in favor of the normality assumption not being violated. 
-We do observe some clustering of points together though, such that we have some potential issues. 
+
+Generally though, we do observe some clustering of points together though, as evidenced in the residual plot, such that we have some potential issues with the "fixed X" assumption possibly being violated when looking at residual plots of explanatory variables. 
 
 Note: The above findings are consistent when also considering the above plots using the studentized residuals. Furthermore, when we look at the residual plots of each explanatory variable, we also see that there are possibly outliers, which we will further investigate to identify if it is in fact an outlier and possibly a leverage/influential point. 
 
