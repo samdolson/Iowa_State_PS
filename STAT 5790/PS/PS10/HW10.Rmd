@@ -107,19 +107,29 @@ meanIntensity <- function(rho, T1, T2, TE, TR) {
 Obtain the least-squares (LS) estimates of ($\rho$, $T_1$, $T_2$) given the observed image intensities at the set (TE, TR)s. Our goal therefore is to find ($\rho_{ij}$, $T_{1ij}$, $T_{2ij}$) at the $(i,j)$th image coordinate (matrix entry) that minimizes
 
 $$
-\psi(\rho_{ij}, T_{1ij}, T_{2ij}; (\text{TE}_k, \text{TR}_k), Y_{i,j,k}, k = 1, 2, \dots, 18) = \sum_{k=1}^{18} \left[Y_{i,j,k} > 0\right] \left[Y_{i,j,k} - F(\rho_{ij}, T_{1ij}, T_{2ij}; \text{TE}_k, \text{TR}_k)\right]^2.
+\psi(\rho_{ij}, T_{1ij}, T_{2ij}; (\text{TE}_k, \text{TR}_k), Y_{i,j,k}, k = 1, 2, \dots, 18) = \sum_{k=1}^{18} 1_{\left[Y_{i,j,k} > 0\right]} \left[Y_{i,j,k} - f(\rho_{ij}, T_{1ij}, T_{2ij}; \text{TE}_k, \text{TR}_k)\right]^2.
 $$
+
+Where $Y_{ij,k}$ is the intensity of the image at the $(i, j)$-th coordinate (matrix entry) acquired at $(\text{TE}_k, \text{TR}_k)$, and the indicator function $1_{[Y_{ij,k} > 0]}$ is simply to avoid inconsistencies in the estimation. Write a function in R that evaluates Equation (2). 
 
 ```{r}
 objectiveFun <- function(params, Y, TE, TR) {
+  # Extract parameters
   rho <- params[1]
   T1 <- params[2]
   T2 <- params[3]
-  # signal formula, again
-  # now called predicted 
-  predicted <- rho * exp(-TE / T2) * (1 - exp(-TR / T1))
-  positiveN <- Y > 0
-  sum((Y[positiveN] - predicted[positiveN])^2)
+  
+  # Predicted intensities using meanIntensity function
+  predictions <- sapply(1:length(TE), function(k) {
+    meanIntensity(rho, T1, T2, TE[k], TR[k])
+  })
+  
+  # Ensure valid indices for Y > 0
+  valid_indices <- Y > 0
+  residuals <- (Y[valid_indices] - predictions[valid_indices])
+  
+  # Return the sum of squared residuals
+  sum(residuals^2)
 }
 
 estimateParams <- function(Y, TE, TR, init = c(1, 1000, 100)) {
@@ -129,15 +139,11 @@ estimateParams <- function(Y, TE, TR, init = c(1, 1000, 100)) {
     Y = Y,
     TE = TE,
     TR = TR,
-    # method seemed to work best for this of the options noted in description
-    # method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN", "Brent")
-    # take that, brent
-    method = "L-BFGS-B",
-    lower = c(0, 0, 0) 
+    method = "L-BFGS-B",  # Constrained optimization method
+    lower = c(0, 0, 0)    # Parameters must be non-negative
   )
   
-  # we have multiple things to include in output
-  # so storing as a list
+  # Return parameters as a list
   list(rho = result$par[1], 
        T1 = result$par[2], 
        T2 = result$par[3], 
@@ -151,323 +157,313 @@ We will now estimate ($\rho_{ij}, T_{1ij}, T_{2ij}$) for each imaging coordinate
 
 In so doing, note that the value is indeterminate if there are no more than two $Y_{i,j,k}$s that are non-zero for any $(i,j)$. For these cases, we will set $\rho_{ij} = 0$, $T_{1ij} = 4.0$, and $T_{2ij} = 0.001$. For the other $(i,j)$s, use the R function `optim` (note: not `optimize`) to estimate ($\rho_{ij}, T_{1ij}, T_{2ij}$). Restrict $\rho$ to be in $[0,3000]$, $T_1$ to be in $[0.01, 4.0]$, and $T_2$ to be in $[0.001,2.0]$ by writing your function such that if these values are breached in any case, then the value returned is $\infty$. The function `optim` also needs initial values: use (1500, 1.5, 0.1) as starting values. Store the estimated $\rho, T_1, T_2$ values in three 256 $\times$ 256 matrices. [25 points]  
 
-I just added a bunch of failsafes because this kept giving me issues...
-
-```{r, cache = T}
-# NOTE: 
-# This was done when I kept getting errors and a lot of "spinning" 
-# For the purposes of grading, please see the more concise portion at the bottom
-# a number of the debugging/unit testing methods used here ended up being superfluous 
-
-# objectiveFun <- function(params, Y, TE, TR) {
-#   rho <- params[1]
-#   T1 <- params[2]
-#   T2 <- params[3]
-#   # failsafe 1
-#   # for inputs
-#   # had issues with convergence
-#   if (rho < 0 || rho > 3000 || T1 < 0.01 || T1 > 4.0 || T2 < 0.001 || T2 > 2.0) {
-#     return(Inf)
-#   }
+```{r}
+# Objective function for optimization
+objectiveFun <- function(params, Y, TE, TR) {
+  # Extract parameters
+  rho <- params[1]
+  T1 <- params[2]
+  T2 <- params[3]
   
-#   # predictions, signal, same difference
-#   predicted <- rho * exp(-TE / T2) * (1 - exp(-TR / T1))
-#   
-#   # failsafe 2 
-#   # for predicted values
-#   if (any(is.na(predicted)) || any(is.nan(predicted)) || any(!is.finite(predicted))) {
-#     return(Inf)
-#   }
-#   
-#   # computed RSS
-#   mask <- Y > 0
-#   if (!any(mask)) return(Inf) 
-#   rss <- sum((Y[mask] - predicted[mask])^2)
-#   
-#   # failsafe 3 
-#   # for RSS 
-#   if (is.na(rss) || is.nan(rss) || !is.finite(rss)) {
-#     return(Inf)
-#   }
-#   return(rss)
-# }
-# 
-# estimatePixelPar <- function(Y, TE, TR) {
-#   # one non-zero Response is ok
-#   # but issues if we have more than 1
-#   # failsafe 
-#   if (sum(Y > 0) <= 2) {
-#     return(c(0, 4.0, 0.001)) 
-#   }
-#   
-#   # failsafe again,
-#   # checking response 
-#   if (any(is.na(Y)) || any(is.nan(Y)) || any(!is.finite(Y))) {
-#     return(c(0, 4.0, 0.001))
-#   }
-#   
-#   # actual optimization procedure
-#   result <- tryCatch({
-#     optim(
-#       par = c(1500, 1.5, 0.1), 
-#       fn = objectiveFun,
-#       Y = Y,
-#       TE = TE,
-#       TR = TR,
-#       method = "L-BFGS-B",
-#       lower = c(0, 0.01, 0.001),
-#       upper = c(3000, 4.0, 2.0)
-#     )
-#   }, error = function(e) {
-#     # extrra failsafe for optimization 
-#     return(list(par = c(0, 4.0, 0.001)))
-#   })
-#   
-#   # output
-#   return(result$par)
-# }
-
-# yucky for loop version 
-# estimateImgParams <- function(imageDat, TE, TR) {
-#   nx <- dim(imageDat)[1]
-#   ny <- dim(imageDat)[2]
-#   nz <- dim(imageDat)[3]
-#   
-#   rhoMat <- matrix(0, nrow = nx, ncol = ny)
-#   t1Mat <- matrix(0, nrow = nx, ncol = ny)
-#   t2Mat <- matrix(0, nrow = nx, ncol = ny)
-#   
-#   for (i in 1:nx) {
-#     for (j in 1:ny) {
-#       Y <- imageDat[i, j, ]
-#       params <- estimatePixelPar(Y, TE, TR)
-#       rhoMat[i, j] <- params[1]
-#       t1Mat[i, j] <- params[2]
-#       t2Mat[i, j] <- params[3]
-#     }
-#   }
-#   list(rho = rhoMat, T1 = t1Mat, T2 = t2Mat)
-# }
-
-# estimateImgPar <- function(imageDat, TE, TR, progress = TRUE) {
-#   nx <- dim(imageDat)[1]
-#   ny <- dim(imageDat)[2]
-#   nz <- dim(imageDat)[3]
-#   
-#   # convert from array to Matrix for operations
-#   imageDat2D <- matrix(imageDat, nrow = nx * ny, ncol = nz, byrow = TRUE)
-#   
-#   # estimation on the "pixel"
-#   results <- t(apply(imageDat2D, 1, function(Y) {
-#     estimatePixelPar(Y, TE, TR)
-#   }))
-#   
-#   # back into format we want, 3 outputs 
-#   rhoMatrix <- matrix(results[, 1], nrow = nx, ncol = ny)
-#   t1Matrix <- matrix(results[, 2], nrow = nx, ncol = ny)
-#   t2Matrix <- matrix(results[, 3], nrow = nx, ncol = ny)
-#   
-#   # output as list
-#   list(rho = rhoMatrix, 
-#        T1 = t1Matrix, 
-#        T2 = t2Matrix)
-# }
-# 
-# TE <- teTrSettings$TE 
-# TR <- teTrSettings$TR
-# testDat <- phantomArr[1:10, 1:10, ]
-# # testRes <- estimateImgPar(imageDat = testDat, TE = TE, TR = TR)
-# results <- estimateImgPar(imageDat = phantomArr, 
-#                           TE = TE, 
-#                           TR = TR)
-# 
-# rhoMat <- results$rho
-# t1Mat <- results$T1
-# t2Mat <- results$T2
+  # Check bounds: return infinity if any parameter is out of bounds
+  if (rho < 0 || rho > 3000 || T1 < 0.01 || T1 > 4.0 || T2 < 0.001 || T2 > 2.0) {
+    return(Inf)
+  }
+  
+  # Compute predicted intensities
+  predictions <- sapply(1:length(TE), function(k) {
+    rho * exp(-TE[k] / T2) * (1 - exp(-TR[k] / T1))
+  })
+  
+  # Apply indicator function for valid Y values
+  valid_indices <- Y > 0
+  residuals <- (Y[valid_indices] - predictions[valid_indices])
+  
+  # Return the sum of squared residuals
+  sum(residuals^2)
+}
 ```
 
-I can't tell if this text will actually above or below the actual code I ran, so here's that note: I removed a number of the failsafe/checks and ultimately went with the following. 
-
-```{r, cache = T}
-# part (e)
-estimateImageParams <- function(imageDat, TE, TR) {
-  nx <- dim(imageDat)[1]
-  ny <- dim(imageDat)[2]
-  nz <- dim(imageDat)[3]
+```{r}
+estimateImageParams2 <- function(imageDat, TE, TR) {
+  nx <- dim(imageDat)[1] # Number of rows (256)
+  ny <- dim(imageDat)[2] # Number of columns (256)
+  nz <- dim(imageDat)[3] # Number of TE-TR settings (18)
   
+  # Reshape the 3D array into a 2D matrix: rows = 256*256 voxels, cols = 18 TE-TR pairs
   imageDat2D <- matrix(imageDat, nrow = nx * ny, ncol = nz, byrow = TRUE)
-  lowerBounds <- c(0, 0.01, 0.001)
-  upperBounds <- c(3000, 4.0, 2.0)
-  init <- c(1500, 1.5, 0.1)
   
-  # function for each pixel 
-  processPixel <- function(Y) {
-    # still need this check
-    if (sum(Y > 0) <= 2) {
-      # otherwise return a default set of vals
-      return(c(0, 4.0, 0.001))
+  # Initialize matrices to store results
+  rhoMat <- matrix(0, nrow = nx, ncol = ny)
+  t1Mat <- matrix(4.0, nrow = nx, ncol = ny)
+  t2Mat <- matrix(0.001, nrow = nx, ncol = ny)
+  
+  # Define the objective function
+  objectiveFun <- function(params, Y, TE, TR) {
+    rho <- params[1]
+    T1 <- params[2]
+    T2 <- params[3]
+    
+    # Return infinity if parameters are out of bounds
+    if (rho < 0 || rho > 3000 || T1 < 0.01 || T1 > 4.0 || T2 < 0.001 || T2 > 2.0) {
+      return(Inf)
     }
-    # Run optimization
-    result <- optim(
-      par = init,
-      fn = function(params) {
-        objectiveFun(params, Y, TE, TR) 
-      },
-      method = "L-BFGS-B",
-      lower = lowerBounds,
-      upper = upperBounds
-    )
+    
+    # Compute predicted intensities
+    predictions <- sapply(1:length(TE), function(k) {
+      rho * exp(-TE[k] / T2) * (1 - exp(-TR[k] / T1))
+    })
+    
+    # Check if predictions contain non-finite values
+    if (any(!is.finite(predictions))) {
+      return(Inf)
+    }
+    
+    # Calculate residuals for non-zero Y values
+    valid_indices <- Y > 0
+    residuals <- Y[valid_indices] - predictions[valid_indices]
+    
+    # Return sum of squared residuals
+    sum(residuals^2)
+  }
+  
+  # Define the function to process each pixel
+  processPixel <- function(Y) {
+    # Check if there are more than two non-zero values
+    if (sum(Y > 0) <= 2) {
+      return(c(0, 4.0, 0.001)) # Default values for indeterminate cases
+    }
+    
+    # Attempt optimization
+    result <- tryCatch({
+      optim(
+        par = c(1500, 1.5, 0.1), # Initial values
+        fn = function(params) objectiveFun(params, Y, TE, TR),
+        method = "L-BFGS-B",
+        lower = c(0, 0.01, 0.001),
+        upper = c(3000, 4.0, 2.0)
+      )
+    }, error = function(e) {
+      # Handle any errors by returning default values
+      message("Optimization error: ", e$message)
+      return(list(par = c(0, 4.0, 0.001), value = Inf))
+    })
+    
+    # Check if optimization returned finite values
+    if (!is.finite(result$value)) {
+      return(c(0, 4.0, 0.001)) # Default values for failed optimization
+    }
+    
     return(result$par)
   }
   
-  # reformat output
+  # Apply the process to each row (voxel) of the 2D data matrix
   results <- t(apply(imageDat2D, 1, processPixel))
   
-  # extract each "column"
-  rhoMat <- matrix(results[, 1], nrow = nx, ncol = ny)
-  t1Mat <- matrix(results[, 2], nrow = nx, ncol = ny)
-  t2Mat <- matrix(results[, 3], nrow = nx, ncol = ny)
+  # Reshape each parameter into 256 x 256 matrices
+  rhoMat <- matrix(results[, 1], nrow = nx, ncol = ny, byrow = TRUE)
+  t1Mat <- matrix(results[, 2], nrow = nx, ncol = ny, byrow = TRUE)
+  t2Mat <- matrix(results[, 3], nrow = nx, ncol = ny, byrow = TRUE)
   
-  # return output as list
+  # Return the results as a list
   list(rho = rhoMat, t1 = t1Mat, t2 = t2Mat)
 }
 
+```
+
+```{r}
 te <- teTrSettings$TE
 tr <- teTrSettings$TR
 # call and get actual data
-results <- estimateImageParams(imageDat = phantomArr,
-                               TE = te,
-                               TR = tr)
+# results <- estimateImageParams2(imageDat = phantomArr,
+#                                TE = te,
+#                                TR = tr)
+# saveRDS(results, file = "q1v2.rds")
 
+results <- readRDS("q1v2.rds")
 rhoMat <- results$rho
 t1Mat <- results$t1
 t2Mat <- results$t2
+
+dim(rhoMat)
+dim(t1Mat)
+dim(t2Mat)
+```
+
+```{r}
+# Define the objective function
+psi_function <- function(params, Y_ijk, TE, TR) {
+  rho <- params[1]
+  T1 <- params[2]
+  T2 <- params[3]
+  
+  # Constraint: Return Inf if parameters are out of bounds
+  if (rho < 0 || rho > 3000 || T1 < 0.01 || T1 > 4.0 || T2 < 0.001 || T2 > 0.2) {
+    return(Inf)
+  }
+  
+  # Calculate model-predicted values
+  model_values <- rho * exp(-TE / T2) * (1 - exp(-TR / T1))
+  
+  # Sum of squared differences (only where Y_ijk > 0)
+  residuals <- (Y_ijk - model_values)[Y_ijk > 0]
+  return(sum(residuals^2))
+}
+```
+
+```{r}
+estimate_parameters <- function(Y_ij, TE, TR) {
+  # Initialize matrices to store results
+  nrow <- dim(Y_ij)[1]
+  ncol <- dim(Y_ij)[2]
+  
+  rho_matrix <- matrix(0, nrow, ncol)
+  T1_matrix <- matrix(4.0, nrow, ncol) # Default value
+  T2_matrix <- matrix(0.001, nrow, ncol) # Default value
+  
+  # Loop over each pixel
+  for (i in 1:nrow) {
+    for (j in 1:ncol) {
+      Y_ijk <- Y_ij[i, j, ]
+      
+      # Check if enough non-zero values
+      if (sum(Y_ijk > 0) <= 2) {
+        rho_matrix[i, j] <- 0
+        T1_matrix[i, j] <- 4.0
+        T2_matrix[i, j] <- 0.001
+      } else {
+        # Debugging: Check Y_ijk and TE/TR before optimization
+        if (any(is.nan(Y_ijk)) || any(is.infinite(Y_ijk))) {
+          cat("Invalid Y_ijk for pixel (", i, ",", j, ")\n")
+        }
+        if (any(is.na(TE)) || any(is.na(TR))) {
+          stop("TE or TR contains invalid values!")
+        }
+        
+        # Perform optimization
+        result <- tryCatch({
+          optim(
+            par = c(1500, 1.5, 0.1), # Initial values
+            fn = psi_function,
+            Y_ijk = Y_ijk,
+            TE = TE,
+            TR = TR,
+            method = "L-BFGS-B",
+            lower = c(0, 0.01, 0.001),
+            upper = c(3000, 4.0, 0.2)
+          )
+        }, error = function(e) {
+          cat("Optimization failed for pixel (", i, ",", j, "):", e$message, "\n")
+          list(par = c(0, 4.0, 0.001)) # Default values on failure
+        })
+        
+        # Store results
+        rho_matrix[i, j] <- result$par[1]
+        T1_matrix[i, j] <- result$par[2]
+        T2_matrix[i, j] <- result$par[3]
+      }
+    }
+  }
+  
+  return(list(rho = rho_matrix, T1 = T1_matrix, T2 = T2_matrix))
+}
+
+```
+
+```{r}
+# Load the observed data (Y_ij), TE, and TR
+# Assuming `Y_ij` is a 256x256x18 array, and `TE` and `TR` are vectors of length 18
+# Estimate parameters
+results <- estimate_parameters(phantomArr, te, tr)
+
+saveRDS(results, file = "q1v2.rds")
+results <- readRDS("q1v2.rds")
+# Access the results
+rho_matrix <- results$rho
+T1_matrix <- results$T1
+T2_matrix <- results$T2
 ```
 
 ## (f) 
 
 Display the $\rho, T_1$, and $T_2$ images estimated as per part (e) above. [5 points] 
 
+3 images 
+
 ```{r}
-displayEstImg <- function(rhoMat, t1Mat, t2Mat) {
-  par(mfrow = c(1, 3)) 
+image(rho_matrix,
+      main = "Estimated Rho", 
+      col = gray.colors(256, start = 1, end = 0))
+```
 
-  image(
-    t(rhoMat[nrow(rhoMat):1, ]), 
-    col = heat.colors(256), 
-    main = expression(rho),
-    xlab = "X Coordinate",
-    ylab = "Y Coordinate"
-  )
-  
-  image(
-    t(t1Mat[nrow(t1Mat):1, ]), 
-    col = heat.colors(256), 
-    main = expression(T[1]),
-    xlab = "X Coordinate",
-    ylab = "Y Coordinate"
-  )
-  
-  image(
-    t(t2Mat[nrow(t2Mat):1, ]), 
-    col = heat.colors(256), 
-    main = expression(T[2]),
-    xlab = "X Coordinate",
-    ylab = "Y Coordinate"
-  )
-}
+```{r}
+image(T1_matrix, 
+      main = "Estimated T1", 
+      col = gray.colors(256, start = 1, end = 0))
+```
 
-# this naming convention isn't ideal, I'll admit
-displayEstImg(rhoMat = rhoMat, 
-              t1Mat = t1Mat, 
-              t2Mat = t2Mat)
+```{r}
+image(T2_matrix, 
+      main = "Estimated T2", 
+      col = gray.colors(256, start = 1, end = 0))
 ```
 
 ## (g) 
 
 Our final objective here is to plug in the 18 (TE, TR) values to the $\rho, T_1$, and $T_2$ images estimated as per part (e) and to obtain fitted images at the 18 (TE, TR) settings. Use the function you wrote in part (c) along with the estimates obtained in part (e) to obtain the fitted images. Display these images using the same scale as in part 1b above. [15 points]  
 
-```{r}
-# for loop version 
-# computeFittedImg <- function(rhoMat, t1Mat, t2Mat, TE, TR) {
-#   nx <- nrow(rhoMat)
-#   ny <- ncol(rhoMat)
-#   teLength <- length(TE)
-#   fittedImg <- array(0, dim = c(nx, ny, teLength))
-#   
-#   for (k in 1:teLength) {
-#     fittedImg[, , k] <- rhoMat * exp(-TE[k] / t2Mat) * (1 - exp(-TR[k] / t1Mat))
-#   }
-#   return(fittedImg)
-# }
+18 Images
 
-computeFittedImg <- function(rhoMat = rhoMat, 
-                             t1Mat = t1Mat,
-                             t2Mat = t2Mat, 
-                             TE = TE, 
-                             TR = TR) {
-  nx <- nrow(rhoMat)
-  ny <- ncol(rhoMat)
-  teLength <- length(TE)
-  
-  teArr <- array(TE, dim = c(nx, ny, teLength))
-  trArr <- array(TR, dim = c(nx, ny, teLength))
-  rhoArr <- array(rhoMat, dim = c(nx, ny, teLength))
-  t1Arr <- array(t1Mat, dim = c(nx, ny, teLength))
-  t2Arr <- array(t2Mat, dim = c(nx, ny, teLength))
-  
-  fittedImg <- rhoArr * exp(-teArr / t2Arr) * (1 - exp(-trArr / t1Arr))
-  fittedImg
+
+```{r}
+fitted_values <- function(rho, T1, T2, TE, TR) {
+  # Calculate fitted values based on the equation
+  rho * exp(-TE / T2) * (1 - exp(-TR / T1))
 }
 ```
 
 ```{r}
-fittedImg <- computeFittedImg(rhoMat = rhoMat, 
-                              t1Mat = t1Mat, 
-                              t2Mat = t2Mat, 
-                              TE = teTrSettings$TE, 
-                              TR = teTrSettings$TR)
-
-# need min and max again to determine output dimensions
-globalMin <- min(fittedImg, na.rm = TRUE)
-globalMax <- max(fittedImg, na.rm = TRUE)
+# Function to compute fitted images
+compute_fitted_images <- function(rho_matrix, T1_matrix, T2_matrix, TE, TR) {
+  nrow <- nrow(rho_matrix)
+  ncol <- ncol(rho_matrix)
+  num_settings <- length(TE)
+  
+  # Initialize an array to store fitted images
+  fitted_images <- array(0, dim = c(nrow, ncol, num_settings))
+  
+  for (k in 1:num_settings) {
+    for (i in 1:nrow) {
+      for (j in 1:ncol) {
+        rho <- rho_matrix[i, j]
+        T1 <- T1_matrix[i, j]
+        T2 <- T2_matrix[i, j]
+        
+        # Calculate fitted value for this pixel at TE[k], TR[k]
+        fitted_images[i, j, k] <- fitted_values(rho, T1, T2, TE[k], TR[k])
+      }
+    }
+  }
+  
+  return(fitted_images)
+}
 ```
 
 ```{r}
-# for loop version 
-# par(mfrow = c(3, 6), mar = c(2, 2, 2, 2))
-# # 3 x 6 = 18
-# for (k in 1:18) {
-#   image(
-#     t(fittedImg[, , k][nrow(fittedImg):1, ]),
-#     col = gray.colors(256, start = 1, end = 0),
-#     zlim = c(globalMin, globalMax),
-#     axes = FALSE,
-#     main = paste0("TE=", teTrSettings$TE[k], ", TR=", teTrSettings$TR[k])
-#   )
-# }
+# Example TE and TR values (replace with actual data)
+TE <- seq(0.01, 0.18, length.out = 18)
+TR <- seq(0.1, 1.8, length.out = 18)
 
-par(mfrow = c(3, 6), mar = c(2, 2, 2, 2))
-
-mapply(
-  FUN = function(k, te, tr) {
-    imgSlice <- fittedImg[, , k]
-    image(
-      t(imgSlice[nrow(imgSlice):1, ]),
-      col = gray.colors(256, start = 1, end = 0),
-      zlim = c(globalMin, globalMax),
-      axes = FALSE,
-      main = paste0("TE=", te, ", TR=", tr)
-    )
-  },
-  # additional inputs 
-  k = 1:dim(fittedImg)[3],
-  te = teTrSettings$TE,
-  tr = teTrSettings$TR
-)
+# Assuming rho_matrix, T1_matrix, T2_matrix are obtained from part (e)
+fitted_images <- compute_fitted_images(rho_matrix, T1_matrix, T2_matrix, TE, TR)
 ```
 
-This is a bit like the "digits" problem from assignments past...Is this really the output we're looking for? 
+```{r}
+# Display the fitted images
+for (k in 1:length(TE)) {
+  image(fitted_images[,,k], main = paste("Fitted Image at TE =", TE[k], "TR =", TR[k]), col = gray.colors(256))
+}
+```
 
 \newpage 
 
@@ -738,17 +734,3 @@ library(pixmap)
 # quantized_raster <- as.raster(quantized_image)
 plot(quantImg, main = "K-means Image")
 ```
-
-#### Fun Fact 
-
-```{r}
-object.size(imgArr)
-object.size(quantImg)
-
-testImage <- pixmapRGB(data = imgArr)
-object.size(testImage)
-```
-
-Hey, so the amount of data required to locally hold/store the original array and the quantized image are nearly identical (the K-means one is slightly larger). Uh oh! 
-
-This is possibly due to storage as objects of different classes though, fingers crossed!  
