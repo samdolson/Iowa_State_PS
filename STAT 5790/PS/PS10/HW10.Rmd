@@ -150,6 +150,8 @@ estimateParams <- function(Y, TE, TR, init = c(1, 1000, 100)) {
 }
 ```
 
+So I didn't quite know what all to include in this part versus the next part. So more is included in part (e), the function(s) are actually being called, and I get the data for viz. Names and functions have also been altered slightly. 
+
 ## (e) 
 
 We will now estimate ($\rho_{ij}, T_{1ij}, T_{2ij}$) for each imaging coordinate given the 18 values.  
@@ -157,74 +159,123 @@ We will now estimate ($\rho_{ij}, T_{1ij}, T_{2ij}$) for each imaging coordinate
 In so doing, note that the value is indeterminate if there are no more than two $Y_{i,j,k}$s that are non-zero for any $(i,j)$. For these cases, we will set $\rho_{ij} = 0$, $T_{1ij} = 4.0$, and $T_{2ij} = 0.001$. For the other $(i,j)$s, use the R function `optim` (note: not `optimize`) to estimate ($\rho_{ij}, T_{1ij}, T_{2ij}$). Restrict $\rho$ to be in $[0,3000]$, $T_1$ to be in $[0.01, 4.0]$, and $T_2$ to be in $[0.001,2.0]$ by writing your function such that if these values are breached in any case, then the value returned is $\infty$. The function `optim` also needs initial values: use (1500, 1.5, 0.1) as starting values. Store the estimated $\rho, T_1, T_2$ values in three 256 $\times$ 256 matrices. [25 points]  
 
 ```{r}
-psiFunction <- function(params, yIjk, te, tr) {
+objectiveFun <- function(params, yIjk, te, tr) {
   rho <- params[1]
   t1 <- params[2]
   t2 <- params[3]
   
+  # handle when things go off the rails
   if (rho < 0 || rho > 3000 || t1 < 0.01 || t1 > 4.0 || t2 < 0.001 || t2 > 0.2) {
     return(Inf)
   }
   
+  # based on formula given
   modelValues <- rho * exp(-te / t2) * (1 - exp(-tr / t1))
   residuals <- (yIjk - modelValues)[yIjk > 0]
+  # return thing to minimize 
   return(sum(residuals^2))
 }
 ```
 
 ```{r}
+# old
+# for loop version 
+# estimateParameters <- function(yIj, te, tr) {
+#   nrow <- dim(yIj)[1]
+#   ncol <- dim(yIj)[2]
+#   
+#   rhoMatrix <- matrix(0, nrow, ncol)
+#   t1Matrix <- matrix(4.0, nrow, ncol) 
+#   t2Matrix <- matrix(0.001, nrow, ncol) 
+# 
+#   for (i in 1:nrow) {
+#     for (j in 1:ncol) {
+#       yIjk <- yIj[i, j, ]
+# 
+#       if (sum(yIjk > 0) <= 2) {
+#         rhoMatrix[i, j] <- 0
+#         t1Matrix[i, j] <- 4.0
+#         t2Matrix[i, j] <- 0.001
+#       } else {
+#         
+#         result <- tryCatch({
+#           optim(
+#             par = c(1500, 1.5, 0.1), 
+#             fn = objectiveFun,
+#             yIjk = yIjk,
+#             te = te,
+#             tr = tr,
+#             method = "L-BFGS-B",
+#             lower = c(0, 0.01, 0.001),
+#             upper = c(3000, 4.0, 0.2)
+#           )
+#         }, error = function(e) {
+#           list(par = c(0, 4.0, 0.001)) 
+#         })
+#         
+#         rhoMatrix[i, j] <- result$par[1]
+#         t1Matrix[i, j] <- result$par[2]
+#         t2Matrix[i, j] <- result$par[3]
+#       }
+#     }
+#   }
+#   
+#   return(list(rho = rhoMatrix, 
+#               t1 = t1Matrix, 
+#               t2 = t2Matrix))
+# }
+```
+
+```{r}
 estimateParameters <- function(yIj, te, tr) {
-  # Initialize matrices to store results
   nrow <- dim(yIj)[1]
   ncol <- dim(yIj)[2]
   
-  rhoMatrix <- matrix(0, nrow, ncol)
-  t1Matrix <- matrix(4.0, nrow, ncol) # Default value
-  t2Matrix <- matrix(0.001, nrow, ncol) # Default value
-  
-  # Loop over each pixel
-  for (i in 1:nrow) {
-    for (j in 1:ncol) {
-      yIjk <- yIj[i, j, ]
-      
-      # Check if enough non-zero values
-      if (sum(yIjk > 0) <= 2) {
-        rhoMatrix[i, j] <- 0
-        t1Matrix[i, j] <- 4.0
-        t2Matrix[i, j] <- 0.001
-      } else {
-        # Debugging: Check yIjk and te/tr before optimization
-        if (any(is.nan(yIjk)) || any(is.infinite(yIjk))) {
-          cat("Invalid yIjk for pixel (", i, ",", j, ")\n")
-        }
-        if (any(is.na(te)) || any(is.na(tr))) {
-          stop("te or tr contains invalid values!")
-        }
-        
-        # Perform optimization
-        result <- tryCatch({
-          optim(
-            par = c(1500, 1.5, 0.1), # Initial values
-            fn = psiFunction,
-            yIjk = yIjk,
-            te = te,
-            tr = tr,
-            method = "L-BFGS-B",
-            lower = c(0, 0.01, 0.001),
-            upper = c(3000, 4.0, 0.2)
-          )
-        }, error = function(e) {
-          cat("Optimization failed for pixel (", i, ",", j, "):", e$message, "\n")
-          list(par = c(0, 4.0, 0.001)) # Default values on failure
-        })
-        
-        # Store results
-        rhoMatrix[i, j] <- result$par[1]
-        t1Matrix[i, j] <- result$par[2]
-        t2Matrix[i, j] <- result$par[3]
-      }
+  # function within a function
+  processPixel <- function(pixelIdx) {
+    i <- pixelIdx[1]
+    j <- pixelIdx[2]
+    yIjk <- yIj[i, j, ]
+    
+    # default to use
+    if (sum(yIjk > 0) <= 2) {
+      return(c(0, 4.0, 0.001)) 
     }
+    
+    # tryCatch used for error handling
+    # within a function
+    result <- tryCatch({
+      optim(
+        par = c(1500, 1.5, 0.1), 
+        fn = objectiveFun,
+        yIjk = yIjk,
+        te = te,
+        tr = tr,
+        method = "L-BFGS-B",
+        lower = c(0, 0.01, 0.001),
+        upper = c(3000, 4.0, 0.2)
+      )
+    }, 
+    # return valid values when we don't achieve optimization (optimization failure)
+    error = function(e) {
+      list(par = c(0, 4.0, 0.001)) 
+    })
+
+    
+    return(result$par)
   }
+  
+  # create dataframe of all results 
+  pixelIndices <- expand.grid(1:nrow, 1:ncol)
+  results <- apply(X = pixelIndices, 
+                   MARGIN = 1, 
+                   FUN = function(idx) {
+                     processPixel(idx)
+                     })
+  
+  rhoMatrix <- matrix(results[1, ], nrow = nrow, ncol = ncol)
+  t1Matrix <- matrix(results[2, ], nrow = nrow, ncol = ncol)
+  t2Matrix <- matrix(results[3, ], nrow = nrow, ncol = ncol)
   
   return(list(rho = rhoMatrix, 
               t1 = t1Matrix, 
@@ -236,9 +287,13 @@ estimateParameters <- function(yIj, te, tr) {
 te <- teTrSettings$TE
 tr <- teTrSettings$TR
 
-results <- estimateParameters(phantomArr, te, tr)
+# actual call of function
+# results <- estimateParameters(phantomArr, te, tr)
+# making bailouts
+# not super intensive, but still a time save just to load and not call
+# saveRDS(results, file = "q1v2.rds")
 
-saveRDS(results, file = "q1v2.rds")
+# loading bailout
 results <- readRDS("q1v2.rds")
 
 rhoMat <- results$rho
