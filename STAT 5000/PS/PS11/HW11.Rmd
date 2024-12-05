@@ -51,7 +51,7 @@ And use the following diagnostics to assess model assumptions. (Do not submit th
 
 Normal Q-Q plot of residuals and the related Shapiro-Wilk test.
 
-The QQ plot closely aligns with the reference line within the first theoretical quantile, but there are deviations past the first (positive/negative) quantile. 
+The QQ plot closely aligns with the reference line within the first theoretical quantile, but there are deviations past the first (positive/negative) quantile. Furthermore, the QQ plot appears to have a slight "S" shape/curve, further suggesting deviation from normality. 
 
 The Shapiro-Wilk test provides a small p-value (<0.0001) such that we would have evidence to reject the null hypothesis that the residuals are normally distributed. 
 
@@ -79,7 +79,7 @@ The QQ plot looks better, insomuch as it more closely tracks with the reference 
 
 Furthermore, the residual plots consistently (across the x-axis of fitted values as well as individually across the explanatory variables) appear to be randomly spread, such that our constant variance and form of the model assumptions are likely not being violated either. 
 
-However, it is worth noting that we still appear to have a potential outlier in our diagnostic plots. 
+However, it is worth noting that we still appear to have potential outliers in our diagnostic plots, including both the residual plot as well as the QQ plot. So we see improvements but still have reason to be concerned our assumptions are violated.  
 
 \newpage 
 
@@ -151,6 +151,8 @@ knitr::include_graphics("q1e2.png")
 
 However, when looking at the Condition Index for the Eigenvalues, we do observe a rather high value (larger than 30), with the 83.72 corresponding to a significant proportion of variation for Interccept, HT2, and WT9, or an indication of potential extreme multicollinearity between HT2 and WT9. Given this, we look to the correlations to confirm.  
 
+However, this is something that I don't think has been discussed in-depth at the moment, so I believe for all intents and purposes we are good to go (the above is for considering extra-dimensional multicollinearity, if I recall correctly). 
+
 ```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q1e3.png")
 ```
@@ -202,7 +204,7 @@ Find and interpret the $R^2$ value for the full model.
 
 Interpret the value of the estimated regression coefficient corresponding to the Garage Size variable for the full model.
 
-Increasing Garage Size to "Large" is associated with an increased Sales Price of $15,833 compared to a Garage Size of "Small", all else (all other explanatory variables) being equal.
+Increasing Garage Size to "Large" is associated with an increased Sales Price of $1,438.507 compared to a Garage Size of "Small", all else (all other explanatory variables) being equal.
 
 \newpage 
 
@@ -217,7 +219,7 @@ knitr::include_graphics("q2b.png")
 For the preceding problems, I used the model with "Garage Size" removed, as it didn't get added for Step 5 of forward selection. The formula corresponding to the above output and the following equation: 
 
 $$
-\widehat{\text{Sale Price}} = 32873 + 58.128 * \text{Basement Area} + 104.75703 * \text{Living Area} - 8481.53784 * \text{Total Room} - 746.48764 * \text{Age}
+\widehat{\text{Sale Price}} = 32,873 + 58.128 * \text{Basement Area} + 104.75703 * \text{Living Area} - 6,481.53784 * \text{Total Room} - 746.48764 * \text{Age}
 $$
 
 \newpage 
@@ -311,7 +313,7 @@ knitr::include_graphics("q2e2.png")
 
 
 $$
-\text{MSE}_{\text{train}} = 1.5777 \times 10^{9}
+\text{MSE}_{\text{train}} = 1.5759 \times 10^{9}
 $$
 
 $$
@@ -319,18 +321,18 @@ $$
 $$
 
 $$
-\text{Difference in MSE} = \text{MSE}_{\text{train}} - \text{MSE}_{\text{eval}} \approx 1.23371 \times 10^{8}
+\text{Difference in MSE} = \text{MSE}_{\text{train}} - \text{MSE}_{\text{eval}} \approx 1.21571 \times 10^{8}
 $$
 
 Importantly, we see that $\text{MSE}_{\text{eval}} < \text{MSE}_{\text{train}}$, though the difference is not especially large! This is when looking specifically at the relative difference in MSE, and not the absolute difference in MSE. The relative difference is: 
 
 $$
-\text{Relative Difference} = \frac{\text{Difference in MSE}}{\text{MSE}_{\text{eval}}} * 100 = \frac{1.23371 \times 10^{8}}{1.454329 \times 10^{9}} \times 100 \approx 8.48\%
+\text{Relative Difference} = \frac{\text{Difference in MSE}}{\text{MSE}_{\text{eval}}} * 100 = \frac{1.21571 \times 10^{8}}{1.454329 \times 10^{9}} \times 100 \approx 8.359\%
 $$
 
 Or a roughly 8.48 percent decrease in MSE when going to the eval dataset. 
 
-This tells us that: When the MSE (Train) is slightly smaller than the MSE (Eval), meaning the model we chose performs marginally better on the evaluation dataset than the training dataset, and corresponding to a decrease of 8.48%! Generally this marginal relative difference indicates that our model is not overfitting, and that it is generalizing well from the training to the evalution dataset. It is performing "ok"! (We want MSE to be lower for the eval compared to training, otherwise we'd suspect overfitting based on the training dataset).  
+This tells us that: When the MSE (Train) is slightly smaller than the MSE (Eval), meaning the model we chose performs marginally better on the evaluation dataset than the training dataset, and corresponding to a decrease of 8.36%! Generally this marginal relative difference indicates that our model is not overfitting, and that it is generalizing well from the training to the evalution dataset. It is performing "ok"! (We want MSE to be lower for the eval compared to training, otherwise we'd suspect overfitting based on the training dataset).  
 
 \newpage
 
@@ -359,7 +361,11 @@ knitr::include_graphics("q3a1.png")
 knitr::include_graphics("BIG.png")
 ```
 
-Many of the variables are highly correlated with each other; this holds for combinations of variables with the response variable (price) as well as between explanatory variables. Using the "significance" threshold of |r| > 0.7, we have the following "signficant" correlations: Carat and price, carat and x, carat and y, carat and z, price and x, price and y, price and z, x and y, x and z, y and z. Of note is that all of the "significant" correlations are positive. Overall, we do corroborate these findings when looking at the pairwise scatter plots, insomuch as positive correlations generally show a positive linear relationship when looking at the respective graph. On the flip side, we see "small" correlations (|r| < 0.20, such as x and depth), exhibit a rather large "blob" of points, or for other pairs a general overall coverage of the plot area. This is understandable, as a small-in-magnitude correlation coefficient is evidence that there is not a significant linear relationship between the two variables.   
+Many of the variables are highly correlated with each other; this holds for combinations of variables with the response variable (price) as well as between explanatory variables. Using the "significance" threshold of |r| > 0.7, we have the following "signficant" correlations: Carat and price, carat and x, carat and y, carat and z, price and x, price and y, price and z, x and y, x and z, y and z. Of note is that all of the "significant" correlations are positive. 
+
+Overall, we do corroborate these findings when looking at the pairwise scatter plots, insomuch as positive correlations generally show a positive linear relationship when looking at the respective graph. On the flip side, we see "small" correlations (|r| < 0.20, such as x and depth), exhibit a rather large "blob" of points, or for other pairs a general overall coverage of the plot area. This is understandable, as a small-in-magnitude correlation coefficient is evidence that there is not a significant linear relationship between the two variables. 
+
+Generally, we see that our response variable is highly correlated with some of the explanatory variables ("significant" being correlation coefficients greater in magnitude than 0.7). However, we also observe some explanatory variables appear highly correlated with one another, which is problematic and an indication of possible multicollinearity (using the same magnitude threshold of 0.7 for correlation coefficient). 
 
 \newpage 
 
@@ -403,9 +409,9 @@ Explanatory variables that remained: Carat, cut, color, clarity, depth, and tabl
 
 a summary of the partial regression coefficients effects tests for the final model.
 
-All the final model partial regression coefficients meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level except for "z". There is only one partial regression coefficients in the final model that does not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level, "z". 
+Of note, all explanatory variables except for "z" meet the significance threshold of "overwhelming" or "strong" evidence (in favor of rejecting the null hypothesis). This appears to be the type of language used in the lab solutions. 
 
-Of note, all explanatory variables except for "z" meet the significance threshold of "overwhelming" or "strong" evidence (in favor of rejecting the null hypothesis). 
+All the final model partial regression coefficients meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level except for "z". There is only one partial regression coefficients in the final model that does not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level, "z". 
 
 The statistical significance test is to determine whether there is evidence to reject the null hypothesis that the estimated beta coefficient is equal to zero (statistical significance referring to being statistically significant from zero). 
 
@@ -448,9 +454,9 @@ a summary of the partial regression coefficients effects tests for the final mod
 
 Consistent with the prior model, 
 
-All the final model partial regression coefficients meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level except for "z". There is only one partial regression coefficients in the final model that does not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level, "z". 
+Of note, all explanatory variables except for "z" meet the significance threshold of "overwhelming" or "strong" evidence (in favor of rejecting the null hypothesis). This appears to be the type of language used in the lab solutions. 
 
-Consistent with part (d), of note, all explanatory variables except for "z" meet the significance threshold of "overwhelming" or "strong" evidence (in favor of rejecting the null hypothesis). 
+All the final model partial regression coefficients meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level except for "z". There is only one partial regression coefficients in the final model that does not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level, "z". 
 
 The statistical significance test is to determine whether there is evidence to reject the null hypothesis that the estimated beta coefficient is equal to zero (statistical significance referring to being statistically significant from zero). 
 
@@ -468,19 +474,21 @@ knitr::include_graphics("q3e.png")
 
 Which model would you choose based on the adjusted R2 values?
 
-Model 8, using the explanatory variables of carat, color 7, and clarity 3 through 8 (possibly with an intercept term as well). 
+Model 8, using the explanatory variables of carat, color 7, and clarity 3 through 8 (possibly with an intercept term as well). Generally we would say we include "carat", "color", and "clarity" explanatory variables, but we only see a subset of possible categorical variable values being significant in the above model.  
 
 ### ii. 
 
 Which model would you choose based on the Mallow’s Cp criteria?
 
-Model 8, using the explanatory variables of carat, color 7, and clarity 3 through 8 (possibly with an intercept term as well). 
+Model 8, using the explanatory variables of carat, color 7, and clarity 3 through 8 (possibly with an intercept term as well). Generally we would say we include "carat", "color", and "clarity" explanatory variables, but we only see a subset of possible categorical variable values being significant in the above model.  
+
 
 ### iii. 
 
 Which model would you choose based on the BIC values?
 
-Model 8, using the explanatory variables of carat, color, and clarity (possibly with an intercept term as well). 
+Model 8, using the explanatory variables of carat, color, and clarity (possibly with an intercept term as well). Generally we would say we include "carat", "color", and "clarity" explanatory variables, but we only see a subset of possible categorical variable values being significant in the above model.  
+
 
 \newpage 
 
