@@ -11,10 +11,6 @@ output: pdf_document
 
 # Outline:
   - 1 overall: include absolutely no outputs or plots? 
-  - 1 (d) "best" model 
-  - 2 (d) actually calculate and give precise threshold values? Maybe rerun model to boot? 
-  - 3 (c) iii, general interpretation; see lab when solutions posted
-  - 3 (e) inclusion of intercept? 
 
 ```{r, eval = T, results = F, echo = F, warning=F, message=F}
 library(knitr)
@@ -136,7 +132,7 @@ knitr::include_graphics("q1d3.png")
 
 My recommendation is to use the following model (choice of explanatory variables, while also including an intercept term): WT2, WT9, HT9 model. 
 
-This model has the best Adjusted $R^2$ for a model with 3 explanatory variables, and is the second best based on Adjusted $R^2$ compared to all models, and is only 0.0029 less than the first best. However, this model has the best Mallow's Cp value overall. 
+This model has has the best Mallow's Cp value overall. Additionally, this model has the second best Adjusted $R^2$ compared to all models (and the best for a model with 3 explanatory variables). In comparison to the best adjusted R-squared, the difference is only 0.0029 less than the first best. 
 
 \newpage 
 
@@ -248,6 +244,18 @@ The difference of 0.0002 (2e-04) corresponds to a difference of 0.02% between th
 
 Using the reduced model, check for:
 
+For reference: 
+
+Training Data observations: 
+
+$$
+n = 999 
+$$
+
+$$
+k = 4
+$$
+
 ### i. 
 
 outliers 
@@ -266,11 +274,17 @@ high leverage points
 knitr::include_graphics("q2d2.png")
 ```
 
+Leverage threshold: $2(k+1)/n = 2(4+1)/999 = 0.01001001$
+
 We do observe there being some leverage points in the training data, where our leverage threshold value is calculated to be $\approx 0.01$. 
 
 ### iii. 
 
 potential influence points
+
+Influence threshold: Cook's D $D > 2\sqrt{(2/n)} = 2\sqrt{(2/999)} = 0.08948747$
+
+DDFITS: $2\sqrt{(k+1/n)} = 2\sqrt{(4+1/999)} = 0.1414921$
 
 ```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q2d3.png")
@@ -280,7 +294,7 @@ knitr::include_graphics("q2d3.png")
 knitr::include_graphics("q2d4.png")
 ```
 
-We do observe there being some potential influence points in the training data, particularly when evaluating based on the DFFITS method and a threshold value $\approx 0.45$, as illustrated above. 
+We do observe there being some potential influence points in the training data, particularly when evaluating based on the Cook's Distance method and a threshold value $\approx 0.08949$, as illustrated above. (I also did DDFITS and gave a calculation of the threshold above, but results are consistent with there being some influential points.)
 
 \newpage 
 
@@ -392,6 +406,8 @@ a summary of the partial regression coefficients effects tests for the final mod
 
 All the final model partial regression coefficients meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level except for "z". There is only one partial regression coefficients in the final model that does not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level, "z". 
 
+Of note, all explanatory variables except for "z" meet the significance threshold of "overwhelming" or "strong" evidence (in favor of rejecting the null hypothesis). 
+
 The statistical significance test is to determine whether there is evidence to reject the null hypothesis that the estimated beta coefficient is equal to zero (statistical significance referring to being statistically significant from zero). 
 
 \newpage 
@@ -434,6 +450,8 @@ a summary of the partial regression coefficients effects tests for the final mod
 Consistent with the prior model, 
 
 All the final model partial regression coefficients meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level except for "z". There is only one partial regression coefficients in the final model that does not meet statistical significance to reject null hypothesis at the $\alpha = 0.05$ level, "z". 
+
+Consistent with part (d), of note, all explanatory variables except for "z" meet the significance threshold of "overwhelming" or "strong" evidence (in favor of rejecting the null hypothesis). 
 
 The statistical significance test is to determine whether there is evidence to reject the null hypothesis that the estimated beta coefficient is equal to zero (statistical significance referring to being statistically significant from zero). 
 
@@ -479,13 +497,13 @@ knitr::include_graphics("q3f.png")
 
 one of the values corresponding to the categorical variable of your choice;
 
-The conditional mean price of diamonds that are cut 2 are priced $580.325 more than diamonds that are cut 1, holding all other variables constant.
+The mean price of diamonds that are cut 2 are priced $580.325 more than diamonds that are cut 1, holding all other variables constant (given the other variables in the model).
 
 ### ii. 
 
 one of the values corresponding to the quantitative variable of your choice.
 
-For a 1 carat increase in weight, the conditional mean price of diamonds will increase by $11257.752, holding all other variables constant.
+For every 1 carat increase in weight, the mean price of diamonds will increase by $11,257.752 (associated with an increase of), holding all other variables constant (given all other variables in the model).
 
 \newpage 
 
