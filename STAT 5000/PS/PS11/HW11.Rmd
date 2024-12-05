@@ -10,13 +10,11 @@ output: pdf_document
 [Collaborators: Ethan, Ben, Craig, Sabrina, **The Hatman**]{.smallcaps} \
 
 # Outline:
-  - REDO 2, CHECK SAS 
   - 1 overall: include absolutely no outputs or plots? 
   - 1 (d) "best" model 
-  - 2 (d) actually calculate and give precise threshold values?
+  - 2 (d) actually calculate and give precise threshold values? Maybe rerun model to boot? 
   - 3 (c) iii, general interpretation; see lab when solutions posted
   - 3 (e) inclusion of intercept? 
-  - 2 (b): "reduced model" choice of variables? 
 
 ```{r, eval = T, results = F, echo = F, warning=F, message=F}
 library(knitr)
@@ -203,13 +201,13 @@ And so it was fit.
 
 Find and interpret the $R^2$ value for the full model.
 
-78.31% of variability in Sales price can be explained using the multiple linear regression using Basement Area, Living Area, Total Room, Garage Size, and Age as explanatory variables (and including an intercept term). 
+77.12% of variability in Sales price can be explained using the multiple linear regression using Basement Area, Living Area, Total Room, Garage Size, and Age as explanatory variables (and including an intercept term). 
 
 ### ii. 
 
 Interpret the value of the estimated regression coefficient corresponding to the Garage Size variable for the full model.
 
-Increasing Garage Size by 1 car is associated with an increased Sales Price of $15,833, all else being equal.
+Increasing Garage Size to "Large" is associated with an increased Sales Price of $15,833 compared to a Garage Size of "Small", all else (all other explanatory variables) being equal.
 
 \newpage 
 
@@ -221,10 +219,10 @@ Use forward selection to fit a reduced model to the training data using some sub
 knitr::include_graphics("q2b.png")
 ```
 
-For the preceding problems, I used the model with "Age" removed, corresponding to the above output and the following equation: 
+For the preceding problems, I used the model with "Garage Size" removed, as it didn't get added for Step 5 of forward selection. The formula corresponding to the above output and the following equation: 
 
 $$
-\widehat{\text{Sale Price}} = -29334 + 63.08 \times \text{Basement Area} + 97.53 \times \text{Living Area} - 7527.76 \times \text{Total Room} + 26551 \times \text{Garage Size}
+\widehat{\text{Sale Price}} = 32873 + 58.128 * \text{Basement Area} + 104.75703 * \text{Living Area} - 8481.53784 * \text{Total Room} - 746.48764 * \text{Age}
 $$
 
 \newpage 
@@ -237,12 +235,12 @@ How does the adjusted $R^2$ value for the reduced model compare to the full mode
 knitr::include_graphics("q2c.png")
 ```
 
-Full: 0.7820 
-Reduced: 0.7531 
-Difference: 0.0289
+Full: 0.7700
+Reduced: 0.7702
+Difference: 0.0002 (2e-04)
 Note: For Adjusted $R^2$
 
-The difference of 0.0289 corresponds to a difference of 2.89% between the two models. So the full model had a somewhat larger adjusted $R^2$ value. 
+The difference of 0.0002 (2e-04) corresponds to a difference of 0.02% between the two models. So the reduced model has a very marginally larger adjusted $R^2$ value. 
 
 \newpage 
 
@@ -300,18 +298,26 @@ knitr::include_graphics("q2e2.png")
 
 
 $$
-\text{MSE}_{\text{train}} = 1.693569893 \times 10^8
+\text{MSE}_{\text{train}} = 1.5777 \times 10^{9}
 $$
 
 $$
-\text{MSE}_{\text{eval}} = 1.617144789 \times 10^8 
+\text{MSE}_{\text{eval}} = 1.61699 \times 10^{9}
 $$
 
-Importantly, we see that $\text{MSE}_{\text{eval}} < \text{MSE}_{\text{train}}$, which is key to our insight! 
+$$
+\text{Difference in MSE} = 3.43 \times 10^{7}
+$$
 
-The fact that the evaluation MSE is slightly lower than the training MSE suggests that the model generalizes well to unseen data. This also indicates there is no significant overfitting  in our model, as the model performs similarly on both the training and evaluation datasets (is consistent across the datasets considered).
+Importantly, we see that $\text{MSE}_{\text{eval}} > \text{MSE}_{\text{train}}$, though the difference is not especially large! This is when looking specifically at the relative difference in MSE, and not the absolute difference in MSE. The relative difference is: 
 
-We may hope to generalize: The model we chose is consistent for predicting housing sale prices in the context of our research/study.
+$$
+\text{Relative Difference} = \frac{\text{Difference in MSE}}{\text{MSE}_{\text{eval}}} * 100 = \frac{3.43 \times 10^7}{1.61699 * 10^9} \times 100 \approx 2.12\%
+$$
+
+Or a roughly 2.12 percent increase in MSE when going to the eval dataset. 
+
+This tells us that: When the MSE (Train) is slightly smaller than the MSE (Eval), meaning the model we chose performs marginally better on the training dataset than the evaluation dataset. However, because the relative difference isn't especially extreme, I believe this isn't all bad news! Generally this marginal relative difference indicates that our model is not overfitting, and that it is generalizing well from the training to the evalution dataset. It is performing "ok". 
 
 \newpage
 
