@@ -7,17 +7,10 @@ output: pdf_document
 [Fall 2024]{.smallcaps} 
 [due Fri, December 6th @ 11:59 pm]{.smallcaps}
 [Name: Sam Olson]{.smallcaps} \
-[Collaborators: Ethan, Ben, Craig, Sabrina, **The Hatman**]{.smallcaps} \
+[Collaborators: Ethan, Ben, Craig, Sabrina, Kyu-Tae, **The Hatman**]{.smallcaps} \
 
-# Outline:
-  - 1 overall: include absolutely no outputs or plots? 
-
-```{r, eval = T, results = F, echo = F, warning=F, message=F}
+```{r, eval = T, results = F, echo = F, warning = F, message = F}
 library(knitr)
-```
-
-```{r, eval = F, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
-knitr::include_graphics("XXX.png")
 ```
 
 # 1
@@ -130,9 +123,15 @@ knitr::include_graphics("q1d2.png")
 knitr::include_graphics("q1d3.png")
 ```
 
-My recommendation is to use the following model (choice of explanatory variables, while also including an intercept term): WT2, WT9, HT9 model. 
+After much back and forth, I ultimately decided on recommending the following model, which includes an intercept term: HT2, WT9, ST9 explanatory variables/predictors 
 
-This model has has the best Mallow's Cp value overall. Additionally, this model has the second best Adjusted $R^2$ compared to all models (and the best for a model with 3 explanatory variables). In comparison to the best adjusted R-squared, the difference is only 0.0029 less than the first best. 
+Descriptively, we have some reason to believe that multicollinearity would be minimized compared to models with similar variables, i.e. that use WT2 and WT9 or HT2 and HT9. Furthermore, we want to avoid overfitting, such that we have a preference for a simpler model (Occam's), which means a preference for less explanatory variables. 
+
+Bearing that in mind, there were 3 statistics used as criteria used for evaluating models: AIC, Adjusted R-Squared, and Mallow's $C_p$. 
+
+The model I recommend has the best AIC value (minimized), and it also has a "pretty good" Adjusted R-Squared and Mallow's $C_p$. 
+
+For Adjusted R-Squared, it has the second best for models with 3 explanatory variables, and 4th overall across all models. Marginally, the difference in Adjusted R-Squared is in the hundreths of decimal places. Also, when comparing values of Mallow (looking at k+1 closest to $C_p$ value), we see that the model recommended has the second best $C_p$ value, beaten only by WT2, HT2, and WT9. However, the difference between these two is less than 0.02, so the difference is marginal. And the model we recommend doesn't "reuse" the same variable WT, such that we potentially avoid multicollinearity. To that end...
 
 \newpage 
 
@@ -144,21 +143,21 @@ Are there concerns about multicollinearity for the explanatory variables of the 
 knitr::include_graphics("q1e.png")
 ```
 
-VIF values are not especially large (less than cutoff for "moderate" of 3/5), so minimal issue with multicollinearity based on VIF criteria. 
+VIF values are not especially large (less than cutoff for "moderate" of value of 3 or5), so minimal issue with multicollinearity based on VIF criteria. 
 
 ```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q1e2.png")
 ```
 
-However, when looking at the Condition Index for the Eigenvalues, we do observe a rather high value (larger than 30), and the 93.13 corresponds to a significant proportion of variation for Interccept, WT9, and HT9, or an indication of potential extreme multicollinearity between WT9 and HT9. 
+However, when looking at the Condition Index for the Eigenvalues, we do observe a rather high value (larger than 30), with the 83.72 corresponding to a significant proportion of variation for Interccept, HT2, and WT9, or an indication of potential extreme multicollinearity between HT2 and WT9. Given this, we look to the correlations to confirm.  
 
 ```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
 knitr::include_graphics("q1e3.png")
 ```
 
-We additionally double check our observation of potential multicollinearity by looking at the correlation between our explanatory variables. To that end: The above is further corroborated by the correlation coefficient between WT9 and HT9 being greater than 0.7 (0.73096). 
+We additionally double check our observation of potential multicollinearity by looking at the correlation between our explanatory variables. To that end: The above is further corroborated by the correlation coefficient between HT2 and WT9 being greater than 0.5 (0.54083); however, the correlation is still less than our "typical significance threshold" of |r| > 0.7, so this is a good thing (and motivation for choosing this over another hypothetical model like, say, WT2, WT9, and HT9.)
 
-So overall, yes we do have reasonable concerns about multicollinearity for the model we chose in part (d). Unfortunate. 
+So overall, yes we do have some concerns about multicollinearity for the model we chose in part (d), though not especially extreme.
 
 \newpage 
 
@@ -469,13 +468,13 @@ knitr::include_graphics("q3e.png")
 
 Which model would you choose based on the adjusted R2 values?
 
-Model 8, using the explanatory variables of carat, color, and clarity (possibly with an intercept term as well). 
+Model 8, using the explanatory variables of carat, color 7, and clarity 3 through 8 (possibly with an intercept term as well). 
 
 ### ii. 
 
 Which model would you choose based on the Mallow’s Cp criteria?
 
-Model 8, using the explanatory variables of carat, color, and clarity (possibly with an intercept term as well). 
+Model 8, using the explanatory variables of carat, color 7, and clarity 3 through 8 (possibly with an intercept term as well). 
 
 ### iii. 
 
