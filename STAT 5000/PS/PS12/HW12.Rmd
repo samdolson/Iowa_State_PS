@@ -1,0 +1,162 @@
+---
+title: "HW12"
+output: pdf_document
+date: "2024-12-08"
+---
+
+[Stat 5000]{.smallcaps}
+[Homework #11]{.smallcaps}\
+[Fall 2024]{.smallcaps} 
+[due Fri, December 6th @ 11:59 pm]{.smallcaps}
+[Name: Sam Olson]{.smallcaps} \
+[Collaborators: **The Hatman**]{.smallcaps} \
+
+```{r, eval = T, results = F, echo = F, warning = F, message = F}
+library(knitr)
+```
+
+# Q1 
+
+1. For each of the following models $Y_i$ are the responses, $\beta_i$ are parameters, $X_i$ are fixed values, and $\epsilon_i$ denotes random errors with variance $\sigma^2$. Indicate if it is a linear model, a nonlinear model, or an intrinsically linear model (a nonlinear model that can be transformed into a linear model).
+
+## (a) 
+
+$$
+Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 \log(X_{2i}) + \beta_3 X_{3i} + \epsilon_i \text{ with }  \mathbb{E}(\epsilon_i) = 0
+$$
+
+## (b) 
+
+$$
+Y_i = \beta_0 \exp(\beta_1 X_{1i}) + \epsilon_i \text{ with }  \mathbb{E}(\epsilon_i) = 0
+$$
+
+## (c) 
+
+$$
+Y_i = \left[1 + \exp(\beta_0 + \beta_1 X_{1i} + \epsilon_i)\right]^{-1} \text{ with }  \mathbb{E}(\epsilon_i) = 0
+$$
+
+## (d) 
+
+$$
+Y_i = (\beta_0 + \beta_1 X_{1i})\epsilon_i \text{ with } \mathbb{E}(\epsilon_i) = 1
+$$
+
+## (e) 
+
+$$
+Y_i = \epsilon_i \exp(\beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i}) \text{ with }  \mathbb{E}(\epsilon_i) = 1
+$$
+
+
+\newpage 
+
+# Q2 
+
+2. Only square, nonsingular matrices have inverses, but every matrix has a generalized inverse. For example, let
+
+$$
+A = 
+\begin{bmatrix}
+1 \\
+2 \\
+5 \\
+-2
+\end{bmatrix}
+$$
+
+Show that $B = [1 \ 0 \ 0 \ 0]$ satisfies the definition of a generalized inverse for A.
+
+\newpage
+
+# Q3 
+
+3. Consider the linear model $\mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\epsilon}$ where
+
+$$
+\mathbf{Y} = 
+\begin{bmatrix}
+Y_{11} \\
+Y_{12} \\
+Y_{21} \\
+Y_{22} \\
+Y_{23} \\
+Y_{24} \\
+Y_{31} \\
+Y_{32}
+\end{bmatrix}, \quad
+\mathbf{X} = 
+\begin{bmatrix}
+1 & 1 & 0 & 0 \\
+1 & 1 & 0 & 0 \\
+1 & 0 & 1 & 0 \\
+1 & 0 & 1 & 0 \\
+1 & 0 & 1 & 0 \\
+1 & 0 & 1 & 0 \\
+1 & 0 & 0 & 1 \\
+1 & 0 & 0 & 1
+\end{bmatrix}, \quad
+\boldsymbol{\beta} = 
+\begin{bmatrix}
+\mu \\
+\alpha_1 \\
+\alpha_2 \\
+\alpha_3
+\end{bmatrix}, \quad
+\boldsymbol{\epsilon} \sim N(0, \sigma^2 \mathbf{I}).
+$$
+
+Determine which of the following linear functions, $c_i^T \boldsymbol{\beta}$, of the model parameters are estimable. Briefly justify your answer. For estimable functions only, find a constant matrix $\mathbf{A}_i$ such that $\mathbf{A}_i \mathbb{E}(\mathbf{Y}) = c_i^T \boldsymbol{\beta}$.
+
+## (a) 
+
+$c_i^T \boldsymbol{\beta} = \alpha_1 - \frac{1}{2}(\alpha_2 + \alpha_3)$
+
+## (b) 
+
+$c_i^T \boldsymbol{\beta} = 3\mu + \alpha_1 + 2\alpha_2$
+
+## (c) 
+
+$c_i^T \boldsymbol{\beta} = \alpha_2 + \alpha_3$
+
+## (d) 
+
+$c_i^T \boldsymbol{\beta} = 3\mu - \alpha_1 - \alpha_2 - \alpha_3$
+
+\newpage
+
+# Q4 
+
+A food scientist performed an experiment to study the effects of combining two different fats and three different surfactants on the specific volume of bread loaves. Two batches of dough were made for each of the six combinations of fat and surfactant. Ten loaves of bread were made from each batch of dough and the average volume of the ten loaves was recorded for each batch. In total, there are 12 observations. Consider the two-way ANOVA model
+
+$$
+Y_{ijk} = \mu + \alpha_i + \tau_j + (\alpha\tau)_{ij} + \epsilon_{ijk}
+$$ 
+
+where $\epsilon_{ijk} \sim N(0, \sigma^2)$,
+
+and $Y_{ijk}$ denotes the average of the volumes of ten loaves of bread made from the k-th batch of dough using the i-th fat and the j-th surfactant. 
+
+Determine which of the following linear functions of the model parameters are estimable. Briefly justify your answer.
+
+## (a) 
+
+$\mu$ 
+
+## (b) 
+
+$\alpha_1 - \alpha_2$
+
+## (c) 
+
+$(\alpha \tau)_{12}$
+
+## (d) 
+
+$(\alpha \tau)_{11} - (\alpha \tau)_{12}$
+
+## (e) 
+
+$(\alpha \tau)_{11} - (\alpha \tau)_{12} - (\alpha \tau)_{21} + (\alpha \tau)_{22}$
