@@ -17,7 +17,7 @@ library(knitr)
 
 # Q1 
 
-1. For each of the following models $Y_i$ are the responses, $\beta_i$ are parameters, $X_i$ are fixed values, and $\epsilon_i$ denotes random errors with variance $\sigma^2$. Indicate if it is a linear model, a nonlinear model, or an intrinsically linear model (a nonlinear model that can be transformed into a linear model).
+For each of the following models $Y_i$ are the responses, $\beta_i$ are parameters, $X_i$ are fixed values, and $\epsilon_i$ denotes random errors with variance $\sigma^2$. Indicate if it is a linear model, a nonlinear model, or an intrinsically linear model (a nonlinear model that can be transformed into a linear model).
 
 ## (a) 
 
@@ -25,11 +25,15 @@ $$
 Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 \log(X_{2i}) + \beta_3 X_{3i} + \epsilon_i \text{ with }  \mathbb{E}(\epsilon_i) = 0
 $$
 
+Linear Model: This is a Linear Model because the response $Y_i$ depends linearly on the parameters $\beta_0, \beta_1, \beta_2, \beta_3$, and the predictor transformations (e.g., $\log(X_{2i})$) are fixed functions of the independent variables.
+
 ## (b) 
 
 $$
 Y_i = \beta_0 \exp(\beta_1 X_{1i}) + \epsilon_i \text{ with }  \mathbb{E}(\epsilon_i) = 0
 $$
+
+This is a Nonlinear Model because the parameter $\beta_1$ appears in the exponent, making the model nonlinearly dependent on $\beta_1$, and it cannot be transformed into a linear model.
 
 ## (c) 
 
@@ -37,24 +41,28 @@ $$
 Y_i = \left[1 + \exp(\beta_0 + \beta_1 X_{1i} + \epsilon_i)\right]^{-1} \text{ with }  \mathbb{E}(\epsilon_i) = 0
 $$
 
+This is a Nonlinear Model because the parameters $\beta_0$ and $\beta_1$ appear inside a nonlinear transformation ($\exp$) and within a complex function $\left[1 + \exp(\cdot)\right]^{-1}$, making the model nonlinearly dependent on the parameters. It cannot be transformed into a linear model.
+
 ## (d) 
 
 $$
 Y_i = (\beta_0 + \beta_1 X_{1i})\epsilon_i \text{ with } \mathbb{E}(\epsilon_i) = 1
 $$
 
+This is a Nonlinear Model because the error term $\epsilon_i$ is multiplied by the parameter-dependent expression $(\beta_0 + \beta_1 X_{1i})$, making the model nonlinearly dependent on the parameters. It cannot be transformed into a linear model.$
+
 ## (e) 
 
 $$
 Y_i = \epsilon_i \exp(\beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i}) \text{ with }  \mathbb{E}(\epsilon_i) = 1
 $$
-
+This is an Intrinsically Linear Model because the multiplicative structure can be transformed into a linear model by taking the natural logarithm of both sides, resulting in a model linear in the parameters $\beta_0$, $\beta_1$, and $\beta_2$.
 
 \newpage 
 
 # Q2 
 
-2. Only square, nonsingular matrices have inverses, but every matrix has a generalized inverse. For example, let
+Only square, nonsingular matrices have inverses, but every matrix has a generalized inverse. For example, let
 
 $$
 A = 
@@ -68,11 +76,82 @@ $$
 
 Show that $B = [1 \ 0 \ 0 \ 0]$ satisfies the definition of a generalized inverse for A.
 
+To show that \( B = [1 \ 0 \ 0 \ 0] \) satisfies the definition of a generalized inverse for \( A \), we need to confirm that:
+
+$$
+ABA = A
+$$
+
+Given:
+
+$$
+A = 
+\begin{bmatrix}
+1 \\
+2 \\
+5 \\
+-2
+\end{bmatrix}, \quad
+B = [1 \ 0 \ 0 \ 0]
+$$
+
+$$
+AB = 
+\begin{bmatrix}
+1 \\
+2 \\
+5 \\
+-2
+\end{bmatrix}
+[1 \ 0 \ 0 \ 0] = 
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+2 & 0 & 0 & 0 \\
+5 & 0 & 0 & 0 \\
+-2 & 0 & 0 & 0
+\end{bmatrix}
+$$
+
+$$
+ABA = AB \cdot A =
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+2 & 0 & 0 & 0 \\
+5 & 0 & 0 & 0 \\
+-2 & 0 & 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+1 \\
+2 \\
+5 \\
+-2
+\end{bmatrix}
+$$
+
+$$
+ABA =
+\begin{bmatrix}
+1 ( 1) + 0 ( 2) + 0 (5) + 0 (-2) \\
+2 ( 1) + 0 ( 2) + 0 (5) + 0 (-2) \\
+5 ( 1) + 0 ( 2) + 0 (5) + 0 (-2) \\
+-2 ( 1) + 0 ( 2) + 0 (5) + 0 (-2)
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 \\
+2 \\
+5 \\
+-2
+\end{bmatrix} = A
+$$
+
+Our goal was to verify ABA = A. Since we confirmed this equation holds, we have confirmed B is a generalized inverse of A.
+
 \newpage
 
 # Q3 
 
-3. Consider the linear model $\mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\epsilon}$ where
+Consider the linear model $\mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\epsilon}$ where
 
 $$
 \mathbf{Y} = 
@@ -113,17 +192,43 @@ Determine which of the following linear functions, $c_i^T \boldsymbol{\beta}$, o
 
 $c_i^T \boldsymbol{\beta} = \alpha_1 - \frac{1}{2}(\alpha_2 + \alpha_3)$
 
+Estimable: The function $c_i^T \boldsymbol{\beta} = \alpha_1 - \frac{1}{2}(\alpha_2 + \alpha_3)$ can be expressed as a linear combination of the rows of the design matrix $\mathbf{X}$, specifically using weights $a_1 = 1, a_2 = -\frac{1}{2}, a_3 = -\frac{1}{2}$, which satisfy the row space condition.
+
+Constant matrix:
+
+$$
+\mathbf{A}_i =
+\begin{bmatrix}
+\frac{1}{2} & \frac{1}{2} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4}
+\end{bmatrix}
+$$
+
 ## (b) 
 
 $c_i^T \boldsymbol{\beta} = 3\mu + \alpha_1 + 2\alpha_2$
+
+Not Estimable: The function $c_i^T \boldsymbol{\beta} = 3\mu + \alpha_1 + 2\alpha_2$ is not estimable because $\mu$ is confounded with the group means ($\alpha_1, \alpha_2, \alpha_3$) due to the rank deficiency of the design matrix.
 
 ## (c) 
 
 $c_i^T \boldsymbol{\beta} = \alpha_2 + \alpha_3$
 
+Estimable: The function $c_i^T \boldsymbol{\beta} = \alpha_2 + \alpha_3$ can be expressed as a linear combination of the rows of the design matrix $\mathbf{X}$, specifically using weights $a_1 = 0, a_2 = 0, a_3 = 1, a_4 = 1$, which satisfy the row space condition.
+
+Constant matrix:
+
+$$
+\mathbf{A}_i =
+\begin{bmatrix}
+0 & 0 & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{2} & \frac{1}{2}
+\end{bmatrix}
+$$
+
 ## (d) 
 
 $c_i^T \boldsymbol{\beta} = 3\mu - \alpha_1 - \alpha_2 - \alpha_3$
+
+Not Estimable: The function $c_i^T \boldsymbol{\beta} = 3\mu - \alpha_1 - \alpha_2 - \alpha_3$ simplifies to $3\mu$, which is not estimable because $\mu$ is confounded with the group means ($\alpha_1, \alpha_2, \alpha_3$) due to the rank deficiency of the design matrix.
 
 \newpage
 
@@ -145,18 +250,28 @@ Determine which of the following linear functions of the model parameters are es
 
 $\mu$ 
 
+Not Estimable: The parameter $\mu$ is not estimable because it is confounded with the main effects $\alpha_i$ (fat) and $\tau_j$ (surfactant), as well as the interaction effects $(\alpha \tau)_{ij}$. The design matrix has rank deficiency due to the identifiability constraints (e.g., sum-to-zero) imposed on these effects, preventing $\mu$ from being uniquely determined.
+
 ## (b) 
 
 $\alpha_1 - \alpha_2$
+
+Estimable: The function $\alpha_1 - \alpha_2$ is estimable because it is a contrast of the main effects $\alpha_i$ (fat). Contrasts are not affected by the rank deficiency of the design matrix imposed by identifiability constraints (e.g., sum-to-zero).
 
 ## (c) 
 
 $(\alpha \tau)_{12}$
 
+Not Estimable: The interaction effect $(\alpha \tau)_{12}$ is not estimable because it cannot be uniquely separated from the other interaction effects or main effects due to the rank deficiency of the design matrix and the sum-to-zero constraints imposed on the interaction terms.
+
 ## (d) 
 
 $(\alpha \tau)_{11} - (\alpha \tau)_{12}$
 
+Estimable: The function $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ is estimable because it is a contrast of interaction effects. Contrasts of interaction effects are estimable as they are not affected by the rank deficiency imposed by the sum-to-zero constraints on the interaction terms.
+
 ## (e) 
 
 $(\alpha \tau)_{11} - (\alpha \tau)_{12} - (\alpha \tau)_{21} + (\alpha \tau)_{22}$
+
+Estimable: The function $(\alpha \tau)_{11} - (\alpha \tau)_{12} - (\alpha \tau)_{21} + (\alpha \tau)_{22}$ is estimable because it is a contrast of interaction effects, which are not affected by the rank deficiency imposed by the sum-to-zero constraints on the interaction terms.
