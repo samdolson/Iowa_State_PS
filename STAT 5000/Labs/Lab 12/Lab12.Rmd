@@ -20,7 +20,7 @@ Uniqueness: Not Unique. The design matrix is not full rank due to the unconstrai
 
 Identifiability: Not Identifiable. Parameters $\mu_i$ are not identifiable without constraints (e.g., sum-to-zero).
 
-Estimability: Partially. Contrasts (e.g., $\mu_i - \mu_j$) are estimable, but individual $\mu_i$ are not.
+Estimability: Contrasts (e.g., $\mu_i - \mu_j$) are estimable, but individual $\mu_i$ are not.
 
 ## (b) 
 
@@ -30,8 +30,7 @@ Uniqueness: Not Unique. The design matrix is not full rank due to the inclusion 
 
 Identifiability: Not Identifiable. Group effects $\alpha_i$ are not identifiable without constraints (e.g., sum-to-zero or setting one group effect to zero).
 
-Estimability: Partially. Contrasts (e.g., $\alpha_i - \alpha_j$) are estimable, but individual group effects are not.
-
+Estimability: Contrasts (e.g., $\alpha_i - \alpha_j$) are estimable, but individual group effects are not.
 
 ## (c) 
 
@@ -41,7 +40,7 @@ Uniqueness: Not Unique. The design matrix is not full rank due to the inclusion 
 
 Identifiability: Not Identifiable. Treatment effects $\tau_i$ and block effects $\beta_j$ are not identifiable without constraints (e.g., sum-to-zero for treatments and blocks).
 
-Estimability: Partially. Contrasts of treatment effects (e.g., $\tau_i - \tau_k$) and block effects (e.g., $\beta_j - \beta_l$) are estimable, but individual effects are not.
+Estimability: Contrasts of treatment effects (e.g., $\tau_i - \tau_k$) and block effects (e.g., $\beta_j - \beta_l$) are estimable, but individual effects are not.
 
 ## (d) 
 
@@ -51,7 +50,7 @@ Uniqueness: Not Unique. The design matrix is not full rank due to the inclusion 
 
 Identifiability: Not Identifiable. Main effects $\alpha_i$, $\beta_j$, and interaction effects $(\alpha\beta)_{ij}$ are not identifiable without constraints (e.g., sum-to-zero for main effects and interactions).
 
-Estimability: Partially. Contrasts of main effects (e.g., $\alpha_i - \alpha_k$, $\beta_j - \beta_l$) and interaction effects (e.g., $(\alpha\beta)_{ij} - (\alpha\beta)_{kl}$) are estimable, but individual effects are not.
+Estimability: Contrasts of main effects (e.g., $\alpha_i - \alpha_k$, $\beta_j - \beta_l$) and interaction effects (e.g., $(\alpha\beta)_{ij} - (\alpha\beta)_{kl}$) are estimable, but individual effects are not.
 
 ## (e) 
 
@@ -61,7 +60,7 @@ Uniqueness: Not Unique. The design matrix is not full rank due to the unconstrai
 
 Identifiability: Not Identifiable. Cell means $\mu_{ij}$ are not identifiable without constraints (e.g., setting one cell mean to zero or sum-to-zero constraints).
 
-Estimability: Partially. Contrasts of cell means (e.g., $\mu_{ij} - \mu_{kl}$) are estimable, but individual cell means are not.
+Estimability: Contrasts of cell means (e.g., $\mu_{ij} - \mu_{kl}$) are estimable, but individual cell means are not.
 
 \newpage 
 
@@ -154,11 +153,15 @@ We have additional assumptions regarding the error term, $\boldsymbol{\epsilon}$
 
 For the Gauss-Markov model, list the conditions under which $Y^{T} (I-P_{X})Y$ has a quadratic form.
 
-We need the following: 
+$$
+\boldsymbol{Y} \sim N(X\beta, \sigma^2I) \text{ implying } \boldsymbol{\epsilon} \sim N(\boldsymbol{0}, \sigma^2 I) 
+$$
+
+I believe this means we need the following: 
   - 1. Linearity of the Model
   - 2. Full Rank of the Design Matrix 
   - 3. Orthogonal Projection, i.e. orthogonal $(I - P_{X})$
-  - 4.Constant Variance of Errors, from part (b) 
+  - 4. Constant Variance of Errors, from part (b) 
   - 5. Uncorrelated Errors, from part (b) 
 
 ## (d) 
@@ -205,12 +208,8 @@ The columns of $X$ corresponding to $\tau_1$, $\tau_2$, and $\tau_3$ are linearl
 
 Show the function $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$ is estimable.
 
-The main effects $\tau_1 - \tau_2$ represent a contrast between air/fuel ratio levels, which is estimable because contrasts of main effects are not affected by the sum-to-zero constraint on $\tau_j$.
+The main effects $\tau_1 - \tau_2$ represent a contrast between air/fuel ratio levels, which is estimable because contrasts of main effects are not affected by the sum-to-zero constraint on $\tau_j$. The interaction effect $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ represents a contrast within the interaction terms for a fixed ethanol level ($\alpha_1$) and two different air/fuel ratio levels ($\tau_1$ and $\tau_2$). Contrasts of interaction terms are also estimable under the sum-to-zero constraints on interactions.
 
-The interaction effect $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ represents a contrast within the interaction terms for a fixed ethanol level ($\alpha_1$) and two different air/fuel ratio levels ($\tau_1$ and $\tau_2$). Contrasts of interaction terms are also estimable under the sum-to-zero constraints on interactions.
+Both $\tau_1 - \tau_2$ and $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ can be expressed as linear combinations of the rows of the design matrix $X$. The sum of two estimable functions, $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$, is also estimable.
 
-Both $\tau_1 - \tau_2$ and $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ can be expressed as linear combinations of the rows of the design matrix $X$.
-
-The sum of two estimable functions, $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$, is therefore also estimable.
-
-The combination $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$ lies entirely in the row space of the design matrix $X$, satisfying the condition for estimability.
+Taken together, the combination $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$ satisfies the condition for estimability as it lies entirely in the row space of the design matrix $X$.
