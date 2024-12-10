@@ -8,11 +8,6 @@ date: "2024-12-08"
 library(knitr)
 ```
 
-# Outline
-
-  - Q1, part (e), "unique without constraints"?
-  - Q2, part (b), do we need "uncorrelated errors"? 
-
 # Q1 
 
 For the models below, determine whether the OLS estimator of the parameter vector is (i) unique, (ii) identifiable, (iii) estimable. (iv) Briefly justify your response.
@@ -33,9 +28,9 @@ One-Way Effects ANOVA
 
 Uniqueness: Not Unique. The design matrix is not full rank due to the inclusion of an intercept alongside group indicator variables.
 
-Identifiability: Not Identifiable. Group effects $\alpha_i$ are not identifiable without constraints (e.g., sum-to-zero or setting one group effect to zero).
+Identifiability: "Not Always"; Not Identifiable. Group effects $\alpha_i$ are not identifiable without constraints, e.g. sum-to-zero or setting one group effect to zero.
 
-Estimability: Contrasts (e.g., $\alpha_i - \alpha_j$) are estimable, but individual group effects are not.
+Estimability: "Not Always"; Contrasts (e.g., $\alpha_i - \alpha_j$) are estimable, but individual group effects are not.
 
 ## (c) 
 
@@ -43,9 +38,9 @@ Randomized Complete Block Design (RCBD)
 
 Uniqueness: Not Unique. The design matrix is not full rank due to the inclusion of both block and treatment indicator variables without constraints.
 
-Identifiability: Not Identifiable. Treatment effects $\tau_i$ and block effects $\beta_j$ are not identifiable without constraints (e.g., sum-to-zero for treatments and blocks). But with constraints, they are identifiable. 
+Identifiability: "Not Always"; Not Identifiable. Treatment effects $\tau_i$ and block effects $\beta_j$ are not identifiable without constraints, e.g. sum-to-zero for treatments and blocks. But with constraints, they are identifiable. 
 
-Estimability: Contrasts of treatment effects (e.g., $\tau_i - \tau_k$) and block effects (e.g., $\beta_j - \beta_l$) are estimable, but individual effects are not.
+Estimability: "Not Always"; Contrasts of treatment effects (e.g., $\tau_i - \tau_k$) and block effects (e.g., $\beta_j - \beta_l$) are estimable, but individual effects are not.
 
 ## (d) 
 
@@ -53,20 +48,25 @@ Two-Way Effects ANOVA
 
 Uniqueness: Not Unique. The design matrix is not full rank due to the inclusion of an intercept alongside group indicator variables.
 
-Identifiability: Not Identifiable. Group effects $\alpha_i$ are not identifiable without constraints (e.g., sum-to-zero or setting one group effect to zero).
+Identifiability: "Not Always"; Not Identifiable. Group effects $\alpha_i$ are not identifiable without constraints, e.g. sum-to-zero or setting one group effect to zero.
 
-Estimability: Contrasts (e.g., $\alpha_i - \alpha_j$) are estimable, but individual group effects are not.
+Estimability: "Not Always"; Contrasts (e.g., $\alpha_i - \alpha_j$) are estimable, but individual group effects are not.
 
 ## (e) 
 
 Two-Way Cell Means ANOVA
 
-Uniqueness: Not unique without constraints. The design matrix is not full rank due to overparameterization caused by main effects and interaction terms. Uniqueness is achieved by applying constraints (e.g., sum-to-zero constraints).
+Uniqueness: X can/does have full column rank. 
 
-Identifiability: Identifiable with constraints. The parameters are not identifiable without constraints due to overparameterization but become identifiable when constraints (e.g., sum-to-zero constraints) are applied.
+Extra info: *Can be unique without constraints*, but can also be unique with constraints. The design matrix can be full rank but possibly is not (may be affected by overparameterization caused by main effects and interaction terms). Uniqueness may also be achieved by applying constraints (e.g., sum-to-zero constraints).
 
-Estimability: Individual cell means ($\mu_{ij}$) are estimable, as they correspond directly to observed responses. Contrasts, such as $\beta_1 - \beta_2$, are estimable if they lie within the row space of the design matrix.
+Identifiability: Identifiable (should be). 
 
+Extra info: Identifiable with and without constraints. The parameters may not be identifiable without constraints due to *possible* overparameterization but are certainly identifiable when constraints, e.g. sum-to-zero constraints, are applied.
+
+Estimability: Overall, estimable. 
+
+Extra info: Individual cell means ($\mu_{ij}$) are estimable, as they correspond directly to observed responses. Contrasts, such as $\beta_1 - \beta_2$, are estimable if they lie within the row space of the design matrix.
 
 \newpage 
 
@@ -153,24 +153,15 @@ $$
 
 What extra assumption must be added to the linear model in part (a) for the model to be considered a Gauss-Markov linear model?
 
-We have additional assumptions regarding the error term, $\boldsymbol{\epsilon}$, specifically 
-1. Constant variance: $\mathrm{Var}(\epsilon_{ijk}) = \sigma^2$ for all (i, j, k)
-2. Errors uncorrelated: $\mathrm{Cov}(\epsilon_{ijk}, \epsilon_{lmn}) = 0$ for all $(i, j, k) \neq (l, m, n)$ 
+We have additional assumptions regarding the error term, $\boldsymbol{\epsilon}$, specifically Constant variance: $\mathrm{Var}(\epsilon_{ijk}) = \sigma^2$ for all (i, j, k). 
 
 ## (c) 
 
 For the Gauss-Markov model, list the conditions under which $Y^{T} (I-P_{X})Y$ has a quadratic form.
 
-$$
-\boldsymbol{Y} \sim N(X\beta, \sigma^2I) \text{ implying } \boldsymbol{\epsilon} \sim N(\boldsymbol{0}, \sigma^2 I) 
-$$
+$\boldsymbol{Y}$ is an n-dimensional random vector.
 
-I believe this means we need the following: 
-  - 1. Linearity of the Model
-  - 2. Full Rank of the Design Matrix 
-  - 3. Orthogonal Projection, i.e. orthogonal $(I - P_{X})$ (n x n matrix, with the properties we take as given such as symmetric and idempotent)
-  - 4. Constant Variance of Errors, from part (b) 
-  - 5. Uncorrelated Errors, from part (b) 
+$(I - P_{X})$ is a non-random n by n matrix with symmetry and idempotent. 
 
 ## (d) 
 
@@ -200,17 +191,7 @@ So our degrees of freedom for the associated $\chi^2$ distribution is 9 degrees 
 
 Show the function $\alpha_1 + \alpha_2$ is not estimable.
 
-Under the "sum-to-zero" constraint, we know: 
-
-$$
-\alpha_1 + \alpha_2 + \alpha_3 = 0 \rightarrow \alpha_1 + \alpha_2 = - \alpha_3
-$$
-
-Since $\alpha_1 + \alpha_2$ depends on $\alpha_3$, it cannot be expressed solely in terms of the observed data. This makes $\alpha_1 + \alpha_2$ unidentifiable from the data and as a result not estimable.
-
-The linear combination $\alpha_1 + \alpha_2$ cannot be written as a linear combination of the rows of $X$, as the columns corresponding to $\alpha_1, \alpha_2,$ and $\alpha_3$ are linearly dependent due to the sum-to-zero constraint (means we do not have full rank of the design matrix).
-
-### Alternative, no constraints imposed: 
+### No constraints imposed: 
 
 $$
 E(Y_{1,j,k}) = \mu + \alpha_1 + \tau_j + (\alpha \tau)_{1,j}
@@ -225,9 +206,39 @@ E(Y_{1,j,k}) + E(Y_{2,j,k}) = [\mu + \alpha_1 + \tau_j + (\alpha \tau)_{1,j}] + 
 $$
 There is no way to separate $\alpha_1 + \alpha_2$ without also including estimates of $\mu, (\alpha \tau)_{1,j}, (\alpha \tau)_{2,j}$
 
+### Alternative, with a constraint
+
+Under the "sum-to-zero" constraint, we know: 
+
+$$
+\alpha_1 + \alpha_2 + \alpha_3 = 0 \rightarrow \alpha_1 + \alpha_2 = - \alpha_3
+$$
+
+Since $\alpha_1 + \alpha_2$ depends on $\alpha_3$, it cannot be expressed solely in terms of the observed data. This makes $\alpha_1 + \alpha_2$ unidentifiable from the data and as a result not estimable.
+
+The linear combination $\alpha_1 + \alpha_2$ cannot be written as a linear combination of the rows of $X$, as the columns corresponding to $\alpha_1, \alpha_2,$ and $\alpha_3$ are linearly dependent due to the sum-to-zero constraint (means we do not have full rank of the design matrix).
+
 ## (f) 
 
 Show the function $\tau_2 - \tau_3$ is not estimable.
+
+### No constraints imposed: 
+
+$$
+E(Y_{i,2,k}) = \mu + \alpha_i + \tau_2 + (\alpha \tau)_{i,2}
+$$
+
+$$
+E(Y_{i,3,k}) = \mu + \alpha_i + \tau_3 + (\alpha \tau)_{i,3}
+$$
+
+$$
+E(Y_{i,2,k}) - E(Y_{i,3,k}) = [\mu + \alpha_i + \tau_2 + (\alpha \tau)_{i,2}] - [\mu + \alpha_i + \tau_3 + (\alpha \tau)_{i,3}] = \tau_2 + (\alpha \tau)_{i,2} - \tau_3 - (\alpha \tau)_{i,3}
+$$
+
+Similar to (e), there is no way to separate $\tau_2 - \tau_3$ without also including estimates of $(\alpha \tau)_{i,2}, (\alpha \tau)_{i,3}$
+
+### Alternative, constraints imposed: 
 
 Similar to part (e), the "sum-to-zero" constraint on the tau's means: 
 
@@ -239,33 +250,11 @@ Since $\tau_2 - \tau_3$ depends on $\tau_1$, it cannot be determined uniquely fr
 
 The columns of $X$ corresponding to $\tau_1$, $\tau_2$, and $\tau_3$ are linearly dependent because of the sum-to-zero constraint. This prevents the linear combination $\tau_2 - \tau_3$ from being expressed as a linear combination of the rows of $X$.
 
-### Alternative, no constraints imposed: 
-
-$$
-E(Y_{i,2,k}) = \mu + \alpha_i + \tau_2 + (\alpha \tau)_{i,2}
-$$
-
-$$
-E(Y_{i,3,k}) = \mu + \alpha_i + \tau_3 + (\alpha \tau)_{i,3}
-$$
-
-$$
-E(Y_{i,2,k}) - E(Y_{i,3,k}) = [\mu + \alpha_i + \tau_2 + (\alpha \tau)_{i,2}] - [\mu + \alpha_i + \tau_3 + (\alpha \tau)_{i,3}]
-$$
-
-Similar to (e), there is no way to separate $\tau_2 - \tau_3$ without also including estimates of $(\alpha \tau)_{i,2}, (\alpha \tau)_{i,3}$
-
 ## (g) 
 
 Show the function $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$ is estimable.
 
-$\tau_1 - \tau_2$ represents a contrast between air/fuel ratio levels. While contrasts of main effects are generally estimable, in a two-way design, this contrast may be confounded with interaction terms, making it not directly estimable without imposing constraints or by including additional parameters (such as the interaction terms).
-
-$(\alpha \tau)_{11} - (\alpha \tau)_{12}$ is a contrast within interaction terms for a fixed ethanol level ($\alpha_1$) and two different air/fuel ratios ($\tau_1$ and $\tau_2$). Contrasts of interaction terms are estimable under the sum-to-zero constraints on interactions.
-
-The inclusion of the interaction term contrast $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ resolves any confounding of $\tau_1 - \tau_2$, ensuring that the combined function $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$ lies entirely within the row space of the design matrix $\mathbf{X}$, meaning that we satisfy the full rank requirement of the design matrix X and as a result have identifiability and subsequently satisfy estimability.
-
-### Alternative, no constraints imposed: 
+### No constraints imposed: 
 
 $$
 E(Y_{1,1,k}) = \mu + \alpha_1 + \tau_1 + (\alpha \tau)_{1,1}
@@ -280,4 +269,12 @@ E(Y_{1,1,k}) - E(Y_{1,2,k}) = [\mu + \alpha_1 + \tau_1 + (\alpha \tau)_{1,1}] - 
 $$
 
 We we are able to estimate $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$, making it estimable. 
+
+### Alternative, constraints imposed: 
+
+$\tau_1 - \tau_2$ represents a contrast between air/fuel ratio levels. While contrasts of main effects are generally estimable, in a two-way design, this contrast may be confounded with interaction terms, making it not directly estimable without imposing constraints or by including additional parameters (such as the interaction terms).
+
+$(\alpha \tau)_{11} - (\alpha \tau)_{12}$ is a contrast within interaction terms for a fixed ethanol level ($\alpha_1$) and two different air/fuel ratios ($\tau_1$ and $\tau_2$). Contrasts of interaction terms are estimable under the sum-to-zero constraints on interactions.
+
+The inclusion of the interaction term contrast $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ resolves any confounding of $\tau_1 - \tau_2$, ensuring that the combined function $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$ lies entirely within the row space of the design matrix $\mathbf{X}$, meaning that we satisfy the full rank requirement of the design matrix X and as a result have identifiability and subsequently satisfy estimability.
 
