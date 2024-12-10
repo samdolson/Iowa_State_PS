@@ -8,6 +8,11 @@ date: "2024-12-08"
 library(knitr)
 ```
 
+# Outline
+
+  - Q1, part (e), "unique without constraints"?
+  - Q2, part (b), do we need "uncorrelated errors"? 
+
 # Q1 
 
 For the models below, determine whether the OLS estimator of the parameter vector is (i) unique, (ii) identifiable, (iii) estimable. (iv) Briefly justify your response.
@@ -173,9 +178,23 @@ For the Normal-theory Gauss-Markov model, explain why the value $\frac{Y^{T} (I-
 
 $Y^T (I - P_X) Y$ is a quadratic form of the normal vector $\epsilon$ (and the residuals are orthogonal to the column space of X).
 
-$I - P_X$ is symmetric, idempotent, and has rank 9, providing the 9 degrees of freedom for its associated distribution.
+$I - P_X$ is symmetric, idempotent, and has rank 9, providing the 9 degrees of freedom for its associated distribution. So we have: 
 
-Dividing by $\sigma^2$ standardizes the variance, yielding the $\chi^2$ distribution with 9 degrees of freedom.
+$$
+A = \frac{(I - P_{X})}{\sigma^2}
+$$
+
+Where dividing by $\sigma^2$ standardizes the variance.
+
+In our design matrix, we have n = 18 (number of observations). 
+
+To get the ending rank of A, we have: 
+
+$$
+rank(A) = 18 - rank(X) = 18 - 9 = 9
+$$
+
+So our degrees of freedom for the associated $\chi^2$ distribution is 9 degrees of freedom.
 
 ## (e) 
 
@@ -191,6 +210,21 @@ Since $\alpha_1 + \alpha_2$ depends on $\alpha_3$, it cannot be expressed solely
 
 The linear combination $\alpha_1 + \alpha_2$ cannot be written as a linear combination of the rows of $X$, as the columns corresponding to $\alpha_1, \alpha_2,$ and $\alpha_3$ are linearly dependent due to the sum-to-zero constraint (means we do not have full rank of the design matrix).
 
+### Alternative, no constraints imposed: 
+
+$$
+E(Y_{1,j,k}) = \mu + \alpha_1 + \tau_j + (\alpha \tau)_{1,j}
+$$
+
+$$
+E(Y_{2,j,k}) = \mu + \alpha_2 + \tau_j + (\alpha \tau)_{2,j}
+$$
+
+$$
+E(Y_{1,j,k}) + E(Y_{2,j,k}) = [\mu + \alpha_1 + \tau_j + (\alpha \tau)_{1,j}] + [\mu + \alpha_2 + \tau_j + (\alpha \tau)_{2,j}]
+$$
+There is no way to separate $\alpha_1 + \alpha_2$ without also including estimates of $\mu, (\alpha \tau)_{1,j}, (\alpha \tau)_{2,j}$
+
 ## (f) 
 
 Show the function $\tau_2 - \tau_3$ is not estimable.
@@ -205,6 +239,22 @@ Since $\tau_2 - \tau_3$ depends on $\tau_1$, it cannot be determined uniquely fr
 
 The columns of $X$ corresponding to $\tau_1$, $\tau_2$, and $\tau_3$ are linearly dependent because of the sum-to-zero constraint. This prevents the linear combination $\tau_2 - \tau_3$ from being expressed as a linear combination of the rows of $X$.
 
+### Alternative, no constraints imposed: 
+
+$$
+E(Y_{i,2,k}) = \mu + \alpha_i + \tau_2 + (\alpha \tau)_{i,2}
+$$
+
+$$
+E(Y_{i,3,k}) = \mu + \alpha_i + \tau_3 + (\alpha \tau)_{i,3}
+$$
+
+$$
+E(Y_{i,2,k}) - E(Y_{i,3,k}) = [\mu + \alpha_i + \tau_2 + (\alpha \tau)_{i,2}] - [\mu + \alpha_i + \tau_3 + (\alpha \tau)_{i,3}]
+$$
+
+Similar to (e), there is no way to separate $\tau_2 - \tau_3$ without also including estimates of $(\alpha \tau)_{i,2}, (\alpha \tau)_{i,3}$
+
 ## (g) 
 
 Show the function $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$ is estimable.
@@ -214,3 +264,20 @@ $\tau_1 - \tau_2$ represents a contrast between air/fuel ratio levels. While con
 $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ is a contrast within interaction terms for a fixed ethanol level ($\alpha_1$) and two different air/fuel ratios ($\tau_1$ and $\tau_2$). Contrasts of interaction terms are estimable under the sum-to-zero constraints on interactions.
 
 The inclusion of the interaction term contrast $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ resolves any confounding of $\tau_1 - \tau_2$, ensuring that the combined function $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$ lies entirely within the row space of the design matrix $\mathbf{X}$, meaning that we satisfy the full rank requirement of the design matrix X and as a result have identifiability and subsequently satisfy estimability.
+
+### Alternative, no constraints imposed: 
+
+$$
+E(Y_{1,1,k}) = \mu + \alpha_1 + \tau_1 + (\alpha \tau)_{1,1}
+$$
+
+$$
+E(Y_{1,2,k}) = \mu + \alpha_1 + \tau_2 + (\alpha \tau)_{1,2}
+$$
+
+$$
+E(Y_{1,1,k}) - E(Y_{1,2,k}) = [\mu + \alpha_1 + \tau_1 + (\alpha \tau)_{1,1}] - [\mu + \alpha_1 + \tau_2 + (\alpha \tau)_{1,2}] = (\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]
+$$
+
+We we are able to estimate $(\tau_1 - \tau_2) + [(\alpha \tau)_{11} - (\alpha \tau)_{12}]$, making it estimable. 
+
