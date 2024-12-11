@@ -17,8 +17,9 @@ library(knitr)
 
 # Outline 
 
-  - Q1 (e) Intrinsically? 
-  - 
+  - Q1 (d), (e) Intrinsically
+  - Q3 General Method
+  - Q4 Double Check 
 
 # Q1 
 
@@ -38,7 +39,7 @@ $$
 Y_i = \beta_0 \exp(\beta_1 X_{1i}) + \epsilon_i \text{ with }  E(\epsilon_i) = 0
 $$
 
-This is a Nonlinear Model because the parameter $\beta_1$ appears in the exponent, making the model nonlinearly dependent on $\beta_1$, and it cannot be transformed into a linear model.
+This is a Nonlinear Model because the parameter $\beta_1$ appears in the exponent, making the model nonlinearly dependent on $\beta_1$, and it cannot be transformed into a linear model. This is not intrinsically linear because the $\beta_0$ and $\epsilon_i$ terms are not within the exponent, such that we cannot easily transform it into a linear model via the log function (cannot separate the function into a combination of linear terms). 
 
 ## (c) 
 
@@ -46,7 +47,7 @@ $$
 Y_i = \left[1 + \exp(\beta_0 + \beta_1 X_{1i} + \epsilon_i)\right]^{-1} \text{ with }  E(\epsilon_i) = 0
 $$
 
-This is a Nonlinear Model because the parameters $\beta_0$ and $\beta_1$ appear inside a nonlinear transformation ($\exp$) and within a complex function $\left[1 + \exp(\cdot)\right]^{-1}$, making the model nonlinearly dependent on the parameters. It cannot be transformed into a linear model.
+This is an intrinsically linear model because the parameters $\beta_0$ and $\beta_1$ appear inside a nonlinear transformation ($\exp$) and within a complex function $\left[1 + \exp(\cdot)\right]^{-1}$, making the model nonlinearly dependent on the parameters. However, we can transform it into a linear model using the log function. 
 
 ## (d) 
 
@@ -54,14 +55,27 @@ $$
 Y_i = (\beta_0 + \beta_1 X_{1i})\epsilon_i \text{ with } E(\epsilon_i) = 1
 $$
 
-This is a Nonlinear Model because the error term $\epsilon_i$ is multiplied by the parameter-dependent expression $(\beta_0 + \beta_1 X_{1i})$, making the model nonlinearly dependent on the parameters. It cannot be transformed into a linear model.
+This is a an intrinsically linear model because the error term $\epsilon_i$ is multiplied by the parameter-dependent expression $(\beta_0 + \beta_1 X_{1i})$, making the model nonlinearly dependent on the parameters. However, because $E(\epsilon_i) = 1$, it then holds that: 
+
+$$
+E(Y_i) = E((\beta_0 + \beta_1 X_{1i})\epsilon_i) = E(\beta_0 + \beta_1 X_{1i}) = \beta_0 + E(\beta_1X_{1, i})
+$$
+
+Such that we can transform the given function into a linear model. 
 
 ## (e) 
 
 $$
 Y_i = \epsilon_i \exp(\beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i}) \text{ with }  E(\epsilon_i) = 1
 $$
-This is an Intrinsically Linear Model because the multiplicative structure can be transformed into a linear model by taking the natural logarithm of both sides, resulting in a model linear in the parameters $\beta_0$, $\beta_1$, and $\beta_2$.
+
+This is a an intrinsically linear model because the error term $\epsilon_i$ is multiplied by the parameter-dependent expression $exp(\beta_0 + \beta_1 X_{1i})$, making the model nonlinearly dependent on the parameters. However, because $E(\epsilon_i) = 1$, and because we have the monotonic function log for which to transform the function, it then holds that: 
+
+$$
+E(Y_i) = E(exp(\beta_0 + \beta_1 X_{1i})\epsilon_i) = E(exp(\beta_0 + \beta_1 X_{1i}))
+$$
+
+Using the log transformation we are able to transform our given function into a linear model. 
 
 \newpage 
 
@@ -206,7 +220,7 @@ Constant matrix:
 $$
 \mathbf{A}_i =
 \begin{bmatrix}
-\frac{1}{2} & \frac{1}{2} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4}
+1 & 0 & -\frac{1}{2} & 0 & 0 & 0 & -\frac{1}{2} & 0
 \end{bmatrix}
 $$
 
@@ -214,28 +228,46 @@ $$
 
 $c_i^T \boldsymbol{\beta} = 3\mu + \alpha_1 + 2\alpha_2$
 
-Not Estimable: The function $c_i^T \boldsymbol{\beta} = 3\mu + \alpha_1 + 2\alpha_2$ is not estimable because $\mu$ is confounded with the group means ($\alpha_1, \alpha_2, \alpha_3$) due to the rank deficiency of the design matrix.
+Estimable: The function $c_i^T \boldsymbol{\beta} = 3\mu + \alpha_1 + 2\alpha_2$ is estimable because despite $\mu$ is confounded with the group means ($\alpha_1, \alpha_2, \alpha_3$), we are estimating a linear combination that includes the grand mean.  
+
+Of note: 
+
+$$
+(\mu + \alpha_1) + 2(\mu + \alpha_2) = 3\mu + \alpha_1 + 2\alpha_2
+$$
+
+And 
+
+$$
+\mathbf{A}_i =
+\begin{bmatrix}
+1 & 0 & 2 & 0 & 0 & 0 & 0 & 0
+\end{bmatrix}
+$$
 
 ## (c) 
 
 $c_i^T \boldsymbol{\beta} = \alpha_2 + \alpha_3$
 
-Estimable: The function $c_i^T \boldsymbol{\beta} = \alpha_2 + \alpha_3$ can be expressed as a linear combination of the rows of the design matrix $\mathbf{X}$, specifically using weights $a_1 = 0, a_2 = 0, a_3 = 1, a_4 = 1$, which satisfy the row space condition.
+Not Estimable: The function $c_i^T \boldsymbol{\beta} = \alpha_2 + \alpha_3$ is not estimable because we do not have full rank of our design matrix, meaning that estimates of $\alpha_2 + \alpha_3$ are confounded by the inclusion of $\mu$, the grand mean. 
 
-Constant matrix:
+For example: 
 
 $$
-\mathbf{A}_i =
-\begin{bmatrix}
-0 & 0 & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{2} & \frac{1}{2}
-\end{bmatrix}
+(\mu + \alpha_2) + (\mu + \alpha_3) = 2\mu + \alpha_2 + \alpha_3 
+$$
+
+And
+
+$$
+(\mu + \alpha_2) - (\mu + \alpha_3) = \alpha_2 - \alpha_3
 $$
 
 ## (d) 
 
 $c_i^T \boldsymbol{\beta} = 3\mu - \alpha_1 - \alpha_2 - \alpha_3$
 
-Not Estimable: The function $c_i^T \boldsymbol{\beta} = 3\mu - \alpha_1 - \alpha_2 - \alpha_3$ simplifies to $3\mu$, which is not estimable because $\mu$ is confounded with the group means ($\alpha_1, \alpha_2, \alpha_3$) due to the rank deficiency of the design matrix.
+Not Estimable: The function $c_i^T \boldsymbol{\beta} = 3\mu - \alpha_1 - \alpha_2 - \alpha_3$ simplifies to $3\mu$, which is not estimable because $\mu$ is confounded with the group means ($\alpha_1, \alpha_2, \alpha_3$) due to the design matrix not having full rank. 
 
 \newpage
 
@@ -263,7 +295,11 @@ Not Estimable: The parameter $\mu$ is not estimable because it is confounded wit
 
 $\alpha_1 - \alpha_2$
 
-Estimable: The function $\alpha_1 - \alpha_2$ is estimable because it is a contrast of the main effects $\alpha_i$ (fat). Contrasts are not affected by the rank deficiency of the design matrix imposed by identifiability constraints (e.g., sum-to-zero).
+Not Estimable: The function $\alpha_1 - \alpha_2$ is not estimable because we cannot isolate the main effects without the inclusion of the associated interaction terms, i.e. 
+
+$$
+E(Y_{1, 1,.}) - E(Y_{2,1,.}) = E(\mu + \alpha_1 + \tau_1 + (\alpha\tau_{1,1})) - E(\mu + \alpha_2 + \tau_1 + (\alpha\tau_{2,1})) = \alpha_1 - \alpha_2 +  (\alpha\tau_{1,1}) - (\alpha\tau_{2,1})
+$$
 
 ## (c) 
 
@@ -275,10 +311,18 @@ Not Estimable: The interaction effect $(\alpha \tau)_{12}$ is not estimable beca
 
 $(\alpha \tau)_{11} - (\alpha \tau)_{12}$
 
-Estimable: The function $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ is estimable because it is a contrast of interaction effects. Contrasts of interaction effects are estimable as they are not affected by the rank deficiency imposed by the sum-to-zero constraints on the interaction terms.
+Not Estimable: The function $(\alpha \tau)_{11} - (\alpha \tau)_{12}$ is not estimable because we cannot isolate the interaction effects without the inclusion of the associated main terms, i.e. 
+
+$$
+E(Y_{1, 1,.}) - E(Y_{1,2,.}) = E(\mu + \alpha_1 + \tau_1 + (\alpha\tau_{1,1})) - E(\mu + \alpha_1 + \tau_2 + (\alpha\tau_{1,2})) = \tau_1 - \tau_2 +  (\alpha\tau_{1,1}) - (\alpha\tau_{1,2})
+$$
 
 ## (e) 
 
 $(\alpha \tau)_{11} - (\alpha \tau)_{12} - (\alpha \tau)_{21} + (\alpha \tau)_{22}$
 
 Estimable: The function $(\alpha \tau)_{11} - (\alpha \tau)_{12} - (\alpha \tau)_{21} + (\alpha \tau)_{22}$ is estimable because it is a contrast of interaction effects, which are not affected by the rank deficiency imposed by the sum-to-zero constraints on the interaction terms.
+
+$$
+E(Y_{1, 1,.}) - E(Y_{1,2,.}) - E(Y_{2, 1,.}) + E(Y_{2,2,.}) = (\alpha \tau)_{11} - (\alpha \tau)_{12} - (\alpha \tau)_{21} + (\alpha \tau)_{22}
+$$
