@@ -14,7 +14,7 @@ date: "2024-12-08"
 ```{r, eval = T, results = F, echo = F, warning = F, message = F}
 library(knitr)
 ```
-
+  
 # Q1 
 
 For each of the following models $Y_i$ are the responses, $\beta_i$ are parameters, $X_i$ are fixed values, and $\epsilon_i$ denotes random errors with variance $\sigma^2$. Indicate if it is a linear model, a nonlinear model, or an intrinsically linear model (a nonlinear model that can be transformed into a linear model).
@@ -49,7 +49,7 @@ $$
 Y_i = (\beta_0 + \beta_1 X_{1i})\epsilon_i \text{ with } E(\epsilon_i) = 1
 $$
 
-This is a an intrinsically linear model because the error term $\epsilon_i$ is multiplied by the parameter-dependent expression $(\beta_0 + \beta_1 X_{1i})$, making the model nonlinearly dependent on the parameters. However, because $E(\epsilon_i) = 1$, it then holds that: 
+Non-Linear, because we do not have a transformation to make it into an intrinsically linear model. Additionally, we are making our Beta estimates dependent upon the error term, making the overall model non-linear in nature. 
 
 $$
 E(Y_i) = E((\beta_0 + \beta_1 X_{1i})\epsilon_i) = E(\beta_0 + \beta_1 X_{1i}) = \beta_0 + E(\beta_1X_{1, i})
@@ -63,13 +63,13 @@ $$
 Y_i = \epsilon_i \exp(\beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i}) \text{ with }  E(\epsilon_i) = 1
 $$
 
-This is a an intrinsically linear model because the error term $\epsilon_i$ is multiplied by the parameter-dependent expression $exp(\beta_0 + \beta_1 X_{1i})$, making the model nonlinearly dependent on the parameters. However, because $E(\epsilon_i) = 1$, and because we have the monotonic function log for which to transform the function, it then holds that: 
+This is a an intrinsically linear model because the error term $\epsilon_i$ is multiplied by the parameter-dependent expression $exp(\beta_0 + \beta_1 X_{1i})$, making the model nonlinearly dependent on the parameters. However, we have a transformation available (log transformation) that will transform the model to be linear again. For example: 
 
 $$
-E(Y_i) = E(exp(\beta_0 + \beta_1 X_{1i})\epsilon_i) = E(exp(\beta_0 + \beta_1 X_{1i}))
+log(Y_i) = log(exp(\beta_0 + \beta_1 X_{1i})\epsilon_i) = log(\epsilon_i) log(exp(\beta_0 + \beta_1 X_{1i})) = log(\epsilon_i) (\beta_0 + \beta_1 X_{1i}) = (\beta_0 + \beta_1 X_{1i}) + log(\epsilon_i)
 $$
 
-Using the log transformation we are able to transform our given function into a linear model. 
+Via properties of the product of logs, with $E(\epsilon_i) = 1 \rightarrow E(log(\epsilon_i)) = log(1) = 0$, such that we do in fact have a linear model assumption satisfied (mean zero error). 
 
 \newpage 
 
