@@ -5,6 +5,17 @@ date: "Due: Wednesday, January 29th 11:59PM in Gradescope"
 output: pdf_document
 ---
 
+# Outline
+  
+  - Q1: DONE
+  - Q2: DONE 
+  - Q3: DONE
+  - Q4: DONE, Lingering Q's on f), g) regarding commutivity 
+  - Q5: WIP, just part e) 
+  - Q6: DONE
+  - Q7: DONE, Lingering Q's on the role of the zero vector in the proof 
+  - Q8: DONE
+
 # Instructions
 
 - Please note that a template for the assignment will be provided, but its use is not required.
@@ -20,7 +31,7 @@ The main purpose of this assignment is to familiarize yourself with the Prelimin
 
 Search the online catalog of Parks Library for a Linear Algebra book specifically for Statistics. I found at least one that is available online through your ISU account. Feel free to search elsewhere. I am not asking you to purchase any books, but I want you to have access to at least one as a resource.
 
-Understood! I have Harville and Zimmerman textbooks. 
+Understood! 
 
 \newpage
 
@@ -38,53 +49,39 @@ Let $\mathbf{A}$ be an $m \times m$ idempotent matrix. Show that:
 
 a) $\underset{m \times m}{\mathbf{I}} - \mathbf{A}$ is idempotent.
 
-An $m \times m$ matrix $\mathbf{A}$ is idempotent if:
-
-$$\mathbf{A}^2 = \mathbf{A}$$
-
-We aim to show that $\mathbf{I} - \mathbf{A}$ is also idempotent.
+Definition of idempotent: $$\mathbf{A}\mathbf{A} = \mathbf{A}$$
 
 Let $\mathbf{B} = \mathbf{I} - \mathbf{A}$. Then:
 
-$$\mathbf{B}^2 = (\mathbf{I} - \mathbf{A})^2.$$
+$$\mathbf{B}\mathbf{B} = (\mathbf{I} - \mathbf{A})^2 = \mathbf{B}^2 = \mathbf{I}^2 - 2\mathbf{I}\mathbf{A} + \mathbf{A}$$
 
-Expanding the square:
+Note the identity matrix, $\mathbf{I}$, is also idempotent, such that we may simplify, noting our initial assumption of $\mathbf{A}$ is idempotent: 
 
-$$\mathbf{B}^2 = (\mathbf{I} - \mathbf{A})(\mathbf{I} - \mathbf{A}) = \mathbf{I} - \mathbf{A} - \mathbf{A} + \mathbf{A}^2.$$
+$$(\mathbf{I} - \mathbf{A})(\mathbf{I} - \mathbf{A}) = \mathbf{B}\mathbf{B} = \mathbf{I} - 2\mathbf{A} + \mathbf{A} = \mathbf{I} - \mathbf{A}$$
 
-Using the fact that $\mathbf{A}$ is idempotent ($\mathbf{A}^2 = \mathbf{A}$), we substitute $\mathbf{A}^2$ with $\mathbf{A}$:
-
-$$\mathbf{B}^2 = \mathbf{I} - \mathbf{A} - \mathbf{A} + \mathbf{A} = \mathbf{I} - \mathbf{A}.$$
-
-Thus:
-
-$$\mathbf{B}^2 = \mathbf{B}$$
-
-Therefore, $\mathbf{I} - \mathbf{A}$ is idempotent.
+And we conclude that $\mathbf{I} - \mathbf{A}$ is idempotent.
 
 b) $\mathbf{B A B}^{-1}$ is idempotent, where $\mathbf{B}$ is any $m \times m$ nonsingular matrix.
 
-To prove idempotence of $\mathbf{B A B}^{-1}$, we need to show:
+Our goal is to to show:
 
-$$(\mathbf{B A B}^{-1})^2 = \mathbf{B A B}^{-1}$$
+$$(\mathbf{B A B}^{-1})(\mathbf{B A B}^{-1}) = \mathbf{B A B}^{-1}$$
 
-Start with $\mathbf{B A B}^{-1}$:
+Let us start by assuming that the matrices $\mathbf{A}$ and $\mathbf{B}$ are compatible matrices. 
 
-$$(\mathbf{B A B}^{-1})^2 = (\mathbf{B A B}^{-1})(\mathbf{B A B}^{-1}).$$
+Noting associativity of matrix multiplication, we have:
 
-Using associativity of matrix multiplication:
+$$(\mathbf{B A B}^{-1})(\mathbf{B A B}^{-1}) = \mathbf{B A (\mathbf{B}^{-1} \mathbf{B}) A B}^{-1}$$
 
-$$(\mathbf{B A B}^{-1})^2 = \mathbf{B A (\mathbf{B}^{-1} \mathbf{B}) A B}^{-1}$$
+By the definition of an inverse matrix, and given our assumption that $\mathbf{B}$ is a nonsingular matrix, $\mathbf{B}^{-1} \mathbf{B} = \mathbf{I}$:
 
-Since $\mathbf{B}^{-1} \mathbf{B} = \mathbf{I}$:
+$$(\mathbf{B A B}^{-1})(\mathbf{B A B}^{-1}) = \mathbf{B A (\mathbf{I}) A B}^{-1} = \mathbf{B A A B}^{-1}$$
 
-$$(\mathbf{B A B}^{-1})^2 = \mathbf{B A A B}^{-1}$$
+Then with note of $\mathbf{A}$ being idempotent, we have: 
 
-Using the idempotence of $\mathbf{A}$ ($\mathbf{A}^2 = \mathbf{A}$):
+$$(\mathbf{B A B}^{-1})(\mathbf{B A B}^{-1}) = \mathbf{B A B}^{-1}$$
 
-$$(\mathbf{B A B}^{-1})^2 = \mathbf{B A B}^{-1}.$$
-
-Thus, $\mathbf{B A B}^{-1}$ is idempotent.
+And we conclude that $\mathbf{B A B}^{-1}$ is idempotent.
 
 \newpage
 
@@ -95,63 +92,143 @@ A matrix $\mathbf{A}$ is symmetric if $\mathbf{A} = \mathbf{A}^\top$. Determine 
 a) If $\mathbf{A}$ and $\mathbf{B}$ are symmetric, then their product $\mathbf{AB}$ is symmetric.
 
 Let  
-$$\mathbf{A} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}, \quad \mathbf{B} = \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix}.$$
 
-Both $\mathbf{A}$ and $\mathbf{B}$ are symmetric. However,  
+$$\mathbf{A} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}, \text{ and } \mathbf{B} = \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix}.$$
 
-$$\mathbf{AB} = \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix}, \quad (\mathbf{AB})^\top = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}.$$
+Note, both $\mathbf{A}$ and $\mathbf{B}$ are symmetric.
 
-Since $(\mathbf{AB})^\top \neq \mathbf{AB}$, the product $\mathbf{AB}$ is not symmetric, so False.
+But, 
+
+$$\mathbf{AB} = \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix}, \text{ and } (\mathbf{AB})^\top = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}$$
+
+Such that, as defined, $\mathbf{AB} \neq (\mathbf{AB})^\top$
+
+As we have identified a counterexample, the statement given is false. 
 
 b) If $\mathbf{A}$ is not symmetric, then $\mathbf{A}^{-1}$ is not symmetric.
 
+Given the definition of an inverse, we have: 
 
-Let:
+$$
+\mathbf{A} \mathbf{A}^{-1} = \mathbf{I}
+$$
 
-$$\mathbf{A} = \begin{bmatrix} 0 & 1 \\ -1 & 0 \end{bmatrix}.$$
+From the property of transposes, we then may write:
 
-The transpose of $\mathbf{A}$ is:  
-$$\mathbf{A}^\top = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix},$$  
-which is not equal to $\mathbf{A}$.  
-Therefore, $\mathbf{A}$ is not symmetric.
+$$
+(\mathbf{A} \mathbf{A}^{-1})^\top = \mathbf{I}^\top
+$$
 
-The inverse of $\mathbf{A}$ is:  
-$$\mathbf{A}^{-1} = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}.$$
+Assuming conformal for post-multiplication, we may write this: 
 
-The transpose of $\mathbf{A}^{-1}$ is:  
-$$(\mathbf{A}^{-1})^\top = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix},$$  
-which is equal to $\mathbf{A}^{-1}$.  
-Therefore, $\mathbf{A}^{-1}$ is symmetric.
+$$
+(\mathbf{A}^{-1})^\top (\mathbf{A}^\top) = \mathbf{I}
+$$
 
-So overall, the statement is FALSE, as shown by the counterexample provided. 
+This implies that:
+
+$$
+(\mathbf{A}^\top)^{-1} = (\mathbf{A}^{-1})^\top
+$$
+
+Which we will then turn to investigate. To that end, 
+
+Let us consider: If $\mathbf{A}^{-1}$ were symmetric, then clearly:
+
+$$
+\mathbf{A}^{-1} = (\mathbf{A}^{-1})^\top
+$$
+
+However, if we assume that $\mathbf{A}$ is **not** symmetric, which means $\mathbf{A} \neq \mathbf{A}^\top$, then it would still follow from the above relation that: 
+
+$$
+(\mathbf{A}^\top)^{-1} = \mathbf{A}^{-1}
+$$
+
+If we then apply the inverse (or take the inverse of both sides) of the above relation, with note that $(\mathbf{A}^{-1})^{-1} = A$, we would then have: 
+
+$$\mathbf{A} = \mathbf{A}^\top$$
+
+However, this would be a contradiction! This means that if $\mathbf{A}$ is not symmetric, then $\mathbf{A}^{-1}$ cannot be symmetric. This means that the statement is true. 
 
 c) When $\mathbf{A, B, C}$ are symmetric, the transpose of $\mathbf{ABC}$ is $\mathbf{CBA}$.
 
 Using the transpose property:
 
-$$(\mathbf{ABC})^\top = \mathbf{C}^\top \mathbf{B}^\top \mathbf{A}^\top.$$
+$$(\mathbf{ABC})^\top = \mathbf{C}^\top \mathbf{B}^\top \mathbf{A}^\top$$
+
+Let $\mathbf{D} = \mathbf{AB}$, such that we may write the above as: 
+
+$$(\mathbf{ABC})^\top = (\mathbf{DC})^\top$$
+
+Then via our typical matrix arithmetic of transposes, we have: 
+
+$$(\mathbf{DC})^\top = \mathbf{C}^{\top} \mathbf{D}^{\top}$$
+
+Simplifying further we have: 
 
 Since $\mathbf{A}, \mathbf{B}, \mathbf{C}$ are symmetric, this simplifies to:
 
-$$(\mathbf{ABC})^\top = \mathbf{CBA}$$, so True.
+$$(\mathbf{ABC})^\top = \mathbf{C}^{\top} (\mathbf{AB})^{\top} = \mathbf{C}^{\top} \mathbf{B}^{\top} \mathbf{A}^{\top}$$
 
+However, as the matrices are all respectively symmetric, we then have: 
+
+$$(\mathbf{ABC})^\top = \mathbf{C}^{\top} \mathbf{B}^{\top} \mathbf{A}^{\top} = \mathbf{C}^{} \mathbf{B}^{} \mathbf{A}^{}$$
+
+And the original statement is indeed true. 
+
+## Section Break 
 If $\mathbf{A} = \mathbf{A}^\top$ and $\mathbf{B} = \mathbf{B}^\top$, which of these matrices are certainly symmetric?
+
+Again, for each of the following we will assume necessarily that all matrices involved are compatible for the purposes of matrix multiplication. 
 
 d) $\mathbf{A}^2 - \mathbf{B}^2$:  
 
-$(\mathbf{A}^2 - \mathbf{B}^2)^\top = \mathbf{A}^2 - \mathbf{B}^2$, so it is symmetric.  
+Note the properties of summing/subtracting two matrices, and the property that $\mathbf{A}$ and $\mathbf{B}$ being symmetric implies their square (multiplied by itself) is also symmetric: 
+
+$$(\mathbf{A}^2 - \mathbf{B}^2)^\top = (\mathbf{A}^2)^{\top} - (\mathbf{B}^2)^\top = \mathbf{A}^2 - \mathbf{B}^2$$
+
+So we conclude that this matrix is certainly symmetric.  
 
 e) $\mathbf{ABA}$:  
 
-$(\mathbf{ABA})^\top = \mathbf{A}^\top \mathbf{B}^\top \mathbf{A}^\top = \mathbf{ABA}$, so it is symmetric.    
+With note of the results of the above problem, part c), we may simplify this as: 
+
+$$(\mathbf{ABA})^\top = \mathbf{A}^\top \mathbf{B}^\top \mathbf{A}^\top = \mathbf{ABA}$$
+
+And with note of the symmetry of matrices $\mathbf{A}$ and $\mathbf{B}$, 
+
+we conclude that this matrix is certainly symmetric.  
 
 f) $\mathbf{ABAB}$:  
 
-$(\mathbf{ABAB})^\top = \mathbf{B}^\top \mathbf{A}^\top \mathbf{B}^\top \mathbf{A}^\top = \mathbf{ABAB}$, so it is symmetric.    
+Again with note of the results of the above problem, part c), we may extend these results and write: 
+
+$$(\mathbf{ABAB})^\top = \mathbf{B}^\top \mathbf{A}^\top \mathbf{B}^\top \mathbf{A}^\top = \mathbf{BABA}$$
+
+However, to say that 
+
+$$(\mathbf{ABAB})^\top = \mathbf{BABA} = \mathbf{ABAB}$$ and conclude this matrix is certainly symmetric, we would require that the matrices $\mathbf{A}$ and $\mathbf{B}$ are commutative, which we do not have a guarantee of. So we cannot conclude this matrix is certainly symmetric. 
 
 g) $(\mathbf{A} + \mathbf{B})(\mathbf{A} - \mathbf{B})$:  
 
-Expanding: $(\mathbf{A} + \mathbf{B})(\mathbf{A} - \mathbf{B}) = \mathbf{A}^2 - \mathbf{B}^2$, so it is symmetric.  
+$$(\mathbf{A} + \mathbf{B})(\mathbf{A} - \mathbf{B}) = \mathbf{A}^2 + \mathbf{BA} - \mathbf{AB} + \mathbf{B}^2$$ 
+
+And: 
+
+$$\left((\mathbf{A} + \mathbf{B})(\mathbf{A} - \mathbf{B})\right)^{\top} = \left( \mathbf{A}^2 + \mathbf{BA} - \mathbf{AB} + \mathbf{B}^2 \right) ^{\top} = (\mathbf{A}^2)^{\top} + (\mathbf{BA})^{\top} - (\mathbf{AB})^{\top} + (\mathbf{B}^2) ^{\top}$$ 
+
+However, to say that: 
+
+$$\mathbf{A}^2 + \mathbf{BA} - \mathbf{AB} + \mathbf{B}^2 = (\mathbf{A}^2)^{\top} + (\mathbf{BA})^{\top} - (\mathbf{AB})^{\top} + (\mathbf{B}^2) ^{\top}$$
+
+Which is to say: 
+
+$$(\mathbf{A} + \mathbf{B})(\mathbf{A} - \mathbf{B}) = \left((\mathbf{A} + \mathbf{B})(\mathbf{A} - \mathbf{B})\right)^{\top}$$
+
+and conclude this matrix is certainly symmetric, we would require that the matrices $\mathbf{A}$ and $\mathbf{B}$ are commutative, such that $\mathbf{AB} = \mathbf{BA} \rightarrow (\mathbf{AB})^{\top} = (\mathbf{BA})^{\top}$
+
+However, we do not have a guarantee or presumption of commutivity, so we cannot conclude this matrix is certainly symmetric. 
 
 \newpage
 
@@ -169,44 +246,49 @@ $$
 
 a) Show that the columns of $\mathbf{X}$ are linearly dependent.
 
-To prove linear dependence, we find a non-zero vector $\mathbf{a} \in \mathbb{R}^4$ such that:
+To prove linear dependence, we must find some $\mathbf{a} \in \mathbb{R}^4$ that satisfies the following relation:
 
 $$
-\mathbf{X} \mathbf{a} = \sum_{i=1}^4 a_i \mathbf{x}_i = 0,
+\mathbf{X} \mathbf{a} = \sum_{i=1}^4 a_i \mathbf{x}_i = 0
 $$
 
-where $a_i$ is the $i$-th element of $\mathbf{a}$. For example:
+where $a_i$ is the $i$-th element of $\mathbf{a}$. 
 
-$$
-\mathbf{a} = \begin{bmatrix} 3 \\ 1 \\ 1 \\ 0 \end{bmatrix},
-$$
-
-since:
-
-$$
-3 \mathbf{x}_1 + 1 \mathbf{x}_2 + 1 \mathbf{x}_3 + 0 \mathbf{x}_4 = 0.
-$$
-
-To find such a solution, solve the system:
+We have the following system of equations: 
 
 $$
 \begin{cases}
-a_1 \cdot 1 + a_2 \cdot (-3) + a_3 \cdot 0 + a_4 \cdot (-3) = 0, \\
-a_1 \cdot 1 + a_2 \cdot (-2) + a_3 \cdot (-1) + a_4 \cdot 2 = 0, \\
-a_1 \cdot 2 + a_2 \cdot (-5) + a_3 \cdot (-1) + a_4 \cdot (-1) = 0.
+a_1 1 + a_2 (-3) + a_3 (0) + a_4 (-3) = 0, \\
+a_1 1 + a_2 (-2) + a_3 (-1) + a_4 2 = 0, \\
+a_1 2 + a_2 (-5) + a_3 (-1) + a_4 (-1) = 0
 \end{cases}
 $$
 
 Solving this system yields:
+
 $$
-a_1 = -12t + 3s, \quad a_2 = -5t + s, \quad a_3 = s, \quad a_4 = t,
+a_1 = -12t + 3s, \text{ } a_2 = -5t + s, \text{ } a_3 = s, \text{ and } a_4 = t
 $$
 
-where $s, t \in \mathbb{R}$. By choosing $s = 1, t = 0$, we recover $\mathbf{a} = \begin{bmatrix} 3 \\ 1 \\ 1 \\ 0 \end{bmatrix}$.
+where $s, t \in \mathbb{R}$ (some real-valued scalars). 
+
+Then, for the above, if we set $s = 0, t = 1$, 
+
+the associated solution for $\mathbf{a}$ is: 
+
+$$
+\mathbf{a} = \begin{bmatrix} -12 \\ -5 \\ 0 \\ 1 \end{bmatrix}
+$$
+
+Which we may write as: 
+
+$$
+-12 \mathbf{x}_1 -5 \mathbf{x}_2 + 0 \mathbf{x}_3 + 1 \mathbf{x}_4 = \mathbf{0}
+$$
 
 b) Find the rank of $\mathbf{X}$.
 
-The row reduction of $\mathbf{X}$ is as follows:
+Via row reduction of $\mathbf{X}$, it follows:
 
 $$
 \mathbf{X} =
@@ -215,81 +297,93 @@ $$
 1 & -2 & -1 & 2 \\
 2 & -5 & -1 & -1
 \end{bmatrix}
-\to
+\rightarrow
 \begin{bmatrix}
 1 & -3 & 0 & -3 \\
 0 & 1 & -1 & 5 \\
 0 & 1 & -1 & 5
 \end{bmatrix}
-\to
+\rightarrow
 \begin{bmatrix}
 1 & 0 & -3 & 12 \\
 0 & 1 & -1 & 5 \\
 0 & 0 & 0 & 0
-\end{bmatrix}.
+\end{bmatrix}
 $$
 
-Since the row echelon form has two non-zero rows, the rank of $\mathbf{X}$ is 2. Additionally, the third row is the sum of the first two rows, meaning the rank can be at most 2. The first two rows are linearly independent, confirming that the rank is 2.
+Since rank is the maximum number of linearly independent rows or columns of the matrix $\mathbf{X}$, is follows that the rank of $\mathbf{X}$ is 2. 
 
 c) Use the generalized inverse algorithm in Slide Set 1 to find a generalized inverse of $\mathbf{X}$.
 
-1. Let $W$ be an $r \times r$ nonsingular submatrix of $\mathbf{X}$, where $r = \text{rank}(\mathbf{X}) = 2$. For example:
+(1): Find any $n \times n$ nonsingular submatrix of $\mathbf{X}$, where $n = \text{rank}(\mathbf{X}) = 2$ and call if $\mathbf{W}$. 
 
 $$
 W =
 \begin{bmatrix}
-x_{11} & x_{13} \\
-x_{21} & x_{23}
+x_{11} & x_{12} \\
+x_{21} & x_{22}
 \end{bmatrix}
 =
 \begin{bmatrix}
-1 & 0 \\
-1 & -1
-\end{bmatrix}.
+1 & -3 \\
+1 & -2
+\end{bmatrix}
 $$
 
-2. Compute $(W^{-1})^\top$:
+To verify $\mathbf{W}$ is nonsingular, I calculated: 
+
+$det(\mathbf{W}) = 1$, which is nonsingular (not zero). 
+
+(2): Invert and transpose $\mathbf{W}$, i.e. compute $(W^{-1})^\top$:
+
+$$
+W^{-1} =
+\begin{bmatrix}
+-2 & 3 \\
+-1 & 1
+\end{bmatrix}
+$$
 
 $$
 (W^{-1})^\top =
 \begin{bmatrix}
-1 & 1 \\
-0 & -1
-\end{bmatrix}.
+-2 & -1 \\
+3 & 1
+\end{bmatrix}
 $$
 
-3. Replace the elements of $W$ in $\mathbf{X}$ with the corresponding elements of $(W^{-1})^\top$. Then:
+(3): Replace the elements of $W$ in $\mathbf{X}$ with the corresponding elements of $(W^{-1})^\top$. Then:
 
 $$
 \mathbf{X} =
 \begin{bmatrix}
-1 & -3 & 1 & -3 \\
-0 & -2 & -1 & 2 \\
+-2 & -1 & 0 & -3 \\
+3 & 1 & -1 & 2 \\
 2 & -5 & -1 & -1
-\end{bmatrix}.
+\end{bmatrix}
 $$
 
-4. Replace all other elements in $\mathbf{X}$ with zeros. The resulting matrix is:
+(4): Replace all other elements in $\mathbf{X}$ with zeros:
 
 $$
 \mathbf{X} =
 \begin{bmatrix}
-1 & 0 & 1 & 0 \\
-0 & 0 & -1 & 0 \\
+-2 & -1 & 0 & 0 \\
+3 & 1 & 0 & 0 \\
 0 & 0 & 0 & 0
-\end{bmatrix}.
+\end{bmatrix}
 $$
 
-5. Transpose the matrix to obtain $\mathbf{G}$, a generalized inverse of $\mathbf{X}$:
+(5): Transpose the matrix to obtain $\mathbf{G}$, a generalized inverse of $\mathbf{X}$:
 
 $$
 \mathbf{G} =
 \begin{bmatrix}
-1 & 0 & 0 \\
+-2 & 3 & 0 \\
+-1 & 1 & 0 \\
 0 & 0 & 0 \\
-1 & -1 & 0 \\
 0 & 0 & 0
-\end{bmatrix}.
+\end{bmatrix}
 $$
 
 d) Use the R function `ginv` in the `MASS` package to find a generalized inverse of $\mathbf{X}$. 
@@ -299,7 +393,10 @@ d) Use the R function `ginv` in the `MASS` package to find a generalized inverse
 
 ```{r}
 library(MASS)
-X <- matrix(c(1,1,2,-3,-2,-5,0,-1,-1,-3,2,-1), ncol = 4)
+X <- matrix(c(1,1,2,
+              -3,-2,-5,
+              0,-1,-1,
+              -3,2,-1), ncol = 4)
 massX <- MASS::ginv(X)
 massX
 ```
@@ -308,10 +405,12 @@ e) Provide one matrix $\mathbf{X}^*$ that satisfies both of the following charac
    - $\mathbf{X}^*$ has full-column rank.
    - $\mathbf{X}^*$ has column space equal to the column space of $\mathbf{X}$.
 
-The rank of $\mathbf{X}$ is 2 (from part (b)). Since $\mathbf{x}_1$ and $\mathbf{x}_3$ are linearly independent, and $\mathbf{x}_2$ and $\mathbf{x}_4$ can be generated by linear combinations of $\mathbf{x}_1$ and $\mathbf{x}_3$ (i.e., $\mathbf{x}_2 = 3 \cdot \mathbf{x}_1 + \mathbf{x}_3$ and $\mathbf{x}_4 = -3 \cdot \mathbf{x}_1 - 5 \cdot \mathbf{x}_3$), we have:
+The rank of $\mathbf{X}$ is 2 (from part (b)). 
+
+Since $\mathbf{x}_1$ and $\mathbf{x}_3$ are linearly independent, and $\mathbf{x}_2$ and $\mathbf{x}_4$ can be generated by linear combinations of $\mathbf{x}_1$ and $\mathbf{x}_3$ (i.e., $\mathbf{x}_2 = 3 \cdot \mathbf{x}_1 + \mathbf{x}_3$ and $\mathbf{x}_4 = -3 \cdot \mathbf{x}_1 - 5 \cdot \mathbf{x}_3$), we have:
 
 $$
-C([\mathbf{x}_1, \mathbf{x}_3]) = C([\mathbf{x}_1, \mathbf{x}_2, \mathbf{x}_3, \mathbf{x}_4]).
+C([\mathbf{x}_1, \mathbf{x}_3]) = C([\mathbf{x}_1, \mathbf{x}_2, \mathbf{x}_3, \mathbf{x}_4])
 $$
 
 Thus, we can construct:
@@ -322,7 +421,7 @@ $$
 1 & 0 \\
 1 & -1 \\
 2 & -1
-\end{bmatrix}.
+\end{bmatrix}
 $$
 
 Note that we can pick any two linearly independent columns of $\mathbf{X}$ to form $\mathbf{X}^*$. It is not necessary for $\mathbf{X}^*$ to include columns of $\mathbf{X}$. For example, $\mathbf{X}^*$ could also be:
@@ -333,13 +432,13 @@ $$
 1 & 0 \\
 0 & 1 \\
 1 & 1
-\end{bmatrix}.
+\end{bmatrix}
 $$
 
 Any column of $\mathbf{X}^*$ can be written as a linear combination of the columns of $\mathbf{X}$, and any column of $\mathbf{X}$ can be written as a linear combination of the columns of $\mathbf{X}^*$. Thus:
 
 $$
-C(\mathbf{X}) = C(\mathbf{X}^*).
+C(\mathbf{X}) = C(\mathbf{X}^*)
 $$
 
 \newpage
@@ -350,49 +449,49 @@ Prove the following result:
 
 Suppose the set of $m \times 1$ vectors $\mathbf{x}_1, \ldots,\mathbf{x}_n$ is a basis for the vector space $\mathcal{S}$. Then any vector $\mathbf{x} \in \mathcal{S}$ has a unique representation as a linear combination of the vectors $\mathbf{x}_1, \ldots,\mathbf{x}_n$.
 
-Since $\mathbf{x}_1, \ldots, \mathbf{x}_n$ is a basis for $\mathcal{S}$, the following two properties hold:
-1. The vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ are linearly independent.
-2. The span of $\mathbf{x}_1, \ldots, \mathbf{x}_n$ equals $\mathcal{S}$, i.e.,
+Since $\mathbf{x}_1, \ldots, \mathbf{x}_n$ is a basis for $\mathcal{S}$, we know:
+
+(1): The vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ are linearly independent.
+
+(2): The span of $\mathbf{x}_1, \ldots, \mathbf{x}_n$ equals $\mathcal{S}$, written: 
 
 $$
-\mathcal{S} = \text{span}\{\mathbf{x}_1, \ldots, \mathbf{x}_n\}.
+\mathcal{S} = \text{span}\{\mathbf{x}_1, \ldots, \mathbf{x}_n\}
 $$
 
-Let $\mathbf{x} \in \mathcal{S}$. By definition of span, $\mathbf{x}$ can be written as a linear combination of $\mathbf{x}_1, \ldots, \mathbf{x}_n$:
+Bearing the above in mind, let $\mathbf{x} \in \mathcal{S}$. 
+
+By definition, $\mathbf{x}$ can be written as a linear combination of $\mathbf{x}_1, \ldots, \mathbf{x}_n$ (the vector space generated by $\mathbf{x}_1, \ldots, \mathbf{x}_n$):
 
 $$
-\mathbf{x} = c_1 \mathbf{x}_1 + c_2 \mathbf{x}_2 + \cdots + c_n \mathbf{x}_n,
+\mathbf{x} = \sum_{i=1}^{n} c_i\mathbf{x}_i
 $$
 
-where $c_1, c_2, \ldots, c_n \in \mathbb{R}$ are scalars.
+For some $c_1, ..., c_n \in \mathbb{R}$. 
 
-To prove uniqueness, suppose there exists another representation of $\mathbf{x}$:
-
-$$
-\mathbf{x} = d_1 \mathbf{x}_1 + d_2 \mathbf{x}_2 + \cdots + d_n \mathbf{x}_n,
-$$
-
-where $d_1, d_2, \ldots, d_n \in \mathbb{R}$ are scalars. Subtracting the two representations gives:
+Suppose there exists another representation of $\mathbf{x}$:
 
 $$
-(c_1 - d_1) \mathbf{x}_1 + (c_2 - d_2) \mathbf{x}_2 + \cdots + (c_n - d_n) \mathbf{x}_n = \mathbf{0}.
+\mathbf{x} = \sum_{i=1}^{n} d_i\mathbf{x}_i
 $$
 
-Since $\mathbf{x}_1, \ldots, \mathbf{x}_n$ are linearly independent, the only solution to this equation is:
+For some $d_1, ..., d_n \in \mathbb{R}$. 
+
+Then by subtracting the two, we have: 
 
 $$
-c_1 - d_1 = 0, \quad c_2 - d_2 = 0, \quad \ldots, \quad c_n - d_n = 0.
+\sum_{i=1}^{n} (c_i\mathbf{x}_i) - (d_i\mathbf{x}_i) = \sum_{i=1}^{n} (c_i- d_i)\mathbf{x}_i = \mathbf{x} - \mathbf{x} = \mathbf{0}
 $$
 
-Thus:
+However, as $\mathbf{x}_1, \ldots, \mathbf{x}_n$ are linearly independent of one another, the only solution to this equation is:
 
 $$
-c_1 = d_1, \quad c_2 = d_2, \quad \ldots, \quad c_n = d_n.
+(c_i- d_i) = 0 \text{, } \forall i
 $$
+
+Which is to say, $\forall i$, $c_i- d_i$, implying uniqueness. 
 
 Therefore, the representation of $\mathbf{x}$ as a linear combination of $\mathbf{x}_1, \ldots, \mathbf{x}_n$ is unique.
-
-Any vector $\mathbf{x} \in \mathcal{S}$ has a unique representation as a linear combination of the basis vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$.
 
 \newpage
 
@@ -402,68 +501,73 @@ Am I a vector space? (The basic question here is whether every linear combinatio
 
 a) All vectors in $\mathbb{R}^n$ whose entries sum to 0.
 
-Let $\mathbf{v} \in \mathbb{R}^n$ satisfy $\sum_{i=1}^n v_i = 0$, and let $\mathbf{w} \in \mathbb{R}^n$ satisfy $\sum_{i=1}^n w_i = 0$. Consider a linear combination:
+Let $\mathbf{v} \in \mathbb{R}^n$ satisfy $\sum_{i=1}^n v_i = 0$, and let $\mathbf{w} \in \mathbb{R}^n$ satisfy $\sum_{i=1}^n w_i = 0$. 
+
+We then consider a linear combination:
 
 $$
-\mathbf{u} = a \mathbf{v} + b \mathbf{w},
+\mathbf{u} = a \mathbf{v} + b \mathbf{w}
 $$
 
-where $a, b \in \mathbb{R}$. Then:
+where $a, b \in \mathbb{R}$ (some real-valued scalars). 
+
+It follows then, that:
 
 $$
-\sum_{i=1}^n u_i = \sum_{i=1}^n (a v_i + b w_i) = a \sum_{i=1}^n v_i + b \sum_{i=1}^n w_i = a \cdot 0 + b \cdot 0 = 0.
+\sum_{i=1}^n u_i = \sum_{i=1}^n (a v_i + b w_i) = a \sum_{i=1}^n v_i + b \sum_{i=1}^n w_i = a(0) + b(0) = 0
 $$
 
-Thus, $\mathbf{u} \in \mathbb{R}^n$ also satisfies $\sum_{i=1}^n u_i = 0$, so the set is closed under linear combinations.
+Thus, $\mathbf{u} \in \mathbb{R}^n$ also satisfies $\sum_{i=1}^n u_i = 0$, so the set is closed under linear combinations, and this set is a vector space (as the set of all vectors in $\mathbb{R}^n$ whose entries sum to 0 is a vector space).
 
-- The zero vector $\mathbf{0} \in \mathbb{R}^n$ also satisfies $\sum_{i=1}^n 0 = 0$, so the set contains the zero vector.
-- Since addition and scalar multiplication preserve the property, this set is a vector space.
-
-The set of all vectors in $\mathbb{R}^n$ whose entries sum to 0 is a vector space.
+Additionally, the zero vector $\mathbf{0} \in \mathbb{R}^n$ also satisfies $\sum_{i=1}^n 0 = 0$, so the set contains the zero vector.
 
 b) All matrices in $\mathbb{R}^{m \times n}$ whose entries, when squared, sum to 1.
 
-Let $\mathbf{A}, \mathbf{B} \in \mathbb{R}^{m \times n}$ satisfy:
+Define matrices as follows: $\mathbf{A}, \mathbf{B} \in \mathbb{R}^{m \times n}$, which satisfy:
 
 $$
-\sum_{i=1}^m \sum_{j=1}^n A_{ij}^2 = 1 \quad \text{and} \quad \sum_{i=1}^m \sum_{j=1}^n B_{ij}^2 = 1.
+\sum_{i=1}^m \sum_{j=1}^n A_{ij}^2 = 1 \text{ and } \sum_{i=1}^m \sum_{j=1}^n B_{ij}^2 = 1
 $$
 
-Consider a linear combination:
+Let us then consider a linear combination:
 
 $$
-\mathbf{C} = a \mathbf{A} + b \mathbf{B},
+\mathbf{C} = a \mathbf{A} + b \mathbf{B}
 $$
 
-where $a, b \in \mathbb{R}$. Then:
+where $a, b \in \mathbb{R}$, again some real-valued scalars. 
+
+It then follows that:
 
 $$
-\sum_{i=1}^m \sum_{j=1}^n C_{ij}^2 = \sum_{i=1}^m \sum_{j=1}^n (a A_{ij} + b B_{ij})^2.
+\sum_{i=1}^m \sum_{j=1}^n C_{ij}^2 = \sum_{i=1}^m \sum_{j=1}^n (a A_{ij} + b B_{ij})^2 = a^2 \sum_{i=1}^m \sum_{j=1}^n A_{ij}^2 + b^2 \sum_{i=1}^m \sum_{j=1}^n B_{ij}^2 + 2ab \sum_{i=1}^m \sum_{j=1}^n A_{ij} B_{ij}
 $$
 
-Expanding this:
+Using the satisfying conditions of $\mathbf{A}$ and $\mathbf{B}$, we know that:
 
 $$
-\sum_{i=1}^m \sum_{j=1}^n C_{ij}^2 = a^2 \sum_{i=1}^m \sum_{j=1}^n A_{ij}^2 + b^2 \sum_{i=1}^m \sum_{j=1}^n B_{ij}^2 + 2ab \sum_{i=1}^m \sum_{j=1}^n A_{ij} B_{ij}.
+\sum_{i=1}^m \sum_{j=1}^n A_{ij}^2 = 1 \quad \sum_{i=1}^m \sum_{j=1}^n B_{ij}^2 = 1
 $$
 
-Using the conditions on $\mathbf{A}$ and $\mathbf{B}$, we know:
+Such that we may simplfy the above relation as: 
 
 $$
-\sum_{i=1}^m \sum_{j=1}^n A_{ij}^2 = 1, \quad \sum_{i=1}^m \sum_{j=1}^n B_{ij}^2 = 1,
+\sum_{i=1}^m \sum_{j=1}^n C_{ij}^2 = a^2(1) + b^2(1)+ 2ab \sum_{i=1}^m \sum_{j=1}^n A_{ij} B_{ij} = a^2 + b^2+ 2ab \sum_{i=1}^m \sum_{j=1}^n A_{ij} B_{ij}
 $$
 
-but the result depends on the cross term $2ab \sum_{i=1}^m \sum_{j=1}^n A_{ij} B_{ij}$. In general, this does not sum to 1, so $\mathbf{C}$ is not guaranteed to remain in the set.
+However, we cannot simplify the entirety of this term, $2ab \sum_{i=1}^m \sum_{j=1}^n A_{ij} B_{ij}$. 
+
+As such, we do not have a guarentee that $\mathbf{C}$ sum to 1, which is to say we do not guarantee $\mathbf{C}$ to remain in the set.
 
 Furthermore, the zero matrix $\mathbf{0} \in \mathbb{R}^{m \times n}$ satisfies:
 
 $$
-\sum_{i=1}^m \sum_{j=1}^n 0^2 = 0,
+\sum_{i=1}^m \sum_{j=1}^n 0^2 = 0 \neq 1
 $$
 
-which is not equal to 1. Therefore, the zero matrix is not in the set.
+Such that we know that the zero matrix is not in the set.
 
-The set of all matrices in $\mathbb{R}^{m \times n}$ whose entries, when squared, sum to 1, is not a vector space.
+Taken together, this is evidence that the set of all matrices in $\mathbb{R}^{m \times n}$ whose entries, when squared, sum to 1, is not a vector space.
 
 \newpage
 
@@ -471,50 +575,90 @@ The set of all matrices in $\mathbb{R}^{m \times n}$ whose entries, when squared
 
 Let $\mathbf{A}$ represent any $m \times n$ matrix, and let $\mathbf{B}$ represent any $n \times q$ matrix. Prove that for any choices of generalized inverses $\mathbf{A}^{-}$ and $\mathbf{B}^{-}$, $\mathbf{B}^{-}\mathbf{A}^{-}$ is a generalized inverse of $\mathbf{AB}$ if and only if $\mathbf{A}^{-}\mathbf{ABB}^{-}$ is idempotent.
 
-A matrix $\mathbf{C}$ is a generalized inverse of $\mathbf{D}$ if:
+Structure of Proof: Iff $\iff$ means we must provide proof of both directions of the argument. To that end: 
+
+## Direction 1
+generalized inverse $\rightarrow$ idempotent
+
+Let us then assume that $\mathbf{B}^{-}\mathbf{A}^{-}$ is a generalized inverse of $\mathbf{AB}$. 
+
+Generally, a matrix $\mathbf{C}$ is a generalized inverse of $\mathbf{D}$ if:
 
 $$
-\mathbf{DCD} = \mathbf{D}.
+\mathbf{DCD} = \mathbf{D}
 $$
 
-Assume $\mathbf{B}^{-}\mathbf{A}^{-}$ is a generalized inverse of $\mathbf{AB}$. Then by definition:
+By definition then, we may write:
 
 $$
-\mathbf{AB} (\mathbf{B}^{-} \mathbf{A}^{-}) \mathbf{AB} = \mathbf{AB}.
+\mathbf{AB} (\mathbf{B}^{-} \mathbf{A}^{-}) \mathbf{AB} = \mathbf{AB}
 $$
 
-Expanding and rearranging terms:
+We may then consider that: 
 
 $$
-\mathbf{A} (\mathbf{B} \mathbf{B}^{-}) (\mathbf{A}^{-} \mathbf{A}) \mathbf{B} = \mathbf{AB}.
+\mathbf{AB} (\mathbf{B}^{-} \mathbf{A}^{-}) \mathbf{AB} = \mathbf{AB} = \mathbf{A} (\mathbf{B} \mathbf{B}^{-}) (\mathbf{A}^{-} \mathbf{A}) \mathbf{B} = \mathbf{AB}
 $$
 
-Now multiply $\mathbf{A}^{-}$ on the left and $\mathbf{B}^{-}$ on the right:
+Multiplying terms on both sides of the equation above gives us: 
 
 $$
-(\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-})(\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}) = \mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}.
+(\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-})(\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}) = \mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}
 $$
 
-Thus, $\mathbf{A}^{-}\mathbf{ABB}^{-}$ is idempotent.
+Such that we may conclude that $\mathbf{A}^{-}\mathbf{ABB}^{-}$ is idempotent.
 
-Assume $\mathbf{A}^{-} \mathbf{ABB}^{-}$ is idempotent. By the idempotence property:
+## Direction 2
+idempotent $\rightarrow$ generalized inverse 
 
-$$
-(\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}) (\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}) = \mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}.
-$$
+We start by assuming that $\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}$ is idempotent. 
 
-Now consider $\mathbf{B}^{-} \mathbf{A}^{-}$ as a candidate for the generalized inverse of $\mathbf{AB}$. Verify:
-
-$$
-\mathbf{AB} (\mathbf{B}^{-} \mathbf{A}^{-}) \mathbf{AB} = \mathbf{A} \mathbf{B} \mathbf{B}^{-} \mathbf{A}^{-} \mathbf{A} \mathbf{B}.
-$$
-
-Substitute $\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}$ for idempotence:
+By definition, this means:
 
 $$
-\mathbf{A} (\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}) \mathbf{B} = \mathbf{AB}.
+(\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}) (\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}) = \mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}
 $$
 
-Thus, $\mathbf{B}^{-} \mathbf{A}^{-}$ satisfies the generalized inverse property for $\mathbf{AB}$.
+Our goal is to show that $\mathbf{B}^{-} \mathbf{A}^{-}$ satisfies the conditions for being a generalized inverse of $\mathbf{AB}$. 
 
-For any $\mathbf{A}^{-}$ and $\mathbf{B}^{-}$, $\mathbf{B}^{-}\mathbf{A}^{-}$ is a generalized inverse of $\mathbf{AB}$ if and only if $\mathbf{A}^{-} \mathbf{ABB}^{-}$ is idempotent.
+To that end, let us consider:
+
+$$
+\mathbf{AB} (\mathbf{B}^{-} \mathbf{A}^{-}) \mathbf{AB}
+$$
+
+Via associativity of matrix multiplication, we may write:
+
+$$
+\mathbf{AB} (\mathbf{B}^{-} \mathbf{A}^{-}) \mathbf{AB} = \mathbf{A} \big(\mathbf{B} \mathbf{B}^{-} (\mathbf{A}^{-} \mathbf{A}) \mathbf{B}\big)
+$$
+
+Taking advantage of our assumption that $\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}$ is idempotent, we may note:
+
+$$
+\mathbf{B} \mathbf{B}^{-} \mathbf{A}^{-} \mathbf{A} = \mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}
+$$
+
+Such that our initial expression may be written: 
+
+$$
+\mathbf{AB} (\mathbf{B}^{-} \mathbf{A}^{-}) \mathbf{AB} = \mathbf{A} (\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}) \mathbf{B}
+$$
+
+Finally, since $\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}$ is idempotent, we may then write:
+
+$$
+\mathbf{A} (\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}) \mathbf{B} = (\mathbf{A} \mathbf{A}^{-} \mathbf{A}) (\mathbf{B} \mathbf{B}^{-} \mathbf{B}) = \mathbf{AB}
+$$
+
+So, we have shown that: 
+
+$$
+\mathbf{AB} (\mathbf{B}^{-} \mathbf{A}^{-}) \mathbf{AB} = \mathbf{AB}
+$$
+
+and conclude that $\mathbf{B}^{-} \mathbf{A}^{-}$ satisfies the properties of a generalized inverse for $\mathbf{AB}$ given the assumption that $\mathbf{A}^{-} \mathbf{A} \mathbf{B} \mathbf{B}^{-}$ is idempotent.
+
+## Conclusion 
+
+Taken together, for any $\mathbf{A}^{-}$ and $\mathbf{B}^{-}$, $\mathbf{B}^{-}\mathbf{A}^{-}$ is a generalized inverse of $\mathbf{AB}$ if and only if $\mathbf{A}^{-} \mathbf{ABB}^{-}$ is idempotent.
