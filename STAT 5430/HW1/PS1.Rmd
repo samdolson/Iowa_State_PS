@@ -1,0 +1,155 @@
+---
+title: "PS1"
+author: "Samuel Olson" 
+output: pdf_document
+date: "2025-01-27"
+---
+
+# Problem 1
+
+Find the method of moment estimators (MMEs) of the unknown parameters based on a random sample $X_1, X_2, \ldots, X_n$ of size $n$ from the following distributions:
+
+1. Negative Binomial $(3, p)$, unknown $p$:
+
+2. Double Exponential $(\mu, \sigma)$, unknown $\mu$ and $\sigma$:
+
+See "Table of Common Distributions" in Casella & Berger (pages 623–623) for the definitions/properties of the above distributions.
+
+\newpage 
+
+# Problem 2
+
+Problem 7.1, Casella & Berger:
+
+Hint: For context, there is only one (discrete) data observation $X$ which has possible outcomes as $0, 1, 2, 3, 4$. For a given outcome $x$ of $X$, the likelihood $(L(\theta) \equiv f(x | \theta)$ is given by the pmf as a function of $\theta \in \Theta \equiv \{1, 2, 3\}$.
+
+One observation is taken on a discrete random variable $X$ with pmf $f(x|\theta)$, where $\theta \in \{1, 2, 3\}$. Find the MLE of $\theta$.
+
+$$
+\begin{array}{c|c|c|c}
+  x & f(x|1) & f(x|2) & f(x|3) \\
+  \hline
+  0 & \frac{1}{3} & \frac{1}{4} & 0 \\
+  1 & \frac{1}{3} & \frac{1}{4} & 0 \\
+  2 & 0 & \frac{1}{4} & \frac{1}{4} \\
+  3 & \frac{1}{6} & \frac{1}{4} & \frac{1}{2} \\
+  4 & \frac{1}{6} & 0 & \frac{1}{4} \\
+\end{array}
+$$
+
+\newpage 
+
+# Problem 3
+
+An indicator function $I(A)$ of an event $A$ has the form:
+
+$$
+I(A) = \begin{cases} 
+1, & \text{if event } A \text{ holds true,} \\
+0, & \text{otherwise.}
+\end{cases}
+$$
+
+Suppose that $A_1, \ldots, A_n$ are $n$ separate events. Show that:
+
+$$
+\prod_{i=1}^n I(A_i) = I(B),
+$$
+
+where $B$ is the event that $B = \bigcap_{i=1}^n A_i$.
+
+\newpage
+
+# Problem 4
+
+## Maximum-Likelihood & Indicator Functions
+
+Given a random sample $X_1, \ldots, X_n$ from a pdf/pmf $f(x|\theta)$, $\theta \in \Theta \subset \mathbb{R}$, we know that the likelihood function will generically be
+
+$$
+L(\theta) = \prod_{i=1}^n f(x_i|\theta), \quad \theta \in \Theta,
+$$
+
+but there’s one subtle point to again highlight about how to exactly write the likelihood expression depending on the support of $f(x|\theta) > 0$.
+
+- Recall the support or range of $f(x|\theta)$ is a set
+
+$$
+S_{\theta} = \{x \in \mathbb{R} : f(x|\theta) > 0\},
+$$
+
+which could possibly depend on $\theta \in \Theta$. For example, an exponential distribution has a pdf
+
+$$
+f(x|\theta) = \begin{cases}
+\frac{1}{\theta} e^{-x/\theta}, & x > 0, \\
+0, & \text{otherwise},
+\end{cases}
+$$
+
+with a parameter $\theta > 0$, and in this case the support $S_{\theta} = (0, \infty)$ doesn’t depend on $\theta \in \Theta = (0, \infty)$.
+
+On the other hand, the pdf (1): 
+
+### (1) 
+
+$$
+f(x|\theta) = \begin{cases}
+\frac{2x}{\theta^2}, & 0 < x \leq \theta, \\
+0, & \text{otherwise},
+\end{cases}
+$$
+
+with parameter $\theta > 0$, does have a support $S_{\theta} = (0, \theta]$ depending on $\theta \in \Theta = (0, \infty)$.
+
+- It’s always true that $f(x|\theta) = f(x|\theta)I(x \in S_{\theta})$ for all $x \in \mathbb{R}$ and so always true that (2): 
+
+### (2) 
+
+$$
+L(\theta) = \prod_{i=1}^n \left[f(x_i|\theta)I(x_i \in S_{\theta})\right] = \left(\prod_{i=1}^n f(x_i|\theta)\right)I(x_1, \ldots, x_n \text{ are all in } S_{\theta}).
+$$
+
+## Questions
+
+(a) If $X_1, \ldots, X_n$ are a random sample from an exponential pdf $f(x|\theta)$, $\theta > 0$ (and so $X_1, \ldots, X_n$ are positive values), show that the likelihood function [(2)] can be written as
+
+$$
+L(\theta) = \frac{1}{\theta^n} e^{-\sum_{i=1}^n x_i / \theta},
+$$
+
+and that the MLE of $\theta$ is $\bar{X}_n$. (Message here: The support of an exponential doesn’t depend on $\theta$, so we don’t have to worry about indicating the support.)
+
+(b) If $X_1, \ldots, X_n$ are a random sample from the pdf
+
+$$
+f(x|\theta) = \begin{cases}
+\frac{2x}{\theta^2}, & 0 < x \leq \theta, \\
+0, & \text{otherwise},
+\end{cases}
+$$
+
+(and so $X_1, \ldots, X_n > 0$ are less than or equal to $\theta$), show that the likelihood function [(2)] can be written as
+
+$$
+L(\theta) = \frac{2^n \prod_{i=1}^n x_i}{\theta^{2n}} I\left(\max_{1 \leq i \leq n} x_i \leq \theta\right),
+$$
+
+and that the MLE of $\theta$ is $\max_{1 \leq i \leq n} X_i$. (Message here: The support in this case depends on $\theta$, so we should think about indicator functions in writing the likelihood.)
+
+\newpage 
+
+# Problem 5
+
+Problem 7.6(b)-(c), Casella & Berger (Skip part (a).)
+
+Let $X_1, \ldots, X_n$ be a random sample from the pdf
+
+$$
+f(x|\theta) = \theta x^{-2}, \quad 0 < \theta \leq x < \infty.
+$$
+
+
+(b) Find the MLE of $\theta$.
+
+(c) Find the method of moments estimator of $\theta$.
