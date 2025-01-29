@@ -392,10 +392,98 @@ $$
 \end{bmatrix}
 $$
 
+### Quick Validation
+
+The matrix $\mathbf{G}$ is a generalized inverse if it satisfies the relation: 
+
+$$
+\mathbf{XGX} = \mathbf{X}
+$$
+
+Using 
+
+$$
+\mathbf{G} =
+\begin{bmatrix}
+-2 & 3 & 0 \\
+-1 & 1 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+$$
+
+And 
+
+$$
+\mathbf{X} = \begin{bmatrix}
+1 & -3 & 0 & -3 \\
+1 & -2 & -1 & 2 \\
+2 & -5 & -1 & -1
+\end{bmatrix}
+$$
+
+To start that verification, we have: 
+
+$$
+\mathbf{G} \mathbf{X} =
+\begin{bmatrix}
+-2 & 3 & 0 \\
+-1 & 1 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+1 & -3 & 0 & -3 \\
+1 & -2 & -1 & 2 \\
+2 & -5 & -1 & -1
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 & 0 & -3 & 12 \\
+0 & 1 & -1 & 5 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0
+\end{bmatrix}
+$$
+
+Followed by: 
+
+$$
+\mathbf{X} \mathbf{G} \mathbf{X} =
+\begin{bmatrix}
+1 & -3 & 0 & -3 \\
+1 & -2 & -1 & 2 \\
+2 & -5 & -1 & -1
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0 & -3 & 12 \\
+0 & 1 & -1 & 5 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 & -3 & 0 & -3 \\
+1 & -2 & -1 & 2 \\
+2 & -5 & -1 & -1
+\end{bmatrix}
+= \mathbf{X}
+$$
+
+So a large collective sigh of relief was heard, and it is verified that this is an appropriate generalized inverse! 
+
 d) Use the R function `ginv` in the `MASS` package to find a generalized inverse of $\mathbf{X}$. 
 
 - To load the `MASS` package into your R workspace, use the command `library(MASS)`. 
 - If the `MASS` package is not already installed, use `install.packages("MASS")` to install it.
+
+$$
+\mathbf{X} = \begin{bmatrix}
+1 & -3 & 0 & -3 \\
+1 & -2 & -1 & 2 \\
+2 & -5 & -1 & -1
+\end{bmatrix}
+$$
 
 ```{r}
 library(MASS)
@@ -404,6 +492,7 @@ X <- matrix(c(1,1,2,
               0,-1,-1,
               -3,2,-1), ncol = 4)
 massX <- MASS::ginv(X)
+X
 massX
 ```
 
