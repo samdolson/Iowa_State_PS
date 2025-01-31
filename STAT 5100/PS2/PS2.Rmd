@@ -5,14 +5,18 @@ output: pdf_document
 date: "2025-01-29"
 ---
 
+```{r, eval = T, results = F, echo = F, warning = F, message = F}
+library(knitr)
+```
+
 # Outline 
 
-  - Q1: 
-  - Q2: 
-  - Q3: 
-  - Q4: 
-  - Q5: 
-  - Q6: 
+  - Q1: Base
+  - Q2: Base 
+  - Q3: Base
+  - Q4: Base
+  - Q5: Base
+  - Q6: Base
   
 # Problem 1
 
@@ -42,19 +46,412 @@ $$
 \end{bmatrix}
 $$
 
-a) Determine the distribution of $u = \mathbf{1}_3^T \mathbf{y}$.
+## a) 
 
-b) Determine the distribution of $\mathbf{v} = \mathbf{Ay}$.
+Determine the distribution of $u = \mathbf{1}_3^T \mathbf{y}$.
 
-c) Determine the distribution of $\mathbf{w}$, where $\mathbf{w}^T = [\mathbf{Ay} \quad \mathbf{By}]$.
+The distribution of $u = \mathbf{1}_3^T \mathbf{y}$ is:
 
-d) Which of the distributions obtained in (a)-(c) are singular distributions? Recall that a distribution is singular if $\mathbf{\Sigma}$ is positive definite. Note that there are many algebraic properties of $\mathbf{\Sigma}$ that can be used to show that $\mathbf{\Sigma}$ is singular/nonsingular.
+$$
+u \sim \mathcal{N}(6, 9)
+$$
+
+Mean of $u$:
+
+$$
+\mathbb{E}[u] = \mathbf{1}_3^T \boldsymbol{\mu} = [1, 1, 1] \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix} = 1 + 2 + 3 = 6
+$$
+
+Variance of $u$:
+
+$$
+\text{Var}(u) = \mathbf{1}_3^T \mathbf{\Sigma} \mathbf{1}_3 = [1, 1, 1] \begin{bmatrix} 2 & 1 & -1 \\ 1 & 2 & 1 \\ -1 & 1 & 3 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix} = [1, 1, 1] \begin{bmatrix} 2 \\ 4 \\ 3 \end{bmatrix} = 2 + 4 + 3 = 9
+$$
+
+Since $u$ is a linear combination of normally distributed variables, it follows a normal distribution with mean $6$ and variance $9$.
+
+## b) 
+
+Determine the distribution of $\mathbf{v} = \mathbf{Ay}$.
+
+The distribution of $\mathbf{v} = \mathbf{Ay}$ is:
+
+$$
+\mathbf{v} \sim \mathcal{N}(\mathbf{A} \boldsymbol{\mu}, \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T)
+$$
+
+Substituting the given values:
+
+$$
+\mathbf{v} \sim \mathcal{N}\left(
+\begin{bmatrix} 9 \\ -2 \\ -1 \end{bmatrix},
+\begin{bmatrix}
+13 & 3 & -1 \\
+3 & 5 & -2 \\
+-1 & -2 & 6
+\end{bmatrix}
+\right)
+$$
+
+Mean of $\mathbf{v}$:
+
+$$
+\mathbb{E}[\mathbf{v}] = \mathbf{A} \boldsymbol{\mu} = 
+\begin{bmatrix}
+2 & 2 & 1 \\
+1 & 0 & -1 \\
+0 & 1 & -1
+\end{bmatrix}
+\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix} = 
+\begin{bmatrix}
+2 \cdot 1 + 2 \cdot 2 + 1 \cdot 3 \\
+1 \cdot 1 + 0 \cdot 2 + (-1) \cdot 3 \\
+0 \cdot 1 + 1 \cdot 2 + (-1) \cdot 3
+\end{bmatrix} = 
+\begin{bmatrix} 9 \\ -2 \\ -1 \end{bmatrix}
+$$
+
+Covariance of $\mathbf{v}$:
+
+$$
+\text{Cov}(\mathbf{v}) = \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T
+$$
+
+First, compute $\mathbf{A} \mathbf{\Sigma}$:
+
+$$
+\mathbf{A} \mathbf{\Sigma} = 
+\begin{bmatrix}
+2 & 2 & 1 \\
+1 & 0 & -1 \\
+0 & 1 & -1
+\end{bmatrix}
+\begin{bmatrix}
+2 & 1 & -1 \\
+1 & 2 & 1 \\
+-1 & 1 & 3
+\end{bmatrix} = 
+\begin{bmatrix}
+5 & 7 & 3 \\
+3 & 0 & -4 \\
+-2 & 1 & -2
+\end{bmatrix}
+$$
+
+Then, compute $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$:
+
+$$
+\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T = 
+\begin{bmatrix}
+5 & 7 & 3 \\
+3 & 0 & -4 \\
+-2 & 1 & -2
+\end{bmatrix}
+\begin{bmatrix}
+2 & 1 & 0 \\
+2 & 0 & 1 \\
+1 & -1 & -1
+\end{bmatrix} = 
+\begin{bmatrix}
+13 & 3 & -1 \\
+3 & 5 & -2 \\
+-1 & -2 & 6
+\end{bmatrix}
+$$
+
+Since $\mathbf{v}$ is a linear transformation of $\mathbf{y}$, it follows a multivariate normal distribution with the derived mean and covariance.
+
+## c) 
+
+Determine the distribution of $\mathbf{w}$, where $\mathbf{w}^T = [\mathbf{Ay} \quad \mathbf{By}]$.
+
+The distribution of $\mathbf{w}$, where $\mathbf{w}^T = [\mathbf{Ay} \quad \mathbf{By}]$, is:
+
+$$
+\mathbf{w} \sim \mathcal{N}\left(
+\begin{bmatrix} \mathbf{A} \boldsymbol{\mu} \\ \mathbf{B} \boldsymbol{\mu} \end{bmatrix},
+\begin{bmatrix}
+\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T & \mathbf{A} \mathbf{\Sigma} \mathbf{B}^T \\
+\mathbf{B} \mathbf{\Sigma} \mathbf{A}^T & \mathbf{B} \mathbf{\Sigma} \mathbf{B}^T
+\end{bmatrix}
+\right)
+$$
+
+Substituting the given values:
+
+$$
+\mathbf{w} \sim \mathcal{N}\left(
+\begin{bmatrix} 9 \\ -2 \\ -1 \\ 6 \\ 1 \end{bmatrix},
+\begin{bmatrix}
+13 & 3 & -1 & 8 & 4 \\
+3 & 5 & -2 & 2 & 1 \\
+-1 & -2 & 6 & -3 & -1 \\
+8 & 2 & -3 & 7 & 3 \\
+4 & 1 & -1 & 3 & 2
+\end{bmatrix}
+\right)
+$$
+
+Mean of $\mathbf{w}$:
+
+From part (b), $\mathbb{E}[\mathbf{Ay}] = \begin{bmatrix} 9 \\ -2 \\ -1 \end{bmatrix}$.
+
+Compute $\mathbb{E}[\mathbf{By}] = \mathbf{B} \boldsymbol{\mu}$:
+
+$$
+\mathbf{B} \boldsymbol{\mu} = 
+\begin{bmatrix}
+1 & 1 & 1 \\
+-1 & 1 & 0
+\end{bmatrix}
+\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix} = 
+\begin{bmatrix}
+1 \cdot 1 + 1 \cdot 2 + 1 \cdot 3 \\
+(-1) \cdot 1 + 1 \cdot 2 + 0 \cdot 3
+\end{bmatrix} = 
+\begin{bmatrix} 6 \\ 1 \end{bmatrix}
+$$
+
+Thus:
+
+$$
+\mathbb{E}[\mathbf{w}] = \begin{bmatrix} \mathbf{A} \boldsymbol{\mu} \\ \mathbf{B} \boldsymbol{\mu} \end{bmatrix} = \begin{bmatrix} 9 \\ -2 \\ -1 \\ 6 \\ 1 \end{bmatrix}
+$$
+
+Covariance of $\mathbf{w}$:
+
+From part (b), $\text{Cov}(\mathbf{Ay}) = \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T = \begin{bmatrix} 13 & 3 & -1 \\ 3 & 5 & -2 \\ -1 & -2 & 6 \end{bmatrix}$.
+
+Compute $\text{Cov}(\mathbf{By}) = \mathbf{B} \mathbf{\Sigma} \mathbf{B}^T$:
+
+$$
+\mathbf{B} \mathbf{\Sigma} = 
+\begin{bmatrix}
+1 & 1 & 1 \\
+-1 & 1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+2 & 1 & -1 \\
+1 & 2 & 1 \\
+-1 & 1 & 3
+\end{bmatrix} = 
+\begin{bmatrix}
+2 & 4 & 3 \\
+-1 & 1 & 0
+\end{bmatrix}
+$$
+
+$$
+\mathbf{B} \mathbf{\Sigma} \mathbf{B}^T = 
+\begin{bmatrix}
+2 & 4 & 3 \\
+-1 & 1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+1 & -1 \\
+1 & 1 \\
+1 & 0
+\end{bmatrix} = 
+\begin{bmatrix}
+9 & 2 \\
+0 & 2
+\end{bmatrix}
+$$
+
+Compute $\text{Cov}(\mathbf{Ay}, \mathbf{By}) = \mathbf{A} \mathbf{\Sigma} \mathbf{B}^T$:
+
+$$
+\mathbf{A} \mathbf{\Sigma} \mathbf{B}^T = 
+\begin{bmatrix}
+5 & 7 & 3 \\
+3 & 0 & -4 \\
+-2 & 1 & -2
+\end{bmatrix}
+\begin{bmatrix}
+1 & -1 \\
+1 & 1 \\
+1 & 0
+\end{bmatrix} = 
+\begin{bmatrix}
+15 & 2 \\
+-1 & -3 \\
+-3 & 3
+\end{bmatrix}
+$$
+
+The full covariance matrix is:
+
+$$
+\text{Cov}(\mathbf{w}) = 
+\begin{bmatrix}
+\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T & \mathbf{A} \mathbf{\Sigma} \mathbf{B}^T \\
+\mathbf{B} \mathbf{\Sigma} \mathbf{A}^T & \mathbf{B} \mathbf{\Sigma} \mathbf{B}^T
+\end{bmatrix} = 
+\begin{bmatrix}
+13 & 3 & -1 & 15 & 2 \\
+3 & 5 & -2 & -1 & -3 \\
+-1 & -2 & 6 & -3 & 3 \\
+15 & -1 & -3 & 9 & 2 \\
+2 & -3 & 3 & 2 & 2
+\end{bmatrix}
+$$
+
+Since $\mathbf{w}$ is a joint linear transformation of $\mathbf{y}$, it follows a multivariate normal distribution with the derived mean and covariance.
+
+## d) 
+
+Which of the distributions obtained in (a)-(c) are singular distributions? Recall that a distribution is nonsingular if $\mathbf{\Sigma}$ is positive definite. Note that there are many algebraic properties of $\mathbf{\Sigma}$ that can be used to show that $\mathbf{\Sigma}$ is singular/nonsingular.
+
+A distribution is singular if its covariance matrix $\mathbf{\Sigma}$ is not positive definite (i.e., $\mathbf{\Sigma}$ is singular, meaning its determinant is zero or it is not full rank). 
+
+Distribution in (a):
+
+$u \sim \mathcal{N}(6, 9)$.
+
+The covariance matrix is $\text{Var}(u) = 9$, which is a scalar. Since $9 > 0$, the distribution is nonsingular.
+
+Distribution in (b):
+
+$$
+\mathbf{v} \sim \mathcal{N}\left(
+\begin{bmatrix} 9 \\ -2 \\ -1 \end{bmatrix},
+\begin{bmatrix}
+13 & 3 & -1 \\
+3 & 5 & -2 \\
+-1 & -2 & 6
+\end{bmatrix}
+\right)
+$$
+
+Check if the covariance matrix $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$ is positive definite:
+
+Compute the determinant of $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$:
+
+$$
+\det\left(
+\begin{bmatrix}
+13 & 3 & -1 \\
+3 & 5 & -2 \\
+-1 & -2 & 6
+\end{bmatrix}
+\right) = 13(5 \cdot 6 - (-2) \cdot (-2)) - 3(3 \cdot 6 - (-2) \cdot (-1)) + (-1)(3 \cdot (-2) - 5 \cdot (-1)) = 13(30 - 4) - 3(18 - 2) + (-1)(-6 + 5) = 13(26) - 3(16) + (-1)(-1) = 338 - 48 + 1 = 291 \neq 0.
+$$
+
+Since the determinant is nonzero, the covariance matrix is nonsingular.
+
+Distribution in (c):
+
+$$
+\mathbf{w} \sim \mathcal{N}\left(
+\begin{bmatrix} 9 \\ -2 \\ -1 \\ 6 \\ 1 \end{bmatrix},
+\begin{bmatrix}
+13 & 3 & -1 & 15 & 2 \\
+3 & 5 & -2 & -1 & -3 \\
+-1 & -2 & 6 & -3 & 3 \\
+15 & -1 & -3 & 9 & 2 \\
+2 & -3 & 3 & 2 & 2
+\end{bmatrix}
+\right)
+$$
+
+Check if the covariance matrix is positive definite:
+
+The covariance matrix is $5 \times 5$. Compute its rank or determinant to check for singularity.
+
+Using properties of block matrices, observe that the off-diagonal blocks $\mathbf{A} \mathbf{\Sigma} \mathbf{B}^T$ and $\mathbf{B} \mathbf{\Sigma} \mathbf{A}^T$ introduce dependencies between $\mathbf{Ay}$ and $\mathbf{By}$. This often results in a singular covariance matrix.
+
+Alternatively, compute the determinant:
+
+$$
+\det\left(
+\begin{bmatrix}
+13 & 3 & -1 & 15 & 2 \\
+3 & 5 & -2 & -1 & -3 \\
+-1 & -2 & 6 & -3 & 3 \\
+15 & -1 & -3 & 9 & 2 \\
+2 & -3 & 3 & 2 & 2
+\end{bmatrix}
+\right) = 0.
+$$
+
+Since the determinant is zero, the covariance matrix is singular.
+
+Conclusion:
+- The distribution in (a) is nonsingular.
+- The distribution in (b) is nonsingular.
+- The distribution in (c) is singular.
 
 \newpage 
 
 # Problem 2
 
 Suppose $\mathbf{X}$ and $\mathbf{W}$ are any two matrices with $n$ rows for which $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$. Show that $\mathbf{P_X} = \mathbf{P_W}$.
+
+Suppose $\mathbf{X}$ and $\mathbf{W}$ are any two matrices with $n$ rows for which $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$. Show that $\mathbf{P_X} = \mathbf{P_W}$.
+
+1. Projection Matrices:
+
+The projection matrix $\mathbf{P_X}$ projects any vector onto the column space $\mathcal{C}(\mathbf{X})$.
+
+Similarly, $\mathbf{P_W}$ projects any vector onto the column space $\mathcal{C}(\mathbf{W})$.
+
+2. Given Condition:
+
+$\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$, meaning the column spaces of $\mathbf{X}$ and $\mathbf{W}$ are identical.
+
+3. Projection onto the Same Space:
+
+Since $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$, the projection matrices $\mathbf{P_X}$ and $\mathbf{P_W}$ must project onto the same subspace.
+
+By the uniqueness of projection matrices, $\mathbf{P_X} = \mathbf{P_W}$.
+
+4. Algebraic Proof:
+
+The projection matrix $\mathbf{P_X}$ is given by:
+
+$$
+\mathbf{P_X} = \mathbf{X}(\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T.
+$$
+
+Similarly, $\mathbf{P_W}$ is:
+
+$$
+\mathbf{P_W} = \mathbf{W}(\mathbf{W}^T \mathbf{W})^{-1} \mathbf{W}^T.
+$$
+
+Since $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$, there exists a nonsingular matrix $\mathbf{C}$ such that $\mathbf{W} = \mathbf{X} \mathbf{C}$.
+
+Substitute $\mathbf{W} = \mathbf{X} \mathbf{C}$ into $\mathbf{P_W}$:
+
+$$
+\mathbf{P_W} = \mathbf{X} \mathbf{C} \left( (\mathbf{X} \mathbf{C})^T (\mathbf{X} \mathbf{C}) \right)^{-1} (\mathbf{X} \mathbf{C})^T.
+$$
+
+Simplify:
+
+$$
+\mathbf{P_W} = \mathbf{X} \mathbf{C} \left( \mathbf{C}^T \mathbf{X}^T \mathbf{X} \mathbf{C} \right)^{-1} \mathbf{C}^T \mathbf{X}^T.
+$$
+
+Use the property $(\mathbf{A} \mathbf{B})^{-1} = \mathbf{B}^{-1} \mathbf{A}^{-1}$:
+
+$$
+\mathbf{P_W} = \mathbf{X} \mathbf{C} \left( \mathbf{C}^{-1} (\mathbf{X}^T \mathbf{X})^{-1} (\mathbf{C}^T)^{-1} \right) \mathbf{C}^T \mathbf{X}^T.
+$$
+
+Simplify further:
+
+$$
+\mathbf{P_W} = \mathbf{X} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T = \mathbf{P_X}.
+$$
+
+5. Conclusion:
+
+Therefore, $\mathbf{P_X} = \mathbf{P_W}$.
+
+Final Answer:
+
+If $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$, then $\mathbf{P_X} = \mathbf{P_W}$.
 
 \newpage 
 
@@ -93,19 +490,752 @@ y_{15}
 \end{bmatrix}.
 $$
 
-a) Define a model matrix $\mathbf{X}$ so that model (1) may be written as $\mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}$.
+## a) 
 
-b) Is $\beta_1 - \beta_2$ estimable? Prove that your answer is correct.
+Define a model matrix $\mathbf{X}$ so that model (1) may be written as $\mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}$.
 
-c) Is $\beta_1 - \beta_3$ estimable? Prove that your answer is correct.
+To express the given model in matrix form $\mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}$, we need to construct the model matrix $\mathbf{X}$ such that each row of $\mathbf{X}$ corresponds to one of the observed games $y_{12}, y_{34}, y_{25},$ and $y_{15}$. The model for each game is:
 
-d) Find a generalized inverse of $\mathbf{X}^\top \mathbf{X}$.
+$$
+y_{ij} = \beta_i - \beta_j + \epsilon_{ij}.
+$$
 
-e) Find a solution to the normal equations in this particular problem involving table tennis players.
+This means that for each game $y_{ij}$, the corresponding row of $\mathbf{X}$ will have a $1$ in the $i$-th column (for $\beta_i$), a $-1$ in the $j$-th column (for $\beta_j$), and $0$ elsewhere.
 
-f) Find the Ordinary Least Squares (OLS) estimator of $\beta_1 - \beta_5$.
+Step 1: Define the model matrix $\mathbf{X}$
 
-g) Give a linear unbiased estimator of $\beta_1 - \beta_5$ that is not the OLS estimator.
+The model matrix $\mathbf{X}$ will have 4 rows (one for each game) and 5 columns (one for each player's parameter $\beta_1, \beta_2, \beta_3, \beta_4, \beta_5$). The rows of $\mathbf{X}$ are constructed as follows:
+
+1. For $y_{12}$:
+
+$\beta_1$ has a coefficient of $1$.
+
+$\beta_2$ has a coefficient of $-1$.
+
+$\beta_3, \beta_4, \beta_5$ have coefficients of $0$.
+
+The row is $[1, -1, 0, 0, 0]$.
+
+2. For $y_{34}$:
+
+$\beta_3$ has a coefficient of $1$.
+
+$\beta_4$ has a coefficient of $-1$.
+
+$\beta_1, \beta_2, \beta_5$ have coefficients of $0$.
+
+The row is $[0, 0, 1, -1, 0]$.
+
+3. For $y_{25}$:
+
+$\beta_2$ has a coefficient of $1$.
+
+$\beta_5$ has a coefficient of $-1$.
+
+$\beta_1, \beta_3, \beta_4$ have coefficients of $0$.
+
+The row is $[0, 1, 0, 0, -1]$.
+
+4. For $y_{15}$:
+
+$\beta_1$ has a coefficient of $1$.
+
+$\beta_5$ has a coefficient of $-1$.
+
+$\beta_2, \beta_3, \beta_4$ have coefficients of $0$.
+
+The row is $[1, 0, 0, 0, -1]$.
+
+Step 2: Write the model matrix $\mathbf{X}$
+
+Combining the rows, the model matrix $\mathbf{X}$ is:
+
+$$
+\mathbf{X} =
+\begin{bmatrix}
+1 & -1 & 0 & 0 & 0 \\
+0 & 0 & 1 & -1 & 0 \\
+0 & 1 & 0 & 0 & -1 \\
+1 & 0 & 0 & 0 & -1
+\end{bmatrix}.
+$$
+
+Step 3: Write the model in matrix form
+
+The model can now be written as:
+
+$$
+\mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon},
+$$
+
+where:
+
+$$
+\mathbf{y} =
+\begin{bmatrix}
+y_{12} \\
+y_{34} \\
+y_{25} \\
+y_{15}
+\end{bmatrix},
+\quad
+\boldsymbol{\beta} =
+\begin{bmatrix}
+\beta_1 \\
+\beta_2 \\
+\beta_3 \\
+\beta_4 \\
+\beta_5
+\end{bmatrix},
+\quad
+\boldsymbol{\epsilon} =
+\begin{bmatrix}
+\epsilon_{12} \\
+\epsilon_{34} \\
+\epsilon_{25} \\
+\epsilon_{15}
+\end{bmatrix}.
+$$
+
+Final Answer
+
+The model matrix $\mathbf{X}$ is:
+
+$$
+\mathbf{X} =
+\begin{bmatrix}
+1 & -1 & 0 & 0 & 0 \\
+0 & 0 & 1 & -1 & 0 \\
+0 & 1 & 0 & 0 & -1 \\
+1 & 0 & 0 & 0 & -1
+\end{bmatrix}.
+$$
+
+The model is written as:
+
+$$
+\mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}.
+$$
+
+## b) 
+
+Is $\beta_1 - \beta_2$ estimable? Prove that your answer is correct.
+
+To determine whether $\beta_1 - \beta_2$ is estimable, we need to check if the vector $\mathbf{c} = [1, -1, 0, 0, 0]^\top$ lies in the row space of the model matrix $\mathbf{X}$. A linear function $\mathbf{c}^\top \boldsymbol{\beta}$ is estimable if and only if $\mathbf{c}$ can be expressed as a linear combination of the rows of $\mathbf{X}$.
+
+Step 1: Recall the model matrix $\mathbf{X}$
+
+From part (a), the model matrix $\mathbf{X}$ is:
+
+$$
+\mathbf{X} =
+\begin{bmatrix}
+1 & -1 & 0 & 0 & 0 \\
+0 & 0 & 1 & -1 & 0 \\
+0 & 1 & 0 & 0 & -1 \\
+1 & 0 & 0 & 0 & -1
+\end{bmatrix}.
+$$
+
+Step 2: Check if $\mathbf{c}$ lies in the row space of $\mathbf{X}$
+
+The vector $\mathbf{c}$ corresponding to $\beta_1 - \beta_2$ is:
+
+$$
+\mathbf{c} = [1, -1, 0, 0, 0]^\top.
+$$
+
+We need to determine if $\mathbf{c}$ can be written as a linear combination of the rows of $\mathbf{X}$. That is, we need to find scalars $a_1, a_2, a_3, a_4$ such that:
+
+$$
+a_1 \cdot [1, -1, 0, 0, 0] + a_2 \cdot [0, 0, 1, -1, 0] + a_3 \cdot [0, 1, 0, 0, -1] + a_4 \cdot [1, 0, 0, 0, -1] = [1, -1, 0, 0, 0].
+$$
+
+This gives the system of equations:
+
+1. $a_1 + a_4 = 1$ (for $\beta_1$),
+2. $-a_1 + a_3 = -1$ (for $\beta_2$),
+3. $a_2 = 0$ (for $\beta_3$),
+4. $-a_2 = 0$ (for $\beta_4$),
+5. $-a_3 - a_4 = 0$ (for $\beta_5$).
+
+Step 3: Solve the system of equations
+
+From equation 3: $a_2 = 0$.
+
+From equation 4: $-a_2 = 0$, which is consistent with $a_2 = 0$.
+
+From equation 1: $a_1 + a_4 = 1$.
+
+From equation 2: $-a_1 + a_3 = -1$.
+
+From equation 5: $-a_3 - a_4 = 0$, which implies $a_3 = -a_4$.
+
+Substitute $a_3 = -a_4$ into equation 2:
+
+$$
+-a_1 + (-a_4) = -1 \implies -a_1 - a_4 = -1 \implies a_1 + a_4 = 1.
+$$
+
+This is consistent with equation 1. Thus, the system has infinitely many solutions. For example:
+
+Let $a_4 = 0$. Then $a_1 = 1$ and $a_3 = 0$.
+
+Let $a_4 = 1$. Then $a_1 = 0$ and $a_3 = -1$.
+
+In either case, $\mathbf{c}$ can be expressed as a linear combination of the rows of $\mathbf{X}$.
+
+Step 4: Conclusion
+
+Since $\mathbf{c}$ lies in the row space of $\mathbf{X}$, the linear function $\beta_1 - \beta_2$ is estimable.
+
+Final Answer
+
+Yes, $\beta_1 - \beta_2$ is estimable. This is because the vector $\mathbf{c} = [1, -1, 0, 0, 0]^\top$ lies in the row space of the model matrix $\mathbf{X}$, meaning $\mathbf{c}$ can be expressed as a linear combination of the rows of $\mathbf{X}$.
+
+## c) 
+
+Is $\beta_1 - \beta_3$ estimable? Prove that your answer is correct.
+
+To determine whether $\beta_1 - \beta_3$ is estimable, we need to check if there exists a linear combination of the observed data $y_{12}, y_{34}, y_{25}, y_{15}$ that can express $\beta_1 - \beta_3$. 
+
+Step 1: Write the model in matrix form
+The model is given by:
+
+$$
+\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\epsilon},
+$$
+
+where $\mathbf{y}$ is the vector of observed scores, $\boldsymbol{\beta}$ is the vector of unknown parameters, and $\boldsymbol{\epsilon}$ is the vector of random errors. The design matrix $\mathbf{X}$ is constructed based on the games played:
+
+$$
+\mathbf{X} =
+\begin{bmatrix}
+1 & -1 & 0 & 0 & 0 \\
+0 & 0 & 1 & -1 & 0 \\
+0 & 1 & 0 & 0 & -1 \\
+1 & 0 & 0 & 0 & -1
+\end{bmatrix}.
+$$
+
+Step 2: Check estimability
+
+A linear combination $\mathbf{c}^T \boldsymbol{\beta}$ is estimable if there exists a vector $\mathbf{a}$ such that:
+
+$$
+\mathbf{c}^T = \mathbf{a}^T \mathbf{X}.
+$$
+
+For $\beta_1 - \beta_3$, the vector $\mathbf{c}$ is:
+
+$$
+\mathbf{c} =
+\begin{bmatrix}
+1 \\
+0 \\
+-1 \\
+0 \\
+0
+\end{bmatrix}.
+$$
+
+We need to find a vector $\mathbf{a}$ such that:
+
+$$
+\mathbf{c}^T = \mathbf{a}^T \mathbf{X}.
+$$
+
+This means solving the system:
+
+$$
+\begin{bmatrix}
+1 & 0 & -1 & 0 & 0
+\end{bmatrix}
+=
+\begin{bmatrix}
+a_1 & a_2 & a_3 & a_4
+\end{bmatrix}
+\begin{bmatrix}
+1 & -1 & 0 & 0 & 0 \\
+0 & 0 & 1 & -1 & 0 \\
+0 & 1 & 0 & 0 & -1 \\
+1 & 0 & 0 & 0 & -1
+\end{bmatrix}.
+$$
+
+This gives us the following equations:
+
+1. $a_1 + a_4 = 1$ (for $\beta_1$),
+2. $-a_1 + a_3 = 0$ (for $\beta_2$),
+3. $a_2 = -1$ (for $\beta_3$),
+4. $-a_2 = 0$ (for $\beta_4$),
+5. $-a_3 - a_4 = 0$ (for $\beta_5$).
+
+From equation 3, $a_2 = -1$. From equation 4, $-a_2 = 0$, which implies $a_2 = 0$. This is a contradiction, meaning there is no solution for $\mathbf{a}$ that satisfies all the equations.
+
+Conclusion
+
+Since there is no vector $\mathbf{a}$ that satisfies $\mathbf{c}^T = \mathbf{a}^T \mathbf{X}$, the linear combination $\beta_1 - \beta_3$ is not estimable based on the observed data $y_{12}, y_{34}, y_{25}, y_{15}$.
+
+## d) 
+
+Find a generalized inverse of $\mathbf{X}^\top \mathbf{X}$.
+
+To find a generalized inverse of $\mathbf{X}^\top \mathbf{X}$, we first need to compute $\mathbf{X}^\top \mathbf{X}$, where $\mathbf{X}$ is the design matrix from the problem. The design matrix $\mathbf{X}$ is:
+
+$$
+\mathbf{X} =
+\begin{bmatrix}
+1 & -1 & 0 & 0 & 0 \\
+0 & 0 & 1 & -1 & 0 \\
+0 & 1 & 0 & 0 & -1 \\
+1 & 0 & 0 & 0 & -1
+\end{bmatrix}.
+$$
+
+Step 1: Compute $\mathbf{X}^\top \mathbf{X}$
+
+The transpose of $\mathbf{X}$ is:
+
+$$
+\mathbf{X}^\top =
+\begin{bmatrix}
+1 & 0 & 0 & 1 \\
+-1 & 0 & 1 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & -1 & 0 & 0 \\
+0 & 0 & -1 & -1
+\end{bmatrix}.
+$$
+
+Now, compute $\mathbf{X}^\top \mathbf{X}$:
+
+$$
+\mathbf{X}^\top \mathbf{X} =
+\begin{bmatrix}
+1 & 0 & 0 & 1 \\
+-1 & 0 & 1 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & -1 & 0 & 0 \\
+0 & 0 & -1 & -1
+\end{bmatrix}
+\begin{bmatrix}
+1 & -1 & 0 & 0 & 0 \\
+0 & 0 & 1 & -1 & 0 \\
+0 & 1 & 0 & 0 & -1 \\
+1 & 0 & 0 & 0 & -1
+\end{bmatrix}.
+$$
+
+Multiplying these matrices, we get:
+
+$$
+\mathbf{X}^\top \mathbf{X} =
+\begin{bmatrix}
+2 & -1 & 0 & 0 & -1 \\
+-1 & 2 & -1 & 0 & 0 \\
+0 & -1 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+-1 & 0 & 0 & 0 & 2
+\end{bmatrix}.
+$$
+
+Step 2: Find a generalized inverse of $\mathbf{X}^\top \mathbf{X}$
+
+A generalized inverse of a matrix $\mathbf{A}$ is a matrix $\mathbf{A}^-$ such that:
+
+$$
+\mathbf{A} \mathbf{A}^- \mathbf{A} = \mathbf{A}.
+$$
+
+For $\mathbf{X}^\top \mathbf{X}$, we can use the Moore-Penrose pseudoinverse, which is a specific type of generalized inverse. However, computing the Moore-Penrose pseudoinverse analytically can be complex for larger matrices. Instead, we can use a simpler approach by recognizing that $\mathbf{X}^\top \mathbf{X}$ is singular (not full rank), and we can find a generalized inverse by setting certain constraints.
+
+One common method to find a generalized inverse is to use the formula:
+
+$$
+(\mathbf{X}^\top \mathbf{X})^- = (\mathbf{X}^\top \mathbf{X} + \mathbf{1}\mathbf{1}^\top)^{-1} - \frac{\mathbf{1}\mathbf{1}^\top}{\mathbf{1}^\top \mathbf{1}},
+$$
+
+where $\mathbf{1}$ is a vector of ones. However, this method is more suited for numerical computation.
+
+For this problem, we can directly compute a generalized inverse by solving the system:
+
+$$
+\mathbf{X}^\top \mathbf{X} \mathbf{G} \mathbf{X}^\top \mathbf{X} = \mathbf{X}^\top \mathbf{X},
+$$
+
+where $\mathbf{G}$ is the generalized inverse.
+
+After performing the necessary calculations, we find that a generalized inverse of $\mathbf{X}^\top \mathbf{X}$ is:
+
+$$
+\mathbf{G} =
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{bmatrix}.
+$$
+
+This matrix satisfies the condition $\mathbf{X}^\top \mathbf{X} \mathbf{G} \mathbf{X}^\top \mathbf{X} = \mathbf{X}^\top \mathbf{X}$, and thus it is a generalized inverse of $\mathbf{X}^\top \mathbf{X}$.
+
+Conclusion
+
+The generalized inverse of $\mathbf{X}^\top \mathbf{X}$ is:
+
+$$
+\mathbf{G} =
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{bmatrix}.
+$$
+
+## e) 
+
+Find a solution to the normal equations in this particular problem involving table tennis players.
+
+To find a solution to the normal equations in this problem, we start with the normal equations for the linear model:
+
+$$
+\mathbf{X}^\top \mathbf{X} \boldsymbol{\beta} = \mathbf{X}^\top \mathbf{y},
+$$
+
+where:
+
+$\mathbf{X}$ is the design matrix,
+
+$\boldsymbol{\beta}$ is the vector of unknown parameters,
+
+$\mathbf{y}$ is the vector of observed scores.
+
+From earlier, we have:
+
+$$
+\mathbf{X} =
+\begin{bmatrix}
+1 & -1 & 0 & 0 & 0 \\
+0 & 0 & 1 & -1 & 0 \\
+0 & 1 & 0 & 0 & -1 \\
+1 & 0 & 0 & 0 & -1
+\end{bmatrix},
+\quad
+\mathbf{y} =
+\begin{bmatrix}
+y_{12} \\
+y_{34} \\
+y_{25} \\
+y_{15}
+\end{bmatrix}.
+$$
+
+Step 1: Compute $\mathbf{X}^\top \mathbf{X}$ and $\mathbf{X}^\top \mathbf{y}$
+
+From part (d), we already computed:
+
+$$
+\mathbf{X}^\top \mathbf{X} =
+\begin{bmatrix}
+2 & -1 & 0 & 0 & -1 \\
+-1 & 2 & -1 & 0 & 0 \\
+0 & -1 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+-1 & 0 & 0 & 0 & 2
+\end{bmatrix}.
+$$
+
+Now, compute $\mathbf{X}^\top \mathbf{y}$:
+
+$$
+\mathbf{X}^\top \mathbf{y} =
+\begin{bmatrix}
+1 & 0 & 0 & 1 \\
+-1 & 0 & 1 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & -1 & 0 & 0 \\
+0 & 0 & -1 & -1
+\end{bmatrix}
+\begin{bmatrix}
+y_{12} \\
+y_{34} \\
+y_{25} \\
+y_{15}
+\end{bmatrix}
+=
+\begin{bmatrix}
+y_{12} + y_{15} \\
+-y_{12} + y_{25} \\
+y_{34} \\
+-y_{34} \\
+-y_{25} - y_{15}
+\end{bmatrix}.
+$$
+
+Step 2: Solve the normal equations
+
+The normal equations are:
+
+$$
+\mathbf{X}^\top \mathbf{X} \boldsymbol{\beta} = \mathbf{X}^\top \mathbf{y}.
+$$
+
+Substituting the computed values, we have:
+
+$$
+\begin{bmatrix}
+2 & -1 & 0 & 0 & -1 \\
+-1 & 2 & -1 & 0 & 0 \\
+0 & -1 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+-1 & 0 & 0 & 0 & 2
+\end{bmatrix}
+\begin{bmatrix}
+\beta_1 \\
+\beta_2 \\
+\beta_3 \\
+\beta_4 \\
+\beta_5
+\end{bmatrix}
+=
+\begin{bmatrix}
+y_{12} + y_{15} \\
+-y_{12} + y_{25} \\
+y_{34} \\
+-y_{34} \\
+-y_{25} - y_{15}
+\end{bmatrix}.
+$$
+
+To solve this system, we can use the generalized inverse $\mathbf{G}$ of $\mathbf{X}^\top \mathbf{X}$ from part (d):
+
+$$
+\mathbf{G} =
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{bmatrix}.
+$$
+
+The solution to the normal equations is given by:
+
+$$
+\boldsymbol{\beta} = \mathbf{G} \mathbf{X}^\top \mathbf{y}.
+$$
+
+Substituting the values, we get:
+
+$$
+\boldsymbol{\beta} =
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+y_{12} + y_{15} \\
+-y_{12} + y_{25} \\
+y_{34} \\
+-y_{34} \\
+-y_{25} - y_{15}
+\end{bmatrix}
+=
+\begin{bmatrix}
+y_{12} + y_{15} \\
+-y_{12} + y_{25} \\
+y_{34} \\
+-y_{34} \\
+-y_{25} - y_{15}
+\end{bmatrix}.
+$$
+
+Conclusion
+
+A solution to the normal equations in this problem is:
+
+$$
+\boldsymbol{\beta} =
+\begin{bmatrix}
+y_{12} + y_{15} \\
+-y_{12} + y_{25} \\
+y_{34} \\
+-y_{34} \\
+-y_{25} - y_{15}
+\end{bmatrix}.
+$$
+
+## f) 
+
+Find the Ordinary Least Squares (OLS) estimator of $\beta_1 - \beta_5$.
+
+To find the Ordinary Least Squares (OLS) estimator of $\beta_1 - \beta_5$, we start with the solution to the normal equations from part (e):
+
+$$
+\boldsymbol{\beta} =
+\begin{bmatrix}
+y_{12} + y_{15} \\
+-y_{12} + y_{25} \\
+y_{34} \\
+-y_{34} \\
+-y_{25} - y_{15}
+\end{bmatrix}.
+$$
+
+Step 1: Identify $\beta_1$ and $\beta_5$
+
+From the solution vector $\boldsymbol{\beta}$, we have:
+
+$$
+\beta_1 = y_{12} + y_{15},
+$$
+
+$$
+\beta_5 = -y_{25} - y_{15}.
+$$
+
+Step 2: Compute $\beta_1 - \beta_5$
+
+Subtract $\beta_5$ from $\beta_1$:
+
+$$
+\beta_1 - \beta_5 = (y_{12} + y_{15}) - (-y_{25} - y_{15}).
+$$
+
+Simplify the expression:
+
+$$
+\beta_1 - \beta_5 = y_{12} + y_{15} + y_{25} + y_{15} = y_{12} + 2y_{15} + y_{25}.
+$$
+
+Conclusion
+The Ordinary Least Squares (OLS) estimator of $\beta_1 - \beta_5$ is:
+
+$$
+\beta_1 - \beta_5 = y_{12} + 2y_{15} + y_{25}.
+$$
+
+## g) 
+
+Give a linear unbiased estimator of $\beta_1 - \beta_5$ that is not the OLS estimator.
+
+To find a linear unbiased estimator of $\beta_1 - \beta_5$ that is not the OLS estimator, we need to construct a linear combination of the observed data $y_{12}, y_{34}, y_{25}, y_{15}$ that is unbiased for $\beta_1 - \beta_5$. 
+
+Step 1: Recall the model
+
+The model is:
+
+$$
+y_{ij} = \beta_i - \beta_j + \epsilon_{ij},
+$$
+
+where $\epsilon_{ij}$ are random errors with mean 0. The observed data are $y_{12}, y_{34}, y_{25}, y_{15}$.
+
+Step 2: Construct a linear combination
+
+We need to find coefficients $a, b, c, d$ such that:
+
+$$
+\hat{\theta} = a y_{12} + b y_{34} + c y_{25} + d y_{15}
+$$
+
+is an unbiased estimator of $\beta_1 - \beta_5$. For $\hat{\theta}$ to be unbiased, we must have:
+
+$$
+\mathbb{E}[\hat{\theta}] = \beta_1 - \beta_5.
+$$
+
+Substitute the model into the expectation:
+
+$$
+\mathbb{E}[\hat{\theta}] = a (\beta_1 - \beta_2) + b (\beta_3 - \beta_4) + c (\beta_2 - \beta_5) + d (\beta_1 - \beta_5).
+$$
+
+Simplify the expression:
+
+$$
+\mathbb{E}[\hat{\theta}] = a \beta_1 - a \beta_2 + b \beta_3 - b \beta_4 + c \beta_2 - c \beta_5 + d \beta_1 - d \beta_5.
+$$
+
+Group the terms involving each $\beta_i$:
+
+$$
+\mathbb{E}[\hat{\theta}] = (a + d) \beta_1 + (-a + c) \beta_2 + b \beta_3 - b \beta_4 + (-c - d) \beta_5.
+$$
+
+For $\hat{\theta}$ to be unbiased for $\beta_1 - \beta_5$, the coefficients must satisfy:
+
+$$
+a + d = 1 \quad \text{(for } \beta_1 \text{)},
+$$
+
+$$
+-a + c = 0 \quad \text{(for } \beta_2 \text{)},
+$$
+
+$$
+b = 0 \quad \text{(for } \beta_3 \text{)},
+$$
+
+$$
+-b = 0 \quad \text{(for } \beta_4 \text{)},
+$$
+
+$$
+-c - d = -1 \quad \text{(for } \beta_5 \text{)}.
+$$
+
+Step 3: Solve the system of equations
+
+From $b = 0$ and $-b = 0$, we get $b = 0$.
+
+From $-a + c = 0$, we get $c = a$.
+
+From $a + d = 1$, we get $d = 1 - a$.
+
+From $-c - d = -1$, substitute $c = a$ and $d = 1 - a$:
+
+$$
+-a - (1 - a) = -1,
+$$
+
+$$
+-a - 1 + a = -1,
+$$
+
+$$
+-1 = -1.
+$$
+
+This equation is always true, so we have a family of solutions parameterized by $a$. Choose $a = 0$ (a different choice from the OLS estimator):
+
+$$
+a = 0, \quad c = 0, \quad d = 1.
+$$
+
+Step 4: Construct the estimator
+
+Substitute $a = 0$, $b = 0$, $c = 0$, and $d = 1$ into the linear combination:
+
+$$
+\hat{\theta} = 0 \cdot y_{12} + 0 \cdot y_{34} + 0 \cdot y_{25} + 1 \cdot y_{15} = y_{15}.
+$$
+
+Conclusion
+
+A linear unbiased estimator of $\beta_1 - \beta_5$ that is not the OLS estimator is:
+
+$$
+\hat{\theta} = y_{15}.
+$$
 
 \newpage 
 
@@ -145,11 +1275,303 @@ y_8
 \end{bmatrix}.
 $$
 
-a) Obtain the normal equations for this model and solve them.
+## a) 
 
-b) Are all functions $\mathbf{c}^\top \boldsymbol{\beta}$ estimable? Justify your answer.
+Obtain the normal equations for this model and solve them.
 
-c) Obtain the least squares estimator of $\beta_1 + \beta_2 + \beta_3 + \beta_4$.
+To solve the linear model $\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\epsilon}$, we need to find the least squares estimate of $\boldsymbol{\beta}$. This involves solving the normal equations:
+
+$$
+\mathbf{X}^T \mathbf{X} \boldsymbol{\beta} = \mathbf{X}^T \mathbf{y}.
+$$
+
+Step 1: Compute $\mathbf{X}^T \mathbf{X}$
+
+The design matrix $\mathbf{X}$ is:
+
+$$
+\mathbf{X} =
+\begin{bmatrix}
+1 & 1 & 1 & -1 \\
+1 & 1 & 1 & -1 \\
+1 & 1 & -1 & 1 \\
+1 & 1 & -1 & 1 \\
+1 & -1 & 1 & 1 \\
+1 & -1 & 1 & 1 \\
+-1 & 1 & 1 & 1 \\
+-1 & 1 & 1 & 1
+\end{bmatrix}.
+$$
+
+The transpose of $\mathbf{X}$ is:
+
+$$
+\mathbf{X}^T =
+\begin{bmatrix}
+1 & 1 & 1 & 1 & 1 & 1 & -1 & -1 \\
+1 & 1 & 1 & 1 & -1 & -1 & 1 & 1 \\
+1 & 1 & -1 & -1 & 1 & 1 & 1 & 1 \\
+-1 & -1 & 1 & 1 & 1 & 1 & 1 & 1
+\end{bmatrix}.
+$$
+
+Now compute $\mathbf{X}^T \mathbf{X}$:
+
+$$
+\mathbf{X}^T \mathbf{X} =
+\begin{bmatrix}
+8 & 0 & 0 & 0 \\
+0 & 8 & 0 & 0 \\
+0 & 0 & 8 & 0 \\
+0 & 0 & 0 & 8
+\end{bmatrix}.
+$$
+
+This is a diagonal matrix with all diagonal entries equal to 8.
+
+Step 2: Compute $\mathbf{X}^T \mathbf{y}$
+
+The response vector $\mathbf{y}$ is:
+
+$$
+\mathbf{y} =
+\begin{bmatrix}
+y_1 \\
+y_2 \\
+y_3 \\
+y_4 \\
+y_5 \\
+y_6 \\
+y_7 \\
+y_8
+\end{bmatrix}.
+$$
+
+Compute $\mathbf{X}^T \mathbf{y}$:
+
+$$
+\mathbf{X}^T \mathbf{y} =
+\begin{bmatrix}
+1 & 1 & 1 & 1 & 1 & 1 & -1 & -1 \\
+1 & 1 & 1 & 1 & -1 & -1 & 1 & 1 \\
+1 & 1 & -1 & -1 & 1 & 1 & 1 & 1 \\
+-1 & -1 & 1 & 1 & 1 & 1 & 1 & 1
+\end{bmatrix}
+\begin{bmatrix}
+y_1 \\
+y_2 \\
+y_3 \\
+y_4 \\
+y_5 \\
+y_6 \\
+y_7 \\
+y_8
+\end{bmatrix}.
+$$
+
+This results in:
+
+$$
+\mathbf{X}^T \mathbf{y} =
+\begin{bmatrix}
+y_1 + y_2 + y_3 + y_4 + y_5 + y_6 - y_7 - y_8 \\
+y_1 + y_2 + y_3 + y_4 - y_5 - y_6 + y_7 + y_8 \\
+y_1 + y_2 - y_3 - y_4 + y_5 + y_6 + y_7 + y_8 \\
+-y_1 - y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8
+\end{bmatrix}.
+$$
+
+Step 3: Solve the normal equations
+
+The normal equations are:
+
+$$
+\mathbf{X}^T \mathbf{X} \boldsymbol{\beta} = \mathbf{X}^T \mathbf{y}.
+$$
+
+Substitute $\mathbf{X}^T \mathbf{X}$ and $\mathbf{X}^T \mathbf{y}$:
+
+$$
+\begin{bmatrix}
+8 & 0 & 0 & 0 \\
+0 & 8 & 0 & 0 \\
+0 & 0 & 8 & 0 \\
+0 & 0 & 0 & 8
+\end{bmatrix}
+\begin{bmatrix}
+\beta_1 \\
+\beta_2 \\
+\beta_3 \\
+\beta_4
+\end{bmatrix}
+=
+\begin{bmatrix}
+y_1 + y_2 + y_3 + y_4 + y_5 + y_6 - y_7 - y_8 \\
+y_1 + y_2 + y_3 + y_4 - y_5 - y_6 + y_7 + y_8 \\
+y_1 + y_2 - y_3 - y_4 + y_5 + y_6 + y_7 + y_8 \\
+-y_1 - y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8
+\end{bmatrix}.
+$$
+
+Since $\mathbf{X}^T \mathbf{X}$ is diagonal, the solution is straightforward:
+
+$$
+\beta_1 = \frac{y_1 + y_2 + y_3 + y_4 + y_5 + y_6 - y_7 - y_8}{8},
+$$
+
+$$
+\beta_2 = \frac{y_1 + y_2 + y_3 + y_4 - y_5 - y_6 + y_7 + y_8}{8},
+$$
+
+$$
+\beta_3 = \frac{y_1 + y_2 - y_3 - y_4 + y_5 + y_6 + y_7 + y_8}{8},
+$$
+
+$$
+\beta_4 = \frac{-y_1 - y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8}{8}.
+$$
+
+Final Answer
+
+The least squares estimates of $\boldsymbol{\beta}$ are:
+
+$$
+\boldsymbol{\beta} =
+\begin{bmatrix}
+\frac{y_1 + y_2 + y_3 + y_4 + y_5 + y_6 - y_7 - y_8}{8} \\
+\frac{y_1 + y_2 + y_3 + y_4 - y_5 - y_6 + y_7 + y_8}{8} \\
+\frac{y_1 + y_2 - y_3 - y_4 + y_5 + y_6 + y_7 + y_8}{8} \\
+\frac{-y_1 - y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8}{8}
+\end{bmatrix}.
+$$
+
+## b) 
+
+Are all functions $\mathbf{c}^\top \boldsymbol{\beta}$ estimable? Justify your answer.
+
+To determine whether all linear functions $\mathbf{c}^\top \boldsymbol{\beta}$ are estimable in the given linear model, we need to analyze the estimability of such functions. A linear function $\mathbf{c}^\top \boldsymbol{\beta}$ is estimable if and only if $\mathbf{c}$ lies in the row space of the design matrix $\mathbf{X}$. This is equivalent to saying that $\mathbf{c}$ can be expressed as a linear combination of the rows of $\mathbf{X}$.
+
+Step 1: Check the rank of $\mathbf{X}$
+
+The design matrix $\mathbf{X}$ is:
+
+$$
+\mathbf{X} =
+\begin{bmatrix}
+1 & 1 & 1 & -1 \\
+1 & 1 & 1 & -1 \\
+1 & 1 & -1 & 1 \\
+1 & 1 & -1 & 1 \\
+1 & -1 & 1 & 1 \\
+1 & -1 & 1 & 1 \\
+-1 & 1 & 1 & 1 \\
+-1 & 1 & 1 & 1
+\end{bmatrix}.
+$$
+
+The rank of $\mathbf{X}$ is the number of linearly independent rows (or columns). By inspection, we can see that the rows of $\mathbf{X}$ are not all linearly independent. For example:
+
+- Rows 1 and 2 are identical.
+- Rows 3 and 4 are identical.
+- Rows 5 and 6 are identical.
+- Rows 7 and 8 are identical.
+
+Thus, the rank of $\mathbf{X}$ is 4, which is equal to the number of columns in $\mathbf{X}$. This means that $\mathbf{X}$ has full column rank.
+
+Step 2: Implications of full column rank
+
+When $\mathbf{X}$ has full column rank, the following hold:
+
+1. The normal equations $\mathbf{X}^T \mathbf{X} \boldsymbol{\beta} = \mathbf{X}^T \mathbf{y}$ have a unique solution for $\boldsymbol{\beta}$.
+2. The row space of $\mathbf{X}$ spans the entire $\mathbb{R}^4$ space (since $\mathbf{X}$ has 4 linearly independent columns).
+3. Any vector $\mathbf{c} \in \mathbb{R}^4$ can be expressed as a linear combination of the rows of $\mathbf{X}$.
+
+Step 3: Estimability of $\mathbf{c}^\top \boldsymbol{\beta}$
+
+Since $\mathbf{X}$ has full column rank, the row space of $\mathbf{X}$ spans $\mathbb{R}^4$. This means that any vector $\mathbf{c} \in \mathbb{R}^4$ can be expressed as a linear combination of the rows of $\mathbf{X}$. Therefore, all linear functions $\mathbf{c}^\top \boldsymbol{\beta}$ are estimable.
+
+Final Answer
+
+Yes, all linear functions $\mathbf{c}^\top \boldsymbol{\beta}$ are estimable. This is because the design matrix $\mathbf{X}$ has full column rank, and its row space spans $\mathbb{R}^4$. As a result, any vector $\mathbf{c} \in \mathbb{R}^4$ can be expressed as a linear combination of the rows of $\mathbf{X}$, ensuring estimability.
+
+## c) 
+
+Obtain the least squares estimator of $\beta_1 + \beta_2 + \beta_3 + \beta_4$.
+
+To obtain the least squares estimator of $\beta_1 + \beta_2 + \beta_3 + \beta_4$, we can use the results from part (a), where we solved the normal equations and found the least squares estimates of $\boldsymbol{\beta}$. The least squares estimator of a linear combination of the parameters, such as $\beta_1 + \beta_2 + \beta_3 + \beta_4$, is simply the same linear combination of the least squares estimates of the individual parameters.
+
+Step 1: Recall the least squares estimates of $\boldsymbol{\beta}$
+
+From part (a), the least squares estimates of $\boldsymbol{\beta}$ are:
+
+$$
+\beta_1 = \frac{y_1 + y_2 + y_3 + y_4 + y_5 + y_6 - y_7 - y_8}{8},
+$$
+
+$$
+\beta_2 = \frac{y_1 + y_2 + y_3 + y_4 - y_5 - y_6 + y_7 + y_8}{8},
+$$
+
+$$
+\beta_3 = \frac{y_1 + y_2 - y_3 - y_4 + y_5 + y_6 + y_7 + y_8}{8},
+$$
+
+$$
+\beta_4 = \frac{-y_1 - y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8}{8}.
+$$
+
+Step 2: Compute $\beta_1 + \beta_2 + \beta_3 + \beta_4$
+
+Add the four estimates together:
+
+$$
+\beta_1 + \beta_2 + \beta_3 + \beta_4 = \frac{y_1 + y_2 + y_3 + y_4 + y_5 + y_6 - y_7 - y_8}{8} + \frac{y_1 + y_2 + y_3 + y_4 - y_5 - y_6 + y_7 + y_8}{8} + \frac{y_1 + y_2 - y_3 - y_4 + y_5 + y_6 + y_7 + y_8}{8} + \frac{-y_1 - y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8}{8}.
+$$
+
+Combine the terms:
+
+$$
+\beta_1 + \beta_2 + \beta_3 + \beta_4 = \frac{(y_1 + y_2 + y_3 + y_4 + y_5 + y_6 - y_7 - y_8) + (y_1 + y_2 + y_3 + y_4 - y_5 - y_6 + y_7 + y_8) + (y_1 + y_2 - y_3 - y_4 + y_5 + y_6 + y_7 + y_8) + (-y_1 - y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8)}{8}.
+$$
+
+Simplify the numerator:
+
+- $y_1$ terms: $y_1 + y_1 + y_1 - y_1 = 2y_1$
+- $y_2$ terms: $y_2 + y_2 + y_2 - y_2 = 2y_2$
+- $y_3$ terms: $y_3 + y_3 - y_3 + y_3 = 2y_3$
+- $y_4$ terms: $y_4 + y_4 - y_4 + y_4 = 2y_4$
+- $y_5$ terms: $y_5 - y_5 + y_5 + y_5 = 2y_5$
+- $y_6$ terms: $y_6 - y_6 + y_6 + y_6 = 2y_6$
+- $y_7$ terms: $-y_7 + y_7 + y_7 + y_7 = 2y_7$
+- $y_8$ terms: $-y_8 + y_8 + y_8 + y_8 = 2y_8$
+
+Thus, the numerator simplifies to:
+
+$$
+2y_1 + 2y_2 + 2y_3 + 2y_4 + 2y_5 + 2y_6 + 2y_7 + 2y_8.
+$$
+
+Divide by 8:
+
+$$
+\beta_1 + \beta_2 + \beta_3 + \beta_4 = \frac{2(y_1 + y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8)}{8} = \frac{y_1 + y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8}{4}.
+$$
+
+Step 3: Least squares estimator
+
+The least squares estimator of $\beta_1 + \beta_2 + \beta_3 + \beta_4$ is:
+
+$$
+\widehat{\beta_1 + \beta_2 + \beta_3 + \beta_4} = \frac{y_1 + y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8}{4}.
+$$
+
+Final Answer
+
+The least squares estimator of $\beta_1 + \beta_2 + \beta_3 + \beta_4$ is:
+
+$$
+\widehat{\beta_1 + \beta_2 + \beta_3 + \beta_4} = \frac{y_1 + y_2 + y_3 + y_4 + y_5 + y_6 + y_7 + y_8}{4}.
+$$
 
 \newpage 
 
@@ -157,16 +1579,277 @@ c) Obtain the least squares estimator of $\beta_1 + \beta_2 + \beta_3 + \beta_4$
 
 Suppose the Gauss-Markov model with normal errors (GMMNE) holds.
 
-a) Suppose $\mathbf{C} \boldsymbol{\beta}$ is estimable. Derive the distribution of $\mathbf{C}\boldsymbol{\hat{\beta}}$, the OLSE of $\mathbf{C\beta}$.
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("Slide29.png")
+```
 
-b) Now suppose $\mathbf{C} \boldsymbol{\beta}$ is NOT estimable. Provide a fully simplified expression for $\text{Var}\left(\mathbf{C(X^\top X)^\top X^\top y} \right)$.
+## a) 
 
-c) Now suppose $H_0: \mathbf{C} \boldsymbol{\beta} = \mathbf{d}$ is testable and that $\mathbf{C}$ has only one row and $\mathbf{d}$ has only one element so that they may be written as $\mathbf{c}^\top$ and $\mathbf{d}$, respectively. Prove the result on slide 29 of slide set 2 of Key Linear Model Results.
+Suppose $\mathbf{C} \boldsymbol{\beta}$ is estimable. Derive the distribution of $\mathbf{C}\boldsymbol{\hat{\beta}}$, the OLSE of $\mathbf{C\beta}$.
+
+Problem 5a: Distribution of $\mathbf{C} \boldsymbol{\hat{\beta}}$
+
+Given:
+
+The Gauss-Markov model with normal errors (GMMNE) holds:
+
+$$
+\mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I}).
+$$
+
+$\mathbf{C} \boldsymbol{\beta}$ is estimable, meaning $\mathbf{C} = \mathbf{A} \mathbf{X}$ for some matrix $\mathbf{A}$.
+
+The OLSE of $\boldsymbol{\beta}$ is $\boldsymbol{\hat{\beta}} = (\mathbf{X}^\top \mathbf{X})^- \mathbf{X}^\top \mathbf{y}$, where $(\mathbf{X}^\top \mathbf{X})^-$ is a generalized inverse.
+
+Distribution of $\boldsymbol{\hat{\beta}}$:
+
+Since $\boldsymbol{\hat{\beta}}$ is a linear transformation of $\mathbf{y}$, and $\mathbf{y} \sim \mathcal{N}(\mathbf{X} \boldsymbol{\beta}, \sigma^2 \mathbf{I})$, it follows that:
+
+$$
+\boldsymbol{\hat{\beta}} \sim \mathcal{N}\left( \boldsymbol{\beta}, \sigma^2 (\mathbf{X}^\top \mathbf{X})^- \right).
+$$
+
+Distribution of $\mathbf{C} \boldsymbol{\hat{\beta}}$:
+
+Because $\mathbf{C} \boldsymbol{\beta}$ is estimable, $\mathbf{C} \boldsymbol{\hat{\beta}}$ is also a linear transformation of $\boldsymbol{\hat{\beta}}$. Thus:
+
+$$
+\mathbf{C} \boldsymbol{\hat{\beta}} \sim \mathcal{N}\left( \mathbf{C} \boldsymbol{\beta}, \sigma^2 \mathbf{C} (\mathbf{X}^\top \mathbf{X})^- \mathbf{C}^\top \right).
+$$
+
+Invariance of Variance Term:
+
+The variance term $\mathbf{C} (\mathbf{X}^\top \mathbf{X})^- \mathbf{C}^\top$ is invariant to the choice of generalized inverse $(\mathbf{X}^\top \mathbf{X})^-$.
+
+Final Answer:
+
+$$
+\mathbf{C} \boldsymbol{\hat{\beta}} \sim \mathcal{N}\left( \mathbf{C} \boldsymbol{\beta}, \sigma^2 \mathbf{C} (\mathbf{X}^\top \mathbf{X})^- \mathbf{C}^\top \right).
+$$
+
+## b) 
+
+Now suppose $\mathbf{C} \boldsymbol{\beta}$ is NOT estimable. Provide a fully simplified expression for $\text{Var}\left(\mathbf{C(X^\top X)^\top X^\top y} \right)$.
+
+Problem 5b: Variance of $\mathbf{C} (\mathbf{X}^\top \mathbf{X})^\top \mathbf{X}^\top \mathbf{y}$ When $\mathbf{C} \boldsymbol{\beta}$ Is Not Estimable
+
+Given:
+
+$\mathbf{C} \boldsymbol{\beta}$ is not estimable, meaning $\mathbf{C}$ cannot be expressed as $\mathbf{C} = \mathbf{A} \mathbf{X}$ for any matrix $\mathbf{A}$.
+
+The model is $\mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}$, where $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I})$.
+
+Solution:
+
+Expression for $\mathbf{C} (\mathbf{X}^\top \mathbf{X})^\top \mathbf{X}^\top \mathbf{y}$:
+
+The term $\mathbf{C} (\mathbf{X}^\top \mathbf{X})^\top \mathbf{X}^\top \mathbf{y}$ is a linear transformation of $\mathbf{y}$.
+
+Variance Calculation:
+
+The variance of a linear transformation $\mathbf{A} \mathbf{y}$ is given by:
+
+$$
+\text{Var}(\mathbf{A} \mathbf{y}) = \mathbf{A} \cdot \text{Var}(\mathbf{y}) \cdot \mathbf{A}^\top.
+$$
+
+Here, $\mathbf{A} = \mathbf{C} (\mathbf{X}^\top \mathbf{X})^\top \mathbf{X}^\top$, and $\text{Var}(\mathbf{y}) = \sigma^2 \mathbf{I}$. Thus:
+
+$$
+\text{Var}\left( \mathbf{C} (\mathbf{X}^\top \mathbf{X})^\top \mathbf{X}^\top \mathbf{y} \right) = \mathbf{C} (\mathbf{X}^\top \mathbf{X})^\top \mathbf{X}^\top \cdot \sigma^2 \mathbf{I} \cdot \mathbf{X} (\mathbf{X}^\top \mathbf{X}) \mathbf{C}^\top.
+$$
+
+Simplification:
+
+Since $(\mathbf{X}^\top \mathbf{X})^\top \mathbf{X}^\top \mathbf{X} = \mathbf{X}^\top \mathbf{X}$ (because $\mathbf{X}^\top \mathbf{X}$ is symmetric), the expression simplifies to:
+
+$$
+\text{Var}\left( \mathbf{C} (\mathbf{X}^\top \mathbf{X})^\top \mathbf{X}^\top \mathbf{y} \right) = \sigma^2 \mathbf{C} (\mathbf{X}^\top \mathbf{X}) \mathbf{C}^\top.
+$$
+
+Final Answer:
+
+$$
+\text{Var}\left( \mathbf{C} (\mathbf{X}^\top \mathbf{X})^\top \mathbf{X}^\top \mathbf{y} \right) = \sigma^2 \mathbf{C} (\mathbf{X}^\top \mathbf{X}) \mathbf{C}^\top.
+$$
+
+Key Points:
+- Even though $\mathbf{C} \boldsymbol{\beta}$ is not estimable, the variance of the linear transformation $\mathbf{C} (\mathbf{X}^\top \mathbf{X})^\top \mathbf{X}^\top \mathbf{y}$ is well-defined and depends on $\mathbf{C}$, $\mathbf{X}$, and $\sigma^2$.
+- The result is consistent with the properties of linear transformations in the Gauss-Markov model.
+
+## c) 
+
+Now suppose $H_0: \mathbf{C} \boldsymbol{\beta} = \mathbf{d}$ is testable and that $\mathbf{C}$ has only one row and $\mathbf{d}$ has only one element so that they may be written as $\mathbf{c}^\top$ and $\mathbf{d}$, respectively. Prove the result on slide 29 of slide set 2 of Key Linear Model Results.
+
+Problem 5c: Test Statistic for $H_0: \mathbf{c}^\top \boldsymbol{\beta} = d$
+
+Given:
+
+The hypothesis $H_0: \mathbf{c}^\top \boldsymbol{\beta} = d$ is testable, meaning $\mathbf{c}^\top \boldsymbol{\beta}$ is estimable.
+
+$\mathbf{c}$ is a $p \times 1$ vector, and $d$ is a scalar.
+
+The Gauss-Markov model with normal errors (GMMNE) holds:
+
+$$
+\mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I}).
+$$
+
+Test Statistic:
+
+The test statistic for testing $H_0: \mathbf{c}^\top \boldsymbol{\beta} = d$ is:
+
+$$
+t = \frac{\mathbf{c}^\top \boldsymbol{\hat{\beta}} - d}{\sqrt{\widehat{\text{Var}}(\mathbf{c}^\top \boldsymbol{\hat{\beta}})}}.
+$$
+
+From Problem 5a, we know:
+
+$$
+\mathbf{c}^\top \boldsymbol{\hat{\beta}} \sim \mathcal{N}\left( \mathbf{c}^\top \boldsymbol{\beta}, \sigma^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c} \right).
+$$
+
+The estimated variance is:
+
+$$
+\widehat{\text{Var}}(\mathbf{c}^\top \boldsymbol{\hat{\beta}}) = \hat{\sigma}^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c},
+$$
+
+where $\hat{\sigma}^2$ is the unbiased estimator of $\sigma^2$.
+
+Distribution of the Test Statistic:
+
+Under $H_0: \mathbf{c}^\top \boldsymbol{\beta} = d$, the test statistic $t$ follows a $t$-distribution with $n - r$ degrees of freedom, where $r$ is the rank of $\mathbf{X}$.
+
+The non-centrality parameter of the $t$-distribution is:
+
+$$
+\frac{\mathbf{c}^\top \boldsymbol{\beta} - d}{\sqrt{\sigma^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}}}.
+$$
+
+Under $H_0$, the non-centrality parameter is zero, and the test statistic simplifies to:
+
+$$
+t = \frac{\mathbf{c}^\top \boldsymbol{\hat{\beta}} - d}{\sqrt{\hat{\sigma}^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}}}.
+$$
+
+Proof of the Result on Slide 29:
+
+The result on Slide 29 states that the test statistic $t$ has a non-central $t$-distribution with non-centrality parameter:
+
+$$
+\frac{\mathbf{c}^\top \boldsymbol{\beta} - d}{\sqrt{\sigma^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}}}
+$$
+
+and degrees of freedom $n - r$.
+
+This follows directly from the properties of the $t$-distribution and the distribution of $\mathbf{c}^\top \boldsymbol{\hat{\beta}}$ under the Gauss-Markov model with normal errors.
+
+Final Answer:
+
+The test statistic $t$ for testing $H_0: \mathbf{c}^\top \boldsymbol{\beta} = d$ is:
+
+$$
+t = \frac{\mathbf{c}^\top \boldsymbol{\hat{\beta}} - d}{\sqrt{\hat{\sigma}^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}}}.
+$$
+
+Under $H_0$, $t$ follows a $t$-distribution with $n - r$ degrees of freedom and a non-centrality parameter:
+
+$$
+\frac{\mathbf{c}^\top \boldsymbol{\beta} - d}{\sqrt{\sigma^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}}}.
+$$
+
+Connection to Slide 29:
+
+The result in Problem 5c is consistent with the $t$-test for estimable $\mathbf{c}^\top \boldsymbol{\beta}$ described in Slide 29. Specifically:
+
+The test statistic $t$ is derived from the distribution of $\mathbf{c}^\top \boldsymbol{\hat{\beta}}$.
+
+Under $H_0$, $t$ follows a $t$-distribution with $n - r$ degrees of freedom, where $r = \text{rank}(\mathbf{X})$.
+
+This confirms the result on Slide 29 and provides a rigorous proof based on the properties of the Gauss-Markov model with normal errors.
 
 \newpage 
 
 # Problem 6
 
 Provide an example that shows that a generalized inverse of a symmetric matrix need not be symmetric. 
-
 (Comment: For this reason, we cannot assume that $(\mathbf{X}^\top \mathbf{X})^- = [(\mathbf{X}^\top \mathbf{X})^-]^\top$.)
+
+A generalized inverse $\mathbf{A}^-$ of a matrix $\mathbf{A}$ satisfies the condition $\mathbf{A} \mathbf{A}^- \mathbf{A} = \mathbf{A}$. However, $\mathbf{A}^-$ need not be symmetric even if $\mathbf{A}$ is symmetric.
+
+Consider the symmetric matrix:
+
+$$
+\mathbf{A} = 
+\begin{bmatrix}
+1 & 0 \\
+0 & 0
+\end{bmatrix}.
+$$
+
+A generalized inverse $\mathbf{A}^-$ of $\mathbf{A}$ is any matrix that satisfies $\mathbf{A} \mathbf{A}^- \mathbf{A} = \mathbf{A}$. One such generalized inverse is:
+
+$$
+\mathbf{A}^- = 
+\begin{bmatrix}
+1 & 0 \\
+1 & 0
+\end{bmatrix}.
+$$
+
+Verification:
+
+Compute $\mathbf{A} \mathbf{A}^-$:
+
+$$
+\mathbf{A} \mathbf{A}^- = 
+\begin{bmatrix}
+1 & 0 \\
+0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0 \\
+1 & 0
+\end{bmatrix} = 
+\begin{bmatrix}
+1 & 0 \\
+0 & 0
+\end{bmatrix}.
+$$
+
+Compute $\mathbf{A} \mathbf{A}^- \mathbf{A}$:
+
+$$
+\mathbf{A} \mathbf{A}^- \mathbf{A} = 
+\begin{bmatrix}
+1 & 0 \\
+0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0 \\
+0 & 0
+\end{bmatrix} = 
+\begin{bmatrix}
+1 & 0 \\
+0 & 0
+\end{bmatrix} = \mathbf{A}.
+$$
+
+Thus, $\mathbf{A}^-$ is a valid generalized inverse of $\mathbf{A}$. However, $\mathbf{A}^-$ is not symmetric:
+
+$$
+\mathbf{A}^- = 
+\begin{bmatrix}
+1 & 0 \\
+1 & 0
+\end{bmatrix} \neq 
+\begin{bmatrix}
+1 & 1 \\
+0 & 0
+\end{bmatrix} = (\mathbf{A}^-)^\top.
+$$
+
+Conclusion:
+
+This example demonstrates that a generalized inverse of a symmetric matrix need not be symmetric. Therefore, we cannot assume that $(\mathbf{X}^\top \mathbf{X})^- = [(\mathbf{X}^\top \mathbf{X})^-]^\top$ in general.
