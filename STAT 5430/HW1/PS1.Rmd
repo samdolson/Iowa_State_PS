@@ -5,14 +5,6 @@ output: pdf_document
 date: "2025-01-27"
 ---
 
-# Overview 
-
-  - Q1: Edits
-  - Q2: Edits
-  - Q3: Edits 
-  - Q4: Edits
-  - Q5: Edits
-
 # Problem 1
 
 Find the method of moment estimators (MMEs) of the unknown parameters based on a random sample $X_1, X_2, \ldots, X_n$ of size $n$ from the following distributions:
@@ -30,28 +22,28 @@ $$
 Given a random sample $X_1, X_2, \ldots, X_n$, the sample mean is:
 
 $$
-\bar{X} = \frac{1}{n} \sum_{i=1}^n X_i
+\bar{x} = \frac{1}{n} \sum_{i=1}^n X_i
 $$
 
 We then relate the population mean to the sample mean:
 
 $$
-\frac{3(1-p)}{p} = \bar{X}
+\frac{3(1-p)}{p} = \bar{x}
 $$
 
 And solve for $p$:
 
 $$
-3(1-p) = \bar{X} p, \\
-3 - 3p = \bar{X} p, \\
-3 = p(\bar{X} + 3), \\
-p = \frac{3}{3 + \bar{X}}
+3(1-p) = \bar{x} p, \\
+3 - 3p = \bar{x} p, \\
+3 = p(\bar{x} + 3), \\
+p = \frac{3}{3 + \bar{x}}
 $$
 
 Thus, the method of moments estimator for $p$ is:
 
 $$
-\hat{p} = \frac{3}{3 + \bar{X}}
+\hat{p} = \frac{3}{3 + \bar{x}}
 $$
 
 ## b) 
@@ -63,13 +55,13 @@ The Double Exponential distribution has a mean $\mu$ and variance $2\sigma^2$.
 Given a random sample $X_1, X_2, \ldots, X_n$, the sample mean and sample variance are:
 
 $$
-\bar{X} = \frac{1}{n} \sum_{i=1}^n X_i, \quad S^2 = \frac{1}{n} \sum_{i=1}^n (X_i - \bar{X})^2
+\bar{x} = \frac{1}{n} \sum_{i=1}^n X_i, \quad S^2 = \frac{1}{n} \sum_{i=1}^n (X_i - \bar{x})^2
 $$
 
 We then relate the population mean to the sample mean:
 
 $$
-\mu = \bar{X}, \quad 2\sigma^2 = S^2.
+\mu = \bar{x}, \quad 2\sigma^2 = S^2.
 $$
 
 Solving for $\sigma$:
@@ -81,7 +73,7 @@ $$
 Thus, the method of moments estimators are:
 
 $$
-\hat{\mu} = \bar{X}, \quad \hat{\sigma} = \sqrt{\frac{S^2}{2}}
+\hat{\mu} = \bar{x}, \quad \hat{\sigma} = \sqrt{\frac{S^2}{2}}
 $$
 
 ## Note: 
@@ -169,7 +161,7 @@ $$
   \hline
   0 & 1 \\
   1 & 1 \\
-  2 & 2 \text{ or } 3 \\
+  2 & 2 \text{ or } 3 \text{ (Either works)}\\
   3 & 3 \\
   4 & 3 \\
 \end{array}
@@ -181,7 +173,7 @@ $$
 \hat{\theta} = \underset{\theta \in \{1, 2, 3\}}{\text{argmax}} \, f(x|\theta)
 $$
 
-And overall MLE is not unique, i.e., it is defined as a function of x (the MLE depends on the value of x), as illustrated above. 
+And overall MLE is not unique, i.e., it is defined as a function of x (the MLE depends on the value of x), as illustrated above. However, we may describe it as follows, "For x $\in \{ 0, 1\}$ the MLE $\hat{\theta}$ is 1, otherwise 3, i.e. for x $\in \{ 2, 3, 4\}$ the MLE $\hat{\theta}$ is 3.
 
 \newpage 
 
@@ -302,7 +294,7 @@ $$
 L(\theta) = \frac{1}{\theta^n} e^{-\sum_{i=1}^n x_i / \theta},
 $$
 
-and that the MLE of $\theta$ is $\bar{X}_n$. 
+and that the MLE of $\theta$ is $\bar{x}_n$. 
 
 (Message here: The support of an exponential doesn’t depend on $\theta$, so we don’t have to worry about indicating the support.)
 
@@ -333,14 +325,36 @@ $$
 Rearranging and solving for $\theta$, we have:
 
 $$
-\sum_{i=1}^n x_i = n\theta, \quad \hat{\theta} = \frac{\sum_{i=1}^n x_i}{n} = \bar{X}_n
+\sum_{i=1}^n x_i = n\theta, \quad \hat{\theta} = \frac{\sum_{i=1}^n x_i}{n} = \bar{x}_n
 $$
 
 And we conclude the MLE of $\theta$ is:
 
 $$
-\hat{\theta} = \bar{X}_n
+\hat{\theta} = \bar{x}_n
 $$
+
+#### Additional Check 
+
+To ensure this is a maximum, another validation is to check that: 
+
+$$
+\left. \frac{d^2\log L(\theta)}{d\theta^2}\right|_{\hat{\theta}}<0
+$$
+
+To that end, we have the second derivative of:
+
+$$
+\frac{\partial^2L(\theta)}{\partial \theta^2} = \frac{n}{\theta^2} - \frac{2 \sum_{i=1}^n x_i}{\theta^3}
+$$
+
+With note of $\hat{\theta} = \bar{x}_n = \frac{\sum_{i=1}^n x_i}{n}$, we have:
+
+$$
+\frac{\partial^2 L(\theta)}{\partial \theta^2} \bigg|_{\theta = \hat{\theta}} = \frac{n}{\hat{\theta}^2} - \frac{2 \sum_{i=1}^n x_i}{\hat{\theta}^3} = \frac{n}{\hat{\theta}^2} - \frac{2n \hat{\theta}}{\hat{\theta}^3} = \frac{n}{\hat{\theta}^2} - \frac{2n}{\hat{\theta}^2} = -\frac{n}{\hat{\theta}^2}
+$$
+
+Given $n > 0$ and $\hat{\theta}^2 > 0$, the second derivative is always negative, such that we have confirmed that $\hat{\theta} = \bar{x}_n$ is a maximum.
 
 ### b) 
 
@@ -399,6 +413,18 @@ We then conclude that the MLE as specified is:
 $$
 \hat{\theta} = \max_{1 \leq i \leq n} x_i
 $$
+
+#### Additional Check 
+
+To ensure this is a maximum, another validation is to check that: 
+
+$$
+\left. \frac{d^2\log L(\theta)}{d\theta^2}\right|_{\hat{\theta}}<0
+$$
+
+However, because of the inclusion of the Indicator function, we are not able to differentiate and solve using the typical "Calculus Method". 
+
+For that reason, it is important to note that analytically, we are maximizing the function in question globally, such that despite not being able to validate our answer via differentiation, we do in fact have the MLE as defined, $\hat{\theta}$, maximizing the likelihood function specified. 
 
 \newpage 
 
