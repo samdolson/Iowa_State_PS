@@ -11,12 +11,12 @@ library(knitr)
 
 # Outline 
 
-  - Q1: Edited 
-  - Q2: Edited 
+  - Q1: G2G 
+  - Q2: G2G 
   - Q3: Edited
   - Q4: Edited
   - Q5: Edited
-  - Q6: Edited
+  - Q6: G2G
   
 # Problem 1
 
@@ -50,16 +50,10 @@ $$
 
 Determine the distribution of $u = \mathbf{1}_3^T \mathbf{y}$.
 
-The distribution of $u = \mathbf{1}_3^T \mathbf{y}$ is:
-
-$$
-u \sim \mathcal{N}(6, 9)
-$$
-
 Mean of $u$:
 
 $$
-\mathbb{E}[u] = \mathbf{1}_3^T \boldsymbol{\mu} = [1, 1, 1] \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix} = 1 + 2 + 3 = 6
+E[u] = \mathbf{1}_3^T \boldsymbol{\mu} = [1, 1, 1] \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix} = 1 + 2 + 3 = 6
 $$
 
 Variance of $u$:
@@ -68,19 +62,17 @@ $$
 \text{Var}(u) = \mathbf{1}_3^T \mathbf{\Sigma} \mathbf{1}_3 = [1, 1, 1] \begin{bmatrix} 2 & 1 & -1 \\ 1 & 2 & 1 \\ -1 & 1 & 3 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix} = [1, 1, 1] \begin{bmatrix} 2 \\ 4 \\ 3 \end{bmatrix} = 2 + 4 + 3 = 9
 $$
 
-Since $u$ is a linear combination of normally distributed variables, it follows a normal distribution with mean $6$ and variance $9$.
+Since $u$ is a linear combination of normally distributed variables, it follows a normal distribution with mean $6$ and variance $9$, i.e. the distribution of $u$ as defined is:
+
+$$
+u \sim \mathcal{N}(6, 9)
+$$
 
 ## b) 
 
 Determine the distribution of $\mathbf{v} = \mathbf{Ay}$.
 
-The distribution of $\mathbf{v} = \mathbf{Ay}$ is:
-
-$$
-\mathbf{v} \sim \mathcal{N}(\mathbf{A} \boldsymbol{\mu}, \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T)
-$$
-
-Substituting the given values:
+As defined, we start by substituting the givens, specifically using $\mathbf{v} = \mathbf{Ay}$:
 
 $$
 \mathbf{v} \sim \mathcal{N}\left(
@@ -96,18 +88,14 @@ $$
 Mean of $\mathbf{v}$:
 
 $$
-\mathbb{E}[\mathbf{v}] = \mathbf{A} \boldsymbol{\mu} = 
+E[\mathbf{v}] = \mathbf{A} \boldsymbol{\mu} = 
 \begin{bmatrix}
 2 & 2 & 1 \\
 1 & 0 & -1 \\
 0 & 1 & -1
 \end{bmatrix}
-\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix} = 
-\begin{bmatrix}
-2 \cdot 1 + 2 \cdot 2 + 1 \cdot 3 \\
-1 \cdot 1 + 0 \cdot 2 + (-1) \cdot 3 \\
-0 \cdot 1 + 1 \cdot 2 + (-1) \cdot 3
-\end{bmatrix} = 
+\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}
+= 
 \begin{bmatrix} 9 \\ -2 \\ -1 \end{bmatrix}
 $$
 
@@ -117,7 +105,7 @@ $$
 \text{Cov}(\mathbf{v}) = \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T
 $$
 
-First, compute $\mathbf{A} \mathbf{\Sigma}$:
+Taking the first part of this expression and evaluating $\mathbf{A} \mathbf{\Sigma}$:
 
 $$
 \mathbf{A} \mathbf{\Sigma} = 
@@ -138,7 +126,7 @@ $$
 \end{bmatrix}
 $$
 
-Then, compute $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$:
+Then, we take that matrix to get $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$:
 
 $$
 \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T = 
@@ -159,13 +147,18 @@ $$
 \end{bmatrix}
 $$
 
-Since $\mathbf{v}$ is a linear transformation of $\mathbf{y}$, it follows a multivariate normal distribution with the derived mean and covariance.
+Since $\mathbf{v}$ is a linear transformation of $\mathbf{y}$, it follows a multivariate normal distribution with the above mean and covariance, i.e. we may describe the distribution of $\mathbf{V}$ as: 
+
+$$
+\mathbf{v} \sim \mathcal{N}(\mathbf{A} \boldsymbol{\mu}, \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T)
+$$
+
 
 ## c) 
 
 Determine the distribution of $\mathbf{w}$, where $\mathbf{w}^T = [\mathbf{Ay} \quad \mathbf{By}]$.
 
-The distribution of $\mathbf{w}$, where $\mathbf{w}^T = [\mathbf{Ay} \quad \mathbf{By}]$, is:
+We start by using the given information, specifically:
 
 $$
 \mathbf{w} \sim \mathcal{N}\left(
@@ -177,26 +170,11 @@ $$
 \right)
 $$
 
-Substituting the given values:
+We just need to calculate some unknown quantities, the mean and covariance matrices of $\mathbf{w}$. To that end, we note: 
 
-$$
-\mathbf{w} \sim \mathcal{N}\left(
-\begin{bmatrix} 9 \\ -2 \\ -1 \\ 6 \\ 1 \end{bmatrix},
-\begin{bmatrix}
-27 & 2 & 4 & 15 & 2 \\
-2 & 7 & 4 & -1 & -3 \\
-4 & 4 & 3 & -3 & -1 \\
-15 & -1 & -3 & 9 & 2 \\
-2 & -3 & -1 & 2 & 2
-\end{bmatrix}
-\right)
-$$
+The mean of $\mathbf{w}$ can be taken from part (b), $\mathbb{E}[\mathbf{Ay}] = \begin{bmatrix} 9 \\ -2 \\ -1 \end{bmatrix}$.
 
-Mean of $\mathbf{w}$:
-
-From part (b), $\mathbb{E}[\mathbf{Ay}] = \begin{bmatrix} 9 \\ -2 \\ -1 \end{bmatrix}$.
-
-Compute $\mathbb{E}[\mathbf{By}] = \mathbf{B} \boldsymbol{\mu}$:
+We then compute $\mathbb{E}[\mathbf{By}] = \mathbf{B} \boldsymbol{\mu}$:
 
 $$
 \mathbf{B} \boldsymbol{\mu} = 
@@ -204,23 +182,20 @@ $$
 1 & 1 & 1 \\
 -1 & 1 & 0
 \end{bmatrix}
-\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix} = 
-\begin{bmatrix}
-1 \cdot 1 + 1 \cdot 2 + 1 \cdot 3 \\
-(-1) \cdot 1 + 1 \cdot 2 + 0 \cdot 3
-\end{bmatrix} = 
+\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix} 
+= 
 \begin{bmatrix} 6 \\ 1 \end{bmatrix}
 $$
 
-Thus:
+Taken together this gives us:
 
 $$
-\mathbb{E}[\mathbf{w}] = \begin{bmatrix} \mathbf{A} \boldsymbol{\mu} \\ \mathbf{B} \boldsymbol{\mu} \end{bmatrix} = \begin{bmatrix} 9 \\ -2 \\ -1 \\ 6 \\ 1 \end{bmatrix}
+E[\mathbf{w}] = \begin{bmatrix} \mathbf{A} \boldsymbol{\mu} \\ \mathbf{B} \boldsymbol{\mu} \end{bmatrix} = \begin{bmatrix} 9 \\ -2 \\ -1 \\ 6 \\ 1 \end{bmatrix}
 $$
 
-Covariance of $\mathbf{w}$:
+We then calculate the covariance of $\mathbf{w}$:
 
-From part (b), $\text{Cov}(\mathbf{Ay}) = \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T = \begin{bmatrix} 27 & 2 & 4 \\ 2 & 7 & 4 \\ 4 & 4 & 3 \end{bmatrix}$.
+Again, taking information from part (b), we already know $\text{Cov}(\mathbf{Ay}) = \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T = \begin{bmatrix} 27 & 2 & 4 \\ 2 & 7 & 4 \\ 4 & 4 & 3 \end{bmatrix}$.
 
 Compute $\text{Cov}(\mathbf{By}) = \mathbf{B} \mathbf{\Sigma} \mathbf{B}^T$:
 
@@ -241,6 +216,8 @@ $$
 \end{bmatrix}
 $$
 
+Using this, we then have:
+
 $$
 \mathbf{B} \mathbf{\Sigma} \mathbf{B}^T = 
 \begin{bmatrix}
@@ -258,7 +235,7 @@ $$
 \end{bmatrix}
 $$
 
-Compute $\text{Cov}(\mathbf{Ay}, \mathbf{By}) = \mathbf{A} \mathbf{\Sigma} \mathbf{B}^T$:
+We then compute $\text{Cov}(\mathbf{Ay}, \mathbf{By}) = \mathbf{A} \mathbf{\Sigma} \mathbf{B}^T$:
 
 $$
 \mathbf{A} \mathbf{\Sigma} \mathbf{B}^T = 
@@ -279,7 +256,7 @@ $$
 \end{bmatrix}
 $$
 
-The full covariance matrix is:
+The full covariance matrix is then given by:
 
 $$
 \text{Cov}(\mathbf{w}) = 
@@ -298,48 +275,7 @@ $$
 
 Since $\mathbf{w}$ is a joint linear transformation of $\mathbf{y}$, it follows a multivariate normal distribution with the derived mean and covariance.
 
-## d) 
-
-Which of the distributions obtained in (a)–(c) are singular distributions? Recall that a distribution is singular if $\mathbf{\Sigma}$ is not positive definite. Note that there are many algebraic properties of $\mathbf{\Sigma}$ that can be used to show that $\mathbf{\Sigma}$ is singular/nonsingular.
-
-A distribution is singular if its covariance matrix $\mathbf{\Sigma}$ is not positive definite (i.e., $\mathbf{\Sigma}$ is singular, meaning its determinant is zero or it is not full rank). 
-
-Distribution in (a):
-
-$u \sim \mathcal{N}(6, 9)$.
-
-The covariance matrix is $\text{Var}(u) = 9$, which is a scalar. Since $9 > 0$, the distribution is nonsingular.
-
-Distribution in (b):
-
-$$
-\mathbf{v} \sim \mathcal{N}\left(
-\begin{bmatrix} 9 \\ -2 \\ -1 \end{bmatrix},
-\begin{bmatrix}
-13 & 3 & -1 \\
-3 & 5 & -2 \\
--1 & -2 & 6
-\end{bmatrix}
-\right)
-$$
-
-Check if the covariance matrix $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$ is positive definite:
-
-Compute the determinant of $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$:
-
-$$
-\det\left(
-\begin{bmatrix}
-13 & 3 & -1 \\
-3 & 5 & -2 \\
--1 & -2 & 6
-\end{bmatrix}
-\right) = 13(5 \cdot 6 - (-2) \cdot (-2)) - 3(3 \cdot 6 - (-2) \cdot (-1)) + (-1)(3 \cdot (-2) - 5 \cdot (-1)) = 13(30 - 4) - 3(18 - 2) + (-1)(-6 + 5) = 13(26) - 3(16) + (-1)(-1) = 338 - 48 + 1 = 291 \neq 0.
-$$
-
-Since the determinant is nonzero, the covariance matrix is nonsingular.
-
-Distribution in (c):
+Overall, this gives us the distribution of $\mathbf{w}$:
 
 $$
 \mathbf{w} \sim \mathcal{N}\left(
@@ -354,13 +290,98 @@ $$
 \right)
 $$
 
-Check if the covariance matrix is positive definite:
+## d) 
 
-The covariance matrix is $5 \times 5$. Compute its rank or determinant to check for singularity.
+Which of the distributions obtained in (a)–(c) are singular distributions? Recall that a distribution is singular if $\mathbf{\Sigma}$ is not positive definite. Note that there are many algebraic properties of $\mathbf{\Sigma}$ that can be used to show that $\mathbf{\Sigma}$ is singular/nonsingular.
 
-Using properties of block matrices, observe that the off-diagonal blocks $\mathbf{A} \mathbf{\Sigma} \mathbf{B}^T$ and $\mathbf{B} \mathbf{\Sigma} \mathbf{A}^T$ introduce dependencies between $\mathbf{Ay}$ and $\mathbf{By}$. This often results in a singular covariance matrix.
+By definition, a distribution is singular if its covariance matrix $\mathbf{\Sigma}$ is not positive definite (i.e., $\mathbf{\Sigma}$ is singular, meaning its determinant is zero or it is not full rank). As we calculated the covariance matrices from part a) through c), the general approach will be to just calculate the determinants. To that end:  
 
-Alternatively, compute the determinant:
+Distribution in a):
+
+$u \sim \mathcal{N}(6, 9)$.
+
+The covariance matrix is $\text{Var}(u) = 9$, which is a scalar. Since $9 \neq 0$, the distribution is nonsingular.
+
+Distribution in b):
+
+$$
+\mathbf{v} \sim \mathcal{N}\left(
+\begin{bmatrix} 9 \\ -2 \\ -1 \end{bmatrix},
+\begin{bmatrix}
+13 & 3 & -1 \\
+3 & 5 & -2 \\
+-1 & -2 & 6
+\end{bmatrix}
+\right)
+$$
+
+To determine if the covariance matrix $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$ is positive definite, the determinant of $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$ is:
+
+$$
+\det\left(
+\begin{bmatrix}
+13 & 3 & -1 \\
+3 & 5 & -2 \\
+-1 & -2 & 6
+\end{bmatrix}
+\right) = 291 \neq 0
+$$
+
+Since the determinant is nonzero, the covariance matrix is nonsingular.
+
+Given the distribution in c):
+
+$$
+\mathbf{w} \sim \mathcal{N}\left(
+\begin{bmatrix} 9 \\ -2 \\ -1 \\ 6 \\ 1 \end{bmatrix},
+\begin{bmatrix}
+27 & 2 & 4 & 15 & 2 \\
+2 & 7 & 4 & -1 & -3 \\
+4 & 4 & 3 & -3 & -1 \\
+15 & -1 & -3 & 9 & 2 \\
+2 & -3 & -1 & 2 & 2
+\end{bmatrix}
+\right)
+$$
+
+We could again check the determinant of the covariance matrix. However, given how absolutely painful that calculation would be, instead I will compute the rank to check for singularity (as it is also an appropriate method). If the rank of the matrix is smaller than its dimension, then it is singular, i.e. if rank of the covariance matrix from c) is less than 5, then we conclude it is singular. 
+
+To calculate rank, we have the row echelon form to aid in rank caluclation: 
+
+$$
+\begin{bmatrix}
+27 & 2 & 4 & 15 & 2 \\
+2 & 7 & 4 & -1 & -3 \\
+4 & 4 & 3 & -3 & -1 \\
+15 & -1 & -3 & 9 & 2 \\
+2 & -3 & -1 & 2 & 2
+\end{bmatrix}
+\rightarrow
+\begin{bmatrix}
+27 & 2 & 4 & 15 & 2 \\
+0 & \frac{185}{27} & \frac{100}{27} & -\frac{59}{27} & -\frac{85}{27} \\
+0 & 0 & \frac{65}{185} & -\frac{77}{185} & -\frac{55}{185} \\
+0 & 0 & 0 & \frac{144}{65} & \frac{16}{65} \\
+0 & 0 & 0 & 0 & \frac{434}{585}
+\end{bmatrix}
+\rightarrow 
+\text{rank}\left(
+\begin{bmatrix}
+27 & 2 & 4 & 15 & 2 \\
+2 & 7 & 4 & -1 & -3 \\
+4 & 4 & 3 & -3 & -1 \\
+15 & -1 & -3 & 9 & 2 \\
+2 & -3 & -1 & 2 & 2
+\end{bmatrix}
+\right) = 5
+$$
+
+
+As the rank of the matrix is 5, we then conclude the matrix is nonsingular. 
+
+### Second Approach
+
+I also threw this into a determinant calculator and got: 
 
 $$
 \det\left(
@@ -371,16 +392,14 @@ $$
 15 & -1 & -3 & 9 & 2 \\
 2 & -3 & -1 & 2 & 2
 \end{bmatrix}
-\right) = 0.
+\right) = -1200 \neq 0
 $$
 
-Since the determinant is zero, the covariance matrix is singular.
+Both methods give the same conclusion though, namely that this matrix is nonsingular.
 
-## Conclusion:
+### Summary:
 
-- The distribution in (a) is nonsingular.
-- The distribution in (b) is nonsingular.
-- The distribution in (c) is singular.
+All the distributions a), b), and c) are nonsingular! 
 
 \newpage 
 
@@ -400,49 +419,47 @@ $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$, meaning the column spaces o
 
 Since $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$, the projection matrices $\mathbf{P_X}$ and $\mathbf{P_W}$ must project onto the same subspace.
 
-By the uniqueness of projection matrices, $\mathbf{P_X} = \mathbf{P_W}$.
+By the uniqueness property of projection matrices, $\mathbf{P_X} = \mathbf{P_W}$.
 
 ## Approach 2 (The "better" way?)
 
 The projection matrix $\mathbf{P_X}$ is given by:
 
 $$
-\mathbf{P_X} = \mathbf{X}(\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T.
+\mathbf{P_X} = \mathbf{X}(\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T
 $$
 
 Similarly, $\mathbf{P_W}$ is:
 
 $$
-\mathbf{P_W} = \mathbf{W}(\mathbf{W}^T \mathbf{W})^{-1} \mathbf{W}^T.
+\mathbf{P_W} = \mathbf{W}(\mathbf{W}^T \mathbf{W})^{-1} \mathbf{W}^T
 $$
 
 Since $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$, there exists a nonsingular matrix $\mathbf{C}$ such that $\mathbf{W} = \mathbf{X} \mathbf{C}$.
 
-Substitute $\mathbf{W} = \mathbf{X} \mathbf{C}$ into $\mathbf{P_W}$:
+So, given this, we may substitute $\mathbf{W} = \mathbf{X} \mathbf{C}$ into $\mathbf{P_W}$:
 
 $$
-\mathbf{P_W} = \mathbf{X} \mathbf{C} \left( (\mathbf{X} \mathbf{C})^T (\mathbf{X} \mathbf{C}) \right)^{-1} (\mathbf{X} \mathbf{C})^T.
+\mathbf{P_W} = \mathbf{X} \mathbf{C} \left( (\mathbf{X} \mathbf{C})^T (\mathbf{X} \mathbf{C}) \right)^{-1} (\mathbf{X} \mathbf{C})^T
 $$
 
-Simplify:
+Simpifying gives us:
 
 $$
-\mathbf{P_W} = \mathbf{X} \mathbf{C} \left( \mathbf{C}^T \mathbf{X}^T \mathbf{X} \mathbf{C} \right)^{-1} \mathbf{C}^T \mathbf{X}^T.
+\mathbf{P_W} = \mathbf{X} \mathbf{C} \left( \mathbf{C}^T \mathbf{X}^T \mathbf{X} \mathbf{C} \right)^{-1} \mathbf{C}^T \mathbf{X}^T
 $$
 
-Using the property $(\mathbf{A} \mathbf{B} \mathbf{C})^{-1} = \mathbf{C}^{-1} \mathbf{B}^{-1} \mathbf{A}^{-1}$ when $\mathbf{A}, \mathbf{B}, \mathbf{C}$ are invertible:
+Using the property of inverses, $(\mathbf{A} \mathbf{B} \mathbf{C})^{-1} = \mathbf{C}^{-1} \mathbf{B}^{-1} \mathbf{A}^{-1}$ when $\mathbf{A}, \mathbf{B}, \mathbf{C}$ are invertible (which we assume under the premise), we then have:
 
 $$
-\mathbf{P_W} = \mathbf{X} \mathbf{C} \mathbf{C}^{-1} (\mathbf{X}^T \mathbf{X})^{-1} (\mathbf{C}^T)^{-1} \mathbf{C}^T \mathbf{X}^T.
+\mathbf{P_W} = \mathbf{X} \mathbf{C} \mathbf{C}^{-1} (\mathbf{X}^T \mathbf{X})^{-1} (\mathbf{C}^T)^{-1} \mathbf{C}^T \mathbf{X}^T
 $$
 
-Since $\mathbf{C} \mathbf{C}^{-1} = \mathbf{I}$ and $\mathbf{C}^T (\mathbf{C}^T)^{-1} = \mathbf{I}$, this simplifies to:
+Since $\mathbf{C} \mathbf{C}^{-1} = \mathbf{I}$ and $\mathbf{C}^T (\mathbf{C}^T)^{-1} = \mathbf{I}$, this further simplifies:
 
 $$
-\mathbf{P_W} = \mathbf{X} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T = \mathbf{P_X}.
+\mathbf{P_W} = \mathbf{X} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T = \mathbf{P_X}
 $$
-
-Therefore, $\mathbf{P_X} = \mathbf{P_W}$.
 
 Regardless of approach, suffice to say $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$, then $\mathbf{P_X} = \mathbf{P_W}$.
 
@@ -1655,14 +1672,12 @@ Provide an example that shows that a generalized inverse of a symmetric matrix n
 A generalized inverse $\mathbf{A}^-$ of a matrix $\mathbf{A}$ satisfies the condition:
 
 $$
-\mathbf{A} \mathbf{A}^- \mathbf{A} = \mathbf{A}.
+\mathbf{A} \mathbf{A}^- \mathbf{A} = \mathbf{A}
 $$
 
 However, $\mathbf{A}^-$ need not be symmetric even if $\mathbf{A}$ is symmetric.
 
-Step 1: Choose a Symmetric Matrix $\mathbf{A}$
-
-Consider the symmetric matrix:
+We start with a Symmetric Matrix $\mathbf{A}$:
 
 $$
 \mathbf{A} =
@@ -1672,9 +1687,9 @@ $$
 \end{bmatrix}
 $$
 
-Step 2: Construct a Generalized Inverse $\mathbf{A}^-$
+Then, we have a Generalized Inverse $\mathbf{A}^-$ (that is not $\mathbf{A}$!). We need to ensure the generalized inverse property holds, $\mathbf{A} \mathbf{A}^- \mathbf{A} = \mathbf{A}$. 
 
-A generalized inverse $\mathbf{A}^-$ must satisfy $\mathbf{A} \mathbf{A}^- \mathbf{A} = \mathbf{A}$. One such generalized inverse is:
+One possible generalized inverse we may have is:
 
 $$
 \mathbf{A}^- =
@@ -1684,9 +1699,7 @@ $$
 \end{bmatrix}
 $$
 
-Step 3: Verify the Generalized Inverse Property
-
-Compute $\mathbf{A} \mathbf{A}^-$:
+First, we check that the necessary property of a generalized inverse holds:
 
 $$
 \mathbf{A} \mathbf{A}^- =
@@ -1705,7 +1718,7 @@ $$
 \end{bmatrix}
 $$
 
-Compute $\mathbf{A} \mathbf{A}^- \mathbf{A}$:
+Followed by $\mathbf{A} \mathbf{A}^- \mathbf{A}$:
 
 $$
 \mathbf{A} \mathbf{A}^- \mathbf{A} =
@@ -1721,12 +1734,12 @@ $$
 \begin{bmatrix}
 1 & 0 \\
 0 & 0
-\end{bmatrix} = \mathbf{A}.
+\end{bmatrix} = \mathbf{A}
 $$
 
-Thus, $\mathbf{A}^-$ satisfies the generalized inverse condition.
+So our chosen $\mathbf{A}^-$ satisfies the generalized inverse condition.
 
-Step 4: Show That $\mathbf{A}^-$ Is Not Symmetric
+Let us then consider whether $\mathbf{A}^-$ is symmetric
 
 The transpose of $\mathbf{A}^-$ is:
 
@@ -1738,7 +1751,7 @@ $$
 \end{bmatrix}
 $$
 
-Since:
+Notably, 
 
 $$
 \mathbf{A}^- =
@@ -1750,17 +1763,9 @@ $$
 \begin{bmatrix}
 1 & 0 \\
 1 & 0
-\end{bmatrix} = (\mathbf{A}^-)^\top,
+\end{bmatrix} = (\mathbf{A}^-)^\top
 $$
 
-$\mathbf{A}^-$ is not symmetric, even though $\mathbf{A}$ is symmetric.
+So $\mathbf{A}^-$ is not symmetric, even though $\mathbf{A}$ is symmetric!
 
-Conclusion
-
-This example demonstrates that a generalized inverse of a symmetric matrix need not be symmetric. Therefore, we cannot assume that:
-
-$$
-(\mathbf{X}^\top \mathbf{X})^- = [(\mathbf{X}^\top \mathbf{X})^-]^\top
-$$
-
-in general.
+This counterexample shows that a generalized inverse of a symmetric matrix need not be symmetric. Ding dang! 
