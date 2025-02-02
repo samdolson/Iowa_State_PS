@@ -13,7 +13,7 @@ Find the method of moment estimators (MMEs) of the unknown parameters based on a
 
 Negative Binomial $(3, p)$, unknown $p$:
 
-The Negative Binomial distribution with parameters $r = 3$ and $p$ has a mean:
+Noting definitions and the distribution in question: 
 
 $$
 \mu = \frac{3(1-p)}{p}
@@ -22,58 +22,68 @@ $$
 Given a random sample $X_1, X_2, \ldots, X_n$, the sample mean is:
 
 $$
-\bar{x} = \frac{1}{n} \sum_{i=1}^n X_i
+\bar{X} = \frac{1}{n} \sum_{i=1}^n X_i
 $$
 
 We then relate the population mean to the sample mean:
 
 $$
-\frac{3(1-p)}{p} = \bar{x}
+\frac{3(1-p)}{p} = \bar{X}
 $$
 
-And solve for $p$:
+Solving for $p$:
 
 $$
-3(1-p) = \bar{x} p, \\
-3 - 3p = \bar{x} p, \\
-3 = p(\bar{x} + 3), \\
-p = \frac{3}{3 + \bar{x}}
+3(1-p) = \bar{X} p, \\
+3 - 3p = \bar{X} p, \\
+3 = p(\bar{X} + 3), \\
+p = \frac{3}{3 + \bar{X}}
 $$
 
 Thus, the method of moments estimator for $p$ is:
 
 $$
-\hat{p} = \frac{3}{3 + \bar{x}}
+\hat{p} = \frac{3}{3 + \bar{X}}
 $$
 
 ## b) 
 
 Double Exponential $(\mu, \sigma)$, unknown $\mu$ and $\sigma$:
 
-The Double Exponential distribution has a mean $\mu$ and variance $2\sigma^2$. 
-
-Given a random sample $X_1, X_2, \ldots, X_n$, the sample mean and sample variance are:
+Noting definitions and the distribution in question: 
 
 $$
-\bar{x} = \frac{1}{n} \sum_{i=1}^n X_i, \quad S^2 = \frac{1}{n} \sum_{i=1}^n (X_i - \bar{x})^2
+\mu_1(\mu, \sigma^2) = \bar{X} = \frac{1}{n} \sum_{i=1}^n X_i
 $$
 
-We then relate the population mean to the sample mean:
+and:
 
 $$
-\mu = \bar{x}, \quad 2\sigma^2 = S^2.
+\mu_2(\mu, \sigma^2) = 2\sigma^2 + \mu^2
+$$
+
+We equate the population moments to the sample moments:
+
+$$
+\mu = \bar{X}, \quad 2\sigma^2 = S^2
+$$
+
+where $S^2$ is the sample variance (of the random variable):
+
+$$
+S^2 = \frac{1}{n} \sum_{i=1}^n (X_i - \bar{X})^2
 $$
 
 Solving for $\sigma$:
 
 $$
-\sigma = \sqrt{\frac{S^2}{2}}.
+\sigma = \sqrt{\frac{S^2}{2}}
 $$
 
 Thus, the method of moments estimators are:
 
 $$
-\hat{\mu} = \bar{x}, \quad \hat{\sigma} = \sqrt{\frac{S^2}{2}}
+\hat{\mu} = \bar{X}, \quad \hat{\sigma} = \sqrt{\frac{S^2}{2}}
 $$
 
 ## Note: 
@@ -119,6 +129,7 @@ For $x = 1$:
 $$
 f(1|1) = \frac{1}{3}, \quad f(1|2) = \frac{1}{4}, \quad \text{and} \quad f(1|3) = 0
 $$
+
 The maximum is $f(1|1) = \frac{1}{3}$, so $\hat{\theta} = 1$.
 
 ## 2 
@@ -294,7 +305,7 @@ $$
 L(\theta) = \frac{1}{\theta^n} e^{-\sum_{i=1}^n x_i / \theta},
 $$
 
-and that the MLE of $\theta$ is $\bar{x}_n$. 
+and that the MLE of $\theta$ is $\bar{X}_n$. 
 
 (Message here: The support of an exponential doesn’t depend on $\theta$, so we don’t have to worry about indicating the support.)
 
@@ -313,25 +324,25 @@ $$
 To find the MLE of $\theta$, we maximize the log-likelihood function (log instead of just likelihood for ease of analysis):
 
 $$
-\ell(\theta) = \log L(\theta) = -n \log \theta - \frac{\sum_{i=1}^n x_i}{\theta}
+L(\theta) = \log L(\theta) = -n \log \theta - \frac{\sum_{i=1}^n x_i}{\theta}
 $$
 
-To find the maximum, we differentiate $\ell(\theta)$ with respect to $\theta$ and solve for setting this relation equal to 0:
+To find the maximum, we differentiate $L(\theta)$ with respect to $\theta$ and solve for setting this relation equal to 0:
 
 $$
-\frac{\partial \ell(\theta)}{\partial \theta} = -\frac{n}{\theta} + \frac{\sum_{i=1}^n x_i}{\theta^2} -\frac{n}{\theta} + \frac{\sum_{i=1}^n x_i}{\theta^2} = 0
+\frac{\partial L(\theta)}{\partial \theta} = -\frac{n}{\theta} + \frac{\sum_{i=1}^n x_i}{\theta^2} -\frac{n}{\theta} + \frac{\sum_{i=1}^n x_i}{\theta^2} = 0
 $$
 
 Rearranging and solving for $\theta$, we have:
 
 $$
-\sum_{i=1}^n x_i = n\theta, \quad \hat{\theta} = \frac{\sum_{i=1}^n x_i}{n} = \bar{x}_n
+\sum_{i=1}^n x_i = n\theta, \quad \hat{\theta} = \frac{\sum_{i=1}^n x_i}{n} = \bar{X}_n
 $$
 
 And we conclude the MLE of $\theta$ is:
 
 $$
-\hat{\theta} = \bar{x}_n
+\hat{\theta} = \bar{X}_n
 $$
 
 #### Additional Check 
@@ -348,13 +359,13 @@ $$
 \frac{\partial^2L(\theta)}{\partial \theta^2} = \frac{n}{\theta^2} - \frac{2 \sum_{i=1}^n x_i}{\theta^3}
 $$
 
-With note of $\hat{\theta} = \bar{x}_n = \frac{\sum_{i=1}^n x_i}{n}$, we have:
+With note of $\hat{\theta} = \bar{X}_n = \frac{\sum_{i=1}^n x_i}{n}$, we have:
 
 $$
 \frac{\partial^2 L(\theta)}{\partial \theta^2} \bigg|_{\theta = \hat{\theta}} = \frac{n}{\hat{\theta}^2} - \frac{2 \sum_{i=1}^n x_i}{\hat{\theta}^3} = \frac{n}{\hat{\theta}^2} - \frac{2n \hat{\theta}}{\hat{\theta}^3} = \frac{n}{\hat{\theta}^2} - \frac{2n}{\hat{\theta}^2} = -\frac{n}{\hat{\theta}^2}
 $$
 
-Given $n > 0$ and $\hat{\theta}^2 > 0$, the second derivative is always negative, such that we have confirmed that $\hat{\theta} = \bar{x}_n$ is a maximum.
+Given $n > 0$ and $\hat{\theta}^2 > 0$, the second derivative is always negative, such that we have confirmed that $\hat{\theta} = \bar{X}_n$ is a maximum.
 
 ### b) 
 
@@ -439,7 +450,9 @@ f(x|\theta) = \theta x^{-2}, \quad 0 < \theta \leq x < \infty.
 $$
 
 
-(b) Find the MLE of $\theta$.
+## (b) 
+
+Find the MLE of $\theta$.
 
 The likelihood function for the random sample $X_1, \ldots, X_n$ is:
 
@@ -463,7 +476,9 @@ $$
 \hat{\theta} = x_{(1)}
 $$
 
-(c) Find the method of moments estimator of $\theta$.
+## (c) 
+
+Find the method of moments estimator of $\theta$.
 
 To find the method of moments estimator (MME) of $\theta$, we use the given pdf:
 
