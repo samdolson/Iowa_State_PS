@@ -764,6 +764,22 @@ $$
 
 Computing $\mathbf{X}^\top \mathbf{X}$, we have:
 
+```{r}
+X <- matrix(c(1, -1, 0, 0, 0,
+              0, 0, 1, -1, 0,
+              0, 1, 0, 0, -1,
+              1, 0, 0, 0, -1),
+              nrow = 4, 
+              ncol = 5, 
+              byrow = TRUE)
+XT <- t(X)
+XTX <- XT %*% X 
+  
+X 
+XT 
+XTX 
+```
+
 $$
 \mathbf{X}^\top \mathbf{X} =
 \begin{bmatrix}
@@ -782,10 +798,10 @@ $$
 =
 \begin{bmatrix}
 2 & -1 & 0 & 0 & -1 \\
--1 & 2 & -1 & 0 & 0 \\
-0 & -1 & 1 & -1 & 1 \\
+-1 & 2 & 0 & 0 & -1 \\
+0 & 0 & 1 & -1 & 0 \\
 0 & 0 & -1 & 1 & 0 \\
--1 & 0 & 1 & 0 & 2
+-1 & -1 & 0 & 0 & 2
 \end{bmatrix}
 $$
 
@@ -804,16 +820,18 @@ knitr::include_graphics("Algorithm.png")
 Using the above method gives us: 
 
 ```{r}
-XTX <- matrix(c(
-  2, -1,  0,  0, -1,
- -1,  2, -1,  0,  0,
-  0, -1,  1, -1,  1,
-  0,  0, -1,  1,  0,
- -1,  0,  1,  0,  2
-), nrow = 5, byrow = TRUE)
-
+X <- matrix(c(1, -1, 0, 0, 0,
+              0, 0, 1, -1, 0,
+              0, 1, 0, 0, -1,
+              1, 0, 0, 0, -1),
+              nrow = 4, 
+              ncol = 5, 
+              byrow = TRUE)
+XT <- t(X)
+XTX <- XT %*% X 
 # Did a whole roundabout calculation, but this proved easiest
-G <- solve(XTX) 
+library(MASS)
+G <- ginv(XTX)
 round(G, digits = 2)
 ```
 
@@ -825,18 +843,63 @@ round(mult, digits = 2)
 all.equal(mult, XTX)
 ```
 
+```{r, echo=FALSE, eval=FALSE}
+# X <- matrix(c(1, -1, 0, 0, 0,
+#               0, 0, 1, -1, 0,
+#               0, 1, 0, 0, -1,
+#               1, 0, 0, 0, -1),
+#               nrow = 4, 
+#               ncol = 5, 
+#               byrow = TRUE)
+# XT <- t(X)
+# XTX <- XT %*% X 
+# 
+# # Did a whole roundabout calculation, but this proved easiest
+# G <- matrix(c(2/3, 1/3, 0, 0, 0,
+#               1/3, 2/3, 0, 0, 0,
+#               0, 0, 1, 0, 0,
+#               0, 0, 0, 0, 0,
+#               0, 0, 0, 0, 0),
+#             nrow = 5, byrow = TRUE)
+# G
+# # Verify generalized inverse property
+# XTX
+# mult <- XTX %*% G %*% XTX
+# mult
+# # round(mult, digits = 2)
+# all.equal(mult, XTX)
+```
+
 As a result of the above, one (of many) possible generalized inverse(s) of $\mathbf{X}^\top \mathbf{X}$ is:
 
 $$
 \mathbf{G} =
 \begin{bmatrix}
-1.0 & 0.5 & 0.0 & 0.0 & 0.5 \\
-0.5 & 0.5 & -0.5 & -0.5 & 0.5 \\
-0.0 & -0.5 & -1.0 & -1.0 & 0.5 \\
-0.0 & -0.5 & -1.0 & 0.0 & 0.5 \\
-0.5 & 0.5 & 0.5 & 0.5 & 0.5
+\frac{2}{9} & -\frac{1}{9} & 0 & 0 & -\frac{1}{9} \\
+-\frac{1}{9} & \frac{2}{9} & 0 & 0 & -\frac{1}{9} \\
+0 & 0 & \frac{1}{4} & -\frac{1}{4} & 0 \\
+0 & 0 & -\frac{1}{4} & \frac{1}{4} & 0 \\
+-\frac{1}{9} & -\frac{1}{9} & 0 & 0 & \frac{2}{9}
 \end{bmatrix}
 $$
+
+Note: I did use the manual algorithm method to derive a generalized inverse. I just included the R for ease of reading and to easily validate that it is in fact a generalized inverse. 
+
+Another possible generalized inverse is: 
+
+$$
+\mathbf{G}
+=
+\begin{bmatrix}
+\frac{2}{3} & \frac{1}{3} & 0 & 0 & 0 \\
+\frac{1}{3} & \frac{2}{3} & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+For parts e), f), and g), I will use the latter matrix, primarily because it's much easier to use when multiplying/doing other matrix operations on it. 
 
 ## e) 
 
@@ -888,16 +951,16 @@ y_{34} \\
 \end{bmatrix}
 $$
 
-Using the generalized inverse from part d):
+Using the new generalized inverse:
 
 $$
 \mathbf{G} =
 \begin{bmatrix}
-1.0 & 0.5 & 0.0 & 0.0 & 0.5 \\
-0.5 & 0.5 & -0.5 & -0.5 & 0.5 \\
-0.0 & -0.5 & -1.0 & -1.0 & 0.5 \\
-0.0 & -0.5 & -1.0 & 0.0 & 0.5 \\
-0.5 & 0.5 & 0.5 & 0.5 & 0.5
+\frac{2}{3} & \frac{1}{3} & 0 & 0 & 0 \\
+\frac{1}{3} & \frac{2}{3} & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1
 \end{bmatrix}
 $$
 
@@ -912,19 +975,24 @@ We thus have:
 $$
 \boldsymbol{\beta} =
 \begin{bmatrix}
-1.0 (y_{12} + y_{15}) + 0.5 (-y_{12} + y_{25}) + 0.0 y_{34} + 0.0 (-y_{34}) + 0.5 (-y_{25} - y_{15}) \\
-0.5 (y_{12} + y_{15}) + 0.5 (-y_{12} + y_{25}) + (-0.5) y_{34} + (-0.5) (-y_{34}) + 0.5 (-y_{25} - y_{15}) \\
-0.0 (y_{12} + y_{15}) + (-0.5) (-y_{12} + y_{25}) + (-1.0) y_{34} + (-1.0) (-y_{34}) + 0.5 (-y_{25} - y_{15}) \\
-0.0 (y_{12} + y_{15}) + (-0.5) (-y_{12} + y_{25}) + (-1.0) y_{34} + 0.0 (-y_{34}) + 0.5 (-y_{25} - y_{15}) \\
-0.5 (y_{12} + y_{15}) + 0.5 (-y_{12} + y_{25}) + 0.5 y_{34} + 0.5 (-y_{34}) + 0.5 (-y_{25} - y_{15})
+\frac{2}{3} (y_{12} + y_{15}) + \frac{1}{3} (-y_{12} + y_{25}) + 0 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
+\frac{1}{3} (y_{12} + y_{15}) + \frac{2}{3} (-y_{12} + y_{25}) + 0 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
+0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 1 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
+0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 0 y_{34} + 1 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
+0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 0 y_{34} + 0 (-y_{34}) + 1 (-y_{25} - y_{15})
 \end{bmatrix}
-= 
+$$
+
+Simplifying:
+
+$$
+\boldsymbol{\beta} =
 \begin{bmatrix}
-\frac{1}{2} y_{12} + \frac{1}{2} y_{15} \\
-0 \\
-\frac{1}{2} y_{12} - y_{25} - \frac{1}{2} y_{15} \\
-\frac{1}{2} y_{12} - y_{25} - y_{34} - \frac{1}{2} y_{15} \\
-0
+\frac{1}{3} y_{12} + \frac{2}{3} y_{15} + \frac{1}{3} y_{25} \\
+-\frac{2}{3} y_{12} + \frac{1}{3} y_{15} + \frac{2}{3} y_{25} \\
+y_{34} \\
+-y_{34} \\
+- y_{25} - y_{15}
 \end{bmatrix}
 $$
 
@@ -934,22 +1002,28 @@ $$
 \boldsymbol{\beta} = \mathbf{G} \mathbf{X}^\top \mathbf{y}
 $$
 
-With $\boldsymbol{\beta}$ as defined. 
+With $\boldsymbol{\beta}$ as defined above.
 
 ## f) 
 
 Find the Ordinary Least Squares (OLS) estimator of $\beta_1 - \beta_5$.
 
-From the results of part e), we note: 
+From the results of part e), we note:
 
 $$
-\beta_1 = \frac{1}{2} y_{12} + \frac{1}{2} y_{15}, \quad \beta_5 = 0
+\beta_1 = \frac{1}{3} y_{12} + \frac{2}{3} y_{15} + \frac{1}{3} y_{25}, \quad \beta_5 = - y_{25} - y_{15}
 $$
 
 Such that we have the OLS estimator:
 
 $$
-\beta_1 - \beta_5 = \frac{1}{2} y_{12} + \frac{1}{2} y_{15}
+\beta_1 - \beta_5 = \frac{1}{3} y_{12} + \frac{2}{3} y_{15} + \frac{1}{3} y_{25} + y_{25} + y_{15}
+$$
+
+Simplifying:
+
+$$
+\beta_1 - \beta_5 = \frac{1}{3} y_{12} + \frac{5}{3} y_{15} + \frac{4}{3} y_{25}
 $$
 
 ## g) 
@@ -968,34 +1042,37 @@ $$
 E[\hat{\theta}] = \beta_1 - \beta_5
 $$
 
-Choose $a = 0, b = 0, c = 0, d = 1$, giving:
+Set $a = \frac{1}{3}, b = 0, c = \frac{1}{3}, d = \frac{2}{3}$, giving us:
 
 $$
-\hat{\theta} = y_{15}
+\hat{\theta} = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{15}
 $$
 
-Giving an alternative unbiased estimator of $\beta_1 - \beta_5$ as:
+Giving an alternative unbiased estimator of $\beta_1 - \beta_5$:
 
 $$
-\hat{\theta} = y_{15}
+\hat{\theta} = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{15}
 $$
+
 ## A Quick Proof of Unbiasedness
+
+This is to ensure/validate that the above estimator is indeed unbiased. 
 
 Given:
 
 $$
-y_{15} = \beta_1 - \beta_5 + \epsilon_{15},
+E[y_{12}] = \beta_1 - \beta_5 + \epsilon_{12}, \quad E[y_{25}] = \beta_5 - \beta_1 + \epsilon_{25}, \quad E[y_{15}] = \beta_1 - \beta_5 + \epsilon_{15}
 $$
 
-and assuming $E[\epsilon_{15}] = 0$, 
+and assuming $E[\epsilon_{12}] = E[\epsilon_{25}] = E[\epsilon_{15}] = 0$,
 
 to calculate bias, note expectation:
 
 $$
-E[y_{15}] = E[\beta_1 - \beta_5 + \epsilon_{15}] = E[\beta_1] - E[\beta_5] + E[\epsilon_{15}] = \beta_1 - \beta_5 = \hat{\theta}
+E[\hat{\theta}] = \beta_1 - \beta_5 = \hat{\theta}
 $$
 
-Thus, $\hat{\theta} = y_{15}$ is an unbiased estimator of $\beta_1 - \beta_5$.
+Thus, $\hat{\theta}$ is an unbiased estimator of $\beta_1 - \beta_5$.
 
 \newpage 
 
