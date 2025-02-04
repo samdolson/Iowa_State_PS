@@ -8,7 +8,7 @@ output: pdf_document
   - Q1: Pretty good 
   - Q2: Pretty good 
   - Q3: Pretty good 
-  - Q4:  
+  - Q4: part b) needs work 
   - Q5: part b) needs work
 
 # Problem 1 
@@ -361,15 +361,33 @@ $$
 
 7.49, Casella & Berger
 
-Let $X_1, \dots, X_n$ be iid exponential$(\lambda)$.
+Let $X_1, \dots, X_n$ be iid exponential $(\lambda)$.
 
 ## a) 
 
 Find an unbiased estimator of $\lambda$ based only on $Y = \min\{X_1, \dots, X_n\}$.
 
+$Y = X_{(1)}$ has pdf:
+
+$$
+f_Y(y) = \frac{n!}{(n-1)!} \frac{1}{\lambda} e^{-y/\lambda} \left[ 1 - (1 - e^{-y/\lambda}) \right]^{n-1} = \frac{n}{\lambda} e^{-ny/\lambda}
+$$
+
+Thus, $Y \sim \text{Exponential}(\lambda/n)$, so $E[Y] = \lambda/n$ and $nY$ is an unbiased estimator of $\lambda$.
+
 ## b)
 
 Find a better estimator than the one in part (a). Prove that it is better.
+
+Since $f_X(x)$ is in the exponential family, $\sum_i X_i$ is a complete sufficient statistic. The expectation $E[nX_{(1)} | \sum_i X_i]$ provides the best unbiased estimator of $\lambda$. Since $E[\sum_i X_i] = n\lambda$, we must have $E[nX_{(1)} | \sum_i X_i] = \sum_i X_i / n$ by completeness.
+
+Since any function of $\sum_i X_i$ that is unbiased for $\lambda$ is the best unbiased estimator, we conclude that:
+
+$$
+\hat{\lambda} = \frac{\sum_{i}^{n} X_i}{n}
+$$
+
+is the best unbiased estimator of $\lambda$.
 
 ## c)
 
@@ -380,6 +398,20 @@ $$
 $$
 
 Failure times are often modeled with the exponential distribution. Estimate the mean failure time using the estimators from parts (a) and (b).
+
+From part (a):
+
+$$
+\hat{\lambda}_Y = n \min(X_i) = 12(50.1) = 601.2
+$$
+
+From part (b):
+
+$$
+\hat{\lambda} = \frac{\sum_i X_i}{n} = \frac{1536.6}{12} = 128.8
+$$
+
+Welp, those are pretty different estimates. 
 
 \newpage 
 
@@ -532,5 +564,3 @@ So we have verified that the MLE we calculated is in fact a maximum. This leads 
 $$
 \hat{\theta} = \log \left( \bar{Y}_n^{-1} + 1 \right)
 $$
-
- 
