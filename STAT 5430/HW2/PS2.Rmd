@@ -4,6 +4,13 @@ author: "Samuel Olson"
 output: pdf_document
 ---
 
+# Outline 
+  - Q1: Pretty good 
+  - Q2: Pretty good 
+  - Q3: Pretty good 
+  - Q4:  
+  - Q5: part b) needs work
+
 # Problem 1 
 
 7.11, Casella & Berger
@@ -26,9 +33,103 @@ has a gamma $(\alpha = n, \beta)$ distribution; then, you can compute the varian
 
 Find the MLE of $\theta$, and show that its variance $\to 0$ as $n \to \infty$.
 
+Given the probability density function pdf provided, the likelihood function for is given by:
+
+$$
+L(\theta) = \prod_{i=1}^n \theta X_i^{\theta - 1}
+$$
+
+To make the evaluation easier, consider the log likelihood: 
+
+$$
+\text{log}(L(\theta)) = \sum_{i=1}^n \log(\theta) + (\theta - 1) \sum_{i=1}^n \log(X_i) = n \log(\theta) + (\theta - 1) \sum_{i=1}^n \log(X_i)
+$$
+
+We attempt to find a maximum by differentiating with respect to $\theta$ and setting the expression to 0:
+
+$$
+\frac{d\text{log}(L(\theta))}{d\theta} = \frac{n}{\theta} + \sum_{i=1}^n \log(X_i) = 0 \rightarrow \hat{\theta}_{\text{MLE}} = -\frac{n}{\sum_{i=1}^n \log(X_i)}
+$$
+
+To confirm this is a maximum, we then also check that the second derivative is negative: 
+
+$$
+\frac{d^2\text{log}(L(\theta))}{d\theta} = -\frac{n}{\theta^2} < 0 \text { given n > 0}
+$$
+
+So our calculation is indeed an MLE. 
+
+We then must identify the variance of our MLE. To that end, define $Y_i = -\log(X_i)$, which follows an exponential distribution:
+
+$$
+Y_i \sim \text{Exp}(1/\theta)
+$$
+
+As parametrized, the sum $W = \sum_{i=1}^n Y_i$ follows a Gamma distribution:
+
+$$
+W \sim \text{Gamma}(n, 1/\theta)
+$$
+
+Utilizing some useful properties of the Gamma, we then know:
+
+$$
+E(W^{-1}) = \frac{\theta}{n - 1}, \quad E(W^{-2}) = \frac{\theta^2}{(n - 1)(n - 2)}
+$$
+
+Since $\hat{\theta}_{\text{MLE}} = \frac{n}{W}$, the variance is:
+
+$$
+\text{Var}(\hat{\theta}_{\text{MLE}}) = n^2 E(W^{-2}) - (n E(W^{-1}))^2 = \frac{n^2 \theta^2}{(n - 1)(n - 2)} - \frac{n^2 \theta^2}{(n - 1)^2} = \frac{n^2 \theta^2}{(n - 1)^2 (n - 2)}
+$$
+
+Consider the behavior of this function as n increases. Namely, since the denominator grows faster than the numerator, noting the expression in the denominator is n to a degree 3 and for the numerator n to a degree 2, we conclude:
+
+$$
+\text{Var}(\hat{\theta}_{\text{MLE}}) \to 0 \quad \text{as} \quad n \to \infty.
+$$
+
 ## b) 
 
 Find the method of moments estimator of $\theta$.
+
+We start by considering the first moment of $X$ given by:
+
+$$
+E(X) = \int_0^1 x f(x|\theta) \, dx = \int_0^1 x \cdot \theta x^{\theta - 1} \, dx = \theta \int_0^1 x^\theta \, dx
+$$
+
+For the sake of space, breaking this up and evaluating by: 
+
+$$
+E(X) = \theta \left[ \frac{x^{\theta + 1}}{\theta + 1} \right]_0^1 = \theta \frac{1}{\theta + 1} = \frac{\theta}{\theta + 1}
+$$
+
+By definition, the sample mean is: 
+
+$$
+\bar{X} = \frac{1}{n} \sum_{i=1}^n X_i
+$$
+
+Then, by equating the sample mean equal to the population mean, we have:
+
+$$
+\frac{\theta}{\theta + 1} = \bar{X} \rightarrow \theta = \bar{X} (\theta + 1) = \bar{X} \theta + \bar{X}
+$$
+
+Our goal is to identify a formula with just $\theta$ on one side, so to that end, we have: 
+
+$$
+\theta - \bar{X} \theta = \bar{X} \rightarrow \theta (1 - \bar{X}) = \bar{X} \rightarrow \theta = \frac{\bar{X}}{1 - \bar{X}}
+$$
+
+I'd be remiss not to note one potential issue though. We can't divide by zero, so we cannot have $\bar{X} < 1$. Under this condition, the method of moments estimator is not valid. 
+
+Bearing in mind that condition then, we say the method of moments estimator of $\theta$ is:
+
+$$
+\hat{\theta}_{\text{MM}} = \frac{\bar{X}}{1 - \bar{X}}
+$$
 
 \newpage 
 
@@ -53,6 +154,80 @@ In the last case, the derivative of log-likelihood $L(\theta)$ indicates that $L
 ## a) 
 
 Find the method of moments estimator and MLE of $\theta$.
+
+I am starting this problem in the order of what was specified. To that end: 
+
+### Method of Moments
+
+As specified, the information above corresponds to a Bernoulli distributed random variable variable. Treating this as a given, the population mean is the parameter, i.e.:
+
+$$
+E(X) = \theta
+$$
+
+Equating this with the sample mean, which by definition is given by:
+
+$$
+\bar{X} = \frac{1}{n} \sum_{i=1}^{n} X_i
+$$
+
+Solving for $\theta$:
+
+$$
+\hat{\theta} = \bar{X}
+$$
+
+Note that $\theta$ is restricted to $[0, 1/2]$, we need to make sure this condition is met, therefore we write our method of moments estimator as:
+
+$$
+\hat{\theta} = \min\left(\bar{X}, \frac{1}{2}\right)
+$$
+
+### Maximum Likelihood Estimator (MLE)
+
+The likelihood function is:
+
+$$
+L(\theta) = \prod_{i=1}^{n} P_\theta(X_i) = \prod_{i=1}^{n} \theta^{X_i} (1 - \theta)^{1 - X_i}
+$$
+
+Define $S = \sum_{i=1}^{n} X_i$, which allows us to simplify the likelihood function as:
+
+$$
+L(\theta) = \theta^S (1 - \theta)^{n - S}
+$$
+
+We then take the log of the likelihood function to make evaluation easier: 
+
+$$
+\text{log}(L(\theta)) = S \log \theta + (n - S) \log (1 - \theta)
+$$
+
+Differentiate and set the expression equal to 0, giving us: 
+
+$$
+\frac{\text{log}(L(\theta))}{d\theta} = \frac{S}{\theta} - \frac{n - S}{1 - \theta} = 0 \rightarrow \frac{S}{\theta} = \frac{n - S}{1 - \theta}
+$$
+
+We isolate and solve for $\theta$:
+
+$$
+\theta = \frac{S}{n} = \bar{X}
+$$
+
+To ensure this is the maximum, we evaluate the second derivative:
+
+$$
+\frac{d^2\text{log}(L(\theta))}{d\theta^2} = -\frac{S}{\theta^2} - \frac{n - S}{(1 - \theta)^2}
+$$
+
+Since $S \geq 0$ and $n - S \geq 0$, and $\theta \in (0, 1)$, the second derivative is always negative. This ensures that $\theta = \bar{X}$ is a maximum.
+
+Then, note that the parameter space is $\Theta \equiv [0, 1/2]$. If $\bar{X} \leq 1/2$, the MLE is $\hat{\theta}_{\text{MLE}} = \bar{X}$. If $\bar{X} > 1/2$, the likelihood function is decreasing for $\theta > 1/2$, so, similar to the method of moments estimator, we need to incorporate these conditions when giving the MLE. To that end, the MLE is given by:
+
+$$
+\hat{\theta} = \min\left(\bar{X}, \frac{1}{2}\right)
+$$
 
 \newpage 
 
@@ -95,6 +270,90 @@ F(z, w|\lambda, \mu) = P(Z \leq z, W = w|\lambda, \mu).
 $$
 
 Then, based on a random sample $(Z_i, W_i), i = 1, \dots, n$ of pairs, this problem involves using calculus with two variables to find the MLE.
+
+## Answer/Proof, Whatchumacallit
+
+Given the above information, we define the likelihood function as:
+
+$$
+L(\lambda, \mu) = \prod_{i=1}^n f(z_i, w_i|\lambda, \mu) = \prod_{i=1}^n \left(\frac{1}{\lambda}\right)^{w_i} \left(\frac{1}{\mu}\right)^{1-w_i} e^{-z_i\left(\frac{1}{\lambda} + \frac{1}{\mu}\right)}
+$$
+
+Define:
+
+$$
+S_z = \sum_{i=1}^{n} Z_i, \quad S_w = \sum_{i=1}^{n} W_i.
+$$
+
+Using $S_z, S_w$, we may then write our prior the likelihood function as:
+
+$$
+L(\lambda, \mu) = \lambda^{-S_w} \mu^{-(n - S_w)} e^{-S_z\left(\lambda^{-1} + \mu^{-1}\right)}
+$$
+
+To make evaluating easier, we take the log likelihood: 
+
+$$
+\text{log}(L(\lambda, \mu)) = -S_w \log \lambda - (n - S_w) \log \mu - S_z \left(\frac{1}{\lambda} + \frac{1}{\mu}\right)
+$$
+
+Since we have two parameters of interest, in order to find the MLEs of $\lambda$ and $\mu$, take partial derivatives and set them to zero:
+
+### For $\lambda$
+
+$$
+\frac{\partial \text{log}(L(\lambda, \mu))}{\partial \lambda} = -\frac{S_w}{\lambda} + \frac{S_z}{\lambda^2} = 0
+$$
+
+$$
+\frac{S_w}{\lambda} = \frac{S_z}{\lambda^2} \rightarrow \lambda = \frac{S_z}{S_w}
+$$
+
+To check it is a maximum, we again check the second derivative is negative: 
+
+$$
+\frac{\partial^2\text{log}(L(\lambda, \mu))}{\partial \lambda^2} = \frac{S_w}{\lambda^2} - \frac{2 S_z}{\lambda^3} = \frac{S_w}{(S_z/S_w)^2} - \frac{2 S_z}{(S_z/S_w)^3}
+$$
+
+Simplifying:
+
+$$
+\frac{\partial^2\text{log}(L(\lambda, \mu))}{\partial \lambda^2} \Big|_{\lambda = \hat{\lambda}} = \frac{S_w^3}{S_z^2} - \frac{2 S_w^3}{S_z^2} = -\frac{S_w^3}{S_z^2} < 0
+$$
+
+### For $\mu$
+
+$$
+\frac{\partial \text{log}(L(\lambda, \mu))}{\partial \mu} = -\frac{n - S_w}{\mu} + \frac{S_z}{\mu^2} = 0
+$$
+
+$$
+\frac{n - S_w}{\mu} = \frac{S_z}{\mu^2} \rightarrow \mu = \frac{S_z}{n - S_w}
+$$
+
+To check it is a maximum, we again check the second derivative is negative: 
+
+$$
+\frac{\partial^2 \text{log}(L(\lambda, \mu))}{\partial \mu^2} = \frac{n - S_w}{\mu^2} - \frac{2 S_z}{\mu^3} = \frac{(n - S_w)}{(S_z/(n - S_w))^2} - \frac{2 S_z}{(S_z/(n - S_w))^3}
+$$
+
+Simplifying:
+
+$$
+\frac{\partial^2\text{log}(L(\lambda, \mu))}{\partial \lambda^2} \Big|_{\mu = \hat{\mu}} = \frac{(n - S_w)^3}{S_z^2} - \frac{2 (n - S_w)^3}{S_z^2} = -\frac{(n - S_w)^3}{S_z^2} < 0
+$$
+
+Taken together, the maximum likelihood estimators are:
+
+$$
+\hat{\lambda} = \frac{\sum_{i=1}^n Z_i}{\sum_{i=1}^n W_i}
+$$
+
+And 
+
+$$
+\hat{\mu} = \frac{\sum_{i=1}^n Z_i}{n - \sum_{i=1}^n W_i}
+$$
 
 \newpage 
 
@@ -148,16 +407,130 @@ $$
 
 where $\bar{Y}_n$ is the sample average.
 
+Given the pmf of $Y_i$ is:
+
+$$
+f(y|\theta) = P_\theta(Y_i = y) = e^{-\theta y} - e^{-\theta (1+y)}, \quad y = 0, 1, 2, 3, \dots.
+$$
+
+We note that the likelihood function for the sample $Y_1, Y_2, \dots, Y_n$ is:
+
+$$
+L(\theta) = \prod_{i=1}^n f(y_i|\theta) = \prod_{i=1}^n \left(e^{-\theta y_i} - e^{-\theta (1+y_i)}\right)
+$$
+
+Simplifying a bit gives us:
+
+$$
+L(\theta) = \prod_{i=1}^n e^{-\theta y_i} \left(1 - e^{-\theta}\right) = \left(1 - e^{-\theta}\right)^n \prod_{i=1}^n e^{-\theta y_i} = \left(1 - e^{-\theta}\right)^n e^{-\theta \sum_{i=1}^n y_i}
+$$
+
+By definition, the sample average, $\bar{Y}_n$, is defined as:
+
+$$
+\bar{Y}_n = \frac{1}{n} \sum_{i=1}^n y_i \rightarrow \sum_{i=1}^n y_i = n \bar{Y}_n
+$$
+
+Using the above, we can incorporate this expression into the simplified likelihood function, and have:
+
+$$
+L(\theta) = \left(1 - e^{-\theta}\right)^n e^{-\theta n \bar{Y}_n} = \left[e^{-\theta \bar{Y}_n} (1 - e^{-\theta}) \right]^n
+$$
+
+Achieving our desired result. Wa-hoo! 
+
 ## b)
 
 If $Y_n = \sum_{i=1}^{n} Y_i/n = 0$, show that an MLE for $\theta$ does not exist on the parameter space $(0, \infty)$.
 
 (Recall: $Y_i$ is discrete and this corresponds to a pathological MLE case mentioned in class: $Y_1 = \dots = Y_n = 0$. This event can happen but typically with small probability for large $n$.)
 
+Note again, the likelihood function as given at the end of part a):
+
+$$
+L(\theta) = \left[e^{-\theta \bar{Y}_n} (1 - e^{-\theta}) \right]^n = \left[e^{-\theta (0)} (1 - e^{-\theta}) \right]^n = \left[ (1 - e^{-\theta}) \right]^n
+$$
+
+The goal is to find the MLE by maximizing $L(\theta)$ over $\theta > 0$.
+
+The function $1 - e^{-\theta}$ is increasing in $\theta$, approaching 1 as $\theta \to \infty$.
+Since it is raised to the power $n$, we have:
+
+$$
+\lim_{\theta \to 0} L(\theta) = (1 - 1)^n = 0
+$$
+
+And
+
+$$
+\lim_{\theta \to \infty} L(\theta) = (1 - 0)^n = 1
+$$
+
+Since $L(\theta)$ is strictly increasing in $\theta$, it attains its supremum at $\theta \to \infty$.
+An MLE must be a finite value $\theta^*$ that maximizes $L(\theta)$ in the domain $(0, \infty)$.
+However, $L(\theta)$ is maximized at $\theta \to \infty$, meaning the supremum is not attained at any finite value.
+Therefore, no finite $\theta$ maximizes $L(\theta)$, implying the MLE does not exist.
+
 ## c)
 
 If $0 < \bar{Y}_n$, show that the MLE $\hat{\theta}$ is 
 
 $$
-\hat{\theta} = \log(\bar{Y}_n^{-1} + 1).
+\hat{\theta} = \log(\bar{Y}_n^{-1} + 1)
 $$
+
+Given the likelihood function of part a):
+
+$$
+L(\theta) = \left[e^{-\theta \bar{Y}_n} (1 - e^{-\theta}) \right]^n
+$$
+
+To find the MLE of $\theta$, we use our typical approach of maximizing the log-likelihood function:
+
+$$
+\text{log}(L(\theta)) = n \left( -\theta \bar{Y}_n + \log(1 - e^{-\theta}) \right)
+$$
+
+Differentiating and setting equal to zero gives us:
+
+$$
+\frac{d\text{log}(L(\theta))}{d\theta} = n \left( -\bar{Y}_n + \frac{e^{-\theta}}{1 - e^{-\theta}} \right) = 0 \rightarrow \frac{e^{-\theta}}{1 - e^{-\theta}} = \bar{Y}_n \rightarrow e^{-\theta} = \bar{Y}_n (1 - e^{-\theta})
+$$
+
+Simplifying some more, we have:
+
+$$
+e^{-\theta} + \bar{Y}_n e^{-\theta} = \bar{Y}_n \rightarrow e^{-\theta} (1 + \bar{Y}_n) = \bar{Y}_n
+$$
+
+Solving for $\theta$, with note of the monotonic transformation given from the log function, gives us:
+
+$$
+e^{-\theta} = \frac{\bar{Y}_n}{1 + \bar{Y}_n} \rightarrow -\theta = \log \left( \frac{\bar{Y}_n}{1 + \bar{Y}_n} \right) \rightarrow \theta = \log \left( \frac{1 + \bar{Y}_n}{\bar{Y}_n} \right)
+$$
+
+Giving us: 
+
+$$
+\hat{\theta} = \log \left( \bar{Y}_n^{-1} + 1 \right)
+$$
+
+However, we need to do one validation! To confirm that $\hat{\theta}$ is a maximum, we compute the second derivative of the log-likelihood function:
+
+$$
+\frac{d^2\text{log}(L(\theta))}{d\theta^2} = n \left( \frac{-e^{-\theta} (1 - e^{-\theta}) + e^{-2\theta}}{(1 - e^{-\theta})^2} \right) = n \left( \frac{-e^{-\theta} + e^{-2\theta} - e^{-2\theta}}{(1 - e^{-\theta})^2} \right) = n \left( \frac{-e^{-\theta}}{(1 - e^{-\theta})^2} \right)
+$$
+
+Since $e^{-\theta} > 0$ and $(1 - e^{-\theta})^2 > 0$, it follows that:
+
+$$
+\frac{d^2\text{log}(L(\theta))}{d\theta^2} = n \left( \frac{-e^{-\theta}}{(1 - e^{-\theta})^2} \right)< 0
+$$
+
+So we have verified that the MLE we calculated is in fact a maximum. This leads us to conclude that the MLE of $\theta$ is:
+
+$$
+\hat{\theta} = \log \left( \bar{Y}_n^{-1} + 1 \right)
+$$
+
+ 
