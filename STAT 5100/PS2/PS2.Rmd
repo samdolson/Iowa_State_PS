@@ -2,22 +2,12 @@
 title: "PS2"
 author: "Sam Olson" 
 output: pdf_document
-date: "2025-01-29"
 ---
 
 ```{r, eval = T, results = F, echo = F, warning = F, message = F}
 library(knitr)
 ```
 
-# Outline 
-
-  - Q1: G2G 
-  - Q2: G2G 
-  - Q3: G2G
-  - Q4: G2G
-  - Q5: G2G
-  - Q6: G2G
-  
 # Problem 1
 
 Suppose $\mathbf{y} \sim \mathcal{N}(\boldsymbol{\mu}, \mathbf{\Sigma})$, where $\boldsymbol{\mu}^T = [1 \quad 2 \quad 3]$
@@ -334,15 +324,18 @@ eigen_b <- eigen(Sigma_b)$values
 eigen_c <- eigen(Sigma_c)$values
 
 eigen_a == 0
+eigen_a > 0
 eigen_b == 0 
+eigen_b > 0
 eigen_c == 0
+eigen_c > 0
 ```
 
 Distribution in a):
 
 $u \sim \mathcal{N}(6, 9)$.
 
-The covariance matrix is a positive scalar, meaning it is positive definite, which implies non-negative definiteness. Thus, $u$ is singular.
+The covariance matrix is a positive scalar, meaning it is positive definite, which implies non-negative definite. Thus, $u$ is singular.
 
 Given the distribution in b):
 
@@ -374,11 +367,11 @@ $$
 \right)
 $$
 
-The determinant is zero, meaning $\mathbf{\Sigma}$ is singular. The matrix is still non-negative definite, making $w$ singular.
+The determinant is zero, meaning $\mathbf{\Sigma}$ is singular. Additionally, eigenvalues of the covariance matrix contain negative values, so the matrix is *not* non-negative definite, making $w$ non-singular.
 
 ### Summary:
 
-All the distributions a), b), and c) are singular distributions! 
+All the distributions a) and b) are singular distributions, and c) is non-singular.  
 
 \newpage 
 
@@ -434,13 +427,15 @@ $$
 \mathbf{P_W} = \mathbf{X} \mathbf{C} \mathbf{C}^{-1} (\mathbf{X}^T \mathbf{X})^{-1} (\mathbf{C}^T)^{-1} \mathbf{C}^T \mathbf{X}^T
 $$
 
-Since $\mathbf{C} \mathbf{C}^{-1} = \mathbf{I}$ and $\mathbf{C}^T (\mathbf{C}^T)^{-1} = \mathbf{I}$, this further simplifies:
+Since $\mathbf{C} \mathbf{C}^{-1} = \mathbf{I}$ and $\mathbf{C}^T (\mathbf{C}^T)^{-1} = \mathbf{I}$, it follows:
 
 $$
 \mathbf{P_W} = \mathbf{X} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T = \mathbf{P_X}
 $$
 
-Regardless of approach, suffice to say $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$, then $\mathbf{P_X} = \mathbf{P_W}$.
+## Conclusion 
+
+Regardless of approach, but with preference to [Approach 2], suffice to say $\mathcal{C}(\mathbf{X}) = \mathcal{C}(\mathbf{W})$, then $\mathbf{P_X} = \mathbf{P_W}$.
 
 \newpage 
 
@@ -791,6 +786,12 @@ $$
 \mathbf{X}^\top \mathbf{X} \mathbf{G} \mathbf{X}^\top \mathbf{X} = \mathbf{X}^\top \mathbf{X}
 $$
 
+And 
+
+$$
+\mathbf{G} = (\mathbf{X}^\top \mathbf{X})^-
+$$
+
 Note the method used in the previous problemset for calculating a generalized inverse (might be above, maybe below, knitr can be weird): 
 
 ```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
@@ -932,16 +933,17 @@ y_{34} \\
 \end{bmatrix}
 $$
 
-Using the correct generalized inverse from part d), we have::
+Using the generalized inverse from part d), we have::
 
 $$
-\mathbf{G} =
+\mathbf{G}
+=
 \begin{bmatrix}
-\frac{3}{5} & \frac{2}{5} & 0 & 0 & 0 \\
-\frac{2}{5} & \frac{3}{5} & 0 & 0 & 0 \\
+\frac{2}{3} & \frac{1}{3} & 0 & 0 & 0 \\
+\frac{1}{3} & \frac{2}{3} & 0 & 0 & 0 \\
 0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 1 & -1 \\
-0 & 0 & 0 & -1 & 1
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0
 \end{bmatrix}
 $$
 
@@ -953,29 +955,82 @@ $$
 
 Computing:
 
+```{r}
+G <- matrix(c(2/3, 1/3, 0, 0, 0, 
+              1/3, 2/3, 0, 0, 0, 
+              0, 0, 1, 0, 0, 
+              0, 0, 0, 0, 0, 
+              0, 0, 0, 0, 0), 
+            nrow = 5, byrow = TRUE)
+
+XT <- matrix(c(1,  0,  0,  0,  1,
+                        -1, 0,  1,  0,  0,
+                         0,  1,  0,  0,  0,
+                         0, -1,  0,  0,  0,
+                         0,  0, -1, -1,  0), 
+                      nrow = 5, byrow = TRUE)
+
+G %*% XT
+```
+
 $$
 \boldsymbol{\beta} =
-\begin{bmatrix}
-\frac{3}{5} (y_{12} + y_{15}) + \frac{2}{5} (-y_{12} + y_{25}) + 0 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
-\frac{2}{5} (y_{12} + y_{15}) + \frac{3}{5} (-y_{12} + y_{25}) + 0 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
-0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 1 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
-0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 0 y_{34} + 1 (-y_{34}) + (-1)(-y_{25} - y_{15}) \\
-0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 0 y_{34} + (-1)(-y_{34}) + 1(-y_{25} - y_{15})
-\end{bmatrix}
+\mathbf{G} \mathbf{X}^{\top} \mathbf{y} 
 = 
-s\begin{bmatrix}
-\frac{1}{5} y_{12} + \frac{3}{5} y_{15} + \frac{2}{5} y_{25} \\
--\frac{3}{5} y_{12} + \frac{2}{5} y_{15} + \frac{3}{5} y_{25} \\
+\begin{bmatrix}
+\frac{2}{3} & \frac{1}{3} & 0 & 0 & 0 \\
+\frac{1}{3} & \frac{2}{3} & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0 & 0 & 1 \\
+-1 & 0 & 1 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & -1 & 0 & 0 \\
+0 & 0 & -1 & -1
+\end{bmatrix}
+\begin{bmatrix}
+y_{12} \\
 y_{34} \\
-- y_{34} + y_{25} + y_{15} \\
-y_{34} - y_{25} - y_{15}
+y_{25} \\
+y_{15}
+\end{bmatrix} 
+= 
+\begin{bmatrix}
+\frac{1}{3}  & 0  & \frac{1}{3}  & 0  & \frac{2}{3}  \\
+-\frac{1}{3} & 0  & \frac{2}{3}  & 0  & \frac{1}{3}  \\
+0            & 1  & 0            & 0  & 0            \\
+0            & 0  & 0            & 0  & 0            \\
+0            & 0  & 0            & 0  & 0            
+\end{bmatrix}        
+\begin{bmatrix}
+y_{12} \\
+y_{34} \\
+y_{25} \\
+y_{15}
+\end{bmatrix} 
+= 
+\begin{bmatrix}
+\frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{55} \\
+-\frac{1}{3} y_{12} + \frac{2}{3} y_{25} + \frac{1}{3} y_{55} \\
+y_{34} \\
+0 \\
+0
 \end{bmatrix}
 $$
 
 Thus, the solution to the normal equations is:
 
 $$
-\boldsymbol{\beta} = \mathbf{G} \mathbf{X}^\top \mathbf{y}
+\boldsymbol{\beta} = \mathbf{G} \mathbf{X}^\top \mathbf{y} = \begin{bmatrix}
+\frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{55} \\
+-\frac{1}{3} y_{12} + \frac{2}{3} y_{25} + \frac{1}{3} y_{55} \\
+y_{34} \\
+0 \\
+0
+\end{bmatrix}
 $$
 
 As defined above. 
@@ -987,35 +1042,35 @@ Find the Ordinary Least Squares (OLS) estimator of $\beta_1 - \beta_5$.
 From the results of part e), we note:
 
 $$
-\beta_1 = \frac{1}{5} y_{12} + \frac{3}{5} y_{15} + \frac{2}{5} y_{25}, \quad \beta_5 = y_{34} - y_{25} - y_{15}
+\beta_1 = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{55}, \quad \beta_5 = 0
 $$
 
 Thus, we compute:
 
 $$
-\beta_1 - \beta_5 = \left( \frac{1}{5} y_{12} + \frac{3}{5} y_{15} + \frac{2}{5} y_{25} \right) - \left( y_{34} - y_{25} - y_{15} \right) = = \frac{1}{5} y_{12} + \frac{3}{5} y_{15} + \frac{2}{5} y_{25} - y_{34} + y_{25} + y_{15}
+\beta_1 - \beta_5 = \left( \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{55} \right) - \left(0 \right) = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{55}
 $$
 
-Some more simplifying (elevator music starts):
+So the OLS estimator for $\beta_1 - \beta_5$ as defined is:
 
 $$
-\beta_1 - \beta_5  = \frac{1}{5} y_{12} + \frac{3}{5} y_{15} + y_{15} + \frac{2}{5} y_{25} + y_{25} - y_{34} = \frac{1}{5} y_{12} + \frac{8}{5} y_{15} + \frac{7}{5} y_{25} - y_{34}
-$$
-
-And the OLS estimator for $\beta_1 - \beta_5$ as defined using the prior sections is:
-
-$$
-\hat{\beta}_1 - \hat{\beta}_5 = \frac{1}{5} y_{12} + \frac{8}{5} y_{15} + \frac{7}{5} y_{25} - y_{34}
+\theta_{OLS} = \hat{\beta}_1 - \hat{\beta}_5 = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{55}
 $$
 
 ## g) 
 
 Give a linear unbiased estimator of $\beta_1 - \beta_5$ that is not the OLS estimator.
 
+Note our results from part e):
+
+$$
+\beta_1 = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{55}, \quad \beta_5 = 0 \rightarrow \theta_{OLS} = \hat{\beta}_1 - \hat{\beta}_5 = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{55}
+$$
+
 To construct/give an alternative and unbiased estimator that is not OLS, consider the expression: 
 
 $$
-\hat{\theta} = a y_{12} + b y_{34} + c y_{25} + d y_{15}
+\hat{\theta} = a y_{12} + b y_{25} + c y_{55}
 $$
 
 Where:
@@ -1024,17 +1079,15 @@ $$
 E[\hat{\theta}] = \beta_1 - \beta_5
 $$
 
-Note our results from part e):
+This motivates potential values of a, b, and c to consider. 
+
+One combination to consider, one different from what would give us the results from part f), is: $a = \frac{1}{4}, b = \frac{1}{4}, c = \frac{1}{2}$. Using these values in the above expression gives us: 
 
 $$
-\beta_1 = \frac{1}{5} y_{12} + \frac{3}{5} y_{15} + \frac{2}{5} y_{25}, \quad \beta_5 = y_{34} - y_{25} - y_{15}.
+\hat{\theta} = \frac{1}{4} y_{12} + \frac{1}{4} y_{25} + \frac{1}{2} y_{55}
 $$
 
-This motivates potential values of a, b, c, and d to consider. One combination to consider: $a = \frac{1}{3}, b = 0, c = \frac{1}{3}, d = \frac{2}{3}$. Using these values in the above expression gives us: 
 
-$$
-\hat{\theta} = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{15}
-$$
 
 Which is an alternative non-OLS estimator of $\beta_1 - \beta_5$.  
 
@@ -1045,21 +1098,27 @@ Let's make sure that alternative estimator is unbiased.
 Given:
 
 $$
-E[y_{12}] = \beta_1 - \beta_2 + \epsilon_{12}, \quad E[y_{25}] = \beta_2 - \beta_5 + \epsilon_{25}, \quad E[y_{15}] = \beta_1 - \beta_5 + \epsilon_{15}
+E[y_{12}] = \beta_1 - \beta_2 + \epsilon_{12}, \quad E[y_{25}] = \beta_2 - \beta_5 + \epsilon_{25}, \quad E[y_{55}] = \beta_1 - \beta_5 + \epsilon_{55}
 $$
 
-and assuming $E[\epsilon_{12}] = E[\epsilon_{25}] = E[\epsilon_{15}] = 0$,
+and assuming $E[\epsilon_{12}] = E[\epsilon_{25}] = E[\epsilon_{55}] = 0$,
 
 Let us consider the expectation of the estimator: 
 
 $$
-E[\hat{\theta}] = E\left[\frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{15} \right] = \frac{1}{3} E[y_{12}] + \frac{1}{3} E[y_{25}] + \frac{2}{3} E[y_{15}] = \frac{1}{3} (\beta_1 - \beta_2) + \frac{1}{3} (\beta_2 - \beta_5) + \frac{2}{3} (\beta_1 - \beta_5)
+E[\hat{\theta}] = E\left[\frac{1}{4} y_{12} + \frac{1}{4} y_{25} + \frac{1}{2} y_{55} \right] = \frac{1}{4} E[y_{12}] + \frac{1}{4} E[y_{25}] + \frac{1}{2} E[y_{55}] = \frac{1}{4} (\beta_1 - \beta_2) + \frac{1}{4} (\beta_2 - \beta_5) + \frac{1}{2} (\beta_1 - \beta_5)
 $$
 
 After some more simplifying, we have:
 
 $$
-E[\hat{\theta}] = \frac{1}{3} \beta_1 - \frac{1}{3} \beta_2 + \frac{1}{3} \beta_2 - \frac{1}{3} \beta_5 + \frac{2}{3} \beta_1 - \frac{2}{3} \beta_5 = \left(\frac{1}{3} \beta_1 + \frac{2}{3} \beta_1 \right) - \left(\frac{1}{3} \beta_5 + \frac{2}{3} \beta_5 \right) = \beta_1 - \beta_5
+E[\hat{\theta}] = \frac{1}{4} \beta_1 - \frac{1}{4} \beta_2 + \frac{1}{4} \beta_2 - \frac{1}{4} \beta_5 + \frac{1}{2} \beta_1 - \frac{1}{2} \beta_5 = \left(\frac{1}{4} \beta_1 + \frac{1}{2} \beta_1 \right) - \left(\frac{1}{4} \beta_5 + \frac{1}{2} \beta_5 \right) = \beta_1 - \beta_5
+$$
+
+So the new non-OLS estimator we created is unbiased, as:
+
+$$
+E[\hat{\theta}] = \beta_1 - \beta_5
 $$
 
 \newpage 
@@ -1104,7 +1163,7 @@ $$
 
 Obtain the normal equations for this model and solve them.
 
-Noting the definition of normal equations:
+By the definition of normal equations:
 
 $$
 \mathbf{X}^T \mathbf{X} \boldsymbol{\beta} = \mathbf{X}^T \mathbf{y}
@@ -1260,9 +1319,11 @@ $$
 
 Are all functions $\mathbf{c}^\top \boldsymbol{\beta}$ estimable? Justify your answer.
 
-To start, we note that a linear function $\mathbf{c}^\top \boldsymbol{\beta}$ is estimable if and only if $\mathbf{c}$ lies in the row space of the design matrix $\mathbf{X}$. Another, equally appropriate definition is to say that $\mathbf{c}$ can be expressed as a linear combination of the rows of $\mathbf{X}$.
+By definition, a linear function $\mathbf{c}^\top \boldsymbol{\beta}$ is estimable if and only if $\mathbf{c}$ lies in the row space of the design matrix $\mathbf{X}$. 
 
-Start then by noting the design matrix $\mathbf{X}$:
+Hand-in-hand (equally true) is: a linear function $\mathbf{c}^\top \boldsymbol{\beta}$ is estimable implies that $\mathbf{c}$ can be expressed as a linear combination of the rows of $\mathbf{X}$.
+
+We are given the design matrix, $\mathbf{X}$:
 
 $$
 \mathbf{X} =
@@ -1278,19 +1339,15 @@ $$
 \end{bmatrix}
 $$
 
-The rank of $\mathbf{X}$ is the number of linearly independent rows (or columns). Specifically, we have 4 unique rows and 4 unique columns, making the rank of $\mathbf{X}$ is 4. Importantly, this means that $\mathbf{X}$ has full column rank.
+By definition, the rank of $\mathbf{X}$ is the number of linearly independent rows (or columns). In the above design matrix, we have 4 unique rows and 4 unique columns, making the rank of $\mathbf{X}$ is 4. This means that $\mathbf{X}$ has full column rank.
 
-This is a desired property to have! The implications of $\mathbf{X}$ having full column rank, is the following: (1) The normal equations $\mathbf{X}^T \mathbf{X} \boldsymbol{\beta} = \mathbf{X}^T \mathbf{y}$ have a unique solution for $\boldsymbol{\beta}$. (2) The row space of $\mathbf{X}$ spans the entire $\mathbb{R}^4$ space (since $\mathbf{X}$ has 4 linearly independent columns). (3) Any vector $\mathbf{c} \in \mathbb{R}^4$ can be expressed as a linear combination of the rows of $\mathbf{X}$.
+This is a desired property to have (helpful for our purposes)! The implications of $\mathbf{X}$ having full column rank, is that: The normal equations $\mathbf{X}^T \mathbf{X} \boldsymbol{\beta} = \mathbf{X}^T \mathbf{y}$ have a unique solution for $\boldsymbol{\beta}$, the row space of $\mathbf{X}$ spans the entire $\mathbb{R}^4$ space (since $\mathbf{X}$ has 4 linearly independent columns), and finally that any vector $\mathbf{c} \in \mathbb{R}^4$ can be expressed as a linear combination of the rows of $\mathbf{X}$.
 
-Since $\mathbf{X}$ has full column rank, the row space of $\mathbf{X}$ spans $\mathbb{R}^4$. It then follows that any vector $\mathbf{c} \in \mathbb{R}^4$ can be expressed as a linear combination of the rows of $\mathbf{X}$. Therefore, all linear functions $\mathbf{c}^\top \boldsymbol{\beta}$ are estimable.
-
-So we conclude that all linear functions $\mathbf{c}^\top \boldsymbol{\beta}$ are estimable in this problem because the design matrix $\mathbf{X}$ has full column rank, and its row space spans $\mathbb{R}^4$, such that any vector $\mathbf{c} \in \mathbb{R}^4$ can be expressed as a linear combination of the rows of $\mathbf{X}$, ensuring the definition of estimability.
+Since $\mathbf{X}$ has full column rank, the row space of $\mathbf{X}$ spans $\mathbb{R}^4$. It then follows that any vector $\mathbf{c} \in \mathbb{R}^4$ can be expressed as a linear combination of the rows of $\mathbf{X}$. Therefore, all linear functions $\mathbf{c}^\top \boldsymbol{\beta}$ are estimable, i.e. under our assumption we ensure the definition of estimability.
 
 ## c) 
 
 Obtain the least squares estimator of $\beta_1 + \beta_2 + \beta_3 + \beta_4$.
-
-Note the results from part a), as we will make use of the normal equations and least squares estimates of $\boldsymbol{\beta}$. 
 
 From part a), the least squares estimates of $\boldsymbol{\beta}$ are:
 
@@ -1366,7 +1423,7 @@ $\boldsymbol{\hat{\beta}} = (\mathbf{X}^\top \mathbf{X})^- \mathbf{X}^\top \math
 
 where $(\mathbf{X}^\top \mathbf{X})^-$ is a generalized inverse.
 
-Since $\boldsymbol{\hat{\beta}}$ is a linear transformation of $\mathbf{y}$, and by the normality assumption: 
+Since $\boldsymbol{\hat{\beta}}$ is a linear transformation of $\mathbf{y}$, by the normality assumption: 
 
 $\mathbf{y} \sim \mathcal{N}(\mathbf{X} \boldsymbol{\beta}, \sigma^2 \mathbf{I})$
 
@@ -1378,13 +1435,21 @@ $$
 
 Because $\mathbf{C} \boldsymbol{\beta}$ is estimable, $\mathbf{C} \boldsymbol{\hat{\beta}}$ is also a linear transformation of $\boldsymbol{\hat{\beta}}$. 
 
-Thus:
+Consider then a linear combination with $\mathbf{C}$, where $\mathbf{C} = \mathbf{AX}$:
+
+For the mean calculation, we have:
 
 $$
-\mathbf{C} \boldsymbol{\hat{\beta}} \sim \mathcal{N}\left( \mathbf{C} \boldsymbol{\beta}, \sigma^2 \mathbf{C} (\mathbf{X}^\top \mathbf{X})^- \mathbf{C}^\top \right)
+\mathbf{AP_X X} \boldsymbol{\beta} = \boldsymbol{AX} \boldsymbol{\beta} = \boldsymbol{C\beta}
 $$
 
-The variance term $\mathbf{C} (\mathbf{X}^\top \mathbf{X})^- \mathbf{C}^\top$ is invariant to the choice of generalized inverse $(\mathbf{X}^\top \mathbf{X})^-$, i.e., 
+For the variance calculation, we have: 
+
+$$
+\boldsymbol{AP_X} \sigma^2 \boldsymbol{I (AP_X)^{^{\top}}} = \sigma^2 \boldsymbol{AP_X P_X^{^{\top}} A^{^{\top}}} = \sigma^2 \boldsymbol{AP_X A^{^{\top}}} = \sigma^2 \boldsymbol{AX(X^{^{\top}}X)^{-}X^{^{\top}}A^{^{\top}}} = \sigma^2 \boldsymbol{C(X^{^{\top}}X)^{-}C^{^{\top}}}
+$$
+
+Furthermore, knowing the distribution of $\boldsymbol{\hat{\beta}}$ is normal, we not only know that $\mathbf{C} \boldsymbol{\hat{\beta}}$ is also normally distribution, but has parameters given from the above calculations, namely: 
 
 $$
 \mathbf{C} \boldsymbol{\hat{\beta}} \sim \mathcal{N}\left( \mathbf{C} \boldsymbol{\beta}, \sigma^2 \mathbf{C} (\mathbf{X}^\top \mathbf{X})^- \mathbf{C}^\top \right)
@@ -1394,15 +1459,15 @@ $$
 
 Now suppose $\mathbf{C} \boldsymbol{\beta}$ is NOT estimable. Provide a fully simplified expression for $\text{Var}\left(\mathbf{C(X^\top X)^\top X^\top y} \right)$.
 
-To determine the variance of $\mathbf{C} (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{y}$, via our model assumptions, i.e., that:
+To determine the variance of $\mathbf{C} (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{y}$, via our model assumptions, we still assume that:
 
 $$
 \mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I})
 $$
 
-Since $\mathbf{C} \boldsymbol{\beta}$ is not estimable, there does not exist a matrix $\mathbf{A}$ such that $\mathbf{C} = \mathbf{A} \mathbf{X}$. 
+However, since my assumption $\mathbf{C} \boldsymbol{\beta}$ is not estimable, there does not exist a matrix $\mathbf{A}$ such that $\mathbf{C} = \mathbf{A} \mathbf{X}$. 
 
-However, let us consider the variance of the linear transformation.For any linear transformation, regardless of our assumption, we may write:
+However, let us consider the variance of the linear transformation.For any linear transformation, regardless of our assumption of estimability, we may write:
 
 $$
 \text{Var}(\mathbf{A} \mathbf{y}) = \mathbf{A} \text{Var}(\mathbf{y}) \mathbf{A}^\top
@@ -1411,76 +1476,95 @@ $$
 Let:
 
 $$
-\mathbf{A} = \mathbf{C} (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top
+\mathbf{A} = \mathbf{C} (\mathbf{X}^\top \mathbf{X})^{-} \mathbf{X}^\top
 $$
 
-By definition: $\text{Var}(\mathbf{y}) = \sigma^2 \mathbf{I}$
-
-It then follows that:
+As $\text{Var}(\mathbf{y}) = \sigma^2 \mathbf{I}$, it then follows:
 
 $$
-\text{Var}\left(\mathbf{C} (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{y} \right) = \mathbf{C} (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \sigma^2 \mathbf{I} \mathbf{X} (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{C}^\top = \sigma^2 \mathbf{C} (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{C}^\top
+\text{Var}\left(\mathbf{C} (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{y} \right) = \mathbf{(C(X^\top X)^{-}X^\top)\sigma^2 I (C(X^\top X)^{-}X^\top)^\top} = \sigma^2 \mathbf{C(X^ \top X)^{-}X^\top X(X^\top X)^{-}C^\top}
 $$
+And we cannot simplify any further and hence we cannot the distribution of $\mathbf{C}\boldsymbol{\hat{\beta}}$, the OLSE of $\mathbf{C\beta}$.
+
+This is all assuming generalized inverse, not inverse in particular. 
 
 ## c) 
 
 Now suppose $H_0: \mathbf{C} \boldsymbol{\beta} = \mathbf{d}$ is testable and that $\mathbf{C}$ has only one row and $\mathbf{d}$ has only one element so that they may be written as $\mathbf{c}^\top$ and $\mathbf{d}$, respectively. Prove the result on slide 29 of slide set 2 of Key Linear Model Results.
 
-Given the hypothesis $H_0: \mathbf{c}^\top \boldsymbol{\beta} = d$ is testable, this implies that $\mathbf{c}^\top \boldsymbol{\beta}$ is estimable (linear transformation combination retains estimability).
+Given the hypothesis $H_0: \mathbf{c}^\top \boldsymbol{\beta} = d$ is testable, this implies that $\mathbf{c}^\top \boldsymbol{\beta}$ is estimable (linear transformation combination of estimable functions is itself estimable).
 
-Under the assumption that GMMNE holds:
+Under the assumption of GMMNE:
 
 $$
 \mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I})
 $$
 
-The test statistic for testing $H_0: \mathbf{c}^\top \boldsymbol{\beta} = d$ is given by:
+The test statistic for testing $H_0: \mathbf{c}^\top \boldsymbol{\beta} = \mathbf{d}$ is given by:
 
 $$
 t = \frac{\mathbf{c}^\top \boldsymbol{\hat{\beta}} - d}{\sqrt{\widehat{\text{Var}}(\mathbf{c}^\top \boldsymbol{\hat{\beta}})}}
 $$
 
-From part a), we know:
+We'll return to the above shortly, but before then, note that under $H_0$, the test statistic $t$ defined above follows a $t$-distribution with $n - r$ degrees of freedom, where $r$ is the rank of $\mathbf{X}$.
+
+Furthermore, from part a), we know:
 
 $$
 \mathbf{c}^\top \boldsymbol{\hat{\beta}} \sim \mathcal{N}\left( \mathbf{c}^\top \boldsymbol{\beta}, \sigma^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c} \right)
 $$
 
-Meaning the estimated variance is given by:
+Thus,
 
 $$
-\widehat{\text{Var}}(\mathbf{c}^\top \boldsymbol{\hat{\beta}}) = \hat{\sigma}^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}
+\frac{\boldsymbol{c^{\top}\hat{\beta}} - d}{\sqrt{\sigma^2 \boldsymbol{c^{\top}(X^{\top}X)^{-}c}}} \sim \mathcal{N} \left( \frac{\boldsymbol{c^{\top}\beta} - d}{\sqrt{\sigma^2 \boldsymbol{c^{\top}(X^{\top}X)^{-}c}}}, 1 \right)
+$$
+
+The estimated variance is given by:
+
+$$
+t = \frac{\mathbf{c}^\top \boldsymbol{\hat{\beta}} - d}{\sqrt{\widehat{\text{Var}}(\mathbf{c}^\top \boldsymbol{\hat{\beta}})}} \rightarrow \widehat{\text{Var}}(\mathbf{c}^\top \boldsymbol{\hat{\beta}}) = \hat{\sigma}^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}
 $$
 
 where $\hat{\sigma}^2$ is the unbiased estimator of $\sigma^2$.
 
-Under $H_0: \mathbf{c}^\top \boldsymbol{\beta} = d$, the test statistic $t$ follows a $t$-distribution with $n - r$ degrees of freedom, where $r$ is the rank of $\mathbf{X}$.
+The above assumed the type of distribution for the test statistic t. To explicitly show it is in fact t-distributed, 
 
-And the non-centrality parameter of the above $t$-distribution is:
+Define:  
 
 $$
-\frac{\mathbf{c}^\top \boldsymbol{\beta} - d}{\sqrt{\sigma^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}}}
+u = \frac{\boldsymbol{c^{\top}\hat{\beta}} - d}{\sqrt{\sigma^2 \boldsymbol{c^{\top}(X^{\top}X)^{-}c}}}
 $$
 
-Under $H_0$, the non-centrality parameter is zero, and the test statistic simplifies to:
+$$
+\delta = \frac{\boldsymbol{c^{\top}\beta} - d}{\sqrt{\sigma^2 \boldsymbol{c^{\top}(X^{\top}X)^{-}c}}}
+$$
+
+Noting prior results of the proof thus far, $u \sim \mathcal{N}(\delta, 1)$ and $\delta$ is our non-centrality parameter (Euclidean distance . 
+
+Additionally, note the difference between u and $\delta$ is $\hat{\boldsymbol{\beta}}$ and $\boldsymbol{\beta}$ respectively. 
+
+Then: 
+
+$$
+\frac{\hat{\sigma}^2}{\sigma^2} \sim \frac{\chi^2_{n-r}}{n-r} \rightarrow w = \frac{(n - r) \hat{\sigma}^2}{\sigma^2} \sim \chi^2_{n-r}
+$$
+
+$\boldsymbol{c^{\top}\hat{\beta}}$ and $\hat{\sigma}^2$ are independent, so $u$ and $w$ are independent (interpretation being the mean and variance, parameters of interest, are independent of one another). 
+
+Referring back to our initial test statistic:
+
+$$
+t = \frac{u}{\sqrt{w / (n - r)}} = \frac{\boldsymbol{c^{\top}\hat{\beta}} - d}{\sqrt{\hat{\sigma}^2 \boldsymbol{c^{\top}(X^{\top}X)^{-}c}}} \sim t_{n-r}(\delta)
+$$
+
+Under $H_0$, $\delta = 0$, we can simplify the expression as:
 
 $$
 t = \frac{\mathbf{c}^\top \boldsymbol{\hat{\beta}} - d}{\sqrt{\hat{\sigma}^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}}}
 $$
 
-## Connection to Slide 29:
-
-This part was more a reference note to myself while writing this proof. It is redundant information, but makes the connection to Slide 29 directly. 
-
-The result on Slide 29 states that the test statistic $t$ has a non-central $t$-distribution with non-centrality parameter:
-
-$$
-\frac{\mathbf{c}^\top \boldsymbol{\beta} - d}{\sqrt{\sigma^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}}}
-$$
-
-and degrees of freedom $n - r$.
-
-This result is explicitly what is noted in the conclusion of the above proof. 
+I am assuming from here on that the proof is complete. Otherwise I would be replicating information from the Slides. 
 
 \newpage 
 
