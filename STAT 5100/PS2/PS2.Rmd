@@ -1067,27 +1067,73 @@ $$
 \beta_1 = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{55}, \quad \beta_5 = 0 \rightarrow \theta_{OLS} = \hat{\beta}_1 - \hat{\beta}_5 = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{55}
 $$
 
-To construct/give an alternative and unbiased estimator that is not OLS, consider the expression: 
+To construct/give an alternative and unbiased estimator that is not OLS, consider our initial matrices: 
+
+The design matrix $\mathbf{X}$: 
 
 $$
-\hat{\theta} = a y_{12} + b y_{25} + c y_{55}
+\mathbf{X} =
+\begin{bmatrix}
+1 & -1 & 0 & 0 & 0 \\
+0 & 0 & 1 & -1 & 0 \\
+0 & 1 & 0 & 0 & -1 \\
+1 & 0 & 0 & 0 & -1
+\end{bmatrix}
 $$
 
-Where:
+And our other givens: 
 
 $$
-E[\hat{\theta}] = \beta_1 - \beta_5
+\mathbf{y} =
+\begin{bmatrix}
+y_{12} \\
+y_{34} \\
+y_{25} \\
+y_{15}
+\end{bmatrix},
+\quad \boldsymbol{\beta} =
+\begin{bmatrix}
+\beta_1 \\
+\beta_2 \\
+\beta_3 \\
+\beta_4 \\
+\beta_5
+\end{bmatrix},
+\quad \text{and} \quad \boldsymbol{\epsilon} =
+\begin{bmatrix}
+\epsilon_{12} \\
+\epsilon_{34} \\
+\epsilon_{25} \\
+\epsilon_{15}
+\end{bmatrix}
 $$
 
-This motivates potential values of a, b, and c to consider. 
-
-One combination to consider, one different from what would give us the results from part f), is: $a = \frac{1}{4}, b = \frac{1}{4}, c = \frac{1}{2}$. Using these values in the above expression gives us: 
+Where our model is given by: 
 
 $$
-\hat{\theta} = \frac{1}{4} y_{12} + \frac{1}{4} y_{25} + \frac{1}{2} y_{55}
+\mathbf{y} = \mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}
 $$
 
 
+Note then, using the model as defined, that we may construct a new estimator: 
+
+$$
+\hat{\theta} = y_{15}
+$$
+
+Where: 
+
+Via the model as defined: 
+
+$$
+y_{15} = \beta_1 - \beta_5 + \epsilon_{15}
+$$
+
+And it follows that: 
+
+$$
+E[\hat{\theta}] = E[y_{15}] = \beta_1 - \beta_5
+$$
 
 Which is an alternative non-OLS estimator of $\beta_1 - \beta_5$.  
 
@@ -1098,27 +1144,15 @@ Let's make sure that alternative estimator is unbiased.
 Given:
 
 $$
-E[y_{12}] = \beta_1 - \beta_2 + \epsilon_{12}, \quad E[y_{25}] = \beta_2 - \beta_5 + \epsilon_{25}, \quad E[y_{55}] = \beta_1 - \beta_5 + \epsilon_{55}
+E[y_{15}] = E[\beta_1 - \beta_5 + \epsilon_{15}] = E[\beta_1] - E[\beta_5] + E[\epsilon_{15}] = \beta_1 - \beta_5
 $$
 
-and assuming $E[\epsilon_{12}] = E[\epsilon_{25}] = E[\epsilon_{55}] = 0$,
+Assuming $E[\epsilon_{15}] = 0$, and noting linearity of expectations. 
 
-Let us consider the expectation of the estimator: 
-
-$$
-E[\hat{\theta}] = E\left[\frac{1}{4} y_{12} + \frac{1}{4} y_{25} + \frac{1}{2} y_{55} \right] = \frac{1}{4} E[y_{12}] + \frac{1}{4} E[y_{25}] + \frac{1}{2} E[y_{55}] = \frac{1}{4} (\beta_1 - \beta_2) + \frac{1}{4} (\beta_2 - \beta_5) + \frac{1}{2} (\beta_1 - \beta_5)
-$$
-
-After some more simplifying, we have:
+So the new non-OLS estimator we created is an unbiased estimator of $\beta_1 - \beta_5$, as:
 
 $$
-E[\hat{\theta}] = \frac{1}{4} \beta_1 - \frac{1}{4} \beta_2 + \frac{1}{4} \beta_2 - \frac{1}{4} \beta_5 + \frac{1}{2} \beta_1 - \frac{1}{2} \beta_5 = \left(\frac{1}{4} \beta_1 + \frac{1}{2} \beta_1 \right) - \left(\frac{1}{4} \beta_5 + \frac{1}{2} \beta_5 \right) = \beta_1 - \beta_5
-$$
-
-So the new non-OLS estimator we created is unbiased, as:
-
-$$
-E[\hat{\theta}] = \beta_1 - \beta_5
+E[\hat{\theta}] = E[y_{15}] = \beta_1 - \beta_5
 $$
 
 \newpage 
@@ -1488,6 +1522,7 @@ And we cannot simplify any further and hence we cannot the distribution of $\mat
 
 This is all assuming generalized inverse, not inverse in particular. 
 
+
 ## c) 
 
 Now suppose $H_0: \mathbf{C} \boldsymbol{\beta} = \mathbf{d}$ is testable and that $\mathbf{C}$ has only one row and $\mathbf{d}$ has only one element so that they may be written as $\mathbf{c}^\top$ and $\mathbf{d}$, respectively. Prove the result on slide 29 of slide set 2 of Key Linear Model Results.
@@ -1540,7 +1575,7 @@ $$
 \delta = \frac{\boldsymbol{c^{\top}\beta} - d}{\sqrt{\sigma^2 \boldsymbol{c^{\top}(X^{\top}X)^{-}c}}}
 $$
 
-Noting prior results of the proof thus far, $u \sim \mathcal{N}(\delta, 1)$ and $\delta$ is our non-centrality parameter (Euclidean distance . 
+Noting prior results of the proof thus far, $u \sim \mathcal{N}(\delta, 1)$ and $\delta$ is our non-centrality parameter (Euclidean distance). 
 
 Additionally, note the difference between u and $\delta$ is $\hat{\boldsymbol{\beta}}$ and $\boldsymbol{\beta}$ respectively. 
 
@@ -1550,7 +1585,7 @@ $$
 \frac{\hat{\sigma}^2}{\sigma^2} \sim \frac{\chi^2_{n-r}}{n-r} \rightarrow w = \frac{(n - r) \hat{\sigma}^2}{\sigma^2} \sim \chi^2_{n-r}
 $$
 
-$\boldsymbol{c^{\top}\hat{\beta}}$ and $\hat{\sigma}^2$ are independent, so $u$ and $w$ are independent (interpretation being the mean and variance, parameters of interest, are independent of one another). 
+With note that $\boldsymbol{c^{\top}\hat{\beta}}$ and $\hat{\sigma}^2$ are independent, meaning $u$ and $w$ are independent (interpretation being the mean and variance, parameters of interest, are independent of one another). 
 
 Referring back to our initial test statistic:
 
@@ -1564,7 +1599,7 @@ $$
 t = \frac{\mathbf{c}^\top \boldsymbol{\hat{\beta}} - d}{\sqrt{\hat{\sigma}^2 \mathbf{c}^\top (\mathbf{X}^\top \mathbf{X})^- \mathbf{c}}}
 $$
 
-I am assuming from here on that the proof is complete. Otherwise I would be replicating information from the Slides. 
+I am assuming from here on that the proof is complete. Otherwise I would be replicating information from the Slides regarding a proof of Independence between $\boldsymbol{c^{\top}\hat{\beta}}$ and $\hat{\sigma}^2$, which is a necessary but not guarenteed condition; for the purposes of this proof, and from our discussion, I will consider this point a ncessary condition of the above.
 
 \newpage 
 
