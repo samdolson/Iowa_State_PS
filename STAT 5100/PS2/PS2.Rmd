@@ -237,6 +237,20 @@ $$
 
 We then compute $\text{Cov}(\mathbf{Ay}, \mathbf{By}) = \mathbf{A} \mathbf{\Sigma} \mathbf{B}^T$:
 
+```{r}
+A <- matrix(c(5, 7, 3, 
+              3, 0, -4, 
+              2, 1, -2), 
+            nrow = 3, byrow = TRUE)
+
+B <- matrix(c(1, 1, 1, 
+              -1, 1, 0), 
+            nrow = 2, byrow = TRUE)
+
+ASigmaBT <- A %*% t(B)
+ASigmaBT
+```
+
 $$
 \mathbf{A} \mathbf{\Sigma} \mathbf{B}^T = 
 \begin{bmatrix}
@@ -252,7 +266,7 @@ $$
 \begin{bmatrix}
 15 & 2 \\
 -1 & -3 \\
--3 & -1
+1 & -1
 \end{bmatrix}
 $$
 
@@ -267,8 +281,8 @@ $$
 \begin{bmatrix}
 27 & 2 & 4 & 15 & 2 \\
 2 & 7 & 4 & -1 & -3 \\
-4 & 4 & 3 & -3 & -1 \\
-15 & -1 & -3 & 9 & 2 \\
+4 & 4 & 3 & 1 & -1 \\
+15 & -1 & 1 & 9 & 2 \\
 2 & -3 & -1 & 2 & 2
 \end{bmatrix}
 $$
@@ -283,8 +297,8 @@ $$
 \begin{bmatrix}
 27 & 2 & 4 & 15 & 2 \\
 2 & 7 & 4 & -1 & -3 \\
-4 & 4 & 3 & -3 & -1 \\
-15 & -1 & -3 & 9 & 2 \\
+4 & 4 & 3 & 1 & -1 \\
+15 & -1 & 1 & 9 & 2 \\
 2 & -3 & -1 & 2 & 2
 \end{bmatrix}
 \right)
@@ -292,17 +306,45 @@ $$
 
 ## d) 
 
-Which of the distributions obtained in (a)–(c) are singular distributions? Recall that a distribution is singular if $\mathbf{\Sigma}$ is not positive definite. Note that there are many algebraic properties of $\mathbf{\Sigma}$ that can be used to show that $\mathbf{\Sigma}$ is singular/nonsingular.
+Which of the distributions obtained in (a)–(c) are singular distributions? Recall that a distribution is singular if $\mathbf{\Sigma}$ is non-negative definite. Note that there are many algebraic properties of $\mathbf{\Sigma}$ that can be used to show that $\mathbf{\Sigma}$ is singular/nonsingular.
 
-By definition, a distribution is singular if its covariance matrix $\mathbf{\Sigma}$ is not positive definite (i.e., $\mathbf{\Sigma}$ is singular, meaning its determinant is zero or it is not full rank). As we calculated the covariance matrices from part a) through c), the general approach will be to just calculate the determinants. To that end:  
+```{r}
+Sigma_a <- matrix(9, nrow = 1, ncol = 1)  
+
+Sigma_b <- matrix(c(13, 3, -1, 
+                    3, 5, -2, 
+                    -1, -2, 6), nrow = 3, byrow = TRUE)  
+
+Sigma_c <- matrix(c(27, 2, 4, 15, 2, 
+                    2, 7, 4, -1, -3, 
+                    4, 4, 3, 1, -1, 
+                    15, -1, 1, 9, 2, 
+                    2, -3, -1, 2, 2), nrow = 5, byrow = TRUE) 
+
+det_a <- det(Sigma_a)
+det_b <- det(Sigma_b)
+det_c <- det(Sigma_c)
+
+det_a
+det_b
+det_c
+
+eigen_a <- eigen(Sigma_a)$values
+eigen_b <- eigen(Sigma_b)$values
+eigen_c <- eigen(Sigma_c)$values
+
+eigen_a == 0
+eigen_b == 0 
+eigen_c == 0
+```
 
 Distribution in a):
 
 $u \sim \mathcal{N}(6, 9)$.
 
-The covariance matrix is $\text{Var}(u) = 9$, which is a scalar. Since $9 \neq 0$, the distribution is nonsingular.
+The covariance matrix is a positive scalar, meaning it is positive definite, which implies non-negative definiteness. Thus, $u$ is singular.
 
-Distribution in b):
+Given the distribution in b):
 
 $$
 \mathbf{v} \sim \mathcal{N}\left(
@@ -315,19 +357,7 @@ $$
 \right)
 $$
 
-To determine if the covariance matrix $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$ is positive definite, the determinant of $\mathbf{A} \mathbf{\Sigma} \mathbf{A}^T$ is:
-
-$$
-\det\left(
-\begin{bmatrix}
-13 & 3 & -1 \\
-3 & 5 & -2 \\
--1 & -2 & 6
-\end{bmatrix}
-\right) = 291 \neq 0
-$$
-
-Since the determinant is nonzero, the covariance matrix is nonsingular.
+The covariance matrix is positive definite as all eigenvalues are strictly positive (and non-zero), implying non-negative definite. Thus, $v$ is singular.
 
 Given the distribution in c):
 
@@ -337,69 +367,18 @@ $$
 \begin{bmatrix}
 27 & 2 & 4 & 15 & 2 \\
 2 & 7 & 4 & -1 & -3 \\
-4 & 4 & 3 & -3 & -1 \\
-15 & -1 & -3 & 9 & 2 \\
+4 & 4 & 3 & 1 & -1 \\
+15 & -1 & 1 & 9 & 2 \\
 2 & -3 & -1 & 2 & 2
 \end{bmatrix}
 \right)
 $$
 
-We could again check the determinant of the covariance matrix. However, given how absolutely painful that calculation would be, instead I will compute the rank to check for singularity (as it is also an appropriate method). If the rank of the matrix is smaller than its dimension, then it is singular, i.e. if rank of the covariance matrix from c) is less than 5, then we conclude it is singular. 
-
-To calculate rank, we have the row echelon form to aid in rank caluclation: 
-
-$$
-\begin{bmatrix}
-27 & 2 & 4 & 15 & 2 \\
-2 & 7 & 4 & -1 & -3 \\
-4 & 4 & 3 & -3 & -1 \\
-15 & -1 & -3 & 9 & 2 \\
-2 & -3 & -1 & 2 & 2
-\end{bmatrix}
-\rightarrow
-\begin{bmatrix}
-27 & 2 & 4 & 15 & 2 \\
-0 & \frac{185}{27} & \frac{100}{27} & -\frac{59}{27} & -\frac{85}{27} \\
-0 & 0 & \frac{65}{185} & -\frac{77}{185} & -\frac{55}{185} \\
-0 & 0 & 0 & \frac{144}{65} & \frac{16}{65} \\
-0 & 0 & 0 & 0 & \frac{434}{585}
-\end{bmatrix}
-\rightarrow 
-\text{rank}\left(
-\begin{bmatrix}
-27 & 2 & 4 & 15 & 2 \\
-2 & 7 & 4 & -1 & -3 \\
-4 & 4 & 3 & -3 & -1 \\
-15 & -1 & -3 & 9 & 2 \\
-2 & -3 & -1 & 2 & 2
-\end{bmatrix}
-\right) = 5
-$$
-
-
-As the rank of the matrix is 5, we then conclude the matrix is nonsingular. 
-
-### Second Approach
-
-I also threw this into a determinant calculator and got: 
-
-$$
-\det\left(
-\begin{bmatrix}
-27 & 2 & 4 & 15 & 2 \\
-2 & 7 & 4 & -1 & -3 \\
-4 & 4 & 3 & -3 & -1 \\
-15 & -1 & -3 & 9 & 2 \\
-2 & -3 & -1 & 2 & 2
-\end{bmatrix}
-\right) = -1200 \neq 0
-$$
-
-Both methods give the same conclusion though, namely that this matrix is nonsingular.
+The determinant is zero, meaning $\mathbf{\Sigma}$ is singular. The matrix is still non-negative definite, making $w$ singular.
 
 ### Summary:
 
-All the distributions a), b), and c) are nonsingular! 
+All the distributions a), b), and c) are singular distributions! 
 
 \newpage 
 
@@ -638,17 +617,18 @@ This gives the system of equations:
 From equation 1: $a_1 + a_4 = 1$.
 From equation 2: $-a_1 + a_3 = -1$.
 From equation 3: $a_2 = 0$.
-From equation 4: $-a_2 = 0$, which is consistent with $a_2 = 0$.
+From equation 4: $-a_2 = 0$, which is consistent with equation 3.
 From equation 5: $-a_3 - a_4 = 0$, which implies $a_3 = -a_4$.
 
-Taken together, we may substitute $a_3 = -a_4$ into equation 2, giving:
+Solving the system of equations, let $a_3 = -a_4$ into equation 2, giving:
 
 $$
--a_1 + (-a_4) = -1 \implies -a_1 - a_4 = -1 \implies a_1 + a_4 = 1
+-a_1 + (-a_4) = -1 \rightarrow -a_1 - a_4 = -1 \rightarrow a_1 + a_4 = 1
 $$
 
-This is consistent with equation 1. Thus, the system has infinitely many solutions. For example:
+This is consistent with equation 1. Thus, the system has infinitely many solutions. 
 
+For example:
 Let $a_4 = 0$. Then $a_1 = 1$ and $a_3 = 0$.
 Let $a_4 = 1$. Then $a_1 = 0$ and $a_3 = -1$.
 
@@ -831,6 +811,7 @@ XT <- t(X)
 XTX <- XT %*% X 
 # Did a whole roundabout calculation, but this proved easiest
 library(MASS)
+qr(X)$rank
 G <- ginv(XTX)
 round(G, digits = 2)
 ```
@@ -894,8 +875,8 @@ $$
 \frac{2}{3} & \frac{1}{3} & 0 & 0 & 0 \\
 \frac{1}{3} & \frac{2}{3} & 0 & 0 & 0 \\
 0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 \\
-0 & 0 & 0 & 0 & 1
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0
 \end{bmatrix}
 $$
 
@@ -905,7 +886,7 @@ For parts e), f), and g), I will use the latter matrix, primarily because it's m
 
 Find a solution to the normal equations in this particular problem involving table tennis players.
 
-The normal equations are:
+The normal equations are given by:
 
 $$
 \mathbf{X}^\top \mathbf{X} \boldsymbol{\beta} = \mathbf{X}^\top \mathbf{y}
@@ -944,55 +925,50 @@ y_{15}
 =
 \begin{bmatrix}
 y_{12} + y_{15} \\
--y_{12} + y_{25} \\
+- y_{12} + y_{25} \\
 y_{34} \\
--y_{34} \\
--y_{25} - y_{15}
+- y_{34} \\
+- y_{25} - y_{15}
 \end{bmatrix}
 $$
 
-Using the new generalized inverse:
+Using the correct generalized inverse from part d), we have::
 
 $$
 \mathbf{G} =
 \begin{bmatrix}
-\frac{2}{3} & \frac{1}{3} & 0 & 0 & 0 \\
-\frac{1}{3} & \frac{2}{3} & 0 & 0 & 0 \\
+\frac{3}{5} & \frac{2}{5} & 0 & 0 & 0 \\
+\frac{2}{5} & \frac{3}{5} & 0 & 0 & 0 \\
 0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 \\
-0 & 0 & 0 & 0 & 1
+0 & 0 & 0 & 1 & -1 \\
+0 & 0 & 0 & -1 & 1
 \end{bmatrix}
 $$
 
-For our expression:
+Computing $\boldsymbol{\beta}$ then:
 
 $$
 \boldsymbol{\beta} = \mathbf{G} \mathbf{X}^\top \mathbf{y}
 $$
 
-We thus have:
+Computing:
 
 $$
 \boldsymbol{\beta} =
 \begin{bmatrix}
-\frac{2}{3} (y_{12} + y_{15}) + \frac{1}{3} (-y_{12} + y_{25}) + 0 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
-\frac{1}{3} (y_{12} + y_{15}) + \frac{2}{3} (-y_{12} + y_{25}) + 0 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
+\frac{3}{5} (y_{12} + y_{15}) + \frac{2}{5} (-y_{12} + y_{25}) + 0 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
+\frac{2}{5} (y_{12} + y_{15}) + \frac{3}{5} (-y_{12} + y_{25}) + 0 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
 0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 1 y_{34} + 0 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
-0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 0 y_{34} + 1 (-y_{34}) + 0 (-y_{25} - y_{15}) \\
-0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 0 y_{34} + 0 (-y_{34}) + 1 (-y_{25} - y_{15})
+0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 0 y_{34} + 1 (-y_{34}) + (-1)(-y_{25} - y_{15}) \\
+0 (y_{12} + y_{15}) + 0 (-y_{12} + y_{25}) + 0 y_{34} + (-1)(-y_{34}) + 1(-y_{25} - y_{15})
 \end{bmatrix}
-$$
-
-Simplifying:
-
-$$
-\boldsymbol{\beta} =
-\begin{bmatrix}
-\frac{1}{3} y_{12} + \frac{2}{3} y_{15} + \frac{1}{3} y_{25} \\
--\frac{2}{3} y_{12} + \frac{1}{3} y_{15} + \frac{2}{3} y_{25} \\
+= 
+s\begin{bmatrix}
+\frac{1}{5} y_{12} + \frac{3}{5} y_{15} + \frac{2}{5} y_{25} \\
+-\frac{3}{5} y_{12} + \frac{2}{5} y_{15} + \frac{3}{5} y_{25} \\
 y_{34} \\
--y_{34} \\
-- y_{25} - y_{15}
+- y_{34} + y_{25} + y_{15} \\
+y_{34} - y_{25} - y_{15}
 \end{bmatrix}
 $$
 
@@ -1002,7 +978,7 @@ $$
 \boldsymbol{\beta} = \mathbf{G} \mathbf{X}^\top \mathbf{y}
 $$
 
-With $\boldsymbol{\beta}$ as defined above.
+As defined above. 
 
 ## f) 
 
@@ -1011,68 +987,80 @@ Find the Ordinary Least Squares (OLS) estimator of $\beta_1 - \beta_5$.
 From the results of part e), we note:
 
 $$
-\beta_1 = \frac{1}{3} y_{12} + \frac{2}{3} y_{15} + \frac{1}{3} y_{25}, \quad \beta_5 = - y_{25} - y_{15}
+\beta_1 = \frac{1}{5} y_{12} + \frac{3}{5} y_{15} + \frac{2}{5} y_{25}, \quad \beta_5 = y_{34} - y_{25} - y_{15}
 $$
 
-Such that we have the OLS estimator:
+Thus, we compute:
 
 $$
-\beta_1 - \beta_5 = \frac{1}{3} y_{12} + \frac{2}{3} y_{15} + \frac{1}{3} y_{25} + y_{25} + y_{15}
+\beta_1 - \beta_5 = \left( \frac{1}{5} y_{12} + \frac{3}{5} y_{15} + \frac{2}{5} y_{25} \right) - \left( y_{34} - y_{25} - y_{15} \right) = = \frac{1}{5} y_{12} + \frac{3}{5} y_{15} + \frac{2}{5} y_{25} - y_{34} + y_{25} + y_{15}
 $$
 
-Simplifying:
+Some more simplifying (elevator music starts):
 
 $$
-\beta_1 - \beta_5 = \frac{1}{3} y_{12} + \frac{5}{3} y_{15} + \frac{4}{3} y_{25}
+\beta_1 - \beta_5  = \frac{1}{5} y_{12} + \frac{3}{5} y_{15} + y_{15} + \frac{2}{5} y_{25} + y_{25} - y_{34} = \frac{1}{5} y_{12} + \frac{8}{5} y_{15} + \frac{7}{5} y_{25} - y_{34}
+$$
+
+And the OLS estimator for $\beta_1 - \beta_5$ as defined using the prior sections is:
+
+$$
+\hat{\beta}_1 - \hat{\beta}_5 = \frac{1}{5} y_{12} + \frac{8}{5} y_{15} + \frac{7}{5} y_{25} - y_{34}
 $$
 
 ## g) 
 
 Give a linear unbiased estimator of $\beta_1 - \beta_5$ that is not the OLS estimator.
 
-To construct a linear unbiased estimator different from OLS, we solve:
+To construct/give an alternative and unbiased estimator that is not OLS, consider the expression: 
 
 $$
 \hat{\theta} = a y_{12} + b y_{34} + c y_{25} + d y_{15}
 $$
 
-such that:
+Where:
 
 $$
 E[\hat{\theta}] = \beta_1 - \beta_5
 $$
 
-Set $a = \frac{1}{3}, b = 0, c = \frac{1}{3}, d = \frac{2}{3}$, giving us:
+Note our results from part e):
+
+$$
+\beta_1 = \frac{1}{5} y_{12} + \frac{3}{5} y_{15} + \frac{2}{5} y_{25}, \quad \beta_5 = y_{34} - y_{25} - y_{15}.
+$$
+
+This motivates potential values of a, b, c, and d to consider. One combination to consider: $a = \frac{1}{3}, b = 0, c = \frac{1}{3}, d = \frac{2}{3}$. Using these values in the above expression gives us: 
 
 $$
 \hat{\theta} = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{15}
 $$
 
-Giving an alternative unbiased estimator of $\beta_1 - \beta_5$:
-
-$$
-\hat{\theta} = \frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{15}
-$$
+Which is an alternative non-OLS estimator of $\beta_1 - \beta_5$.  
 
 ## A Quick Proof of Unbiasedness
 
-This is to ensure/validate that the above estimator is indeed unbiased. 
+Let's make sure that alternative estimator is unbiased. 
 
 Given:
 
 $$
-E[y_{12}] = \beta_1 - \beta_5 + \epsilon_{12}, \quad E[y_{25}] = \beta_5 - \beta_1 + \epsilon_{25}, \quad E[y_{15}] = \beta_1 - \beta_5 + \epsilon_{15}
+E[y_{12}] = \beta_1 - \beta_2 + \epsilon_{12}, \quad E[y_{25}] = \beta_2 - \beta_5 + \epsilon_{25}, \quad E[y_{15}] = \beta_1 - \beta_5 + \epsilon_{15}
 $$
 
 and assuming $E[\epsilon_{12}] = E[\epsilon_{25}] = E[\epsilon_{15}] = 0$,
 
-to calculate bias, note expectation:
+Let us consider the expectation of the estimator: 
 
 $$
-E[\hat{\theta}] = \beta_1 - \beta_5 = \hat{\theta}
+E[\hat{\theta}] = E\left[\frac{1}{3} y_{12} + \frac{1}{3} y_{25} + \frac{2}{3} y_{15} \right] = \frac{1}{3} E[y_{12}] + \frac{1}{3} E[y_{25}] + \frac{2}{3} E[y_{15}] = \frac{1}{3} (\beta_1 - \beta_2) + \frac{1}{3} (\beta_2 - \beta_5) + \frac{2}{3} (\beta_1 - \beta_5)
 $$
 
-Thus, $\hat{\theta}$ is an unbiased estimator of $\beta_1 - \beta_5$.
+After some more simplifying, we have:
+
+$$
+E[\hat{\theta}] = \frac{1}{3} \beta_1 - \frac{1}{3} \beta_2 + \frac{1}{3} \beta_2 - \frac{1}{3} \beta_5 + \frac{2}{3} \beta_1 - \frac{2}{3} \beta_5 = \left(\frac{1}{3} \beta_1 + \frac{2}{3} \beta_1 \right) - \left(\frac{1}{3} \beta_5 + \frac{2}{3} \beta_5 \right) = \beta_1 - \beta_5
+$$
 
 \newpage 
 
