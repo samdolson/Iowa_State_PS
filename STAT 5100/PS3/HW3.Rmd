@@ -4,3 +4,152 @@ output: pdf_document
 author: "Samuel Olson" 
 ---
 
+# Problem 1
+
+Case Study 5.1.1 from *The Statistical Sleuth* describes a dietary restriction study. Female mice were assigned to one of the following six treatment groups:
+
+1. **NP:** unlimited, nonpurified, standard feed
+2. **N/N85:** normal diet before weaning and normal diet (85 kcal/week) after weaning
+3. **N/R50:** normal diet before weaning and reduced calorie (50 kcal/week) after weaning
+4. **R/R50:** reduced calorie diet before and after weaning (50 kcal/week)
+5. **N/R50lopro:** normal diet before weaning, reduced calorie (50 kcal/week) after weaning, and reduced protein
+6. **N/R40:** normal diet before weaning and severely reduced calorie (40 kcal/week) after weaning
+
+The response of interest was mouse lifetime in months.
+
+Download the corresponding data file at [http://www.statisticalsleuth.com/](http://www.statisticalsleuth.com/) or access it by installing and loading the R package `Sleuth3` and examining `case0501`. To do that latter, try the following R commands:
+
+```{r}
+require(Sleuth3)
+# case0501
+```
+
+Complete the following parts under the assumption that a Gauss-Markov model with normal errors and an unrestricted mean for each of the six treatment groups is appropriate for these data.
+
+## a)
+
+Create side-by-side boxplots of the response for this dataset, with one boxplot for each treatment group. Be sure to clearly label the axes of your plot.
+
+\newpage 
+
+## b)
+
+Find the SSE (sum of squared errors) for the full model with one unrestricted mean for each of the six treatment groups.
+
+\newpage 
+
+## c)
+
+Compute $\hat{\sigma}^2$ for the full model.
+
+\newpage 
+
+## d)
+
+Find the SSE for a reduced model that has one common mean for the N/N85, N/R50, N/R50lopro, and N/R40 treatment groups and unrestricted means for the other two treatment groups.
+
+\newpage 
+
+## e)
+Use the answers from parts (b) through (d) to compute an F-statistic for testing the null hypothesis that the mean of the response vector is in the column space associated with the reduced model vs. the alternative that the mean of the response vector is in the column space of the full model but not in the column space of the reduced model.
+
+\newpage 
+
+## f)
+
+Explain to the scientists conducting this study what the F-statistic in part (e) can be used to test. Consider the context of the study (i.e., pay attention to the description of the experiment and the descriptions of the treatments) and use terms non-statistician scientists will understand.
+
+\newpage 
+
+## g)
+
+Consider an F-statistic of the form given on slide 20 of slide set 2. Provide the $\boldsymbol{C}$ matrix and $\boldsymbol{d}$ vector and compute the F-statistic corresponding to the test of the hypotheses in part (e).
+
+\newpage 
+
+## h)
+
+Use R to obtain the p-value associated with the F-statistic in part (g). Provide the interpretation of the p-value. That is, what probability does it reflect? If you are not sure what I am looking for, pick up any undergraduate Statistics textbook for examples.
+
+\newpage 
+
+## i)
+
+Evaluate the strength of evidence against the null hypothesis based on the p-value found in part (h). Do not use the p-value to make a decision about rejecting or failing to reject the null hypothesis - I am not interested in that. For more background reading, consider the following reference: [https://www.amstat.org/asa/files/pdfs/p-valuesstatement.pdf](https://www.amstat.org/asa/files/pdfs/p-valuesstatement.pdf).
+
+\newpage 
+
+# Problem 2
+
+Consider a two-factor experiment with factors A and B. Factor A represents gender and has two levels (male coded as 1/female coded as 2). Factor B reflects a patient's smoking history and has four levels (never coded as 1, light coded as 2, median coded as 3, heavy coded as 4). The data set contains a third variable, `fat`, which we will ignore for this analysis. Let the response variable, `exercise`, denote the patient's achievement score in some exercise routine that can be used as a proxy for cardiovascular fitness. The higher the score, the better the patient's cardiovascular fitness. The data are saved in a text file `stress.txt`. You may use R or SAS to analyze these data, but you have to submit all your code and results. (I will present my solution using SAS.) We will fit a cell-means model to these data estimating a patient's achievement score based on gender and smoking history.
+
+## a)
+
+Set up a contingency table similar to the one on slide 7 of the lecture slides that reflects all possible factor level combinations. Use the parameterization introduced on slide 6 of the same set of slides and specify each cell mean.
+
+\newpage 
+
+## b)
+
+Specify the model matrix for this model. (I realize this is a big matrix and I will ask you to do this only once.)
+
+\newpage 
+
+## c)
+
+Specify the corresponding $\boldsymbol{\beta}$-vector and obtain its OLS estimate.
+
+\newpage 
+
+## d)
+
+Obtain the standard error associated with the OLS estimator of each cell mean. Start by specifying the relevant formula and show your calculations at least once, i.e., for at least one of the cell means.
+
+\newpage 
+
+## e)
+
+Specify the parameter representation reflecting the main effect of gender and also its point estimate.
+
+\newpage 
+
+## f)
+
+Is there an interaction between gender and smoking? Similarly to the previous parts, specify all relevant parameter representations.
+
+\newpage 
+
+## g)
+
+Specify $\boldsymbol{C}$ allowing you to test for a main effect of gender. State the appropriate null- and alternative hypothesis using parameter representation. Obtain the corresponding value of the test statistic, df and p-value and provide a conclusion in the context of the data.
+
+\newpage 
+
+## h)
+
+Specify $\boldsymbol{C}$ allowing you to test for a main effect of smoking. State the appropriate null- and alternative hypothesis using parameter representation. Obtain the corresponding value of the test statistic, df and p-value and provide a conclusion in the context of the data.
+
+\newpage 
+
+## i)
+
+Specify $\boldsymbol{C}$ allowing you to test for an interaction between gender and smoking. State the appropriate null- and alternative hypothesis using parameter representation. Obtain the value of the relevant test statistic, df and p-value. Provide an interpretation of the result that a scientist unfamiliar with technical statistical terms can understand. Would you argue that the interaction is of practical importance? Briefly explain.
+
+\newpage 
+
+## j)
+
+Provide a 95% confidence interval for the mean associated with male patients who never smoked. 
+Show all your work.
+
+\newpage 
+
+## k)
+
+Provide a 95% confidence interval for the mean effect of gender. Show all your work.
+
+\newpage 
+
+## l)
+
+Obtain the residuals for the fitted models and use them to check the necessary assumptions that allow us to fit the proposed model. Please submit and explain any graphical displays that you might use.
