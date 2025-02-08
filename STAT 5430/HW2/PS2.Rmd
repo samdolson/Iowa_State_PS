@@ -266,157 +266,87 @@ Then, based on a random sample $(Z_i, W_i), i = 1, \dots, n$ of pairs, this prob
 
 ## Answer/Proof, Whatchumacallit
 
-### Finding the joint density (joint pdf)
+Given the above information, we define the likelihood function (using the joint pdf) as:
 
 $$
-P(Z \leq z, W = 0) = P(\min(X, Y) \leq z, Y \leq X).
+L(\lambda, \mu) = \prod_{i=1}^n f(z_i, w_i|\lambda, \mu) = \prod_{i=1}^n \left(\frac{1}{\lambda}\right)^{w_i} \left(\frac{1}{\mu}\right)^{1-w_i} e^{-z_i\left(\frac{1}{\lambda} + \frac{1}{\mu}\right)}
 $$
 
-By conditioning on $Y$, we integrate over the possible values of $Y$:
+Noting the expression above for the likelihood function is functionally equivalent to evaluating the joint pdf for each case separately; i.e., the two cases have been merged using an indicator variable.
+
+Define:
 
 $$
-P(Z \leq z, W = 0) = \int_0^z \int_y^\infty f_X(x) f_Y(y) dx dy = \int_0^z \int_y^\infty \frac{1}{\lambda} e^{-x/\lambda} \frac{1}{\mu} e^{-y/\mu} dx dy = \int_y^\infty \frac{1}{\lambda} e^{-x/\lambda} dx = e^{-y/\lambda}
+S_z = \sum_{i=1}^{n} Z_i, \quad S_w = \sum_{i=1}^{n} W_i.
 $$
 
-Continuing to simplify:
+Using $S_z, S_w$, we may then write our prior the likelihood function as:
 
 $$
-P(Z \leq z, W = 0) = \int_0^z \frac{1}{\mu} e^{-y/\mu} e^{-y/\lambda} dy = \int_0^z \frac{1}{\mu} e^{-y(1/\lambda + 1/\mu)} dy
+L(\lambda, \mu) = \lambda^{-S_w} \mu^{-(n - S_w)} e^{-S_z\left(\lambda^{-1} + \mu^{-1}\right)}
 $$
 
-Leaving us with the expression: 
+To make evaluating easier, we take the log likelihood: 
 
 $$
-P(Z \leq z, W = 0) = \frac{\lambda}{\lambda + \mu} \left( 1 - e^{-z(1/\lambda + 1/\mu)} \right)
+\text{log}(L(\lambda, \mu)) = -S_w \log \lambda - (n - S_w) \log \mu - S_z \left(\frac{1}{\lambda} + \frac{1}{\mu}\right)
 $$
 
-Differentiating wrt $z$, we find the joint pdf to be:
+Since we have two parameters of interest, in order to find the MLEs of $\lambda$ and $\mu$, take partial derivatives and set them to zero:
+
+### For $\lambda$
 
 $$
-f(z, 0) = \frac{\lambda}{\lambda + \mu} \left( \frac{1}{\lambda} + \frac{1}{\mu} \right) e^{-z(1/\lambda + 1/\mu)}, \quad z > 0
+\frac{\partial \text{log}(L(\lambda, \mu))}{\partial \lambda} = -\frac{S_w}{\lambda} + \frac{S_z}{\lambda^2} = 0
+$$
+$$
+\frac{S_w}{\lambda} = \frac{S_z}{\lambda^2} \rightarrow \lambda = \frac{S_z}{S_w}
 $$
 
-Now, for W = 0, we similarly have (via symmetry argument): 
+To check it is a maximum, we again check the second derivative is negative: 
 
 $$
-P(Z \leq z, W = 1) = P(\min(X, Y) \leq z, X \leq Y) = \frac{\mu}{\lambda + \mu} \left( 1 - e^{-z(1/\lambda + 1/\mu)} \right)
+\frac{\partial^2\text{log}(L(\lambda, \mu))}{\partial \lambda^2} = \frac{S_w}{\lambda^2} - \frac{2 S_z}{\lambda^3} = \frac{S_w}{(S_z/S_w)^2} - \frac{2 S_z}{(S_z/S_w)^3}
 $$
 
-Differentiating to derive the pdf gives us:
+Simplifying:
 
 $$
-f(z, 1) = \frac{\mu}{\lambda + \mu} \left( \frac{1}{\lambda} + \frac{1}{\mu} \right) e^{-z(1/\lambda + 1/\mu)}, \quad z > 0
+\frac{\partial^2\text{log}(L(\lambda, \mu))}{\partial \lambda^2} \Big|_{\lambda = \hat{\lambda}} = \frac{S_w^3}{S_z^2} - \frac{2 S_w^3}{S_z^2} = -\frac{S_w^3}{S_z^2} < 0
 $$
 
-So, the joint pdf is then defined by the expression:
+### For $\mu$
 
 $$
-f(z, w | \lambda, \mu) =
-\begin{cases}
-\frac{\lambda}{\lambda + \mu} \left(\frac{1}{\lambda} + \frac{1}{\mu}\right) e^{-z(1/\lambda + 1/\mu)}, & w = 0, \\
-\frac{\mu}{\lambda + \mu} \left(\frac{1}{\lambda} + \frac{1}{\mu}\right) e^{-z(1/\lambda + 1/\mu)}, & w = 1
-\end{cases}
+\frac{\partial \text{log}(L(\lambda, \mu))}{\partial \mu} = -\frac{n - S_w}{\mu} + \frac{S_z}{\mu^2} = 0
 $$
 
-### Likelihood 
-
-Given $n$ i.i.d. observations $(Z_i, W_i), i = 1, \dots, n$, the likelihood function is:
-
 $$
-L(\lambda, \mu) = \prod_{i=1}^n f(z_i, w_i | \lambda, \mu)
+\frac{n - S_w}{\mu} = \frac{S_z}{\mu^2} \rightarrow \mu = \frac{S_z}{n - S_w}
 $$
 
-Using the derived joint pdf, we may write: 
+To check it is a maximum, we again check the second derivative is negative: 
 
 $$
-L(\lambda, \mu) = \prod_{i=1}^{n} \left( \frac{\lambda}{\lambda + \mu} \right)^{1-w_i} \left( \frac{\mu}{\lambda + \mu} \right)^{w_i} \left( \frac{1}{\lambda} + \frac{1}{\mu} \right) e^{-z_i(1/\lambda + 1/\mu)}
+\frac{\partial^2 \text{log}(L(\lambda, \mu))}{\partial \mu^2} = \frac{n - S_w}{\mu^2} - \frac{2 S_z}{\mu^3} = \frac{(n - S_w)}{(S_z/(n - S_w))^2} - \frac{2 S_z}{(S_z/(n - S_w))^3}
 $$
 
-Noting the support of W determines just the "front" part of the joint pdf, and all other terms remain the same. 
-
-Now, define:
+Simplifying:
 
 $$
-S_z = \sum_{i=1}^{n} Z_i, \quad S_w = \sum_{i=1}^{n} W_i
+\frac{\partial^2\text{log}(L(\lambda, \mu))}{\partial \lambda^2} \Big|_{\mu = \hat{\mu}} = \frac{(n - S_w)^3}{S_z^2} - \frac{2 (n - S_w)^3}{S_z^2} = -\frac{(n - S_w)^3}{S_z^2} < 0
 $$
 
-This allows us to rewrite our above likelihood function as:
+Taken together, the maximum likelihood estimators are:
 
 $$
-L(\lambda, \mu) = \left( \frac{\lambda}{\lambda + \mu} \right)^{n - S_w} \left( \frac{\mu}{\lambda + \mu} \right)^{S_w} \left( \frac{1}{\lambda} + \frac{1}{\mu} \right)^n e^{-S_z(\lambda^{-1} + \mu^{-1})}
+\hat{\lambda} = \frac{\sum_{i=1}^n Z_i}{\sum_{i=1}^n W_i}
 $$
 
-Taking the log-likelihood to make maximization easier gives us:
+And 
 
 $$
-\log L(\lambda, \mu) = (n - S_w) \log \frac{\lambda}{\lambda + \mu} + S_w \log \frac{\mu}{\lambda + \mu} + n \log \left( \frac{1}{\lambda} + \frac{1}{\mu} \right) - S_z \left( \frac{1}{\lambda} + \frac{1}{\mu} \right)
-$$
-
-We will then derive wrt the parameters of interest to determine the MLEs (of each parameter, resp.)
-
-#### MLE for $\lambda$
-
-Taking the partial derivative:
-
-$$
-\frac{\partial \log L}{\partial \lambda} = \frac{n - S_w}{\lambda} - \frac{n}{\lambda(\lambda + \mu)} - S_z \left(-\frac{1}{\lambda^2} \right) = 0
-$$
-
-Solving for $\lambda$:
-
-$$
-\hat{\lambda} = \frac{S_z}{S_w}
-$$
-
-To ensure this is a maximum, consider the second derivative: 
-
-$$
-\frac{\partial^2 \log L}{\partial \lambda^2} = \frac{S_w}{\lambda^2} - \frac{2 S_z}{\lambda^3}.
-$$
-
-For $\hat{\lambda} = \frac{S_z}{S_w}$:
-
-$$
-\frac{\partial^2 \log L}{\partial \lambda^2} \Big|_{\lambda = \hat{\lambda}} = \frac{S_w}{(S_z/S_w)^2} - \frac{2 S_z}{(S_z/S_w)^3} = -\frac{S_w^3}{S_z^2} < 0
-$$
-
-So we have verified this is a maximum. 
-
-#### MLE for $\mu$
-
-Taking the partial derivative:
-
-$$
-\frac{\partial \log L}{\partial \mu} = \frac{S_w}{\mu} - \frac{n}{\mu(\lambda + \mu)} - S_z \left(-\frac{1}{\mu^2} \right) = 0
-$$
-
-Solving for $\mu$:
-
-$$
-\hat{\mu} = \frac{S_z}{n - S_w}
-$$
-
-To ensure this is a maximum, consider the second derivative: 
-
-$$
-\frac{\partial^2 \log L}{\partial \mu^2} = \frac{n - S_w}{\mu^2} - \frac{2 S_z}{\mu^3}
-$$
-
-For $\hat{\mu} = \frac{S_z}{(n - S_w)}$:
-
-$$
-\frac{\partial^2 \log L}{\partial \mu^2} \Big|_{\mu = \hat{\mu}} = -\frac{(n - S_w)^3}{S_z^2} < 0
-$$
-
-So we have verified this is a maximum. 
-
-#### Conclusion
-
-The maximum likelihood estimators are:
-
-$$
-\hat{\lambda} = \frac{S_z}{S_w} = \frac{\sum_{i=1}^n Z_i}{\sum_{i=1}^n W_i}, \quad
-\hat{\mu} = \frac{S_z}{n - S_w} = \frac{\sum_{i=1}^n Z_i}{n - \sum_{i=1}^n W_i}
+\hat{\mu} = \frac{\sum_{i=1}^n Z_i}{n - \sum_{i=1}^n W_i}
 $$
 
 \newpage 
