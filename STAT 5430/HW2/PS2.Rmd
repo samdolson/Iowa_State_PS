@@ -488,23 +488,27 @@ $$
 
 The goal is to find the MLE by maximizing $L(\theta)$ over $\theta > 0$.
 
-The function $1 - e^{-\theta}$ is increasing in $\theta$, approaching 1 as $\theta \to \infty$.
-Since it is raised to the power $n$, we have:
+Descriptively, this function will provde to be problematic, such that the MLE does not exist as the likelihood function does not converge to a finite value. To show that, consider our typical procedure: 
+
+The log-likelihood function is:
 
 $$
-\lim_{\theta \to 0} L(\theta) = (1 - 1)^n = 0
+log(L(\theta)) = n \log(1 - e^{-\theta})
 $$
 
-And
+We differentiate $log(L(\theta))$, log-likelihood:
 
 $$
-\lim_{\theta \to \infty} L(\theta) = (1 - 0)^n = 1
+log(L(\theta))' = n \frac{1}{1 - e^{-\theta}} \left( e^{-\theta} \right) (-1) = -n \frac{e^{-\theta}}{1 - e^{-\theta}}
 $$
 
-Since $L(\theta)$ is strictly increasing in $\theta$, it attains its supremum at $\theta \to \infty$.
-An MLE must be a finite value $\theta^*$ that maximizes $L(\theta)$ in the domain $(0, \infty)$.
-However, $L(\theta)$ is maximized at $\theta \to \infty$, meaning the supremum is not attained at any finite value.
-Therefore, no finite $\theta$ maximizes $L(\theta)$, implying the MLE does not exist.
+Setting this expression to zero: 
+
+$$
+log(L(\theta))' =  -n \frac{e^{-\theta}}{1 - e^{-\theta}} = 0
+$$
+
+Noting the above expression, the function $log(L(\theta))'$ is a strictly decreasing. So the function approaches zero when $\theta \rightarrow \infty$, however, by definition $\theta \in (0, \infty)$, so it approaches but never realizes its its supremum, which means the MLE does not exist because no finite $\theta$ maximizes $L(\theta)$.
 
 ## c)
 

@@ -15,7 +15,8 @@ knitr::include_graphics("Algorithm.png")
 # Outline 
 
   - Q1: part f) through i) need re-review
-  - Q2: part f) through l) need re-review CHECK FOR CONSISTENCY OF BETA VECTOR 
+  - Q2: part f) and i)
+  - Q2: part j), k), l)
 
 # Problem 1
 
@@ -82,7 +83,7 @@ numer <- lm(formula = Lifetime ~ Diet,
           deviance()
 denom <- fullModel$df
 
-denom
+# denom
 
 numer/denom
 ```
@@ -119,7 +120,7 @@ deviance(redModel)
 
 ## e)
 
-Use the answers from parts (b) through (d) to compute an F-statistic for testing the null hypothesis that the mean of the response vector is in the column space associated with the reduced model vs. the alternative that the mean of the response vector is in the column space of the full model but not in the column space of the reduced model.
+Use the answers from parts b) through d) to compute an F-statistic for testing the null hypothesis that the mean of the response vector is in the column space associated with the reduced model vs. the alternative that the mean of the response vector is in the column space of the full model but not in the column space of the reduced model.
 
 Explicitly, we're testing: 
 
@@ -131,7 +132,7 @@ $$
 H_a: E(\boldsymbol{y}) \in \mathcal{C}(\mathbf{X}) \setminus \mathcal{C}(\mathbf{X}_0)
 $$
 
-Using the answers from the prior parts of the question, noting the difference in degrees of freedom between the full and reduced model is 3: 
+Using the answers from the prior parts of the question, noting the difference in degrees of freedom between the full and reduced model is 3 (Combining 4 groups into 1 group effectively frees up 3 extra degrees of freedom): 
 
 $$
 F = \frac{(SSE_{\text{Reduced}} - SSE_{\text{Full}}) / (df_{\text{Reduced}} - df_{\text{Full}})}{SSE_{\text{Full}} / df_{\text{Full}}} = \frac{\left((20287.99 - 15297.42) / 3 \right)}{(15297.42/343)} = 37.3
@@ -147,11 +148,9 @@ anova(redModel, fullModel)
 
 ## f)
 
-Explain to the scientists conducting this study what the F-statistic in part (e) can be used to test. Consider the context of the study (i.e., pay attention to the description of the experiment and the descriptions of the treatments) and use terms non-statistician scientists will understand.
+Explain to the scientists conducting this study what the F-statistic in part e) can be used to test. Consider the context of the study (i.e., pay attention to the description of the experiment and the descriptions of the treatments) and use terms non-statistician scientists will understand.
 
-The partial F-test, comparing the full and reduced model, in part e) is evidence to to test whether the full model is significantly better than the reduced model, which goes hand-in-hand with testing whether there is significant difference among the N/N85, N/R50, N/R50lopro and N/R40 treatment groups, i.e. the groups being merged effectively into a single treatment group (having the same treatment means in life expectancy). 
-
-Specifically with regards to study interpretation, the partial F-statistic test from part e) can be used to test whether the expected lifetime (average life expectancy) is affected (or correlated, depending on treatment assignment and study design) by different diets among female mice who are treated with normal diet before weaning. Specifically, the calculated partial F-statistic is 37.3 with p-value near zero (< 2.2e-16). This is evidence to support using the full model in lieu of the reduced model, at the $\alpha = 0.05$ level, and in support of the finding that there is significant difference among the N/N85, N/R50, N/R50lopro and N/R40 treatment group means.
+The partial F-test, comparing the full and reduced model, in part e) is evidence to to test whether the full model is significantly better than the reduced model. This is to say we're testing whether we should/whether it is appropriate to group together the N/N85, N/R50, N/R50lopro, and N/R40 treatment groups. Specifically this is to test whether there is significant difference in the average life expectancy within the N/N85, N/R50, N/R50lopro and N/R40 treatment groups. As this value has been calculated, we may say: The calculated partial F-statistic is 37.3 with p-value near zero (< 2.2e-16). This is evidence to support using the full model in lieu of the reduced model, at the $\alpha = 0.05$ level, such that we have evidence to support the conclusion that there is significant difference among the N/N85, N/R50, N/R50lopro and N/R40 treatment group means in average life expectancy in this experiment.
 
 \newpage 
 
@@ -195,8 +194,11 @@ C =
 1 & 0 & 0 & 0 & 0 & -1
 \end{bmatrix}
 $$
+And: 
 
-according to the order of the treatments in the dataset, $q = 3$ and $\mathbf{d} = \mathbf{0}$. 
+$\mathbf{d} = \mathbf{0} = \begin{bmatrix} 0 \\ 0 \\ 0 \end{bmatrix}$
+
+Again, we have 3 degrees of freedom difference in the full vs. reduced model, meaning we use $q = 3$ in the following equation: 
 
 $$
 F = \frac{(C\hat{\boldsymbol{\beta}} - \mathbf{d})' (C (\mathbf{X}'\mathbf{X})^{-1} C')^{-1} (C\hat{\boldsymbol{\beta}} - \mathbf{d}) / q}{\hat{\sigma}^2}
@@ -214,7 +216,7 @@ From the code and output below, $F = 37.3$, the same result as in part e), and h
 
 ## h)
 
-Use R to obtain the p-value associated with the F-statistic in part (g). Provide the interpretation of the p-value. That is, what probability does it reflect? If you are not sure what I am looking for, **pick up any undergraduate Statistics textbook for examples.** (Sick burn)
+Use R to obtain the p-value associated with the F-statistic in part g). Provide the interpretation of the p-value. That is, what probability does it reflect? If you are not sure what I am looking for, **pick up any undergraduate Statistics textbook for examples.** (Sick burn)
 
 ```{r}
 p_value <- 1 - pf(q = Fstat[[1]], 
@@ -225,7 +227,7 @@ p_value
 
 Again, similar to part f), the p-value is practically zero, in fact it is rounded to 0 via the method used. 
 
-The p-value represents the probability of obtaining an F-statistic as extreme as 37.3 (or more extreme) under the null hypothesis being true, i.e. that contrasts among the diet groups have no effect on lifetime (average life expectancy).
+The p-value represents the probability of obtaining an F-statistic as extreme as 37.3 (or more extreme) under the null hypothesis being true.
 
 \newpage 
 
@@ -233,7 +235,7 @@ The p-value represents the probability of obtaining an F-statistic as extreme as
 
 Evaluate the strength of evidence against the null hypothesis based on the p-value found in part (h). Do not use the p-value to make a decision about rejecting or failing to reject the null hypothesis - I am not interested in that. For more background reading, consider the following reference: [https://www.amstat.org/asa/files/pdfs/p-valuesstatement.pdf](https://www.amstat.org/asa/files/pdfs/p-valuesstatement.pdf).
 
-The p-value from part (h) is extremely small ($p < 0.001$), indicating extremely strong evidence against $H_0: C\boldsymbol{\beta} = \boldsymbol{0}$.
+The p-value from part h) is extremely small ($p < 0.001$), indicating extremely strong evidence against $H_0: C\boldsymbol{\beta} = \boldsymbol{0}$.
 
 \newpage 
 
@@ -330,7 +332,7 @@ y <- stress$Score
 
 beta_hat <- solve(t(X) %*% X) %*% (t(X) %*% y)
 
-X[0,]
+# X[0,]
 round(beta_hat,2)
 ```
 
@@ -391,7 +393,7 @@ Specify the parameter representation reflecting the main effect of gender and al
 ```{r}
 beta_hat_values <- as.numeric(beta_hat)  
 
-main_effect_gender <- mean(beta_hat_values[5:8] - beta_hat_values[1:4])
+main_effect_gender <- mean(beta_hat_values[1:4] - beta_hat_values[5:8])
 
 main_effect_gender
 ```
@@ -442,6 +444,12 @@ $$
 \end{bmatrix}
 \boldsymbol{\beta}
 $$
+
+```{r}
+C <- matrix(c(1/4, 1/4, 1/4, 1/4, -1/4, -1/4, -1/4, -1/4), nrow = 1)
+beta_hat
+C %*% beta_hat
+```
 
 This representation shows that the main effect is computed as a weighted sum of the cell means, ensuring an equal-weighted mean difference across smoking levels.
 
@@ -518,6 +526,31 @@ $$
 \end{bmatrix}
 $$
 
+```{r}
+C <- matrix(c(1, -1, 0, 0, -1, 1, 0, 0,
+              1, 0, -1, 0, -1, 0, 1, 0,
+              1, 0, 0, -1, -1, 0, 0, 1), nrow = 3)
+# C_int <- matrix(c(
+#   3/4, -1/4, -1/4, -1/4, -3/4,  1/4,  1/4,  1/4,
+#  -1/4,  3/4, -1/4, -1/4,  1/4, -3/4,  1/4,  1/4,
+#  -1/4, -1/4,  3/4, -1/4,  1/4,  1/4, -3/4,  1/4,
+#  -1/4, -1/4, -1/4,  3/4,  1/4,  1/4,  1/4, -3/4
+# ), nrow = 4, byrow = TRUE)
+
+# \mathbf{C}_{\text{int}} =
+# \begin{bmatrix}
+# \frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} \\
+# -\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} \\
+# -\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} \\
+# -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4}
+# \end{bmatrix}
+
+ 
+C %*% beta_hat 
+```
+
+These values are not zero! So there is some evidence, no comment on strength, to suppose there are interaction effects. 
+
 \newpage 
 
 ## g)
@@ -534,7 +567,7 @@ $$
 H_A: \alpha_G \neq 0
 $$
 
-Using our parameter representation from part (e), the main effect of gender is:
+Using our parameter representation from part e), the main effect of gender is:
 
 $$
 \alpha_G = \frac{1}{4} \sum_{s} \left( \beta_{\text{Male}, s} - \beta_{\text{Female}, s} \right)
@@ -677,8 +710,8 @@ Denominator: $df_{\text{den}} = n - p$, where n is total observations and p = 8 
 
 ```{r}
 C_smoking <- matrix(c(1, -1,  0,  0, 1, -1,  0,  0,
-                       1,  0, -1,  0, 1,  0, -1,  0,
-                       1,  0,  0, -1, 1,  0,  0, -1), 
+                      1,  0, -1,  0, 1,  0, -1,  0,
+                      1,  0,  0, -1, 1,  0,  0, -1), 
                     nrow = 3, byrow = TRUE)
 
 num <- t(C_smoking %*% beta_hat) %*% solve(C_smoking %*% solve(t(X) %*% X) %*% t(C_smoking)) %*% (C_smoking %*% beta_hat)
@@ -728,25 +761,6 @@ $$
 1 &  0 & -1 &  0 & -1 &  0 &  1 &  0 \\
 1 &  0 &  0 & -1 & -1 &  0 &  0 &  1
 \end{bmatrix}
--
-\frac{1}{4}
-\begin{bmatrix}
-1 & 1 & 1 & 1 & -1 & -1 & -1 & -1 \\
-1 & 1 & 1 & 1 & -1 & -1 & -1 & -1 \\
-1 & 1 & 1 & 1 & -1 & -1 & -1 & -1
-\end{bmatrix}
-$$
-
-Simplifying,
-
-$$
-\mathbf{C}_{\text{int}} =
-\begin{bmatrix}
-\frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} \\
--\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} \\
--\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} \\
--\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4}
-\end{bmatrix}
 $$
 
 Thus, testing for an interaction involves solving:
@@ -757,10 +771,9 @@ $$
 
 $$
 \begin{bmatrix}
-\frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} \\
--\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} \\
--\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} \\
--\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4}
+1 & -1 &  0 &  0 & -1 &  1 &  0 &  0 \\
+1 &  0 & -1 &  0 & -1 &  0 &  1 &  0 \\
+1 &  0 &  0 & -1 & -1 &  0 &  0 &  1
 \end{bmatrix}
 \begin{bmatrix}
 \beta_{\text{Female}, \text{Never}} \\
@@ -777,7 +790,6 @@ $$
 0 \\
 0 \\
 0 \\
-0
 \end{bmatrix}
 $$
 
@@ -787,22 +799,13 @@ $$
 
 where q = 3 (testing 3 independent constraints) and $\hat{\sigma}^2$ is the residual variance estimate.
 
-
 Numerator: $df_{\text{num}} = 3$ (corresponding to the 3 constraints).
 Denominator: $df_{\text{den}} = n - p$, where: n is total observations and p = 8 (one parameter per gender-smoking combination).
 
-```{r}
-require(MASS)
-
-C_interaction <- matrix(c(3/4, -1/4, -1/4, -1/4, -3/4, 1/4, 1/4, 1/4,
-                          -1/4, 3/4, -1/4, -1/4, 1/4, -3/4, 1/4, 1/4,
-                          -1/4, -1/4, 3/4, -1/4, 1/4, 1/4, -3/4, 1/4,
-                          -1/4, -1/4, -1/4, 3/4, 1/4, 1/4, 1/4, -3/4), 
-                        nrow = 4, byrow = TRUE)
-
-# qr(C_interaction)$rank
-# qr(X)$rank
-# solve_safe <- ginv(C_interaction %*% solve(t(X) %*% X) %*% t(C_interaction))
+```{r, eval = FALSE, echo = FALSE}
+C_interaction <- matrix(c(1, -1, 0, 0, -1, 1, 0, 0, 
+              1, 0, -1, 0, -1, 0, 1, 0, 
+              1, 0, 0, -1, -1, 0, 0, 1), nrow = 3)
 
 num <- t(C_interaction %*% beta_hat) %*% ginv(C_interaction %*% solve(t(X) %*% X) %*% t(C_interaction)) %*% (C_interaction %*% beta_hat)
 
@@ -815,6 +818,32 @@ df_den <- nrow(X) - ncol(X)
 p_value <- 1 - pf(F_stat, df_num, df_den)
 
 list(F_stat = F_stat, df_num = df_num, df_den = df_den, p_value = p_value)
+```
+
+```{r}
+# require(MASS)
+# 
+# C_interaction <- matrix(c(3/4, -1/4, -1/4, -1/4, -3/4, 1/4, 1/4, 1/4,
+#                           -1/4, 3/4, -1/4, -1/4, 1/4, -3/4, 1/4, 1/4,
+#                           -1/4, -1/4, 3/4, -1/4, 1/4, 1/4, -3/4, 1/4,
+#                           -1/4, -1/4, -1/4, 3/4, 1/4, 1/4, 1/4, -3/4), 
+#                         nrow = 4, byrow = TRUE)
+# 
+# # qr(C_interaction)$rank
+# # qr(X)$rank
+# # solve_safe <- ginv(C_interaction %*% solve(t(X) %*% X) %*% t(C_interaction))
+# 
+# num <- t(C_interaction %*% beta_hat) %*% ginv(C_interaction %*% solve(t(X) %*% X) %*% t(C_interaction)) %*% (C_interaction %*% beta_hat)
+# 
+# den <- sigma2_hat * 3  # q = 3
+# F_stat <- num / den
+# 
+# df_num <- 3
+# df_den <- nrow(X) - ncol(X)
+# 
+# p_value <- 1 - pf(F_stat, df_num, df_den)
+# 
+# list(F_stat = F_stat, df_num = df_num, df_den = df_den, p_value = p_value)
 ```
 
 ### Interpretation: 
@@ -940,19 +969,23 @@ $$
 This interval provides the range within which we are 95% confident that the true gender effect on the mean achievement score lies.
 
 ```{r}
+stress <- read.table(file = "stress.txt", 
+                     header = TRUE, 
+                     sep = ",")
+
 stress_data <- stress 
 stress_data$gender <- as.factor(stress_data$gender)
 stress_data$smoking <- as.factor(stress_data$smoking)
 
 model <- lm(Score ~ gender:smoking - 1, data = stress_data)
 
-beta_male <- mean(coef(model)[grep("genderMale", names(coef(model)))])
-beta_female <- mean(coef(model)[grep("genderFemale", names(coef(model)))])
+beta_male <- mean(coef(model)[grep("gender1:", names(coef(model)))])
+beta_female <- mean(coef(model)[grep("gender2:", names(coef(model)))])
 
 gender_effect <- beta_male - beta_female
 
-se_male <- mean(summary(model)$coefficients[grep("genderMale", rownames(summary(model)$coefficients)), "Std. Error"])
-se_female <- mean(summary(model)$coefficients[grep("genderFemale", rownames(summary(model)$coefficients)), "Std. Error"])
+se_male <- mean(summary(model)$coefficients[grep("gender1:", rownames(summary(model)$coefficients)), "Std. Error"])
+se_female <- mean(summary(model)$coefficients[grep("gender2:", rownames(summary(model)$coefficients)), "Std. Error"])
 
 se_gender_effect <- sqrt(se_male^2 + se_female^2)
 
@@ -989,41 +1022,26 @@ residuals <- resid(model)
 fitted_values <- fitted(model)
 ```
 
-
 ```{r}
-plot(fitted_values, residuals, main="Residuals vs Fitted Values", xlab="Fitted Values", ylab="Residuals")
-abline(h=0, col="red")
+library(MASS)
+stdresids <- studres(model) 
+
+plot(model$fitted.values, stdresids, main = "Studentized Residuals vs Fitted Values", xlab = "Fitted Values", ylab = "Studentized Residuals")
+abline(h = 0, col = "red")
+qqnorm(stdresids)
+qqline(stdresids, col = "black")
+
+# shapiro.test()
 ```
 
-**Interpretation:** If residuals are randomly scattered, it suggests linearity and homoscedasticity.
-
 ```{r}
-qqnorm(residuals, main="Normal Q-Q Plot")
-qqline(residuals, col="red")
+hist(stdresids, main="Histogram of Residuals", xlab="Residuals", breaks=10)
 ```
 
-**Interpretation:** If points follow the line, residuals are approximately normal.
+The residual plot (studentized) looks good for the purposes of diagnosing the model assumptions, insomuch as it appears to be randomly spread (constant variance) and centered around zero. 
 
-```{r}
-hist(residuals, main="Histogram of Residuals", xlab="Residuals", breaks=20)
-```
+The QQ plot does not closely align with the reference line within the first theoretical quantile, so there are some concerns about the normality distribution, even with considering the studentized residuals. Furthermore, the QQ plot appears to have a slight "S" shape/curve, further suggesting deviation from normality. The histogram of residuals (including studentized) provide a similar picture. 
 
-**Interpretation:** The histogram should resemble a normal distribution.
+Furthermore, via review of the residual plot (by fitted values) we generally observe a random spread of residuals across the range of fitted values (there is not a clear trend present in the residual plot above). We do not observe any trends or noticeable patterns in the above plots, such that we have reason to believe our linearity assumption is not being violated. 
 
-```{r}
-plot(fitted_values, sqrt(abs(residuals)), main="Scale-Location Plot", xlab="Fitted Values", ylab="Sqrt. |Residuals|")
-abline(h=0, col="red")
-```
-
-**Interpretation:** A random spread suggests homoscedasticity.
-
-```{r}
-plot(residuals, type="b", main="Residuals vs Order", xlab="Observation Order", ylab="Residuals")
-abline(h=0, col="red")
-```
-
-**Interpretation:** No clear pattern suggests independence.
-
-## Conclusion
-
-These graphical checks help validate the assumptions for the **cell-means model**. If violations are detected, transformations or alternative models may be required.
+Overall, we have reason to suspect our normality assumption is being violated but the other assumptions appear appropriate. 
