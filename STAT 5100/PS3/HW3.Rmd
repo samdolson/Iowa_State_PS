@@ -15,7 +15,7 @@ knitr::include_graphics("Algorithm.png")
 # Outline 
 
   - Q1: part f) through i) need re-review
-  - Q2
+  - Q2: part f) through l) need re-review CHECK FOR CONSISTENCY OF BETA VECTOR 
 
 # Problem 1
 
@@ -243,13 +243,31 @@ Consider a two-factor experiment with factors A and B. Factor A represents gende
 
 ## Note: 
 
-Doing this problem primarily in SAS. 
+Doing this problem primarily in R, again.  
+
+```{r}
+stress <- read.table(file = "stress.txt", 
+                     header = TRUE, 
+                     sep = ",")
+```
 
 ## a)
 
 Set up a contingency table similar to the one on slide 7 of the lecture slides that reflects all possible factor level combinations. Use the parameterization introduced on slide 6 of the same set of slides and specify each cell mean.
 
+```{r}
+require(dplyr)
+require(tidyverse)
 
+aggStress <- stress |>
+  group_by(gender, smoking) |>
+  summarise(meanScore = mean(Score), .groups = "drop")
+
+stressTable <- aggStress |>
+  pivot_wider(names_from = smoking, values_from = meanScore, names_prefix = "Smoking_")
+
+round(stressTable, 2)
+```
 
 \newpage 
 
@@ -257,11 +275,64 @@ Set up a contingency table similar to the one on slide 7 of the lecture slides t
 
 Specify the model matrix for this model. (I realize this is a big matrix and I will ask you to do this only once.)
 
+2 Genders, 4 levels of smoking, 3 reps of each gender-smoking combination. 
+
+This means our model matrix (design matrix) has 8 columns and 24 rows. 
+
+This looks like: 
+
+$$
+X =
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+Weeeeee! 
+
 \newpage 
 
 ## c)
 
 Specify the corresponding $\boldsymbol{\beta}$-vector and obtain its OLS estimate.
+
+```{r}
+gender <- rep(c("Male", "Female"), each = 12)  
+smoking <- rep(c("Never", "Light", "Medium", "Heavy"), each = 3, times = 2)
+
+stressDat <- data.frame(gender = factor(gender), smoking = factor(smoking))
+X <- model.matrix(~ 0 + gender:smoking, data = stressDat)
+X <- X[, order(colnames(X))]
+
+y <- stress$Score  
+
+beta_hat <- solve(t(X) %*% X) %*% (t(X) %*% y)
+
+X[0,]
+round(beta_hat,2)
+```
 
 \newpage 
 
@@ -269,11 +340,110 @@ Specify the corresponding $\boldsymbol{\beta}$-vector and obtain its OLS estimat
 
 Obtain the standard error associated with the OLS estimator of each cell mean. Start by specifying the relevant formula and show your calculations at least once, i.e., for at least one of the cell means.
 
+$$
+\text{SE}(\hat{\beta}_j) = \sqrt{\sigma^2 \cdot [(\mathbf{X}'\mathbf{X})^{-1}]_{jj}}
+$$
+
+where $\hat{\beta}_j$ is the OLS estimate for cell mean $j$ and $\sigma^2$ is the estimated residual variance, given by:
+
+$$
+\hat{\sigma}^2 = \frac{\mathbf{y}'(\mathbf{I} - \mathbf{P}_X) \mathbf{y}}{n - p}
+$$
+
+where $\mathbf{I}$ is the identity matrix, $\mathbf{P}_X = \mathbf{X}(\mathbf{X}'\mathbf{X})^{-1} \mathbf{X}'$ is the projection matrix, $n$ is the number of observations, and $p$ is the number of estimated parameters (cells).
+
+Each diagonal element of $(\mathbf{X}'\mathbf{X})^{-1}$ determines the variance of $\hat{\beta}_j$, meaning that:
+
+$$
+\text{Var}(\hat{\beta}_j) = \sigma^2 \cdot [(\mathbf{X}'\mathbf{X})^{-1}]_{jj}
+$$
+
+For the first cell mean (e.g., Male, Never Smoked):
+
+$$
+\text{SE}(\hat{\beta}_1) = \sqrt{\hat{\sigma}^2 \cdot [(\mathbf{X}'\mathbf{X})^{-1}]_{11}}
+$$
+
+```{r}
+require(dplyr)
+
+n <- nrow(X) 
+p <- ncol(X) 
+I <- diag(1, n)  
+
+P_X <- X %*% solve(t(X) %*% X) %*% t(X)
+sigma2_hat <- as.numeric(t(y) %*% (I - P_X) %*% y / (n - p))
+var_beta_hat <- sigma2_hat * solve(t(X) %*% X)
+SE_beta_hat <- sqrt(diag(var_beta_hat))
+names(SE_beta_hat) <- colnames(X)
+
+SE_beta_hat
+```
+
+Note: Because we have a balanced design, the SE of each $\hat{\beta}$ is the same. 
+
 \newpage 
 
 ## e)
 
 Specify the parameter representation reflecting the main effect of gender and also its point estimate.
+
+```{r}
+beta_hat_values <- as.numeric(beta_hat)  
+
+main_effect_gender <- mean(beta_hat_values[5:8] - beta_hat_values[1:4])
+
+main_effect_gender
+```
+
+We define the main effect of gender as:
+
+$$
+\alpha_G = \frac{1}{4} \sum_{s} \left( \beta_{\text{Male}, s} - \beta_{\text{Female}, s} \right)
+$$
+
+Let $\boldsymbol{\beta}$ be the vector of cell means:
+
+$$
+\boldsymbol{\beta} =
+\begin{bmatrix}
+\beta_{\text{Female}, \text{Never}} \\
+\beta_{\text{Female}, \text{Light}} \\
+\beta_{\text{Female}, \text{Medium}} \\
+\beta_{\text{Female}, \text{Heavy}} \\
+\beta_{\text{Male}, \text{Never}} \\
+\beta_{\text{Male}, \text{Light}} \\
+\beta_{\text{Male}, \text{Medium}} \\
+\beta_{\text{Male}, \text{Heavy}}
+\end{bmatrix}
+$$
+
+We express the main effect of gender as a linear contrast:
+
+$$
+\alpha_G = \mathbf{C} \boldsymbol{\beta}
+$$
+
+where the contrast matrix $\mathbf{C}$ is:
+
+$$
+\mathbf{C} =
+\begin{bmatrix}
+\frac{1}{4}  & \frac{1}{4}  & \frac{1}{4}  & \frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4} 
+\end{bmatrix}
+$$
+
+Thus, the main effect of gender can be written in matrix form as:
+
+$$
+\alpha_G = 
+\begin{bmatrix}
+\frac{1}{4}  & \frac{1}{4}  & \frac{1}{4}  & \frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4} 
+\end{bmatrix}
+\boldsymbol{\beta}
+$$
+
+This representation shows that the main effect is computed as a weighted sum of the cell means, ensuring an equal-weighted mean difference across smoking levels.
 
 \newpage 
 
@@ -281,11 +451,156 @@ Specify the parameter representation reflecting the main effect of gender and al
 
 Is there an interaction between gender and smoking? Similarly to the previous parts, specify all relevant parameter representations.
 
+$H_0$: No Interaction
+
+$$
+(\mu_{\text{Male}, s} - \mu_{\text{Female}, s}) - (\mu_{\text{Male}, s'} - \mu_{\text{Female}, s'}) = 0 \quad \text{for all } s \neq s'
+$$
+
+where $\mu_{\text{Male}, s}$ is the mean exercise score for males at smoking level s, $\mu_{\text{Female}, s}$ is the mean exercise score for females at smoking level s.
+
+This hypothesis states that the difference between genders must be the same at all smoking levels.
+
+We have our same  vector of cell means:
+
+$$
+\boldsymbol{\mu} =
+\begin{bmatrix}
+\mu_{\text{Female}, \text{Never}} \\
+\mu_{\text{Female}, \text{Light}} \\
+\mu_{\text{Female}, \text{Medium}} \\
+\mu_{\text{Female}, \text{Heavy}} \\
+\mu_{\text{Male}, \text{Never}} \\
+\mu_{\text{Male}, \text{Light}} \\
+\mu_{\text{Male}, \text{Medium}} \\
+\mu_{\text{Male}, \text{Heavy}}
+\end{bmatrix}
+$$
+
+To test for no interaction, we use the contrast matrix:
+
+$$
+\mathbf{C}_{\text{int}} =
+\begin{bmatrix}
+1 & -1 &  0 &  0 & -1 &  1 &  0 &  0 \\
+1 &  0 & -1 &  0 & -1 &  0 &  1 &  0 \\
+1 &  0 &  0 & -1 & -1 &  0 &  0 &  1
+\end{bmatrix}
+$$
+
+Thus, testing for interaction involves checking:
+
+$$
+\mathbf{C}_{\text{int}} \boldsymbol{\mu} = \mathbf{0}
+$$
+
+$$
+\begin{bmatrix}
+1 & -1 &  0 &  0 & -1 &  1 &  0 &  0 \\
+1 &  0 & -1 &  0 & -1 &  0 &  1 &  0 \\
+1 &  0 &  0 & -1 & -1 &  0 &  0 &  1
+\end{bmatrix}
+\begin{bmatrix}
+\mu_{\text{Female}, \text{Never}} \\
+\mu_{\text{Female}, \text{Light}} \\
+\mu_{\text{Female}, \text{Medium}} \\
+\mu_{\text{Female}, \text{Heavy}} \\
+\mu_{\text{Male}, \text{Never}} \\
+\mu_{\text{Male}, \text{Light}} \\
+\mu_{\text{Male}, \text{Medium}} \\
+\mu_{\text{Male}, \text{Heavy}}
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0 \\
+0
+\end{bmatrix}
+$$
+
 \newpage 
 
 ## g)
 
 Specify $\boldsymbol{C}$ allowing you to test for a main effect of gender. State the appropriate null- and alternative hypothesis using parameter representation. Obtain the corresponding value of the test statistic, df and p-value and provide a conclusion in the context of the data.
+
+The hypotheses: 
+
+$$
+H_0: \alpha_G = 0
+$$
+
+$$
+H_A: \alpha_G \neq 0
+$$
+
+Using our parameter representation from part (e), the main effect of gender is:
+
+$$
+\alpha_G = \frac{1}{4} \sum_{s} \left( \beta_{\text{Male}, s} - \beta_{\text{Female}, s} \right)
+$$
+
+Thus, the null hypothesis states that the mean exercise score for males and females is the same on average across smoking levels, while the alternative hypothesis states that there is a difference in mean exercise score between genders.
+
+To test for the main effect of gender, we define the contrast matrix:
+
+$$
+\mathbf{C} =
+\begin{bmatrix}
+\frac{1}{4}  & \frac{1}{4}  & \frac{1}{4}  & \frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4} 
+\end{bmatrix}
+$$
+
+Testing for the main effect of gender involves solving:
+
+$$
+\mathbf{C} \boldsymbol{\beta} = 0
+$$
+
+$$
+\begin{bmatrix}
+\frac{1}{4}  & \frac{1}{4}  & \frac{1}{4}  & \frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4} 
+\end{bmatrix}
+\begin{bmatrix}
+\beta_{\text{Female}, \text{Never}} \\
+\beta_{\text{Female}, \text{Light}} \\
+\beta_{\text{Female}, \text{Medium}} \\
+\beta_{\text{Female}, \text{Heavy}} \\
+\beta_{\text{Male}, \text{Never}} \\
+\beta_{\text{Male}, \text{Light}} \\
+\beta_{\text{Male}, \text{Medium}} \\
+\beta_{\text{Male}, \text{Heavy}}
+\end{bmatrix}
+=
+0
+$$
+
+The test statistic for testing $H_0: \alpha_G = 0$ is:
+
+$$
+F = \frac{(\mathbf{C} \hat{\boldsymbol{\beta}})' (\mathbf{C} (\mathbf{X}' \mathbf{X})^{-1} \mathbf{C}')^{-1} (\mathbf{C} \hat{\boldsymbol{\beta}})}{\hat{\sigma}^2 q}
+$$
+
+where $\hat{\boldsymbol{\beta}}$ is the vector of estimated cell means, $(\mathbf{X}' \mathbf{X})^{-1}$ is the covariance matrix of $\hat{\boldsymbol{\beta}}$, q = 1 (number of constraints tested), and $\hat{\sigma}^2$ is the residual variance estimate.
+
+The numerator degrees of freedom: $df_{\text{num}} = 1$, since we are testing a single contrast.
+
+The denominator degrees of freedom: $df_{\text{den}} = n - p$, where n is the total number of observations and p = 8 (one parameter for each gender-smoking combination).
+
+```{r}
+C_gender <- matrix(c(1/4, 1/4, 1/4, 1/4, -1/4, -1/4, -1/4, -1/4), nrow = 1)
+
+num <- t(C_gender %*% beta_hat) %*% solve(C_gender %*% solve(t(X) %*% X) %*% t(C_gender)) %*% (C_gender %*% beta_hat)
+den <- sigma2_hat * 1  
+F_stat <- num / den
+
+df_num <- 1
+df_den <- nrow(X) - ncol(X)
+
+p_value <- 1 - pf(F_stat, df_num, df_den)
+
+list(F_stat = F_stat, df_num = df_num, df_den = df_den, p_value = p_value)
+```
 
 \newpage 
 
@@ -293,11 +608,228 @@ Specify $\boldsymbol{C}$ allowing you to test for a main effect of gender. State
 
 Specify $\boldsymbol{C}$ allowing you to test for a main effect of smoking. State the appropriate null- and alternative hypothesis using parameter representation. Obtain the corresponding value of the test statistic, df and p-value and provide a conclusion in the context of the data.
 
+To test the main effect of smoking, we have:
+
+$$
+H_0: \alpha_S = 0
+$$
+
+$$
+H_A: \alpha_S \neq 0
+$$
+
+where the main effect of smoking is:
+
+$$
+\alpha_S(s) = \frac{1}{2} \sum_{g} \left( \beta_{g, s} - \bar{\beta}_S \right), \quad \text{for } s = \text{Never, Light, Medium, Heavy}
+$$
+
+To test for the main effect of smoking, define:
+
+$$
+\mathbf{C} =
+\begin{bmatrix}
+1 & -1 &  0 &  0 & 1 & -1 &  0 &  0 \\
+1 &  0 & -1 &  0 & 1 &  0 & -1 &  0 \\
+1 &  0 &  0 & -1 & 1 &  0 &  0 & -1
+\end{bmatrix}
+$$
+
+Solving:
+
+$$
+\mathbf{C} \boldsymbol{\beta} = 0
+$$
+
+$$
+\begin{bmatrix}
+1 & -1 &  0 &  0 & 1 & -1 &  0 &  0 \\
+1 &  0 & -1 &  0 & 1 &  0 & -1 &  0 \\
+1 &  0 &  0 & -1 & 1 &  0 &  0 & -1
+\end{bmatrix}
+\begin{bmatrix}
+\beta_{\text{Female}, \text{Never}} \\
+\beta_{\text{Female}, \text{Light}} \\
+\beta_{\text{Female}, \text{Medium}} \\
+\beta_{\text{Female}, \text{Heavy}} \\
+\beta_{\text{Male}, \text{Never}} \\
+\beta_{\text{Male}, \text{Light}} \\
+\beta_{\text{Male}, \text{Medium}} \\
+\beta_{\text{Male}, \text{Heavy}}
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0 \\
+0
+\end{bmatrix}
+$$
+
+$$
+F = \frac{(\mathbf{C} \hat{\boldsymbol{\beta}})' (\mathbf{C} (\mathbf{X}' \mathbf{X})^{-1} \mathbf{C}')^{-1} (\mathbf{C} \hat{\boldsymbol{\beta}})}{\hat{\sigma}^2 q}
+$$
+
+where q = 3 (since we test 3 independent constraints), and $\hat{\sigma}^2$ is the residual variance.
+
+Numerator: $df_{\text{num}} = 3$ (corresponding to the 3 constraints).
+Denominator: $df_{\text{den}} = n - p$, where n is total observations and p = 8 (one parameter per gender-smoking combination).
+
+
+```{r}
+C_smoking <- matrix(c(1, -1,  0,  0, 1, -1,  0,  0,
+                       1,  0, -1,  0, 1,  0, -1,  0,
+                       1,  0,  0, -1, 1,  0,  0, -1), 
+                    nrow = 3, byrow = TRUE)
+
+num <- t(C_smoking %*% beta_hat) %*% solve(C_smoking %*% solve(t(X) %*% X) %*% t(C_smoking)) %*% (C_smoking %*% beta_hat)
+den <- sigma2_hat * 3  
+F_stat <- num / den
+
+df_num <- 3
+df_den <- nrow(X) - ncol(X)
+
+p_value <- 1 - pf(F_stat, df_num, df_den)
+
+list(F_stat = F_stat, df_num = df_num, df_den = df_den, p_value = p_value)
+```
+
 \newpage 
 
 ## i)
 
 Specify $\boldsymbol{C}$ allowing you to test for an interaction between gender and smoking. State the appropriate null- and alternative hypothesis using parameter representation. Obtain the value of the relevant test statistic, df and p-value. Provide an interpretation of the result that a scientist unfamiliar with technical statistical terms can understand. Would you argue that the interaction is of practical importance? Briefly explain.
+
+To test for an interaction effect between gender and smoking, we set up:
+
+$$
+H_0: \gamma_s = 0, \quad \forall s
+$$
+
+$$
+H_A: \gamma_s \neq 0 \text{ for at least one } s
+$$
+
+where the interaction effect is:
+
+$$
+\gamma_s = (\beta_{\text{Male}, s} - \beta_{\text{Female}, s}) - \alpha_G, \quad \text{for } s = \text{Never, Light, Medium, Heavy}
+$$
+
+where $\beta_{\text{Male}, s}$ and $\beta_{\text{Female}, s}$ are the mean exercise scores for Males and Females at smoking level s, and $\alpha_G$ is the main effect of gender, defined as the average difference in means across all smoking levels.
+
+Thus, the null hypothesis states that the difference between males and females is the same across all smoking levels, while the alternative hypothesis states that the effect of gender depends on smoking level, indicating an interaction.
+
+To test for the interaction effect, we define:
+
+$$
+\mathbf{C}_{\text{int}} =
+\begin{bmatrix}
+1 & -1 &  0 &  0 & -1 &  1 &  0 &  0 \\
+1 &  0 & -1 &  0 & -1 &  0 &  1 &  0 \\
+1 &  0 &  0 & -1 & -1 &  0 &  0 &  1
+\end{bmatrix}
+-
+\frac{1}{4}
+\begin{bmatrix}
+1 & 1 & 1 & 1 & -1 & -1 & -1 & -1 \\
+1 & 1 & 1 & 1 & -1 & -1 & -1 & -1 \\
+1 & 1 & 1 & 1 & -1 & -1 & -1 & -1
+\end{bmatrix}
+$$
+
+Simplifying,
+
+$$
+\mathbf{C}_{\text{int}} =
+\begin{bmatrix}
+\frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} \\
+-\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} \\
+-\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} \\
+-\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4}
+\end{bmatrix}
+$$
+
+Thus, testing for an interaction involves solving:
+
+$$
+\mathbf{C}_{\text{int}} \boldsymbol{\beta} = 0
+$$
+
+$$
+\begin{bmatrix}
+\frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} \\
+-\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} \\
+-\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} \\
+-\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4}
+\end{bmatrix}
+\begin{bmatrix}
+\beta_{\text{Female}, \text{Never}} \\
+\beta_{\text{Female}, \text{Light}} \\
+\beta_{\text{Female}, \text{Medium}} \\
+\beta_{\text{Female}, \text{Heavy}} \\
+\beta_{\text{Male}, \text{Never}} \\
+\beta_{\text{Male}, \text{Light}} \\
+\beta_{\text{Male}, \text{Medium}} \\
+\beta_{\text{Male}, \text{Heavy}}
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0 \\
+0 \\
+0
+\end{bmatrix}
+$$
+
+$$
+F = \frac{(\mathbf{C}_{\text{int}} \hat{\boldsymbol{\beta}})' (\mathbf{C}_{\text{int}} (\mathbf{X}' \mathbf{X})^{-1} \mathbf{C}_{\text{int}}')^{-1} (\mathbf{C}_{\text{int}} \hat{\boldsymbol{\beta}})}{\hat{\sigma}^2 q}
+$$
+
+where q = 3 (testing 3 independent constraints) and $\hat{\sigma}^2$ is the residual variance estimate.
+
+
+Numerator: $df_{\text{num}} = 3$ (corresponding to the 3 constraints).
+Denominator: $df_{\text{den}} = n - p$, where: n is total observations and p = 8 (one parameter per gender-smoking combination).
+
+```{r}
+require(MASS)
+
+C_interaction <- matrix(c(3/4, -1/4, -1/4, -1/4, -3/4, 1/4, 1/4, 1/4,
+                          -1/4, 3/4, -1/4, -1/4, 1/4, -3/4, 1/4, 1/4,
+                          -1/4, -1/4, 3/4, -1/4, 1/4, 1/4, -3/4, 1/4,
+                          -1/4, -1/4, -1/4, 3/4, 1/4, 1/4, 1/4, -3/4), 
+                        nrow = 4, byrow = TRUE)
+
+# qr(C_interaction)$rank
+# qr(X)$rank
+# solve_safe <- ginv(C_interaction %*% solve(t(X) %*% X) %*% t(C_interaction))
+
+num <- t(C_interaction %*% beta_hat) %*% ginv(C_interaction %*% solve(t(X) %*% X) %*% t(C_interaction)) %*% (C_interaction %*% beta_hat)
+
+den <- sigma2_hat * 3  # q = 3
+F_stat <- num / den
+
+df_num <- 3
+df_den <- nrow(X) - ncol(X)
+
+p_value <- 1 - pf(F_stat, df_num, df_den)
+
+list(F_stat = F_stat, df_num = df_num, df_den = df_den, p_value = p_value)
+```
+
+### Interpretation: 
+
+If $p < 0.05$, there is strong evidence of interaction.
+
+If $p \geq 0.05$, there is no strong evidence that gender effects depend on smoking level.
+
+Practical Importance? Depends on effect size—if differences are small, it may not matter.
+
+We investigated whether gender and smoking history interact to influence exercise performance. In simpler terms, we wanted to see if the difference in exercise scores between males and females depends on smoking level.
+
+If there is no interaction, this means that the difference between males and females is the same across all smoking levels—for example, if males consistently outperform females by a fixed amount, regardless of smoking habits.
+
+If there is an interaction, this means that the gender gap in exercise scores changes depending on smoking level—for instance, perhaps males and females have similar scores for light smokers, but heavy smoking reduces male performance more than female performance.
 
 \newpage 
 
@@ -306,14 +838,192 @@ Specify $\boldsymbol{C}$ allowing you to test for an interaction between gender 
 Provide a 95% confidence interval for the mean associated with male patients who never smoked. 
 Show all your work.
 
+$$
+c^T \hat{\boldsymbol{\beta}} \pm t_{n-r, 1-\alpha/2} \sqrt{\hat{\sigma}^2 c^T (\mathbf{X}^T \mathbf{X})^{-1} c}
+$$
+
+where:
+- $c^T \hat{\boldsymbol{\beta}}$ is the estimated mean for male patients who never smoked.
+- $t_{n-r, 1-\alpha/2}$ is the critical value from the t-distribution with degrees of freedom $df = n - r$.
+- $\hat{\sigma}^2$ is the estimated variance from the residual mean square.
+- $(\mathbf{X}^T \mathbf{X})^{-1}$ is the inverse of the information matrix.
+
+Given the estimated mean $\hat{\beta}$ for the category Male, Never Smoked, the confidence interval follows:
+
+$$
+\hat{\beta} \pm t_{n-r, 1-\alpha/2} \times \text{SE}
+$$
+
+where:
+- $\hat{\beta}$ is the estimated mean for male patients who never smoked.
+- $t_{n-r, 1-\alpha/2}$ is the critical t-value from the Student’s $t$-distribution.
+- SE is the standard error of the estimated mean.
+- $n$ is the total number of observations, and $r$ is the number of estimated parameters.
+
+The 95% confidence interval for the mean achievement score for male patients who never smoked is:
+
+$$
+(\hat{\beta} - \text{MOE}, \hat{\beta} + \text{MOE})
+$$
+
+This interval provides the range within which we are 95% confident that the true population mean lies.
+
+```{r}
+stress <- read.table(file = "stress.txt", 
+                     header = TRUE, 
+                     sep = ",")
+
+stress_data <- stress 
+
+stress_data$gender <- as.factor(stress_data$gender)
+stress_data$smoking <- as.factor(stress_data$smoking)
+
+model <- lm(Score ~ gender:smoking - 1, data = stress_data)
+
+beta_male_never <- coef(model)["gender1:smoking2"]
+se_male_never <- summary(model)$coefficients["gender1:smoking2", "Std. Error"]
+
+df <- df.residual(model)
+
+t_value <- qt(0.975, df)
+
+MOE <- t_value * se_male_never
+
+CI_lower <- beta_male_never - MOE
+CI_upper <- beta_male_never + MOE
+
+cat("95% Confidence Interval for Male, Never Smoked: (", 
+    round(CI_lower, 2), ",", round(CI_upper, 2), ")\n")
+```
+
+
 \newpage 
 
 ## k)
 
 Provide a 95% confidence interval for the mean effect of gender. Show all your work.
 
+$$
+c^T \hat{\boldsymbol{\beta}} \pm t_{n-r, 1-\alpha/2} \sqrt{\hat{\sigma}^2 c^T (\mathbf{X}^T \mathbf{X})^{-1} c}
+$$
+
+where:
+- $c^T \hat{\boldsymbol{\beta}}$ represents the estimated gender effect.
+- $t_{n-r, 1-\alpha/2}$ is the critical value from the t-distribution with degrees of freedom $df = n - r$.
+- $\hat{\sigma}^2$ is the estimated variance from the residual mean square.
+- $(\mathbf{X}^T \mathbf{X})^{-1}$ is the inverse of the information matrix.
+
+The mean effect of gender can be computed as the difference between the mean achievement scores for male and female patients:
+
+$$
+\hat{\delta} = \hat{\beta}_{\text{Male}} - \hat{\beta}_{\text{Female}}
+$$
+
+The confidence interval follows:
+
+$$
+\hat{\delta} \pm t_{n-r, 1-\alpha/2} \times SE
+$$
+
+where:
+- $\hat{\delta}$ is the estimated gender effect.
+- $t_{n-r, 1-\alpha/2}$ is the critical t-value from the Student’s $t$-distribution.
+- SE is the standard error of the gender effect estimate.
+- $n$ is the total number of observations, and $r$ is the number of estimated parameters.
+
+The 95% confidence interval for the mean effect of gender is:
+
+$$
+(\hat{\delta} - \text{MOE}, \hat{\delta} + \text{MOE})
+$$
+
+This interval provides the range within which we are 95% confident that the true gender effect on the mean achievement score lies.
+
+```{r}
+stress_data <- stress 
+stress_data$gender <- as.factor(stress_data$gender)
+stress_data$smoking <- as.factor(stress_data$smoking)
+
+model <- lm(Score ~ gender:smoking - 1, data = stress_data)
+
+beta_male <- mean(coef(model)[grep("genderMale", names(coef(model)))])
+beta_female <- mean(coef(model)[grep("genderFemale", names(coef(model)))])
+
+gender_effect <- beta_male - beta_female
+
+se_male <- mean(summary(model)$coefficients[grep("genderMale", rownames(summary(model)$coefficients)), "Std. Error"])
+se_female <- mean(summary(model)$coefficients[grep("genderFemale", rownames(summary(model)$coefficients)), "Std. Error"])
+
+se_gender_effect <- sqrt(se_male^2 + se_female^2)
+
+df <- df.residual(model)
+
+t_value <- qt(0.975, df)
+
+MOE <- t_value * se_gender_effect
+
+CI_lower <- gender_effect - MOE
+CI_upper <- gender_effect + MOE
+
+cat("95% Confidence Interval for Gender Effect: (", 
+    round(CI_lower, 2), ",", round(CI_upper, 2), ")\n")
+```
+
 \newpage 
 
 ## l)
 
 Obtain the residuals for the fitted models and use them to check the necessary assumptions that allow us to fit the proposed model. Please submit and explain any graphical displays that you might use.
+
+```{r}
+stress_data <- stress 
+
+stress_data$gender <- as.factor(stress_data$gender)
+stress_data$smoking <- as.factor(stress_data$smoking)
+
+# Fit the cell-means model
+model <- lm(Score ~ gender:smoking - 1, data = stress_data)
+
+# Extract residuals and fitted values
+residuals <- resid(model)
+fitted_values <- fitted(model)
+```
+
+
+```{r}
+plot(fitted_values, residuals, main="Residuals vs Fitted Values", xlab="Fitted Values", ylab="Residuals")
+abline(h=0, col="red")
+```
+
+**Interpretation:** If residuals are randomly scattered, it suggests linearity and homoscedasticity.
+
+```{r}
+qqnorm(residuals, main="Normal Q-Q Plot")
+qqline(residuals, col="red")
+```
+
+**Interpretation:** If points follow the line, residuals are approximately normal.
+
+```{r}
+hist(residuals, main="Histogram of Residuals", xlab="Residuals", breaks=20)
+```
+
+**Interpretation:** The histogram should resemble a normal distribution.
+
+```{r}
+plot(fitted_values, sqrt(abs(residuals)), main="Scale-Location Plot", xlab="Fitted Values", ylab="Sqrt. |Residuals|")
+abline(h=0, col="red")
+```
+
+**Interpretation:** A random spread suggests homoscedasticity.
+
+```{r}
+plot(residuals, type="b", main="Residuals vs Order", xlab="Observation Order", ylab="Residuals")
+abline(h=0, col="red")
+```
+
+**Interpretation:** No clear pattern suggests independence.
+
+## Conclusion
+
+These graphical checks help validate the assumptions for the **cell-means model**. If violations are detected, transformations or alternative models may be required.
