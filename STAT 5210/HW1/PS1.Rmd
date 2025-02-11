@@ -225,31 +225,107 @@ $$
 
 ### Unbiasedness 
 
-Both variance calculations are negative, so they are certainly different from the true variance, making both estimates biased. Since we can quantify it explicitly though, the biases are derived here: 
-
-First, we find the true variance: 
-
 ```{r}
-# true mean
-y <- c(16 + 21, 16 + 18, 21 + 18)
-E_Y <- sum(probs * y)
-E_Y
+# Setup
+probs <- c(0.5, 0.25, 0.25)
+
+# estimates
+ht_var_estimators <- c(-74.67, -384, -504)
+syg_var_estimators <- c(2.78, 53.88, 16)
+
+# expected variance
+est_var_HT <- sum(probs * ht_var_estimators)
+est_var_SYG <- sum(probs * syg_var_estimators)
 
 # true variance
-var_Y <- sum(probs * ((ht_estimators - E_Y)^2))
-round(var_Y,2)
-```
+ht_estimators <- c(49.33, 57.33, 64)
+E_Y <- sum(probs * ht_estimators)
+true_variance <- sum(probs * ((ht_estimators - E_Y)^2))
 
-```{r}
-est_var_HT <- sum(probs * ht_var)
-est_var_SYG <- sum(probs * syg_var)
-bias_HT <- est_var_HT - var_Y
-bias_SYG <- est_var_SYG - var_Y
+#  bias
+bias_HT <- est_var_HT - true_variance
+bias_SYG <- est_var_SYG - true_variance
+
 bias_HT
 bias_SYG
 ```
 
-Making the SYG variance estimator as given (with a fixed sample size of 2) biased as well, and more biased (magnitude of bias is greater) compared to the HT estimator in this scenario. 
+Oddly enough, neither appear to be truly unbiased in this example, at least given the derivations/calculations I've used above. Between the two of them though, the SYG variance estimator appears to be less biased than the HT variance estimator for this fixed sample size of n=2 design. This is worrying given the HT estimator should be unbiased, as shown in the slides/lectures. Perhaps that doesn't extend to the HT variance estimator in this example, if any of the above or below is correct. 
+
+Detail in-depth: 
+
+The definition of Bias is: 
+
+$$
+\text{Bias}(\hat{V}) = E[\hat{V}] - V_{HT}
+$$
+
+where $E[\hat{V}_{HT}]$ and $E[\hat{V}_{SYG}]$ are the expected values of the variance estimators and $V_{HT}$ is the true variance of the HT estimator.
+
+Taking our inclusion probabilities as defined previously (first and second order), as well as the observed values for each unit, also note the estimations calculated previously. Specifically, we have:  
+
+HT variance estimates:
+
+$$
+\hat{V}_{HT}(A_1) = -74.67, \quad \hat{V}_{HT}(A_2) = -384, \quad \hat{V}_{HT}(A_3) = -504
+$$
+
+and SYG variance estimates:
+
+$$
+\hat{V}_{SYG}(A_1) = 2.78, \quad \hat{V}_{SYG}(A_2) = 53.88, \quad \hat{V}_{SYG}(A_3) = 16
+$$
+
+The expected value of the HT estimator is:
+
+$$
+E[Y_{HT}] = \sum_A P(A) Y_{HT}(A)
+= (0.5 \cdot 49.33) + (0.25 \cdot 57.33) + (0.25 \cdot 64)
+= 24.67 + 14.33 + 16 = 55
+$$
+
+The true variance is:
+
+$$
+V_{HT} = \sum_A P(A) (V_{HT}(A) - E[V_{HT}])^2
+= (0.5 \cdot (49.33 - 55)^2) + (0.25 \cdot (57.33 - 55)^2) + (0.25 \cdot (64 - 55)^2)
+= (0.5 \cdot 32.14) + (0.25 \cdot 5.43) + (0.25 \cdot 81)
+= 37.68
+$$
+
+The expected value of the HT variance estimator is:
+
+$$
+E[\hat{V}_{HT}] = \sum_A P(A) \hat{V}_{HT}(A)
+= (0.5(-74.67)) + (0.25(-384)) + (0.25(-504))
+= -37.34 - 96 - 126
+= -259.34
+$$
+
+Similarly, for the expectation for the SYG variance estimator is:
+
+$$
+E[\hat{V}_{SYG}] = \sum_A P(A) \hat{V}_{SYG}(A)
+= (0.5(2.78)) + (0.25 (53.88)) + (0.25(16))
+= 1.39 + 13.47 + 4
+= 18.86
+$$
+
+The bias of the estimators is then, noting the initial definition given:
+
+For HT: 
+
+$$
+\text{Bias}(\hat{V}_{HT}) = E[\hat{V}_{HT}] - V(T_{HT}) = -259.34 - 37.68 = -297.02
+$$
+
+For SYG: 
+
+$$
+\text{Bias}(\hat{V}_{SYG}) = E[\hat{V}_{SYG}] - V(T_{HT}) = 18.86 - 37.68 = -18.82
+$$
+
+Both estimators are biased, as neither of their bias values are equal to zero. 
 
 ## 2. 
 
