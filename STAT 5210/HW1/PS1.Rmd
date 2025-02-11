@@ -52,7 +52,7 @@ $$
 \pi_{3} = 0.25 + 0.25 = 0.5
 $$
 
-### HT Estimate: 
+### HT Estimates: 
 
 $$
 \hat{Y}_{HT, A_1} = \sum_{i \in A}{\frac{y_i}{\pi_i}} = (16/0.75) + (21/0.75) = 49 \frac{1}{3}
@@ -66,7 +66,7 @@ $$
 \hat{Y}_{HT, A_3} = \sum_{i \in A}{\frac{y_i}{\pi_i}} = (21/0.75) + (18/0.5) = 64
 $$
 
-### HT Variance 
+### HT Variances 
 
 $$
 \pi_{12} = 0.5
@@ -103,12 +103,15 @@ round(var_YHT,2)
 ht_var_estimator <- function(A) {
   sum(sapply(A, function(i) {
     sapply(A, function(j) {
+      # 0 when i = j 
       if (i != j) {  
+      # use base formula 
         (pi_ij[i, j] - pi[i] * pi[j]) * (y[i] * y[j]) / (pi[i] * pi[j])
       } else {
         0  
       }
     })
+    # account for double counting 
   })) / 2  
 }
 
@@ -136,19 +139,19 @@ $$
 \pi_{12} = 0.5, \quad \pi_{13} = 0.25, \quad \pi_{23} = 0.25
 $$
 
-A_1: 
+$A_1$: 
 
 $$
 \text{Var}(\hat{Y}_{HT, A_1}) = (\pi_{12} - \pi_1 \pi_2) \frac{y_1 y_2}{\pi_1 \pi_2} = (0.5 - 0.75(0.75)) \left( \frac{16 (21)}{0.75 (0.75)}\right) = (-0.0625)  (597.33) = -37 \frac{1}{3}
 $$
 
-A_2: 
+$A_2$: 
 
 $$
 \text{Var}(\hat{Y}_{HT, A_2}) = (\pi_{13} - \pi_1 \pi_3) \frac{y_1 y_3}{\pi_1 \pi_3} = (0.25 - 0.75 (0.5)) \left( \frac{16 ( 18)}{0.75 (0.5)} \right) = (-0.125)  (768) = -96
 $$
 
-A_3: 
+$A_3$: 
 
 $$
 \text{Var}(\hat{Y}_{HT, A_3}) = (\pi_{23} - \pi_2 \pi_3) \frac{y_2 y_3}{\pi_2 \pi_3} = (0.25 - 0.75  (0.5)) \left( \frac{21  (18)}{0.75  (0.5)} \right)= (-0.125)  (1008) = -126
@@ -161,7 +164,9 @@ $$
 syg_var_estimator <- function(A) {
   sum(sapply(A, function(i) {
     sapply(A, function(j) {
+      # same checks as HT variance estimator 
       if (i != j) {
+      # only difference is the function used here
         (pi_ij[i, j] - pi[i] * pi[j]) / (pi_ij[i, j] * pi[i] * pi[j]) * (y[i] * y[j])
       } else {
         0
@@ -178,13 +183,13 @@ syg_var_estimators
 
 Again, odd that we have negative variance estimates. Given this, I'm going to explicitly check/detail the calculations. Similar setup used for the HT variance estimates: 
 
-The **SYG variance estimator** is given by:
+By definition: 
 
 $$
 \hat{V}_{SYG} = \sum_{i \neq j} \frac{\pi_{ij} - \pi_i \pi_j}{\pi_{ij} \pi_i \pi_j} y_i y_j
 $$
 
-A_1: 
+For $A_1$: 
 
 $$
 \hat{V}_{SYG}(A_1) = \frac{\pi_{12} - \pi_1 \pi_2}{\pi_{12} \pi_1 \pi_2} y_1 y_2
@@ -193,7 +198,7 @@ $$
 = (-0.2222)  (336) = -74 \frac{2}{3}
 $$
 
-A_2: 
+For $A_2$: 
 
 $$
 \hat{V}_{SYG}(A_2) = \frac{\pi_{13} - \pi_1 \pi_3}{\pi_{13} \pi_1 \pi_3} y_1 y_3
@@ -202,7 +207,7 @@ $$
 = (-1.3333)  (288) = -384
 $$
 
-A_3: 
+For $A_3$: 
 
 $$
 \hat{V}_{SYG}(A_3) = \frac{\pi_{23} - \pi_2 \pi_3}{\pi_{23} \pi_2 \pi_3} y_2 y_3
@@ -213,9 +218,9 @@ $$
 
 ### Unbiasedness 
 
-Both variance calculations are negative, so they are certainly different from the true variance, making both estimates biased. Specifically: 
+Both variance calculations are negative, so they are certainly different from the true variance, making both estimates biased. Since we can quantify it explicitly though, the biases are derived here: 
 
-From previous calculations:
+From previous variance calculations:
 
 $$
 \text{Var}(\hat{Y}_{HT}) = 37 \frac{2}{3}
@@ -247,27 +252,31 @@ $$
 E[\hat{V}_{SYG}] = -259.33 \neq \text{Var}(\hat{Y}_{HT})
 $$
 
-Making the SYG variance estimator as given (with a fixed sample size of 2) biased. 
+Making the SYG variance estimator as given (with a fixed sample size of 2) biased as well, and more biased (magnitude of bias is greater) compared to the HT estimator in this scenario. 
 
 ## 2. 
 
 Now, consider the special case of $y_k = \pi_k$, where $\pi_k$ is the first-order inclusion probability of unit $k$. What is the variance of the HT estimator?
 
-In this special case, the variance of the Horvitz-Thompson estimator is zero, i.e.:
-
-$$
-\text{Var}(\hat{Y}_{HT}) = 0
-$$
-
 Based on the original formula, this special case simplifies the expression to:
 
 $$
-\hat{Y}_{HT} = \sum_{i \in A} \frac{\pi_i}{\pi_i} = \sum_{i \in A} 1 = 2
+\text{Var}(\hat{Y}_{HT}) = \sum_{i=1}^{N} \sum_{j=1}^{N} (\pi_{ij} - \pi_i \pi_j) \frac{y_i y_j}{\pi_i \pi_j}.
 $$
 
-as all possible samples consist of a fixed size n=2. 
+Under the special case, $y_k = \pi_k$, we may simplify:
 
-This also simplifies the expression used for the variance of the HT estimator: 
+$$
+\text{Var}(\hat{Y}_{HT}) = \sum_{i=1}^{N} \sum_{j=1}^{N} (\pi_{ij} - \pi_i \pi_j) \frac{\pi_i \pi_j}{\pi_i \pi_j} = \sum_{i=1}^{N} \sum_{j=1}^{N} (\pi_{ij} - \pi_i \pi_j)
+$$
+
+For a fixed-size with size $n = 2$:
+
+$$
+\text{Var}(\hat{Y}_{HT}) = \sum_{i=1}^{N} \sum_{j=1}^{N} (\pi_{ij} - \pi_i \pi_j) = 0
+$$
+
+We also derive/calculate the same result via manual calculation of the variance: 
 
 $$
 \text{Var}(\hat{Y}_{HT}) = E(\hat{Y}_{HT}^2) - \left(E[\hat{Y}_{HT}]\right)^2
@@ -276,16 +285,24 @@ $$
 = 0
 $$
 
+In either event, this special case has the variance of the Horvitz-Thompson estimator to be zero:
+
+$$
+\text{Var}(\hat{Y}_{HT}) = 0
+$$
 The more descriptive interpretation is in this circumstance there is no variability in the HT estimator as it always takes the same value for its point estimate.
 
 ## 3. 
 
 Also, under the case of $y_k = \pi_k$, compute HT variance estimator and SYG variance estimator for each sample. (They are not the same.) Which variance estimator do you prefer? Why?
 
-General Approach: 
+By definition, the formulae are as follows: 
 
 HT: $\text{Var}(\hat{Y}_{HT}) = \sum_{i=1}^{N} \sum_{j=1}^{N} (\pi_{ij} - \pi_i \pi_j) \frac{y_i y_j}{\pi_i \pi_j}$
+
 SYG: $\text{Var}(\hat{Y}_{SYG}) = \sum_{i \neq j} \frac{\pi_{ij} - \pi_i \pi_j}{\pi_{ij} \pi_i \pi_j} y_i y_j$
+
+I've just modified the prior R code to adjust for this special case. 
 
 ```{r}
 # Updated Setup 
@@ -314,8 +331,8 @@ ht_var_estimator <- function(A) {
   })) / 2  
 }
 
-# Compute for each sample
-ht_var_estimators <- sapply(samples, ht_var_estimator)
+ht_var_estimators <- sapply(X = samples, 
+                            FUN = ht_var_estimator)
 names(ht_var_estimators) <- c("A_1", "A_2", "A_3")
 ht_var_estimators
 
@@ -333,26 +350,27 @@ syg_var_estimator <- function(A) {
   }))
 }
 
-syg_var_estimators <- sapply(samples, syg_var_estimator)
+syg_var_estimators <- sapply(X = samples, 
+                             FUN = syg_var_estimator)
 names(syg_var_estimators) <- c("A_1", "A_2", "A_3")
 syg_var_estimators
 ```
 
-HT Variance Estimators:
+Based on the above R output, we have the following: 
 
-- Sample $A_1 = \{1,2\}$: $\hat{V}_{HT}(A_1) = -0.0625$
-- Sample $A_2 = \{1,3\}$: $\hat{V}_{HT}(A_2) = -0.125$
-- Sample $A_3 = \{2,3\}$: $\hat{V}_{HT}(A_3) = -0.125$
+HT Variance Estimators:
+- $A_1 = \{1,2\}$: $\hat{V}_{HT}(A_1) = -0.0625$
+- $A_2 = \{1,3\}$: $\hat{V}_{HT}(A_2) = -0.125$
+- $A_3 = \{2,3\}$: $\hat{V}_{HT}(A_3) = -0.125$
 
 SYG Variance Estimators:
-
-- Sample $A_1 = \{1,2\}$: $\hat{V}_{SYG}(A_1) = -0.125$
-- Sample $A_2 = \{1,3\}$: $\hat{V}_{SYG}(A_2) = -0.5$
-- Sample $A_3 = \{2,3\}$: $\hat{V}_{SYG}(A_3) = -0.5$
+- $A_1 = \{1,2\}$: $\hat{V}_{SYG}(A_1) = -0.125$
+- $A_2 = \{1,3\}$: $\hat{V}_{SYG}(A_2) = -0.5$
+- $A_3 = \{2,3\}$: $\hat{V}_{SYG}(A_3) = -0.5$
 
 Some Thoughts: 
 
-Both variance estimates across all samples are still negative, which is problematic and implies that neither is that great for the data provided. That point notwithstanding, the HT Variance Estimator comparatively has greater precision, i.e. smaller variance, across all samples, so is comparatively better than SYV in that sense. 
+Both variance estimates across all samples are still negative, which is problematic and implies that neither is that great for the data provided. That point notwithstanding, the HT Variance Estimator comparatively has greater precision, i.e., smaller variance, across all samples, so the HT estimator is comparatively better than SYV in that sense. 
 
 \newpage 
 
@@ -369,13 +387,13 @@ This is a two-stage sampling design. Analyzing them stage-by-stage will, I belie
 First Stage: Select $A_1$ using simple random sampling without replacement (SRSWOR) of fixed size $n_1$ from the population $U$ of size $N$. Each subset $A_1$ of size $n_1$ has an equal probability of being selected. The probability of selecting a specific sample, $A_1$ is:
 
 $$
-P(A_1) = \frac{1}{{N \choose n_1}}.
+P(A_1) = \frac{1}{{N \choose n_1}}
 $$
 
 Second Stage: Select $A_2$ from the remaining units $U \setminus A_1$ using SRSWOR of fixed size $n_2$. Given $A_1$, each subset $A_2$ of size $n_2$ from the remaining $N - n_1$ units has an equal probability of being selected.The probability of selecting a specific $A_2$, given $A_1$, is:
 
 $$
-P(A_2 | A_1) = \frac{1}{{N - n_1 \choose n_2}}.
+P(A_2 | A_1) = \frac{1}{{N - n_1 \choose n_2}}
 $$
 
 Taken together, the final sample is:
@@ -392,13 +410,13 @@ $$
 P(A) = P(A_1) P(A_2 | A_1) = \frac{1}{{N \choose n_1}}  \left( \frac{1}{{N - n_1 \choose n_2}} \right)
 $$
 
-Given:
+By definition:
 
 $$
 {N \choose n} = \frac{N!}{n!(N-n)!}
 $$
 
-And: 
+And, a relevant property of combinatorics: 
 
 $$
 {N \choose n} = {N \choose n_1} {N - n_1 \choose n_2}
@@ -433,12 +451,6 @@ $$
 $$
    
 with $0 < \alpha < 1$, where $\bar{y}_1$ is the sample mean of $y$ in $A_1$ and $\bar{y}_2$ is the sample mean of $y$ in $A_2$. Show that $\bar{y}_{\alpha}$ is unbiased for $\bar{Y}$ for any $\alpha$.
-
-Our goal is to show:
-
-$$
-E[\bar{y}_{\alpha}] = \bar{Y}
-$$
 
 A Few Key Definitions to note not explicitly included in the beginning of the problem: 
 
@@ -493,7 +505,7 @@ $$
 it is minimized at 
 
 $$
-\alpha^* = \frac{V(\bar{y}_2) - Cov(\bar{y}_1, \bar{y}_2)}{V(\bar{y}_1) + V(\bar{y}_2) - 2Cov(\bar{y}_1, \bar{y}_2)}.
+\alpha^* = \frac{V(\bar{y}_2) - Cov(\bar{y}_1, \bar{y}_2)}{V(\bar{y}_1) + V(\bar{y}_2) - 2Cov(\bar{y}_1, \bar{y}_2)}
 $$
 
 To find the optimal $\alpha^*$ that minimizes variance, we use our typical calculus technique, i.e. take the derivative of $V(\bar{y}_{\alpha})$ with respect to $\alpha$ and set it to zero.
