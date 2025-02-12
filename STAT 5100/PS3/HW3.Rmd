@@ -12,10 +12,6 @@ library(knitr)
 knitr::include_graphics("Algorithm.png")
 ```
 
-# Outline 
-
-  - Q2: k) and e) 
-
 # Problem 1
 
 Case Study 5.1.1 from *The Statistical Sleuth* describes a dietary restriction study. Female mice were assigned to one of the following six treatment groups:
@@ -266,6 +262,7 @@ Doing this problem primarily in R, again.
 stress <- read.table(file = "stress.txt", 
                      header = TRUE, 
                      sep = ",")
+d <- stress
 ```
 
 ## a)
@@ -351,6 +348,37 @@ beta_hat <- solve(t(X) %*% X) %*% (t(X) %*% y)
 round(beta_hat,2)
 ```
 
+```{r}
+o=lm(Score~0+smoking:gender, data =d)
+coef(o)
+```
+
+The primary representation I use throughout this problem is of the form: 
+
+$$
+\begin{bmatrix}
+\beta_{11} \\ 
+\beta_{12} \\ 
+\beta_{13} \\
+\beta_{41} \\ 
+\beta_{21} \\ 
+\beta_{22} \\ 
+\beta_{23} \\ 
+\beta_{24} 
+\end{bmatrix}
+=
+\begin{bmatrix}
+25.96667 \\ 
+14.06667 \\ 
+19.86667 \\
+16.03333 \\ 
+19.83333 \\ 
+12.06667 \\ 
+12.13333  \\ 
+10.20000
+\end{bmatrix}
+$$
+
 \newpage 
 
 ## d)
@@ -397,7 +425,7 @@ names(SE_beta_hat) <- colnames(X)
 SE_beta_hat
 ```
 
-Note: Because we have a balanced design, the SE of each $\hat{\beta}$ is the same. 
+Note: Because we have a balanced design, the SE of each $\hat{\beta}$ is the same, the value being 1.764031. 
 
 \newpage 
 
@@ -412,12 +440,6 @@ main_effect_gender <- mean(beta_hat_values[1:4]) - mean(beta_hat_values[5:8])
 
 main_effect_gender
 ```
-
-We define the main effect of gender as:
-
-$$
-\alpha_G = \frac{1}{4} \sum_{s} \left( \beta_{\text{Male}, s} - \beta_{\text{Female}, s} \right)
-$$
 
 Let $\boldsymbol{\beta}$ be the vector of cell means:
 
@@ -438,7 +460,7 @@ $$
 We express the main effect of gender as a linear contrast:
 
 $$
-\alpha_G = \mathbf{C} \boldsymbol{\beta}
+\mathbf{C} \boldsymbol{\beta}
 $$
 
 where the contrast matrix $\mathbf{C}$ is:
@@ -450,15 +472,7 @@ $$
 \end{bmatrix}
 $$
 
-Thus, the main effect of gender can be written in matrix form as:
-
-$$
-\alpha_G = 
-\begin{bmatrix}
-\frac{1}{4}  & \frac{1}{4}  & \frac{1}{4}  & \frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4}  & -\frac{1}{4} 
-\end{bmatrix}
-\boldsymbol{\beta}
-$$
+Thus, the main effect of gender can be calculated by:
 
 ```{r}
 C <- matrix(c(1/4, 1/4, 1/4, 1/4, -1/4, -1/4, -1/4, -1/4), nrow = 1)
@@ -466,9 +480,41 @@ beta_hat
 C %*% beta_hat
 ```
 
-The estimated main effect of gender is -3.425 via the above parametrization, this is comparing $\hat{\beta}_{female} - \hat{\beta}_{male}$ (average female effects over smoking levels minus average male effects over smoking levels).
+```{r}
+d=stress
+d$gender <- factor(d$gender)  
+d$smoking <- factor(d$smoking)
+d <- d[order(d$gender, d$smoking),] 
 
-Respectfully, I've argued back and forth with some others about calculations. I think there is some precision/replicability issues and I saw another calculation directly extract the results from an lm model. Not so sure about that, but if you're still reading this and the answer is 5.425 can you leave a note, please? 
+o=lm(Score~0+smoking:gender, data =d)
+o$df
+
+estimate=function(lmout,C,a=0.05){
+  b=coef(lmout)
+  V=vcov(lmout)
+  df=lmout$df
+  Cb=C%*%b
+  se=sqrt(diag(C%*%V%*%t(C)))
+  tval=qt(1-a/2,df)
+  low=Cb-tval*se
+  up=Cb+tval*se
+  m=cbind(C,Cb,se,low,up)
+  dimnames(m)[[2]]=c(paste("c",1:ncol(C),sep=""),
+             "estimate","se",
+             paste(100*(1-a),"% Conf.",sep=""),
+             "limits")
+  return(m)
+}
+
+# manual calculation
+mean(coef(o)[1:4])-mean(coef(o)[5:8])
+
+C = matrix(c(1/4,1/4,1/4,1/4,-1/4,-1/4,-1/4,-1/4),nrow =1)
+
+estimate(o,C)
+```
+
+The estimated main effect of gender is 5.425 via the above parametrization, this is comparing $\hat{\beta}_{male} - \hat{\beta}_{female}$ (average male effects over smoking levels minus average female effects over smoking levels).
 
 \newpage 
 
@@ -547,26 +593,22 @@ $$
 C <- matrix(c(1, -1, 0, 0, -1, 1, 0, 0,
               1, 0, -1, 0, -1, 0, 1, 0,
               1, 0, 0, -1, -1, 0, 0, 1), nrow = 3)
-# C_int <- matrix(c(
-#   3/4, -1/4, -1/4, -1/4, -3/4,  1/4,  1/4,  1/4,
-#  -1/4,  3/4, -1/4, -1/4,  1/4, -3/4,  1/4,  1/4,
-#  -1/4, -1/4,  3/4, -1/4,  1/4,  1/4, -3/4,  1/4,
-#  -1/4, -1/4, -1/4,  3/4,  1/4,  1/4,  1/4, -3/4
-# ), nrow = 4, byrow = TRUE)
 
-# \mathbf{C}_{\text{int}} =
-# \begin{bmatrix}
-# \frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} \\
-# -\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} & \frac{1}{4} \\
-# -\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & -\frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4} & \frac{1}{4} \\
-# -\frac{1}{4} & -\frac{1}{4} & -\frac{1}{4} & \frac{3}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & -\frac{3}{4}
-# \end{bmatrix}
-
- 
 C %*% beta_hat 
 ```
 
 These values are not zero! So there is some evidence, no comment on strength, to suppose there are interaction effects. Leaving that for the F test and latter part of this problem. 
+
+There is also the graphical representation to consider, which similarly shows the potential for there being interaction effects by the non-parallel, intersecting lines. 
+
+```{r}
+require(RColorBrewer)
+interaction.plot(stress$gender, stress$smoking, stress$Score,
+                 xlab = "Gender", 
+                 ylab = "Score", 
+                 col = brewer.pal(4, "Spectral"), 
+                 lty = 1:2)
+```
 
 \newpage 
 
@@ -637,7 +679,8 @@ The numerator degrees of freedom: $df_{\text{num}} = 1$, since we are testing a 
 
 The denominator degrees of freedom: $df_{\text{den}} = n - p$, where n is the total number of observations and p = 8 (one parameter for each gender-smoking combination), giving 24 - 8 = 16.
 
-```{r}
+```{r, eval = F}
+# alt method, not used 
 C_gender <- matrix(c(1/4, 1/4, 1/4, 1/4, -1/4, -1/4, -1/4, -1/4), nrow = 1)
 
 num <- t(C_gender %*% beta_hat) %*% solve(C_gender %*% solve(t(X) %*% X) %*% t(C_gender)) %*% (C_gender %*% beta_hat)
@@ -654,23 +697,23 @@ list(F_stat = F_stat, df_num = df_num, df_den = df_den, p_value = p_value)
 
 ```{r}
 # alt method
-# model <- lm(Score ~ gender:smoking - 1, data = stress)
-# 
-# test=function(lmout,C,d=0){
-#   b=coef(lmout)
-#   V=vcov(lmout)
-#   dfn=nrow(C)
-#   dfd=lmout$df
-#   Cb.d=C%*%b-d
-#   Fstat=drop(t(Cb.d)%*%solve(C%*%V%*%t(C))%*%Cb.d/dfn)
-#   pvalue=1-pf(Fstat,dfn,dfd)
-#   list(Fstat=Fstat,pvalue=pvalue)
-# }
-# 
-# test(lmout = model, C = C_gender)
+test=function(lmout,C,d=0){
+  b=coef(lmout)
+  V=vcov(lmout)
+  dfn=nrow(C)
+  dfd=lmout$df
+  Cb.d=C%*%b-d
+  Fstat=drop(t(Cb.d)%*%solve(C%*%V%*%t(C))%*%Cb.d/dfn)
+  pvalue=1-pf(Fstat,dfn,dfd)
+  list(Fstat=Fstat,pvalue=pvalue)
+}
+
+C = matrix(c(1/4,1/4,1/4,1/4,-1/4,-1/4,-1/4,-1/4),nrow =1)
+C
+test(o,C)
 ```
 
-Within the context of the study, we have moderately strong evidence (p: 0.014) against the null hypothesis that there is no difference in average exercise scores between males and females when accounting for the potential effects of smoking, i.e. that averaged across all smoking levels, there is moderately strong evidence there are differences in the mean "exercise level" or fitness level between genders.  
+Within the context of the study, we have overwhelmingly strong evidence (p: 0.00049, with F-statistic of 18.92) against the null hypothesis that there is no difference in average exercise scores between males and females when accounting for the potential effects of smoking, i.e. that averaged across all smoking levels, there is overwhelming evidence there are differences in the mean "exercise level" or fitness level between genders.  
 
 \newpage 
 
@@ -757,7 +800,8 @@ Numerator: $df_{\text{num}} = 3$ (corresponding to the 3 constraints).
 Denominator: $df_{\text{den}} = n - p$, where n is total observations and p = 8 (one parameter per gender-smoking combination), giving 24 - 8 = 16.
 
 
-```{r}
+```{r, eval = F}
+# Again, alt method
 C_smoking <- matrix(c(1, -1,  0,  0, 1, -1,  0,  0,
                       1,  0, -1,  0, 1,  0, -1,  0,
                       1,  0,  0, -1, 1,  0,  0, -1), 
@@ -776,7 +820,15 @@ p_value <- 1 - pf(F_stat, df_num, df_den)
 list(F_stat = F_stat, df_num = df_num, df_den = df_den, p_value = p_value)
 ```
 
-Within the context of the study, we have extremely strong evidence (p: 5.51e-05) against the null hypothesis that there is no difference in average exercise scores between smoking levels when accounting for (averaging across) the potential effects of gender. This is to say we have overwhelming evidence that the mean patient fitness levels averaged across genders is different for at least one smoking level compared to the mean fitness levels of the other smoking levels.
+```{r}
+C = matrix(c(c(1/2,-1/2,0,0,1/2,-1/2,0,0),
+           c(1/2,0,-1/2,0,1/2,0,-1/2,0),
+           c(1/2,0,0,-1/2,1/2,0,0,-1/2)),
+           byrow = T,nrow =3)
+test(o,C)
+```
+
+Within the context of the study, we have extremely strong evidence (p: 0.0001) against the null hypothesis that there is no difference in average exercise scores between smoking levels when accounting for (averaging across) the potential effects of gender. This is to say we have overwhelming evidence that the mean patient fitness levels averaged across genders is different for at least one smoking level compared to the mean fitness levels of the other smoking levels.
 
 \newpage 
 
@@ -854,6 +906,7 @@ Calculating:
 
 ```{r, eval = FALSE, echo = FALSE}
 require(MASS)
+# alt method
 C_interaction <- matrix(c(1, -1, 0, 0, -1, 1, 0, 0, 
               1, 0, -1, 0, -1, 0, 1, 0, 
               1, 0, 0, -1, -1, 0, 0, 1), nrow = 3)
@@ -871,17 +924,18 @@ p_value <- 1 - pf(F_stat, df_num, df_den)
 list(F_stat = F_stat, df_num = df_num, df_den = df_den, p_value = p_value)
 ```
 
+```{r}
+C = matrix(c(c(1,-1,0,0,-1,1,0,0),
+           c(1,0,-1,0,-1,0,1,0),
+           c(1,0,0,-1,-1,0,0,1)),byrow = T,nrow =3)
+test(o,C)
+```
+
 ### Interpretation: 
 
-Within the context of the study, we have extremely strong evidence (p: 4.11e-10) against the null hypothesis that there are no interaction effects, e.g. that there is a difference in average exercise scores by gender that change/differ depending on smoking level. 
+Within the context of the study, we have little to no evidence (p: 0.440) against the null hypothesis that there are no interaction effects, e.g. that there is little to no evidence that there is a difference in average exercise scores by gender that change/differ depending on smoking level. 
 
-However, statistical significance does not imply practical significance. In terms of the magnitude of the effect, it is entirely possible that the effect is very small albeit statistically significant. Additionally, this evidence is really more to test whether the effects between the two factors are consistent across the levels of the factors. One possibility is that the signage of the effect can change for a particular combination of smoking levels being compared across gender. 
-
-Taken together, I believe this is really just an example of statistical significance being just one small aspect of consideration. Though important for analyzing studies, this in-and-of-itself is not especially helpful when analyzing the implications this has on the context of the study. 
-
-There is another argument to be made here: Given we have extremely strong evidence of interaction effects, this limits us in terms of our modelling capabilities, insomuch as it is evidence not to use the Additive Model for this question. There are also some arguments to be made that interpretations of main effects are entangled/complicated when we have evidence of interaction effects, throwing into question the interpretations made previously about the main effects of gender/smoking. 
-
-Notwithstanding the point about the magnitude of particular interaction effects, in theory, knowing these interaction effects occur could be practically important to provide precision treatment of some kind, say by focusing treatment efforts on a smoking level/gender combination group to maximize treatment abilities (improve fitness). However, the actual significance of such an idea is rather unclear, given the details provided by what this study is (and the fact we neglect the potential influence of the 'fat' variable from the outset). 
+The practical significance of this is that we may consider using an additive model appropriate. That point aside, this is important though. Namely, by having little to no evidence of interaction effects, we have more solid footing in interpreting the main effects such as those outlined previously such as gender or smoking effects. Were there interaction effects, these types of effects would require additional adjustments. This is helpful for practical reasons in that it would allow researchers or policymakers to better understand the impact of particular factors, e.g. targetted treatments, though those are not necessarily relevant or of note for the study in question. 
 
 \newpage 
 
@@ -969,40 +1023,12 @@ $$
 Calculating:
 
 ```{r}
-stress <- read.table(file = "stress.txt", 
-                     header = TRUE, 
-                     sep = ",")
-
-stress_data <- stress 
-stress_data$gender <- as.factor(stress_data$gender)
-stress_data$smoking <- as.factor(stress_data$smoking)
-
-model <- lm(Score ~ gender:smoking - 1, data = stress_data)
-
-beta_male <- mean(coef(model)[grep("gender1:", names(coef(model)))])
-beta_female <- mean(coef(model)[grep("gender2:", names(coef(model)))])
-
-gender_effect <- beta_female - beta_male 
-
-se_male <- mean(summary(model)$coefficients[grep("gender1:", rownames(summary(model)$coefficients)), "Std. Error"])
-se_female <- mean(summary(model)$coefficients[grep("gender2:", rownames(summary(model)$coefficients)), "Std. Error"])
-
-se_gender_effect <- sqrt(se_male^2 + se_female^2)
-
-df <- df.residual(model)
-
-t_value <- qt(0.975, df)
-
-MOE <- t_value * se_gender_effect
-
-CI_lower <- gender_effect - MOE
-CI_upper <- gender_effect + MOE
-
-CI_lower
-CI_upper
+# using the alternative method because my setup was all messed up previously for gender effects
+C = matrix(c(1/4,1/4,1/4,1/4,-1/4,-1/4,-1/4,-1/4), nrow = 1)
+estimate(o,C)
 ```
 
-This gives the interval (-0.136, -10.714), bearing in mind that I'm using the parametrization consistent with the prior gender effect question, i.e. comparing average female to average male, hence the negative values.
+This gives the interval (2.78, 8.07), bearing in mind that I'm using the parametrization consistent with the prior gender effect question, i.e. comparing average male to average female averaged over smoking levels respectively.
 
 \newpage 
 
@@ -1053,6 +1079,10 @@ leveneTest(Score ~ factor(gender):factor(smoking), data = stress, center = mean)
 leveneTest(Score ~ factor(gender):factor(smoking), data = stress, center = median)
 ```
 
+The first assumption to review is the independence assumption, which predominantly is determined by reviewing the study design. Though limited information is provided, we don't have reason to suspect this being violated, such as through clustering of experimental units in the study. 
+
+That being said: 
+
 The residual plot (studentized) looks good for the purposes of diagnosing a number of our the model assumptions. To begin with, we generally observe a random spread of residuals across the range of fitted values (there is not a clear trend present in the residual plot above). Because of this, We do not observe any trends or noticeable patterns in the above plots, such that we have reason to believe our linearity assumption is not being violated. Additionally, it the residuals do not appear clustered, such that they appear to be randomly spread (constant variance) and centered around zero. 
 
 However, there are some potential issues with the normality assumption. In particular, the QQ plot does not closely align with the reference line within the first theoretical quantile, so there are some concerns about the normality distribution, even with considering the studentized residuals. Furthermore, the QQ plot appears to have a slight "S" shape/curve, further suggesting deviation from normality. The histogram of residuals (studentized) provide a similar picture of not appearing especially normal, though these considerations are largely visual. 
@@ -1061,4 +1091,4 @@ Overall, we have reason to suspect our normality assumption is being violated bu
 
 Additionally, I've included some Levene Tests to test the equal variances assumption. Via these tests, we achieve relatively large p-values for both, such that we have evidence to support the null hypothesis of equal variances between factors, which is also an assumption in our model.
 
-Also, in support of normality, we do also check the skewness and (excess) kurtosis of the (studentized) residuals. Though they do not match exactly with the values we'd expect for a normal distribution, the observed statistics as shown do not deviate substantially. 
+Also, in support of normality, we do also check the skewness and (excess) kurtosis of the (studentized) residuals. Though they do not match exactly with the values we'd expect for a normal distribution, the observed statistics as shown do not deviate substantially. However, there are the visual inconsistencies noted previously such that this assumption may still be violated. 
