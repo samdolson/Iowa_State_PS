@@ -10,9 +10,9 @@ Consider the following sampling design from a finite population $U = \{1, 2, 3\}
 
 | Sample (A) | Pr (A) | HT estimator | HT var. est. | SYG var. est. |
 |------------|--------|--------------|--------------|---------------|
-| $A_{1}$ = {1, 2} | 0.5    |     $49 \frac{1}{3}$         |    -74.67          |             2.78  |
-| $A_{2}$ = {1, 3} | 0.25   |     $57 \frac{1}{3}$         |    -384            |        53.88       |
-| $A_{3}$ = {2, 3} | 0.25   |     64          |       -504       |         16      |
+| $A_{1}$ = {1, 2} | 0.5    |     $49 \frac{1}{3}$         |    160.44          |            5.56  |
+| $A_{2}$ = {1, 3} | 0.25   |     $57 \frac{1}{3}$         |    -6.22            |        107.56       |
+| $A_{3}$ = {2, 3} | 0.25   |     64          |       -164       |         32      |
 
 ## 1. 
 
@@ -81,36 +81,35 @@ $$
 $$
 
 ```{r}
-# Setup 
-y1 <- 16
-y2 <- 21
-y3 <- 18
+y <- c(16, 21, 18) 
+probs <- c(0.5,0.25,0.25) 
+# first order 
+pi <- c(0.75, 0.75, 0.50) 
+# second order
+pi_ij <- matrix(c(NA, 0.5, 0.25,  
+                  0.5, NA, 0.25,
+                  0.25, 0.25, NA), 
+                nrow=3, byrow=TRUE)
 
-pi1 <- 0.75
-pi2 <- 0.75
-pi3 <- 0.5
+# samples
+samples <- list(c(1,2), c(1,3), c(2,3))
+sample_probs <- c(0.5, 0.25, 0.25)
 
-pi12 <- 0.5
-pi13 <- 0.25
-pi23 <- 0.25
+var_HT <- function(sample) {
+  i <- sample[1]
+  j <- sample[2]
+  
+  # Pairwise term ij = ji 
+  ij <- 2 * ((pi_ij[i,j] - pi[i] * pi[j]) / pi_ij[i,j]) * (y[i] / pi[i]) * (y[j] / pi[j])
+  # Single terms
+  i_sq <- ((1 - pi[i]) / pi[i]^2) * y[i]^2
+  j_sq <- ((1 - pi[j]) / pi[j]^2) * y[j]^2
 
-# sample calculations
-fraction_A1 <- (pi12 - (pi1 * pi2)) / pi12
-product_A1 <- (y1 / pi1) * (y2 / pi2)
-ht_var_A1 <- fraction_A1 * product_A1
-ht_var_A1
+  return(i_sq + j_sq + ij)
+}
 
-fraction_A2 <- (pi13 - (pi1 * pi3)) / pi13
-product_A2 <- (y1 / pi1) * (y3 / pi3)
-ht_var_A2 <- fraction_A2 * product_A2
-ht_var_A2
-
-fraction_A3 <- (pi23 - (pi2 * pi3)) / pi23
-product_A3 <- (y2 / pi2) * (y3 / pi3)
-ht_var_A3 <- fraction_A3 * product_A3
-ht_var_A3
-
-ht_var <- c(ht_var_A1, ht_var_A2, ht_var_A3)
+ht_var <- sapply(samples, var_HT)
+ht_var
 ```
 
 Negative variance is very odd, so explicitly double checking my calculations: 
@@ -134,65 +133,57 @@ $$
 $A_1$: 
 
 $$
-\text{Var}(\hat{Y}_{HT, A_1}) = 
-$$
-
-$$
-\text{Var}(\hat{Y}_{HT})_{A_1} = 
-\left( \frac{\pi_{12} - \pi_1 \pi_2}{\pi_{12}} \right) \left( \frac{y_1 y_2}{\pi_1 \pi_2} \right)
-= \frac{0.5 - 0.5625}{0.5} \left( \frac{y_1 y_2}{\pi_1 \pi_2} \right) = \left( -0.125 \right) \left( \frac{y_1 y_2}{\pi_1 \pi_2} \right) = 
-(-0.125)(597.33) = -74.67
+\text{Var}(\hat{Y}_{HT})_{A_1} =
+\sum_{i \in A} \left( \frac{(1 - \pi_i)}{\pi_i^2} y_i^2 \right)
++ \sum_{i \neq j} \left( 2 \frac{(\pi_{ij} - \pi_i \pi_j)}{\pi_{ij}} \frac{y_i y_j}{\pi_i \pi_j} \right)
+= \left( \frac{0.25}{0.5625} \cdot 256 + \frac{0.25}{0.5625} \cdot 441 \right)
++ 2 \left( \frac{-0.125}{0.5} \cdot 597.33 \right)
+= (113.78 + 196.00) + (-298.67)
+= 160.44
 $$
 
 $A_2$: 
 
 $$
-\text{Var}(\hat{Y}_{HT, A_2}) = \left( \frac{\pi_{12} - \pi_1 \pi_2}{\pi_{12}} \right) \left( \frac{y_1 y_2}{\pi_1 \pi_2} \right)
-= (-0.5) \left( \frac{y_1 y_2}{\pi_1 \pi_2} \right) = (-0.5) (768) = -384  
+\text{Var}(\hat{Y}_{HT})_{A_2} =
+\sum_{i} \left( \frac{(1 - \pi_i)}{\pi_i^2} y_i^2 \right)
++ \sum_{i \neq j} \left( 2 \frac{(\pi_{ij} - \pi_i \pi_j)}{\pi_{ij}} \frac{y_i y_j}{\pi_i \pi_j} \right)
+= \left( \frac{0.25}{0.5625} \cdot 256 + \frac{0.50}{0.25} \cdot 324 \right)
++ 2 \left( \frac{-0.125}{0.25} \cdot 768 \right)
+= (113.78 + 648) + (-768)
+= -6.22
 $$
 
 $A_3$: 
 
 $$
-\text{Var}(\hat{Y}_{HT, A_3}) = \left( \frac{\pi_{12} - \pi_1 \pi_2}{\pi_{12}} \right) \left( \frac{y_1 y_2}{\pi_1 \pi_2} \right) = (-0.5) \left( \frac{y_1 y_2}{\pi_1 \pi_2} \right) = (-0.5) (1008) = -504
+\text{Var}(\hat{Y}_{HT})_{A_3} 
+= \sum_{i} \left( \frac{(1 - \pi_i)}{\pi_i^2} y_i^2 \right) + \sum_{i \neq j} \left( 2 \frac{(\pi_{ij} - \pi_i \pi_j)}{\pi_{ij}} \frac{y_i y_j}{\pi_i \pi_j} \right)
+= \left( \frac{0.25}{0.5625} \cdot 441 + \frac{0.50}{0.25} \cdot 324 \right) + 2  \left( \frac{-0.125}{0.25} \cdot 1008 \right)
+= (196.00 + 648) + (-1008)
+= -164.00
 $$
 
 ### SYG Variance 
 
 ```{r}
-# Setup 
-y1 <- 16
-y2 <- 21
-y3 <- 18
+# setup done already 
+# no changes to inclusion probabilities
+var_SYG <- function(sample) {
+  i <- sample[1]
+  j <- sample[2]
+  
+  # ij = ji
+  # counting twice, so only need negative adjustment
+  est <- (-1) * ((pi_ij[i,j] - pi[i] * pi[j]) / pi_ij[i,j]) * ((y[i] / pi[i]) - (y[j] / pi[j]))^2
+  return(est)
+} 
 
-pi1 <- 0.75
-pi2 <- 0.75
-pi3 <- 0.5
-
-pi12 <- 0.5
-pi13 <- 0.25
-pi23 <- 0.25
-
-# sample calculations
-fraction_A1 <- (pi12 - (pi1 * pi2)) / pi12
-diff_A1 <- (y1 / pi1 - y2 / pi2)^2
-syg_var_A1 <- -0.5 * fraction_A1 * diff_A1
-syg_var_A1
-
-fraction_A2 <- (pi13 - (pi1 * pi3)) / pi13
-diff_A2 <- (y1 / pi1 - y3 / pi3)^2
-syg_var_A2 <- -0.5 * fraction_A2 * diff_A2
-syg_var_A2
-
-fraction_A3 <- (pi23 - (pi2 * pi3)) / pi23
-diff_A3 <- (y2 / pi2 - y3 / pi3)^2
-syg_var_A3 <- -0.5 * fraction_A3 * diff_A3
-syg_var_A3
-
-syg_var <- c(syg_var_A1, syg_var_A2, syg_var_A3)
+syg_var <- sapply(samples, var_SYG)
+syg_var
 ```
 
-Again, odd that we have negative variance estimates. Given this, I'm going to explicitly check/detail the calculations. Similar setup used for the HT variance estimates: 
+For thoroughness, checking the calculations explicitly: 
 
 By definition: 
 
@@ -203,23 +194,23 @@ $$
 For $A_1$: 
 
 $$
-\hat{V}_{SYG}(A_1) = -\frac{1}{2} \sum_{i \in A} \sum_{j \in A} \left( \frac{\pi_{ij} - \pi_i \pi_j}{\pi_{ij}} \right) \left( \frac{y_i}{\pi_i} - \frac{y_j}{\pi_j} \right)^2 = = -\frac{1}{2} \left( \frac{0.5 - 0.5625}{0.5} \right) \left( 21.33 - 28 \right)^2
-= -\frac{1}{2} (-0.125)(44.49)
-= 2.78
+\hat{V}_{SYG}(A_1) = -1 \sum_{i \in A} \sum_{j \in A} \left( \frac{\pi_{ij} - \pi_i \pi_j}{\pi_{ij}} \right) \left( \frac{y_i}{\pi_i} - \frac{y_j}{\pi_j} \right)^2 = -1 \left( \frac{0.5 - 0.5625}{0.5} \right) \left( 21.33 - 28 \right)^2
+= -1 (-0.125)(44.49)
+= 5.56
 $$
 
 For $A_2$: 
 
 $$
-\hat{V}_{SYG}(A_2) = -\frac{1}{2} \sum_{i \in A} \sum_{j \in A} \left( \frac{\pi_{ij} - \pi_i \pi_j}{\pi_{ij}} \right) \left( \frac{y_i}{\pi_i} - \frac{y_j}{\pi_j} \right)^2 = -\frac{1}{2} \left( \frac{0.25 - 0.375}{0.25} \right) \left( 21.33 - 36 \right)^2 = -\frac{1}{2} (-0.5)(215.49)
-= 53.88
+\hat{V}_{SYG}(A_2) = -1 \sum_{i \in A} \sum_{j \in A} \left( \frac{\pi_{ij} - \pi_i \pi_j}{\pi_{ij}} \right) \left( \frac{y_i}{\pi_i} - \frac{y_j}{\pi_j} \right)^2 = -1 \left( \frac{0.25 - 0.375}{0.25} \right) \left( 21.33 - 36 \right)^2 = -1 (-0.5)(215.49)
+=  107.56
 $$
 
 For $A_3$: 
 
 $$
-\hat{V}_{SYG}(A_3) = -\frac{1}{2} \sum_{i \in A} \sum_{j \in A} \left( \frac{\pi_{ij} - \pi_i \pi_j}{\pi_{ij}} \right) \left( \frac{y_i}{\pi_i} - \frac{y_j}{\pi_j} \right)^2 = -\frac{1}{2} \left( \frac{0.25 - 0.375}{0.25} \right) \left( 28 - 36 \right)^2 = -\frac{1}{2} (-0.5)(64)
-= 16
+\hat{V}_{SYG}(A_3) = -1 \sum_{i \in A} \sum_{j \in A} \left( \frac{\pi_{ij} - \pi_i \pi_j}{\pi_{ij}} \right) \left( \frac{y_i}{\pi_i} - \frac{y_j}{\pi_j} \right)^2 = -1 \left( \frac{0.25 - 0.375}{0.25} \right) \left( 28 - 36 \right)^2 = -1 (-0.5)(64)
+= 32
 $$
 
 
@@ -229,16 +220,15 @@ $$
 # Setup
 probs <- c(0.5, 0.25, 0.25)
 
-# estimates
-ht_var_estimators <- c(-74.67, -384, -504)
-syg_var_estimators <- c(2.78, 53.88, 16)
-
 # expected variance
-est_var_HT <- sum(probs * ht_var_estimators)
-est_var_SYG <- sum(probs * syg_var_estimators)
+est_var_HT <- sum(probs * ht_var)
+est_var_SYG <- sum(probs * syg_var)
 
 # true variance
-ht_estimators <- c(49.33, 57.33, 64)
+ht_estimators <- sapply(X = samples, 
+                        FUN = function(A) sum(y[A] / pi[A])
+                        )
+
 E_Y <- sum(probs * ht_estimators)
 true_variance <- sum(probs * ((ht_estimators - E_Y)^2))
 
@@ -250,7 +240,7 @@ bias_HT
 bias_SYG
 ```
 
-Oddly enough, neither appear to be truly unbiased in this example, at least given the derivations/calculations I've used above. Between the two of them though, the SYG variance estimator appears to be less biased than the HT variance estimator for this fixed sample size of n=2 design. This is worrying given the HT estimator should be unbiased, as shown in the slides/lectures. Perhaps that doesn't extend to the HT variance estimator in this example, if any of the above or below is correct. 
+Both estimators are unbiased in this example, particularly noting the SYG estimator being basically zero via rounding, likey a precision error of some kind. 
 
 Detail in-depth: 
 
@@ -267,13 +257,13 @@ Taking our inclusion probabilities as defined previously (first and second order
 HT variance estimates:
 
 $$
-\hat{V}_{HT}(A_1) = -74.67, \quad \hat{V}_{HT}(A_2) = -384, \quad \hat{V}_{HT}(A_3) = -504
+\hat{V}_{HT}(A_1) = 160.44, \quad \hat{V}_{HT}(A_2) = -6.22, \quad \hat{V}_{HT}(A_3) = -164
 $$
 
 and SYG variance estimates:
 
 $$
-\hat{V}_{SYG}(A_1) = 2.78, \quad \hat{V}_{SYG}(A_2) = 53.88, \quad \hat{V}_{SYG}(A_3) = 16
+\hat{V}_{SYG}(A_1) = 5.56, \quad \hat{V}_{SYG}(A_2) = 107.56, \quad \hat{V}_{SYG}(A_3) = 32
 $$
 
 The expected value of the HT estimator is:
@@ -290,25 +280,23 @@ $$
 V_{HT} = \sum_A P(A) (V_{HT}(A) - E[V_{HT}])^2
 = (0.5 \cdot (49.33 - 55)^2) + (0.25 \cdot (57.33 - 55)^2) + (0.25 \cdot (64 - 55)^2)
 = (0.5 \cdot 32.14) + (0.25 \cdot 5.43) + (0.25 \cdot 81)
-= 37.68
+= 37.67
 $$
 
 The expected value of the HT variance estimator is:
 
 $$
 E[\hat{V}_{HT}] = \sum_A P(A) \hat{V}_{HT}(A)
-= (0.5(-74.67)) + (0.25(-384)) + (0.25(-504))
-= -37.34 - 96 - 126
-= -259.34
+= (0.5(160.44)) + (0.25(-6.22)) + (0.25(-164))
+= 37.68
 $$
 
 Similarly, for the expectation for the SYG variance estimator is:
 
 $$
 E[\hat{V}_{SYG}] = \sum_A P(A) \hat{V}_{SYG}(A)
-= (0.5(2.78)) + (0.25 (53.88)) + (0.25(16))
-= 1.39 + 13.47 + 4
-= 18.86
+= (0.5(5.56)) + (0.25 (107.56)) + (0.25(32))
+= 37.68
 $$
 
 The bias of the estimators is then, noting the initial definition given:
@@ -316,16 +304,16 @@ The bias of the estimators is then, noting the initial definition given:
 For HT: 
 
 $$
-\text{Bias}(\hat{V}_{HT}) = E[\hat{V}_{HT}] - V(T_{HT}) = -259.34 - 37.68 = -297.02
+\text{Bias}(\hat{V}_{HT}) = E[\hat{V}_{HT}] - V(T_{HT}) = 37.68 - 37.68 = 0
 $$
 
 For SYG: 
 
 $$
-\text{Bias}(\hat{V}_{SYG}) = E[\hat{V}_{SYG}] - V(T_{HT}) = 18.86 - 37.68 = -18.82
+\text{Bias}(\hat{V}_{SYG}) = E[\hat{V}_{SYG}] - V(T_{HT}) = 37.68 - 37.68 = 0
 $$
 
-Both estimators are biased, as neither of their bias values are equal to zero. 
+Both estimators are unbiased, as bias values are both equal to zero (or are nearly zero in the case of SVG). 
 
 ## 2. 
 
@@ -353,7 +341,7 @@ $$
 
 Another way to think of this special case: 
 
-$y_k = \pi_k \rightarrow \hat{Y}_{HT}(A_1) = \hat{Y}_{HT}(A_2) = \hat{Y}_{HT}(A_3) = \frac{y_i}{\pi_i} + \frac{y_j}{\pi_j} = 2$
+$y_k = \pi_k \rightarrow \hat{Y}_{HT}(A_1) = \hat{Y}_{HT}(A_2) = \hat{Y}_{HT}(A_3) = \frac{y_i}{\pi_i} + \frac{y_j}{\pi_j} = 2$, $\forall i, j \in A$
 
 So there is no variability in the HT estimates. 
 
@@ -363,7 +351,7 @@ $$
 \text{Var}(\hat{Y}_{HT}) = 0
 $$
 
-The more descriptive interpretation is in this circumstance there is no variability in the HT estimator as it always takes the same value regardless of the sample in this event.
+The more descriptive interpretation is in this special case there is no variability in the HT estimator as it always takes the same value regardless of the sample in this event.
 
 ## 3. 
 
@@ -378,66 +366,45 @@ SYG: $\text{Var}(\hat{Y}_{SYG}) = \sum_{i \neq j} \frac{\pi_{ij} - \pi_i \pi_j}{
 I've just modified the prior R code to adjust for this special case. 
 
 ```{r}
-# Setup 
-pi1 <- 0.75
-pi2 <- 0.75
-pi3 <- 0.5
+var_HT_sc <- function(sample) {
+  i <- sample[1]
+  j <- sample[2]
+  
+  # Pairwise term ij = ji 
+  ij <- 2 * ((pi_ij[i,j] - pi[i] * pi[j]) / pi_ij[i,j]) * (pi[i] / pi[i]) * (pi[j] / pi[j])
+  # Single terms
+  i_sq <- ((1 - pi[i]) / pi[i]^2) * pi[i]^2
+  j_sq <- ((1 - pi[j]) / pi[j]^2) * pi[j]^2
 
-pi12 <- 0.5
-pi13 <- 0.25
-pi23 <- 0.25
+  return(i_sq + j_sq + ij)
+}
 
-# sample calculations
-fraction_A1 <- (pi12 - (pi1 * pi2)) / pi12
-product_A1 <- (pi1 / pi1) * (pi2 / pi2)
-ht_var_A1 <- fraction_A1 * product_A1
-ht_var_A1
-
-fraction_A2 <- (pi13 - (pi1 * pi3)) / pi13
-product_A2 <- (pi1 / pi1) * (pi3 / pi3)
-ht_var_A2 <- fraction_A2 * product_A2
-ht_var_A2
-
-fraction_A3 <- (pi23 - (pi2 * pi3)) / pi23
-product_A3 <- (pi2 / pi2) * (pi3 / pi3)
-ht_var_A3 <- fraction_A3 * product_A3
-ht_var_A3
+ht_var_sc <- sapply(samples, var_HT_sc)
+ht_var_sc
 ```
 
 ```{r}
-# Setup 
-pi1 <- 0.75
-pi2 <- 0.75
-pi3 <- 0.5
+var_SYG_sc <- function(sample) {
+  i <- sample[1]
+  j <- sample[2]
+  
+  # ij = ji
+  # counting twice, so only need negative adjustment
+  est <- (-1) * ((pi_ij[i,j] - pi[i] * pi[j]) / pi_ij[i,j]) * ((pi[i] / pi[i]) - (pi[j] / pi[j]))^2
+  return(est)
+} 
 
-pi12 <- 0.5
-pi13 <- 0.25
-pi23 <- 0.25
-
-# sample calculations
-fraction_A1 <- (pi12 - (pi1 * pi2)) / pi12
-diff_A1 <- (pi1 / pi1 - pi2 / pi2)^2
-syg_var_A1 <- -0.5 * fraction_A1 * diff_A1
-syg_var_A1
-
-fraction_A2 <- (pi13 - (pi1 * pi3)) / pi13
-diff_A2 <- (pi1 / pi1 - pi3 / pi3)^2
-syg_var_A2 <- -0.5 * fraction_A2 * diff_A2
-syg_var_A2
-
-fraction_A3 <- (pi23 - (pi2 * pi3)) / pi23
-diff_A3 <- (pi2 / pi2 - pi3 / pi3)^2
-syg_var_A3 <- -0.5 * fraction_A3 * diff_A3
-syg_var_A3
+syg_var_sc <- sapply(samples, var_SYG_sc)
+syg_var_sc
 ```
 
 Based on the above R output, we have the following: 
 
 HT Variance Estimators:
 
-- $A_1 = \{1,2\}$: $\hat{V}_{HT}(A_1) = -0.125$
-- $A_2 = \{1,3\}$: $\hat{V}_{HT}(A_2) = -0.5$
-- $A_3 = \{2,3\}$: $\hat{V}_{HT}(A_3) = -0.5$
+- $A_1 = \{1,2\}$: $\hat{V}_{HT}(A_1) = 0.25$
+- $A_2 = \{1,3\}$: $\hat{V}_{HT}(A_2) = -0.25$
+- $A_3 = \{2,3\}$: $\hat{V}_{HT}(A_3) = -0.25$
 
 SYG Variance Estimators:
 
@@ -503,19 +470,19 @@ $$
 P(A) = \frac{1}{{N \choose n_1} {N - n_1 \choose n_2}} = \frac{1}{{N \choose n}}
 $$
 
-The probability of selecting any specific final sample $A$ does not depend on the intermediate selection of $A_1$ and $A_2$. That is, the two-stage sampling process yields the same probability distribution as direct simple random sampling without replacement of size $n$.
+Interpretation: 
 
-This result shows that two-stage sequential SRSWOR is equivalent to single-stage SRSWOR. This is a fundamental property of simple random sampling: Whether we select $A_1$ first and then $A_2$, or select all $n$ units at once, each sample of size $n$ has the same probability of being selected.
+What's interesting is the probability of selecting any specific final sample $A$ does not depend on the selection of $A_1$ and $A_2$. The two-stage sampling process yields the same probability distribution as direct simple random sampling without replacement of size $n$.
 
-This property is useful because it allows for a sequential selection procedure without altering the randomness of final sample selection.
+So the probability of a sample being selected is the same regardless of whether we select $A_1$ first and then $A_2$, or select all $n$ units at once.
 
-The sampling distribution of $A$ is uniform over all subsets of size $n$ in $U$:
+Also, the sampling distribution of $A$ is uniform over all subsets of size $n$ in the (finite) population $U$:
 
 $$
 P(A) = \frac{1}{{N \choose n}}
 $$
 
-The interesting result is that this two-stage sampling design is equivalent to simple random sampling without replacement of size $n$, meaning that the order in which units are selected does not affect the final probability distribution of the sample.
+So a two-stage sampling design is functionally equivalent to SRS without replacement. 
 
 ## 2. 
 
@@ -588,27 +555,28 @@ To find the optimal $\alpha^*$ that minimizes variance, we use our typical calcu
 Taking the derivative:
 
 $$
-\frac{d}{d\alpha} V(\bar{y}_{\alpha}) = 2\alpha V(\bar{y}_1) - 2(1 - \alpha)V(\bar{y}_2) + 2(1 - 2\alpha) \text{Cov}(\bar{y}_1, \bar{y}_2) = 0 
+\frac{d}{d\alpha} V(\bar{y}_{\alpha}) = 0 \rightarrow 2\alpha^* V(\bar{y}_1) - 2(1 - \alpha^*)V(\bar{y}_2) + 2(1 - 2\alpha^*) \text{Cov}(\bar{y}_1, \bar{y}_2) = 0 
 $$
 
 Simplifying the expression: 
 
 $$
-\alpha V(\bar{y}_1) - (1 - \alpha) V(\bar{y}_2) + (1 - 2\alpha) \text{Cov}(\bar{y}_1, \bar{y}_2) = 0
+\alpha^* V(\bar{y}_1) - (1 - \alpha^*) V(\bar{y}_2) + (1 - 2\alpha^*) \text{Cov}(\bar{y}_1, \bar{y}_2) = 0
 $$
 
 Further simplifying: 
 
 $$
-\alpha V(\bar{y}_1) + \alpha \text{Cov}(\bar{y}_1, \bar{y}_2) = V(\bar{y}_2) - \text{Cov}(\bar{y}_1, \bar{y}_2)
+\alpha^* V(\bar{y}_1) + \alpha^* \text{Cov}(\bar{y}_1, \bar{y}_2) = V(\bar{y}_2) - \text{Cov}(\bar{y}_1, \bar{y}_2)
 $$
 
 $$
-\alpha (V(\bar{y}_1) + V(\bar{y}_2) - 2\text{Cov}(\bar{y}_1, \bar{y}_2)) = V(\bar{y}_2) - \text{Cov}(\bar{y}_1, \bar{y}_2)
+\alpha^* (V(\bar{y}_1) + V(\bar{y}_2) - 2\text{Cov}(\bar{y}_1, \bar{y}_2)) = V(\bar{y}_2) - \text{Cov}(\bar{y}_1, \bar{y}_2)
 $$
+Leaving us with the $\alpha^*$ that maximizes our initial equation as: 
 
 $$
-\alpha = \frac{V(\bar{y}_2) - \text{Cov}(\bar{y}_1, \bar{y}_2)}{V(\bar{y}_1) + V(\bar{y}_2) - 2\text{Cov}(\bar{y}_1, \bar{y}_2)}
+\alpha^* = \frac{V(\bar{y}_2) - \text{Cov}(\bar{y}_1, \bar{y}_2)}{V(\bar{y}_1) + V(\bar{y}_2) - 2\text{Cov}(\bar{y}_1, \bar{y}_2)}
 $$
 
 \newpage 
@@ -628,6 +596,7 @@ Given the premise/setup of this problem, we need have:
 $$
 Pr\left(\left|\hat{P} - P\right| \leq 0.15 P\right) = 0.95 \rightarrow 1.96 ( \text{SE}(\hat{P})) \leq 0.15P
 $$
+
 Noting that 1.96 is the critical value from the standard normal distribution, its selection is based on the standard normal CDF. This follows from the normal approximation, which is justified via the CLT.
 
 Under SRS design, the standard error of $\hat{P}$ is:
