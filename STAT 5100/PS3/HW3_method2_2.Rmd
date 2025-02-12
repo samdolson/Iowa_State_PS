@@ -1,0 +1,363 @@
+---
+title: "HW3_method2"
+author: "KT"
+date: "2025-02-06"
+output:
+  html_document: default
+  pdf_document: default
+---
+##Question.1(a) Create side-by-side boxplots of the response for this dataset, with one boxplot for each treatment group. Be sure to clearly label the axes of your plot.
+
+
+```{r}
+rm(list = ls())
+library(Sleuth3)
+boxplot(Lifetime~Diet,case0501, main = "Diet Restriction Study", xlab="Treatment", ylab = "Lifetime in months")
+
+
+```
+
+##Question.1(b) Find the SSE (sum of squared errors) for the full model with one unrestricted mean for each of the six treatment groups
+
+#SSE for full model is 15297.42
+
+```{r}
+model_full <- lm(Lifetime~Diet,case0501)
+sse <- sum(residuals(model_full)^2)
+sse
+
+```
+
+
+##Question.1(c) Compute estimate of σ^2 for the full model. 
+
+#estimate of σ^2 is given as sse/degree of freedom by lecture note, and its value is 44.59888
+
+```{r}
+estim_sigmasq = sse/model_full$df
+estim_sigmasq
+
+```
+
+
+##Question.1(d) Find the SSE for a reduced model that has one common mean for the N/N85, N/R50, N/R50lopro, and N/R40 treatment groups and unrestricted means for the other two treatment groups
+
+#sse for reduced model is 20287.99
+```{r}
+diet_reduced <- case0501$Diet
+levels(diet_reduced)[levels(diet_reduced) == "N/N85"] <- "common"
+levels(diet_reduced)[levels(diet_reduced) == "N/R50"] <- "common"
+levels(diet_reduced)[levels(diet_reduced) == "lopro"] <- "common"
+levels(diet_reduced)[levels(diet_reduced) == "N/R40"] <- "common"
+
+reduced_data = data.frame(Lifetime = case0501$Lifetime,diet_reduced)
+
+model_reduced = lm(Lifetime~diet_reduced,reduced_data)
+
+sse_reduced <- sum(residuals(model_reduced)^2)
+sse_reduced
+
+
+```
+
+
+##Question.1(e) compute an F-statistic
+
+#F-statistic is 37.29968 and degree of freedom is 3(for numerator),343(for denominator)
+```{r}
+
+fstat = ((sse_reduced-sse)/(model_reduced$df-model_full$df))/(sse/model_full$df)
+fstat
+anova(model_reduced, model_full)
+```
+
+
+##Question.1(f)
+
+#Fstatistic from 1(e) can be used to test whether there is a statistically significant evidence that the true means of mouse lifetime in months are same or not among 4 different group of mice,("N/N85" "N/R50" "lopro" "N/R40" treatment groups). 4 different group of mice are treated with normal diet(same) before weaning and different type of diets after weaning. Therefore, Fstatistic can be used to test whether there is a statistically significant evidence that the true means of mouse lifetime in months are same or not by different type of diets after weaning, while all mice in groups have normal diets before weaning.
+
+#Interpretation: From the results of Fstatistics and p-value, There is a overwhelming evidence that at least, one mean of mouse lifetime in months is different among 4 different group of mice.("N/N85" "N/R50" "lopro" "N/R40" treatment groups), given that the linear model inculdes NP and R/R50.
+
+
+```{r}
+anova(model_reduced, model_full)
+
+```
+
+
+##Question.1(g)
+
+#Since order of x column is "N/N85", "N/R40", "N/R50", "NP", "R/R50", "lopro", C is given by 3x6 matrix that indicates Cbeta is mean of treatment groups "N/N85", "N/R40", "N/R50", "lopro" are same. So C would have the form that is shown below as 'C'. and vector d is zero vector(3x1). and F statistic to test null hypothesis Cbeta=d, is given below with a value of 37.29968.
+
+```{r}
+library(MASS)
+
+
+y=case0501$Lifetime
+X_full=model.matrix(~0+case0501$Diet)
+proj=function(x){x %*% ginv(t(x)%*%x) %*% t(x)}
+rank=length(levels(case0501$Diet))
+
+I=diag(1, length(y))
+
+estim_sigsq = t(y) %*% (I-proj(X_full)) %*% y / (length(y)-rank) 
+estim_beta=solve(t(X_full)%*%X_full) %*% t(X_full) %*% y 
+
+C <- matrix(c(1, -1, 0, 0, 0, 0,
+1, 0, -1, 0, 0, 0,
+1, 0, 0, 0, 0, -1), byrow = TRUE, nrow = 3)
+
+d = c(0,0,0)
+Fstat=t(C %*% estim_beta-d) %*% solve(C %*% solve(t(X_full)%*%X_full) %*% t(C))%*% (C %*% estim_beta-d)/3/estim_sigsq
+
+C
+d
+Fstat
+
+```
+
+
+##Question.1(h) 
+
+#degree of freedom for numerator is 3, degree of freedom for denominator is 343, so p-value is given as below, and p-value is 0.
+
+
+#P-value means the probability that I can obtain F statistic at least as extreme as the sample observed, assuming that Null hypothesis is true. Therefore, p-value of 0 in this problem indicates that , the observed f-statistic 37.29968 is extremly unlikely to be observed under the null hypothesis(the true means of mouse lifetime in months are same among 4 different group of mice("N/N85" "N/R50" "lopro" "N/R40" treatment groups)).
+
+#Therefore, it indicates there is overwhelming evidence under significance level alpha = 0.001, that at least one mean of mouse lifetime in months are different among 4 different group of mice.("N/N85" "N/R50" "lopro" "N/R40" treatment groups), given that the linear model inculdes NP and R/R50.
+
+```{r}
+pvalue=1-pf(Fstat,3,(length(y)-rank))
+pvalue
+
+```
+
+
+
+##Question.1(i)
+
+#the p-value of zero from part (h) indicates extremely that there is an overwhelming evidence against the null hypothesis, suggesting that at least one mean of mouse lifetime in months is different among 4 different group of mice.("N/N85" "N/R50" "lopro" "N/R40" treatment groups), given that the linear model inculdes NP and R/R50.
+
+
+#Question2(a)
+
+```{r}
+rm(list = ls())
+setwd("C:\\Users\\SAMSUNG\\Desktop\\25 SPRING\\Method\\Homework\\HW3")
+stress=read.table("stress.txt", header = T)
+d=stress
+
+d$gender <- factor(d$gender)  
+d$smoking <- factor(d$smoking)
+d <- d[order(d$gender, d$smoking),]  
+```
+
+#Question2(b)
+model matrix is given as model.matrix(o)
+```{r}
+
+o=lm(Score~0+smoking:gender, data =d)
+#The X matrix:
+model.matrix(o)
+
+```
+
+#Question2(c)
+ols estimate of beta is given by coef(o) as belows
+```{r}
+
+#betahat vector which contains the treatment means:
+coef(o)
+```
+
+#Question2(d)
+estimate of standard error is given by 1.764031 and standard error matrix of beta would be sqrt(vcov(o)) as belows
+```{r}
+#Estimated variance of betahat:
+
+a = rep(coef(o),each = 3)
+sigma2 = sum((stress$Score-a)^2)/16
+sqrt(vcov(o))
+```
+
+#Question2(e)
+point estimate of main effect of gender is 5.425
+```{r}
+o$df
+estimate=function(lmout,C,a=0.05)
+{
+  b=coef(lmout)
+  V=vcov(lmout)
+  df=lmout$df
+  Cb=C%*%b
+  se=sqrt(diag(C%*%V%*%t(C)))
+  tval=qt(1-a/2,df)
+  low=Cb-tval*se
+  up=Cb+tval*se
+  m=cbind(C,Cb,se,low,up)
+  dimnames(m)[[2]]=c(paste("c",1:ncol(C),sep=""),
+             "estimate","se",
+             paste(100*(1-a),"% Conf.",sep=""),
+             "limits")
+  m
+}
+mean(coef(o)[1:4])-mean(coef(o)[5:8])
+C=matrix(c(
+1/3,1/3,1/3,0,0,0,
+1,0,0,-1,0,0,
+0,0,0,0,1,-1,
+1/3,1/3,1/3,-1/3,-1/3,-1/3
+),nrow=4,byrow=T)
+
+C = matrix(c(1/4,1/4,1/4,1/4,-1/4,-1/4,-1/4,-1/4),nrow =1)
+estimate(o,C)
+
+```
+
+#Question2(f)
+When we see the interaction plot, we can find there is interaction effect as two lines are crossed each other.
+point estimate of interaction effect is given by estimate(o,C) as belows.
+```{r}
+C = matrix(c(c(1,-1,0,0,-1,1,0,0),
+           c(1,0,-1,0,-1,0,1,0),
+           c(1,0,0,-1,-1,0,0,1),
+           c(0,1,-1,0,0,-1,1,0),
+           c(0,1,0,-1,0,-1,0,1),
+           c(0,0,1,-1,0,0,-1,1)),byrow = T,nrow =6)
+C
+estimate(o,C)
+interaction.plot(stress$gender, stress$smoking, stress$Score,
+                  col = c("blue", "red"), lty = 1:2)
+```
+
+#Question2(g) main effect of gender
+C is given as belows.
+
+interpretation : From the result of p-value and fstatistics, There is an overwhelming evidence that the mean patient’s achievement scores(response variable) between gender(male and female), averaged across all smoking history groups are significantly different.
+
+
+
+```{r}
+test=function(lmout,C,d=0){
+  b=coef(lmout)
+  V=vcov(lmout)
+  dfn=nrow(C)
+  dfd=lmout$df
+  Cb.d=C%*%b-d
+  Fstat=drop(t(Cb.d)%*%solve(C%*%V%*%t(C))%*%Cb.d/dfn)
+  pvalue=1-pf(Fstat,dfn,dfd)
+  list(Fstat=Fstat,pvalue=pvalue)
+}
+
+C = matrix(c(1/4,1/4,1/4,1/4,-1/4,-1/4,-1/4,-1/4),nrow =1)
+C
+test(o,C)
+
+
+
+```
+
+#Question2(h)a main effect of smoking.
+interpretation : From the result of p-value and fstatistics, There is an overwhelming evidence, that the mean patient’s achievement scores(response variable) averaged across all genders(male and female) for at least one smoking history level is significantly different from that of other level of smoking history.
+```{r}
+C = matrix(c(c(1/2,-1/2,0,0,1/2,-1/2,0,0),
+           c(1/2,0,-1/2,0,1/2,0,-1/2,0),
+           c(1/2,0,0,-1/2,1/2,0,0,-1/2)),
+           byrow = T,nrow =3)
+C
+test(o,C)
+
+```
+
+#Question2(i)an interaction between gender and smoking
+
+interpretation : From the result of p-value and fstatistics, There is no evidence that the mean patient’s achievement scores(response variable) between different levels of smoking history(1,2,3,4) is significantly different across levels of gender(Male and Female).
+
+Yes, interaction is of practical importance. When there are factor A and B, we can analyze whether the main effect of A is different among the groups of factor B. For example, This might be helpful for practical treatment of some medicines to certain groups of patients.
+
+```{r}
+C = matrix(c(c(1,-1,0,0,-1,1,0,0),
+           c(1,0,-1,0,-1,0,1,0),
+           c(1,0,0,-1,-1,0,0,1)),byrow = T,nrow =3)
+C
+test(o,C)
+
+
+```
+
+#Question2(j)Provide a 95% confidence interval for the mean associated with male patients who never smoked. Show all your work.
+
+95% confidence interval for the mean associated with male patients who never smoked is (22.22709, 29.70625)
+
+```{r}
+C = matrix(c(1,0,0,0,0,0,0,0), nrow = 1)
+C
+estimate(o,C)
+
+```
+
+#Question2(k) Provide a 95% confidence interval for the mean effect of gender. Show all your work.
+ 95% confidence interval for the mean effect of gender is (2.780718, 8.069282)
+```{r}
+C = matrix(c(1/4,1/4,1/4,1/4,-1/4,-1/4,-1/4,-1/4), nrow = 1)
+C
+estimate(o,C)
+```
+
+#Question2(l) Obtain the residuals for the fitted models and use them to check the necessary assumptions that allow us to fit the proposed model. Please submit and explain any graphical displays that you might use.
+
+independence assumption can be checked from experimental design and data collection of this study.
+
+For normality assumption, it seems that normality assumption are not satisfied.
+summary statistics look good as skewness(0.4050312) is near 0, and mean and median are similar(0 and -0.95)) except for excess kurtosis(-1.076856) .
+Moreover, When we look at the result of Shapiro-Wilk normality tests, we can reject the null hypothesis that normality assumption is met under significance level alpha = 0.1, as p-value is 0.0823.
+When we see the QQPlot, lines looks S-shaped and some points are away from reference lines.
+
+
+For Equal variance assumption, it seems that equal variance assumption is satisfied.
+
+in the plot of residual versus fitted values, observations looks randomly distributed and we cannot see any pattern in dispersion.
+Moreover, in the plots of residual versus Gender and residual versus Smoking history, observations looks randomly distributed and we cannot see any pattern in dispersion.
+in the levene test for testing equal varianced(both test for deviations from means and medians), we fail to reject the null hypothesis that equal variance assumption is satisfied as each p-values for the test are 0.7089 and 0.9742.
+
+
+```{r}
+library(moments)
+library(car)
+library(lmtest)
+
+#normality assumption
+hist(o$residuals, xlab="Residuals", main="Stress Study")
+boxplot(o$residuals, ylab="Residuals", horizontal=T)
+
+qqnorm(o$residuals)
+qqline(o$residuals, col = "red")
+
+shapiro.test(o$residuals)
+
+mean(o$residuals)
+median(o$residuals)
+skewness(o$residuals)
+kurtosis(o$residuals)-3
+
+#equal variance assumption
+
+# Graphical diagnostics of equal variance assumption
+plot(o$fitted.values, o$residuals, 
+     main = "Residuals vs Fitted",
+     xlab = "Fitted Values", ylab = "Residuals")
+abline(h = 0, col = "red")
+
+plot(o$residuals ~ stress$gender, xlab="Gender", 
+        ylab="Residuals", main="Boxplot of Stress Study")
+
+plot(o$residuals ~ stress$smoking, xlab="Smoking", 
+        ylab="Residuals", main="Boxplot of Stress Study")
+
+
+leveneTest(Score ~ factor(gender) * factor(smoking), data = stress, center = mean)
+leveneTest(Score ~ factor(gender) * factor(smoking), data = stress, center = median)
+
+
+```
+

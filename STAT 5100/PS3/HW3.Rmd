@@ -14,10 +14,7 @@ knitr::include_graphics("Algorithm.png")
 
 # Outline 
 
-  - Q1: Double check if h), i) is good enough 
-  - Q2: Double check parametrization of H_0 across questions 
-  - Q2: Conclusions in part g), h) and i), good enough? 
-  - Q2: Double Check l), "do we assume normality, i.e. GMMNE?"
+  - Q2: k) and e) 
 
 # Problem 1
 
@@ -153,7 +150,7 @@ $$
 
 But we should not expect non-statisticians to understand that! I still check the slides to double check. Anyway: 
 
-What we're doing is a partial F-test, comparing the full and reduced model, from part e) to determine if there is evidence in support of the full model being significantly better than the reduced model. This is to say we're testing whether it is appropriate to group together the N/N85, N/R50, N/R50lopro, and N/R40 treatment groups. This is to test whether there is significant difference in the average life expectancy within the N/N85, N/R50, N/R50lopro and N/R40 treatment groups. As this value has been calculated, and has been provided, we may say: The calculated partial F-statistic is 37.3 with its corresponding p-value near zero (< 2.2e-16) is evidence in support of using the full model in lieu of the reduced model, at the $\alpha = 0.05$ level, such that we have evidence to support the conclusion that there is a significant difference among the N/N85, N/R50, N/R50lopro and N/R40 treatment group mean life expectancy from this experiment.
+What we're doing is a partial F-test, comparing the full and reduced model, from part e) to determine if there is evidence in support of the full model being significantly better than the reduced model. This is to say we're testing whether it is appropriate to group together the N/N85, N/R50, N/R50lopro, and N/R40 treatment groups. This is to test whether there is significant difference in the average life expectancy within the N/N85, N/R50, N/R50lopro and N/R40 treatment groups. As this value has been calculated, and has been provided, we may say: The calculated partial F-statistic is 37.3 with its corresponding p-value near zero (< 2.2e-16) is overwhelming evidence in support of using the full model in lieu of the reduced model, at the $\alpha = 0.05$ level, such that we have overwhelming evidence that at least, one group mean life expectancy is different among the N/N85, N/R50, N/R50lopro and N/R40 treatment groups, in the linear model that includes NP and R/R50.
 
 \newpage 
 
@@ -241,7 +238,9 @@ p_value
 
 Again, similar to part f), the p-value is practically zero, in fact it is rounded to 0 via the method used. 
 
-The p-value represents the probability of obtaining an F-statistic as extreme as 37.3 (or more extreme) under the null hypothesis being true.
+The p-value represents the probability of obtaining an F-statistic as extreme as 37.3 (or more extreme) under the null hypothesis being true. So we'd say there is overwhelming evidence that the F-statistic we observed, 37.3, is extremely unlikely to have been observed under the null hypothesis being true. 
+
+The interpretation in the context of the study is very similar to that provided previously: The p-value indicates overwhelming evidence that at least one group mean life expectancy is different among the N/N85, N/R50, N/R50lopro and N/R40 treatment groups, in the linear model that includes NP and R/R50.
 
 \newpage 
 
@@ -250,6 +249,8 @@ The p-value represents the probability of obtaining an F-statistic as extreme as
 Evaluate the strength of evidence against the null hypothesis based on the p-value found in part (h). Do not use the p-value to make a decision about rejecting or failing to reject the null hypothesis - I am not interested in that. For more background reading, consider the following reference: [https://www.amstat.org/asa/files/pdfs/p-valuesstatement.pdf](https://www.amstat.org/asa/files/pdfs/p-valuesstatement.pdf).
 
 The p-value from part h) is extremely small ($p < 0.001$), indicating extremely strong evidence against the null hypothesis: $H_0: C\boldsymbol{\beta} = \boldsymbol{0}$.
+
+Apologies for repetition here, but I believe the study interpretation is warranted from this question: The p-value indicates overwhelming evidence that at least one group mean life expectancy is different among the N/N85, N/R50, N/R50lopro and N/R40 treatment groups, in the linear model that includes NP and R/R50.
 
 \newpage 
 
@@ -407,7 +408,7 @@ Specify the parameter representation reflecting the main effect of gender and al
 ```{r}
 beta_hat_values <- as.numeric(beta_hat)  
 
-main_effect_gender <- mean(beta_hat_values[1:4] - beta_hat_values[5:8])
+main_effect_gender <- mean(beta_hat_values[1:4]) - mean(beta_hat_values[5:8])
 
 main_effect_gender
 ```
@@ -465,7 +466,9 @@ beta_hat
 C %*% beta_hat
 ```
 
-This representation shows that the main effect is computed as a weighted sum of the cell means, ensuring an equal-weighted mean difference across smoking levels.
+The estimated main effect of gender is -3.425 via the above parametrization, this is comparing $\hat{\beta}_{female} - \hat{\beta}_{male}$ (average female effects over smoking levels minus average male effects over smoking levels).
+
+Respectfully, I've argued back and forth with some others about calculations. I think there is some precision/replicability issues and I saw another calculation directly extract the results from an lm model. Not so sure about that, but if you're still reading this and the answer is 5.425 can you leave a note, please? 
 
 \newpage 
 
@@ -486,16 +489,16 @@ This hypothesis states that the difference between genders must be the same at a
 We have our same  vector of cell means:
 
 $$
-\boldsymbol{\mu} =
+\boldsymbol{\beta} =
 \begin{bmatrix}
-\mu_{\text{Female}, \text{Never}} \\
-\mu_{\text{Female}, \text{Light}} \\
-\mu_{\text{Female}, \text{Medium}} \\
-\mu_{\text{Female}, \text{Heavy}} \\
-\mu_{\text{Male}, \text{Never}} \\
-\mu_{\text{Male}, \text{Light}} \\
-\mu_{\text{Male}, \text{Medium}} \\
-\mu_{\text{Male}, \text{Heavy}}
+\beta_{\text{Female}, \text{Never}} \\
+\beta_{\text{Female}, \text{Light}} \\
+\beta_{\text{Female}, \text{Medium}} \\
+\beta_{\text{Female}, \text{Heavy}} \\
+\beta_{\text{Male}, \text{Never}} \\
+\beta_{\text{Male}, \text{Light}} \\
+\beta_{\text{Male}, \text{Medium}} \\
+\beta_{\text{Male}, \text{Heavy}}
 \end{bmatrix}
 $$
 
@@ -513,7 +516,7 @@ $$
 Thus, testing for interaction involves checking:
 
 $$
-\mathbf{C}_{\text{int}} \boldsymbol{\mu} = \mathbf{0}
+\mathbf{C}_{\text{int}} \boldsymbol{\beta} = \mathbf{0}
 $$
 
 $$
@@ -523,14 +526,14 @@ $$
 1 &  0 &  0 & -1 & -1 &  0 &  0 &  1
 \end{bmatrix}
 \begin{bmatrix}
-\mu_{\text{Female}, \text{Never}} \\
-\mu_{\text{Female}, \text{Light}} \\
-\mu_{\text{Female}, \text{Medium}} \\
-\mu_{\text{Female}, \text{Heavy}} \\
-\mu_{\text{Male}, \text{Never}} \\
-\mu_{\text{Male}, \text{Light}} \\
-\mu_{\text{Male}, \text{Medium}} \\
-\mu_{\text{Male}, \text{Heavy}}
+\beta_{\text{Female}, \text{Never}} \\
+\beta_{\text{Female}, \text{Light}} \\
+\beta_{\text{Female}, \text{Medium}} \\
+\beta_{\text{Female}, \text{Heavy}} \\
+\beta_{\text{Male}, \text{Never}} \\
+\beta_{\text{Male}, \text{Light}} \\
+\beta_{\text{Male}, \text{Medium}} \\
+\beta_{\text{Male}, \text{Heavy}}
 \end{bmatrix}
 =
 \begin{bmatrix}
@@ -563,7 +566,7 @@ C <- matrix(c(1, -1, 0, 0, -1, 1, 0, 0,
 C %*% beta_hat 
 ```
 
-These values are not zero! So there is some evidence, no comment on strength, to suppose there are interaction effects. 
+These values are not zero! So there is some evidence, no comment on strength, to suppose there are interaction effects. Leaving that for the F test and latter part of this problem. 
 
 \newpage 
 
@@ -649,7 +652,25 @@ p_value <- 1 - pf(F_stat, df_num, df_den)
 list(F_stat = F_stat, df_num = df_num, df_den = df_den, p_value = p_value)
 ```
 
-Within the context of the study, we have moderately strong evidence (p: 0.014) against the null hypothesis that there is no difference in average exercise scores between males and females when accounting for the potential effects of smoking.  
+```{r}
+# alt method
+# model <- lm(Score ~ gender:smoking - 1, data = stress)
+# 
+# test=function(lmout,C,d=0){
+#   b=coef(lmout)
+#   V=vcov(lmout)
+#   dfn=nrow(C)
+#   dfd=lmout$df
+#   Cb.d=C%*%b-d
+#   Fstat=drop(t(Cb.d)%*%solve(C%*%V%*%t(C))%*%Cb.d/dfn)
+#   pvalue=1-pf(Fstat,dfn,dfd)
+#   list(Fstat=Fstat,pvalue=pvalue)
+# }
+# 
+# test(lmout = model, C = C_gender)
+```
+
+Within the context of the study, we have moderately strong evidence (p: 0.014) against the null hypothesis that there is no difference in average exercise scores between males and females when accounting for the potential effects of smoking, i.e. that averaged across all smoking levels, there is moderately strong evidence there are differences in the mean "exercise level" or fitness level between genders.  
 
 \newpage 
 
@@ -755,7 +776,7 @@ p_value <- 1 - pf(F_stat, df_num, df_den)
 list(F_stat = F_stat, df_num = df_num, df_den = df_den, p_value = p_value)
 ```
 
-Within the context of the study, we have extremely strong evidence (p: 5.51e-05) against the null hypothesis that there is no difference in average exercise scores between smoking levels when accounting for the potential effects of gender.  
+Within the context of the study, we have extremely strong evidence (p: 5.51e-05) against the null hypothesis that there is no difference in average exercise scores between smoking levels when accounting for (averaging across) the potential effects of gender. This is to say we have overwhelming evidence that the mean patient fitness levels averaged across genders is different for at least one smoking level compared to the mean fitness levels of the other smoking levels.
 
 \newpage 
 
@@ -858,6 +879,10 @@ However, statistical significance does not imply practical significance. In term
 
 Taken together, I believe this is really just an example of statistical significance being just one small aspect of consideration. Though important for analyzing studies, this in-and-of-itself is not especially helpful when analyzing the implications this has on the context of the study. 
 
+There is another argument to be made here: Given we have extremely strong evidence of interaction effects, this limits us in terms of our modelling capabilities, insomuch as it is evidence not to use the Additive Model for this question. There are also some arguments to be made that interpretations of main effects are entangled/complicated when we have evidence of interaction effects, throwing into question the interpretations made previously about the main effects of gender/smoking. 
+
+Notwithstanding the point about the magnitude of particular interaction effects, in theory, knowing these interaction effects occur could be practically important to provide precision treatment of some kind, say by focusing treatment efforts on a smoking level/gender combination group to maximize treatment abilities (improve fitness). However, the actual significance of such an idea is rather unclear, given the details provided by what this study is (and the fact we neglect the potential influence of the 'fat' variable from the outset). 
+
 \newpage 
 
 ## j)
@@ -893,8 +918,8 @@ stress_data$smoking <- as.factor(stress_data$smoking)
 
 model <- lm(Score ~ gender:smoking - 1, data = stress_data)
 
-beta_male_never <- coef(model)["gender1:smoking2"]
-se_male_never <- summary(model)$coefficients["gender1:smoking2", "Std. Error"]
+beta_male_never <- coef(model)["gender1:smoking1"]
+se_male_never <- summary(model)$coefficients["gender1:smoking1", "Std. Error"]
 
 df <- df.residual(model)
 
@@ -909,7 +934,7 @@ CI_lower
 CI_upper
 ```
 
-This gives the interval (10.327, 17.806).
+This gives the interval (22.23, 29.71).
 
 \newpage 
 
@@ -957,7 +982,7 @@ model <- lm(Score ~ gender:smoking - 1, data = stress_data)
 beta_male <- mean(coef(model)[grep("gender1:", names(coef(model)))])
 beta_female <- mean(coef(model)[grep("gender2:", names(coef(model)))])
 
-gender_effect <- beta_male - beta_female
+gender_effect <- beta_female - beta_male 
 
 se_male <- mean(summary(model)$coefficients[grep("gender1:", rownames(summary(model)$coefficients)), "Std. Error"])
 se_female <- mean(summary(model)$coefficients[grep("gender2:", rownames(summary(model)$coefficients)), "Std. Error"])
@@ -977,7 +1002,7 @@ CI_lower
 CI_upper
 ```
 
-This gives the interval (0.136, 10.714).
+This gives the interval (-0.136, -10.714), bearing in mind that I'm using the parametrization consistent with the prior gender effect question, i.e. comparing average female to average male, hence the negative values.
 
 \newpage 
 
@@ -1015,8 +1040,25 @@ qqline(stdresids, col = "black")
 hist(stdresids, main="Histogram of Residuals", xlab="Residuals", breaks=10)
 ```
 
+```{r}
+require(moments)
+require(lmtest)
+mean(stdresids)
+median(stdresids)
+skewness(x = stdresids)
+kurtosis(x = stdresids) - 3
+
+require(car)
+leveneTest(Score ~ factor(gender):factor(smoking), data = stress, center = mean)
+leveneTest(Score ~ factor(gender):factor(smoking), data = stress, center = median)
+```
+
 The residual plot (studentized) looks good for the purposes of diagnosing a number of our the model assumptions. To begin with, we generally observe a random spread of residuals across the range of fitted values (there is not a clear trend present in the residual plot above). Because of this, We do not observe any trends or noticeable patterns in the above plots, such that we have reason to believe our linearity assumption is not being violated. Additionally, it the residuals do not appear clustered, such that they appear to be randomly spread (constant variance) and centered around zero. 
 
 However, there are some potential issues with the normality assumption. In particular, the QQ plot does not closely align with the reference line within the first theoretical quantile, so there are some concerns about the normality distribution, even with considering the studentized residuals. Furthermore, the QQ plot appears to have a slight "S" shape/curve, further suggesting deviation from normality. The histogram of residuals (studentized) provide a similar picture of not appearing especially normal, though these considerations are largely visual. 
 
 Overall, we have reason to suspect our normality assumption is being violated but the other assumptions appear appropriate. 
+
+Additionally, I've included some Levene Tests to test the equal variances assumption. Via these tests, we achieve relatively large p-values for both, such that we have evidence to support the null hypothesis of equal variances between factors, which is also an assumption in our model.
+
+Also, in support of normality, we do also check the skewness and (excess) kurtosis of the (studentized) residuals. Though they do not match exactly with the values we'd expect for a normal distribution, the observed statistics as shown do not deviate substantially. 
