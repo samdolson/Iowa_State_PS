@@ -6,10 +6,10 @@ author: "Sam Olson"
 
 # Outline 
   - Q1: g2g
-  - Q2: Double check verbiage of CRLB at end d) 
-  - Q3: part c) needs to be finalized  
-  - Q4: 
-  - Q5: little weird at parts, with $\propto$
+  - Q2: g2g
+  - Q3: part c) ending a bit wonky
+  - Q4: g2g
+  - Q5: wonky with $\propto$ usage 
   
 # 1. 
 
@@ -503,36 +503,44 @@ $$
 \text{Var}_\theta(T) - \text{CRLB} = \left( \frac{2\theta^2}{n} + \frac{1}{n^2} \right) - \frac{4\theta^2}{n}
 = \frac{2\theta^2}{n} + \frac{1}{n^2} - \frac{4\theta^2}{n}
 = \frac{-2\theta^2}{n} + \frac{1}{n^2}
-= \frac{1}{n^2} - \frac{2\theta^2}{n}
+= \frac{1}{n^2} - \frac{2\theta^2}{n}.
 $$
 
-To prove that $\text{Var}_\theta(T) > \text{CRLB}$ for all $\theta$, it will suffice to show: 
+To establish whether $\text{Var}_\theta(T) > \text{CRLB}$ for all $\theta$, we analyze the sign of:
 
 $$
-\frac{1}{n^2} - \frac{2\theta^2}{n} > 0 \quad \forall \theta
+\frac{1}{n^2} - \frac{2\theta^2}{n}.
 $$
 
-Note then that n > 0 (positive). Such that we may simplify the inequality somewhat: 
+Since $n > 0$, we can rewrite the inequality as:
 
 $$
-\frac{1}{n^2} > \frac{2\theta^2}{n} \rightarrow \frac{1}{n} > 2\theta^2
+\frac{1}{n^2} > \frac{2\theta^2}{n} \quad \Rightarrow \quad \frac{1}{n} > 2\theta^2.
 $$
 
-By definition $\theta^2 \geq 0$, this inequality fails for large $|\theta|$. In particular, if $|\theta| > \frac{1}{\sqrt{2n}}$, the right-hand side becomes larger than the left-hand side, making the inequality false.
+Since $\theta^2 \geq 0$, this inequality only holds for sufficiently small $|\theta|$. In particular, if:
+
+$$
+|\theta| > \frac{1}{\sqrt{2n}},
+$$
+
+then the right-hand side of the expression exceeds the left-hand side, making the inequality false.
 
 Thus, for sufficiently large $|\theta|$, we have:
 
 $$
-\text{Var}_\theta(T) > \text{CRLB}
+\text{Var}_\theta(T) > \text{CRLB}.
 $$
 
-For small $|\theta|$, the inequality can hold, but for general values of $\theta$, particularly for larger magnitudes, the variance of $T$ exceeds the CRLB.
+For small $|\theta|$, equality can hold, but in general, for larger magnitudes of $\theta$, the variance of $T$ exceeds the CRLB.
 
 Since there always exists a range of $\theta$ values where $\text{Var}_\theta(T) > \text{CRLB}$, we conclude that:
 
 $$
-\text{Var}_\theta(T) > \text{CRLB}, \quad \forall \theta \in \mathbb{R}.
+\text{Var}_\theta(T) \geq \text{CRLB}, \quad \forall \theta \in \mathbb{R},
 $$
+
+with strict inequality for sufficiently large $|\theta|$.
 
 \newpage
 
@@ -548,87 +556,68 @@ $$ f(x|\theta) = \left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|}, \qu
 
 Find the MLE of $\theta$.
 
-To find the Maximum Likelihood Estimator (MLE) of $\theta$, we first write the likelihood function.
-
-Given that $X$ takes values in $\{-1, 0, 1\}$, the probability mass function (pmf) is:
+Given that $X$ takes values in $\{-1, 0, 1\}$, it is discrete, so we note the pmf:
 
 $$
 f(x|\theta) =
 \begin{cases}
-\left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|}, & x = -1, 0, 1, \\
-0, & \text{otherwise}.
+\left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|} & x = -1, 0, 1 \\
+0 & \text{otherwise}
 \end{cases}
 $$
 
 For a sample $X_1, X_2, \dots, X_n$, the likelihood function is:
 
 $$
-L(\theta) = \prod_{i=1}^{n} \left(\frac{\theta}{2}\right)^{|X_i|} (1 - \theta)^{1 - |X_i|}.
+L(\theta) = \prod_{i=1}^{n} \left(\frac{\theta}{2}\right)^{|X_i|} (1 - \theta)^{1 - |X_i|}
 $$
 
-Let $S_n = \sum_{i=1}^{n} |X_i|$, the total number of times $|X_i|$ is nonzero (i.e., when $X_i = \pm1$). Then we can rewrite the likelihood function as:
+Let $S_n = \sum_{i=1}^{n} |X_i|$. We may then rewrite the likelihood function as:
 
 $$
-L(\theta) = \left(\frac{\theta}{2}\right)^{S_n} (1 - \theta)^{n - S_n}.
+L(\theta) = \left(\frac{\theta}{2}\right)^{S_n} (1 - \theta)^{n - S_n}
 $$
 
-Taking the natural logarithm:
+Using our log-likelihood technique:
 
 $$
-log(L((\theta) = S_n \log \left(\frac{\theta}{2} \right) + (n - S_n) \log(1 - \theta).
+log(L(\theta)) = S_n \log \left(\frac{\theta}{2} \right) + (n - S_n) \log(1 - \theta) = S_n \log \theta - S_n \log 2 + (n - S_n) \log(1 - \theta) = S_n \log \theta + (n - S_n) \log(1 - \theta)
 $$
 
-$$
-= S_n \log \theta - S_n \log 2 + (n - S_n) \log(1 - \theta).
-$$
-
-Dropping the constant term $- S_n \log 2$, the simplified log-likelihood is:
+We find the maximum the typical route, i.e., taking the derivative with respect to $\theta$ and setting equal to zero:
 
 $$
-log(L((\theta) = S_n \log \theta + (n - S_n) \log(1 - \theta).
+log(L(\theta))' = \frac{S_n}{\theta} - \frac{n - S_n}{1 - \theta} = 0 \rightarrow \frac{S_n}{\theta} = \frac{n - S_n}{1 - \theta}
 $$
 
-Taking the derivative with respect to $\theta$:
+After some simplifying:
 
 $$
-log(L('(\theta) = \frac{S_n}{\theta} - \frac{n - S_n}{1 - \theta}.
+S_n (1 - \theta) = (n - S_n) \theta \rightarrow S_n - S_n \theta = n\theta - S_n\theta \rightarrow S_n = n\theta
 $$
 
-Setting $log(L('(\theta) = 0$ to find the critical point:
+And we arrive at our "MLE" (in quotes because there's our second check to account for): 
 
 $$
-\frac{S_n}{\theta} = \frac{n - S_n}{1 - \theta}.
+\hat{\theta} = \frac{S_n}{n} = \frac{1}{n} \sum_{i=1}^{n} |X_i|
 $$
 
-Cross multiplying:
+To double check, we take the second derivative (at the MLE) and see if it is negative: 
 
 $$
-S_n (1 - \theta) = (n - S_n) \theta.
-$$
-
-Expanding:
-
-$$
-S_n - S_n \theta = n\theta - S_n\theta.
-$$
-
-Solving for $\theta$:
-
-$$
-S_n = n\theta.
+log(L(\theta))'' = -\frac{S_n}{\theta^2} - \frac{n - S_n}{(1 - \theta)^2} 
 $$
 
 $$
-\hat{\theta} = \frac{S_n}{n} = \frac{1}{n} \sum_{i=1}^{n} |X_i|.
+log(L(\hat{\theta}))''= -\frac{S_n n^2}{S_n^2} - \frac{(n - S_n) n^2}{(n - S_n)^2}
+= -\frac{n^2}{S_n} - \frac{n^2}{n - S_n} < 0
 $$
 
-Thus, the MLE of $\theta$ is:
+Noting: $S_n > 0$ and $n - S_n > 0$
 
-$$
-\hat{\theta} = \frac{1}{n} \sum_{i=1}^{n} |X_i|.
-$$
+So yes, this is our maximum and our MLE! 
 
-This is simply the sample mean of $|X_i|$, meaning that the MLE estimates $\theta$ based on the proportion of nonzero observations in the sample.
+Jetzt zock' ich Fortnite und trink' Cola! Yipee! 
 
 ## b) 
 
@@ -641,167 +630,127 @@ $$ T(X) = \begin{cases}
 
 Show that $T(X)$ is an unbiased estimator of $\theta$.
 
-To show that $T(X)$ is an unbiased estimator of $\theta$, we need to verify that:
-
-$$
-E[T(X)] = \theta.
-$$
-
-The given estimator is:
-
-$$
-T(X) = 
-\begin{cases} 
-2, & \text{if } X = 1, \\ 
-0, & \text{otherwise}.
-\end{cases}
-$$
-
-The expectation of $T(X)$ is:
+To test for bias, we find the the expectation of $T(X)$:
 
 $$
 E[T(X)] = \sum_{x \in \{-1, 0, 1\}} T(x) P(X = x).
 $$
 
-Substituting the given probability mass function:
+Using the pmf from part a), each possible outcome/observation of X has its associated probability given by:
 
 $$
-P(X = 1) = \frac{\theta}{2}, \quad P(X = 0) = 1 - \theta, \quad P(X = -1) = \frac{\theta}{2}.
+P(X = 1) = \frac{\theta}{2}, \quad P(X = 0) = 1 - \theta, \quad P(X = -1) = \frac{\theta}{2}
 $$
-
-Since $T(X) = 2$ when $X = 1$ and $0$ otherwise, we get:
+So we need to do the more "manual" calculation of expectation:
 
 $$
 E[T(X)] = 2 P(X = 1) + 0 P(X = 0) + 0 P(X = -1).
 $$
+Since $T(X) = 2$ when $X = 1$ and $0$ otherwise from the initial definition of T. 
+
+Thus, we calculate: 
 
 $$
-= 2 \cdot \frac{\theta}{2} + 0 + 0.
+E[T(X)] = 2 \cdot \frac{\theta}{2} + 0 + 0 = \theta
 $$
 
-$$
-= \theta.
-$$
-
-Since $E[T(X)] = \theta$, we conclude that $T(X)$ is an unbiased estimator of $\theta$. $\square$
+So, via Bias calculation, we know T(X) is an unbiased estimator of $\theta$ because $E[T(X)] = \theta$.
 
 ## c) 
 
 Find a better estimator than $T(X)$ and prove that it is better.
 
-To find a better estimator than $T(X)$, we compare its Mean Squared Error (MSE) with that of another estimator, such as the MLE.
+By "better" we are making note of the "hint" to compare MSE, and "better" corresponding to smaller MSE compared to $T(X)$.
 
-The Mean Squared Error (MSE) of an estimator $T(X)$ is given by:
-
-$$
-\text{MSE}(T) = E[(T(X) - \theta)^2].
-$$
-
-Expanding,
+By definition, the MSE of the estimator $T(X)$ is:
 
 $$
-\text{MSE}(T) = E[T^2(X)] - 2\theta E[T(X)] + \theta^2.
+\text{MSE}(T) = E[(T(X) - \theta)^2] = E[T^2(X)] - 2\theta E[T(X)] + \theta^2
 $$
 
-From part (b), we know that $T(X)$ is unbiased, so $E[T(X)] = \theta$, and we need to compute $E[T^2(X)]$.
+From part b), we know that $T(X)$ is unbiased, so the unknown quantity in the above expression is $E[T^2(X)]$.
+
+Solving for that: 
 
 $$
-E[T^2(X)] = \sum_{x \in \{-1,0,1\}} T^2(x) P(X = x).
+E[T^2(X)] = \sum_{x \in \{-1,0,1\}} T^2(x) P(X = x) = 2^2 P(X = 1) = 4 \cdot \frac{\theta}{2} = 2\theta
 $$
 
-Since $T(X) = 2$ for $X = 1$ and $0$ otherwise,
+Returning to the MSE, our goal is to then find a better (smaller) MSE than T(X), which is: 
 
 $$
-E[T^2(X)] = 2^2 P(X = 1) = 4 \cdot \frac{\theta}{2} = 2\theta.
+\text{MSE}(T) = 2\theta - 2\theta^2 + \theta^2 = \theta - \theta^2 = \theta(1 - \theta)
 $$
 
-Now, substituting into the MSE formula:
+Our first guess will be to use the sample mean, the MLE from part a):
 
 $$
-\text{MSE}(T) = 2\theta - 2\theta^2 + \theta^2.
+\hat{\theta} = \frac{S_n}{n} = \frac{1}{n} \sum_{i=1}^{n} |X_i|
 $$
 
-$$
-= 2\theta - \theta^2.
-$$
+To find the relevant quantities to find its MSE, we start with: 
 
-Since $\hat{\theta}$ is the sample mean of i.i.d. random variables $|X_i|$, we compute its variance:
+$E[|X|]$:
 
 $$
-\text{Var}(\hat{\theta}) = \frac{\text{Var}(|X_1|)}{n}.
+E[|X|] = 1 \cdot P(X = 1) + 0 \cdot P(X = 0) + 1 \cdot P(X = -1)
+= \frac{\theta}{2} + 0 + \frac{\theta}{2} = \theta
 $$
 
-First, compute $E[|X|]$:
+Next, $E[|X|^2]$:
 
 $$
-E[|X|] = 1 \cdot P(X = 1) + 0 \cdot P(X = 0) + 1 \cdot P(X = -1).
-$$
-
-$$
-= \frac{\theta}{2} + 0 + \frac{\theta}{2} = \theta.
-$$
-
-Next, compute $E[|X|^2]$:
-
-$$
-E[|X|^2] = 1^2 \cdot P(X = 1) + 0^2 \cdot P(X = 0) + 1^2 \cdot P(X = -1).
-$$
-
-$$
-= \frac{\theta}{2} + 0 + \frac{\theta}{2} = \theta.
+E[|X|^2] = 1^2 \cdot P(X = 1) + 0^2 \cdot P(X = 0) + 1^2 \cdot P(X = -1)
+= \frac{\theta}{2} + 0 + \frac{\theta}{2} = \theta
 $$
 
 So, the variance is:
 
 $$
-\text{Var}(|X|) = E[|X|^2] - (E[|X|])^2 = \theta - \theta^2.
+\text{Var}(|X|) = E[|X|^2] - (E[|X|])^2 = \theta - \theta^2 \rightarrow \text{Var}(\hat{\theta}) = \frac{\theta - \theta^2}{n}
 $$
 
-Thus,
+Since $\hat{\theta}$ is unbiased, i.e.
 
 $$
-\text{Var}(\hat{\theta}) = \frac{\theta - \theta^2}{n}.
+E[\hat{\theta}] = E[\frac{S_n}{n}] = E[\frac{1}{n} \sum_{i=1}^{n} |X_i|] = \frac{1}{n}E[\sum_{i=1}^{n} |X_i|] = \frac{n \theta}{n} = \theta
+$$ 
+
+The MSE of $\hat{\theta}$ is: 
+
+$$
+\text{MSE}(\hat{\theta}) = \frac{\theta - \theta^2}{n}
 $$
 
-Since $\hat{\theta}$ is unbiased, its MSE is just its variance:
-
-$$
-\text{MSE}(\hat{\theta}) = \frac{\theta - \theta^2}{n}.
-$$
-
-We now compare:
+We now comparing the two estimators: 
 
 $$
 \text{MSE}(T) = 2\theta - \theta^2
 $$
 
-with
-
 $$
-\text{MSE}(\hat{\theta}) = \frac{\theta - \theta^2}{n}.
+\text{MSE}(\hat{\theta}) = \frac{\theta - \theta^2}{n}
 $$
 
-Since $n \geq 1$, we see that:
+Since $n \geq 1$:
 
 $$
-\frac{\theta - \theta^2}{n} \leq \theta - \theta^2.
+\frac{\theta - \theta^2}{n} \leq \theta - \theta^2
 $$
 
 And since:
 
 $$
-\theta - \theta^2 \leq 2\theta - \theta^2 \quad \text{for all } \theta \in (0,1),
+\theta - \theta^2 \leq 2\theta - \theta^2 \quad \forall \theta \in (0,1)
 $$
 
-it follows that:
+it follows:
 
 $$
-\text{MSE}(\hat{\theta}) \leq \text{MSE}(T),
+\text{MSE}(\hat{\theta}) \leq \text{MSE}(T)
 $$
 
-with strict inequality for $n > 1$. This shows that the MLE $\hat{\theta}$ is better than $T(X)$ in terms of MSE.
-
-The MLE $\hat{\theta} = \frac{1}{n} \sum |X_i|$ is a better estimator than $T(X)$ because it has a lower Mean Squared Error (MSE) for all values of $\theta$. Thus, the MLE dominates $T(X)$ as an estimator of $\theta$. $\square$
+with strict inequality for $n > 1$. So the MLE $\hat{\theta} = \frac{1}{n} \sum |X_i|$ is a "better" estimator than $T(X)$ because it has a lower Mean Squared Error for all values of $\theta$ (while also being unbiased!) 
 
 \newpage
 
