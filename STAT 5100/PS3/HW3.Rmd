@@ -320,6 +320,7 @@ X =
 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ 
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1
 \end{bmatrix}
 $$
@@ -345,12 +346,22 @@ y <- stress$Score
 beta_hat <- solve(t(X) %*% X) %*% (t(X) %*% y)
 
 # X[0,]
-round(beta_hat,2)
+# round(beta_hat,2)
 ```
 
 ```{r}
+stress <- read.table(file = "stress.txt", 
+                     header = TRUE, 
+                     sep = ",")
+d=stress
+
+d$gender <- factor(d$gender)  
+d$smoking <- factor(d$smoking)
+d <- d[order(d$gender, d$smoking),]  
 o=lm(Score~0+smoking:gender, data =d)
+
 coef(o)
+beta_hat <- coef(o)
 ```
 
 The primary representation I use throughout this problem is of the form: 
@@ -476,7 +487,7 @@ Thus, the main effect of gender can be calculated by:
 
 ```{r}
 C <- matrix(c(1/4, 1/4, 1/4, 1/4, -1/4, -1/4, -1/4, -1/4), nrow = 1)
-beta_hat
+# beta_hat
 C %*% beta_hat
 ```
 
@@ -537,14 +548,14 @@ We have our same  vector of cell means:
 $$
 \boldsymbol{\beta} =
 \begin{bmatrix}
+\beta_{\text{Male}, \text{Never}} \\
+\beta_{\text{Male}, \text{Light}} \\
+\beta_{\text{Male}, \text{Medium}} \\
+\beta_{\text{Male}, \text{Heavy}} \\ 
 \beta_{\text{Female}, \text{Never}} \\
 \beta_{\text{Female}, \text{Light}} \\
 \beta_{\text{Female}, \text{Medium}} \\
 \beta_{\text{Female}, \text{Heavy}} \\
-\beta_{\text{Male}, \text{Never}} \\
-\beta_{\text{Male}, \text{Light}} \\
-\beta_{\text{Male}, \text{Medium}} \\
-\beta_{\text{Male}, \text{Heavy}}
 \end{bmatrix}
 $$
 
@@ -572,14 +583,14 @@ $$
 1 &  0 &  0 & -1 & -1 &  0 &  0 &  1
 \end{bmatrix}
 \begin{bmatrix}
+\beta_{\text{Male}, \text{Never}} \\
+\beta_{\text{Male}, \text{Light}} \\
+\beta_{\text{Male}, \text{Medium}} \\
+\beta_{\text{Male}, \text{Heavy}} \\ 
 \beta_{\text{Female}, \text{Never}} \\
 \beta_{\text{Female}, \text{Light}} \\
 \beta_{\text{Female}, \text{Medium}} \\
 \beta_{\text{Female}, \text{Heavy}} \\
-\beta_{\text{Male}, \text{Never}} \\
-\beta_{\text{Male}, \text{Light}} \\
-\beta_{\text{Male}, \text{Medium}} \\
-\beta_{\text{Male}, \text{Heavy}}
 \end{bmatrix}
 =
 \begin{bmatrix}
@@ -590,6 +601,8 @@ $$
 $$
 
 ```{r}
+beta_hat <- coef(o)
+beta_hat
 C <- matrix(c(1, -1, 0, 0, -1, 1, 0, 0,
               1, 0, -1, 0, -1, 0, 1, 0,
               1, 0, 0, -1, -1, 0, 0, 1), nrow = 3)
@@ -597,7 +610,7 @@ C <- matrix(c(1, -1, 0, 0, -1, 1, 0, 0,
 C %*% beta_hat 
 ```
 
-These values are not zero! So there is some evidence, no comment on strength, to suppose there are interaction effects. Leaving that for the F test and latter part of this problem. 
+These values are not zero, but their average is near zero! So there is some evidence, no comment on strength, to suppose there may not be interaction effects. Leaving that for the F test and latter part of this problem. 
 
 There is also the graphical representation to consider, which similarly shows the potential for there being interaction effects by the non-parallel, intersecting lines. 
 
@@ -679,8 +692,8 @@ The numerator degrees of freedom: $df_{\text{num}} = 1$, since we are testing a 
 
 The denominator degrees of freedom: $df_{\text{den}} = n - p$, where n is the total number of observations and p = 8 (one parameter for each gender-smoking combination), giving 24 - 8 = 16.
 
-```{r, eval = F}
-# alt method, not used 
+```{r}
+# alt method
 C_gender <- matrix(c(1/4, 1/4, 1/4, 1/4, -1/4, -1/4, -1/4, -1/4), nrow = 1)
 
 num <- t(C_gender %*% beta_hat) %*% solve(C_gender %*% solve(t(X) %*% X) %*% t(C_gender)) %*% (C_gender %*% beta_hat)
@@ -800,8 +813,23 @@ Numerator: $df_{\text{num}} = 3$ (corresponding to the 3 constraints).
 Denominator: $df_{\text{den}} = n - p$, where n is total observations and p = 8 (one parameter per gender-smoking combination), giving 24 - 8 = 16.
 
 
-```{r, eval = F}
+```{r}
 # Again, alt method
+stress <- read.table(file = "stress.txt", 
+                     header = TRUE, 
+                     sep = ",")
+d=stress
+
+d$gender <- factor(d$gender)  
+d$smoking <- factor(d$smoking)
+d <- d[order(d$gender, d$smoking),]  
+o=lm(Score~0+smoking:gender, data =d)
+
+coef(o)
+beta_hat <- coef(o)
+
+X <- model.matrix(~ 0 + gender:smoking, data = d)
+
 C_smoking <- matrix(c(1, -1,  0,  0, 1, -1,  0,  0,
                       1,  0, -1,  0, 1,  0, -1,  0,
                       1,  0,  0, -1, 1,  0,  0, -1), 
@@ -904,9 +932,10 @@ Denominator: $df_{\text{den}} = n - p$, where: n is total observations and p = 8
 
 Calculating: 
 
-```{r, eval = FALSE, echo = FALSE}
+```{r}
 require(MASS)
 # alt method
+beta_hat
 C_interaction <- matrix(c(1, -1, 0, 0, -1, 1, 0, 0, 
               1, 0, -1, 0, -1, 0, 1, 0, 
               1, 0, 0, -1, -1, 0, 0, 1), nrow = 3)
@@ -1043,7 +1072,7 @@ stress_data$gender <- as.factor(stress_data$gender)
 stress_data$smoking <- as.factor(stress_data$smoking)
 
 # Fit the cell-means model
-model <- lm(Score ~ gender:smoking - 1, data = stress_data)
+model <- lm(Score~0+gender:smoking, data = stress_data)
 
 # Extract residuals and fitted values
 residuals <- resid(model)

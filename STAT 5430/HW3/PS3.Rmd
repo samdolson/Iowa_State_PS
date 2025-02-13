@@ -4,6 +4,13 @@ output: pdf_document
 author: "Sam Olson"
 ---
 
+# Outline 
+  - Q1: g2g
+  - Q2: Double check verbiage of CRLB at end d) 
+  - Q3: part c) needs to be finalized  
+  - Q4: 
+  - Q5: little weird at parts, with $\propto$
+  
 # 1. 
 
 Suppose $X_1, \dots, X_n$ are iid Bernoulli$(p)$, $0 < p < 1$.
@@ -21,97 +28,87 @@ $$
 Taking the log-likelihood,
 
 $$
-\ell(p) = \sum_{i=1}^{n} \left[ X_i \log p + (1 - X_i) \log (1 - p) \right]
+log(L(p)) = \sum_{i=1}^{n} \left[ X_i \log p + (1 - X_i) \log (1 - p) \right]
 $$
 
-The first derivative (score function) is:
+The first derivative is:
 
 $$
-\ell'(p) = \sum_{i=1}^{n} \left[ \frac{X_i}{p} - \frac{1 - X_i}{1 - p} \right] = \sum_{i=1}^{n} \frac{X_i - p}{p(1 - p)}
+log(L(p))' = \sum_{i=1}^{n} \left[ \frac{X_i}{p} - \frac{1 - X_i}{1 - p} \right] = \sum_{i=1}^{n} \frac{X_i - p}{p(1 - p)}
 $$
 
-The Fisher information is given by:
+The Fisher information is:
 
 $$
-I_n(p) = - \mathbb{E} \left[ \ell''(p) \right]
+I_n(p) = - E \left[ log(L((p))'' \right]
 $$
 
 Computing the second derivative:
 
 $$
-\ell''(p) = \sum_{i=1}^{n} \left[ -\frac{X_i}{p^2} - \frac{1 - X_i}{(1 - p)^2} \right]
+log(L(p))'' = \sum_{i=1}^{n} \left[ -\frac{X_i}{p^2} - \frac{1 - X_i}{(1 - p)^2} \right]
 $$
 
 Taking expectation:
 
 $$
-\mathbb{E}[\ell''(p)] = \sum_{i=1}^{n} \left[ -\frac{\mathbb{E}[X_i]}{p^2} - \frac{\mathbb{E}[1 - X_i]}{(1 - p)^2} \right]
+E[log(L(p))''] = \sum_{i=1}^{n} \left[ -\frac{E[X_i]}{p^2} - \frac{E[1 - X_i]}{(1 - p)^2} \right]
 $$
 
-Since $\mathbb{E}[X_i] = p$ and $\mathbb{E}[1 - X_i] = 1 - p$,
+Given we know the distribution of the random variables, we know $E[X_i] = p$ and $E[1 - X_i] = 1 - p$. This allows us to simplify the expression:
 
 $$
-\mathbb{E}[\ell''(p)] = \sum_{i=1}^{n} \left[ -\frac{p}{p^2} - \frac{1 - p}{(1 - p)^2} \right]
-$$
-
-$$
+E[log(L(p))''] = \sum_{i=1}^{n} \left[ -\frac{p}{p^2} - \frac{1 - p}{(1 - p)^2} \right]
 = \sum_{i=1}^{n} \left[ -\frac{1}{p} - \frac{1}{1 - p} \right]
-$$
-
-$$
 = -n \left[ \frac{1}{p} + \frac{1}{1 - p} \right]
 $$
 
-Thus, the Fisher information is:
+Noting linearity of Fisher information: 
 
 $$
 I_n(p) = n \left[ \frac{1}{p} + \frac{1}{1 - p} \right]
 $$
 
+### Sketch 
+
 ```{r}
-# Fisher Information Function for Bernoulli(p)
+# functional form
 fisher_info <- function(p, n) {
   return(n * (1/p + 1/(1 - p)))
 }
 
-# Generate values for p in (0,1)
+# setup
 p_values <- seq(0.01, 0.99, length.out = 100)
-n <- 1  # Set n=1 for visualization
-
-# Compute Fisher Information
+n <- 1
 I_values <- fisher_info(p_values, n)
 
-# Plot
-plot(p_values, I_values, type = "l", col = "blue", lwd = 2,
-     xlab = "p", ylab = expression(I[n](p)),
+# plot
+plot(x = p_values,
+     y = I_values, 
+     type = "l", 
+     col = "black", lwd = 2,
+     xlab = "p", ylab = "Fisher Information",
      main = "Fisher Information for Bernoulli(p)")
 abline(v = 0.5, lty = 2, col = "gray")
-grid()
 ```
 
 ## b) 
 
 Find the value of $p \in (0,1)$ for which $I_n(p)$ is minimal. (This value of $p$ corresponds to the "hardest" case for estimating $p$. That is, when data are generated under this value of $p$ from the model, the variance of an UE of $p$ is potentially largest.)
 
-To find the value of $p$ that minimizes the Fisher information $I_n(p)$, we analyze the function:
+To find the value of $p$ that minimizes the Fisher information $I_n(p)$, we use the functional form of the Fisher Information:
 
 $$
 I_n(p) = n \left[ \frac{1}{p} + \frac{1}{1 - p} \right]
 $$
 
-Differentiating $I_n(p)$ with respect to $p$:
+Differentiating $I_n(p)$ with respect to $p$, and setting equal to zero:
 
 $$
-I_n'(p) = n \left[ -\frac{1}{p^2} + \frac{1}{(1 - p)^2} \right]
+I_n(p)' = n \left[ -\frac{1}{p^2} + \frac{1}{(1 - p)^2} \right] = -\frac{1}{p^2} + \frac{1}{(1 - p)^2} = 0
 $$
 
-Setting $I_n'(p) = 0$ to find critical points:
-
-$$
--\frac{1}{p^2} + \frac{1}{(1 - p)^2} = 0
-$$
-
-Rearrange:
+This gives us the expression:
 
 $$
 \frac{1}{p^2} = \frac{1}{(1 - p)^2}
@@ -120,96 +117,98 @@ $$
 Taking square roots:
 
 $$
-\frac{1}{p} = \frac{1}{1 - p}
+\frac{1}{p} = \frac{1}{1 - p} \rightarrow 
+p = 1 - p \rightarrow
+p = \frac{1}{2}
+$$
+
+To ensure this is a maximum, we also check whether the second derivative is positive (since we are minimizing and not maximizing) at $\frac{1}{2}$:
+
+$$
+I_n(p)' = n \left[ \frac{2}{p^3} + \frac{2}{(1 - p)^3} \right]
 $$
 
 $$
-p = 1 - p
+I_n\left(\frac{1}{2}\right)'' = n \left[ \frac{2}{(1/2)^3} + \frac{2}{(1/2)^3} \right] = n \left[ \frac{2}{1/8} + \frac{2}{1/8} \right] = n \left[ 16 + 16 \right] = 32n > 0
 $$
 
-$$
-2p = 1
-$$
+So this is in fact a minimum, hence the Fisher information is minimized at:
 
 $$
 p = \frac{1}{2}
 $$
-
-Compute the second derivative:
-
-$$
-I_n''(p) = n \left[ \frac{2}{p^3} + \frac{2}{(1 - p)^3} \right]
-$$
-
-Evaluating at $p = \frac{1}{2}$:
-
-$$
-I_n''\left(\frac{1}{2}\right) = n \left[ \frac{2}{(1/2)^3} + \frac{2}{(1/2)^3} \right]
-$$
-
-$$
-= n \left[ \frac{2}{1/8} + \frac{2}{1/8} \right] = n \left[ 16 + 16 \right] = 32n > 0
-$$
-
-Since $I_n''(p) > 0$, $p = \frac{1}{2}$ is a minimum.
-
-The Fisher information is minimized at:
-
-$$
-p = \frac{1}{2}
-$$
-
-This corresponds to the "hardest" case for estimating $p$, meaning the variance of an unbiased estimator of $p$ is potentially largest when $p = \frac{1}{2}$.
 
 ## c) 
 
 Show that $\hat{X}_n = \sum_{i=1}^{n} X_i /n$ is the UMVUE of $p$.
 
-To show that $\hat{X}_n = \frac{1}{n} \sum_{i=1}^{n} X_i$ is the Uniformly Minimum Variance Unbiased Estimator (UMVUE) of $p$, we proceed as follows:
+Note to self: Uniformly Minimum Variance Unbiased Estimator (UMVUE)
 
-We first check if $\hat{X}_n$ is an unbiased estimator of $p$:
-
-$$
-\mathbb{E}[\hat{X}_n] = \mathbb{E} \left[ \frac{1}{n} \sum_{i=1}^{n} X_i \right]
-$$
-
-Using the linearity of expectation:
+We start by checking if $\hat{X}_n$ is an unbiased estimator of $p$:
 
 $$
-= \frac{1}{n} \sum_{i=1}^{n} \mathbb{E}[X_i]
-$$
-
-Since $X_i \sim \text{Bernoulli}(p)$, we have $\mathbb{E}[X_i] = p$, so:
-
-$$
-\mathbb{E}[\hat{X}_n] = \frac{1}{n} \cdot n p = p
-$$
-
-Thus, $\hat{X}_n$ is an unbiased estimator of $p$.
-
-The statistic $\sum_{i=1}^{n} X_i$ is a sufficient statistic for $p$ by the Factorization Theorem. The likelihood function for $X_1, \dots, X_n$ is:
-
-$$
-L(p) = \prod_{i=1}^{n} p^{X_i} (1 - p)^{1 - X_i}
+E[\hat{X}_n] = E \left[ \frac{1}{n} \sum_{i=1}^{n} X_i \right]
+= \frac{1}{n} \sum_{i=1}^{n} E[X_i]
+E[\hat{X}_n] = \frac{1}{n} \cdot n p = p
 $$
 
 $$
-= p^{\sum X_i} (1 - p)^{n - \sum X_i}
+Bias(\bar{X_n}) = E[\hat{X}_n] - E[X] = p - p = 0 
 $$
 
-Since the likelihood can be factored as a function of $\sum X_i$ multiplied by a function independent of $p$, we conclude that $T = \sum X_i$ is a sufficient statistic.
+So $\hat{X}_n$ is an unbiased estimator of $p$.
 
-The family of Bernoulli distributions belongs to the exponential family, and the statistic $\sum X_i$ satisfies the completeness condition:
+Now as far as the "Uniformly Minimum Variance" part of the question: 
+
+Note again the Fisher Information formula we've found: 
 
 $$
-\mathbb{E}[g(T)] = 0 \text{ for all } p \Rightarrow g(T) = 0 \text{ almost surely}.
+I_n(p) = \frac{np}{p^2} + \frac{n(1 - p)}{(1 - p)^2} = \frac{n}{p(1 - p)}
 $$
 
-Thus, $T = \sum X_i$ is a complete statistic.
+By the definition, the Cramér-Rao Lower Bound, for any unbiased estimator $T$ of $p$:
 
-By the Lehmann-Scheffé Theorem, if $\hat{X}_n = \frac{1}{n} \sum X_i$ is an unbiased estimator of $p$ and is a function of the complete, sufficient statistic $T = \sum X_i$, then it must be the unique Uniformly Minimum Variance Unbiased Estimator (UMVUE) of $p$.
+$$
+\text{Var}_p(T) \geq \frac{(\gamma'(p))^2}{I_n(p)}
+$$
 
-Thus, $\hat{X}_n = \frac{1}{n} \sum X_i$ is the UMVUE of $p$. $\square$
+Here, we are estimating $\gamma(p) = p$, so $\gamma'(p) = 1$. Therefore:
+
+$$
+\text{Var}_p(T) \geq \frac{1^2}{I_n(p)} = \frac{p(1 - p)}{n}
+$$
+
+We compute the variance of $\hat{X}_n = S_n / n$:
+
+$$
+E[\hat{X}_n] = E \left[ \frac{S_n}{n} \right] = \frac{1}{n} E[S_n] = \frac{np}{n} = p
+$$
+
+$$
+\text{Var}(\hat{X}_n) = \text{Var} \left( \frac{S_n}{n} \right) = \frac{1}{n^2} \text{Var}(S_n)
+$$
+
+Since $S_n \sim \text{Binomial}(n, p)$, we know:
+
+$$
+\text{Var}(S_n) = np(1 - p)
+$$
+
+Thus:
+
+$$
+\text{Var}(\hat{X}_n) = \frac{np(1 - p)}{n^2} = \frac{p(1 - p)}{n}
+$$
+
+Comparing with the CRLB:
+
+$$
+\text{Var}(\hat{X}_n) = \frac{p(1 - p)}{n} = \frac{1}{I_n(p)}
+$$
+
+Since $\hat{X}_n$ attains the bound, it is an efficient estimator.
+
+Since $\hat{X}_n$ is unbiased and attains the CRLB, it is the UMVUE. 
 
 \newpage 
 
@@ -230,278 +229,161 @@ To find the Maximum Likelihood Estimator (MLE) of $\beta$, we first write the li
 Since $Y_i = \beta x_i + \varepsilon_i$ with $\varepsilon_i \sim N(0, \sigma^2)$, we have:
 
 $$
-Y_i \sim N(\beta x_i, \sigma^2).
+Y_i \sim N(\beta x_i, \sigma^2)
 $$
 
 Thus, the joint density function of $Y_1, \dots, Y_n$ is:
 
 $$
-L(\beta) = \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2}} \exp \left( -\frac{(Y_i - \beta x_i)^2}{2\sigma^2} \right).
+L(\beta) = \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2}} \exp \left( -\frac{(Y_i - \beta x_i)^2}{2\sigma^2} \right)
 $$
 
 Taking the log-likelihood:
 
 $$
-\ell(\beta) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^{n} (Y_i - \beta x_i)^2.
+log(L(\beta)) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^{n} (Y_i - \beta x_i)^2
 $$
 
-To find the MLE of $\beta$, we take the derivative with respect to $\beta$:
+To find the MLE of $\beta$, we take the derivative with respect to $\beta$ and set to zero:
 
 $$
-\frac{d}{d\beta} \ell(\beta) = -\frac{1}{2\sigma^2} \cdot (-2) \sum_{i=1}^{n} x_i (Y_i - \beta x_i)
+\frac{d}{d\beta} log(L(\beta)) = -\frac{1}{2\sigma^2} \cdot (-2) \sum_{i=1}^{n} x_i (Y_i - \beta x_i)
+= \frac{1}{\sigma^2} \sum_{i=1}^{n} x_i (Y_i - \beta x_i)
+\rightarrow 
+\sum_{i=1}^{n} x_i Y_i - \beta \sum_{i=1}^{n} x_i^2 = 0
 $$
 
-$$
-= \frac{1}{\sigma^2} \sum_{i=1}^{n} x_i (Y_i - \beta x_i).
-$$
-
-Setting the derivative equal to zero:
+Solving for $\beta$, we get our MLE of $\beta$ as::
 
 $$
-\sum_{i=1}^{n} x_i Y_i - \beta \sum_{i=1}^{n} x_i^2 = 0.
+\hat{\beta} = \frac{\sum_{i=1}^{n} x_i Y_i}{\sum_{i=1}^{n} x_i^2}
 $$
 
-Solving for $\beta$:
+To ensure this is a maximum, we take the second derivative and see if it is negative: 
 
 $$
-\hat{\beta} = \frac{\sum_{i=1}^{n} x_i Y_i}{\sum_{i=1}^{n} x_i^2}.
+log(L(\beta))'' = - \sum_{i=1}^{n} x_i^2 < 0 
 $$
 
-Thus, the Maximum Likelihood Estimator (MLE) of $\beta$ is:
-
-$$
-\hat{\beta} = \frac{\sum_{i=1}^{n} x_i Y_i}{\sum_{i=1}^{n} x_i^2}.
-$$
+So this is in fact the maximum. 
 
 ## b) 
 
 Find the distribution of the MLE.
 
-We found that the Maximum Likelihood Estimator (MLE) of $\beta$ is:
+From part a), the MLE of $\beta$ is:
 
 $$
-\hat{\beta} = \frac{\sum_{i=1}^{n} x_i Y_i}{\sum_{i=1}^{n} x_i^2}.
+\hat{\beta} = \frac{\sum_{i=1}^{n} x_i Y_i}{\sum_{i=1}^{n} x_i^2}
 $$
 
-To determine the distribution of $\hat{\beta}$, we analyze its expectation and variance.
+To determine the distribution of $\hat{\beta}$, determine its expectation and variance, noting that since $\hat{\beta}$ is a linear combination of the normal random variables $\varepsilon_i$, it follows that $\hat{\beta}$ itself is normally distributed.
 
-We express $\hat{\beta}$ in terms of $Y_i$:
-
-$$
-\hat{\beta} = \frac{\sum_{i=1}^{n} x_i (\beta x_i + \varepsilon_i)}{\sum_{i=1}^{n} x_i^2}.
-$$
-
-Expanding the summation:
+That being said, given $Y_i = \beta x_i + \epsilon_i$, we may write:
 
 $$
-\hat{\beta} = \frac{\beta \sum_{i=1}^{n} x_i^2 + \sum_{i=1}^{n} x_i \varepsilon_i}{\sum_{i=1}^{n} x_i^2}.
+\hat{\beta} = \frac{\sum_{i=1}^{n} x_i (\beta x_i + \varepsilon_i)}{\sum_{i=1}^{n} x_i^2} = \frac{\beta \sum_{i=1}^{n} x_i^2 + \sum_{i=1}^{n} x_i \varepsilon_i}{\sum_{i=1}^{n} x_i^2}
 $$
 
-Taking the expectation:
+Taking the expectation, noting our data is treated as "fixed", we may write:
 
 $$
-\mathbb{E}[\hat{\beta}] = \frac{\beta \sum_{i=1}^{n} x_i^2 + \sum_{i=1}^{n} x_i \mathbb{E}[\varepsilon_i]}{\sum_{i=1}^{n} x_i^2}.
+E[\hat{\beta}] = \frac{\beta \sum_{i=1}^{n} x_i^2 + \sum_{i=1}^{n} x_i E[\varepsilon_i]}{\sum_{i=1}^{n} x_i^2} = \frac{\beta \sum_{i=1}^{n} x_i^2}{\sum_{i=1}^{n} x_i^2} = \beta
 $$
 
-Since $\mathbb{E}[\varepsilon_i] = 0$, we get:
+Noting $E[\varepsilon_i] = 0$
+
+Because $E[\hat{\beta}] = \beta$, it has zero bias and $\hat{\beta}$ is an unbiased estimator of $\beta$. Not needed for the distribution, but will need this note for later. 
+
+Let us then analyze the variance. We start again with definitions: 
 
 $$
-\mathbb{E}[\hat{\beta}] = \frac{\beta \sum_{i=1}^{n} x_i^2}{\sum_{i=1}^{n} x_i^2} = \beta.
+\text{Var}(\hat{\beta}) = \text{Var}(\beta + \frac{\sum_{i=1}^{n} x_i \varepsilon_i}{\sum_{i=1}^{n} x_i^2}) = \text{Var}(\beta) + \text{Var}( \frac{\sum_{i=1}^{n} x_i \varepsilon_i}{\sum_{i=1}^{n} x_i^2})
 $$
 
-Thus, $\hat{\beta}$ is an unbiased estimator of $\beta$.
-
-Using the expression:
+Simplifying:
 
 $$
-\hat{\beta} = \beta + \frac{\sum_{i=1}^{n} x_i \varepsilon_i}{\sum_{i=1}^{n} x_i^2},
+\text{Var}(\hat{\beta}) = \text{Var} \left( \frac{\sum_{i=1}^{n} x_i \varepsilon_i}{\sum_{i=1}^{n} x_i^2} \right) = \text{Var} \left( \sum_{i=1}^{n} \frac{(x_i^2 \sigma^2)}{(x_i^2)^2} \right) = \frac{\sigma^2}{\sum_{i=1}^{n} x_i^2}
 $$
 
-we compute the variance:
+We thus conclude:
 
 $$
-\text{Var}(\hat{\beta}) = \text{Var} \left( \frac{\sum_{i=1}^{n} x_i \varepsilon_i}{\sum_{i=1}^{n} x_i^2} \right).
+\hat{\beta} \sim N \left( \beta, \frac{\sigma^2}{\sum_{i=1}^{n} x_i^2} \right)
 $$
-
-Since $\varepsilon_i \sim N(0, \sigma^2)$ are i.i.d., we have:
-
-$$
-\text{Var} \left( \sum_{i=1}^{n} x_i \varepsilon_i \right) = \sum_{i=1}^{n} x_i^2 \sigma^2.
-$$
-
-Thus,
-
-$$
-\text{Var}(\hat{\beta}) = \frac{\sigma^2 \sum_{i=1}^{n} x_i^2}{(\sum_{i=1}^{n} x_i^2)^2} = \frac{\sigma^2}{\sum_{i=1}^{n} x_i^2}.
-$$
-
-Since $\hat{\beta}$ is a linear combination of the normal random variables $\varepsilon_i$, it follows that $\hat{\beta}$ itself is normally distributed:
-
-$$
-\hat{\beta} \sim N \left( \beta, \frac{\sigma^2}{\sum_{i=1}^{n} x_i^2} \right).
-$$
-
-The MLE $\hat{\beta}$ follows the normal distribution:
-
-$$
-\hat{\beta} \sim N \left( \beta, \frac{\sigma^2}{\sum_{i=1}^{n} x_i^2} \right).
-$$
-
-This result shows that $\hat{\beta}$ is an unbiased and efficient estimator of $\beta$.
 
 ## c) 
 
 Find the CRLB for estimating $\beta$. (Hint: you'll have to work with the joint distribution $f(y_1, \dots, y_n | \beta)$ directly, since $Y_1, \dots, Y_n$ are not iid.)
 
-To find the Cramér-Rao Lower Bound (CRLB) for estimating $\beta$, we first determine the Fisher information.
+To find the CRLB, we first calculate the Fisher information.
 
-The model is:
-
-$$
-Y_i = \beta x_i + \varepsilon_i, \quad i = 1, \dots, n
-$$
-
-where $\varepsilon_i \sim N(0, \sigma^2)$ are i.i.d. normal errors. Thus,
+Note the joint density: 
 
 $$
-Y_i \sim N(\beta x_i, \sigma^2).
-$$
-
-Since the $Y_i$ are independent, the joint density function is:
-
-$$
-f(Y_1, \dots, Y_n | \beta) = \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2}} \exp \left( -\frac{(Y_i - \beta x_i)^2}{2\sigma^2} \right).
+f(Y_1, \dots, Y_n | \beta) = \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2}} \exp \left( -\frac{(Y_i - \beta x_i)^2}{2\sigma^2} \right)
 $$
 
 Taking the log-likelihood:
 
 $$
-\ell(\beta) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^{n} (Y_i - \beta x_i)^2.
+log(L(\beta)) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^{n} (Y_i - \beta x_i)^2
 $$
 
-The score function is the derivative of the log-likelihood:
+We take the derivative: 
 
 $$
-\ell'(\beta) = -\frac{1}{2\sigma^2} \cdot (-2) \sum_{i=1}^{n} x_i (Y_i - \beta x_i).
+log(L(\beta))' = -\frac{1}{2\sigma^2} \cdot (-2) \sum_{i=1}^{n} x_i (Y_i - \beta x_i) = \frac{1}{\sigma^2} \sum_{i=1}^{n} x_i (Y_i - \beta x_i)
 $$
 
-$$
-= \frac{1}{\sigma^2} \sum_{i=1}^{n} x_i (Y_i - \beta x_i).
-$$
-
-Since $\mathbb{E}[Y_i] = \beta x_i$, the expectation of the score function is zero, confirming that it is an unbiased estimator.
-
-The Fisher information is:
+The Fisher information is then:
 
 $$
-I(\beta) = -\mathbb{E}[\ell''(\beta)].
-$$
+I(\beta) = -E[log(L(\beta))''] = - E\left[ -\frac{1}{\sigma^2} \sum_{i=1}^{n} x_i^2 \right] = \frac{1}{\sigma^2} \sum_{i=1}^{n} x_i^2
+$$ 
 
-Computing the second derivative:
+We then have what we need to calculate the CRLB using the information we've gathered. 
 
-$$
-\ell''(\beta) = -\frac{1}{\sigma^2} \sum_{i=1}^{n} x_i^2.
-$$
-
-Taking expectation:
+The CRLB is: 
 
 $$
-I(\beta) = \frac{1}{\sigma^2} \sum_{i=1}^{n} x_i^2.
+\frac{1}{I(\beta)} = \frac{1}{\frac{1}{\sigma^2} \sum_{i=1}^{n} x_i^2} = \frac{\sigma^2}{\sum_{i=1}^{n} x_i^2} 
 $$
-
-The CRLB states that for any unbiased estimator $\hat{\beta}$:
-
-$$
-\text{Var}(\hat{\beta}) \geq \frac{1}{I(\beta)}.
-$$
-
-Since we found:
-
-$$
-I(\beta) = \frac{1}{\sigma^2} \sum_{i=1}^{n} x_i^2,
-$$
-
-the CRLB is:
-
-$$
-\text{Var}(\hat{\beta}) \geq \frac{\sigma^2}{\sum_{i=1}^{n} x_i^2}.
-$$
-
-The Cramér-Rao Lower Bound (CRLB) for estimating $\beta$ is:
-
-$$
-\frac{\sigma^2}{\sum_{i=1}^{n} x_i^2}.
-$$
-
-Since we previously showed that the MLE $\hat{\beta}$ has this exact variance, it attains the CRLB, meaning $\hat{\beta}$ is the efficient estimator of $\beta$.
 
 ## d) 
 
 Show the MLE is the UMVUE of $\beta$.
 
-To show that the Maximum Likelihood Estimator (MLE)
+Now we just need to compare the variance of our MLE of $\beta$ to the value calculated in part c). To that end: 
+
+We have already calculated the expectation of $\hat{\beta}_{MLE}$, which is $\beta$, so via Bias calculation: 
 
 $$
-\hat{\beta} = \frac{\sum_{i=1}^{n} x_i Y_i}{\sum_{i=1}^{n} x_i^2}
+\text{Bias}(\hat{\beta}_{MLE}) = E[\hat{\beta}_{MLE}] - \beta = \beta - \beta = 0
 $$
 
-is the Uniformly Minimum Variance Unbiased Estimator (UMVUE) of $\beta$, we verify the conditions of the Lehmann-Scheffé Theorem.
+Hence it is unbiased. We then just need to determine if our MLE attains the CRLB. If so, then the MLE is the UMVUE. 
 
-From part (b), we showed that $\hat{\beta}$ is an unbiased estimator of $\beta$:
-
-$$
-\mathbb{E}[\hat{\beta}] = \beta.
-$$
-
-The joint density of $Y_1, \dots, Y_n$ is:
+Recall the variance of the MLE: 
 
 $$
-f(Y_1, \dots, Y_n | \beta) = \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2}} \exp \left( -\frac{(Y_i - \beta x_i)^2}{2\sigma^2} \right).
+\frac{\sigma^2}{\sum_{i=1}^{n} x_i^2}
 $$
 
-Define the statistic:
+And the CRLB: 
 
 $$
-T = \sum_{i=1}^{n} x_i Y_i.
+\frac{\sigma^2}{\sum_{i=1}^{n} x_i^2}
 $$
 
-Using the Factorization Theorem, we express the joint density in terms of $T$:
+These are one and the same! So we do indeed satisfy: 
 
 $$
-f(Y_1, \dots, Y_n | \beta) = g(T, \beta) h(Y_1, \dots, Y_n),
+\text{Var}(\hat{\beta}_{MLE}) = CRLB
 $$
 
-where:
-
-$$
-g(T, \beta) = \exp \left( -\frac{1}{2\sigma^2} \left( \sum_{i=1}^{n} x_i^2 \right) \left( \hat{\beta} - \beta \right)^2 \right)
-$$
-
-depends on $\beta$ only through $T$, confirming that $T$ is sufficient for $\beta$.
-
-To check completeness, we use the fact that the statistic:
-
-$$
-T = \sum_{i=1}^{n} x_i Y_i \sim N \left( \beta \sum_{i=1}^{n} x_i^2, \sigma^2 \sum_{i=1}^{n} x_i^2 \right)
-$$
-
-belongs to the exponential family, which ensures completeness. Specifically, if:
-
-$$
-\mathbb{E}[g(T)] = 0 \quad \text{for all } \beta,
-$$
-
-then $g(T) = 0$ almost surely, implying that $T$ is complete.
-
-Since $\hat{\beta}$ is an unbiased estimator that is a function of the complete, sufficient statistic $T$, the Lehmann-Scheffé theorem states that $\hat{\beta}$ is the UMVUE of $\beta$.
-
-Thus, the MLE
-
-$$
-\hat{\beta} = \frac{\sum_{i=1}^{n} x_i Y_i}{\sum_{i=1}^{n} x_i^2}
-$$
-
-is the Uniformly Minimum Variance Unbiased Estimator (UMVUE) of $\beta$. $\square$
+Such that the MLE is the UMVUE.
 
 \newpage
 
@@ -513,235 +395,135 @@ Suppose $X_1, \dots, X_n$ are iid normal $N(0,1)$, where $\theta \in \mathbb{R}$
 
 Show $T$ is an UE of $\gamma(\theta) = \theta^2$ and find the variance $\text{Var}_\theta(T)$ of $T$. (Note $Z = \sqrt{n}(\bar{X}_n - \theta) \sim N(0,1)$ and one can write $T = (Z^2/n) + (2\theta Z/\sqrt{n}) + \theta^2 - n^{-1}$, where $Z^2 \sim \chi_1^2$, $E_\theta Z^2 = 1$, $\text{Var}_\theta(Z^2) = 2$.)
 
-We need to show that $T = (\bar{X}_n)^2 - \frac{1}{n}$ is an unbiased estimator of $\gamma(\theta) = \theta^2$, meaning:
+Given:
 
 $$
-\mathbb{E}_\theta [T] = \theta^2.
+Z = \sqrt{n}(\bar{X}_n - \theta) \sim N(0,1)
 $$
 
-Given that:
+we can rewrite $T$ in terms of Z, specifically:
 
 $$
-Z = \sqrt{n}(\bar{X}_n - \theta) \sim N(0,1),
-$$
-
-we can rewrite $T$ as:
-
-$$
-T = \frac{Z^2}{n} + \frac{2\theta Z}{\sqrt{n}} + \theta^2 - \frac{1}{n}.
+T = \frac{Z^2}{n} + \frac{2\theta Z}{\sqrt{n}} + \theta^2 - \frac{1}{n}
 $$
 
 Taking expectation:
 
 $$
-\mathbb{E}_\theta [T] = \mathbb{E}_\theta \left[ \frac{Z^2}{n} + \frac{2\theta Z}{\sqrt{n}} + \theta^2 - \frac{1}{n} \right].
-$$
-
-Using the given properties:
-
-- $\mathbb{E}_\theta[Z^2] = 1$,
-- $\mathbb{E}_\theta[Z] = 0$,
-
-we compute:
-
-$$
-\mathbb{E}_\theta[T] = \frac{1}{n} + \frac{2\theta}{\sqrt{n}} \cdot 0 + \theta^2 - \frac{1}{n}.
-$$
-
-$$
-= \theta^2.
+E_\theta [T] = E_\theta \left[ \frac{Z^2}{n} + \frac{2\theta Z}{\sqrt{n}} + \theta^2 - \frac{1}{n} \right] = \frac{1}{n} + \frac{2\theta}{\sqrt{n}} (0) + \theta^2 - \frac{1}{n} = \theta^2
 $$
 
 Thus, $T$ is an unbiased estimator of $\theta^2$.
 
-To find $\text{Var}_\theta(T)$, we first compute $\mathbb{E}[T^2]$.
+We then must calculate the variance of $T$, to that end, we find $E[T^2]$:
 
-Expanding $T^2$:
-
-$$
-T^2 = \left( \frac{Z^2}{n} + \frac{2\theta Z}{\sqrt{n}} + \theta^2 - \frac{1}{n} \right)^2.
-$$
-
-Expanding the square:
+As defined: 
 
 $$
-T^2 = \frac{Z^4}{n^2} + \frac{4\theta Z^3}{n^{3/2}} + \frac{4\theta^2 Z^2}{n} + \theta^4 + \frac{1}{n^2} + \frac{4\theta^3 Z}{\sqrt{n}} - \frac{2Z^2}{n^2} - \frac{4\theta Z}{n^{3/2}} - \frac{2\theta^2}{n}.
+T^2 = \left( \frac{Z^2}{n} + \frac{2\theta Z}{\sqrt{n}} + \theta^2 - \frac{1}{n} \right)^2 = \frac{Z^4}{n^2} + \frac{4\theta Z^3}{n^{3/2}} + \frac{4\theta^2 Z^2}{n} + \theta^4 + \frac{1}{n^2} + \frac{4\theta^3 Z}{\sqrt{n}} - \frac{2Z^2}{n^2} - \frac{4\theta Z}{n^{3/2}} - \frac{2\theta^2}{n}
 $$
 
-Taking expectation:
+Though that's quite a lot, we can actually simplify it quite a bit when taking expectation, noting the distribution of Z aids in these calculations
 
-- $\mathbb{E}_\theta[Z] = 0$,
-- $\mathbb{E}_\theta[Z^2] = 1$,
-- $\mathbb{E}_\theta[Z^3] = 0$ (since $Z$ is symmetric),
-- $\mathbb{E}_\theta[Z^4] = \text{Var}(Z^2) + (\mathbb{E}_\theta[Z^2])^2 = 2 + 1 = 3$.
+(Note: $E_\theta[Z] = 0$, $E_\theta[Z^2] = 1$, $E_\theta[Z^3] = 0$, and $E_\theta[Z^4] = \text{Var}(Z^2) + (E_\theta[Z^2])^2 = 2 + 1 = 3$.)
 
 Thus,
 
 $$
-\mathbb{E}_\theta[T^2] = \frac{3}{n^2} + \frac{4\theta^2}{n} + \theta^4 - \frac{2}{n^2} - \frac{2\theta^2}{n}.
+E_\theta[T^2] = \frac{3}{n^2} + \frac{4\theta^2}{n} + \theta^4 - \frac{2}{n^2} - \frac{2\theta^2}{n} =  \theta^4 + \frac{2\theta^2}{n} + \frac{1}{n^2}
 $$
 
-$$
-= \theta^4 + \frac{2\theta^2}{n} + \frac{1}{n^2}.
-$$
-
-Now, using $\text{Var}(T) = \mathbb{E}[T^2] - (\mathbb{E}[T])^2$:
+Now we can calculate the variance: 
 
 $$
-\text{Var}_\theta(T) = \left( \theta^4 + \frac{2\theta^2}{n} + \frac{1}{n^2} \right) - \theta^4.
-$$
-
-$$
-= \frac{2\theta^2}{n} + \frac{1}{n^2}.
-$$
-
-- $T$ is an unbiased estimator of $\theta^2$.
-- The variance of $T$ is:
-
-$$
-\text{Var}_\theta(T) = \frac{2\theta^2}{n} + \frac{1}{n^2}.
+\text{Var}_\theta(T) = \left( \theta^4 + \frac{2\theta^2}{n} + \frac{1}{n^2} \right) - \theta^4 = \frac{2\theta^2}{n} + \frac{1}{n^2}
 $$
 
 ## b) 
 
 Find the CRLB for an UE of $\gamma(\theta) = \theta^2$.
 
-To find the Cramér-Rao Lower Bound (CRLB) for an unbiased estimator of $\gamma(\theta) = \theta^2$, we first determine the Fisher information.
-
 Since $X_1, \dots, X_n$ are i.i.d. normal $N(\theta,1)$, the likelihood function is:
 
 $$
-L(\theta) = \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi}} \exp \left( -\frac{(X_i - \theta)^2}{2} \right).
+L(\theta) = \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi}} \exp \left( -\frac{(X_i - \theta)^2}{2} \right)
 $$
 
 Taking the log-likelihood:
 
 $$
-\ell(\theta) = -\frac{n}{2} \log (2\pi) - \frac{1}{2} \sum_{i=1}^{n} (X_i - \theta)^2.
+log(L(\theta)) = -\frac{n}{2} \log (2\pi) - \frac{1}{2} \sum_{i=1}^{n} (X_i - \theta)^2
 $$
 
-Differentiating with respect to $\theta$:
+Differentiating with respect to $\theta$, and getting expectation to derive the Fisher Information:
 
 $$
-\ell'(\theta) = \sum_{i=1}^{n} (X_i - \theta).
+log(L(\theta))' = \sum_{i=1}^{n} (X_i - \theta) \rightarrow I(\theta) = -E[log(L(\theta))'] = -E \left[ -\sum_{i=1}^{n} 1 \right] = -(-n) = n
 $$
 
-The Fisher information is:
+The CRLB by definition is given by: 
 
 $$
-I(\theta) = -\mathbb{E}[\ell''(\theta)].
+\frac{(\gamma'(\theta))^2}{I(\theta)}
 $$
 
-Computing the second derivative:
+We just need now to calculate the numerator. To that end, note that $\gamma(\theta) = \theta^2$, making its derivative:
 
 $$
-\ell''(\theta) = -\sum_{i=1}^{n} 1 = -n.
+\gamma'(\theta) = 2\theta
 $$
 
-Thus,
+Thus the CRLB is: 
 
 $$
-I(\theta) = n.
+\frac{(\gamma'(\theta))^2}{n} = \frac{(2\theta)^2}{n} = \frac{4\theta^2}{n}
 $$
-
-The CRLB states that for any unbiased estimator $T$ of $\gamma(\theta) = \theta^2$,
-
-$$
-\text{Var}_\theta(T) \geq \frac{(\gamma'(\theta))^2}{I(\theta)}.
-$$
-
-Since $\gamma(\theta) = \theta^2$, its derivative is:
-
-$$
-\gamma'(\theta) = 2\theta.
-$$
-
-Thus,
-
-$$
-(\gamma'(\theta))^2 = (2\theta)^2 = 4\theta^2.
-$$
-
-Substituting into the CRLB formula:
-
-$$
-\text{Var}_\theta(T) \geq \frac{4\theta^2}{n}.
-$$
-
-The Cramér-Rao Lower Bound (CRLB) for any unbiased estimator of $\theta^2$ is:
-
-$$
-\frac{4\theta^2}{n}.
-$$
-
-Comparing this with the variance of the UMVUE from part (a):
-
-$$
-\text{Var}_\theta(T) = \frac{2\theta^2}{n} + \frac{1}{n^2},
-$$
-
-we see that the UMVUE does not attain the CRLB because of the additional $\frac{1}{n^2}$ term. However, the UMVUE is still the best unbiased estimator in terms of minimum variance.
 
 ## c) 
 
 Show that $\text{Var}_\theta(T) > \text{CRLB}$ for all values of $\theta \in \mathbb{R}$.
 
-To show that $\text{Var}_\theta(T) > \text{CRLB}$ for all $\theta \in \mathbb{R}$, we compare the variance of the UMVUE $T = (\bar{X}_n)^2 - n^{-1}$ with the Cramér-Rao Lower Bound (CRLB).
+We are now tasked with comparing the variance of the UMVUE $T = (\bar{X}_n)^2 - n^{-1}$ with the Cramér-Rao Lower Bound (CRLB) from part b). To that end note our prior results: 
 
-From part (a), we found:
-
-$$
-\text{Var}_\theta(T) = \frac{2\theta^2}{n} + \frac{1}{n^2}.
-$$
-
-From part (b), the CRLB for any unbiased estimator of $\theta^2$ is:
+From part a):
 
 $$
-\text{CRLB} = \frac{4\theta^2}{n}.
+\text{Var}_\theta(T) = \frac{2\theta^2}{n} + \frac{1}{n^2}
 $$
 
-We compare:
+From part b), the CRLB (for any unbiased estimator of $\theta^2$) is:
 
 $$
-\text{Var}_\theta(T) - \text{CRLB} = \left( \frac{2\theta^2}{n} + \frac{1}{n^2} \right) - \frac{4\theta^2}{n}.
+\text{CRLB} = \frac{4\theta^2}{n}
 $$
 
-$$
-= \frac{2\theta^2}{n} + \frac{1}{n^2} - \frac{4\theta^2}{n}.
-$$
+Comparing these two quantities directly, their difference is given by:
 
 $$
-= \frac{-2\theta^2}{n} + \frac{1}{n^2}.
+\text{Var}_\theta(T) - \text{CRLB} = \left( \frac{2\theta^2}{n} + \frac{1}{n^2} \right) - \frac{4\theta^2}{n}
+= \frac{2\theta^2}{n} + \frac{1}{n^2} - \frac{4\theta^2}{n}
+= \frac{-2\theta^2}{n} + \frac{1}{n^2}
+= \frac{1}{n^2} - \frac{2\theta^2}{n}
 $$
 
-$$
-= \frac{1}{n^2} - \frac{2\theta^2}{n}.
-$$
-
-To prove that $\text{Var}_\theta(T) > \text{CRLB}$ for all $\theta$, we need to show:
+To prove that $\text{Var}_\theta(T) > \text{CRLB}$ for all $\theta$, it will suffice to show: 
 
 $$
-\frac{1}{n^2} - \frac{2\theta^2}{n} > 0 \quad \text{for all } \theta.
+\frac{1}{n^2} - \frac{2\theta^2}{n} > 0 \quad \forall \theta
 $$
 
-Rearranging:
+Note then that n > 0 (positive). Such that we may simplify the inequality somewhat: 
 
 $$
-\frac{1}{n^2} > \frac{2\theta^2}{n}.
+\frac{1}{n^2} > \frac{2\theta^2}{n} \rightarrow \frac{1}{n} > 2\theta^2
 $$
 
-Multiplying by $n$ (which is positive):
-
-$$
-\frac{1}{n} > 2\theta^2.
-$$
-
-Since $\theta^2 \geq 0$, this inequality fails for large $|\theta|$. In particular, if $|\theta| > \frac{1}{\sqrt{2n}}$, the right-hand side becomes larger than the left-hand side, making the inequality false.
+By definition $\theta^2 \geq 0$, this inequality fails for large $|\theta|$. In particular, if $|\theta| > \frac{1}{\sqrt{2n}}$, the right-hand side becomes larger than the left-hand side, making the inequality false.
 
 Thus, for sufficiently large $|\theta|$, we have:
 
 $$
-\text{Var}_\theta(T) > \text{CRLB}.
+\text{Var}_\theta(T) > \text{CRLB}
 $$
 
 For small $|\theta|$, the inequality can hold, but for general values of $\theta$, particularly for larger magnitudes, the variance of $T$ exceeds the CRLB.
@@ -751,8 +533,6 @@ Since there always exists a range of $\theta$ values where $\text{Var}_\theta(T)
 $$
 \text{Var}_\theta(T) > \text{CRLB}, \quad \forall \theta \in \mathbb{R}.
 $$
-
-This confirms that the UMVUE does not attain the CRLB for any $\theta$, meaning there is no unbiased estimator that reaches the minimum possible variance in this case.
 
 \newpage
 
@@ -795,7 +575,7 @@ $$
 Taking the natural logarithm:
 
 $$
-\ell(\theta) = S_n \log \left(\frac{\theta}{2} \right) + (n - S_n) \log(1 - \theta).
+log(L((\theta) = S_n \log \left(\frac{\theta}{2} \right) + (n - S_n) \log(1 - \theta).
 $$
 
 $$
@@ -805,16 +585,16 @@ $$
 Dropping the constant term $- S_n \log 2$, the simplified log-likelihood is:
 
 $$
-\ell(\theta) = S_n \log \theta + (n - S_n) \log(1 - \theta).
+log(L((\theta) = S_n \log \theta + (n - S_n) \log(1 - \theta).
 $$
 
 Taking the derivative with respect to $\theta$:
 
 $$
-\ell'(\theta) = \frac{S_n}{\theta} - \frac{n - S_n}{1 - \theta}.
+log(L('(\theta) = \frac{S_n}{\theta} - \frac{n - S_n}{1 - \theta}.
 $$
 
-Setting $\ell'(\theta) = 0$ to find the critical point:
+Setting $log(L('(\theta) = 0$ to find the critical point:
 
 $$
 \frac{S_n}{\theta} = \frac{n - S_n}{1 - \theta}.
@@ -864,7 +644,7 @@ Show that $T(X)$ is an unbiased estimator of $\theta$.
 To show that $T(X)$ is an unbiased estimator of $\theta$, we need to verify that:
 
 $$
-\mathbb{E}[T(X)] = \theta.
+E[T(X)] = \theta.
 $$
 
 The given estimator is:
@@ -880,7 +660,7 @@ $$
 The expectation of $T(X)$ is:
 
 $$
-\mathbb{E}[T(X)] = \sum_{x \in \{-1, 0, 1\}} T(x) P(X = x).
+E[T(X)] = \sum_{x \in \{-1, 0, 1\}} T(x) P(X = x).
 $$
 
 Substituting the given probability mass function:
@@ -892,7 +672,7 @@ $$
 Since $T(X) = 2$ when $X = 1$ and $0$ otherwise, we get:
 
 $$
-\mathbb{E}[T(X)] = 2 P(X = 1) + 0 P(X = 0) + 0 P(X = -1).
+E[T(X)] = 2 P(X = 1) + 0 P(X = 0) + 0 P(X = -1).
 $$
 
 $$
@@ -903,7 +683,7 @@ $$
 = \theta.
 $$
 
-Since $\mathbb{E}[T(X)] = \theta$, we conclude that $T(X)$ is an unbiased estimator of $\theta$. $\square$
+Since $E[T(X)] = \theta$, we conclude that $T(X)$ is an unbiased estimator of $\theta$. $\square$
 
 ## c) 
 
@@ -914,25 +694,25 @@ To find a better estimator than $T(X)$, we compare its Mean Squared Error (MSE) 
 The Mean Squared Error (MSE) of an estimator $T(X)$ is given by:
 
 $$
-\text{MSE}(T) = \mathbb{E}[(T(X) - \theta)^2].
+\text{MSE}(T) = E[(T(X) - \theta)^2].
 $$
 
 Expanding,
 
 $$
-\text{MSE}(T) = \mathbb{E}[T^2(X)] - 2\theta \mathbb{E}[T(X)] + \theta^2.
+\text{MSE}(T) = E[T^2(X)] - 2\theta E[T(X)] + \theta^2.
 $$
 
-From part (b), we know that $T(X)$ is unbiased, so $\mathbb{E}[T(X)] = \theta$, and we need to compute $\mathbb{E}[T^2(X)]$.
+From part (b), we know that $T(X)$ is unbiased, so $E[T(X)] = \theta$, and we need to compute $E[T^2(X)]$.
 
 $$
-\mathbb{E}[T^2(X)] = \sum_{x \in \{-1,0,1\}} T^2(x) P(X = x).
+E[T^2(X)] = \sum_{x \in \{-1,0,1\}} T^2(x) P(X = x).
 $$
 
 Since $T(X) = 2$ for $X = 1$ and $0$ otherwise,
 
 $$
-\mathbb{E}[T^2(X)] = 2^2 P(X = 1) = 4 \cdot \frac{\theta}{2} = 2\theta.
+E[T^2(X)] = 2^2 P(X = 1) = 4 \cdot \frac{\theta}{2} = 2\theta.
 $$
 
 Now, substituting into the MSE formula:
@@ -951,20 +731,20 @@ $$
 \text{Var}(\hat{\theta}) = \frac{\text{Var}(|X_1|)}{n}.
 $$
 
-First, compute $\mathbb{E}[|X|]$:
+First, compute $E[|X|]$:
 
 $$
-\mathbb{E}[|X|] = 1 \cdot P(X = 1) + 0 \cdot P(X = 0) + 1 \cdot P(X = -1).
+E[|X|] = 1 \cdot P(X = 1) + 0 \cdot P(X = 0) + 1 \cdot P(X = -1).
 $$
 
 $$
 = \frac{\theta}{2} + 0 + \frac{\theta}{2} = \theta.
 $$
 
-Next, compute $\mathbb{E}[|X|^2]$:
+Next, compute $E[|X|^2]$:
 
 $$
-\mathbb{E}[|X|^2] = 1^2 \cdot P(X = 1) + 0^2 \cdot P(X = 0) + 1^2 \cdot P(X = -1).
+E[|X|^2] = 1^2 \cdot P(X = 1) + 0^2 \cdot P(X = 0) + 1^2 \cdot P(X = -1).
 $$
 
 $$
@@ -974,7 +754,7 @@ $$
 So, the variance is:
 
 $$
-\text{Var}(|X|) = \mathbb{E}[|X|^2] - (\mathbb{E}[|X|])^2 = \theta - \theta^2.
+\text{Var}(|X|) = E[|X|^2] - (E[|X|])^2 = \theta - \theta^2.
 $$
 
 Thus,
@@ -1029,80 +809,52 @@ The MLE $\hat{\theta} = \frac{1}{n} \sum |X_i|$ is a better estimator than $T(X)
 
 Let $X_1, \dots, X_n$ be iid Bernoulli$(\theta)$, $\theta \in (0,1)$. Find the Bayes estimator of $\theta$ with respect to the uniform$(0,1)$ prior under the loss function
 
-$$L(t, \theta) = \frac{(t - \theta)^2}{\theta(1 - \theta)}.$$
+$$L(t, \theta) = \frac{(t - \theta)^2}{\theta(1 - \theta)}$$
 
-To find the Bayes estimator of $\theta$ under the prior $\theta \sim \text{Uniform}(0,1)$ and the loss function:
-
-$$
-L(t, \theta) = \frac{(t - \theta)^2}{\theta(1 - \theta)},
-$$
-
-we follow these steps.
-
-The likelihood function for $X_1, \dots, X_n$ given $\theta$ is:
+Start by noting the likelihood function for $X_1, \dots, X_n$ given $\theta$ (distribution given) is:
 
 $$
-L(\theta) = \prod_{i=1}^{n} \theta^{X_i} (1 - \theta)^{1 - X_i}.
+L(\theta) = \prod_{i=1}^{n} \theta^{X_i} (1 - \theta)^{1 - X_i}
 $$
 
-Let $S_n = \sum_{i=1}^{n} X_i$, which follows a Binomial distribution:
+Let $S_n = \sum_{i=1}^{n} X_i$, which, because $X_1, \dots, X_n$ are iid, are know to follow a Binomial distribution:
 
 $$
-S_n | \theta \sim \text{Binomial}(n, \theta).
+S_n | \theta \sim \text{Binomial}(n, \theta)
 $$
 
-Thus, the likelihood function can be rewritten as:
+Thus, the likelihood function can be rewritten:
 
 $$
-L(\theta) \propto \theta^{S_n} (1 - \theta)^{n - S_n}.
+L(\theta) \propto \theta^{S_n} (1 - \theta)^{n - S_n}
 $$
 
-Since the prior is $\theta \sim \text{Uniform}(0,1)$, its density is:
+Given the prior, $\theta \sim \text{Uniform}(0,1)$, we may calculate the posterior:
 
 $$
-\pi(\theta) = 1, \quad 0 < \theta < 1.
+\pi(\theta | S_n) \propto L(\theta) \pi(\theta) = \theta^{S_n} (1 - \theta)^{n - S_n}
 $$
 
-The posterior is given by Bayes' theorem:
+Since this resembles a Beta distribution, we then may recognize:
 
 $$
-\pi(\theta | S_n) \propto L(\theta) \pi(\theta) = \theta^{S_n} (1 - \theta)^{n - S_n}.
+\theta | S_n \sim \text{Beta}(S_n + 1, n - S_n + 1)
 $$
 
-Recognizing this as the kernel of a Beta distribution, we conclude:
+The Bayes estimator is the function $t^*$ that minimizes the posterior expected loss, and since the loss function is the squared-error loss function, the optimal Bayes estimator is the posterior mean of $\theta$, i.e.
 
 $$
-\theta | S_n \sim \text{Beta}(S_n + 1, n - S_n + 1).
+\hat{\theta}_{\text{Bayes}} = E[\theta | S_n]
 $$
 
-The Bayes estimator under a given loss function $L(t, \theta)$ is the function $t^*$ that minimizes the posterior expected loss:
+For a Beta distribution $\text{Beta}(\alpha, \beta)$, we know:
 
 $$
-t^* = \arg \min_t \mathbb{E} \left[ \frac{(t - \theta)^2}{\theta(1 - \theta)} \Bigg| S_n \right].
+E[\theta] = \frac{\alpha}{\alpha + \beta}
 $$
 
-Since the loss function is a weighted squared-error loss, the optimal Bayes estimator is the posterior mean of $\theta$:
+So via substitution, $a = S_n + 1$ and $b = n - S_n + 1$, we have our Bayes estimator:
 
 $$
-t^* = \mathbb{E}[\theta | S_n].
+\hat{\theta}_{\text{Bayes}} = \frac{S_n + 1}{n + 2}
 $$
-
-For a Beta distribution $\text{Beta}(a, b)$, the mean is:
-
-$$
-\mathbb{E}[\theta] = \frac{a}{a + b}.
-$$
-
-Substituting $a = S_n + 1$ and $b = n - S_n + 1$:
-
-$$
-t^* = \frac{S_n + 1}{n + 2}.
-$$
-
-Thus, the Bayes estimator of $\theta$ under the uniform prior and the given loss function is:
-
-$$
-\hat{\theta}_{\text{Bayes}} = \frac{S_n + 1}{n + 2}.
-$$
-
-This is sometimes known as the Laplace estimator, which is a smoothed version of the MLE $\hat{\theta}_{\text{MLE}} = \frac{S_n}{n}$, effectively incorporating prior information to shrink extreme values.
