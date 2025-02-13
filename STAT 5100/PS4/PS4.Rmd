@@ -1,0 +1,168 @@
+---
+title: "HW4"
+output: pdf_document
+author: "Samuel Olson" 
+---
+
+```{r, eval = T, results = F, echo = F, warning = F, message = F}
+library(knitr)
+```
+
+```{r, eval = F, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+knitr::include_graphics("Algorithm.png")
+```
+
+# Outline 
+
+  - Q1: 
+  - Q2: 
+  - Q3: 
+  - Q4: 
+
+# Problem 1
+
+Suppose $\boldsymbol{y} = \boldsymbol{X\beta} + \boldsymbol{\varepsilon}$, where $\boldsymbol{\varepsilon} \sim \mathcal{N}(\boldsymbol{0},\sigma^2 \boldsymbol{I})$ for some unknown $\sigma^2 > 0$. Let $\boldsymbol{\hat{y}} = \boldsymbol{P_X y}$.
+
+## a) 
+
+Determine the distribution of 
+
+$$
+\begin{bmatrix}
+\boldsymbol{\hat{y}} \\ 
+\boldsymbol{y - \hat{y}} \\ 
+\end{bmatrix}
+$$
+
+\newpage
+
+## b) 
+
+Determine the distribution of 
+
+$$
+\boldsymbol{\hat{y}^\top \hat{y}}
+$$
+
+\newpage
+
+# Problem 2
+
+An experiment was conducted to study the durability of coated fabric subjected to abrasive tests.
+Three factors were considered: **Filler type** with two levels (F1 and F2), **Surface treatment** with two levels (S1 and S2), **Proportion of filler** with three levels (25%, 50%, and 75%).
+
+Using a completely randomized design with two fabric samples per treatment, the amount of fabric lost (in mg) for each fabric sample was recorded. Data are available in a tab-delimited text file at:  
+[FabricLoss.txt](http://dnett.github.io/S510/FabricLoss.txt).
+
+```{r}
+FabricLoss<- read.table(file = "FabricLoss.txt", 
+                     header = TRUE, 
+                     sep = "\t")
+```
+
+## a) 
+
+Consider a cell means model for these data. Estimate the mean and standard error for the treatment corresponding to F2, S1, and 50% filler.
+
+\newpage
+
+## b) 
+
+The concept of LSMEANS has been explained carefully in lecture and course notes for the special case of a two-factor study. The concept generalizes easily to multi-factor studies. For example, in a three- factor study, the LSMEAN for level $i$ of the first factor is the OLS estimator of $\bar{\mu}_{i \cdot \cdot}$, the average of the cell means for all treatments that involve level $i$ of the first factor. Find LSMEANS for the levels of the factor filler type.
+
+\newpage
+
+## c) 
+
+We can also compute LSMEANS for estimable marginal means like $\bar{\mu}_{\cdot jk}$, the average of the cell means for all treatments involving level $j$ of the second factor and level $k$ of the third factor. Find the LSMEAN for surface treatment S2 and 25% filler.
+
+\newpage
+
+## d) 
+
+Provide a standard error for the estimate computed in part (c).
+
+\newpage
+
+## e) 
+
+In a three-factor study we would say there are no main effects for the first factor if $\bar{\mu}_{i \cdot \cdot} = \bar{\mu}_{i' \cdot \cdot}$ for all levels $i \neq i'$. Conduct a test for filler type main effects. Provide an F-statistic, a p-value, and a conclusion.
+
+\newpage
+
+## f) 
+
+In a three-factor study in which the third factor has $K$ levels, we would say there are no three-way interactions if, for all $i \neq i'$ and $j \neq j'$,
+
+$$
+\mu_{ij1} - \mu_{ij'1} - \mu_{i'j1} + \mu_{i'j'1} = \mu_{ij2} - \mu_{ij'2} - \mu_{i'j2} + \mu_{i'j'2} = \dots = \mu_{ijK} - \mu_{ij'K} - \mu_{i'jK} + \mu_{i'j'K}.
+$$
+
+Note that each linear combination above can be viewed as a two-way interaction effect involving the first two factors while holding the level of the third factor fixed. If these interaction effects are all the same regardless of which level of the third factor is selected, we say there are no three way interactions. Put another equivalent way, there are no three-factor interactions if
+
+$$
+\mu_{ijk} - \mu_{ij'k} - \mu_{i'jk} + \mu_{i'j'k} - \mu_{ijk'} + \mu_{ij'k'} + \mu_{i'jk'} - \mu_{i'j'k'} = 0
+$$
+
+for all $i \neq i'$, $j \neq j'$, and $k \neq k'$. Conduct a test for three-way interactions among the factors filler type, surface treatment, and filler proportion. Provide an F-statistic, a p-value, and a conclusion.
+
+\newpage
+
+## g) 
+
+In a three-factor study, we would say there are no two-way interactions between the first and third
+factors if
+
+$$
+\bar{\mu}_{i \cdot k} - \bar{\mu}_{i \cdot k'} - \bar{\mu}_{i' \cdot k} + \bar{\mu}_{i' \cdot k'} = 0
+$$
+
+for all $i \neq i'$ and $k \neq k'$. Conduct a test for two-way interactions between the factors filler type and
+filler proportion. Provide an F-statistic, a p-value, and a conclusion.
+
+
+\newpage
+
+# Problem 3
+
+When $\boldsymbol{X}$ does not have full rank, let’s see why $\boldsymbol{P_X = X(X^\top X)^{-}X^\top}$ is invariant to the choice of generalized inverse. Let $\boldsymbol{G}$ and $\boldsymbol{H}$ be two generalized inverses of $\boldsymbol{X^\top X}$. For an arbitrary $\boldsymbol{v} \in \mathbb{R}^n$, let $\boldsymbol{v = v_1 + v_2}$ with $\boldsymbol{v_1 = Xb \in C(X)}$ for some $\boldsymbol{b}$.
+
+## a) 
+
+Show that
+
+$$
+\boldsymbol{v^\top X G X^\top X = v^\top X}
+$$
+
+so that $\boldsymbol{X G X^\top X = X}$ for any generalized inverse.
+
+\newpage
+
+## b) 
+
+Show that
+
+$$
+\boldsymbol{X G X^\top v = X H X^\top v}
+$$
+
+and thus $\boldsymbol{X G X^\top}$ is invariant to the choice of generalized inverse.
+
+\newpage
+
+# Problem 4
+
+An experiment was conducted to study the effect of two diets (1 and 2) and two drugs (1 and 2) on blood pressure in rats. A total of 40 rats were randomly assigned to the 4 combinations of diet and drug, with 10 rats per combination. Let $y_{ijk}$ be the decrease in blood pressure from the beginning to the end of the study for diet $i$, drug $j$, and rat $k$ ($i = 1, 2; j = 1, 2; k = 1, \dots, 10$). Suppose:
+
+$$
+y_{ijk} = \mu_{ij} + \varepsilon_{ijk}, \quad \varepsilon_{ijk} \sim \mathcal{N}(0, \sigma^2).
+$$
+
+A researcher suspects that the mean reduction in blood pressure will be the same for all combinations of diet and drug except for the combination of diet 1 with drug 1. This leads to consideration of the null hypothesis:
+
+$$
+H_0: \mu_{12} = \mu_{21} = \mu_{22}.
+$$
+
+Assuming model (1) holds, determine the distribution of the F-statistic you would use to test this null hypothesis: State the degrees of freedom of the statistic. Provide a fully simplified expression for the noncentrality parameter in terms of model (1) parameters.
