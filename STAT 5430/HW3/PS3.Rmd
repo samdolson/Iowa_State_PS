@@ -3,13 +3,6 @@ title: "HW3"
 output: pdf_document
 author: "Sam Olson"
 ---
-
-# Outline 
-  - Q1: g2g
-  - Q2: g2g
-  - Q3: g2g
-  - Q4: g2g
-  - Q5: WONK
   
 # 1. 
 
@@ -58,15 +51,15 @@ $$
 Given we know the distribution of the random variables, we know $E[X_i] = p$ and $E[1 - X_i] = 1 - p$. This allows us to simplify the expression:
 
 $$
-E[log(L(p))''] = \sum_{i=1}^{n} \left[ -\frac{p}{p^2} - \frac{1 - p}{(1 - p)^2} \right]
-= \sum_{i=1}^{n} \left[ -\frac{1}{p} - \frac{1}{1 - p} \right]
-= -n \left[ \frac{1}{p} + \frac{1}{1 - p} \right]
+- E[log(L(p))''] = - \sum_{i=1}^{n} \left[ -\frac{p}{p^2} - \frac{1 - p}{(1 - p)^2} \right]
+= - \sum_{i=1}^{n} \left[ -\frac{1}{p} - \frac{1}{1 - p} \right]
+= n \left[ \frac{1}{p} + \frac{1}{1 - p} \right]
 $$
 
-Noting linearity of Fisher information: 
+Simplifying
 
 $$
-I_n(p) = n \left[ \frac{1}{p} + \frac{1}{1 - p} \right]
+I_n(p) = n \left[ \frac{1}{p} + \frac{1}{1 - p} \right] = n \frac{1}{p(1-p)}
 $$
 
 ### Sketch 
@@ -521,7 +514,7 @@ $$
 
 Let $X$ be an observation from the pdf
 
-$$ f(x|\theta) = \left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|}, \quad x = -1,0,1; \quad 0 \leq \theta \leq 1. $$
+$$f(x|\theta) = \left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|}, \quad x = -1,0,1; \quad 0 \leq \theta \leq 1$$
 
 ## a) 
 
@@ -703,19 +696,27 @@ $$
 \text{MSE}(\hat{\theta}) = \frac{\theta - \theta^2}{n}
 $$
 
-Since $n \geq 1$:
+Since $n > 0$:
 
 $$
-\frac{\theta - \theta^2}{n} \leq \theta - \theta^2
+\text{MSE}(T) - \text{MSE}(\hat{\theta})  = \theta - \theta^2 - \left( \frac{\theta - \theta^2}{n} \right) = \frac{n \theta - n \theta^2 - \theta + \theta^2}{n}
 $$
 
-And since:
+for n = 1: 
 
 $$
-\theta - \theta^2 \leq 2\theta - \theta^2 \quad \forall \theta \in (0,1)
+\text{MSE}(T) - \text{MSE}(\hat{\theta}) =  \theta(1 - \theta) - \frac{\theta(1 - \theta)}{n} = \theta(1 - \theta) - \theta(1 - \theta) = 0 \rightarrow \text{MSE}(\hat{\theta}) = \text{MSE}(T)
 $$
 
-it follows:
+for n > 1, noting $0 \leq \theta \leq 1$: 
+
+$$
+\text{MSE}(T) - \text{MSE}(\hat{\theta}) = \theta(1 - \theta) - \frac{\theta(1 - \theta)}{n}
+= \frac{n\theta(1 - \theta) - \theta(1 - \theta)}{n}
+= \frac{(n - 1) \theta(1 - \theta)}{n}> 0 
+$$
+
+Taken together:
 
 $$
 \text{MSE}(\hat{\theta}) \leq \text{MSE}(T)
@@ -729,56 +730,112 @@ with strict inequality for $n > 1$. So the MLE $\hat{\theta} = \frac{1}{n} \sum 
 
 Let $X_1, \dots, X_n$ be iid Bernoulli$(\theta)$, $\theta \in (0,1)$. Find the Bayes estimator of $\theta$ with respect to the uniform$(0,1)$ prior under the loss function
 
-$$L(t, \theta) = \frac{(t - \theta)^2}{\theta(1 - \theta)}$$
-
-To start, note the likelihood function for $X_1, \dots, X_n$ given $\theta$ (Bernoulli distribution given) is:
+The likelihood function is:
 
 $$
 L(\theta) = \prod_{i=1}^{n} \theta^{X_i} (1 - \theta)^{1 - X_i}
 $$
 
-Let $S_n = \sum_{i=1}^{n} X_i$, which, because $X_1, \dots, X_n$ are iid, is known to follow a Binomial distribution:
-
-$$
-S_n | \theta \sim \text{Binomial}(n, \theta)
-$$
-
-Thus, the likelihood function can be rewritten:
+Let $S_n = \sum_{i=1}^{n} X_i$, we may then write the above expression as:
 
 $$
 L(\theta) \propto \theta^{S_n} (1 - \theta)^{n - S_n}
 $$
 
-Given the prior, $\theta \sim \text{Uniform}(0,1)$, we may calculate the posterior:
-
-$$
-\pi(\theta | S_n) \propto L(\theta) \pi(\theta) = \theta^{S_n} (1 - \theta)^{n - S_n}
-$$
-
-Since this resembles a Beta distribution, note:
+Noting the prior, $\theta \sim \text{Uniform}(0,1)$, the posterior is:
 
 $$
 \theta | S_n \sim \text{Beta}(S_n + 1, n - S_n + 1)
 $$
 
-By definition, the Bayes estimator is the function $t^*$ that minimizes the posterior expected loss. Given the loss function provided, then the optimal Bayes estimator must satisfy:
+Since Beta is a known distribution, we may write the posterior density:
 
 $$
-\hat{\theta}_{\text{Bayes}} = \frac{E[\theta / \theta(1-\theta) | S_n]}{E[1 / \theta(1-\theta) | S_n]}
+f_{\theta | S_n} (\theta) = \frac{\theta^{S_n} (1 - \theta)^{n - S_n}}{B(S_n + 1, n - S_n + 1)}
 $$
 
-We then compute:
+using the Beta function as is typically defined. 
+
+By definition, our Bayes estimate minimizes the posterior expected loss:
 
 $$
-E\left[ \frac{1}{\theta(1 - \theta)} \mid S_n \right] = \frac{(n+1)^2}{S_n (n - S_n)}
+E_{\theta | S_n} L(h(X), \theta) = \int_0^1 \frac{(h(X) - \theta)^2}{\theta(1 - \theta)} f_{\theta | S_n} (\theta) d\theta
 $$
 
-$$
-E\left[ \frac{\theta}{\theta(1 - \theta)} \mid S_n \right] = \frac{n+1}{n - S_n}
-$$
-
-Putting this into the prior equation, the Bayes estimator is then:
+Using the expressions detailed previously:
 
 $$
-\hat{\theta}_{\text{Bayes}} = \frac{(n+1) / (n - S_n)}{(n+1)^2 / (S_n (n - S_n))} = \frac{S_n}{n+1}
+E_{\theta | S_n} L(h(X), \theta) =
+\int_0^1 \frac{h(X)^2 - 2h(X) \theta + \theta^2}{\theta(1 - \theta)} f_{\theta | S_n}(\theta) d\theta.
 $$
+
+For simplicity, we can break us this evaluation:
+
+$$
+E_{\theta | S_n} L(h(X), \theta) = h(X)^2 \int_0^1 \frac{1}{\theta(1 - \theta)} f_{\theta | S_n}(\theta) d\theta
+- 2h(X) \int_0^1 \frac{\theta}{\theta(1 - \theta)} f_{\theta | S_n}(\theta) d\theta
++ \int_0^1 \frac{\theta^2}{\theta(1 - \theta)} f_{\theta | S_n}(\theta) d\theta
+$$
+
+(1):
+
+$$
+E_{\theta | S_n} \left[ \frac{1}{\theta(1 - \theta)} \right] =
+\int_0^1 \frac{1}{\theta(1 - \theta)} f_{\theta | S_n}(\theta) d\theta
+= \frac{n(n-1)}{S_n (n - S_n)}
+$$
+
+(2):
+
+$$
+E_{\theta | S_n} \left[ \frac{\theta}{\theta(1 - \theta)} \right] =
+\int_0^1 \frac{\theta}{\theta(1 - \theta)} f_{\theta | S_n}(\theta) d\theta.
+= \frac{(n-1)}{(n - S_n)}
+$$
+
+(3):
+
+$$
+E_{\theta | S_n} \left[ \frac{\theta^2}{\theta(1 - \theta)} \right] =
+\int_0^1 \frac{\theta^2}{\theta(1 - \theta)} f_{\theta | S_n}(\theta) d\theta
+= \frac{(S_n + 1)(n + 2)}{(S_n + 1)(n - S_n + 1)}
+$$
+
+Combining the results of (1) through (3) gives us: 
+
+$$
+E_{\theta | S_n} L(h(X), \theta) =
+h(X)^2 \frac{n(n-1)}{S_n (n - S_n)}
+- 2h(X) \frac{(n-1)}{(n - S_n)}
++ \frac{(S_n + 1)(n + 2)}{(S_n + 1)(n - S_n + 1)}
+$$
+
+Similar to the MLE method, we derive and set equal to zero: 
+
+$$
+\frac{d}{dh(X)} E_{\theta | S_n} L(h(X), \theta) = 2h(X) \frac{n(n-1)}{S_n (n - S_n)} - 2 \frac{(n-1)}{(n - S_n)} = 0 \rightarrow 2h(X) \frac{n(n-1)}{S_n (n - S_n)} = 2 \frac{(n-1)}{(n - S_n)}
+$$
+
+Isolating h(X): 
+
+$$
+h(X) = \frac{\frac{(n-1)}{(n - S_n)}}{\frac{n(n-1)}{S_n (n - S_n)}} = \frac{S_n}{n}
+$$
+
+Givins us our Bayes estimator of $\theta$:
+
+$$
+\hat{\theta}_{\text{Bayes}} = \frac{S_n}{n} = \bar{X}_n
+$$
+
+Extra check time! 
+
+To confirm this is a minimum, we compute the second derivative, just like the MLE method.
+
+Evaluating for the Bayes estimator gives us: 
+
+$$
+\frac{d^2}{dh(X)^2} E_{\theta | S_n} L(h(X), \theta) = 2 \frac{n(n-1)}{S_n (n - S_n)} > 0 
+$$
+
+So our Bayes estimator, $\hat{\theta}_{\text{Bayes}} = \bar{X}_n$ does in fact minimize! 
