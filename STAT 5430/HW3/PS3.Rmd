@@ -7,9 +7,9 @@ author: "Sam Olson"
 # Outline 
   - Q1: g2g
   - Q2: g2g
-  - Q3: part c) ending a bit wonky
+  - Q3: g2g
   - Q4: g2g
-  - Q5: wonky with $\propto$ usage 
+  - Q5: WONK
   
 # 1. 
 
@@ -205,8 +205,6 @@ Comparing with the CRLB:
 $$
 \text{Var}(\hat{X}_n) = \frac{p(1 - p)}{n} = \frac{1}{I_n(p)}
 $$
-
-Since $\hat{X}_n$ attains the bound, it is an efficient estimator.
 
 Since $\hat{X}_n$ is unbiased and attains the CRLB, it is the UMVUE. 
 
@@ -436,7 +434,13 @@ $$
 Now we can calculate the variance: 
 
 $$
-\text{Var}_\theta(T) = \left( \theta^4 + \frac{2\theta^2}{n} + \frac{1}{n^2} \right) - \theta^4 = \frac{2\theta^2}{n} + \frac{1}{n^2}
+\text{Var}_\theta(T) = \text{Var}(\frac{Z^2}{n} + \frac{2\theta Z}{\sqrt{n}} + \theta^2 - \frac{1}{n}) = \text{Var}(\frac{Z^2}{n} + \frac{2\theta Z}{\sqrt{n}}) = \frac{1}{n^2}\text{Var}(Z^2) + \frac{4 \theta^2}{n}\text{Var}(Z) + \frac{2 \theta}{n^{(3/2)}} \text{Cov}(Z^2, Z)
+$$
+
+Simplifying: 
+
+$$
+\text{Var}_\theta(T) = \frac{2}{n^2} + \frac{4 \theta^2}{n}
 $$
 
 ## b) 
@@ -483,12 +487,12 @@ $$
 
 Show that $\text{Var}_\theta(T) > \text{CRLB}$ for all values of $\theta \in \mathbb{R}$.
 
-We are now tasked with comparing the variance of the UMVUE $T = (\bar{X}_n)^2 - n^{-1}$ with the Cramér-Rao Lower Bound (CRLB) from part b). To that end note our prior results: 
+We compare the variance we calcualted from part a) with the CRLB from part b). To that end, note:
 
 From part a):
 
 $$
-\text{Var}_\theta(T) = \frac{2\theta^2}{n} + \frac{1}{n^2}
+\text{Var}_\theta(T) = \frac{2}{n^2} + \frac{4 \theta^2}{n}
 $$
 
 From part b), the CRLB (for any unbiased estimator of $\theta^2$) is:
@@ -500,47 +504,14 @@ $$
 Comparing these two quantities directly, their difference is given by:
 
 $$
-\text{Var}_\theta(T) - \text{CRLB} = \left( \frac{2\theta^2}{n} + \frac{1}{n^2} \right) - \frac{4\theta^2}{n}
-= \frac{2\theta^2}{n} + \frac{1}{n^2} - \frac{4\theta^2}{n}
-= \frac{-2\theta^2}{n} + \frac{1}{n^2}
-= \frac{1}{n^2} - \frac{2\theta^2}{n}.
+\text{Var}_\theta(T) - \text{CRLB}  = \frac{2}{n^2} + \frac{4 \theta^2}{n} - \frac{4\theta^2}{n} = \frac{2}{n^2} > 0 
 $$
 
-To establish whether $\text{Var}_\theta(T) > \text{CRLB}$ for all $\theta$, we analyze the sign of:
+So, for n > 0, and $\forall \theta \in \mathbb{R}$, it holds that: 
 
 $$
-\frac{1}{n^2} - \frac{2\theta^2}{n}.
+\text{Var}_\theta(T) > \text{CRLB}
 $$
-
-Since $n > 0$, we can rewrite the inequality as:
-
-$$
-\frac{1}{n^2} > \frac{2\theta^2}{n} \quad \Rightarrow \quad \frac{1}{n} > 2\theta^2.
-$$
-
-Since $\theta^2 \geq 0$, this inequality only holds for sufficiently small $|\theta|$. In particular, if:
-
-$$
-|\theta| > \frac{1}{\sqrt{2n}},
-$$
-
-then the right-hand side of the expression exceeds the left-hand side, making the inequality false.
-
-Thus, for sufficiently large $|\theta|$, we have:
-
-$$
-\text{Var}_\theta(T) > \text{CRLB}.
-$$
-
-For small $|\theta|$, equality can hold, but in general, for larger magnitudes of $\theta$, the variance of $T$ exceeds the CRLB.
-
-Since there always exists a range of $\theta$ values where $\text{Var}_\theta(T) > \text{CRLB}$, we conclude that:
-
-$$
-\text{Var}_\theta(T) \geq \text{CRLB}, \quad \forall \theta \in \mathbb{R},
-$$
-
-with strict inequality for sufficiently large $|\theta|$.
 
 \newpage
 
@@ -760,13 +731,13 @@ Let $X_1, \dots, X_n$ be iid Bernoulli$(\theta)$, $\theta \in (0,1)$. Find the B
 
 $$L(t, \theta) = \frac{(t - \theta)^2}{\theta(1 - \theta)}$$
 
-Start by noting the likelihood function for $X_1, \dots, X_n$ given $\theta$ (distribution given) is:
+To start, note the likelihood function for $X_1, \dots, X_n$ given $\theta$ (Bernoulli distribution given) is:
 
 $$
 L(\theta) = \prod_{i=1}^{n} \theta^{X_i} (1 - \theta)^{1 - X_i}
 $$
 
-Let $S_n = \sum_{i=1}^{n} X_i$, which, because $X_1, \dots, X_n$ are iid, are know to follow a Binomial distribution:
+Let $S_n = \sum_{i=1}^{n} X_i$, which, because $X_1, \dots, X_n$ are iid, is known to follow a Binomial distribution:
 
 $$
 S_n | \theta \sim \text{Binomial}(n, \theta)
@@ -784,26 +755,30 @@ $$
 \pi(\theta | S_n) \propto L(\theta) \pi(\theta) = \theta^{S_n} (1 - \theta)^{n - S_n}
 $$
 
-Since this resembles a Beta distribution, we then may recognize:
+Since this resembles a Beta distribution, note:
 
 $$
 \theta | S_n \sim \text{Beta}(S_n + 1, n - S_n + 1)
 $$
 
-The Bayes estimator is the function $t^*$ that minimizes the posterior expected loss, and since the loss function is the squared-error loss function, the optimal Bayes estimator is the posterior mean of $\theta$, i.e.
+By definition, the Bayes estimator is the function $t^*$ that minimizes the posterior expected loss. Given the loss function provided, then the optimal Bayes estimator must satisfy:
 
 $$
-\hat{\theta}_{\text{Bayes}} = E[\theta | S_n]
+\hat{\theta}_{\text{Bayes}} = \frac{E[\theta / \theta(1-\theta) | S_n]}{E[1 / \theta(1-\theta) | S_n]}
 $$
 
-For a Beta distribution $\text{Beta}(\alpha, \beta)$, we know:
+We then compute:
 
 $$
-E[\theta] = \frac{\alpha}{\alpha + \beta}
+E\left[ \frac{1}{\theta(1 - \theta)} \mid S_n \right] = \frac{(n+1)^2}{S_n (n - S_n)}
 $$
 
-So via substitution, $a = S_n + 1$ and $b = n - S_n + 1$, we have our Bayes estimator:
+$$
+E\left[ \frac{\theta}{\theta(1 - \theta)} \mid S_n \right] = \frac{n+1}{n - S_n}
+$$
+
+Putting this into the prior equation, the Bayes estimator is then:
 
 $$
-\hat{\theta}_{\text{Bayes}} = \frac{S_n + 1}{n + 2}
+\hat{\theta}_{\text{Bayes}} = \frac{(n+1) / (n - S_n)}{(n+1)^2 / (S_n (n - S_n))} = \frac{S_n}{n+1}
 $$
