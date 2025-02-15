@@ -8,16 +8,16 @@ author: "Samuel Olson"
 library(knitr)
 ```
 
-```{r, eval = F, echo=FALSE, fig.cap="CocoMelon", out.width = '100%'}
+```{r, eval = F, echo=FALSE, fig.cap="CocoMelon"}
 knitr::include_graphics("Algorithm.png")
 ```
 
 # Outline 
 
-  - Q1: Check #4, 1
+  - Q1: part b) needs edits
   - Q2: 
-  - Q3: 
-  - Q4: Check # 5, 3
+  - Q3: g2g
+  - Q4: needs edits
 
 # Problem 1
 
@@ -34,6 +34,118 @@ $$
 \end{bmatrix}
 $$
 
+### Useful Property: 
+
+Linear transformation of a normal random variable is itself normal (distribution remains normal with known/calculable parameters):
+
+$$
+\boldsymbol{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma}) \rightarrow \boldsymbol{Ax} + \boldsymbol{b} \sim \mathcal{N}(\boldsymbol{A \mu} + \boldsymbol{b}, \boldsymbol{A \Sigma A ^{\top}})
+$$
+
+To begin, note the [Useful Property] provides us reason to assert that the following follows an MVN distribution: 
+
+$$
+\begin{bmatrix}
+\boldsymbol{\hat{y}} \\ 
+\boldsymbol{y - \hat{y}} \\ 
+\end{bmatrix}
+\sim \mathcal{N}(?, ??)
+$$
+
+Such that we need to identify the mean and covariance matrix of the above. 
+
+To that end, note that by definition: 
+
+$$
+\begin{bmatrix}
+\boldsymbol{\hat{y}} \\ 
+\boldsymbol{y - \hat{y}} \\ 
+\end{bmatrix}
+= 
+\begin{bmatrix}
+\boldsymbol{P_{X}y} \\ 
+\boldsymbol{y} - \boldsymbol{P_{X}y} \\ 
+\end{bmatrix}
+= 
+\begin{bmatrix}
+\boldsymbol{P_{X}} \\ 
+\boldsymbol{I} - \boldsymbol{P_{X}} \\ 
+\end{bmatrix} \boldsymbol{y}
+$$
+
+To calculate the mean, noting linearity of expectation: 
+
+$$
+E \left( \begin{bmatrix} \boldsymbol{P_X} \\ \boldsymbol{I} - \boldsymbol{P_X} \end{bmatrix} y \right)
+= \begin{bmatrix} \boldsymbol{P_X} \\ \boldsymbol{I} - \boldsymbol{P_X} \end{bmatrix} E(y)
+= \begin{bmatrix} \boldsymbol{P_X} \\ \boldsymbol{I} - \boldsymbol{P_X} \end{bmatrix} \boldsymbol{X} \boldsymbol{\beta}
+= \begin{bmatrix} \boldsymbol{X} \boldsymbol{\beta} \\ \boldsymbol{X} \boldsymbol{\beta} - \boldsymbol{X} \boldsymbol{\beta} \end{bmatrix}
+= \begin{bmatrix} \boldsymbol{X} \boldsymbol{\beta} \\ \boldsymbol{0} \end{bmatrix}
+$$
+
+To calculate the covariance, noting properties of the Projection Matrix (symmetric and idempotent): 
+
+$$
+\text{Var} \left( 
+\begin{bmatrix} 
+\boldsymbol{P_X} \\ \boldsymbol{I} - \boldsymbol{P_X} 
+\end{bmatrix} 
+y \right)
+= 
+\begin{bmatrix} 
+\boldsymbol{P_X} \\ \boldsymbol{I} - \boldsymbol{P_X} 
+\end{bmatrix} 
+\text{Var}(y) 
+\begin{bmatrix} 
+\boldsymbol{P_X} \\ \boldsymbol{I} - \boldsymbol{P_X} 
+\end{bmatrix}^{\top}
+= 
+\begin{bmatrix} 
+\boldsymbol{P_X} \\ \boldsymbol{I} - \boldsymbol{P_X} 
+\end{bmatrix} 
+\sigma^2 \boldsymbol{I} 
+\begin{bmatrix} 
+\boldsymbol{P_X}, (\boldsymbol{I} - \boldsymbol{P_X})^{\top} 
+\end{bmatrix}
+= \sigma^2 
+\begin{bmatrix} 
+\boldsymbol{P_X} \boldsymbol{P_X}^{\top} & \boldsymbol{P_X} (\boldsymbol{I} - \boldsymbol{P_X})^{\top} \\ 
+(\boldsymbol{I} - \boldsymbol{P_X}) \boldsymbol{P_X}^{\top} & (\boldsymbol{I} - \boldsymbol{P_X}) (\boldsymbol{I} - \boldsymbol{P_X})^{\top} \end{bmatrix}
+= \sigma^2 
+\begin{bmatrix} \boldsymbol{P_X} & \boldsymbol{P_X} - \boldsymbol{P_X} \\ 
+\boldsymbol{P_X} - \boldsymbol{P_X} & \boldsymbol{I} - \boldsymbol{P_X} - \boldsymbol{P_X} + \boldsymbol{P_X} 
+\end{bmatrix}
+$$
+
+$$
+\text{Var} \left( 
+\begin{bmatrix} 
+\boldsymbol{P_X} \\ \boldsymbol{I} - \boldsymbol{P_X} 
+\end{bmatrix} 
+y \right) 
+= \sigma^2 
+\begin{bmatrix} 
+\boldsymbol{P_X} & \boldsymbol{0} \\ \boldsymbol{0} & \boldsymbol{I} - \boldsymbol{P_X} 
+\end{bmatrix}
+$$
+
+Taken together, and again with note of the [Useful Property], we know: 
+
+$$
+\begin{bmatrix}
+\boldsymbol{\hat{y}} \\ 
+\boldsymbol{y - \hat{y}} \\ 
+\end{bmatrix}
+\sim
+\mathcal{N} \left( 
+\begin{bmatrix} \boldsymbol{X} \boldsymbol{\beta} \\ \boldsymbol{0} \end{bmatrix}, 
+\sigma^2 
+\begin{bmatrix} 
+\boldsymbol{P_X} & \boldsymbol{0} \\ \boldsymbol{0} & \boldsymbol{I} - \boldsymbol{P_X} 
+\end{bmatrix}
+\right)
+$$
+
 \newpage
 
 ## b) 
@@ -41,7 +153,54 @@ $$
 Determine the distribution of 
 
 $$
-\boldsymbol{\hat{y}^\top \hat{y}}
+\hat{y}^{\top} \hat{y}
+$$
+
+Noting again the properties of the Projection Matrix (symmetric and idempotent, always):
+
+$$
+\hat{y}^{\top} \hat{y} = [\boldsymbol{P_X} y]^{\top} \boldsymbol{P_X} y = y^{\top} \boldsymbol{P_X}^{\top} \boldsymbol{P_X} y = y^{\top} \boldsymbol{P_X} \boldsymbol{P_X} y
+= y^{\top} \boldsymbol{P_X} y
+$$
+
+where $y \sim \mathcal{N}(\boldsymbol{X} \boldsymbol{\beta}, \sigma^2 \boldsymbol{I})$. Recall the results about quadratic forms in the first slide set ("Preliminaries") on slide 37. To apply these, we want to find a symmetric matrix $\boldsymbol{A}$ such that $\boldsymbol{A} \boldsymbol{\Sigma}$ is idempotent for $\boldsymbol{\Sigma} \equiv \text{Var}(y)$. We can't use $\boldsymbol{P_X}$ as our $\boldsymbol{A}$ matrix because the $\sigma^2$ doesn't cancel:
+
+$$
+\boldsymbol{P_X} \, \text{Var}(y) = \boldsymbol{P_X} \sigma^2 \boldsymbol{I} = \sigma^2 \boldsymbol{P_X}
+$$
+
+Instead, using $\boldsymbol{A} = \frac{\boldsymbol{P_X}}{\sigma^2}$, which is symmetric, gives
+
+$$
+\boldsymbol{A} \boldsymbol{\Sigma} = \boldsymbol{A} \text{Var}(y) = \frac{\boldsymbol{P_X}}{\sigma^2} \sigma^2 \boldsymbol{I} = \boldsymbol{P_X}
+$$
+
+which we know is idempotent.
+
+It is easy to verify that $\boldsymbol{\Sigma} = \sigma^2 \boldsymbol{I}$ is positive definite since $\sigma^2 > 0$. We need to determine the rank of $\boldsymbol{A}$:
+
+$$
+\text{rank}(\boldsymbol{A}) = \text{rank}(\boldsymbol{P_X} / \sigma^2) = \text{rank}(\boldsymbol{P_X}) = \text{rank}(\boldsymbol{X})
+$$
+
+Then,
+
+$$
+\frac{1}{\sigma^2} \hat{y}^{\top} \hat{y} = y^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} y \sim \chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{\boldsymbol{X}^{\top} \boldsymbol{A} \boldsymbol{X} \boldsymbol{\beta}}{2} \right)
+$$
+
+where the noncentrality parameter simplifies to
+
+$$
+\frac{\boldsymbol{X}^{\top} \boldsymbol{A} \boldsymbol{X} \boldsymbol{\beta}}{2} = \boldsymbol{X}^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} \boldsymbol{X} \boldsymbol{\beta} \frac{1}{2}
+= \frac{1}{2 \sigma^2} \boldsymbol{\beta}^{\top} \boldsymbol{X}^{\top} \boldsymbol{P_X} \boldsymbol{X} \boldsymbol{\beta}
+= \frac{1}{2 \sigma^2} \boldsymbol{\beta}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X} \boldsymbol{\beta}
+$$
+
+Therefore, we end up with a scaled non-central chi-square random variable on $\text{rank}(\boldsymbol{X})$ degrees of freedom:
+
+$$
+\hat{y}^{\top} \hat{y} \sim \sigma^2 \chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{\boldsymbol{\beta}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X} \boldsymbol{\beta}}{2\sigma^2} \right)
 $$
 
 \newpage
@@ -86,25 +245,25 @@ Provide a standard error for the estimate computed in part (c).
 
 ## e) 
 
-In a three-factor study we would say there are no main effects for the first factor if $\bar{\mu}_{i \cdot \cdot} = \bar{\mu}_{i' \cdot \cdot}$ for all levels $i \neq i'$. Conduct a test for filler type main effects. Provide an F-statistic, a p-value, and a conclusion.
+In a three-factor study we would say there are no main effects for the first factor if $\bar{\mu}_{i \cdot \cdot} = \bar{\mu}_{i^{\top} \cdot \cdot}$ for all levels $i \neq i^{\top}$. Conduct a test for filler type main effects. Provide an F-statistic, a p-value, and a conclusion.
 
 \newpage
 
 ## f) 
 
-In a three-factor study in which the third factor has $K$ levels, we would say there are no three-way interactions if, for all $i \neq i'$ and $j \neq j'$,
+In a three-factor study in which the third factor has $K$ levels, we would say there are no three-way interactions if, for all $i \neq i^{\top}$ and $j \neq j^{\top}$,
 
 $$
-\mu_{ij1} - \mu_{ij'1} - \mu_{i'j1} + \mu_{i'j'1} = \mu_{ij2} - \mu_{ij'2} - \mu_{i'j2} + \mu_{i'j'2} = \dots = \mu_{ijK} - \mu_{ij'K} - \mu_{i'jK} + \mu_{i'j'K}.
+\mu_{ij1} - \mu_{ij^{\top}1} - \mu_{i^{\top}j1} + \mu_{i^{\top}j^{\top}1} = \mu_{ij2} - \mu_{ij^{\top}2} - \mu_{i^{\top}j2} + \mu_{i^{\top}j^{\top}2} = \dots = \mu_{ijK} - \mu_{ij^{\top}K} - \mu_{i^{\top}jK} + \mu_{i^{\top}j^{\top}K}.
 $$
 
 Note that each linear combination above can be viewed as a two-way interaction effect involving the first two factors while holding the level of the third factor fixed. If these interaction effects are all the same regardless of which level of the third factor is selected, we say there are no three way interactions. Put another equivalent way, there are no three-factor interactions if
 
 $$
-\mu_{ijk} - \mu_{ij'k} - \mu_{i'jk} + \mu_{i'j'k} - \mu_{ijk'} + \mu_{ij'k'} + \mu_{i'jk'} - \mu_{i'j'k'} = 0
+\mu_{ijk} - \mu_{ij^{\top}k} - \mu_{i^{\top}jk} + \mu_{i^{\top}j^{\top}k} - \mu_{ijk^{\top}} + \mu_{ij^{\top}k^{\top}} + \mu_{i^{\top}jk^{\top}} - \mu_{i^{\top}j^{\top}k^{\top}} = 0
 $$
 
-for all $i \neq i'$, $j \neq j'$, and $k \neq k'$. Conduct a test for three-way interactions among the factors filler type, surface treatment, and filler proportion. Provide an F-statistic, a p-value, and a conclusion.
+for all $i \neq i^{\top}$, $j \neq j^{\top}$, and $k \neq k^{\top}$. Conduct a test for three-way interactions among the factors filler type, surface treatment, and filler proportion. Provide an F-statistic, a p-value, and a conclusion.
 
 \newpage
 
@@ -114,10 +273,10 @@ In a three-factor study, we would say there are no two-way interactions between 
 factors if
 
 $$
-\bar{\mu}_{i \cdot k} - \bar{\mu}_{i \cdot k'} - \bar{\mu}_{i' \cdot k} + \bar{\mu}_{i' \cdot k'} = 0
+\bar{\mu}_{i \cdot k} - \bar{\mu}_{i \cdot k^{\top}} - \bar{\mu}_{i^{\top} \cdot k} + \bar{\mu}_{i^{\top} \cdot k^{\top}} = 0
 $$
 
-for all $i \neq i'$ and $k \neq k'$. Conduct a test for two-way interactions between the factors filler type and
+for all $i \neq i^{\top}$ and $k \neq k^{\top}$. Conduct a test for two-way interactions between the factors filler type and
 filler proportion. Provide an F-statistic, a p-value, and a conclusion.
 
 
@@ -137,6 +296,80 @@ $$
 
 so that $\boldsymbol{X G X^\top X = X}$ for any generalized inverse.
 
+### Answer 
+
+As given, we may write: 
+
+$$
+\boldsymbol{v} = \boldsymbol{v}_1 + \boldsymbol{v}_2
+$$
+
+Then: 
+
+$$
+\boldsymbol{v_1} \perp \boldsymbol{v_2}
+$$
+
+And since: 
+
+$$
+\boldsymbol{v}_1 = \boldsymbol{X} \boldsymbol{b} \in C(\boldsymbol{X}) \rightarrow \boldsymbol{v}_2 \in (C(X))^{\perp}
+$$ 
+
+So may then write: 
+
+$$
+\boldsymbol{v}^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X} 
+= (\boldsymbol{v}_1 + \boldsymbol{v}_2)^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X} = \boldsymbol{v}_1^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X} 
++ \boldsymbol{v}_2^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X}
+$$
+
+Each of these terms may be further evaluated. To (hopefully) make the proof more legible then, consider: 
+
+(1):
+
+As $\boldsymbol{v}_1 = \boldsymbol{X} \boldsymbol{b}$, we may write:
+
+$$
+\boldsymbol{v}_1^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X} 
+= (\boldsymbol{X} \boldsymbol{b})^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X}
+= \boldsymbol{b}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X}
+= \boldsymbol{b}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X} = \boldsymbol{b}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X}
+$$
+
+Noting G is a generalized inverse. 
+
+However, as $\boldsymbol{X} \boldsymbol{b} = \boldsymbol{v}_1$, we may simplify:
+
+$$
+\boldsymbol{v}_1^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X} 
+ = \boldsymbol{v}_1^{\top} \boldsymbol{X}
+$$
+
+
+(2): 
+
+As indicated, $\boldsymbol{v}_2$ is orthogonal to $C(\boldsymbol{X})$, such that we may write:
+
+$$
+\boldsymbol{v}_2^{\top} \boldsymbol{X} = 0 \rightarrow \boldsymbol{v}_2^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X} = 0
+$$
+
+Taking (1) and (2) together: 
+
+$$
+\boldsymbol{v}^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X} 
+= \boldsymbol{v}_1^{\top} \boldsymbol{X} + 0 = \boldsymbol{v}^{\top} \boldsymbol{X}
+$$
+
+Concluding: 
+
+$$
+\boldsymbol{v^\top X G X^\top X = v^\top X}
+$$
+
+So that $\boldsymbol{X G X^\top X = X}$ for any generalized inverse.
+
 \newpage
 
 ## b) 
@@ -148,6 +381,74 @@ $$
 $$
 
 and thus $\boldsymbol{X G X^\top}$ is invariant to the choice of generalized inverse.
+
+### Answer 
+
+As given: $\boldsymbol{G}$ and $\boldsymbol{H}$ are generalized inverses of $\boldsymbol{X}^{\top} \boldsymbol{X}$, so by definition the following holds:
+
+$$
+(\boldsymbol{X}^{\top} \boldsymbol{X}) \boldsymbol{G} (\boldsymbol{X}^{\top} \boldsymbol{X}) = \boldsymbol{X}^{\top} \boldsymbol{X}
+$$
+
+And 
+
+$$
+(\boldsymbol{X}^{\top} \boldsymbol{X}) \boldsymbol{H} (\boldsymbol{X}^{\top} \boldsymbol{X}) = \boldsymbol{X}^{\top} \boldsymbol{X}
+$$
+
+For some vector $\boldsymbol{v} \in \mathbb{R}^n$, we may decompose $\boldsymbol{v}$ like in part a), i.e.:
+
+$$
+\boldsymbol{v} = \boldsymbol{v}_1 + \boldsymbol{v}_2
+$$
+
+where $\boldsymbol{v}_1 \in C(\boldsymbol{X})$ and $\boldsymbol{v}_2 \in C(\boldsymbol{X})^{\perp}$:
+
+(Hey, quick Q, Google wasn't helpful: $\boldsymbol{v}_2 \in C(\boldsymbol{X})^{\perp} \equiv \boldsymbol{v}_2 \perp C(\boldsymbol{X})$?)
+
+At any rate: 
+
+$$
+\boldsymbol{v}_1 = \boldsymbol{X} \boldsymbol{b}
+$$
+
+For some real-valued vector $\boldsymbol{b}$.
+
+We may then write: 
+
+$$
+\boldsymbol{X G X^\top v} = \boldsymbol{X G X^\top} (\boldsymbol{v}_1 + \boldsymbol{v}_2) = \boldsymbol{X G X^\top v_1} + \boldsymbol{X G X^\top v_2}
+$$
+
+As defined, $\boldsymbol{v}_1 = \boldsymbol{X} \boldsymbol{b}$, so we may simplify:
+
+$$
+\boldsymbol{X G X^\top v} = \boldsymbol{X G X^\top X b} + \boldsymbol{X G X^\top v_2} = \boldsymbol{X b} + \boldsymbol{X G X^\top v_2}
+$$
+
+As G is a generalized inverse. 
+
+Also, as defined $\boldsymbol{v}_2$ is orthogonal to $C(\boldsymbol{X})$, so the second term simplifies as well, again, similar to part a):
+
+$$
+\boldsymbol{X G X^\top v} = \boldsymbol{X b} + \boldsymbol{X G X^\top v_2} = \boldsymbol{X b} + 0 = \boldsymbol{X b}
+$$
+
+Note: The choice of starting with $\boldsymbol{G}$ was arbitrary. The same steps and derivations would follow for the generalized inverse $\boldsymbol{H}$, such that we'd also say: 
+
+$$
+\boldsymbol{X H X^\top v} = \boldsymbol{X b}
+$$
+
+$\forall \boldsymbol{v}$. 
+
+This then shows: 
+
+$$
+\boldsymbol{X G X^\top} = \boldsymbol{X H X^\top}
+$$
+
+And that $\boldsymbol{X G X^\top}$ is invariant to the choice of the generalized inverse. 
 
 \newpage
 
@@ -166,3 +467,211 @@ H_0: \mu_{12} = \mu_{21} = \mu_{22}.
 $$
 
 Assuming model (1) holds, determine the distribution of the F-statistic you would use to test this null hypothesis: State the degrees of freedom of the statistic. Provide a fully simplified expression for the noncentrality parameter in terms of model (1) parameters.
+
+## Answer 
+
+We can conduct a lack of fit F-test for this problem. The full model is a cell mean model with 4 parameters, and the reduced model has 2 parameters, with one for the combination of diet 1 with drug 1 and one for all the other three combinations. Since we have 40 observations, the degree of freedom for the full model is 
+
+$$
+df_{\text{full}} = 40 - 4 = 36,
+$$ 
+
+the degree of freedom for the reduced model is 
+
+$$
+df_{\text{reduced}} = 40 - 2 = 38,
+$$ 
+
+and the difference is 
+
+$$
+df_{\text{reduced}} - df_{\text{full}} = 38 - 36 = 2.
+$$ 
+
+Thus, the F-distribution we would use is 
+
+$$
+F_{2,36}.
+$$
+
+### Noncentrality Parameter
+
+The noncentrality parameter is given by:
+
+$$
+\frac{(\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d})^{\top} [\boldsymbol{C} (\boldsymbol{X}^{\top} \boldsymbol{X})^{-1} \boldsymbol{C}^{\top}]^{-1} (\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d})}{2 \sigma^2}
+$$
+
+where we define:
+
+$$
+\boldsymbol{\beta} =
+\begin{pmatrix}
+\mu_{11} \\
+\mu_{12} \\
+\mu_{21} \\
+\mu_{22}
+\end{pmatrix},
+\quad
+\boldsymbol{C} =
+\begin{bmatrix}
+0 & 1 & -1 & 0 \\
+0 & 1 & 0 & -1
+\end{bmatrix},
+\quad
+\boldsymbol{d} =
+\begin{pmatrix}
+0 \\
+0
+\end{pmatrix}
+$$
+
+$$
+\boldsymbol{X} =
+\begin{bmatrix}
+\boldsymbol{1}_{10 \times 1} & 0 & 0 & 0 \\
+0 & \boldsymbol{1}_{10 \times 1} & 0 & 0 \\
+0 & 0 & \boldsymbol{1}_{10 \times 1} & 0 \\
+0 & 0 & 0 & \boldsymbol{1}_{10 \times 1}
+\end{bmatrix}
+$$
+
+Thus, we obtain:
+
+$$
+\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d} =
+\begin{pmatrix}
+\mu_{12} - \mu_{21} \\
+\mu_{12} - \mu_{22}
+\end{pmatrix}
+$$
+
+and:
+
+$$
+[\boldsymbol{C} (\boldsymbol{X}^{\top} \boldsymbol{X})^{-1} \boldsymbol{C}^{\top}]^{-1} =
+\frac{10}{3}
+\begin{bmatrix}
+2 & -1 \\
+-1 & 2
+\end{bmatrix}
+$$
+
+Thus, the noncentrality parameter simplifies to:
+
+$$
+\frac{
+\begin{pmatrix}
+\mu_{12} - \mu_{21} \\
+\mu_{12} - \mu_{22}
+\end{pmatrix}^{\top}
+\begin{bmatrix}
+2 & -1 \\
+-1 & 2
+\end{bmatrix}
+\begin{pmatrix}
+\mu_{12} - \mu_{21} \\
+\mu_{12} - \mu_{22}
+\end{pmatrix}
+}{2 \sigma^2}
+\times \frac{10}{3}
+$$
+
+$$
+= \frac{10}{3 \sigma^2} \left[ (\mu_{12} - \mu_{21})^2 + (\mu_{12} - \mu_{22})^2 - (\mu_{12} - \mu_{21})(\mu_{12} - \mu_{22}) \right]
+$$
+
+### Alternative Method
+
+An alternative method can be used to obtain an equivalent expression. The null hypothesis can be tested with an F-test comparing a reduced model to a full model.
+
+Let:
+
+$$
+\boldsymbol{X}_0 =
+\begin{bmatrix}
+\boldsymbol{1}_{10 \times 1} & 0 \\
+0 & \boldsymbol{1}_{30 \times 1}
+\end{bmatrix}
+\quad \text{and} \quad
+\boldsymbol{X} =
+\begin{bmatrix}
+\boldsymbol{1}_{10 \times 1} & 0 & 0 & 0 \\
+0 & \boldsymbol{1}_{10 \times 1} & 0 & 0 \\
+0 & 0 & \boldsymbol{1}_{10 \times 1} & 0 \\
+0 & 0 & 0 & \boldsymbol{1}_{10 \times 1}
+\end{bmatrix}
+$$
+
+Since $r_0 = 2$, $r = 4$, we use the noncentral F-distribution with degrees of freedom $r - r_0 = 2$ and $n - r = 36$.
+
+Then:
+
+$$
+\text{NCP} = \frac{\boldsymbol{\beta}^{\top} \boldsymbol{X}^{\top} (\boldsymbol{P_X} - \boldsymbol{P_{X_0}}) \boldsymbol{X} \boldsymbol{\beta}}{2 \sigma^2}
+$$
+
+$$
+= \frac{|| (\boldsymbol{P_X} - \boldsymbol{P_{X_0}}) \boldsymbol{X} \boldsymbol{\beta} ||^2}{2 \sigma^2}
+$$
+
+$$
+= \frac{|| \boldsymbol{X} \boldsymbol{\beta} - \boldsymbol{P_{X_0}} \boldsymbol{X} \boldsymbol{\beta} ||^2}{2 \sigma^2}
+$$
+
+$$
+\boldsymbol{X} \boldsymbol{\beta} =
+\begin{bmatrix}
+\mu_{11} \boldsymbol{1}_{10 \times 1} \\
+\mu_{12} \boldsymbol{1}_{10 \times 1} \\
+\mu_{21} \boldsymbol{1}_{10 \times 1} \\
+\mu_{22} \boldsymbol{1}_{10 \times 1}
+\end{bmatrix}
+$$
+
+$$
+\boldsymbol{P_{X_0}} \boldsymbol{X} \boldsymbol{\beta} = \boldsymbol{X}_0 (\boldsymbol{X}_0^{\top} \boldsymbol{X}_0)^{-1} \boldsymbol{X}_0^{\top} \boldsymbol{X} \boldsymbol{\beta}
+$$
+
+$$
+= \boldsymbol{X}_0
+\begin{bmatrix}
+1/10 & 0 \\
+0 & 1/30
+\end{bmatrix}
+\boldsymbol{X}_0^{\top}
+\boldsymbol{X} \boldsymbol{\beta}
+$$
+
+$$
+= \boldsymbol{X}_0
+\begin{bmatrix}
+10 \mu_{11} \\
+10 (\mu_{12} + \mu_{21} + \mu_{22}) / 3
+\end{bmatrix}
+$$
+
+$$
+= \boldsymbol{X}_0
+\begin{bmatrix}
+\mu_{11} \\
+\bar{\mu}
+\end{bmatrix}, \quad \text{where } \bar{\mu} = \frac{\mu_{12} + \mu_{21} + \mu_{22}}{3}
+$$
+
+Thus:
+
+$$
+|| \boldsymbol{X} \boldsymbol{\beta} - \boldsymbol{P_{X_0}} \boldsymbol{X} \boldsymbol{\beta} ||^2
+$$
+
+$$
+= 10[(\mu_{12} - \bar{\mu})^2 + (\mu_{21} - \bar{\mu})^2 + (\mu_{22} - \bar{\mu})^2]
+$$
+
+So the noncentrality parameter is:
+
+$$
+\frac{10[(\mu_{12} - \bar{\mu})^2 + (\mu_{21} - \bar{\mu})^2 + (\mu_{22} - \bar{\mu})^2]}{2 \sigma^2}
+= \frac{5[(\mu_{12} - \bar{\mu})^2 + (\mu_{21} - \bar{\mu})^2 + (\mu_{22} - \bar{\mu})^2]}{\sigma^2}
+$$
