@@ -14,7 +14,7 @@ knitr::include_graphics("Algorithm.png")
 
 # Outline 
 
-  - Q1: part b) needs edits
+  - Q1: g2g
   - Q2: 
   - Q3: g2g
   - Q4: needs edits
@@ -156,48 +156,82 @@ $$
 \hat{y}^{\top} \hat{y}
 $$
 
-Noting again the properties of the Projection Matrix (symmetric and idempotent, always):
+Noting again the properties of the Projection Matrix (symmetric and idempotent):
 
 $$
 \hat{y}^{\top} \hat{y} = [\boldsymbol{P_X} y]^{\top} \boldsymbol{P_X} y = y^{\top} \boldsymbol{P_X}^{\top} \boldsymbol{P_X} y = y^{\top} \boldsymbol{P_X} \boldsymbol{P_X} y
 = y^{\top} \boldsymbol{P_X} y
 $$
 
-where $y \sim \mathcal{N}(\boldsymbol{X} \boldsymbol{\beta}, \sigma^2 \boldsymbol{I})$. Recall the results about quadratic forms in the first slide set ("Preliminaries") on slide 37. To apply these, we want to find a symmetric matrix $\boldsymbol{A}$ such that $\boldsymbol{A} \boldsymbol{\Sigma}$ is idempotent for $\boldsymbol{\Sigma} \equiv \text{Var}(y)$. We can't use $\boldsymbol{P_X}$ as our $\boldsymbol{A}$ matrix because the $\sigma^2$ doesn't cancel:
+where $y \sim \mathcal{N}(\boldsymbol{X} \boldsymbol{\beta}, \sigma^2 \boldsymbol{I})$. 
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon"}
+knitr::include_graphics("Form.png")
+```
+
+
+Note the above "Distributional Result About Quadratic Forms". This will be our guide here. 
+
+We want to find a matrix $\boldsymbol{A}$ such that $\boldsymbol{A} \boldsymbol{\Sigma}$ is idempotent for $\boldsymbol{\Sigma} \equiv \text{Var}(y)$.
+
+One candidate we consider: $\boldsymbol{A} = \frac{\boldsymbol{P_X}}{\sigma^2}$
+
+We first know that this matrix will need to be symmetric. To that end note: 
 
 $$
-\boldsymbol{P_X} \, \text{Var}(y) = \boldsymbol{P_X} \sigma^2 \boldsymbol{I} = \sigma^2 \boldsymbol{P_X}
+\boldsymbol{A}^{\top} = \left( \frac{\boldsymbol{P_X}}{\sigma^2} \right) ^ {\top} = \frac{1}{\sigma^2} \left(\boldsymbol{P_X} \right)^{\top} = \frac{1}{\sigma^2} \boldsymbol{P_X} = \boldsymbol{A}
 $$
 
-Instead, using $\boldsymbol{A} = \frac{\boldsymbol{P_X}}{\sigma^2}$, which is symmetric, gives
+So this matrix is symmetric (because we utilize the Projection Matrix and multiply it by $\frac{1}{\sigma^2}$, which preserves symmetry). 
+
+Then consider, using the symmetry property shown: 
 
 $$
 \boldsymbol{A} \boldsymbol{\Sigma} = \boldsymbol{A} \text{Var}(y) = \frac{\boldsymbol{P_X}}{\sigma^2} \sigma^2 \boldsymbol{I} = \boldsymbol{P_X}
 $$
 
-which we know is idempotent.
+So, we then know that $\boldsymbol{A}\boldsymbol{\Sigma}  = \boldsymbol{P_X}$ is idempotent, as the Projection Matrix is idempotent by definition.
 
-It is easy to verify that $\boldsymbol{\Sigma} = \sigma^2 \boldsymbol{I}$ is positive definite since $\sigma^2 > 0$. We need to determine the rank of $\boldsymbol{A}$:
+We then note: $\boldsymbol{\Sigma} = \sigma^2 \boldsymbol{I}$ is positive definite since $\sigma^2 > 0$. 
+
+We use this property to determine the rank of $\boldsymbol{A}$, with the goal of determining if it is full rank:
+
+Using the expressions given above: 
 
 $$
-\text{rank}(\boldsymbol{A}) = \text{rank}(\boldsymbol{P_X} / \sigma^2) = \text{rank}(\boldsymbol{P_X}) = \text{rank}(\boldsymbol{X})
+\text{rank}(\boldsymbol{A}) = \text{rank}(\frac{\boldsymbol{P_X}}{\sigma^2}) = \text{rank}(\boldsymbol{P_X}) = \text{rank}(\boldsymbol{X})
 $$
 
-Then,
+Noting that scalar multiplication (non-zero) does not affect rank calculations of a matrix. 
+
+Then, noting that both $\hat{y}^{\top}$ and $\hat{y}$ are normally distributed, we then know that the quadratic form $\hat{y}^{\top} \hat{y}$ is $\chi^2$ distributed, and that $\frac{1}{\sigma^2} \hat{y}^{\top} \hat{y}$ is a scaled $\chi^2$ distributed. The degrees of freedom parameter to this distribution is given by the rank, shown above, and we again make use of "Distributional Result About Quadratic Forms" regarding the centrality parameter. 
+
+Taken together, this gives us the expression: 
 
 $$
 \frac{1}{\sigma^2} \hat{y}^{\top} \hat{y} = y^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} y \sim \chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{\boldsymbol{X}^{\top} \boldsymbol{A} \boldsymbol{X} \boldsymbol{\beta}}{2} \right)
+= \chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{\boldsymbol{X}^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} \boldsymbol{X} \boldsymbol{\beta}}{2} \right)
+= 
+\chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{\boldsymbol{X}^{\top} \boldsymbol{P_X} \boldsymbol{X} \boldsymbol{\beta}}{2 \sigma^2} \right)
 $$
 
-where the noncentrality parameter simplifies to
+Noting the results of the quadratic form: 
 
 $$
-\frac{\boldsymbol{X}^{\top} \boldsymbol{A} \boldsymbol{X} \boldsymbol{\beta}}{2} = \boldsymbol{X}^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} \boldsymbol{X} \boldsymbol{\beta} \frac{1}{2}
+\mathbf{y} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})
+\rightarrow
+\mathbf{y}^{\top} \boldsymbol{A} \mathbf{y} \sim \chi^2_m \left( \frac{\boldsymbol{\mu}^{\top} \boldsymbol{A} \boldsymbol{\mu}}{2} \right)
+$$
+
+The remaining point to detail then is the non-centrality parameter. Knowing the underlying distributions of $\hat{y}^{\top}$ and $\hat{y}$, we then know: 
+
+$$
+\frac{\boldsymbol{X}^{\top} \boldsymbol{A} \boldsymbol{X} \boldsymbol{\beta}}{2} = \frac{1}{2}\boldsymbol{X}^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} \boldsymbol{X} \boldsymbol{\beta}
 = \frac{1}{2 \sigma^2} \boldsymbol{\beta}^{\top} \boldsymbol{X}^{\top} \boldsymbol{P_X} \boldsymbol{X} \boldsymbol{\beta}
 = \frac{1}{2 \sigma^2} \boldsymbol{\beta}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X} \boldsymbol{\beta}
 $$
 
-Therefore, we end up with a scaled non-central chi-square random variable on $\text{rank}(\boldsymbol{X})$ degrees of freedom:
+Taken together, we then conclude with: 
 
 $$
 \hat{y}^{\top} \hat{y} \sim \sigma^2 \chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{\boldsymbol{\beta}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X} \boldsymbol{\beta}}{2\sigma^2} \right)
