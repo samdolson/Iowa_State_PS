@@ -645,7 +645,7 @@ $$
 Returning to the MSE, our goal is to then find a better (smaller) MSE than T(X), which is: 
 
 $$
-\text{MSE}(T) = 2\theta - 2\theta^2 + \theta^2 = \theta - \theta^2 = \theta(1 - \theta)
+\text{MSE}(T) = 2\theta - 2\theta^2 + \theta^2 = 2\theta - \theta^2 = \theta(2 - \theta)
 $$
 
 Our first guess will be to use the sample mean, the MLE from part a):
@@ -701,30 +701,31 @@ $$
 Since $n > 0$:
 
 $$
-\text{MSE}(T) - \text{MSE}(\hat{\theta})  = \theta - \theta^2 - \left( \frac{\theta - \theta^2}{n} \right) = \frac{n \theta - n \theta^2 - \theta + \theta^2}{n}
+\text{MSE}(T) - \text{MSE}(\hat{\theta})  = 2\theta - \theta^2 - \left( \frac{\theta - \theta^2}{n} \right) = \frac{2n \theta - n \theta^2 - \theta + \theta^2}{n}
 $$
 
 for n = 1: 
 
 $$
-\text{MSE}(T) - \text{MSE}(\hat{\theta}) =  \theta(1 - \theta) - \frac{\theta(1 - \theta)}{n} = \theta(1 - \theta) - \theta(1 - \theta) = 0 \rightarrow \text{MSE}(\hat{\theta}) = \text{MSE}(T)
+\text{MSE}(T) - \text{MSE}(\hat{\theta}) =  \theta(2 - \theta) - \frac{\theta(1 - \theta)}{n} = \theta(2 - \theta) - \theta(1 - \theta) = \theta \rightarrow \text{MSE}(\hat{\theta}) < \text{MSE}(T)
 $$
 
-for n > 1, noting $0 \leq \theta \leq 1$: 
+for n > 1, noting $0 \leq \theta \leq 1 \rightarrow 0 \leq (1-\theta) \leq 1)$ and $\theta(2 - \theta) > \theta(1-\theta)$: 
 
 $$
-\text{MSE}(T) - \text{MSE}(\hat{\theta}) = \theta(1 - \theta) - \frac{\theta(1 - \theta)}{n}
-= \frac{n\theta(1 - \theta) - \theta(1 - \theta)}{n}
-= \frac{(n - 1) \theta(1 - \theta)}{n}> 0 
+\text{MSE}(T) - \text{MSE}(\hat{\theta}) = \theta(2 - \theta) - \frac{\theta(1 - \theta)}{n}
+= \frac{n\theta(2 - \theta) - \theta(1 - \theta)}{n} 
+> 0 
+\rightarrow \text{MSE}(\hat{\theta}) < \text{MSE}(T)
 $$
 
 Taken together:
 
 $$
-\text{MSE}(\hat{\theta}) \leq \text{MSE}(T)
+\text{MSE}(\hat{\theta}) < \text{MSE}(T)
 $$
 
-with strict inequality for $n > 1$. So the MLE $\hat{\theta} = \frac{1}{n} \sum |X_i|$ is a "better" estimator than $T(X)$ because it has a lower Mean Squared Error for all values of $\theta$ (while also being unbiased!) 
+So the MLE $\hat{\theta} = \frac{1}{n} \sum |X_i|$ is a "better" estimator than $T(X)$ because it has a lower Mean Squared Error for all values of $\theta$ (while also being unbiased!) 
 
 \newpage
 

@@ -15,7 +15,7 @@ knitr::include_graphics("Algorithm.png")
 # Outline 
 
   - Q1: g2g
-  - Q2: e), f), g) left
+  - Q2: g2g
   - Q3: g2g
   - Q4: g2g
 
@@ -107,6 +107,14 @@ y \right)
 \begin{bmatrix} 
 \boldsymbol{P_X}, (\boldsymbol{I} - \boldsymbol{P_X})^{\top} 
 \end{bmatrix}
+$$
+
+$$
+\text{Var} \left( 
+\begin{bmatrix} 
+\boldsymbol{P_X} \\ \boldsymbol{I} - \boldsymbol{P_X} 
+\end{bmatrix} 
+y \right)
 = \sigma^2 
 \begin{bmatrix} 
 \boldsymbol{P_X} \boldsymbol{P_X}^{\top} & \boldsymbol{P_X} (\boldsymbol{I} - \boldsymbol{P_X})^{\top} \\ 
@@ -165,10 +173,13 @@ $$
 
 where $y \sim \mathcal{N}(\boldsymbol{X} \boldsymbol{\beta}, \sigma^2 \boldsymbol{I})$. 
 
-```{r, eval = T, echo=FALSE, fig.cap="CocoMelon"}
+\
+
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon", fig.width = 5, fig.height= 6, out.width="100%"}
 knitr::include_graphics("Form.png")
 ```
 
+\
 
 Note the above "Distributional Result About Quadratic Forms". This will be our guide here. 
 
@@ -293,7 +304,7 @@ $$
 \beta_{surface1:filler2:p25} \\
 \beta_{surface2:filler2:p25} \\
 \beta_{surface1:filler1:p50} \\
-\beta_{surface2:filler1:p50}\\
+\beta_{surface2:filler1:p50} \\
 \beta_{surface1:filler2:p50} \\
 \beta_{surface2:filler2:p50} \\
 \beta_{surface1:filler1:p75} \\
@@ -328,19 +339,24 @@ For filler1:
 
 $$
 C_{\text{filler1}} = \frac{1}{6}
-\begin{bmatrix}
-1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 & 0 & 0
-\end{bmatrix}
+\left[
+\begin{array}{cccccccccccc}
+1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 \\ 
+\end{array}
+\right]
 $$
 
 For filler2:
 
 $$
 C_{\text{filler2}} = \frac{1}{6}
-\begin{bmatrix}
-0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 1
-\end{bmatrix}
+\left[
+\begin{array}{cccccccccccc}
+0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 \\ 
+\end{array}
+\right]
 $$
+
 Taken together: 
 
 ```{r}
@@ -358,21 +374,24 @@ Filler 2 LSMEANS estimate: 181.0833
 
 ## c) 
 
-We can also compute LSMEANS for estimable marginal means like $\bar{\mu}_{\cdot jk}$, the average of the cell means for all treatments involving level $j$ of the second factor and level $k$ of the third factor. Find the LSMEAN for surface treatment S2 and 25% filler.
+We can also compute LSMEANS for estimable marginal means like $\bar{\mu}_{\cdot jk }$, the average of the cell means for all treatments involving level $j$ of the second factor and level $k$ of the third factor. Find the LSMEAN for surface treatment S2 and 25% filler.
 
 LSMEAN for surface treatment S2 and 25% filler is a contrast/average of surface treatment S2 and 25% across filler type:
 
 $$
-C_{\text{surface2, p25}} = \frac{1}{2} 
-\begin{bmatrix}
+C_{\text{surface2, p25}} 
+= 
+\frac{1}{2} 
+\left[
+\begin{array}{cccccccccccc}
 0 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
-\end{bmatrix}
+\end{array}
+\right]
 $$
 
 ```{r}
 C_surface2_p25 = matrix(c(
-  0, 1/2, 0, 1/2, 0, 0, 0, 0, 0, 0, 0, 0
-), nrow=1, byrow=TRUE)
+  0, 1/2, 0, 1/2, 0, 0, 0, 0, 0, 0, 0, 0), nrow=1, byrow=TRUE)
 
 estimate(lmout = model, C = C_surface2_p25)
 ```
@@ -389,29 +408,85 @@ SE, via the prior output and setup: 8.197
 
 ## e) 
 
-In a three-factor study we would say there are no main effects for the first factor if $\bar{\mu}_{i \cdot \cdot} = \bar{\mu}_{i^{\top} \cdot \cdot}$ for all levels $i \neq i^{\top}$. Conduct a test for filler type main effects. Provide an F-statistic, a p-value, and a conclusion.
+In a three-factor study we would say there are no main effects for the first factor if $\bar{\mu}_{i} = \bar{\mu}_{i^{'}}$ for all levels $i \neq i^{'}$. Conduct a test for filler type main effects. Provide an F-statistic, a p-value, and a conclusion.
 
+```{r}
+test <- function(lmout, C, d=0){
+  b=coef(lmout)
+  V=vcov(lmout)
+  dfn=nrow(C)
+  dfd=lmout$df
+  Cb.d=C%*%b-d
+  Fstat=drop(t(Cb.d)%*%solve(C%*%V%*%t(C))%*%Cb.d/dfn)
+  pvalue=1-pf(Fstat,dfn,dfd)
+  list(Fstat=Fstat,pvalue=pvalue, dfN = dfn, dfD = dfd)
+}
+```
 
+```{r}
+C_fillerType = matrix(c(
+  1/6, 1/6, -1/6, -1/6, 1/6, 1/6, -1/6, -1/6, 1/6, 1/6, -1/6, -1/6), nrow = 1, byrow = T)   
+
+estimate(lmout = model, C = C_fillerType)
+test(lmout = model, C = C_fillerType)
+```
+
+F-statistic, $F_{1,12}$: 25.305
+p-value: 0.000294
+Interpretation: We have exceptionally strong evidence for a main filler type main effect and it appears that filler type is associated with fabric lost (in mg). Because the details given, i.e. "an experiment was conducted to study the durability of coated fabric subjected to abrasive tests", we cannot pursue cause-and-effect given the study design and analysis, and overall lack of understanding between the relationship between factors. 
 
 \newpage
 
 ## f) 
 
-In a three-factor study in which the third factor has $K$ levels, we would say there are no three-way interactions if, for all $i \neq i^{\top}$ and $j \neq j^{\top}$,
+In a three-factor study in which the third factor has $K$ levels, we would say there are no three-way interactions if, for all $i \neq i^{'}$ and $j \neq j^{'}$,
 
 $$
-\mu_{ij1} - \mu_{ij^{\top}1} - \mu_{i^{\top}j1} + \mu_{i^{\top}j^{\top}1} = \mu_{ij2} - \mu_{ij^{\top}2} - \mu_{i^{\top}j2} + \mu_{i^{\top}j^{\top}2} = \dots = \mu_{ijK} - \mu_{ij^{\top}K} - \mu_{i^{\top}jK} + \mu_{i^{\top}j^{\top}K}.
+\mu_{ij1} - \mu_{ij^{'}1} - \mu_{i^{'}j1} + \mu_{i^{'}j^{'}1} = \mu_{ij2} - \mu_{ij^{'}2} - \mu_{i^{'}j2} + \mu_{i^{'}j^{'}2} = \dots = \mu_{ijK} - \mu_{ij^{'}K} - \mu_{i^{'}jK} + \mu_{i^{'}j^{'}K}.
 $$
 
 Note that each linear combination above can be viewed as a two-way interaction effect involving the first two factors while holding the level of the third factor fixed. If these interaction effects are all the same regardless of which level of the third factor is selected, we say there are no three way interactions. Put another equivalent way, there are no three-factor interactions if
 
 $$
-\mu_{ijk} - \mu_{ij^{\top}k} - \mu_{i^{\top}jk} + \mu_{i^{\top}j^{\top}k} - \mu_{ijk^{\top}} + \mu_{ij^{\top}k^{\top}} + \mu_{i^{\top}jk^{\top}} - \mu_{i^{\top}j^{\top}k^{\top}} = 0
+\mu_{ijk} - \mu_{ij^{'}k} - \mu_{i^{'}jk} + \mu_{i^{'}j^{'}k} - \mu_{ijk^{'}} + \mu_{ij^{'}k^{'}} + \mu_{i^{'}jk^{'}} - \mu_{i^{'}j^{'}k^{'}} = 0
 $$
 
-for all $i \neq i^{\top}$, $j \neq j^{\top}$, and $k \neq k^{\top}$. Conduct a test for three-way interactions among the factors filler type, surface treatment, and filler proportion. Provide an F-statistic, a p-value, and a conclusion.
+for all $i \neq i^{'}$, $j \neq j^{'}$, and $k \neq k^{'}$. Conduct a test for three-way interactions among the factors filler type, surface treatment, and filler proportion. Provide an F-statistic, a p-value, and a conclusion.
 
+Two-way interaction test: 
 
+$$
+\beta_{1,1,k} - \beta_{1,2,k} - \beta_{2,1,k} + \beta_{2,2,k} = 0
+$$
+
+Three way interaction test, iterate the two-way test across the filter types (or proportion, or the surface):
+
+One row, testing interactions between 25% and 50%: 
+
+$$
+(\beta_{1,1,25} - \beta_{1,2,25} - \beta_{2,1,25} + \beta_{2,2,25}) - 
+(\beta_{1,1,50} - \beta_{1,2,50} - \beta_{2,1,50} + \beta_{2,2,50}) = 0
+$$
+One row, testing interactions between 50% and 75%: 
+
+$$
+(\beta_{1,1,50} - \beta_{1,2,50} - \beta_{2,1,50} + \beta_{2,2,50}) - 
+(\beta_{1,1,75} - \beta_{1,2,75} - \beta_{2,1,75} + \beta_{2,2,75}) = 0
+$$
+
+```{r}
+C_threeway = matrix(c(
+  1, -1, -1,  1, -1,  1,  1, -1,  0,  0,  0,  0,  
+  0,  0,  0,  0,  1, -1, -1,  1, -1,  1,  1, -1   
+), nrow=2, byrow=TRUE)  
+
+estimate(lmout = model, C = C_threeway)
+test(lmout = model, C = C_threeway)
+```
+
+F-statistic, $F_{2, 12}$: 0.890
+p-value: 0.436
+Interpretation: We lack sufficient evidence to conclude a three-way interaction between surface, filler type, and proportion exists. 
 
 \newpage
 
@@ -421,14 +496,51 @@ In a three-factor study, we would say there are no two-way interactions between 
 factors if
 
 $$
-\bar{\mu}_{i \cdot k} - \bar{\mu}_{i \cdot k^{\top}} - \bar{\mu}_{i^{\top} \cdot k} + \bar{\mu}_{i^{\top} \cdot k^{\top}} = 0
+\bar{\mu}_{i \cdot k} - \bar{\mu}_{i \cdot k^{'}} - \bar{\mu}_{i^{'} \cdot k} + \bar{\mu}_{i^{'} \cdot k^{'}} = 0
 $$
 
-for all $i \neq i^{\top}$ and $k \neq k^{\top}$. Conduct a test for two-way interactions between the factors filler type and
+for all $i \neq i^{'}$ and $k \neq k^{'}$. Conduct a test for two-way interactions between the factors filler type and
 filler proportion. Provide an F-statistic, a p-value, and a conclusion.
 
+Effectively, we're comparing marginal means across filler type and proportion to get at the two-way interaction effect. The hypotheses we're testing are then:
 
+$$
+(\beta_{\cdot, 1, 25} - \beta_{\cdot, 1, 50} - \beta_{\cdot, 2, 25} + \beta_{\cdot, 2, 50}) = 0
+$$
 
+And 
+
+$$
+(\beta_{\cdot, 1, 50} - \beta_{\cdot, 1, 75} - \beta_{\cdot, 2, 50} + \beta_{\cdot, 2, 75}) = 0
+$$
+
+This then corresponds to: 
+
+The difference between p25 and p50:
+
+$$
+(\beta_{1,1,25} - \beta_{1,2,25}) - (\beta_{1,1,50} - \beta_{1,2,50}) - (\beta_{2,1,25} - \beta_{2,2,25}) + (\beta_{2,1,50} - \beta_{2,2,50}) = 0
+$$
+
+The difference between p50 and p75:
+
+$$
+(\beta_{1,1,50} - \beta_{1,2,50}) - (\beta_{1,1,75} - \beta_{1,2,75}) - (\beta_{2,1,50} - \beta_{2,2,50}) + (\beta_{2,1,75} - \beta_{2,2,75}) = 0
+$$
+
+```{r}
+C_filler_fillerProp = matrix(c(
+  1,  1, -1, -1, -1, -1,  1,  1,  0,  0,  0,  0,  # p25 vs p50
+  0,  0,  0,  0,  1,  1, -1, -1, -1, -1,  1,  1   # p50 vs p75
+), nrow=2, byrow=TRUE)  
+
+estimate(lmout = model, C = C_filler_fillerProp)
+test(lmout = model, C = C_filler_fillerProp)
+```
+
+F-statistic, $F_{2, 12}$: 6.565736
+p-value: 0.0119
+Interpretation: We have substantial/strong evidence that an interaction between filler type and filler proportion exists. The evidence that an interaction between these two factors exists implies that the association between filler type and amount of fabric lost does not appear to be the same for each filler proportion. 
 
 \newpage
 
@@ -750,6 +862,10 @@ $$
 \mu_{12} - \mu_{22}
 \end{pmatrix}
 }{2 \sigma^2}
+$$
+
+$$
+\delta 
 =
 \frac{
 \left(\frac{10}{3}\right)
