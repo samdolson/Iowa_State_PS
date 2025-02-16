@@ -250,10 +250,10 @@ $$
 \hat{\beta} = \frac{\sum_{i=1}^{n} x_i Y_i}{\sum_{i=1}^{n} x_i^2}
 $$
 
-To ensure this is a maximum, we take the second derivative and see if it is negative: 
+To ensure this is a maximum, we take the second derivative at the MLE and see if it is negative: 
 
 $$
-log(L(\beta))'' = - \sum_{i=1}^{n} x_i^2 < 0 
+log(L(\beta))'' = - \frac{1}{\sigma^2} \sum_{i=1}^{n} x_i^2 < 0 
 $$
 
 So this is in fact the maximum. 
@@ -587,17 +587,19 @@ Jetzt zock' ich Fortnite und trink' Cola! Yipee!
 
 Define the estimator $T(X)$ by
 
-$$ T(X) = \begin{cases} 
+$$ 
+T(X) = \begin{cases} 
 2 & \text{if } x = 1 \\ 
 0 & \text{otherwise.} 
-\end{cases} $$
+\end{cases} 
+$$
 
 Show that $T(X)$ is an unbiased estimator of $\theta$.
 
 To test for bias, we find the the expectation of $T(X)$:
 
 $$
-E[T(X)] = \sum_{x \in \{-1, 0, 1\}} T(x) P(X = x).
+E[T(X)] = \sum_{x \in \{-1, 0, 1\}} T(x) P(X = x)
 $$
 
 Using the pmf from part a), each possible outcome/observation of X has its associated probability given by:
@@ -608,7 +610,7 @@ $$
 So we need to do the more "manual" calculation of expectation:
 
 $$
-E[T(X)] = 2 P(X = 1) + 0 P(X = 0) + 0 P(X = -1).
+E[T(X)] = 2 P(X = 1) + 0 P(X = 0) + 0 P(X = -1)
 $$
 Since $T(X) = 2$ when $X = 1$ and $0$ otherwise from the initial definition of T. 
 
@@ -652,7 +654,7 @@ $$
 \hat{\theta} = \frac{S_n}{n} = \frac{1}{n} \sum_{i=1}^{n} |X_i|
 $$
 
-To find the relevant quantities to find its MSE, we start with: 
+To find the relevant quantities to find its MSE, we note/derive expectation for a discrete random variable: 
 
 $E[|X|]$:
 
@@ -754,8 +756,6 @@ $$
 f_{\theta | S_n} (\theta) = \frac{\theta^{S_n} (1 - \theta)^{n - S_n}}{B(S_n + 1, n - S_n + 1)}
 $$
 
-using the Beta function as is typically defined. 
-
 By definition, our Bayes estimate minimizes the posterior expected loss:
 
 $$
@@ -766,7 +766,7 @@ Using the expressions detailed previously:
 
 $$
 E_{\theta | S_n} L(h(X), \theta) =
-\int_0^1 \frac{h(X)^2 - 2h(X) \theta + \theta^2}{\theta(1 - \theta)} f_{\theta | S_n}(\theta) d\theta.
+\int_0^1 \frac{h(X)^2 - 2h(X) \theta + \theta^2}{\theta(1 - \theta)} f_{\theta | S_n}(\theta) d\theta
 $$
 
 For simplicity, we can break us this evaluation:

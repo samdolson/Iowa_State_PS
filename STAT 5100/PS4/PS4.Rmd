@@ -15,9 +15,9 @@ knitr::include_graphics("Algorithm.png")
 # Outline 
 
   - Q1: g2g
-  - Q2: 
+  - Q2: e), f), g) left
   - Q3: g2g
-  - Q4: needs edits
+  - Q4: g2g
 
 # Problem 1
 
@@ -253,9 +253,70 @@ FabricLoss<- read.table(file = "FabricLoss.txt",
                      sep = "\t")
 ```
 
+```{r}
+FabricLoss$surface <- factor(FabricLoss$surface)  
+FabricLoss$filler <- factor(FabricLoss$filler)
+FabricLoss$p <- factor(FabricLoss$p)
+FabricLoss <- FabricLoss[order(FabricLoss$surface, FabricLoss$filler, FabricLoss$p),]  
+
+model <- lm(y ~ 0 + surface:filler:p, data = FabricLoss)
+coef(model)
+```
+
+```{r}
+estimate <- function(lmout, C, a=0.05){
+  b=coef(lmout)
+  V=vcov(lmout)
+  df=lmout$df
+  Cb=C%*%b
+  se=sqrt(diag(C%*%V%*%t(C)))
+  tval=qt(1-a/2,df)
+  low=Cb-tval*se
+  up=Cb+tval*se
+  m=cbind(C,Cb,se,low,up)
+  dimnames(m)[[2]]=c(paste("c",1:ncol(C),sep=""),
+             "estimate","se",
+             paste(100*(1-a),"% Conf.",sep=""),
+             "limits")
+  return(m)
+}
+```
+
+Cell Means Model $\beta$ Matrix: 
+
+$$
+\boldsymbol{\beta} 
+= 
+\begin{bmatrix}
+\beta_{surface1:filler1:p25} \\ 
+\beta_{surface2:filler1:p25} \\
+\beta_{surface1:filler2:p25} \\
+\beta_{surface2:filler2:p25} \\
+\beta_{surface1:filler1:p50} \\
+\beta_{surface2:filler1:p50}\\
+\beta_{surface1:filler2:p50} \\
+\beta_{surface2:filler2:p50} \\
+\beta_{surface1:filler1:p75} \\
+\beta_{surface2:filler1:p75} \\
+\beta_{surface1:filler2:p75} \\
+\beta_{surface2:filler2:p75} \\
+\end{bmatrix}
+$$
+
 ## a) 
 
 Consider a cell means model for these data. Estimate the mean and standard error for the treatment corresponding to F2, S1, and 50% filler.
+
+```{r}
+# surface1:filler2:p50
+C = matrix(c(0, 0, 0, 0, 0, 0, 
+             1, 0, 0, 0, 0, 0),nrow =1)
+
+estimate(lmout = model, C = C)
+```
+
+Estimate: 233.5
+SE: 11.59
 
 \newpage
 
@@ -263,23 +324,74 @@ Consider a cell means model for these data. Estimate the mean and standard error
 
 The concept of LSMEANS has been explained carefully in lecture and course notes for the special case of a two-factor study. The concept generalizes easily to multi-factor studies. For example, in a three- factor study, the LSMEAN for level $i$ of the first factor is the OLS estimator of $\bar{\mu}_{i \cdot \cdot}$, the average of the cell means for all treatments that involve level $i$ of the first factor. Find LSMEANS for the levels of the factor filler type.
 
+For filler1: 
+
+$$
+C_{\text{filler1}} = \frac{1}{6}
+\begin{bmatrix}
+1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 & 0 & 0
+\end{bmatrix}
+$$
+
+For filler2:
+
+$$
+C_{\text{filler2}} = \frac{1}{6}
+\begin{bmatrix}
+0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 1
+\end{bmatrix}
+$$
+Taken together: 
+
+```{r}
+C_filler = matrix(c(
+  1/6, 1/6, 0, 0, 1/6, 1/6, 0, 0, 1/6, 1/6, 0, 0,  
+  0, 0, 1/6, 1/6, 0, 0, 1/6, 1/6, 0, 0, 1/6, 1/6), nrow=2, byrow=TRUE)
+
+estimate(lmout = model, C = C_filler)
+```
+
+Filler 1 LSMEANS estimate: 214.7500
+Filler 2 LSMEANS estimate: 181.0833
+
 \newpage
 
 ## c) 
 
 We can also compute LSMEANS for estimable marginal means like $\bar{\mu}_{\cdot jk}$, the average of the cell means for all treatments involving level $j$ of the second factor and level $k$ of the third factor. Find the LSMEAN for surface treatment S2 and 25% filler.
 
-\newpage
+LSMEAN for surface treatment S2 and 25% filler is a contrast/average of surface treatment S2 and 25% across filler type:
+
+$$
+C_{\text{surface2, p25}} = \frac{1}{2} 
+\begin{bmatrix}
+0 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
+\end{bmatrix}
+$$
+
+```{r}
+C_surface2_p25 = matrix(c(
+  0, 1/2, 0, 1/2, 0, 0, 0, 0, 0, 0, 0, 0
+), nrow=1, byrow=TRUE)
+
+estimate(lmout = model, C = C_surface2_p25)
+```
+
+Estimate: 156.25
 
 ## d) 
 
 Provide a standard error for the estimate computed in part (c).
+
+SE, via the prior output and setup: 8.197
 
 \newpage
 
 ## e) 
 
 In a three-factor study we would say there are no main effects for the first factor if $\bar{\mu}_{i \cdot \cdot} = \bar{\mu}_{i^{\top} \cdot \cdot}$ for all levels $i \neq i^{\top}$. Conduct a test for filler type main effects. Provide an F-statistic, a p-value, and a conclusion.
+
+
 
 \newpage
 
@@ -299,6 +411,8 @@ $$
 
 for all $i \neq i^{\top}$, $j \neq j^{\top}$, and $k \neq k^{\top}$. Conduct a test for three-way interactions among the factors filler type, surface treatment, and filler proportion. Provide an F-statistic, a p-value, and a conclusion.
 
+
+
 \newpage
 
 ## g) 
@@ -312,6 +426,8 @@ $$
 
 for all $i \neq i^{\top}$ and $k \neq k^{\top}$. Conduct a test for two-way interactions between the factors filler type and
 filler proportion. Provide an F-statistic, a p-value, and a conclusion.
+
+
 
 
 \newpage
@@ -504,39 +620,37 @@ Assuming model (1) holds, determine the distribution of the F-statistic you woul
 
 ## Answer 
 
-We can conduct a lack of fit F-test for this problem. The full model is a cell mean model with 4 parameters, and the reduced model has 2 parameters, with one for the combination of diet 1 with drug 1 and one for all the other three combinations. Since we have 40 observations, the degree of freedom for the full model is 
+Note: We have 40 observations, 4 parameters in the full model, and 2 parameters in the reduced model. Taken together: 
 
 $$
-df_{\text{full}} = 40 - 4 = 36,
+df_{\text{full}} = 40 - 4 = 36
 $$ 
 
-the degree of freedom for the reduced model is 
+And
 
 $$
-df_{\text{reduced}} = 40 - 2 = 38,
+df_{\text{reduced}} = 40 - 2 = 38
 $$ 
 
-and the difference is 
+The difference between reduced and full is: 
 
 $$
-df_{\text{reduced}} - df_{\text{full}} = 38 - 36 = 2.
+df_{\text{reduced}} - df_{\text{full}} = 2
 $$ 
 
 Thus, the F-distribution we would use is 
 
 $$
-F_{2,36}.
+F_{\text{diff}, \text{full}} = F_{2,36}
 $$
 
-### Noncentrality Parameter
-
-The noncentrality parameter is given by:
+By definition, the noncentrality parameter is given by the expression:
 
 $$
-\frac{(\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d})^{\top} [\boldsymbol{C} (\boldsymbol{X}^{\top} \boldsymbol{X})^{-1} \boldsymbol{C}^{\top}]^{-1} (\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d})}{2 \sigma^2}
+\delta = \frac{(\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d})^{\top} [\boldsymbol{C} (\boldsymbol{X}^{\top} \boldsymbol{X})^{-1} \boldsymbol{C}^{\top}]^{-1} (\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d})}{2 \sigma^2}
 $$
 
-where we define:
+And for this given problem, our base matrices are: 
 
 $$
 \boldsymbol{\beta} =
@@ -557,20 +671,32 @@ $$
 \begin{pmatrix}
 0 \\
 0
-\end{pmatrix}
-$$
-
-$$
+\end{pmatrix}, 
+\quad \text{and }
 \boldsymbol{X} =
 \begin{bmatrix}
-\boldsymbol{1}_{10 \times 1} & 0 & 0 & 0 \\
-0 & \boldsymbol{1}_{10 \times 1} & 0 & 0 \\
-0 & 0 & \boldsymbol{1}_{10 \times 1} & 0 \\
-0 & 0 & 0 & \boldsymbol{1}_{10 \times 1}
+1 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+\vdots & \vdots & \vdots & \vdots \\
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+\vdots & \vdots & \vdots & \vdots \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 1 & 0 \\
+\vdots & \vdots & \vdots & \vdots \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 \\
+0 & 0 & 0 & 1 \\
+\vdots & \vdots & \vdots & \vdots \\
+0 & 0 & 0 & 1
 \end{bmatrix}
 $$
 
-Thus, we obtain:
+Where $\boldsymbol{X}$ is a 4 $\times$ 40 matrix. 
+
+Using the above expressions, we then have: 
 
 $$
 \boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d} =
@@ -580,7 +706,20 @@ $$
 \end{pmatrix}
 $$
 
-and:
+And:
+
+```{r}
+require(MASS) 
+X <- matrix(c(rep(c(1, 0, 0, 0), times = 10), 
+              rep(c(0, 1, 0, 0), times = 10), 
+              rep(c(0, 0, 1, 0), times = 10), 
+              rep(c(0, 0, 0, 1), times = 10)), nrow = 40, byrow = TRUE)
+  
+C <- matrix(c(0, 1, -1, 0, 
+              0, 1, 0, -1), nrow = 2, byrow = TRUE)
+
+solve(C %*% ginv(t(X) %*% X) %*% t(C)) / (10/3)
+```
 
 $$
 [\boldsymbol{C} (\boldsymbol{X}^{\top} \boldsymbol{X})^{-1} \boldsymbol{C}^{\top}]^{-1} =
@@ -591,14 +730,17 @@ $$
 \end{bmatrix}
 $$
 
-Thus, the noncentrality parameter simplifies to:
+Returning back to the non-centrality expression, we can then calculate: 
 
 $$
+\delta 
+=
 \frac{
 \begin{pmatrix}
 \mu_{12} - \mu_{21} \\
 \mu_{12} - \mu_{22}
 \end{pmatrix}^{\top}
+\left(\frac{10}{3}\right)
 \begin{bmatrix}
 2 & -1 \\
 -1 & 2
@@ -608,104 +750,31 @@ $$
 \mu_{12} - \mu_{22}
 \end{pmatrix}
 }{2 \sigma^2}
-\times \frac{10}{3}
+=
+\frac{
+\left(\frac{10}{3}\right)
+\begin{pmatrix}
+\mu_{12} - \mu_{21} \\
+\mu_{12} - \mu_{22}
+\end{pmatrix}^{\top}
+\begin{pmatrix}
+\mu_{12} - 2\mu_{21} + \mu_{22} \\
+\mu_{12} + \mu_{21} - 2\mu_{22}
+\end{pmatrix}
+}
+{{2 \sigma^2}}
+= 
+\frac{5}{3 \sigma^2} \left[ (\mu_{12} - \mu_{21})^2 + (\mu_{12} - \mu_{22})^2 - (\mu_{12} - \mu_{21})(\mu_{12} - \mu_{22}) \right]
 $$
 
-$$
-= \frac{10}{3 \sigma^2} \left[ (\mu_{12} - \mu_{21})^2 + (\mu_{12} - \mu_{22})^2 - (\mu_{12} - \mu_{21})(\mu_{12} - \mu_{22}) \right]
-$$
-
-### Alternative Method
-
-An alternative method can be used to obtain an equivalent expression. The null hypothesis can be tested with an F-test comparing a reduced model to a full model.
-
-Let:
+Giving us the non-centrality parameter to this F statistic: 
 
 $$
-\boldsymbol{X}_0 =
-\begin{bmatrix}
-\boldsymbol{1}_{10 \times 1} & 0 \\
-0 & \boldsymbol{1}_{30 \times 1}
-\end{bmatrix}
-\quad \text{and} \quad
-\boldsymbol{X} =
-\begin{bmatrix}
-\boldsymbol{1}_{10 \times 1} & 0 & 0 & 0 \\
-0 & \boldsymbol{1}_{10 \times 1} & 0 & 0 \\
-0 & 0 & \boldsymbol{1}_{10 \times 1} & 0 \\
-0 & 0 & 0 & \boldsymbol{1}_{10 \times 1}
-\end{bmatrix}
-$$
-
-Since $r_0 = 2$, $r = 4$, we use the noncentral F-distribution with degrees of freedom $r - r_0 = 2$ and $n - r = 36$.
-
-Then:
-
-$$
-\text{NCP} = \frac{\boldsymbol{\beta}^{\top} \boldsymbol{X}^{\top} (\boldsymbol{P_X} - \boldsymbol{P_{X_0}}) \boldsymbol{X} \boldsymbol{\beta}}{2 \sigma^2}
-$$
-
-$$
-= \frac{|| (\boldsymbol{P_X} - \boldsymbol{P_{X_0}}) \boldsymbol{X} \boldsymbol{\beta} ||^2}{2 \sigma^2}
-$$
-
-$$
-= \frac{|| \boldsymbol{X} \boldsymbol{\beta} - \boldsymbol{P_{X_0}} \boldsymbol{X} \boldsymbol{\beta} ||^2}{2 \sigma^2}
-$$
-
-$$
-\boldsymbol{X} \boldsymbol{\beta} =
-\begin{bmatrix}
-\mu_{11} \boldsymbol{1}_{10 \times 1} \\
-\mu_{12} \boldsymbol{1}_{10 \times 1} \\
-\mu_{21} \boldsymbol{1}_{10 \times 1} \\
-\mu_{22} \boldsymbol{1}_{10 \times 1}
-\end{bmatrix}
-$$
-
-$$
-\boldsymbol{P_{X_0}} \boldsymbol{X} \boldsymbol{\beta} = \boldsymbol{X}_0 (\boldsymbol{X}_0^{\top} \boldsymbol{X}_0)^{-1} \boldsymbol{X}_0^{\top} \boldsymbol{X} \boldsymbol{\beta}
-$$
-
-$$
-= \boldsymbol{X}_0
-\begin{bmatrix}
-1/10 & 0 \\
-0 & 1/30
-\end{bmatrix}
-\boldsymbol{X}_0^{\top}
-\boldsymbol{X} \boldsymbol{\beta}
-$$
-
-$$
-= \boldsymbol{X}_0
-\begin{bmatrix}
-10 \mu_{11} \\
-10 (\mu_{12} + \mu_{21} + \mu_{22}) / 3
-\end{bmatrix}
-$$
-
-$$
-= \boldsymbol{X}_0
-\begin{bmatrix}
-\mu_{11} \\
-\bar{\mu}
-\end{bmatrix}, \quad \text{where } \bar{\mu} = \frac{\mu_{12} + \mu_{21} + \mu_{22}}{3}
-$$
-
-Thus:
-
-$$
-|| \boldsymbol{X} \boldsymbol{\beta} - \boldsymbol{P_{X_0}} \boldsymbol{X} \boldsymbol{\beta} ||^2
-$$
-
-$$
-= 10[(\mu_{12} - \bar{\mu})^2 + (\mu_{21} - \bar{\mu})^2 + (\mu_{22} - \bar{\mu})^2]
-$$
-
-So the noncentrality parameter is:
-
-$$
-\frac{10[(\mu_{12} - \bar{\mu})^2 + (\mu_{21} - \bar{\mu})^2 + (\mu_{22} - \bar{\mu})^2]}{2 \sigma^2}
-= \frac{5[(\mu_{12} - \bar{\mu})^2 + (\mu_{21} - \bar{\mu})^2 + (\mu_{22} - \bar{\mu})^2]}{\sigma^2}
+\delta 
+= 
+\frac{5}{3 \sigma^2} \left[ (\mu_{12} - \mu_{21})^2 + (\mu_{12} - \mu_{22})^2 - (\mu_{12} - \mu_{21})(\mu_{12} - \mu_{22}) \right]
+= 
+\frac{5}{3 \sigma^2} \left(
+\mu_{12}^2 + \mu_{21}^2 + \mu_{22}^2 - \mu_{12} \mu_{21} - \mu_{12} \mu_{22} - \mu_{21} \mu_{22}
+\right)
 $$
