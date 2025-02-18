@@ -359,6 +359,16 @@ $$
 
 Taken together: 
 
+$$
+C_{\text{filler}} = \frac{1}{6}
+\left[
+\begin{array}{cccccccccccc}
+1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 \\ 
+0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 \\ 
+\end{array}
+\right]
+$$
+
 ```{r}
 C_filler = matrix(c(
   1/6, 1/6, 0, 0, 1/6, 1/6, 0, 0, 1/6, 1/6, 0, 0,  
@@ -425,7 +435,8 @@ test <- function(lmout, C, d=0){
 
 ```{r}
 C_fillerType = matrix(c(
-  1/6, 1/6, -1/6, -1/6, 1/6, 1/6, -1/6, -1/6, 1/6, 1/6, -1/6, -1/6), nrow = 1, byrow = T)   
+  1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1), nrow = 1, byrow = T)   
+  # 1/6, 1/6, -1/6, -1/6, 1/6, 1/6, -1/6, -1/6, 1/6, 1/6, -1/6, -1/6), nrow = 1, byrow = T)   
 
 estimate(lmout = model, C = C_fillerType)
 test(lmout = model, C = C_fillerType)
@@ -433,7 +444,7 @@ test(lmout = model, C = C_fillerType)
 
 F-statistic, $F_{1,12}$: 25.305
 p-value: 0.000294
-Interpretation: We have exceptionally strong evidence for a main filler type main effect and it appears that filler type is associated with fabric lost (in mg). Because the details given, i.e. "an experiment was conducted to study the durability of coated fabric subjected to abrasive tests", we cannot pursue cause-and-effect given the study design and analysis, and overall lack of understanding between the relationship between factors. 
+Interpretation: We have exceptionally strong evidence for a (in support of) main filler type main effect and it appears that filler type is associated with fabric lost (in mg). Because the details given, i.e. "an experiment was conducted to study the durability of coated fabric subjected to abrasive tests", we cannot pursue cause-and-effect given the study design and analysis, and overall lack of understanding between the relationship between factors. 
 
 \newpage
 
@@ -486,7 +497,7 @@ test(lmout = model, C = C_threeway)
 
 F-statistic, $F_{2, 12}$: 0.890
 p-value: 0.436
-Interpretation: We lack sufficient evidence to conclude a three-way interaction between surface, filler type, and proportion exists. 
+Interpretation: We lack sufficient evidence (have evidence against the null hypothesis) of there being a three-way interaction effect between surface, filler type, and proportion. 
 
 \newpage
 
@@ -529,9 +540,13 @@ $$
 $$
 
 ```{r}
+# C_filler_fillerProp = matrix(c(
+#   1,  1, -1, -1, -1, -1,  1,  1,  0,  0,  0,  0,  # p25 vs p50
+#   0,  0,  0,  0,  1,  1, -1, -1, -1, -1,  1,  1   # p50 vs p75
+# ), nrow=2, byrow=TRUE)  
 C_filler_fillerProp = matrix(c(
-  1,  1, -1, -1, -1, -1,  1,  1,  0,  0,  0,  0,  # p25 vs p50
-  0,  0,  0,  0,  1,  1, -1, -1, -1, -1,  1,  1   # p50 vs p75
+  1/2,  1/2, -1/2, -1/2, -1/2, -1/2,  1/2,  1/2,  0,  0,  0,  0,  # p25 vs p50
+  0,  0,  0,  0,  1/2,  1/2, -1/2, -1/2, -1/2, -1/2,  1/2,  1/2   # p50 vs p75
 ), nrow=2, byrow=TRUE)  
 
 estimate(lmout = model, C = C_filler_fillerProp)
@@ -540,7 +555,7 @@ test(lmout = model, C = C_filler_fillerProp)
 
 F-statistic, $F_{2, 12}$: 6.565736
 p-value: 0.0119
-Interpretation: We have substantial/strong evidence that an interaction between filler type and filler proportion exists. The evidence that an interaction between these two factors exists implies that the association between filler type and amount of fabric lost does not appear to be the same for each filler proportion. 
+Interpretation: We have substantial/strong evidence (in support) of an interaction between filler type and filler proportion. The evidence that an interaction between these two factors exists implies that the association between filler type and amount of fabric lost does not appear to be the same for each filler proportion. As we have evidence to support there being a two-way interaction, we should worry about the practical significance of interpreting main effects of filler type and proportion. 
 
 \newpage
 
@@ -596,17 +611,18 @@ $$
 \boldsymbol{v}_1^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X} 
 = (\boldsymbol{X} \boldsymbol{b})^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X}
 = \boldsymbol{b}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X}
-= \boldsymbol{b}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X} = \boldsymbol{b}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X}
+= \boldsymbol{b}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X} = \left( \boldsymbol{X} \boldsymbol{b} \right)^{\top} \boldsymbol{X}
+$$
+
+$$
+\boldsymbol{v}_1^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X} 
+=
+\boldsymbol{v_1}^{\top} \boldsymbol{X}
 $$
 
 Noting G is a generalized inverse. 
 
-However, as $\boldsymbol{X} \boldsymbol{b} = \boldsymbol{v}_1$, we may simplify:
-
-$$
-\boldsymbol{v}_1^{\top} \boldsymbol{X} \boldsymbol{G} \boldsymbol{X}^{\top} \boldsymbol{X} 
- = \boldsymbol{v}_1^{\top} \boldsymbol{X}
-$$
+And also noting that by definition: $\boldsymbol{X} \boldsymbol{b} = \boldsymbol{v}_1$.
 
 
 (2): 
@@ -627,10 +643,10 @@ $$
 Concluding: 
 
 $$
-\boldsymbol{v^\top X G X^\top X = v^\top X}
+\boldsymbol{v^\top X G X^\top X = v^\top X} \rightarrow \boldsymbol{X G X^\top X = X}
 $$
 
-So that $\boldsymbol{X G X^\top X = X}$ for any generalized inverse.
+for any generalized inverse, noting that our choice of $\boldsymbol{v}$ was arbitrary. 
 
 \newpage
 
@@ -696,6 +712,12 @@ $$
 \boldsymbol{X G X^\top v} = \boldsymbol{X b} + \boldsymbol{X G X^\top v_2} = \boldsymbol{X b} + 0 = \boldsymbol{X b}
 $$
 
+Note: the above follows in part by these relations as well, with emphasis on the definition of a generalized inverse and transpose properties: 
+
+$$
+\boldsymbol{v}_2^{\top} \boldsymbol{X} = 0 \rightarrow (\boldsymbol{v}_2^{\top} \boldsymbol{X})^{\top} = 0 ^{\top} = 0 \rightarrow \boldsymbol{X} \boldsymbol{G} \boldsymbol{X} ^{\top} \boldsymbol{v}_2 = 0 
+$$
+
 Note: The choice of starting with $\boldsymbol{G}$ was arbitrary. The same steps and derivations would follow for the generalized inverse $\boldsymbol{H}$, such that we'd also say: 
 
 $$
@@ -710,7 +732,7 @@ $$
 \boldsymbol{X G X^\top} = \boldsymbol{X H X^\top}
 $$
 
-And that $\boldsymbol{X G X^\top}$ is invariant to the choice of the generalized inverse. 
+noting our choice of $\boldsymbol{v}$ was arbitrary, showing that $\boldsymbol{X G X^\top}$ is invariant to the choice of the generalized inverse. 
 
 \newpage
 
@@ -880,17 +902,17 @@ $$
 }
 {{2 \sigma^2}}
 = 
-\frac{5}{3 \sigma^2} \left[ (\mu_{12} - \mu_{21})^2 + (\mu_{12} - \mu_{22})^2 - (\mu_{12} - \mu_{21})(\mu_{12} - \mu_{22}) \right]
+\frac{5}{3 \sigma^2} \left[2(\mu_{12} - \mu_{21})^2 + 2(\mu_{12} - \mu_{22})^2 - 2(\mu_{12} - \mu_{21})(\mu_{12} - \mu_{22}) \right]
 $$
 
-Giving us the non-centrality parameter to this F statistic: 
+Giving us the non-centrality parameter to this F-statistic: 
 
 $$
 \delta 
 = 
-\frac{5}{3 \sigma^2} \left[ (\mu_{12} - \mu_{21})^2 + (\mu_{12} - \mu_{22})^2 - (\mu_{12} - \mu_{21})(\mu_{12} - \mu_{22}) \right]
+\frac{10}{3 \sigma^2} \left[ (\mu_{12} - \mu_{21})^2 + (\mu_{12} - \mu_{22})^2 - (\mu_{12} - \mu_{21})(\mu_{12} - \mu_{22}) \right]
 = 
-\frac{5}{3 \sigma^2} \left(
+\frac{10}{3 \sigma^2} \left(
 \mu_{12}^2 + \mu_{21}^2 + \mu_{22}^2 - \mu_{12} \mu_{21} - \mu_{12} \mu_{22} - \mu_{21} \mu_{22}
 \right)
 $$
