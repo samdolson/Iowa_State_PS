@@ -12,13 +12,6 @@ library(knitr)
 knitr::include_graphics("Algorithm.png")
 ```
 
-# Outline 
-
-  - Q1: g2g
-  - Q2: g2g
-  - Q3: g2g
-  - Q4: g2g
-
 # Problem 1
 
 Suppose $\boldsymbol{y} = \boldsymbol{X\beta} + \boldsymbol{\varepsilon}$, where $\boldsymbol{\varepsilon} \sim \mathcal{N}(\boldsymbol{0},\sigma^2 \boldsymbol{I})$ for some unknown $\sigma^2 > 0$. Let $\boldsymbol{\hat{y}} = \boldsymbol{P_X y}$.
@@ -220,10 +213,10 @@ Then, noting that both $\hat{y}^{\top}$ and $\hat{y}$ are normally distributed, 
 Taken together, this gives us the expression: 
 
 $$
-\frac{1}{\sigma^2} \hat{y}^{\top} \hat{y} = y^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} y \sim \chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{\boldsymbol{X}^{\top} \boldsymbol{A} \boldsymbol{X} \boldsymbol{\beta}}{2} \right)
-= \chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{\boldsymbol{X}^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} \boldsymbol{X} \boldsymbol{\beta}}{2} \right)
+\frac{1}{\sigma^2} \hat{y}^{\top} \hat{y} = y^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} y \sim \chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{\left( \boldsymbol{X} \boldsymbol{\beta} \right)^{\top} \boldsymbol{A} \boldsymbol{X} \boldsymbol{\beta}}{2} \right)
+= \chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{ \boldsymbol{\beta} ^{\top}\boldsymbol{X}^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} \boldsymbol{X} \boldsymbol{\beta}}{2} \right)
 = 
-\chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{\boldsymbol{X}^{\top} \boldsymbol{P_X} \boldsymbol{X} \boldsymbol{\beta}}{2 \sigma^2} \right)
+\chi^2_{\text{rank}(\boldsymbol{X})} \left( \frac{ \boldsymbol{\beta}^{\top}\boldsymbol{X}^{\top} \boldsymbol{P_X} \boldsymbol{X} \boldsymbol{\beta}}{2 \sigma^2} \right)
 $$
 
 Noting the results of the quadratic form: 
@@ -237,7 +230,7 @@ $$
 The remaining point to detail then is the non-centrality parameter. Knowing the underlying distributions of $\hat{y}^{\top}$ and $\hat{y}$, we then know: 
 
 $$
-\frac{\boldsymbol{X}^{\top} \boldsymbol{A} \boldsymbol{X} \boldsymbol{\beta}}{2} = \frac{1}{2}\boldsymbol{X}^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} \boldsymbol{X} \boldsymbol{\beta}
+\frac{\boldsymbol{\beta}^{\top}\boldsymbol{X}^{\top} \boldsymbol{A} \boldsymbol{X} \boldsymbol{\beta}}{2} = \frac{1}{2}\boldsymbol{\beta}^{\top}\boldsymbol{X}^{\top} \frac{\boldsymbol{P_X}}{\sigma^2} \boldsymbol{X} \boldsymbol{\beta}
 = \frac{1}{2 \sigma^2} \boldsymbol{\beta}^{\top} \boldsymbol{X}^{\top} \boldsymbol{P_X} \boldsymbol{X} \boldsymbol{\beta}
 = \frac{1}{2 \sigma^2} \boldsymbol{\beta}^{\top} \boldsymbol{X}^{\top} \boldsymbol{X} \boldsymbol{\beta}
 $$
@@ -781,7 +774,7 @@ $$
 By definition, the noncentrality parameter is given by the expression:
 
 $$
-\delta = \frac{(\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d})^{\top} [\boldsymbol{C} (\boldsymbol{X}^{\top} \boldsymbol{X})^{-1} \boldsymbol{C}^{\top}]^{-1} (\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d})}{2 \sigma^2}
+\delta = \frac{(\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d})^{\top} [\boldsymbol{C} (\boldsymbol{X}^{\top} \boldsymbol{X})^{-1} \boldsymbol{C}^{\top}]^{-} (\boldsymbol{C} \boldsymbol{\beta} - \boldsymbol{d})}{2 \sigma^2}
 $$
 
 And for this given problem, our base matrices are: 
@@ -856,7 +849,7 @@ solve(C %*% ginv(t(X) %*% X) %*% t(C)) / (10/3)
 ```
 
 $$
-[\boldsymbol{C} (\boldsymbol{X}^{\top} \boldsymbol{X})^{-1} \boldsymbol{C}^{\top}]^{-1} =
+[\boldsymbol{C} (\boldsymbol{X}^{\top} \boldsymbol{X})^{-} \boldsymbol{C}^{\top}]^{-1} =
 \frac{10}{3}
 \begin{bmatrix}
 2 & -1 \\
