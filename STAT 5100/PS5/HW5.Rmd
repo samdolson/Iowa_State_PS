@@ -20,48 +20,49 @@ In class, we talked extensively about the two types of models when analyzing two
 
 The two types of statistical models themselves.
 
-Cell Means: Every combination of factors has their own mean. Individual Effects.  
+At a high-level, first bear in mind nothing is fundamentally changing about the underlying data. Instead, these are different parametrizations of the data. So these are not diametrically opposed, and will actually provide the same estimates under certain conditions. Just different ways of modelling the relationship between variables/factors and the response/thing you're trying to predict. 
 
-Additive Model: Assume no interactions and focus on the impact of particular factors. Consistent effects of a particular factor/treatment being studied. 
+Cell Means: 
+
+  - We are focused on estimating the average response for each unique combination of factor levels. 
+  - Every combination of factors has their own mean, with a focus on estimating individual effects.  
+
+Additive Model: 
+
+  - Instead of estimating for each combination of factor levels, we are more interested in estimating the effects of the factors themselves. 
+  - To do that, we assume the effect of a factor is consistent across levels, i.e. no unique interactions, interactions are "additive", hence the name. 
 
 ## b) 
 
 The difference between both types of statistical models.
 
-```{r, echo = F, eval = T, warning = F, message = F}
-require(kable)
-require(knitr)
+Cell Means: 
 
-comparison_table <- data.frame(
-  Feature = c("Parameterization", "Number of Parameters", "Assumptions on Treatment Effects", 
-              "Flexibility", "Interpretability"),
-  `Cell Means Model` = c(
-    "Directly estimates means for each group", 
-    "Equal to the number of groups",
-    "No assumptions about the relationship between treatment means",
-    "More flexible (each group mean is separate)",
-    "Estimates individual group means"
-  ),
-  `Additive Model` = c(
-    "Decomposes into overall mean + main effects (+ interactions)", 
-    "Fewer parameters due to imposed structure",
-    "Assumes additive (or additive + interaction) structure",
-    "Less flexible (requires sum-to-zero constraints)",
-    "Allows estimation of main and interaction effects"
-  )
-)
+  - Directly estimates separate means for each combination of factor levels, i.e. the "individual, cell means".  
+  - Estimating parameters equal to the number of unique factor-level combinations. 
+  - No assumptions about the relationship between treatment means.
+  - "More flexible", as we do not impose constraints like the Additive Model.
 
-kable(comparison_table, caption = "Comparison of Cell Means Model vs Additive Model")
+Additive Model: 
 
-```
+  - Decomposes what you're estimating (the $\beta$'s) into an overall mean, plus main effects (plus interactions effects too). 
+  - Estimating fewer parameters due to imposed structure (constraints).
+  - Assumes additive relationship between factors and their interactions. 
+  - "Less flexible" (requires constraints such as sum-to-zero constraints). 
 
 ## c) 
 
 Which one they should use for their own experiment that they plan on carrying out studying the effect of two treatments on some response $y$.
 
-Either work, in theory at least! They can lead to very similar results. But there are some key distinctions to think about. 
+Both *can* work, at least in theory! They *can* also lead to very similar results, especially if the researcher is concerned with a more general, *"is there an effect?"* style questions, and if some assumptions are met (consistent interaction effects, for example). This does not mean that the two different models are naturally interchangeable though!  
 
-Really reflect on whether, prior to collecting any data or running any experiment, what you believe about the underlying relationship you're trying to test. Of note, do any of the underlying assumptions of the two models readily incorrect? After that, the priority to emphasize is whether you are hoping to predict things, or whether you're hoping to better understand broad characteristics of your population of interest. 
+There are some key distinctions to think about to determine if one seems more appropriate for the study. Also bear in mind, that this is a "study" rather vaguely. There is inherently a lot of subject matter expertise to consider, not the least of which being how the study is designed and whether the things being measured or treatments being used make sense or are interpretable. 
+
+That being said, some considerations for the researcher, a.k.a. questions I'd ask: 
+
+  - Prior to collecting any data or running any experiment, what you believe about the underlying relationship you're trying to test?
+  - Do any of the underlying assumptions of the two models readily incorrect? 
+  - Are you hoping to predict things, e.g. we expect an individual with particular characteristics to have y response, or are you more interested in the broad characteristics of your population of interest?
 
 \newpage
 
@@ -84,9 +85,7 @@ Overall, I think the statistical concept is a *randomized study design*, which d
 
 Details: 
 
-Participants selected which group they belong to, i.e. chose to practice or to reflect, in the study shown in the beginning of the video. 
-
-By contrast, participants in the second one were assigned their group, i.e. "treatments" were assigned and the sample under study was divided into a "control" group and an "experimental" group. 
+In the study shown in the beginning of the video participants selected which group they belong to, i.e. chose to practice or to reflect. By contrast, participants in the second one were assigned their group, i.e. "treatments" were assigned and the sample under study was divided into a "control" group and an "experimental" group. 
 
 ## c) 
 
@@ -98,7 +97,16 @@ In 2012, I took a workshop at ISU with Dr. Jan Wiersema called Project LEA/RN. D
 
 Reflect on, and briefly summarize how *you* best learn new things. Share one or two tips on how you deal with challenging course material to ensure you learn it. You can reference experiences you have made as a student since joining our program but you can also reference an experience at some other time in your life.
 
-*(Provide reflection and tips here.)*
+Overall: I do best by having a mix of "alone" and "together" time. My general approach, if I have one, is to first give it a try without any assistance, references, or guidance. After that, I give myself some time to process, identify loose-ends/dead-ends, or walls I came up against and potential resources that could help, e.g. *"Wasn't there a formula on a slide we recently covered for that?"*. After reflecting, I then revisit, give it another go. Only after then do I feel comfortable discussing/sharing with others, with a focus on trying to *"knowing what I don't know"*. Sometimes I "rubber duck" it too, where my collaboration is to try explaining a topic, question, solution to an inanimate object. 
+
+None of this is prescriptive though, not even for myself. Had I to think of an approach I use and tends more often than not to work for me, the above would be it. 
+
+Tips: 
+
+  - Have a constructive relationship with failure. I remember more problems I got wrong than problems I got right. 
+  - Confusion and difficulty are the norm, especially when learning something considered "advanced" like grad school. 
+  - Related, remember: A minority of people know how to calculate a derivative. I'd also wager even more people were ecstatic when they finished their last math class...in high school, sometimes undergrad.  
+  - Sometimes the best thing to do is step away. It doesn't mean you're abandoning it, just that you need some time before trying again. 
 
 \newpage
 
@@ -118,9 +126,9 @@ Which questions did you pick? Answer by following this format:
 
 *YEAR Methods II MS repository* (and *YEAR Methods II PhD repository* if you are a PhD student).
 
-MS:
+*MS: 2020* Part IV
 
-PhD: 
+*PhD: 2020* Part I 
 
 ## b) 
 
@@ -128,7 +136,19 @@ Submission of Selected Questions
 
 Submit your question(s) as part of the homework. Note that I am not asking you to solve the question(s) (*yet*); I just want you to familiarize with them so you have an idea about expectations. For the new PhD qualifying exam, expect the level of difficulty to fall approximately in between old MS exam and old PhD exam questions.
 
+```{r, eval = T, echo=FALSE, fig.cap="MS", out.width="100%"}
+knitr::include_graphics("MethodsMS.png")
+```
 
+```{r, eval = T, echo=FALSE, fig.cap="PhD Pt1", out.width="100%"}
+knitr::include_graphics("MethodsPhDPt1.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="PhD Pt2", out.width="100%"}
+knitr::include_graphics("MethodsPhDPt2.png")
+```
+
+\newpage 
 
 ## c) 
 
@@ -136,7 +156,15 @@ Reflection on Learning
 
 Reflect on your Fall semester; what has helped you learn and why? Note that it is the *why-part* of your answer that I am most interested in.
 
+What helped: Sharing my work, asking for feedback, and proactively starting discussions with members of the cohort. I have a number of people I email drafts of my problemset, with the hopes of seeing how they compare. 
 
+Why: I think there are two components to the why of this. Incomplete as an answer, as it will ever be. 
+
+(1): In order to explain an answer, I need to know more than it takes to have *an answer*. I sometimes forget a key concept, have a typo causing massive downstream issues, or simply enough just misunderstood what a question was asking. Improving is collaborative and goes both ways. Getting other perspectives helps me not only with the end goal, getting an answer, but also with the journey, trite as I feel it may be to say. The process affirms my own knowledge and my confidence. 
+
+(2): My primary struggle, an ongoing one, is having started graduate school "late". I was in industry for roughly 7 years after completing undergrad. I don't regret having spent that time away from academia as it was formative, but that is a source of imposter syndrome and FOMO. These anxieties are not unique to me though, and realizing that has been very relieving. Sharing something as direct as, *"Major hand waving at Q5, anyone have any better ideas, or whether I'm wrong there?"*, and hearing back...well, anything, lets me know I'm not alone. I'm not the only one struggling, and I'm not the only one looking for help. 
+
+\newpage 
 
 ## References
 
