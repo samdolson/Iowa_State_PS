@@ -4,6 +4,14 @@ output: pdf_document
 author: "Sam Olson"
 ---
 
+# Outline 
+
+  - Q1: Draft
+  - Q2: Draft
+  - Q3: Draft
+  - Q4: Draft
+  - Q5: Draft
+
 # Problem 1
 
 **Problem 6.2, Casella and Berger (2nd Edition)**
@@ -20,6 +28,14 @@ $$
 
 Prove that $T = \min_i (X_i / i)$ is a sufficient statistic for $\theta$.  
 
+By the Factorization Theorem, $T(X) = \min(X_i / i)$ is sufficient because the joint pdf is
+
+$$
+f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} e^{i\theta - x_i} I_{(\theta, +\infty)}(x_i) = e^{in\theta} I_{(\theta, +\infty)}(T(X)) \cdot \underbrace{e^{-\sum_i x_i}}_{h(x)}.
+$$
+
+Notice, we use the fact that $i > 0$, and the fact that all $x_i$s $> i\theta$ if and only if $\min(x_i / i) > \theta$.
+
 \newpage 
 
 # Problem 2
@@ -32,21 +48,116 @@ Let $X_1$ and $X_2$ be iid Bernoulli$(p)$, $0 < p < 1$.
 
 Show $S = X_1 + X_2$ is sufficient for $p$.
 
+By the Factorization Theorem, the joint pmf of $X_1, X_2$ is  
+
+$$
+f(x_1, x_2 | p) = p^{x_1} (1 - p)^{1 - x_1} \cdot p^{x_2} (1 - p)^{1 - x_2}
+$$
+
+$$
+= p^{x_1 + x_2} (1 - p)^{2 - (x_1 + x_2)} = g(S, p) h(x_1, x_2),
+$$
+
+where $S = X_1 + X_2$. Thus, $S$ is sufficient for $p$.
+
 ## b) 
 
 Identify the conditional probability $P(X_1 = x | S = s)$; you should know which values of $x, s$ to consider.
+
+We compute $P(X_1 = x | S = s)$ for possible values of $x$ and $s$:
+
+$$
+P(X_1 = x | S = s) = \frac{P(X_1 = x, X_1 + X_2 = s)}{P(S = s)}.
+$$
+
+For $s = 0$, we must have $X_1 = X_2 = 0$, so $P(X_1 = 0 | S = 0) = 1$.  
+For $s = 2$, we must have $X_1 = X_2 = 1$, so $P(X_1 = 1 | S = 2) = 1$.  
+For $s = 1$, possible values of $X_1$ are 0 and 1, with equal probability:
+
+$$
+P(X_1 = 1 | S = 1) = P(X_1 = 0 | S = 1) = \frac{1}{2}.
+$$
 
 ## c) 
 
 Find the conditional expectation $T \equiv E(X_1 | S)$, i.e., as a function of the possibilities of $S$. Note that $T$ is a statistic.
 
+Using the values computed in part (b),
+
+$$
+T = E(X_1 | S) =
+\begin{cases}
+0, & S = 0 \\
+\frac{1}{2}, & S = 1 \\
+1, & S = 2.
+\end{cases}
+$$
+
 ## d) 
 
 Show $X_1$ and $T$ are both unbiased for $p$.
 
+The expectation of $ X_1 $ is:
+
+$$
+E_p(X_1) = p.
+$$
+
+For $ T $,
+
+$$
+E_p(T) = \sum_{s=0}^{2} E(X_1 | S = s) P(S = s).
+$$
+
+Substituting values,
+
+$$
+E_p(T) = 0 \cdot (1 - p)^2 + \frac{1}{2} \cdot 2p(1 - p) + 1 \cdot p^2 = p.
+$$
+
+Thus, both $X_1$ and $T$ are unbiased for $p$.
+
 ## e) 
 
 Show $\text{Var}_p(T) \leq \text{Var}_p(X_1)$, for any $p$.
+
+Since $T$ is the Rao-Blackwellized estimator of $X_1$, we apply the Rao-Blackwell theorem, which states that conditioning on a sufficient statistic cannot increase variance:
+
+$$
+\text{Var}_p(T) \leq \text{Var}_p(X_1).
+$$
+
+Explicitly computing,
+
+$$
+\text{Var}_p(X_1) = p(1 - p).
+$$
+
+For $T$,
+
+$$
+\text{Var}_p(T) = E_p(T^2) - (E_p(T))^2.
+$$
+
+Using the values for $T$,
+
+$$
+E_p(T^2) = 0^2(1 - p)^2 + \left(\frac{1}{2}\right)^2 2p(1 - p) + 1^2 p^2 = \frac{p(1 - p)}{2} + p^2.
+$$
+
+So,
+
+$$
+\text{Var}_p(T) = \left(\frac{p(1 - p)}{2} + p^2\right) - p^2 = \frac{p(1 - p)}{2}.
+$$
+
+Since
+
+$$
+\frac{p(1 - p)}{2} \leq p(1 - p),
+$$
+
+it follows that $\text{Var}_p(T) \leq \text{Var}_p(X_1)$, as required.
 
 \newpage
 
@@ -64,9 +175,22 @@ $$
 
 Is $X$ a complete sufficient statistic?  
 
+$X$ is sufficient because it is the data. To check completeness, calculate
+
+$$
+E g(X) = \frac{\theta}{2} g(-1) + (1 - \theta) g(0) + \frac{\theta}{2} g(1).
+$$
+
+If $g(-1) = g(1)$ and $g(0) = 0$, then $E g(X) = 0$ for all $\theta$, but $g(x)$ need not be identically 0.  
+So the family is not complete.
+
 ## b) 
 
 Is $|X|$ a complete sufficient statistic?  
+
+$|X|$ is sufficient by Theorem 6.2.6, because $f(x|\theta)$ depends on $x$ only through the value of $|x|$.  
+The distribution of $|X|$ is Bernoulli, because $P(|X| = 0) = 1 - \theta$ and $P(|X| = 1) = \theta$.  
+By Example 6.2.22, a binomial family (Bernoulli is a special case) is complete.
 
 \newpage 
 
@@ -81,6 +205,15 @@ $$
 $$
 
 This is a Poisson family with $\lambda$ restricted to be $0$ or $1$. Show that the family $\mathcal{P}$ is *not complete*, demonstrating that completeness can be dependent on the range of the parameter. (See Exercises 6.15 and 6.18.)  
+
+If $\lambda = 0$, $E h(X) = h(0)$. If $\lambda = 1$,
+
+$$
+E h(X) = e^{-1} h(0) + e^{-1} \sum_{x=1}^{\infty} \frac{h(x)}{x!}.
+$$
+
+Let $h(0) = 0$ and $\sum_{x=1}^{\infty} \frac{h(x)}{x!} = 0$, so $E h(X) = 0$ but $h(x) \neq 0$.  
+(For example, take $h(0) = 0$, $h(1) = 1$, $h(2) = -2$, $h(x) = 0$ for $x \geq 3$.)
 
 \newpage 
 
@@ -114,6 +247,65 @@ $$
 
 is an unbiased estimator of $h(p)$.  
 
+$T$ is a Bernoulli random variable. Hence,
+
+$$
+E_p T = P_p(T = 1) = P_p \left( \sum_{i=1}^{n} X_i > X_{n+1} \right) = h(p).
+$$
+
 ## b) 
 
 Find the best unbiased estimator of $h(p)$.  
+
+$\sum_{i=1}^{n+1} X_i$ is a complete sufficient statistic for $\theta$, so $E \left( T \Big| \sum_{i=1}^{n+1} X_i \right)$ is the best unbiased estimator of $h(p)$. We have
+
+$$
+E \left( T \Bigg| \sum_{i=1}^{n} X_i = y \right) = \frac{ P \left( \sum_{i=1}^{n} X_i > X_{n+1} \Bigg| \sum_{i=1}^{n} X_i = y \right) }{P \left( \sum_{i=1}^{n} X_i = y \right)}.
+$$
+
+The denominator equals $\binom{n}{y} p^y (1 - p)^{n - y}$. If $y = 0$ the numerator is
+
+$$
+P \left( \sum_{i=1}^{n} X_i > X_{n+1} \Bigg| \sum_{i=1}^{n+1} X_i = 0 \right) = 0.
+$$
+
+If $y > 0$ the numerator is
+
+$$
+P \left( \sum_{i=1}^{n} X_i > X_{n+1}, \sum_{i=1}^{n+1} X_i = y, X_{n+1} = 0 \right) + P \left( \sum_{i=1}^{n} X_i > X_{n+1}, \sum_{i=1}^{n+1} X_i = y, X_{n+1} = 1 \right),
+$$
+
+which equals
+
+$$
+P \left( \sum_{i=1}^{n} X_i > 0, \sum_{i=1}^{n} X_i = y \right) P(X_{n+1} = 0) + P \left( \sum_{i=1}^{n} X_i > 1, \sum_{i=1}^{n} X_i = y - 1 \right) P(X_{n+1} = 1).
+$$
+
+For all $y > 0$,
+
+$$
+P \left( \sum_{i=1}^{n} X_i > 0, \sum_{i=1}^{n} X_i = y \right) = P \left( \sum_{i=1}^{n} X_i = y \right) = \binom{n}{y} p^y (1 - p)^{n - y}.
+$$
+
+If $y = 1$ or $2$, then
+
+$$
+P \left( \sum_{i=1}^{n} X_i > 1, \sum_{i=1}^{n} X_i = y - 1 \right) = 0.
+$$
+
+And if $y > 2$, then
+
+$$
+P \left( \sum_{i=1}^{n} X_i > 1, \sum_{i=1}^{n} X_i = y - 1 \right) = P \left( \sum_{i=1}^{n} X_i = y - 1 \right) = \binom{n}{y - 1} p^{y-1} (1 - p)^{n - y + 1}.
+$$
+
+Therefore, the UMVUE is
+
+$$
+E \left( T \Bigg| \sum_{i=1}^{n} X_i = y \right) =
+\begin{cases}
+0, & \text{if } y = 0 \\
+\frac{(n - y + 1) p}{(1 - p) + (n - y + 1) p}, & \text{if } y = 1 \text{ or } 2 \\
+\frac{(n - y + 1) p}{(1 - p) + (n - y + 1) p} - 1, & \text{if } y > 2.
+\end{cases}
+$$
