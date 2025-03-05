@@ -6,11 +6,11 @@ author: "Sam Olson"
 
 # Outline 
 
-  - Q1: Editing
-  - Q2: Editing
-  - Q3: Editing
-  - Q4: Editing
-  - Q5: Editing
+  - Q1: G2G
+  - Q2: G2G, part a), b) 
+  - Q3: G2G, note ending of part b) 
+  - Q4: G2G
+  - Q5: G2G, note part b) ending proof
 
 # Problem 1
 
@@ -30,7 +30,7 @@ Prove that $T = \min_i (X_i / i)$ is a sufficient statistic for $\theta$.
 
 ## Answer 
 
-(1): Factorization Theorem, a statistic $T(X)$ is sufficient for $\theta$ if the joint pdf can be expressed in the form:
+Start by noting the Factorization Thm.: a statistic $T(X)$ is sufficient for $\theta$ if the joint pdf can be expressed in the form:
 
 $$
 f(x_1, \dots, x_n | \theta) = g(T(X), \theta) h(x_1, \dots, x_n),
@@ -44,49 +44,47 @@ $$
 f_{X_i}(x | \theta) =
 \begin{cases} 
 e^{\theta - x} & x \geq i\theta, \\
-0 & x < i\theta.
+0 & x < i\theta
 \end{cases}
 $$
 
-As given the joint pdf of $X_1, \dots, X_n$ is:
+Making the joint pdf of $X_1, \dots, X_n$:
 
 $$
 f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} f_{X_i}(x_i | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot \mathbb{I}_{[i\theta, +\infty)}(x_i)
 $$
 
-Substituting the given densities:
-
 $$
-f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot \mathbb{I}_{[i\theta, +\infty)}(x_i).
+f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot \mathbb{I}_{[i\theta, +\infty)}(x_i)
 $$
 
-Rewriting the first product,
+So we have two products to consider. The first:
 
 $$
-\prod_{i=1}^{n} e^{\theta - x_i} = e^{n\theta - \sum_{i=1}^{n} x_i}.
+\prod_{i=1}^{n} e^{\theta - x_i} = e^{n\theta - \sum_{i=1}^{n} x_i}
 $$
 
-For the second product, we observe:
+And for the second: 
 
 $$
-\prod_{i=1}^{n} \mathbb{I}_{[i\theta, +\infty)}(x_i) = \mathbb{I}_{[\theta, +\infty)}\left( \min_i (x_i / i) \right).
+\prod_{i=1}^{n} \mathbb{I}_{[i\theta, +\infty)}(x_i) = \mathbb{I}_{[\theta, +\infty)}\left( \min_i (x_i / i) \right)
 $$
 
-This follows because the conditions $x_i \geq i\theta$ for all $i$ are equivalent to requiring $\min_i (x_i / i) \geq \theta$.
+Noting that the condition $x_i \geq i\theta$ for all $i$ is equivalent to $\min_i (x_i / i) \geq \theta$.
 
-Thus, the joint pdf becomes:
-
-$$
-f(x_1, \dots, x_n | \theta) = e^{n\theta} \cdot \mathbb{I}_{[\theta, +\infty)}\left( \min_i (x_i / i) \right) \cdot e^{-\sum_{i=1}^{n} x_i}.
-$$
-
-Defining $T(X) = \min_i (X_i / i)$, we can express this as:
+Taken together, the joint pdf is:
 
 $$
-f(x_1, \dots, x_n | \theta) = \underbrace{e^{n\theta} \cdot \mathbb{I}_{[\theta, +\infty)}(T(X))}_{g(T(X), \theta)} \cdot \underbrace{e^{-\sum_{i=1}^{n} x_i}}_{h(x_1, \dots, x_n)}.
+f(x_1, \dots, x_n | \theta) = e^{n\theta} \cdot \mathbb{I}_{[\theta, +\infty)}\left( \min_i (x_i / i) \right) \cdot e^{-\sum_{i=1}^{n} x_i}
 $$
 
-Since the factor $g(T(X), \theta)$ depends on $\theta$ only through $T(X)$, and $h(x_1, \dots, x_n)$ is independent of $\theta$, it follows that $T(X) = \min_i (X_i / i)$ is a sufficient statistic for $\theta$. 
+Let $T(X) = \min_i (X_i / i)$, such that we have:
+
+$$
+f(x_1, \dots, x_n | \theta) = \underbrace{e^{n\theta} \cdot \mathbb{I}_{[\theta, +\infty)}(T(X))}_{g(T(X), \theta)} \cdot \underbrace{e^{-\sum_{i=1}^{n} x_i}}_{h(x_1, \dots, x_n)}
+$$
+
+So we've effectively met our condition required by the Factorization Thm., i.e. one factor $g(T(X), \theta)$ depends on $\theta$ only through $T(X)$, and $h(x_1, \dots, x_n)$ is independent of $\theta$, so $T(X) = \min_i (X_i / i)$ is a sufficient statistic for $\theta$. 
 
 \newpage 
 
@@ -105,28 +103,26 @@ Show $S = X_1 + X_2$ is Sufficient for p
 By the Factorization Theorem, a statistic $S$ is sufficient for $p$ if the joint pmf can be written in the form:
 
 $$
-f(x_1, x_2 | p) = g(S, p) \cdot h(x_1, x_2).
+f(x_1, x_2 | p) = g(S, p) \cdot h(x_1, x_2)
 $$
 
-The joint pmf of $X_1, X_2$, given they are iid Bernoulli$(p)$, is:
+, i.e. as the product of two functions, one of which is not dependent upon the parameters of interest, p. 
+
+The joint pmf of $X_1, X_2$, noting the two random variables are iid Bernoulli$(p)$, is:
 
 $$
-f(x_1, x_2 | p) = p^{x_1} (1 - p)^{1 - x_1} \cdot p^{x_2} (1 - p)^{1 - x_2}.
+f(x_1, x_2 | p) 
+= p^{x_1} (1 - p)^{1 - x_1} \cdot p^{x_2} (1 - p)^{1 - x_2}  
+= p^{x_1 + x_2} (1 - p)^{2 - (x_1 + x_2)}
 $$
 
-Rewriting:
+Let $S = X_1 + X_2$, and rewrite the above: 
 
 $$
-f(x_1, x_2 | p) = p^{x_1 + x_2} (1 - p)^{2 - (x_1 + x_2)}.
+f(x_1, x_2 | p) = p^S (1 - p)^{2 - S}
 $$
 
-Letting $S = X_1 + X_2$, we obtain:
-
-$$
-f(x_1, x_2 | p) = p^S (1 - p)^{2 - S}.
-$$
-
-Since this is of the form $g(S, p) \cdot h(x_1, x_2)$ with $h(x_1, x_2) = 1$, it follows that $S$ is sufficient for $p$ by the Factorization Theorem.
+Since this is of the form $g(S, p) \cdot h(x_1, x_2)$ with $h(x_1, x_2) = 1$, it follows that $S$ is sufficient for $p$ by the Factorization Thm.
 
 ## b) 
 
@@ -137,31 +133,42 @@ Identify the conditional probability $P(X_1 = x | S = s)$; you should know which
 We compute:
 
 $$
-P(X_1 = x | S = s) = \frac{P(X_1 = x, S = s)}{P(S = s)}.
+P(X_1 = x | S = s) = \frac{P(X_1 = x, S = s)}{P(S = s)}
 $$
 
-For possible values of $S$:
+Generally speaking, we know the range of possible values of S, that is $S \in [0, 2]$. 
+
+Thus, for possible values of $S$, consider the cases:
 
 (0): If $S = 0$, then $X_1 = 0$ and $X_2 = 0$, so:
 
 $$
-P(X_1 = 0 | S = 0) = 1.
+P(X_1 = 0 | S = 0) = 1
 $$
 
 (1): If $S = 2$, then $X_1 = 1$ and $X_2 = 1$, so:
 
 $$
-P(X_1 = 1 | S = 2) = 1.
+P(X_1 = 1 | S = 2) = 1
 $$
 
 (2): If $S = 1$, then either:
 
-$X_1 = 0, X_2 = 1$, or$X_1 = 1, X_2 = 0$.
-
-Since both occur with equal probability,
+$X_1 = 0, X_2 = 1$, or $X_1 = 1, X_2 = 0$, both events being equally likeliy (equal probability),
 
 $$
-P(X_1 = 1 | S = 1) = P(X_1 = 0 | S = 1) = \frac{1}{2}.
+P(X_1 = 1 | S = 1) = P(X_1 = 0 | S = 1) = \frac{1}{2}
+$$
+
+Taking points (0) through (2) together gives us: 
+
+$$
+P(X_1 = x | S = s) =
+\begin{cases}
+1, & \text{if } s = 0 \text{ and } x = 0, \text{ or if } s = 2 \text{ and } x = 1, \\
+\frac{1}{2}, & \text{if } s = 1 \text{ and } x \in \{0,1\}, \\
+0, & \text{otherwise}
+\end{cases}
 $$
 
 ## c) 
@@ -192,26 +199,26 @@ Show $X_1$ and $T$ are both unbiased for $p$.
 For $X_1$:
 
 $$
-E_p(X_1) = p.
+E_p(X_1) = p
 $$
 
-For $T$, using linearity of expectation:
+Noting the distributional properties of $X_1 \sim \text{Bernoulli(p)}$. 
+
+For $T$, noting properties of expectation:
 
 $$
-E_p(T) = \sum_{s=0}^{2} E(X_1 | S = s) P(S = s).
+E_p(T) = \sum_{s=0}^{2} E(X_1 | S = s) P(S = s)
 $$
 
 Substituting:
 
 $$
-E_p(T) = 0 \cdot (1 - p)^2 + \frac{1}{2} \cdot 2p(1 - p) + 1 \cdot p^2.
+E_p(T) 
+= 0 \cdot (1 - p)^2 + \frac{1}{2} \cdot 2p(1 - p) + 1 \cdot p^2
+= p(1 - p) + p^2 = p
 $$
 
-$$
-= p(1 - p) + p^2 = p.
-$$
-
-Thus, both $X_1$ and $T$ are unbiased for $p$.
+Thus, both $X_1$ and $T$ are unbiased estimators of $p$.
 
 ## e) 
 
@@ -219,59 +226,51 @@ Show $\text{Var}_p(T) \leq \text{Var}_p(X_1)$, for any $p$.
 
 ### Answer
 
-By the Rao-Blackwell theorem:
+By invoking the Rao-Blackwell Thm., we know:
 
 $$
-\text{Var}_p(T) \leq \text{Var}_p(X_1).
+\text{Var}_p(T) \leq \text{Var}_p(X_1)
 $$
 
-We verify this explicitly.
-
-Since $X_1 \sim \text{Bernoulli}(p)$, we have:
+Alternatively, consider that since $X_1 \sim \text{Bernoulli}(p)$, we know its variance is given by:
 
 $$
-\text{Var}_p(X_1) = p(1 - p).
+\text{Var}_p(X_1) = p(1 - p)
 $$
 
 For $T$:
 
 $$
-\text{Var}_p(T) = E_p(T^2) - (E_p(T))^2.
+\text{Var}_p(T) = E_p(T^2) - (E_p(T))^2
 $$
 
-Computing $E_p(T^2)$:
+We may then solve for $E_p(T^2)$:
 
 $$
-E_p(T^2) = 0^2 \cdot (1 - p)^2 + \left(\frac{1}{2}\right)^2 \cdot 2p(1 - p) + 1^2 \cdot p^2.
-$$
-
-$$
-= \frac{p(1 - p)}{2} + p^2.
+E_p(T^2) = 0^2 \cdot (1 - p)^2 + \left(\frac{1}{2}\right)^2 \cdot 2p(1 - p) + 1^2 \cdot p^2 = \frac{p(1 - p)}{2} + p^2
 $$
 
 Thus,
 
 $$
-\text{Var}_p(T) = \left(\frac{p(1 - p)}{2} + p^2\right) - p^2.
-$$
-
-$$
+\text{Var}_p(T) 
+= \left(\frac{p(1 - p)}{2} + p^2\right) - p^2
 = \frac{p(1 - p)}{2}.
 $$
 
 Since
 
 $$
-\frac{p(1 - p)}{2} \leq p(1 - p),
+\frac{p(1 - p)}{2} \leq p(1 - p)
 $$
 
 it follows that:
 
 $$
-\text{Var}_p(T) \leq \text{Var}_p(X_1),
+\text{Var}_p(T) \leq \text{Var}_p(X_1)
 $$
 
-as required.
+as expected from Rao-Blackwell. 
 
 \newpage
 
@@ -291,45 +290,43 @@ Is $X$ a complete sufficient statistic?
 
 ### Answer 
 
-Since $X$ is the only observation, it is trivially sufficient for $\theta$. To determine whether $X$ is complete, we check whether the only function $g(X)$ satisfying $E[g(X)] = 0$ for all $\theta$ is the zero function.
+Since $X$ is the only observation, it is sufficient for $\theta$ as it is the entirety of the data (all the information). 
 
-We compute:
+To determine whether $X$ is complete, we then need to check whether the only function $g(X)$ satisfying $E[g(X)] = 0$ for all $\theta$ is the zero function.
 
-$$
-E[g(X)] = \sum_{x \in \{-1,0,1\}} g(x) f(x | \theta).
-$$
-
-Using the given density,
+To that end note:
 
 $$
-E[g(X)] = g(-1) P(X = -1) + g(0) P(X = 0) + g(1) P(X = 1).
+E[g(X)] = \sum_{x \in \{-1,0,1\}} g(x) f(x | \theta)
 $$
 
-Substituting probabilities,
+Using the given density:
 
 $$
-E[g(X)] = \frac{\theta}{2} g(-1) + (1 - \theta) g(0) + \frac{\theta}{2} g(1).
+E[g(X)] = g(-1) P(X = -1) + g(0) P(X = 0) + g(1) P(X = 1) =  = \frac{\theta}{2} g(-1) + (1 - \theta) g(0) + \frac{\theta}{2} g(1)
 $$
 
-Since this must be zero for all $\theta \in [0,1]$, we rewrite:
+Noting the Law of Total Probability. 
+
+Since this must be zero for all $\theta \in [0,1]$, we then have:
 
 $$
-\theta \left(\frac{g(-1) + g(1)}{2} - g(0) \right) + g(0) = 0.
+\theta \left(\frac{g(-1) + g(1)}{2} - g(0) \right) + g(0) = 0
 $$
 
-For this equation to hold for all $\theta$, both coefficients must be zero:
+However, for this to be true for all $\theta$, both coefficients must be zero:
 
 $$
-\frac{g(-1) + g(1)}{2} - g(0) = 0, \quad g(0) = 0.
+\frac{g(-1) + g(1)}{2} - g(0) = 0 \rightarrow g(0) = 0
 $$
 
-From $g(0) = 0$, the first equation simplifies to:
+Using $g(0) = 0$, the first equation gives us:
 
 $$
-\frac{g(-1) + g(1)}{2} = 0 \quad \Rightarrow \quad g(-1) + g(1) = 0.
+\frac{g(-1) + g(1)}{2} = 0 \rightarrow g(-1) + g(1) = 0
 $$
 
-This allows nontrivial solutions, such as $g(-1) = 1, g(1) = -1, g(0) = 0$, showing that $X$ is not complete.
+So $X$ is not complete, as we have identified a function that is not the zero function such that $g(-1) = 1, g(1) = -1, g(0) = 0$. 
 
 ## b) 
 
@@ -337,21 +334,27 @@ Is $|X|$ a complete sufficient statistic?
 
 ### Answer
 
-First, we check sufficiency using the Factorization Theorem. The pdf is:
+Note again the Factorization Thm. for determining sufficiency. 
+
+To that end, the pdf is:
 
 $$
-f(x | \theta) = \left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|}.
+f(x | \theta) = \left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|}
 $$
 
-This depends on $X$ only through $|X|$, so the conditional distribution of $X$ given $|X|$ does not depend on $\theta$. Thus, $|X|$ is sufficient.
+As defined, the pdf depends on $X$ only through $|X|$, so the conditional distribution of $X$ given $|X|$ does not depend on $\theta$. So $|X|$ is sufficient.
 
-Next, we check completeness. The distribution of $|X|$ follows a Bernoulli distribution:
+Next, we check completeness, using the same criteria used in part a). 
+
+Again, note the distribution of $|X|$ follows a Bernoulli, so we have:
 
 $$
-P(|X| = 0) = 1 - \theta, \quad P(|X| = 1) = \theta.
+P(|X| = 0) = 1 - \theta \text{, and } P(|X| = 1) = \theta
 $$
 
-It is a standard result (Casella & Berger, Example 6.2.11) that the Bernoulli family is complete. Thus, $|X|$ is complete sufficient.
+We may simply note that the Bernoulli family is complete, meaning we cannot find a function that is not the zero function satisfying $E[g(X)] = 0$ for some function g. And as $|X|$ is Bernoulli distributed, it is a complete sufficient statistic.
+
+Note: That was a hand-wave based onm Example 6.2.3 in Casella regarding Binomial sufficient statistic, taking advantage of Bernoulli being a Binomial distribution with n=1. 
 
 \newpage 
 
@@ -375,7 +378,9 @@ $$
 E_{\lambda}[h(X)] = 0, \quad \text{for all } \lambda \in \{0,1\}.
 $$
 
-A family of distributions is complete if the only function satisfying this expectation condition is the zero function.
+By definition, a family of distributions is complete if the only function satisfying this expectation condition is the zero function.
+
+As given, we only consider values for which $\lambda = 0, 1$. 
 
 For $\lambda = 0$, the Poisson distribution degenerates to:
 
@@ -383,61 +388,49 @@ $$
 P_{\lambda=0}(X = x) = 
 \begin{cases} 
 1 & \text{if } x = 0, \\
-0 & \text{if } x \neq 0.
+0 & \text{if } x \neq 0
 \end{cases}
 $$
 
-Thus, expectation simplifies to:
+So it's expectation ios: 
 
 $$
-E_{\lambda=0}[h(X)] = h(0).
+E_{\lambda=0}[h(X)] = h(0) \text{ so, for } E_{\lambda=0}[h(X)] = 0 \rightarrow h(0) = 0
 $$
 
-For $E_{\lambda=0}[h(X)] = 0$, we must have:
+Then, $\lambda = 1$, $X \sim \text{Poisson}(1)$, giving expectation:
 
 $$
-h(0) = 0.
+E_{\lambda=1}[h(X)] = \sum_{x=0}^{\infty} h(x) \cdot \frac{1^x e^{-1}}{x!} = e^{-1} \sum_{x=0}^{\infty} \frac{h(x)}{x!}
 $$
 
-For $\lambda = 1$, $X \sim \text{Poisson}(1)$, so:
-
-$$
-E_{\lambda=1}[h(X)] = \sum_{x=0}^{\infty} h(x) \cdot \frac{1^x e^{-1}}{x!} = e^{-1} \sum_{x=0}^{\infty} \frac{h(x)}{x!}.
-$$
-
-Since we already established $h(0) = 0$, this simplifies to:
+As noted previously, for $h(0) = 0$, this simplifies to:
 
 $$
 \sum_{x=1}^{\infty} \frac{h(x)}{x!} = 0.
 $$
 
-We seek a function $h(X)$ that satisfies:
+Taken together, we must have a function $h(X)$ that satisfies:
 
 $$
-\sum_{x=1}^{\infty} \frac{h(x)}{x!} = 0, \quad h(0) = 0.
+\sum_{x=1}^{\infty} \frac{h(x)}{x!} = 0, \quad h(0) = 0
 $$
 
 A simple choice is:
 
 $$
-h(0) = 0, \quad h(1) = 1, \quad h(2) = -2, \quad h(x) = 0 \text{ for } x \geq 3.
+h(0) = 0, \quad h(1) = 1, \quad h(2) = -2, \quad h(x) = 0 \text{ for } x \geq 3
 $$
 
 Computing the sum:
 
 $$
-\sum_{x=1}^{\infty} \frac{h(x)}{x!} = \frac{h(1)}{1!} + \frac{h(2)}{2!} + \sum_{x=3}^{\infty} \frac{h(x)}{x!}.
+\sum_{x=1}^{\infty} \frac{h(x)}{x!} 
+= \frac{h(1)}{1!} + \frac{h(2)}{2!} + \sum_{x=3}^{\infty} \frac{h(x)}{x!}
+= \frac{1}{1} + \frac{-2}{2} + 0 = 1 - 1 = 0
 $$
 
-$$
-= \frac{1}{1} + \frac{-2}{2} + 0 = 1 - 1 = 0.
-$$
-
-Thus, $E_{\lambda}[h(X)] = 0$ for both $\lambda = 0$ and $\lambda = 1$, yet $h(X)$ is not identically zero. This demonstrates that the family $\mathcal{P}$ is not complete.
-
-This result highlights that completeness depends on the range of the parameter. The Poisson family is typically complete when $\lambda > 0$, but when restricted to just two values ($\lambda = 0$ or $\lambda = 1$), the condition $E[h(X)] = 0$ no longer forces $h(X)$ to be identically zero.
-
-Thus, the restriction on $\lambda$ reduces the richness of the family and leads to incompleteness.
+Thus, $E_{\lambda}[h(X)] = 0$ for both $\lambda = 0$ and $\lambda = 1$, yet $h(X)$ is not the zero function! This is proof that the family $\mathcal{P}$ as defined is not complete (illustrating that completeness can be dependent on the range of the parameter).
 
 \newpage 
 
@@ -473,20 +466,12 @@ is an unbiased estimator of $h(p)$.
 
 ### Answer 
 
-We define:
+For $T(X_1, \dots, X_{n+1})$, as given, we must check unbiasedness by showing it's expectation is equal to $h(p)$. 
+
+With $T$ as an indicator function of the event $\sum_{i=1}^{n} X_i > X_{n+1}$, and $h(p) = P \left( \sum_{i=1}^{n} X_i > X_{n+1} \middle| p \right)$, we have:
 
 $$
-T(X_1, \dots, X_{n+1}) =  
-\begin{cases} 
-1, & \text{if } \sum_{i=1}^{n} X_i > X_{n+1}, \\
-0, & \text{otherwise}.
-\end{cases}
-$$
-
-Since $T$ is an indicator function of the event $\sum_{i=1}^{n} X_i > X_{n+1}$, we compute its expectation:
-
-$$
-E_p[T] = P_p \left( \sum_{i=1}^{n} X_i > X_{n+1} \right) = h(p).
+E_p[T] = P_p \left( \sum_{i=1}^{n} X_i > X_{n+1} \right) = h(p)
 $$
 
 Thus, $T(X)$ is an unbiased estimator of $h(p)$.
@@ -497,17 +482,15 @@ Find the best unbiased estimator of $h(p)$.
 
 ### Answer 
 
-Since $\sum_{i=1}^{n+1} X_i$ is a complete sufficient statistic for $p$, the Rao-Blackwell theorem states that the best unbiased estimator of $h(p)$ is:
+Since $\sum_{i=1}^{n+1} X_i$ is a complete sufficient statistic for $p$, as given, as indicated we need to Rao-Blackwellize. 
+
+To do so, we apply the Rao-Blackwell Thm.: the best unbiased estimator of $h(p)$ is:
 
 $$
-E \left[ T \mid \sum_{i=1}^{n+1} X_i = y \right].
+E \left[ T \mid \sum_{i=1}^{n+1} X_i = y \right] = P \left( \sum_{i=1}^{n} X_i > X_{n+1} \Bigg| \sum_{i=1}^{n+1} X_i = y \right)
 $$
 
-$$
-E \left[ T \mid \sum_{i=1}^{n+1} X_i = y \right] = P \left( \sum_{i=1}^{n} X_i > X_{n+1} \Bigg| \sum_{i=1}^{n+1} X_i = y \right).
-$$
-
-Since $X_{n+1}$ is binary, we analyze two cases:
+As defined, $X_{n+1}$ is binary, so for we note the Law of Total Probability for calculating expectation, analyzing the two cases:
 
 (0): $X_{n+1} = 0$* 
 
@@ -525,7 +508,7 @@ $$
 P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid \sum_{i=1}^{n+1} X_i = y, X_{n+1} = 1 \right) = \mathbb{I}_{y \geq 2}.
 $$
 
-Since $X_{n+1} \sim \text{Bernoulli}(p)$, we compute the total probability using law of total probability:
+Using (0) and (1), note that $X_{n+1} \sim \text{Bernoulli}(p)$, giving us:
 
 $$
 P \left( \sum_{i=1}^{n} X_i > X_{n+1} \Bigg| \sum_{i=1}^{n+1} X_i = y \right)
@@ -535,33 +518,26 @@ $$
 = P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid X_{n+1} = 0 \right) P(X_{n+1} = 0 \mid \sum X_i = y)
 $$
 
+Under the other case, we have:
+
 $$
-+ P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid X_{n+1} = 1 \right) P(X_{n+1} = 1 \mid \sum X_i = y).
+P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid X_{n+1} = 1 \right) P(X_{n+1} = 1 \mid \sum X_i = y)
 $$
 
-Using:
+Now, using both calculations, we have:
 
 $$
 P(X_{n+1} = 1 \mid \sum_{i=1}^{n+1} X_i = y) = \frac{y}{n+1}, \quad P(X_{n+1} = 0 \mid \sum_{i=1}^{n+1} X_i = y) = \frac{n+1 - y}{n+1},
 $$
 
-we compute:
+Giving us: 
 
 $$
 P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid \sum_{i=1}^{n+1} X_i = y \right) =
-\left( 1 \cdot \frac{n+1 - y}{n+1} \right) + \left( \mathbb{I}_{y \geq 2} \cdot \frac{y}{n+1} \right).
+\left( 1 \cdot \frac{n+1 - y}{n+1} \right) + \left( \mathbb{I}_{y \geq 2} \cdot \frac{y}{n+1} \right)
 $$
 
 Simplifying,
-
-$$
-E \left[ T \mid \sum_{i=1}^{n+1} X_i = y \right] =
-\begin{cases}
-0, & y = 0, \\
-\frac{n+1 - y}{n+1}, & y = 1, \\
-1, & y \geq 2.
-\end{cases}
-$$
 
 $$
 E \left[ T \mid \sum_{i=1}^{n+1} X_i = y \right] =
@@ -579,6 +555,6 @@ $$
 \begin{cases}
 0, & y = 0, \\
 \frac{n+1 - y}{n+1}, & y = 1, \\
-1, & y \geq 2.
+1, & y \geq 2
 \end{cases}
 $$
