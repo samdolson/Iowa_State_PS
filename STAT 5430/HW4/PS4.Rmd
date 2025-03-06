@@ -356,9 +356,57 @@ $$
 P(|X| = 0) = 1 - \theta \text{, and } P(|X| = 1) = \theta
 $$
 
-This is the pmf of a Bernoulli with $p = \theta$! Given this result, we may then note that the Bernoulli family is complete, meaning we cannot find a function that is not the zero function satisfying $E[g(X)] = 0$ for some function g. And as $|X|$ is Bernoulli distributed, it is a complete sufficient statistic.
+This is the pmf of a Bernoulli distribution with $p = \theta$. Given this, note the statistic used is complete for the Bernoulli family of distributions, meaning there does not exist a nonzero function $g(X)$ such that $\mathbb{E}[g(X)] = 0$ for all $\theta$. 
 
-Note: Part of the completeness argument is based on assumption that we know the Binomial family is a complete family of distributions, and Bernoulli being a Binomial distribution with n=1 (a specific instance of a Binomial). 
+Since $|X|$ follows a Bernoulli distribution, which is equivalent to a Binomial distribution with $n=1$, the completeness result for the Binomial sufficient statistic extends to the Bernoulli. 
+
+So overall, $|X|$ is a complete sufficient statistic for this problem. 
+
+Note: Part of the completeness argument relies on the known result that the Binomial sufficient statistic is complete. Since the Bernoulli distribution is a special case of the Binomial distribution with $n=1$, this result extends to the problem as posed.
+
+Possibly redundant, or just overly verbose, but here is a quick proof (nearly verbatim from Casella & Berger) of the completeness argument given above.
+
+Suppose that $T \sim \text{Binomial}(n, p)$ for $0 < p < 1$. 
+
+Let $g$ be a function such that:
+
+$$
+E_p[g(T)] = 0 \quad \text{for all } 0 < p < 1
+$$
+
+Expanding this:
+
+$$
+0 = \sum_{t=0}^{n} g(t) \binom{n}{t} p^t (1 - p)^{n - t}
+$$
+
+Factoring out $(1 - p)^n$, which is never zero for $0 < p < 1$:
+
+$$
+0 = (1 - p)^n \sum_{t=0}^{n} g(t) \binom{n}{t} \left( \frac{p}{1 - p} \right)^t
+$$
+
+Let $r = \frac{p}{1 - p}$, with support $(0, \infty)$ as $p$ varies over $(0,1)$, leading to:
+
+$$
+0 = \sum_{t=0}^{n} g(t) \binom{n}{t} r^t
+$$
+
+This is a polynomial in $r$ of degree at most $n$ that is identically zero for all $r > 0$. Since polynomials that are identically zero must have all coefficients equal to zero, we then have:
+
+$$
+g(t) \binom{n}{t} = 0 \quad \text{for all } t = 0, 1, \dots, n
+$$
+
+Since $\binom{n}{t} \neq 0$ for all $t$, it then follows:
+
+$$
+g(t) = 0 \quad \text{for all } t = 0, 1, \dots, n
+$$
+
+Thus, $g(T) = 0$ with probability 1 for all $p$, and we conclude that $T$ is a complete statistic.
+
+Since any function $g$ satisfying the expectation condition must be identically zero (only the zero function works), $T$ is a complete statistic for the Binomial family, which is applied for the purposes of the problem above. 
 
 \newpage 
 
