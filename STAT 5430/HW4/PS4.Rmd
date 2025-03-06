@@ -4,14 +4,6 @@ output: pdf_document
 author: "Sam Olson"
 ---
 
-# Outline 
-
-  - Q1: G2G
-  - Q2: G2G, part a), b) 
-  - Q3: G2G, note ending of part b) 
-  - Q4: G2G
-  - Q5: G2G, note part b) ending proof
-
 # Problem 1
 
 **Problem 6.2, Casella and Berger (2nd Edition)**
@@ -51,11 +43,11 @@ $$
 Making the joint pdf of $X_1, \dots, X_n$:
 
 $$
-f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} f_{X_i}(x_i | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot \mathbb{I}_{[i\theta, +\infty)}(x_i)
+f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} f_{X_i}(x_i | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot I_{[i\theta, +\infty)}(x_i)
 $$
 
 $$
-f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot \mathbb{I}_{[i\theta, +\infty)}(x_i)
+f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot I_{[i\theta, +\infty)}(x_i)
 $$
 
 So we have two products to consider. The first:
@@ -67,7 +59,7 @@ $$
 And for the second: 
 
 $$
-\prod_{i=1}^{n} \mathbb{I}_{[i\theta, +\infty)}(x_i) = \mathbb{I}_{[\theta, +\infty)}\left( \min_i (x_i / i) \right)
+\prod_{i=1}^{n} I_{[i\theta, +\infty)}(x_i) = I_{[\theta, +\infty)}\left( \min_i (x_i / i) \right)
 $$
 
 Noting that the condition $x_i \geq i\theta$ for all $i$ is equivalent to $\min_i (x_i / i) \geq \theta$.
@@ -75,13 +67,25 @@ Noting that the condition $x_i \geq i\theta$ for all $i$ is equivalent to $\min_
 Taken together, the joint pdf is:
 
 $$
-f(x_1, \dots, x_n | \theta) = e^{n\theta} \cdot \mathbb{I}_{[\theta, +\infty)}\left( \min_i (x_i / i) \right) \cdot e^{-\sum_{i=1}^{n} x_i}
+f(x_1, \dots, x_n | \theta) = e^{n\theta} \cdot I_{[\theta, +\infty)}\left( \min_i (x_i / i) \right) \cdot e^{-\sum_{i=1}^{n} x_i}
 $$
 
 Let $T(X) = \min_i (X_i / i)$, such that we have:
 
 $$
-f(x_1, \dots, x_n | \theta) = \underbrace{e^{n\theta} \cdot \mathbb{I}_{[\theta, +\infty)}(T(X))}_{g(T(X), \theta)} \cdot \underbrace{e^{-\sum_{i=1}^{n} x_i}}_{h(x_1, \dots, x_n)}
+f(x_1, \dots, x_n | \theta) = e^{n\theta} \cdot I_{[\theta, +\infty)}(T(X)) \cdot e^{-\sum_{i=1}^{n} x_i}
+$$
+
+Where: 
+
+$$
+g(T(X), \theta) = e^{n\theta} \cdot I_{[\theta, +\infty)}(T(X))
+$$
+
+And 
+
+$$
+h(x_1, \dots, x_n) = e^{-\sum_{i=1}^{n} x_i}
 $$
 
 So we've effectively met our condition required by the Factorization Thm., i.e. one factor $g(T(X), \theta)$ depends on $\theta$ only through $T(X)$, and $h(x_1, \dots, x_n)$ is independent of $\theta$, so $T(X) = \min_i (X_i / i)$ is a sufficient statistic for $\theta$. 
@@ -165,9 +169,9 @@ Taking points (0) through (2) together gives us:
 $$
 P(X_1 = x | S = s) =
 \begin{cases}
-1, & \text{if } s = 0 \text{ and } x = 0, \text{ or if } s = 2 \text{ and } x = 1, \\
-\frac{1}{2}, & \text{if } s = 1 \text{ and } x \in \{0,1\}, \\
-0, & \text{otherwise}
+1 & \text{if } s = 0 \text{ and } x = 0, \text{ or if } s = 2 \text{ and } x = 1, \\
+\frac{1}{2} & \text{if } s = 1 \text{ and } x \in \{0,1\}, \\
+0 & \text{otherwise}
 \end{cases}
 $$
 
@@ -182,9 +186,9 @@ Using the values from part (b):
 $$
 T = E(X_1 | S) =
 \begin{cases}
-0, & S = 0, \\
-\frac{1}{2}, & S = 1, \\
-1, & S = 2.
+0 & S = 0, \\
+\frac{1}{2} & S = 1, \\
+1 & S = 2
 \end{cases}
 $$
 
@@ -255,7 +259,7 @@ Thus,
 $$
 \text{Var}_p(T) 
 = \left(\frac{p(1 - p)}{2} + p^2\right) - p^2
-= \frac{p(1 - p)}{2}.
+= \frac{p(1 - p)}{2}
 $$
 
 Since
@@ -342,19 +346,19 @@ $$
 f(x | \theta) = \left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|}
 $$
 
-As defined, the pdf depends on $X$ only through $|X|$, so the conditional distribution of $X$ given $|X|$ does not depend on $\theta$. So $|X|$ is sufficient.
+As defined, the above pdf depends on $X$ only through $|X|$, so the conditional distribution of $X$ given $|X|$ does not depend on $\theta$. So $|X|$ is sufficient via the Factorization Thm. Another way to say this is that we have two functions, one which entirely depends on $\theta$ and one that does not (in this case, the 1 function), i.e. $f(x | \theta) = \left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|} \cdot 1$. 
 
 Next, we check completeness, using the same criteria used in part a). 
 
-Again, note the distribution of $|X|$ follows a Bernoulli, so we have:
+Again, note the conditional pdf of $|X|$ given above, and that $|X|$ is always positive by construction. Taken together, for the purposes of determining the underlying pmf, we have:
 
 $$
 P(|X| = 0) = 1 - \theta \text{, and } P(|X| = 1) = \theta
 $$
 
-We may simply note that the Bernoulli family is complete, meaning we cannot find a function that is not the zero function satisfying $E[g(X)] = 0$ for some function g. And as $|X|$ is Bernoulli distributed, it is a complete sufficient statistic.
+This is the pmf of a Bernoulli with $p = \theta$! Given this result, we may then note that the Bernoulli family is complete, meaning we cannot find a function that is not the zero function satisfying $E[g(X)] = 0$ for some function g. And as $|X|$ is Bernoulli distributed, it is a complete sufficient statistic.
 
-Note: That was a hand-wave based onm Example 6.2.3 in Casella regarding Binomial sufficient statistic, taking advantage of Bernoulli being a Binomial distribution with n=1. 
+Note: Part of the completeness argument is based on assumption that we know the Binomial family is a complete family of distributions, and Bernoulli being a Binomial distribution with n=1 (a specific instance of a Binomial). 
 
 \newpage 
 
@@ -365,7 +369,7 @@ Note: That was a hand-wave based onm Example 6.2.3 in Casella regarding Binomial
 **6.24** Consider the following family of distributions:  
 
 $$
-\mathcal{P} = \{ P_{\lambda}(X = x) : P_{\lambda}(X = x) = \frac{\lambda^x e^{-\lambda}}{x!}; x = 0,1,2,\dots ; \lambda = 0 \text{ or } 1 \}.
+\mathcal{P} = \{ P_{\lambda}(X = x) : P_{\lambda}(X = x) = \frac{\lambda^x e^{-\lambda}}{x!}; x = 0,1,2,\dots ; \lambda = 0 \text{ or } 1 \}
 $$
 
 This is a Poisson family with $\lambda$ restricted to be $0$ or $1$. Show that the family $\mathcal{P}$ is not complete, demonstrating that completeness can be dependent on the range of the parameter. (See Exercises 6.15 and 6.18.)  
@@ -375,7 +379,7 @@ This is a Poisson family with $\lambda$ restricted to be $0$ or $1$. Show that t
 To show that $\mathcal{P}$ is not complete, we must find a nonzero function $h(X)$ such that:
 
 $$
-E_{\lambda}[h(X)] = 0, \quad \text{for all } \lambda \in \{0,1\}.
+E_{\lambda}[h(X)] = 0, \quad \text{for all } \lambda \in \{0,1\}
 $$
 
 By definition, a family of distributions is complete if the only function satisfying this expectation condition is the zero function.
@@ -407,7 +411,7 @@ $$
 As noted previously, for $h(0) = 0$, this simplifies to:
 
 $$
-\sum_{x=1}^{\infty} \frac{h(x)}{x!} = 0.
+\sum_{x=1}^{\infty} \frac{h(x)}{x!} = 0
 $$
 
 Taken together, we must have a function $h(X)$ that satisfies:
@@ -471,7 +475,7 @@ For $T(X_1, \dots, X_{n+1})$, as given, we must check unbiasedness by showing it
 With $T$ as an indicator function of the event $\sum_{i=1}^{n} X_i > X_{n+1}$, and $h(p) = P \left( \sum_{i=1}^{n} X_i > X_{n+1} \middle| p \right)$, we have:
 
 $$
-E_p[T] = P_p \left( \sum_{i=1}^{n} X_i > X_{n+1} \right) = h(p)
+E_p[T] = P_{p}(T = 1) = P_p \left( \sum_{i=1}^{n} X_i > X_{n+1} \right) = h(p)
 $$
 
 Thus, $T(X)$ is an unbiased estimator of $h(p)$.
@@ -482,79 +486,138 @@ Find the best unbiased estimator of $h(p)$.
 
 ### Answer 
 
-Since $\sum_{i=1}^{n+1} X_i$ is a complete sufficient statistic for $p$, as given, as indicated we need to Rao-Blackwellize. 
+Since $\sum_{i=1}^{n+1} X_i$ is a complete sufficient statistic for $p$, we can use Rao-Blackwell (More Lehmann–Scheffé given the complete sufficient statistic), specifically by finding the conditional expectation of $T(X)$ (estimator of $h(p)$) from part a) conditioned on a complete and sufficient statistic to find the UMVUE. So that's the "plan". 
 
-To do so, we apply the Rao-Blackwell Thm.: the best unbiased estimator of $h(p)$ is:
+The idea here is our best unbiased estimator of $h(p)$ is of the form: 
+
+$$
+T^{*}(X) = E[T(X) | S = \sum_{i=1}^{n+1} X_i]
+$$
+
+With the goal of calculating $T^{*}(X)$. 
+
+To that end, as given from part a), $T(X)$ is defined as:
 
 $$
 E \left[ T \mid \sum_{i=1}^{n+1} X_i = y \right] = P \left( \sum_{i=1}^{n} X_i > X_{n+1} \Bigg| \sum_{i=1}^{n+1} X_i = y \right)
 $$
 
-As defined, $X_{n+1}$ is binary, so for we note the Law of Total Probability for calculating expectation, analyzing the two cases:
+As $X_{n+1}$ is binary, there are two cases to check for to then invoke the Law of Total Probability. These are:
 
-(0): $X_{n+1} = 0$* 
+#### (1)
 
-$\sum_{i=1}^{n} X_i = y - X_{n+1} = y - 0 = y$, which means the event $\sum_{i=1}^{n} X_i > X_{n+1}$ always holds when $y \geq 1$.
+$X_{n+1} = 0$
 
-$$
-P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid \sum_{i=1}^{n+1} X_i = y, X_{n+1} = 0 \right) = 1.
-$$
-
-(1): $X_{n+1} = 1$ 
-
-Here, $\sum_{i=1}^{n} X_i = y - 1$, so the event $\sum_{i=1}^{n} X_i > X_{n+1}$ holds if $y - 1 > 1$, i.e., $y \geq 2$.
+If $X_{n+1} = 0$, then $\sum_{i=1}^{n} X_i = y - 0 = y$. Since $y \geq 1$, the event $\sum_{i=1}^{n} X_i > X_{n+1}$ always holds:
 
 $$
-P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid \sum_{i=1}^{n+1} X_i = y, X_{n+1} = 1 \right) = \mathbb{I}_{y \geq 2}.
+P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid \sum_{i=1}^{n+1} X_i = y, X_{n+1} = 0 \right) = 1
 $$
 
-Using (0) and (1), note that $X_{n+1} \sim \text{Bernoulli}(p)$, giving us:
+#### (2) 
+
+$X_{n+1} = 1$
+
+If $X_{n+1} = 1$, then $\sum_{i=1}^{n} X_i = y - 1$, so $\sum_{i=1}^{n} X_i > X_{n+1}$ only holds when $y - 1 \geq 1$, i.e., when $y \geq 2$:
 
 $$
-P \left( \sum_{i=1}^{n} X_i > X_{n+1} \Bigg| \sum_{i=1}^{n+1} X_i = y \right)
+P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid \sum_{i=1}^{n+1} X_i = y, X_{n+1} = 1 \right) = I_{y \geq 2}.
 $$
 
-$$
-= P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid X_{n+1} = 0 \right) P(X_{n+1} = 0 \mid \sum X_i = y)
-$$
-
-Under the other case, we have:
+To combine cases (1) and (2), we note that $X_{n+1} \sim \text{Bernoulli}(p)$, such that the probability of both cases is:
 
 $$
-P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid X_{n+1} = 1 \right) P(X_{n+1} = 1 \mid \sum X_i = y)
+P(X_{n+1} = 1 \mid \sum_{i=1}^{n+1} X_i = y) = \frac{y}{n+1}
 $$
 
-Now, using both calculations, we have:
+And
 
 $$
-P(X_{n+1} = 1 \mid \sum_{i=1}^{n+1} X_i = y) = \frac{y}{n+1}, \quad P(X_{n+1} = 0 \mid \sum_{i=1}^{n+1} X_i = y) = \frac{n+1 - y}{n+1},
+P(X_{n+1} = 0 \mid \sum_{i=1}^{n+1} X_i = y) = \frac{n+1 - y}{n+1}
 $$
 
-Giving us: 
+Then, invoking the Law of Total Probability:
 
 $$
 P \left( \sum_{i=1}^{n} X_i > X_{n+1} \mid \sum_{i=1}^{n+1} X_i = y \right) =
-\left( 1 \cdot \frac{n+1 - y}{n+1} \right) + \left( \mathbb{I}_{y \geq 2} \cdot \frac{y}{n+1} \right)
+\left( 1 \cdot \frac{n+1 - y}{n+1} \right) + \left( I_{y \geq 2} \cdot \frac{y}{n+1} \right)
 $$
 
-Simplifying,
+Using the above formula, we take expectation: 
 
 $$
 E \left[ T \mid \sum_{i=1}^{n+1} X_i = y \right] =
 \begin{cases}
-0, & y = 0, \\
-\frac{n+1 - y}{n+1}, & y = 1, \\
-1, & y \geq 2.
+0 & y = 0, \\
+\frac{\binom{n}{y}}{\binom{n+1}{y}} & y = 1 \text{ or } 2, \\
+1 & y > 2
 \end{cases}
 $$
 
-Thus, the best unbiased estimator of $h(p)$ is:
+Simplifying: 
 
 $$
-\delta(X) =
+T^{*}(X) =
 \begin{cases}
-0, & y = 0, \\
-\frac{n+1 - y}{n+1}, & y = 1, \\
-1, & y \geq 2
+0 & y = 0, \\
+\frac{\binom{n}{y}}{\binom{n+1}{y}} & y = 1 \text{ or } 2, \\
+1 & y > 2
 \end{cases}
+= \begin{cases}
+0 & y = 0, \\
+\frac{n}{n+1} & y = 1, \\
+\frac{n-1}{n+1} & y = 2, \\
+1 & y > 2
+\end{cases}
+$$
+
+#### Some Additional Algebra For Justifying the Above Cases 
+
+##### y = 0
+
+\
+
+For y = 0, $X_i = 0 \quad \forall i$, so $\sum_{i=1}^{n} X_i = 0$, and $\sum_{i=1}^{n} X_i > X_{n+1}$ has probability zero (does not occur). 
+
+So we have:
+
+$$
+E \left[ T \mid \sum_{i=1}^{n+1} X_i = 0 \right] = 0
+$$
+
+##### y = 1
+
+\
+
+For y = 1, $X_{n+1} = 0$, so we have: 
+
+$$
+P( \sum_{i=1}^{n} X_i = 1 \mid \sum_{i=1}^{n+1} X_i = 1) 
+= \frac{\binom{n}{1} p (1 - p)^{n-1} (1 - p)}{\binom{n+1}{1} p (1 - p)^n}
+= \frac{\binom{n}{1}}{\binom{n+1}{1}} = \frac{n}{n+1}
+$$
+
+##### y = 2
+
+\
+
+For y = 2:
+
+$$
+P( \sum_{i=1}^{n} X_i 
+= 2 \mid \sum_{i=1}^{n+1} X_i = 2) = \frac{\binom{n}{2} p^2 (1 - p)^{n-2} (1 - p)}{\binom{n+1}{2} p^2 (1 - p)^{n-1}}
+= \frac{\binom{n}{2}}{\binom{n+1}{2}} = \frac{n-1}{n+1}
+$$
+
+##### y > 2
+
+\
+
+For $y > 2$:
+
+$$
+P( \sum_{i=1}^{n} X_i > X_{n+1} \mid \sum_{i=1}^{n+1} X_i = y ) = 
+\left(\frac{n+1 - y}{n+1} \right) + \left(\frac{y}{n+1} \right)
+= \frac{n+1}{n+1}
+= 1
 $$
