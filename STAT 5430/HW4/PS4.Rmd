@@ -294,7 +294,23 @@ Is $X$ a complete sufficient statistic?
 
 ### Answer 
 
-Since $X$ is the only observation, it is sufficient for $\theta$ as it is the entirety of the data (all the information). 
+Since $X$ is the only observation, it is sufficient for $\theta$ as it is the entirety of the data (all the information). Ok, after much discussion I recognize this argument is insufficient. So instead we turn to the Factorialization Thm. To that end: 
+
+A statistic $T(X)$ is sufficient for $\theta$ if and only if the joint pmf of the data can be factorized as:
+
+$$
+P(X | \theta) = g(T(X), \theta) h(X)
+$$
+
+Since we have only one observation, we can rewrite the pmf as:
+
+$$
+P(X | \theta) = \theta^{I(X \neq 0)} (1 - \theta)^{I(X = 0)}
+$$
+
+Here, we have our Statistic $T(X) = I(X \neq 0)$, the identity for the Event $X$ is nonzero. This effectively captures all dependence on the parameter $\theta$. However, because $X$ determines $I(X \neq 0)$ uniquely, $X$ is sufficient for $\theta$. Another way to say this is that we have two functions, one which entirely depends on $\theta$ and one that does not (in this case, the 1 function). So $X$ is a sufficient statistic. 
+
+We then need to determine whether it is complete. 
 
 To determine whether $X$ is complete, we then need to check whether the only function $g(X)$ satisfying $E[g(X)] = 0$ for all $\theta$ is the zero function.
 
@@ -347,6 +363,8 @@ f(x | \theta) = \left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|}
 $$
 
 As defined, the above pdf depends on $X$ only through $|X|$, so the conditional distribution of $X$ given $|X|$ does not depend on $\theta$. So $|X|$ is sufficient via the Factorization Thm. Another way to say this is that we have two functions, one which entirely depends on $\theta$ and one that does not (in this case, the 1 function), i.e. $f(x | \theta) = \left(\frac{\theta}{2}\right)^{|x|} (1 - \theta)^{1 - |x|} \cdot 1$. 
+
+Another argument, which may not always be appropriate, is that we already determined that $X$ is sufficient, so for certain (linear) transformations of a sufficient statistic, the transformed statistic should also remain sufficient (it inherits the sufficiency property under transformation by absolute value). At any rate...
 
 Next, we check completeness, using the same criteria used in part a). 
 
