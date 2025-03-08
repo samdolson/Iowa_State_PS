@@ -10,32 +10,148 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Q1 
 
-See Nettleton, HW7, Q1 
-
 Consider the dataset `pigs` provided in the R package `emmeans`. The data can be accessed in R with the following commands.
 
-```{r}
+```{r, warning = F, message = F}
 library(emmeans)
-pigs
+names(pigs)
 ```
 
 To learn a more about the data, type `?pigs` at the R prompt. For the purposes of this problem, use the natural logarithm of the variable `conc` as the response. Consider both `source` and `percent` as categorical factors. Assume the cell-means model with one unrestricted treatment mean for each combination of `source` and `percent`.
+
+```{r, warning = F, message = F}
+lnConc <- log(pigs$conc)
+pigs$percent <- factor(pigs$percent)
+class(pigs$percent)
+```
+
+\newpage 
 
 ### a) 
 
 Generate an ANOVA table with Type I (sequential) sums of squares for `source`, `percent`, `source × percent`, `error`, and `corrected total`. In addition to sums of squares, your ANOVA table should include degrees of freedom, mean squares, F statistics, and p-values where appropriate.
 
+Type 1 Sums of Squares are the default given when using the `anova` function in R. Hence: 
+
+```{r, warning = F, message = F}
+baseDat <- lm(lnConc ~ source + percent + source*percent, data=pigs)
+type1Dat <- anova(baseDat)
+type1_df <- data.frame(type1Dat)
+
+total <- c(sum(type1_df$`Df`), sum(type1_df$`Sum.Sq`), NA, NA, NA)
+type1_df <- rbind(type1_df, total) 
+rownames(type1_df)[nrow(type1_df)] <- "Total"
+
+print(type1_df, digits = 6)
+```
+
 ### b) 
 
 Generate an ANOVA table with Type II sums of squares for `source`, `percent`, `source × percent`, `error`, and `corrected total`. In addition to sums of squares, your ANOVA table should include degrees of freedom, mean squares, F statistics, and p-values where appropriate.
+
+The `car` package allows more flexible usage of Types of Suns of Squares used for anova. Hence: 
+
+```{r, warning = F, message = F}
+library(car)
+type2Dat <- car::Anova(baseDat, type = 2)
+
+type2_df <- as.data.frame(type2Dat)
+
+# Compute Mean Square (MS) = SS / df
+type2_df$MeanSq <- type2_df$`Sum Sq` / type2_df$Df
+
+# Reorder columns to match anova() output
+type2_df <- type2_df[, c("Df", "Sum Sq", "MeanSq", "F value", "Pr(>F)")]
+
+total <- c(sum(type2_df$`Df`), sum(type2_df$`Sum Sq`), NA, NA, NA)
+type2_df <- rbind(type2_df, total) 
+rownames(type2_df)[nrow(type2_df)] <- "Total"
+# Print with higher precision
+print(type2_df, digits = 6)
+```
 
 ### c) 
 
 Generate an ANOVA table with Type III sums of squares for `source`, `percent`, `source × percent`, `error`, and `corrected total`. In addition to sums of squares, your ANOVA table should include degrees of freedom, mean squares, F statistics, and p-values where appropriate.
 
+Quick note on the continued use of car::Anova for this problem: By default R uses the baseline constraint when making these calculations, and in R the baseline is the combination of the first factor levels. So effectively we just need to change the type of contrast being used when calculating the Anova table from treatment aka `contr.treatment` to sums aka `contra.sum` (which corresponds to a sum-to-zero constraint) and proceed, bearing in mind Type 3 Sums of Squares are 'marginal' Sums of Squares, hence the reason for this adjustment. 
+
+
+```{r, warning = F, message = F}
+options(digits = 6)  
+
+# car Anova function needs some adjustment for Type 3
+contrasts(pigs$source) <- contr.sum
+contrasts(pigs$percent) <- contr.sum
+
+type3Dat <- car::Anova(baseDat, type = 3)
+type3_df <- as.data.frame(type3Dat)
+
+# Add MSE
+type3_df$MeanSq <- type3_df$`Sum Sq` / type2_df$Df
+type3_df <- type3_df[, c("Df", "Sum Sq", "MeanSq", "F value", "Pr(>F)")]
+
+type3_df <- type3_df[-1, ]
+
+total <- c(sum(type3_df$`Df`), sum(type3_df$`Sum Sq`), NA, NA, NA)
+type3_df <- rbind(type3_df, total) 
+rownames(type3_df)[nrow(type3_df)] <- "Total"
+
+print(type3_df, digits = 6)
+```
+
 ### d) 
 
 Find LSMeans for `source` and `percent`.
+
+```{r, warning = F, message = F}
+library(tidyverse)
+
+summary_table <- pigs |> 
+  group_by(source, percent) |> 
+  mutate(count = n()) 
+
+print(summary_table, digits = 6)
+```
+
+Don't have balance, so need to explicitly calculate LSmeans (they are not the same as OLS). 
+
+```{r, warning = F, message = F}
+library(tidyverse)
+library(emmeans)
+
+# Fit the model
+modDat <- lm(lnConc ~ source * percent, data = pigs)
+
+# Compute LS Means
+lsmeans_table <- emmeans(modDat, ~ source * percent)
+
+# Convert to a data frame
+lsmeans_df <- as.data.frame(lsmeans_table)
+
+# Reshape to wide format
+lsmeans_wide <- lsmeans_df |> 
+  select(source, percent, emmean) |> 
+  pivot_wider(names_from = percent, values_from = emmean)
+
+lsmeans_wide 
+```
+
+```{r, warning = F, message = F}
+lsmeans_wide <- lsmeans_wide |> 
+  mutate(Row_Avg = rowMeans(select(lsmeans_wide, -source), na.rm = TRUE))
+
+lsmeans_wide[-c(2:5)]
+```
+
+```{r, warning = F, message = F}
+# Compute column-wise averages (across sources)
+col_avg <- lsmeans_wide |> 
+  summarise(across(-source, mean, na.rm = TRUE)) |> 
+  mutate(source = "Column_Avg")
+
+col_avg
+```
 
 ### e) 
 
@@ -47,17 +163,63 @@ lm(y ~ source + percent + source:percent)
 
 where `y=log(conc)` and `percent` is numeric. Does such a model fit adequately relative to the cell-means model? Conduct a lack of fit test and report the results.
 
+Back to the land of vanilla `anova`. We can just put the two models in and compare directly. 
+
+```{r, warning = F, message = F}
+# Reduced model: Treat percent as numeric
+reduced <- lm(lnConc ~ source + as.numeric(percent) + source:as.numeric(percent), data = pigs)
+
+# Full model: Treat percent as a categorical factor
+full <- lm(lnConc ~ source * factor(percent), data = pigs)
+
+# Compare the two models with ANOVA
+anova(reduced, full)
+```
+
+We have evidence to support the reduced model being adequate in lieu of the more complex, cell means model. 
+
 ### f) 
 
 The reduced model fit in part (e) implies that, for each `source`, there is a linear relationship between the expected log concentration and percentage. Based on the fit of the reduced model in part (e), provide the estimated linear relationship for each `source`.
+
+$$
+y_{ijk} = \mu + \alpha_i + \beta x_{ij} + \gamma_i x_{ij} + \epsilon_{ijk}
+$$
+
+Based on this model, the estimated linear relationship for each source is as follows.
+
+### Fish
+
+$$
+(\hat{\mu} + \hat{\alpha}_1) + (\hat{\beta} + \hat{\gamma}_1) \cdot x_{1j} = 3.1164 + 0.0211 x_{1j}
+$$
+
+### Soy
+
+$$
+(\hat{\mu} + \hat{\alpha}_2) + (\hat{\beta} + \hat{\gamma}_2) \cdot x_{2j} = (3.1164 + 0.2517) + (0.0211 + 0.0006) x_{2j}
+= 3.3681 + 0.0217 x_{2j}
+$$
+
+### Skim
+
+$$
+(\hat{\mu} + \hat{\alpha}_3) + (\hat{\beta} + \hat{\gamma}_3) \cdot x_{3j} = (3.1164 - 0.0672) + (0.0211 + 0.0369) x_{3j}
+= 3.0492 + 0.058 x_{3j}
+$$
+
 
 \newpage
 
 ## Q2
 
-See Nettleton, HW6, Q1 
-
 Consider the plant density example discussed in slide set 6.
+
+Add image of Slide here: 
+
+```{r, eval = F, echo=FALSE, fig.cap="CocoMelon"}
+knitr::include_graphics("Algorithm.png")
+```
 
 ### a) 
 
@@ -67,18 +229,218 @@ $$H_0 : c^T \beta = 0$$
 
 would yield the same statistic and p-value as the ANOVA test. (You can use R to help you with the computations like we did on slides 45 and 46 of slide set 6.) Label these vectors $c_1$, $c_2$, $c_3$, and $c_4$ for the linear, quadratic, cubic, and quartic tests, respectively.
 
+```{r}
+proj <- function(x) {
+  x %*% MASS::ginv(t(x) %*% x) %*% t(x)
+}
+
+d <- read.delim("https://dnett.github.io/S510/PlantDensity.txt")
+names(d) <- c("x","y")
+n <- nrow(d)
+x <- (d$x-mean(d$x))/10
+x1 <- matrix(1,nrow <- n,ncol <- 1)
+x2 <- cbind(x1,x)
+x3 <- cbind(x2,x^2)
+x4 <- cbind(x3,x^3)
+x5 <- matrix(model.matrix(~0+factor(x)),nrow <- n)
+```
+
+```{r}
+p1 <- proj(x1)
+p2 <- proj(x2)
+p3 <- proj(x3)
+p4 <- proj(x4)
+p5 <- proj(x5)
+
+((p2-p1)%*%x5)[1,] *5 ## linear
+((p3-p2)%*%x5)[1,] *7 ## quadratic
+((p4-p3)%*%x5)[1,] *10 ## cubic
+((p5-p4)%*%x5)[1,] *70 ## quartic
+```
+
 ### b) 
 
 Are $c^T_1 \beta$, $c^T_2 \beta$, $c^T_3 \beta$, and $c^T_4 \beta$ contrasts? Explain.
+
+All $\mathbf{c}_i ^{\top} \boldsymbol{\beta}$ are contrasts because:
+
+$$
+\mathbf{c}_i ^{\top} \mathbf{1} = 0 \quad \text{for } i = 1,2,3,4
+$$
+
+And not only are these contrasts, but they are orthogonal contrasts because they satisfy:  
+
+$$
+\mathbf{c}_i ^{\top} \mathbf{c}_j = 0, \quad \text{for } i \neq j
+$$
 
 ### c) 
 
 Are $c^T_1 \beta$, $c^T_2 \beta$, $c^T_3 \beta$, and $c^T_4 \beta$ orthogonal? Explain.
 
+Preempted this question a bit at the end of part b), but yes, these contrasts are orthogonal, and here is more detail on why beyond the expression they satisfy. 
+
+So, the initial expression to check is: 
+
+$$
+\mathbf{c}_i ^{\top} \mathbf{c}_j = 0, \quad \text{for } i \neq j
+$$
+
+Checking this explicitly: 
+
+4 choose 2 cases to check, 6 total cases: 
+
+#### $\mathbf{c}_1^{\top} \mathbf{c}_2$
+
+$$
+(2)(2) + (1)(-1) + (0)(-2) + (-1)(-1) + (-2)(2)
+= 4 - 1 + 0 + 1 - 4 = 0
+$$
+
+#### $\mathbf{c}_1^{\top} \mathbf{c}_3$
+
+$$
+(2)(1) + (1)(-2) + (0)(0) + (-1)(2) + (-2)(-1)
+= 2 - 2 + 0 - 2 + 2 = 0
+$$
+
+#### $\mathbf{c}_1^{\top} \mathbf{c}_4$
+
+$$
+(2)(1) + (1)(-4) + (0)(6) + (-1)(-4) + (-2)(1)
+= 2 - 4 + 0 + 4 - 2 = 0
+$$
+
+#### $\mathbf{c}_2^{\top} \mathbf{c}_3$
+
+$$
+(2)(1) + (-1)(-2) + (-2)(0) + (-1)(2) + (2)(-1)
+= 2 + 2 + 0 - 2 - 2 = 0
+$$
+
+#### $\mathbf{c}_2^{\top} \mathbf{c}_4$
+
+$$
+(2)(1) + (-1)(-4) + (-2)(6) + (-1)(-4) + (2)(1)
+= 2 + 4 - 12 + 4 + 2 = 0
+$$
+
+#### $\mathbf{c}_3^{\top} \mathbf{c}_4$
+
+$$
+(1)(1) + (-2)(-4) + (0)(6) + (2)(-4) + (-1)(1)
+= 1 + 8 + 0 - 8 - 1 = 0
+$$
+
 \newpage 
 
 ## Q3 
 
-See Nettleton, HW6, Q2 
-
 Suppose $H$ is a symmetric matrix. Prove that $H$ is nonnegative definite if and only if all its eigenvalues are nonnegative. (If you wish, you may use the Spectral Decomposition Theorem in your proof.)
+
+### Spectral Decomposition Theorem:
+
+For $\mathbf{H}$ is a symmetric matrix, then: 
+
+$$
+\mathbf{H} = \sum_{i=1}^{n} \lambda_i \mathbf{p}_i \mathbf{p}_i^{\top}
+$$
+
+where $\mathbf{p}_i$ are orthonormal eigenvectors of $\mathbf{H}$.
+
+The general approach for solving an iff proof is to prove both directions hold. To that end: 
+
+### “$\Rightarrow$”
+
+By definition, $\mathbf{H}$ is nonnegative definite, which implies:
+
+$$
+\mathbf{p}_i^{\top} \mathbf{H} \mathbf{p}_i \geq 0
+$$
+
+for any $\mathbf{p}_i$, where $i = 1, \dots, n$.
+
+$$
+\mathbf{p}_i^{\top} \mathbf{H} \mathbf{p}_i = \mathbf{p}_i^{\top} \left( \sum_{j=1}^{n} \lambda_j \mathbf{p}_j \mathbf{p}_j^{\top} \right) \mathbf{p}_i
+$$
+
+Expanding the sum:
+
+$$
+= \sum_{j=1}^{n} \lambda_j \mathbf{p}_i^{\top} \mathbf{p}_j \mathbf{p}_j^{\top} \mathbf{p}_i
+$$
+
+Using orthonormality:
+
+$$
+= \lambda_i \mathbf{p}_i^{\top} \mathbf{p}_i \mathbf{p}_i^{\top} \mathbf{p}_i
+$$
+
+$$
+= \lambda_i
+$$
+
+since:
+
+$$
+\mathbf{p}_i^{\top} \mathbf{p}_j = 0 \quad \text{for all } i \neq j, \quad \text{and} \quad \mathbf{p}_i^{\top} \mathbf{p}_i = 1.
+$$
+
+Thus:
+
+$$
+\lambda_i \geq 0, \quad \forall i = 1, \dots, n.
+$$
+
+### “$\Leftarrow$” 
+Given $\lambda_i \geq 0$ for $i = 1, \dots, n$, we need to prove that:
+
+$$
+\mathbf{y}^{\top} \mathbf{H} \mathbf{y} \geq 0
+$$
+
+for any $n \times 1$ vector $\mathbf{y}$.
+
+By the Spectral Decomposition Theorem:
+
+$$
+\mathbf{H} = \mathbf{P} \operatorname{diag}(\lambda_1, \dots, \lambda_n) \mathbf{P}^{\top}
+$$
+
+where $\mathbf{P} = [\mathbf{p}_1, \dots, \mathbf{p}_n]$ and:
+
+$$
+\mathbf{P} \mathbf{P}^{\top} = \mathbf{P}^{\top} \mathbf{P} = \mathbf{I}.
+$$
+
+For $j = 1, \dots, n$, define:
+
+$$
+x_j = \mathbf{p}_j^{\top} \mathbf{y} = \mathbf{y}^{\top} \mathbf{p}_j.
+$$
+
+Then,
+
+$$
+\mathbf{y}^{\top} \mathbf{H} \mathbf{y} = \mathbf{y}^{\top} \left( \sum_{j=1}^{n} \lambda_j \mathbf{p}_j \mathbf{p}_j^{\top} \right) \mathbf{y}
+$$
+
+$$
+= \sum_{j=1}^{n} \lambda_j \mathbf{y}^{\top} \mathbf{p}_j \mathbf{p}_j^{\top} \mathbf{y}
+$$
+
+$$
+= \sum_{j=1}^{n} \lambda_j x_j^2.
+$$
+
+Since each term $\lambda_j x_j^2$ is the product of nonnegative terms, we conclude:
+
+$$
+\mathbf{y}^{\top} \mathbf{H} \mathbf{y} \geq 0.
+$$
+
+Thus, $\mathbf{H}$ is nonnegative definite if and only if all its eigenvalues are nonnegative.
+
+### Iff
+
+Taken together, for $H$ is a symmetric matrix, $H$ is nonnegative definite $\iff$ all its eigenvalues are nonnegative.
