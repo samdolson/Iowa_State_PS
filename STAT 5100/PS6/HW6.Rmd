@@ -6,7 +6,7 @@ author: "Sam Olson"
 
 # Outline 
 
-  - Q1: Draft
+  - Q1: Edited, iffy on part f) 
   - Q2: Edited, G2G 
   - Q3: Edited, G2G
 
@@ -84,7 +84,7 @@ print(type2_df, digits = 6)
 
 Generate an ANOVA table with Type III sums of squares for `source`, `percent`, `source × percent`, `error`, and `corrected total`. In addition to sums of squares, your ANOVA table should include degrees of freedom, mean squares, F statistics, and p-values where appropriate.
 
-Quick note on the continued use of car::Anova for this problem: By default R uses the baseline constraint when making these calculations, and in R the baseline is the combination of the first factor levels. So effectively we just need to change the type of contrast being used when calculating the Anova table from treatment aka `contr.treatment` to sums aka `contra.sum` (which corresponds to a sum-to-zero constraint) and proceed, bearing in mind Type 3 Sums of Squares are 'marginal' Sums of Squares, hence the reason for this adjustment. 
+Quick note on the continued use of `car::Anova` for this problem: By default R uses the baseline constraint when making these calculations, and in R the baseline is the combination of the first factor levels. So effectively we just need to change the type of contrast being used when calculating the Anova table from treatment aka `contr.treatment` to sums aka `contra.sum` (which corresponds to a sum-to-zero constraint) and proceed, bearing in mind Type 3 Sums of Squares are 'marginal' Sums of Squares, hence the reason for this adjustment. 
 
 ```{r, warning = F, message = F}
 options(digits = 6)  
@@ -125,28 +125,24 @@ summary_table <- pigs |>
 print(summary_table, digits = 6)
 ```
 
-Don't have balance, so need to explicitly calculate LSmeans (they are not the same as OLS). 
+Our data is not balanced, so need to explicitly calculate LSmeans (they are not the same as the OLS estimates). 
 
 ```{r, warning = F, message = F}
 library(tidyverse)
 library(emmeans)
 
-# Fit the model
 modDat <- lm(lnConc ~ source * percent, data = pigs)
-
-# Compute LS Means
 lsmeans_table <- emmeans(modDat, ~ source * percent)
-
-# Convert to a data frame
 lsmeans_df <- as.data.frame(lsmeans_table)
 
-# Reshape to wide format
 lsmeans_wide <- lsmeans_df |> 
   select(source, percent, emmean) |> 
   pivot_wider(names_from = percent, values_from = emmean)
 
 lsmeans_wide 
 ```
+
+We then sum across row, column for the `source`, `percent` LSmeans respectively. 
 
 ```{r, warning = F, message = F}
 lsmeans_wide <- lsmeans_wide |> 
@@ -164,6 +160,21 @@ col_avg <- lsmeans_wide |>
 col_avg
 ```
 
+In Summary, our LSmeans are: 
+
+Percent: 
+
+  - 9%: 3.448
+  - 12%: 3.625
+  - 15%: 3.670
+  - 18%: 3.775
+	
+Source: 
+
+  - Fish: 3.396
+  - Soy: 3.662	
+  - Skim: 3.830
+  
 \newpage 
 
 ### e) 
@@ -179,14 +190,18 @@ where `y=log(conc)` and `percent` is numeric. Does such a model fit adequately r
 Back to the land of vanilla `anova`. We can just put the two models in and compare directly. 
 
 ```{r, warning = F, message = F}
-# Reduced model: Treat percent as numeric
+# Need to readjust based on messing with contrasts for Type 3 Sums of Squares 
+contrasts(pigs$source) <- contr.sum
+contrasts(pigs$percent) <- contr.sum
+# Reduced model: percent as numeric
 reduced <- lm(lnConc ~ source + as.numeric(percent) + source:as.numeric(percent), data = pigs)
 
-# Full model: Treat percent as a categorical factor
+# Full model: percent as factor
 full <- lm(lnConc ~ source * factor(percent), data = pigs)
 
-# Compare the two models with ANOVA
 anova(reduced, full)
+# order is important for positive df, but statistical tests yield same results (F stat and p-value)
+# anova(full, reduced)
 ```
 
 We have evidence to support the reduced model being adequate in lieu of the more complex, cell means model. 
@@ -195,32 +210,67 @@ We have evidence to support the reduced model being adequate in lieu of the more
 
 ### f) 
 
-The reduced model fit in part (e) implies that, for each `source`, there is a linear relationship between the expected log concentration and percentage. Based on the fit of the reduced model in part (e), provide the estimated linear relationship for each `source`.
+The reduced model fit in part e) implies that, for each `source`, there is a linear relationship between the expected log concentration and percentage. Based on the fit of the reduced model in part e), provide the estimated linear relationship for each `source`.
+
+General Form of Model: 
 
 $$
 y_{ijk} = \mu + \alpha_i + \beta x_{ij} + \gamma_i x_{ij} + \epsilon_{ijk}
 $$
-
-Based on this model, the estimated linear relationship for each source is as follows.
-
-### Fish
+Where: 
 
 $$
-(\hat{\mu} + \hat{\alpha}_1) + (\hat{\beta} + \hat{\gamma}_1) \cdot x_{1j} = 3.1164 + 0.0211 x_{1j}
+E[y_{ijk}] = \mu + \alpha_i + \beta x_{ij} + \gamma_i x_{ij}
 $$
 
-### Soy
+And where we use the following as our estimated effects: 
+
+```{r, eval = FALSE, echo = FALSE}
+# troubleshooting discrepancies 
+contrasts(pigs$source) <- contr.sum
+contrasts(pigs$percent) <- contr.sum
+
+reduced <- lm(lnConc ~ source + as.numeric(percent) + source:as.numeric(percent), data = pigs)
+summary(reduced)
+```
+
+```{r}
+summary(reduced)
+```
+
+Checking Reference Levels for source: 
+
+```{r}
+levels(pigs$source)
+contrasts(pigs$source)
+```
+
+Based on the above output, we have "fish" as our baseline, giving us the estimates of: 
+
+#### Fish (Baseline Category)
 
 $$
-(\hat{\mu} + \hat{\alpha}_2) + (\hat{\beta} + \hat{\gamma}_2) \cdot x_{2j} = (3.1164 + 0.2517) + (0.0211 + 0.0006) x_{2j}
-= 3.3681 + 0.0217 x_{2j}
+\hat{y} 
+= \hat{\mu} + \hat{\beta} x_{1j}
+= 3.37953 + 0.10081 x_{1j}
 $$
 
-### Skim
+#### Soy (`source1`)
 
 $$
-(\hat{\mu} + \hat{\alpha}_3) + (\hat{\beta} + \hat{\gamma}_3) \cdot x_{3j} = (3.1164 - 0.0672) + (0.0211 + 0.0369) x_{3j}
-= 3.0492 + 0.058 x_{3j}
+\hat{y} 
+= (\hat{\mu} + \hat{\alpha}_1) + (\hat{\beta} + \hat{\gamma}_1) x_{2j}
+= (3.37953 - 0.13651) + (0.10081 - 0.03751) x_{2j}
+= 3.24302 + 0.0633 x_{2j}
+$$
+
+#### Skim (`source2`)
+
+$$
+\hat{y} 
+= (\hat{\mu} + \hat{\alpha}_2) + (\hat{\beta} + \hat{\gamma}_2) x_{3j}
+= (3.37953 + 0.11907) + (0.10081 - 0.03556) x_{3j}
+= 3.4986 + 0.06525 x_{3j}
 $$
 
 \newpage
@@ -229,10 +279,8 @@ $$
 
 Consider the plant density example discussed in slide set 6.
 
-Add image of Slide here: 
-
-```{r, eval = F, echo=FALSE, fig.cap="CocoMelon"}
-knitr::include_graphics("Algorithm.png")
+```{r, eval = T, echo=FALSE, fig.cap="CocoMelon"}
+knitr::include_graphics("Density.png")
 ```
 
 ### a) 
@@ -270,18 +318,29 @@ p3 <- proj(x3)
 p4 <- proj(x4)
 p5 <- proj(x5)
 
-((p2-p1)%*%x5)[1,] *5 ## linear
-((p3-p2)%*%x5)[1,] *7 ## quadratic
-((p4-p3)%*%x5)[1,] *10 ## cubic
-((p5-p4)%*%x5)[1,] *70 ## quartic
+# Contrasts 
+((p2-p1)%*%x5)[1,] * 5 
+((p3-p2)%*%x5)[1,] * 7 
+((p4-p3)%*%x5)[1,] * 10 
+((p5-p4)%*%x5)[1,] * 70 
 ```
+
 From the above output, we have: 
 
 $$
-\mathbf{c}_1^{\top} = [2, 1, 0, -1, -2] \\
-\mathbf{c}_2^{\top} = [2, -1, -2, -1, 2] \\
-\mathbf{c}_3^{\top} = [1, -2, 0, 2, -1] \\ 
-\mathbf{c}_4^{\top} = [1, -4, 6, -4, 1] \\ 
+\mathbf{c}_1^{\top} = [2, 1, 0, -1, -2]
+$$
+
+$$
+\mathbf{c}_2^{\top} = [2, -1, -2, -1, 2]
+$$
+
+$$
+\mathbf{c}_3^{\top} = [1, -2, 0, 2, -1]
+$$
+
+$$
+\mathbf{c}_4^{\top} = [1, -4, 6, -4, 1]
 $$
 
 \newpage 
