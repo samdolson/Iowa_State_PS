@@ -43,11 +43,11 @@ $$
 Making the joint pdf of $X_1, \dots, X_n$:
 
 $$
-f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} f_{X_i}(x_i | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot I_{[i\theta, +\infty)}(x_i)
+f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} f_{X_i}(x_i | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot \mathbb{I}_{x_i \geq i\theta}
 $$
 
 $$
-f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot I_{[i\theta, +\infty)}(x_i)
+f(x_1, \dots, x_n | \theta) = \prod_{i=1}^{n} e^{\theta - x_i} \cdot \mathbb{I}_{x_i \geq i\theta}
 $$
 
 So we have two products to consider. The first:
@@ -59,7 +59,7 @@ $$
 And for the second: 
 
 $$
-\prod_{i=1}^{n} I_{[i\theta, +\infty)}(x_i) = I_{[\theta, +\infty)}\left( \min_i (x_i / i) \right)
+\prod_{i=1}^{n} \mathbb{I}_{x_i \geq i\theta} = \mathbb{I}_{ \min_i (x_i / i) \geq \theta}
 $$
 
 Noting that the condition $x_i \geq i\theta$ for all $i$ is equivalent to $\min_i (x_i / i) \geq \theta$.
@@ -67,19 +67,19 @@ Noting that the condition $x_i \geq i\theta$ for all $i$ is equivalent to $\min_
 Taken together, the joint pdf is:
 
 $$
-f(x_1, \dots, x_n | \theta) = e^{n\theta} \cdot I_{[\theta, +\infty)}\left( \min_i (x_i / i) \right) \cdot e^{-\sum_{i=1}^{n} x_i}
+f(x_1, \dots, x_n | \theta) = e^{n\theta} \cdot \mathbb{I}_{ \min_i (x_i / i) \geq \theta} \cdot e^{-\sum_{i=1}^{n} x_i} 
 $$
 
 Let $T(X) = \min_i (X_i / i)$, such that we have:
 
 $$
-f(x_1, \dots, x_n | \theta) = e^{n\theta} \cdot I_{[\theta, +\infty)}(T(X)) \cdot e^{-\sum_{i=1}^{n} x_i}
+f(x_1, \dots, x_n | \theta) = e^{n\theta} \cdot \mathbb{I}_{ \min_i (x_i / i) \geq \theta} \cdot e^{-\sum_{i=1}^{n} x_i}
 $$
 
 Where: 
 
 $$
-g(T(X), \theta) = e^{n\theta} \cdot I_{[\theta, +\infty)}(T(X))
+g(T(X), \theta) = e^{n\theta} \cdot \mathbb{I}_{ \min_i (x_i / i) \geq \theta} (T(X))
 $$
 
 And 

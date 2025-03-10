@@ -4,12 +4,6 @@ output: pdf_document
 author: "Sam Olson"
 ---
 
-# Outline 
-
-  - Q1: Edited, iffy on part f) 
-  - Q2: Edited, G2G 
-  - Q3: Edited, G2G
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -20,7 +14,7 @@ Consider the dataset `pigs` provided in the R package `emmeans`. The data can be
 
 ```{r, warning = F, message = F}
 library(emmeans)
-names(pigs)
+attach(pigs)
 ```
 
 To learn a more about the data, type `?pigs` at the R prompt. For the purposes of this problem, use the natural logarithm of the variable `conc` as the response. Consider both `source` and `percent` as categorical factors. Assume the cell-means model with one unrestricted treatment mean for each combination of `source` and `percent`.
@@ -191,21 +185,6 @@ Back to the land of vanilla `anova`. We can just put the two models in and compa
 
 ```{r, warning = F, message = F}
 # Need to readjust based on messing with contrasts for Type 3 Sums of Squares 
-contrasts(pigs$source) <- contr.treatment
-contrasts(pigs$percent) <- contr.treatment
-# Reduced model: percent as numeric
-reduced <- lm(lnConc ~ source + as.numeric(percent) + source:as.numeric(percent), data = pigs)
-
-# Full model: percent as factor
-full <- lm(lnConc ~ source * factor(percent), data = pigs)
-
-anova(reduced, full)
-# order is important for positive df, but statistical tests yield same results (F stat and p-value)
-# anova(full, reduced)
-```
-
-```{r, warning = F, message = F}
-# Need to readjust based on messing with contrasts for Type 3 Sums of Squares 
 contrasts(pigs$source) <- contr.sum
 contrasts(pigs$percent) <- contr.sum
 # Reduced model: percent as numeric
@@ -232,6 +211,7 @@ General Form of Model:
 $$
 y_{ijk} = \mu + \alpha_i + \beta x_{ij} + \gamma_i x_{ij} + \epsilon_{ijk}
 $$
+
 Where: 
 
 $$
@@ -240,68 +220,58 @@ $$
 
 And where we use the following as our estimated effects: 
 
-```{r, eval = FALSE, echo = FALSE}
-# troubleshooting discrepancies 
-contrasts(pigs$source) <- contr.treatment
-contrasts(pigs$percent) <- contr.treatment
+```{r, message = F, warning = F}
+library(emmeans)
+attach(pigs)
+pigs$lnConc <- log(pigs$conc)
+pigs$percent <- as.numeric(as.character(pigs$percent))
 
-reduced <- lm(lnConc ~ source + as.numeric(percent) + source:as.numeric(percent), data = pigs)
-summary(reduced)
+reducedFish <- lm(lnConc ~ percent,
+              data = subset(x = pigs, source == "fish"))
 
-levels(pigs$source)
-contrasts(pigs$source)
+reducedSoy <- lm(lnConc ~ percent,
+              data = subset(x = pigs, source == "soy"))
+
+reducedSkim <- lm(lnConc ~ percent,
+              data = subset(x = pigs, source == "skim"))
+
+summary(reducedFish)
+summary(reducedSoy)
+summary(reducedSkim)
 ```
 
-```{r, eval = FALSE, echo = FALSE}
-# troubleshooting discrepancies 
-contrasts(pigs$source) <- contr.sum
-contrasts(pigs$percent) <- contr.sum
+Based on the above output, our estimates are: 
 
-reduced <- lm(lnConc ~ source + as.numeric(percent) + source:as.numeric(percent), data = pigs)
-summary(reduced)
-
-levels(pigs$source)
-contrasts(pigs$source)
-```
-
-```{r}
-summary(reduced)
-```
-
-Checking Reference Levels for source: 
-
-```{r}
-levels(pigs$source)
-contrasts(pigs$source)
-```
-
-Based on the above output, we have "fish" as our baseline, giving us the estimates of: 
-
-#### Fish (Baseline Category)
+#### Fish
 
 $$
 \hat{y} 
-= \hat{\mu} + \hat{\beta} x_{1j}
-= 3.37953 + 0.10081 x_{1j}
+= 3.11642 + 0.02110 x_{1j}
 $$
 
-#### Soy (`source1`)
-
-$$
-\hat{y} 
-= (\hat{\mu} + \hat{\alpha}_1) + (\hat{\beta} + \hat{\gamma}_1) x_{2j}
-= (3.37953 - 0.13651) + (0.10081 - 0.03751) x_{2j}
-= 3.24302 + 0.0633 x_{2j}
-$$
-
-#### Skim (`source2`)
+#### Soy 
 
 $$
 \hat{y} 
-= (\hat{\mu} + \hat{\alpha}_2) + (\hat{\beta} + \hat{\gamma}_2) x_{3j}
-= (3.37953 + 0.11907) + (0.10081 - 0.03556) x_{3j}
-= 3.4986 + 0.06525 x_{3j}
+= 3.368104 + 0.021748 x_{2j}
 $$
+
+#### Skim 
+
+$$
+\hat{y} 
+= 3.04920 + 0.05796 x_{3j}
+$$
+
+We could have also had a more involved calculation of the above estimates using: 
+
+```{r, warning = F, message = F}
+reduced <- lm(lnConc ~ source + percent + source:percent,
+              data = pigs)
+summary(reduced)
+```
+
+Where our "baseline" is for the "fish" source. 
 
 \newpage
 
