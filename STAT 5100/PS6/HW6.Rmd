@@ -191,6 +191,21 @@ Back to the land of vanilla `anova`. We can just put the two models in and compa
 
 ```{r, warning = F, message = F}
 # Need to readjust based on messing with contrasts for Type 3 Sums of Squares 
+contrasts(pigs$source) <- contr.treatment
+contrasts(pigs$percent) <- contr.treatment
+# Reduced model: percent as numeric
+reduced <- lm(lnConc ~ source + as.numeric(percent) + source:as.numeric(percent), data = pigs)
+
+# Full model: percent as factor
+full <- lm(lnConc ~ source * factor(percent), data = pigs)
+
+anova(reduced, full)
+# order is important for positive df, but statistical tests yield same results (F stat and p-value)
+# anova(full, reduced)
+```
+
+```{r, warning = F, message = F}
+# Need to readjust based on messing with contrasts for Type 3 Sums of Squares 
 contrasts(pigs$source) <- contr.sum
 contrasts(pigs$percent) <- contr.sum
 # Reduced model: percent as numeric
@@ -227,11 +242,26 @@ And where we use the following as our estimated effects:
 
 ```{r, eval = FALSE, echo = FALSE}
 # troubleshooting discrepancies 
+contrasts(pigs$source) <- contr.treatment
+contrasts(pigs$percent) <- contr.treatment
+
+reduced <- lm(lnConc ~ source + as.numeric(percent) + source:as.numeric(percent), data = pigs)
+summary(reduced)
+
+levels(pigs$source)
+contrasts(pigs$source)
+```
+
+```{r, eval = FALSE, echo = FALSE}
+# troubleshooting discrepancies 
 contrasts(pigs$source) <- contr.sum
 contrasts(pigs$percent) <- contr.sum
 
 reduced <- lm(lnConc ~ source + as.numeric(percent) + source:as.numeric(percent), data = pigs)
 summary(reduced)
+
+levels(pigs$source)
+contrasts(pigs$source)
 ```
 
 ```{r}
