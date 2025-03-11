@@ -8,3 +8,299 @@ author: "Sam Olson"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Problem 1 (20 pt)
+
+A city has a total of 100,000 dwelling units, of which 35,000 are houses, 45,000 are apartments, and 20,000 are condominiums. A stratified sample of size $n = 1000$ is selected using proportional allocation (and rounding the sample sizes to the nearest integer). The three strata are houses ($h = 1$), apartments ($h = 2$), and condominiums ($h = 3$). The table below gives the estimates of the mean energy consumption per dwelling unit for the three strata and the corresponding standard errors.
+
+| Stratum ($h$)  | Estimated Mean Energy Consumption ($\bar{y}_h$) (kWh per dwelling unit) | Estimated Standard Error ($\hat{SE}(\bar{y}_h)$) |
+|------------------|--------------------------------------------|------------------------------------|
+| House ($h = 1$)  | 915  | 4.84  |
+| Apartments ($h = 2$)  | 641  | 2.98  |
+| Condominium ($h = 3$)  | 712  | 7.00  |
+
+## 1. 
+
+Estimate the total energy consumption for the full population of 100,000 dwelling units.
+
+### Answer 
+
+
+
+## 2. 
+
+Estimate the standard error of the estimator used in (1).
+
+### Answer 
+
+
+
+## 3. 
+
+What would be the sample size if the optimal allocation is to be used (under $n = 1000$) for this population? Assume that the survey costs are the same for each stratum.
+
+Hint: Use the following steps:
+
+  - (a) What is the sample size $n_h$ for each stratum under proportional allocation?
+  - (b) Note that:
+  
+   $$
+   \hat{SE}(\bar{y}_h) = \sqrt{\frac{1}{n_h} \left( 1 - \frac{n_h}{N_h} \right) s_h^2}
+   $$
+   
+   Thus, you can obtain $s_h^2$.
+   
+  - (c) Apply Neyman allocation (optimal allocation) using $s_h$ in place of $S_h$.
+
+### Answer 
+
+## 4. 
+
+What would be the estimated standard error of the total estimator under the optimal allocation in (3)? Compare it with the answer in (2). Which one is smaller?
+
+### Answer 
+
+\newpage
+
+# Problem 2 (10 pt)
+
+Consider a simple random sample of size $n = 200$ from a finite population with size $N = 10,000$, measuring $(X,Y)$, taking values on $\{(0,0), (0,1), (1,0), (1,1)\}$. The finite population has the following distribution.
+
+$$
+\begin{array}{c|cc|c}
+ & X = 1 & X = 0 &  \\
+\hline
+Y = 1 & N_{11} & N_{10} & N_{1+} \\
+Y = 0 & N_{01} & N_{00} & N_{0+} \\
+\hline
+ & N_{+1} & N_{+0} & N \\
+\end{array}
+$$
+
+The population count $N_{ij}$ are unknown.
+
+Suppose that the realized sample has the following sample counts:
+
+$$
+\begin{array}{c|cc|c}
+ & X = 1 & X = 0 &  \\
+\hline
+Y = 1 & 70 & 30 & 100 \\
+Y = 0 & 50 & 50 & 100 \\
+\hline
+ & 120 & 80 & 200 \\
+\end{array}
+$$
+
+## 1. 
+
+If it is known that $N_{+1} = N_{+0} = 5000$, how can you make use of this information to obtain a post-stratified estimator of $\theta = E(Y)$, using $X$ as the post-stratification variable?
+
+### Answer 
+
+## 2. 
+
+If we are interested in estimating $\theta = P(Y = 1 | X = 1)$, discuss how to estimate $\theta$ from the above sample and how to estimate its variance (Hint: Use Taylor expansion of ratio estimator to obtain the sampling variance).
+
+### Answer 
+
+\newpage
+
+# Problem 3 (10 pt)
+
+Suppose that we have a finite population of $(Y_{hi}(1), Y_{hi}(0))$ generated from the following superpopulation model:
+
+$$
+\begin{pmatrix} Y_{hi}(0) \\ Y_{hi}(1) \end{pmatrix} \sim
+\left[ \begin{pmatrix} \mu_{h0} \\ \mu_{h1} \end{pmatrix},
+\begin{pmatrix} \sigma_{h0}^2 & \sigma_{h01} \\ \sigma_{h01} & \sigma_{h1}^2 \end{pmatrix} \right]
+$$
+
+for $i = 1, \dots, N_h$ and $h = 1, \dots, H$. Instead of observing $(Y_{hi}(0), Y_{hi}(1))$, we observe $T_{hi} \in \{0,1\}$ and
+
+$$
+Y_{hi} = T_{hi} Y_{hi}(1) + (1 - T_{hi}) Y_{hi}(0).
+$$
+
+The parameter of interest is the average treatment effect:
+
+$$
+\tau = \sum_{h=1}^{H} W_h (\mu_{h1} - \mu_{h0}),
+$$
+
+where $W_h = N_h / N$. The estimator is:
+
+$$
+\hat{\tau}_{\text{sre}} = \sum_{h=1}^{H} W_h \hat{\tau}_h,
+$$
+
+where
+
+$$
+\hat{\tau}_h = \frac{1}{N_{h1}} \sum_{i=1}^{N_h} T_{hi} Y_{hi} - \frac{1}{N_{h0}} \sum_{i=1}^{N_h} (1 - T_{hi}) Y_{hi}.
+$$
+
+## 1. 
+
+Compute the variance of $\hat{\tau}_{\text{sre}}$ using the model parameters.
+
+### Answer 
+
+## 2. 
+
+Assuming the model parameters are known, determine the optimal sample allocation to minimize $\text{Var}(\hat{\tau}_{\text{sre}})$.
+
+### Answer 
+
+\newpage
+
+# Problem 4 (10 pt)
+
+Assume that a simple random sample of size $n$ is selected from a population of size $N$ and $(x_i, y_i)$ are observed in the sample. In addition, we assume that the population mean of $x$, denoted by $\bar{X}$, is known.
+
+## 1. 
+
+Use a Taylor linearization method to find the variance of the product estimator $\frac{\bar{x} \bar{y}}{\bar{X}}$, where $(\bar{x}, \bar{y})$ is the sample mean of $(x_i, y_i)$.
+
+### Answer 
+
+## 2. 
+
+Find the condition that this product estimator has a smaller variance than the sample mean $\bar{y}$.
+
+### Answer 
+
+## 3. 
+
+Prove that if the population covariance of $x$ and $y$ is zero, then the product estimator is less efficient than $\bar{y}$.
+
+### Answer 
+
+\newpage
+
+# Problem 5 (10 pt)
+
+In a population of 10,000 businesses, we want to estimate the average sales $\bar{Y}$. For that, we sample $n = 100$ businesses using simple random sampling. Furthermore, we have at our disposal the auxiliary information “number of employees”, denoted by $x$, for each business. It is known that $\bar{X} = 50$ in the population. From the sample, we computed the following statistics:
+
+- $\bar{y}_n = 5.2 \times 10^6$ (average sales in the sample)
+- $\bar{x}_n = 45$ employees (sample mean)
+- $s_y^2 = 25 \times 10^{10}$ (sample variance of $y_k$)
+- $s_x^2 = 15$ (sample variance of $x_k$)
+- $r = 0.8$ (sample correlation coefficient between $x$ and $y$)
+
+Answer the following questions:
+
+## 1. 
+
+Compute a 95% confidence interval for $\bar{Y}$ using the ratio estimator.
+
+### Answer 
+
+## 2. 
+
+Compute a 95% confidence interval for $\bar{Y}$ using the regression estimator based on the simple linear regression of $y$ on $x$ (with intercept).
+
+### Answer 
+
+\newpage
+
+# Problem 6 (10 pt)
+
+Under the setup of Chapter 6, Part 1 lecture, prove the last two equalities on page 23:
+
+$$
+\text{Cov} \left( \frac{1}{N_1} \sum_{i=1}^{N} T_i e_i(1), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0
+$$
+
+$$
+\text{Cov} \left( \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) e_i(0), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0
+$$
+
+## Answer 
+
+\newpage
+
+# Problem 7 (10 pt)
+
+Under the setup of Chapter 6, Part 2 lecture:
+
+## 1. 
+
+Prove Lemma 3.
+
+Lemma 3: 
+
+Let $X$ be a $n \times p$ matrix such that
+
+$$
+X = \begin{pmatrix} x_1' \\ \vdots \\ x_n' \end{pmatrix}
+$$
+
+and $\omega = (\omega_1, \dots, \omega_n)'$ be an $n$-dimensional weight vector $(n = N_1)$. Given
+
+$$
+\bar{x} = N^{-1} \sum_{i=1}^{N} x_i',
+$$
+
+and $D$ $(p \times p$ symmetric, invertible matrix$)$, the minimizer of
+
+$$
+Q(\omega) = \gamma (\omega'X - \bar{x})' D (\omega'X - \bar{x}) + \omega'\omega
+$$
+
+$$
+= \gamma (X'\omega - \bar{x})' D (X'\omega - \bar{x}) + \omega'\omega
+$$
+
+is given by
+
+$$
+\hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D \bar{x} \tag{10}
+$$
+
+$$
+= X (X'X + \gamma^{-1} D^{-1})^{-1} \bar{x} \tag{11}
+$$
+
+### Answer 
+
+## 2. 
+
+Show that the final weight in (13) satisfies a hard calibration for $\mathbf{x}_1$:
+
+$$
+\sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_{1i}.
+$$
+
+(9): 
+
+The implicit model is that
+
+$$
+Y(1) = x_1' \beta + x_2' u + e(1) \tag{9}
+$$
+
+where $u \sim (0, D_q \sigma_u^2)$ with known $D_q$ and $e(1) \sim (0, \sigma_e^2)$.
+
+(10-11): Given in Lemma 3
+
+(12): 
+
+Using (11), the solution can be written as
+
+$$
+\hat{\omega} = X \left( X'X + \Omega^{-1} \right)^{-1} \bar{x} \tag{12}
+$$
+
+where $\Omega^{-1} = \text{Diag}\{\gamma_1^{-1} D_p^{-1}, \gamma_2^{-1} D_q^{-1} \}$ and $\gamma_1 \to \infty$.
+
+(13): 
+
+Under the mixed model setup in (9), the solution (12) can be written as
+
+$$
+\hat{\omega}_i = \left( N^{-1} \sum_{i=1}^{N} x_i \right)' \left\{ \sum_{i=1}^{N} T_i x_i x_i' + \Omega^{-1} \right\}^{-1} x_i, \tag{13}
+$$
+
+where $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1} \}$ and $\gamma_2 = \sigma_u^2 / \sigma_e^2$.
+
+### Answer 
