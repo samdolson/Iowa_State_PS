@@ -40,7 +40,7 @@ type1_df <- data.frame(type1Dat)
 
 total <- c(sum(type1_df$`Df`), sum(type1_df$`Sum.Sq`), NA, NA, NA)
 type1_df <- rbind(type1_df, total) 
-rownames(type1_df)[nrow(type1_df)] <- "Total"
+rownames(type1_df)[nrow(type1_df)] <- "Corrected Total"
 
 print(type1_df, digits = 6)
 ```
@@ -67,7 +67,7 @@ type2_df <- type2_df[, c("Df", "Sum Sq", "MeanSq", "F value", "Pr(>F)")]
 
 total <- c(sum(type2_df$`Df`), sum(type2_df$`Sum Sq`), NA, NA, NA)
 type2_df <- rbind(type2_df, total) 
-rownames(type2_df)[nrow(type2_df)] <- "Total"
+rownames(type2_df)[nrow(type2_df)] <- "Corrected Total"
 # Print with higher precision
 print(type2_df, digits = 6)
 ```
@@ -80,27 +80,33 @@ Generate an ANOVA table with Type III sums of squares for `source`, `percent`, `
 
 Quick note on the continued use of `car::Anova` for this problem: By default R uses the baseline constraint when making these calculations, and in R the baseline is the combination of the first factor levels. So effectively we just need to change the type of contrast being used when calculating the Anova table from treatment aka `contr.treatment` to sums aka `contra.sum` (which corresponds to a sum-to-zero constraint) and proceed, bearing in mind Type 3 Sums of Squares are 'marginal' Sums of Squares, hence the reason for this adjustment. 
 
-```{r, warning = F, message = F}
-options(digits = 6)  
+see: https://rdoodles.rbind.io/2020/10/type-3-anova-in-r-an-easy-way-to-publish-wrong-tables/
 
-# car Anova function needs some adjustment for Type 3
+```{r, warning = F, message = F}
+library(car)
+
+# Contrast change from treatment to sum
 contrasts(pigs$source) <- contr.sum
 contrasts(pigs$percent) <- contr.sum
+# could have directly added the above in the contrast argument to the lm function
+model <- lm(lnConc ~ source * percent, data = pigs)
 
-type3Dat <- car::Anova(baseDat, type = 3)
+# Call Anova with updated contrasts
+type3Dat <- car::Anova(model, type = 3)
+
 type3_df <- as.data.frame(type3Dat)
-
-# Add MSE
-type3_df$MeanSq <- type3_df$`Sum Sq` / type2_df$Df
+type3_df$MeanSq <- type3_df$`Sum Sq` / type3_df$Df
 type3_df <- type3_df[, c("Df", "Sum Sq", "MeanSq", "F value", "Pr(>F)")]
 
-type3_df <- type3_df[-1, ]
+# Want to remove Intercept from calculation
+total_Df <- sum(type3_df[-1,]$Df, na.rm = TRUE)
+total_SS <- sum(type3_df[-1,]$`Sum Sq`, na.rm = TRUE)
 
-total <- c(sum(type3_df$`Df`), sum(type3_df$`Sum Sq`), NA, NA, NA)
+total <- c(total_Df, total_SS, NA, NA, NA)
 type3_df <- rbind(type3_df, total) 
-rownames(type3_df)[nrow(type3_df)] <- "Total"
+rownames(type3_df)[nrow(type3_df)] <- "Corrected Total"
 
-print(type3_df, digits = 6)
+print(type3_df[-1,], digits = 6)
 ```
 
 \newpage 
@@ -542,7 +548,7 @@ $$
 where $\mathbf{P} = [\mathbf{p}_1, \dots, \mathbf{p}_n]$ and:
 
 $$
-\mathbf{P} \mathbf{P}^{\top} = \mathbf{P}^{\top} \mathbf{P} = \mathbf{I}
+\mathbf{P} \mathbf{P}^{\top} = \mathbf{P}^{\top} \mathbf{P} = \mathbf{I} \rightarrow \mathbf{p}_j^{\top} \mathbf{p}_j = 1
 $$
 
 For $j = 1, \dots, n$, Expressing $\mathbf{y}$ in terms of the eigenvectors of $\mathbf{H}$, we have: 
