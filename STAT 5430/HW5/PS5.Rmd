@@ -6,10 +6,10 @@ author: "Sam Olson"
 
 # Outline 
 
-  - Q1: Edited
-  - Q2: Edited
-  - Q3: Edited
-  - Q4: Edited
+  - Q1: G2G
+  - Q2: G2G
+  - Q3: Iffy
+  - Q4: Iffy
 
 # 1. 
 
@@ -37,53 +37,59 @@ $$
 
 ## Answer
 
-A statistic $T$ is sufficient for $\theta$ if its conditional distribution given the sample does not depend on $\theta$. By the **Factorization Theorem**, a statistic $T$ is sufficient if the joint pdf can be factorized as:
+By the Factorization Theorem, a statistic $T$ is sufficient if the joint pdf can be factorized as:
 
 $$
-f_{\theta}(x_1, \dots, x_n) = g(T, \theta) h(x_1, \dots, x_n).
+f_{\theta}(x_1, \dots, x_n) = g(T, \theta) h(x_1, \dots, x_n)
 $$
 
-For our case, the joint pdf of $X_1, \dots, X_n$ is:
+Or, two functions, one that is dependent upon $\theta$ and one that does not. 
+
+As given, the joint pdf of $X_1, \dots, X_n$ is:
 
 $$
-f_{\theta}(x_1, \dots, x_n) = \prod_{i=1}^{n} \left[ \exp(-x_i^p/\theta) (p/\theta) x_i^{p-1} \right].
+f_{\theta}(x_1, \dots, x_n)
+= \prod_{i=1}^{n} \left[ \exp(-x_i^p/\theta) (p/\theta) x_i^{p-1} \right]
+= \left( \frac{p}{\theta} \right)^n \exp\left( -\frac{T}{\theta} \right) \prod_{i=1}^{n} x_i^{p-1}
 $$
 
-Rewriting,
+We note then that for $g(T, \theta) = \left( \frac{p}{\theta} \right)^n \exp\left( -\frac{T}{\theta} \right)$ depends on the data only through $T$, and $h(x_1, \dots, x_n) = \prod_{i=1}^{n} x_i^{p-1}$ does not depend on $\theta$. So we meet the conditions to note the Factorization Theorem, such that $T$ is sufficient for $\theta$.
 
-$$
-f_{\theta}(x_1, \dots, x_n) = \left( \frac{p}{\theta} \right)^n \exp\left( -\frac{T}{\theta} \right) \prod_{i=1}^{n} x_i^{p-1}.
-$$
-
-Here, $g(T, \theta) = \left( \frac{p}{\theta} \right)^n \exp\left( -\frac{T}{\theta} \right)$ depends on the data only through $T$, and $h(x_1, \dots, x_n) = \prod_{i=1}^{n} x_i^{p-1}$ does not depend on $\theta$. By the Factorization Theorem, $T$ is **sufficient** for $\theta$.
+Onto completeness: 
 
 A statistic $T$ is complete if for any function $g(T)$,
 
 $$
-E_{\theta}[g(T)] = 0 \quad \forall \theta \Rightarrow P(g(T) = 0) = 1.
+E_{\theta}[g(T)] = 0 \quad \forall \theta \Rightarrow P(g(T) = 0) = 1
 $$
 
-Since $T = \sum_{i=1}^{n} X_i^p$ follows a **gamma distribution**:
+Or, the zero function is the only function to satisfy the above expression. 
+
+We have $T = \sum_{i=1}^{n} X_i^p$, which we know follows a gamma distribution given the iid distribution of $X_i$ (sum of iid Exponential with common $\theta$ is a Gamma distribution), i.e.:
 
 $$
-T \sim \text{Gamma}(n, \theta),
+T \sim \text{Gamma}(n, \theta)
 $$
 
-and the gamma family is a **complete exponential family**, $T$ is **complete** for $\theta$.
+We then take advantage of knowing that the Gamma family is a complete exponential family, meaning $T$ is complete for $\theta$.
 
-We now turn to the question of $U$ being ancillary. A statistic $U$ is ancillary if its distribution does not depend on $\theta$. Consider
+One last item to tackle then, $U$ being ancillary. 
 
-$$
-U = \frac{X_1^p}{T}.
-$$
+A statistic $U$ is ancillary if its distribution does not depend on $\theta$. 
 
-Since $X_1^p, \dots, X_n^p$ are **iid** exponential($\theta$), we can write
+Let:
 
 $$
-\left( \frac{X_1^p}{\theta}, \dots, \frac{X_n^p}{\theta} \right) \sim \text{iid Exp}(1).
+U = \frac{X_1^p}{T}
 $$
 
-Thus, $T / \theta \sim \text{Gamma}(n,1)$, and $U = X_1^p/T$ follows a **Beta(1, n-1)** distribution, which **does not depend on** $\theta$. Hence, $U$ is **ancillary**.
+Since $X_1^p, \dots, X_n^p$ are iid Exponential($\theta$), we can write
+
+$$
+\left( \frac{X_1^p}{\theta}, \dots, \frac{X_n^p}{\theta} \right) \sim \text{iid Exp}(1)
+$$
+
+I believe this is called "pivoting", and apologies if this was not the anticipated method for this proof. That notwithstanding, $T / \theta \sim \text{Gamma}(n,1)$, and $U = X_1^p/T$ follows a Beta(1, n-1) distribution. Of note, this (the distribution of U) does not depend on $\theta$, meaning $U$ is ancillary.
 
 \newpage 
 
@@ -91,51 +97,43 @@ Thus, $T / \theta \sim \text{Gamma}(n,1)$, and $U = X_1^p/T$ follows a **Beta(1,
 
 Problem 7.60, Casella and Berger and the following:
 
-## Base
+## Extra
 
 Let $X_1, \dots, X_n$ be iid gamma$(\alpha, \beta)$ with $\alpha$ known. Find the best unbiased estimator of $1/\beta$.
 
 ### Answer
 
-Let $X_1, \dots, X_n$ be iid gamma($\alpha, \beta$) with $\alpha$ known. We want to find the best unbiased estimator of $1/\beta$.
-
-Since $X_i \sim \text{Gamma}(\alpha, \beta)$, the sum
+Since $X_i \sim \text{Gamma}(\alpha, \beta)$, the sum:
 
 $$
 S_n = \sum_{i=1}^{n} X_i
 $$
 
-follows a **Gamma** distribution:
+follows a Gamma distribution, with note of Problem 1:
 
 $$
-S_n \sim \text{Gamma}(n\alpha, \beta).
+S_n \sim \text{Gamma}(n\alpha, \beta)
 $$
 
-The expectation is:
+Taking expectation:
 
 $$
-E_{\theta}(S_n) = n\alpha \beta.
+E_{\theta}(S_n) = n\alpha \beta
 $$
 
-A natural unbiased estimator for $1/\beta$ is:
+Since:
 
 $$
-\frac{n\alpha}{S_n},
+E_{\theta} \left[ \frac{n\alpha}{S_n} \right] = \frac{n\alpha}{E_{\theta}(S_n)} = \frac{n\alpha}{n\alpha \beta} = \frac{1}{\beta}
 $$
 
-since:
-
-$$
-E_{\theta} \left[ \frac{n\alpha}{S_n} \right] = \frac{n\alpha}{E_{\theta}(S_n)} = \frac{n\alpha}{n\alpha \beta} = \frac{1}{\beta}.
-$$
-
-Since $S_n$ is a **complete sufficient statistic** for $\beta$ (by the **Factorization Theorem** and **Lehmann-Scheffé Theorem**), any unbiased estimator that is a function of $S_n$ is **UMVUE**. Thus,
+One possible unbiased estimator for $1/\beta$ is:
 
 $$
 \frac{n\alpha}{S_n}
 $$
 
-is the **best unbiased estimator** of $1/\beta$.
+Since $S_n$ is a complete sufficient statistic for $\beta$ (by the Factorization Theorem and Lehmann-Scheffé Theorem), any unbiased estimator that is a function of $S_n$ is UMVUE, making it the best unbiased estimator for the purpose of this problem. 
 
 ## a) 
 
@@ -145,24 +143,25 @@ Let $S_n = \sum_{i=1}^{n} X_i$. Using Basu’s theorem, show $X_1/S_n$ and $S_n$
 
 Using Basu’s theorem, we show that $X_1/S_n$ and $S_n$ are independent.
 
-Basu’s theorem states that if $T$ is a **complete sufficient statistic** and $U$ is an **ancillary statistic**, then $T$ and $U$ are **independent**.
+Basu’s theorem: If $T$ is a complete sufficient statistic and $U$ is an ancillary statistic, then $T$ and $U$ are independent.
 
-- We already know that $S_n$ is **complete and sufficient** for $\beta$.
-- Consider the ratio:
+From the prior question, we know that $S_n$ is complete and sufficient for $\beta$.
 
-$$
-U = \frac{X_1}{S_n}.
-$$
-
-The distribution of $U$ does not depend on $\beta$. Specifically,
+We need to then find an ancillary statistic. To that end, let: 
 
 $$
-U \sim \text{Beta}(\alpha, (n-1)\alpha),
+U = \frac{X_1}{S_n}
 $$
 
-which is **free of $\beta$** and hence **ancillary**.
+Using given information, we know: 
 
-By **Basu’s theorem**, $U = X_1/S_n$ and $S_n$ are **independent**.
+$$
+U \sim \text{Beta}(\alpha, (n-1)\alpha)
+$$
+
+Which does not depend on $\beta$ for any of its parameters! This means we have found U, our ancillary statistic. 
+
+Then, by Basu’s theorem, $U = X_1/S_n$ and $S_n$ are independent.
 
 ## b) 
 
@@ -170,19 +169,20 @@ Using the result in a) and $E_\theta(S_n) = n\alpha \beta$, find $E_\theta(X_1/S
 
 ### Answer
 
-Using the results in a), we compute:
+Using the results in a):
 
 $$
-E_{\theta} \left( \frac{X_1}{S_n} \right).
+E_{\theta} \left( \frac{X_1}{S_n} \right)
+=E_{\theta} \left( U \right)
 $$
 
-Since $X_1/S_n \sim \text{Beta}(\alpha, (n-1)\alpha)$, we use the expectation formula for a Beta distribution:
+Where:
 
 $$
-E \left( \text{Beta}(a, b) \right) = \frac{a}{a+b}.
+U \sim \text{Beta}(\alpha, (n-1)\alpha)
 $$
 
-Thus,
+Using the properties of a known distribution, we know that: 
 
 $$
 E_{\theta} \left( \frac{X_1}{S_n} \right) = \frac{\alpha}{\alpha + (n-1)\alpha} = \frac{1}{n}.
@@ -213,31 +213,25 @@ Find the value of $C$ so that $\phi_2$ has the same size as $\phi_1$.
 The size of $\phi_1$ is:
 
 $$
-\alpha_1 = P(X_1 > 0.95 \mid \theta = 0) = 0.05.
+\alpha_1 = P(X_1 > 0.95 \mid \theta = 0) = 0.05
 $$
 
 The size of $\phi_2$ is:
 
 $$
-\alpha_2 = P(X_1 + X_2 > C \mid \theta = 0).
+\alpha_2 = P(X_1 + X_2 > C \mid \theta = 0)
 $$
 
-For $1 \leq C \leq 2$, the probability $P(X_1 + X_2 > C \mid \theta = 0)$ is computed as:
+For $1 \leq C \leq 2$, the probability $P(X_1 + X_2 > C \mid \theta = 0)$ is:
 
 $$
-\alpha_2 = \int_{1-C}^{1} \int_{C-x_1}^{1} 1 \, dx_2 \, dx_1 = \frac{(2 - C)^2}{2}.
+\alpha_2 = \int_{1-C}^{1} \int_{C-x_1}^{1} 1 \, dx_2 \, dx_1 = \frac{(2 - C)^2}{2}
 $$
 
-Setting $\alpha_2 = \alpha_1 = 0.05$ and solving for $C$:
+For $\alpha_2 = \alpha_1 = 0.05$ and solving for $C$:
 
 $$
-\frac{(2 - C)^2}{2} = 0.05 \implies (2 - C)^2 = 0.1 \implies C = 2 - \sqrt{0.1} \approx 1.68.
-$$
-
-Thus, the value of $C$ such that $\phi_2$ has the same size as $\phi_1$ is:
-
-$$
-C = 2 - \sqrt{0.1} \approx 1.68.
+\frac{(2 - C)^2}{2} = 0.05 \implies (2 - C)^2 = 0.1 \implies C = 2 - \sqrt{0.1} \approx 1.68
 $$
 
 ## b) 
@@ -245,8 +239,6 @@ $$
 Calculate the power function of each test. Draw a well-labeled graph of each power function.
 
 ### Answer
-
-#### Power Function of $\phi_1$
 
 The power function of $\phi_1$ is:
 
@@ -258,8 +250,6 @@ $$
 1 & \text{if } \theta > 0.95.
 \end{cases}
 $$
-
-#### Power Function of $\phi_2$
 
 The distribution of $Y = X_1 + X_2$ is:
 
@@ -310,12 +300,9 @@ Prove or disprove: $\phi_2$ is a more powerful test than $\phi_1$.
 
 ### Answer
 
-From the graph in Part (b), we observe that:
+From the graph above, $\phi_1$ is more powerful for $\theta$ near 0, but $\phi_2$ is more powerful for larger values of $\theta$.
 
-- $\phi_1$ is more powerful for $\theta$ near 0.
-- $\phi_2$ is more powerful for larger values of $\theta$.
-
-Thus, $\phi_2$ is **not uniformly more powerful** than $\phi_1$.
+To be a more powerful test, you must be uniformly more powerful than the reference test. We do not meet this condition, meaning $\phi_2$ is not a more powerful test than $\phi_1$.
 
 ## Extra 
    
@@ -344,15 +331,11 @@ $$
 
 where $X_{(1)}, X_{(2)}$ are the minimum and maximum of $X_1, X_2$, respectively.
 
-#### Size of $\phi_3$
-
 Under $H_0: \theta = 0$, the size of $\phi_3$ is:
 
 $$
 \alpha_3 = P(X_{(1)} > 1 - \sqrt{0.05} \mid \theta = 0) = (1 - (1 - \sqrt{0.05}))^2 = 0.05.
 $$
-
-#### Power Function of $\phi_3$
 
 The power function of $\phi_3$ is:
 
@@ -360,13 +343,7 @@ $$
 \beta_3(\theta) = P_\theta(X_{(1)} > 1 - \sqrt{0.05}) = (1 - (1 - \sqrt{0.05} - \theta))^2.
 $$
 
-#### Plot 
-
-Via the below: 
-
-- $\phi_3$ is more powerful than $\phi_2$ for all $\theta > 0$.
-
-Thus, $\phi_3$ is **uniformly more powerful** than $\phi_2$.
+Via the below: $\phi_3$ is more powerful than $\phi_2$ for all $\theta > 0$. This means for the range being considered that $\phi_3$ is uniformly more powerful than $\phi_2$.
 
 ```{r}
 # Define theta range
@@ -413,50 +390,54 @@ For a given value of $\alpha$, the size of the Type I Error, show how the value 
 
 ## Answer
 
-From the **Neyman-Pearson lemma**, the most powerful (UMP) test rejects $H_0$ if the likelihood ratio exceeds a threshold $k$. The likelihood ratio is:
+From the Neyman-Pearson lemma, the most powerful (UMP) test rejects $H_0$ if the likelihood ratio exceeds a threshold $k$. 
+
+The likelihood ratio is:
 
 $$
 \frac{f(x \mid \sigma_1)}{f(x \mid \sigma_0)}
 = \frac{(2\pi\sigma_1^2)^{-n/2} e^{-\sum_i x_i^2/(2\sigma_1^2)}}{(2\pi\sigma_0^2)^{-n/2} e^{-\sum_i x_i^2/(2\sigma_0^2)}}
-= \left( \frac{\sigma_0}{\sigma_1} \right)^n \exp \left\{ \frac{1}{2} \sum_i x_i^2 \left( \frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} \right) \right\} > k.
+= \left( \frac{\sigma_0}{\sigma_1} \right)^n \exp \left\{ \frac{1}{2} \sum_i x_i^2 \left( \frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} \right) \right\} > k
 $$
 
-After some algebra, this inequality simplifies to:
+This simplifies to:
 
 $$
-\sum_i x_i^2 > \frac{2\log \left( k \, (\sigma_1/\sigma_0)^n \right)}{\left( \frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} \right)} = c,
+\sum_i x_i^2 > \frac{2\log \left( k \, (\sigma_1/\sigma_0)^n \right)}{\left( \frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} \right)} = c
 $$
 
-where $c$ is a constant. This is because $\frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} > 0$ (since $\sigma_0 < \sigma_1$).
+where $c$ is a constant. 
+
+Noting that: $\frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} > 0$ (since $\sigma_0 < \sigma_1$).
 
 Thus, the UMP test rejects $H_0$ if:
 
 $$
-\sum_i X_i^2 > c.
+\sum_i X_i^2 > c
 $$
 
-The critical value $c$ is determined such that the Type I error probability is $\alpha$, i.e.,
+The critical value $c$ is determined such that the Type I error probability is $\alpha$:
 
 $$
-\alpha = P_{\sigma_0} \left( \sum_i X_i^2 > c \right).
+\alpha = P_{\sigma_0} \left( \sum_i X_i^2 > c \right)
 $$
 
 Under $H_0$, $\sum_i X_i^2 / \sigma_0^2$ follows a chi-squared distribution with $n$ degrees of freedom:
 
 $$
-\sum_i X_i^2 / \sigma_0^2 \sim \chi_n^2.
+\sum_i X_i^2 / \sigma_0^2 \sim \chi_n^2
 $$
 
 Thus, the probability can be rewritten as:
 
 $$
-\alpha = P_{\sigma_0} \left( \sum_i X_i^2 / \sigma_0^2 > c/\sigma_0^2 \right) = P \left( \chi_n^2 > c/\sigma_0^2 \right).
+\alpha = P_{\sigma_0} \left( \sum_i X_i^2 / \sigma_0^2 > c/\sigma_0^2 \right) = P \left( \chi_n^2 > c/\sigma_0^2 \right)
 $$
 
-To find $c$, we solve for the $(1 - \alpha)$-quantile of the $\chi_n^2$ distribution:
+We then solve for $c$, taking the $(1 - \alpha)$-quantile of the $\chi_n^2$ distribution:
 
 $$
-c = \sigma_0^2 \cdot \chi_{n, 1-\alpha}^2,
+c = \sigma_0^2 \cdot \chi_{n, 1-\alpha}^2
 $$
 
 where $\chi_{n, 1-\alpha}^2$ is the $(1 - \alpha)$-quantile of the $\chi_n^2$ distribution.
