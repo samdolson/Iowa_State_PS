@@ -9,7 +9,7 @@ author: "Sam Olson"
   - Q1: SOLID
   - Q2: SOLID
   - Q3: SOLID 
-  - Q4: Skeleton
+  - Q4: SOLID
   - Q5: Skeleton
   - Q6: Skeleton
   - Q7: Skeleton
@@ -629,41 +629,46 @@ Use a Taylor linearization method to find the variance of the product estimator 
 The product estimator is:
 
 $$
-\hat{\theta} = \frac{\bar{x} \bar{y}}{\bar{X}}.
+\hat{\theta} = \frac{\bar{x} \bar{y}}{\bar{X}}
 $$
 
-Using Taylor linearization, we approximate $\hat{\theta}$ using a first-order expansion around the true means:
+Via Taylor linearization, we approximate $\hat{\theta}$ using a first-order expansion around the true population means $\bar{X}$ and $\bar{Y}$:
 
 $$
-\hat{\theta} \approx \frac{\bar{Y} \bar{X} + (\bar{x} - \bar{X})\bar{Y} + (\bar{y} - \bar{Y})\bar{X}}{\bar{X}}.
+\hat{\theta} \approx \frac{\bar{Y} \bar{X} + (\bar{x} - \bar{X})\bar{Y} + (\bar{y} - \bar{Y})\bar{X}}{\bar{X}}
 $$
 
 Simplifying,
 
 $$
-\hat{\theta} \approx \bar{Y} + (\bar{x} - \bar{X})\frac{\bar{Y}}{\bar{X}} + (\bar{y} - \bar{Y}).
+\hat{\theta} \approx \bar{Y} + (\bar{x} - \bar{X})\frac{\bar{Y}}{\bar{X}} + (\bar{y} - \bar{Y}) 
+\approx \bar{y} + \left(\bar{x}\frac{\bar{Y}}{\bar{X}}\right) - \bar{Y}
 $$
 
-Taking variances,
+Taking variances, and noting $\text{Var}(\bar{Y}) = 0$, we have:
 
 $$
-V(\hat{\theta}) \approx V(\bar{y}) + \frac{\bar{Y}^2}{\bar{X}^2} V(\bar{x}) + 2\frac{\bar{Y}}{\bar{X}} \text{Cov}(\bar{x}, \bar{y}).
+V(\hat{\theta}) \approx V(\bar{y}) + \frac{\bar{Y}^2}{\bar{X}^2} V(\bar{x}) + 2\frac{\bar{Y}}{\bar{X}} \text{Cov}(\bar{x}, \bar{y})
 $$
 
-Since in simple random sampling:
+Under SRS, we know:
 
 $$
-V(\bar{x}) = \frac{S_x^2}{n} \left( 1 - \frac{n}{N} \right), \quad V(\bar{y}) = \frac{S_y^2}{n} \left( 1 - \frac{n}{N} \right),
+V(\bar{x}) = \frac{S_x^2}{n} \left( 1 - \frac{n}{N} \right)
 $$
 
 $$
-\text{Cov}(\bar{x}, \bar{y}) = \frac{S_{xy}}{n} \left( 1 - \frac{n}{N} \right).
+V(\bar{y}) = \frac{S_y^2}{n} \left( 1 - \frac{n}{N} \right)
 $$
 
-Thus,
+$$
+\text{Cov}(\bar{x}, \bar{y}) = \frac{S_{xy}}{n} \left( 1 - \frac{n}{N} \right)
+$$
+
+Substituting the above relations into our variance formula gives us:
 
 $$
-V(\hat{\theta}) \approx \left( \frac{S_y^2}{n} + \frac{\bar{Y}^2}{\bar{X}^2} \frac{S_x^2}{n} + 2\frac{\bar{Y}}{\bar{X}} \frac{S_{xy}}{n} \right) \left( 1 - \frac{n}{N} \right).
+V(\hat{\theta}) \approx \left( \frac{S_y^2}{n} + \frac{\bar{Y}^2}{\bar{X}^2} \frac{S_x^2}{n} + 2\frac{\bar{Y}}{\bar{X}} \frac{S_{xy}}{n} \right) \left( 1 - \frac{n}{N} \right)
 $$
 
 ## 2. 
@@ -675,34 +680,48 @@ Find the condition that this product estimator has a smaller variance than the s
 For $\hat{\theta}$ to be more efficient than $\bar{y}$, we require:
 
 $$
-V(\hat{\theta}) < V(\bar{y}).
+V(\hat{\theta}) < V(\bar{y})
 $$
 
-Substituting,
+As we already calculated $V(\hat{\theta})$, this means:
 
 $$
-\frac{S_y^2}{n} + \frac{\bar{Y}^2}{\bar{X}^2} \frac{S_x^2}{n} + 2\frac{\bar{Y}}{\bar{X}} \frac{S_{xy}}{n} < \frac{S_y^2}{n}.
+\frac{S_y^2}{n} + \frac{\bar{Y}^2}{\bar{X}^2} \frac{S_x^2}{n} + 2\frac{\bar{Y}}{\bar{X}} \frac{S_{xy}}{n} < \frac{S_y^2}{n}
 $$
 
-Canceling $S_y^2/n$,
+We then just need to arrange terms to get at our desired conclusion. To that end we have: 
 
 $$
-\frac{\bar{Y}^2}{\bar{X}^2} S_x^2 + 2\frac{\bar{Y}}{\bar{X}} S_{xy} < 0.
+\frac{\bar{Y}^2}{\bar{X}^2} \frac{S_x^2}{n} + 2\frac{\bar{Y}}{\bar{X}} \frac{S_{xy}}{n} < 0
 $$
 
-Rearranging,
-
 $$
-2\bar{Y} S_{xy} < -\frac{\bar{Y}^2}{\bar{X}^2} S_x^2.
+\frac{\bar{Y}^2}{\bar{X}^2} S_x^2 + 2\frac{\bar{Y}}{\bar{X}} S_{xy} < 0
 $$
 
-Dividing by $\bar{Y}$,
-
 $$
-2 S_{xy} < -\frac{\bar{Y}}{\bar{X}^2} S_x^2.
+\frac{\bar{Y}}{\bar{X}} \left( \frac{\bar{Y}}{\bar{X}} S_x^2 + 2 S_{xy} \right) < 0
 $$
 
-Thus, the product estimator has lower variance when the covariance between $x$ and $y$ is sufficiently negative.
+For $\frac{\bar{Y}}{\bar{X}} > 0$:
+
+$$
+\frac{\bar{Y}}{\bar{X}} S_x^2 + 2 S_{xy} < 0
+$$
+
+Giving us: 
+
+$$
+2 S_{xy} < -\frac{\bar{Y}}{\bar{X}} S_x^2
+$$
+
+And finally: 
+
+$$
+S_{xy} < -\frac{\bar{Y}}{2\bar{X}} S_x^2
+$$
+
+So we need the random variables X and Y to be negatively correlated and meet the above condition to ensure greater efficiency for $\hat{\theta}$ comapred to $\bar{y}$. 
 
 ## 3. 
 
@@ -710,19 +729,25 @@ Prove that if the population covariance of $x$ and $y$ is zero, then the product
 
 ### Answer 
 
-If $S_{xy} = 0$, then the variance formula simplifies to:
+## 3.
+
+Prove that if the population covariance of $x$ and $y$ is zero, then the product estimator is less efficient than $\bar{y}$.
+
+### Answer
+
+If the population covariance $S_{xy} = 0$, the variance formula for the product estimator $\hat{\theta}$ detailed in part 1 simplifies to:
 
 $$
-V(\hat{\theta}) = V(\bar{y}) + \frac{\bar{Y}^2}{\bar{X}^2} V(\bar{x}).
+V(\hat{\theta}) = V(\bar{y}) + \frac{\bar{Y}^2}{\bar{X}^2} V(\bar{x})
 $$
 
-Since $\frac{\bar{Y}^2}{\bar{X}^2} V(\bar{x}) > 0$, it follows that:
+We know that $\frac{\bar{Y}^2}{\bar{X}^2} V(\bar{x}) > 0$, because each term in the equation is positive. Using this, we then know:
 
 $$
-V(\hat{\theta}) > V(\bar{y}).
+V(\hat{\theta}) > V(\bar{y})
 $$
 
-Thus, when $x$ and $y$ are uncorrelated, the product estimator is less efficient than $\bar{y}$.
+Thus, when $x$ and $y$ are uncorrelated ($S_{xy} = 0$), the product estimator $\hat{\theta}$ is less efficient than $\bar{y}$. This also follows a similar argument using the results from part 2 as well. 
 
 \newpage
 

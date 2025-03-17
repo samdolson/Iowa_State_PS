@@ -4,13 +4,6 @@ output: pdf_document
 author: "Sam Olson"
 ---
 
-# Outline 
-
-  - Q1: SOLID
-  - Q2: SOLID
-  - Q3: Iffy
-  - Q4: Iffy
-
 # 1. 
 
 In the attached article by Prof. M. Ghosh, read pages 509-512 (including example 1), examples 4-6 of Section 3, and Section 5.2 up to and including Examples 17-18. (This is sort of a technical article, so to read a bit of this material is not easy. Also, Example 17 should look like an example from class regarding Basu’s theorem.)  
@@ -71,7 +64,7 @@ Of note:
 
   - The function $g(T, \theta) = \left(\frac{p}{\theta}\right)^n \exp\left(-\frac{T}{\theta}\right)$ depends on $T$ and $\theta$.
 
-  - The function $h(x_1, \dots, x_n) = \prod_{i=1}^{n} x_i^{p-1}$ does not depend on $\theta$ at all.
+  - The function $h(x_1, \dots, x_n) = \prod_{i=1}^{n} x_i^{p-1}$ does not depend on $\theta$.
 
 Thus, by the Factorization Theorem, $T$ is sufficient for $\theta$.
 
@@ -143,7 +136,7 @@ $$
 
 Since the Beta(1, n-1) distribution does not depend on $\theta$, we know the statistic $U$ is ancillary.
 
-### Lil Extra Work
+### Extra Details
 
 I'm pretty sure the above is "enough" (avoiding using the word sufficient explicitly in a non-maths context), but in the event that some more work would help: 
 
@@ -258,7 +251,7 @@ $$
 
 This shows that $\frac{n\alpha}{S_n}$ is an unbiased estimator of $\frac{1}{\beta}$
 
-Noting the work shown previously in [.1], via the Factorization Theorem, we know $S_n$ is a sufficient statistic for $\beta$ (scale parameter of the Gamma).
+Noting the work shown previously in [1.], via the Factorization Theorem, we know $S_n$ is a sufficient statistic for $\beta$ (scale parameter of the Gamma).
 
 Similarly, we know that the Gamma family is a specific instance of a a complete one-parameter exponential family, meaning we know that $S_n$ is also complete.
 
@@ -436,7 +429,7 @@ $$
 \alpha_2 = \int_{1-C}^{1} \int_{C-x_1}^{1} 1 \, dx_2 \, dx_1 = \frac{(2 - C)^2}{2}
 $$
 
-For $\alpha_2 = \alpha_1 = 0.05$ and solving for $C$:
+For $\alpha_2 = \alpha_1 = 0.05$, we solve for $C$:
 
 $$
 \frac{(2 - C)^2}{2} = 0.05 \implies (2 - C)^2 = 0.1 \implies C = 2 - \sqrt{0.1} \approx 1.68
@@ -455,7 +448,7 @@ $$
 \begin{cases} 
 0 & \text{if } \theta \leq -0.05, \\ 
 \theta + 0.05 & \text{if } -0.05 < \theta \leq 0.95, \\ 
-1 & \text{if } \theta > 0.95.
+1 & \text{if } \theta > 0.95
 \end{cases}
 $$
 
@@ -466,7 +459,7 @@ f_Y(y \mid \theta) =
 \begin{cases} 
 y - 2\theta & \text{if } 2\theta \leq y < 2\theta + 1, \\ 
 2\theta + 2 - y & \text{if } 2\theta + 1 \leq y < 2\theta + 2, \\ 
-0 & \text{otherwise}.
+0 & \text{otherwise}
 \end{cases}
 $$
 
@@ -478,13 +471,25 @@ $$
 0 & \text{if } \theta \leq \frac{C}{2} - 1, \\ 
 \frac{(2\theta + 2 - C)^2}{2} & \text{if } \frac{C}{2} - 1 < \theta \leq \frac{C - 1}{2}, \\ 
 1 - \frac{(C - 2\theta)^2}{2} & \text{if } \frac{C - 1}{2} < \theta \leq \frac{C}{2}, \\ 
-1 & \text{if } \theta > \frac{C}{2}.
+1 & \text{if } \theta > \frac{C}{2}
+\end{cases}
+$$
+
+For $C \approx 1.68$:
+
+$$
+\beta_2(\theta) =
+\begin{cases} 
+0 & \text{if } \theta \leq -0.16, \\ 
+\frac{(2\theta + 0.32)^2}{2} & \text{if } -0.16 < \theta \leq 0.34, \\ 
+1 - \frac{(1.68 - 2\theta)^2}{2} & \text{if } 0.34 < \theta \leq 0.84, \\ 
+1 & \text{if } \theta > 0.84
 \end{cases}
 $$
 
 ```{r}
 theta <- seq(0, 1.2, by = 0.01)
-C <- 2 - sqrt(0.1)  # Computed value of C
+C <- 2 - sqrt(0.1)  
 
 # Power function for phi_1
 beta1 <- pmax(0, pmin(1, theta + 0.05))
@@ -494,12 +499,11 @@ beta2 <- ifelse(theta <= (C/2) - 1, 0,
          ifelse(theta <= (C - 1)/2, ((2*theta + 2 - C)^2)/2,
          ifelse(theta <= C/2, 1 - ((C - 2*theta)^2)/2, 1)))
 
-# Plot
-plot(theta, beta1, type = "l", col = "blue", lwd = 2, ylim = c(0, 1),
+plot(theta, beta1, type = "l", col = "black", lwd = 2, ylim = c(-0.1, 1.1),
      ylab = "Power", xlab = expression(theta), main = "Power Functions of Phi1 and Phi2")
-lines(theta, beta2, col = "red", lwd = 2, lty = 2)
+lines(theta, beta2, col = "red", lwd = 2)
 legend("bottomright", legend = c(expression(phi[1]), expression(phi[2])),
-       col = c("blue", "red"), lty = c(1, 2), lwd = 2)
+       col = c("black", "red"), lty = c(1, 2), lwd = 2)
 ```
 
 ## c) 
@@ -508,7 +512,7 @@ Prove or disprove: $\phi_2$ is a more powerful test than $\phi_1$.
 
 ### Answer
 
-From the graph above, $\phi_1$ is more powerful for $\theta$ near 0, but $\phi_2$ is more powerful for larger values of $\theta$.
+From the graph above, $\phi_1$ is more powerful for $\theta$ near 0, around 0 to 0.2, but $\phi_2$ is more powerful for larger values of $\theta$, particularly around 0.2 to 0.9.
 
 To be a more powerful test, you must be uniformly more powerful than the reference test. We do not meet this condition, meaning $\phi_2$ is not a more powerful test than $\phi_1$.
 
@@ -527,62 +531,76 @@ Find the size of this test and the power function for $\theta > 0$. Then, graph 
 
 ### Answer
 
-Define the test:
+With the tests as defined, 
 
-$$
-\phi_3(X_1, X_2) = 
-\begin{cases} 
-1 & \text{if } X_{(1)} > 1 - \sqrt{0.05} \text{ or } X_{(2)} > 1, \\ 
-0 & \text{otherwise},
-\end{cases}
-$$
+where $X_{(1)}$ and $X_{(2)}$ are the minimum and maximum of $X_1, X_2$, respectively. 
 
-where $X_{(1)}, X_{(2)}$ are the minimum and maximum of $X_1, X_2$, respectively.
+Under $H_0: \theta = 0$, $X_1, X_2 \sim \text{Uniform}(0, 1)$, and the order statistics $X_{(1)}$ and $X_{(2)}$ are random variables with distributions: 
+
+$X_{(1)} \sim \text{Beta}(1, 2)$,
+
+$X_{(2)} \sim \text{Beta}(2, 1)$.
 
 Under $H_0: \theta = 0$, the size of $\phi_3$ is:
 
 $$
-\alpha_3 = P(X_{(1)} > 1 - \sqrt{0.05} \mid \theta = 0) = (1 - (1 - \sqrt{0.05}))^2 = 0.05.
+\alpha_3 = P(X_{(1)} > 1 - \sqrt{0.05} \mid \theta = 0) = (1 - (1 - \sqrt{0.05}))^2 = 0.05
 $$
 
-The power function of $\phi_3$ is:
+This is because $X_{(1)} > 1 - \sqrt{0.05}$ requires both $X_1$ and $X_2$ to be greater than $1 - \sqrt{0.05}$, and the probability of this event is $(\sqrt{0.05})^2 = 0.05$.
+
+Under $H_1: \theta > 0$, $X_1, X_2 \sim \text{Uniform}(\theta, \theta + 1)$. 
+
+The minimum $X_{(1)}$ follows the CDF:
 
 $$
-\beta_3(\theta) = P_\theta(X_{(1)} > 1 - \sqrt{0.05}) = (1 - (1 - \sqrt{0.05} - \theta))^2.
+P(X_{(1)} \leq x) = 1 - (1 - (x - \theta))^2 \quad \text{for } \theta \leq x \leq \theta + 1
 $$
 
-The power functions of $\phi_2$ and $\phi_3$ are compared below. The results indicate that $\phi_2$ is more powerful for small values of $\theta$, while $\phi_3$ is more powerful when $\theta > 0.395$.
+Thus, the power function of $\phi_3$ is:
+
+$$
+\beta_3(\theta) = P_\theta(X_{(1)} > 1 - \sqrt{0.05}) = (1 - (1 - \sqrt{0.05} - \theta))^2
+$$
+
+For $\theta > 1 - \sqrt{0.05}$, $\beta_3(\theta) = 1$ because $X_{(1)} > 1 - \sqrt{0.05}$ is always true.
+
+The power function of $\phi_2$, as determined previously, is:
+
+$$
+\beta_2(\theta) =
+\begin{cases} 
+0 & \text{if } \theta \leq -0.16, \\ 
+\frac{(2\theta + 0.32)^2}{2} & \text{if } -0.16 < \theta \leq 0.34, \\ 
+1 - \frac{(1.68 - 2\theta)^2}{2} & \text{if } 0.34 < \theta \leq 0.84, \\ 
+1 & \text{if } \theta > 0.84.
+\end{cases}
+$$
+
+From the graph comparing the two tests, $\phi_2$ is more powerful for small values of $\theta$, roughly speaking less than 0.7, and $\phi_3$ is more powerful for larger values of $\theta$, roughly greater than 0.7.
 
 ```{r}
-# Define the range of theta values
+# setup
 theta <- seq(0, 1.2, by = 0.01)
 
-# Define the critical value for phi_3
 t_crit <- 1 - sqrt(0.05)
 
-# Corrected power function for phi_3
 phi3_power <- function(theta) {
-    ifelse(theta < (1 - sqrt(0.05)), (sqrt(0.05) + theta)^2, 1)
+    ifelse(theta <= t_crit, (1 - (1 - sqrt(0.05) - theta))^2, 1)
 }
 
-# Compute the power for phi_3
 beta3 <- sapply(theta, phi3_power)
 
-# Corrected power function for phi_2
-C <- 2 - sqrt(0.1)  # The critical value used for phi_2
-beta2 <- ifelse(theta <= (C/2) - 1, 0,
-         ifelse(theta <= (C - 1)/2, ((2*theta + 2 - C)^2)/2,
-         ifelse(theta <= C/2, 1 - ((C - 2*theta)^2)/2, 1)))
+C <- 2 - sqrt(0.1)  
+beta2 <- ifelse(theta <= (C - 1)/2, ((2*theta + 2 - C)^2)/2,
+         ifelse(theta <= C/2, 1 - ((C - 2*theta)^2)/2, 1))
 
-# Plot the corrected power functions
-plot(theta, beta2, type = "l", col = "red", lwd = 2, ylim = c(0, 1),
-     ylab = "Power", xlab = expression(theta), main = "Power Functions of Phi2 and Phi3",
-     lty = 2)
-lines(theta, beta3, col = "green", lwd = 2, lty = 3)
+plot(theta, beta2, type = "l", col = "black", lwd = 2, ylim = c(-0.1, 1.3),
+     ylab = "Power", xlab = expression(theta), main = "Power Functions of Phi2 and Phi3")
+lines(theta, beta3, col = "red", lwd = 2)
 
-# Add a legend
 legend("bottomright", legend = c(expression(phi[2]), expression(phi[3])),
-       col = c("red", "green"), lty = c(2, 3), lwd = 2)
+       col = c("black", "red"), lty = c(1, 1), lwd = 2)
 ```
 
 \newpage
@@ -605,33 +623,45 @@ For a given value of $\alpha$, the size of the Type I Error, show how the value 
 
 ## Answer
 
-From the Neyman-Pearson lemma, the most powerful (UMP) test rejects $H_0$ if the likelihood ratio exceeds a threshold $k$. 
+From the Neyman-Pearson lemma, the most powerful test rejects $H_0$ if the likelihood ratio exceeds a threshold $k$.
 
-The likelihood ratio is:
-
-$$
-\frac{f(x \mid \sigma_1)}{f(x \mid \sigma_0)}
-= \frac{(2\pi\sigma_1^2)^{-n/2} e^{-\sum_i x_i^2/(2\sigma_1^2)}}{(2\pi\sigma_0^2)^{-n/2} e^{-\sum_i x_i^2/(2\sigma_0^2)}}
-= \left( \frac{\sigma_0}{\sigma_1} \right)^n \exp \left\{ \frac{1}{2} \sum_i x_i^2 \left( \frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} \right) \right\} > k
-$$
-
-This simplifies to:
+The likelihood ratio is given by:
 
 $$
-\sum_i x_i^2 > \frac{2\log \left( k \, (\sigma_1/\sigma_0)^n \right)}{\left( \frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} \right)} = c
+\Lambda = \frac{f(x \mid \sigma_1)}{f(x \mid \sigma_0)} = \left( \frac{\sigma_0}{\sigma_1} \right)^n \exp \left\{ \frac{1}{2} \sum_i x_i^2 \left( \frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} \right) \right\} > k
 $$
 
-where $c$ is a constant. 
-
-Noting that: $\frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} > 0$ (since $\sigma_0 < \sigma_1$).
-
-Thus, the UMP test rejects $H_0$ if:
+Taking the logarithm (a monotonic function):
 
 $$
-\sum_i X_i^2 > c
+\log \Lambda = n \log\left(\frac{\sigma_0}{\sigma_1}\right) + \frac{1}{2} \sum_i x_i^2 \left( \frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} \right) > \log(k)
 $$
 
-The critical value $c$ is determined such that the Type I error probability is $\alpha$:
+We isolate the term $\sum_i x_i^2$ to one side of the inequality:
+
+$$
+\frac{1}{2} \sum_i x_i^2 \left( \frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} \right) > \log k - n \log\left(\frac{\sigma_0}{\sigma_1}\right)
+$$
+
+$$
+\sum_i x_i^2 \left( \frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} \right) > 2 \left( \log k - n \log\left(\frac{\sigma_0}{\sigma_1}\right) \right)
+$$
+
+Solving for $\sum_i x_i^2$:
+
+$$
+\sum_i x_i^2 > \frac{2 \left( \log k - n \log\left(\frac{\sigma_0}{\sigma_1}\right) \right)}{\frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2}} = c
+$$
+
+for some constant, real-valued $c$.
+
+A couple notes: 
+
+The above assumes $\sigma_1 > \sigma_0$, so that $\frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} > 0$, is this switches, then the overall inequailty flips as well. 
+
+Also, the inequality $\sum_i x_i^2 > c$ defines the rejection region for the uniformly most powerful (UMP) test.
+
+That being said, now the critical value $c$ is determined such that the Type I error probability is $\alpha$:
 
 $$
 \alpha = P_{\sigma_0} \left( \sum_i X_i^2 > c \right)
@@ -643,16 +673,24 @@ $$
 \sum_i X_i^2 / \sigma_0^2 \sim \chi_n^2
 $$
 
-Thus, the probability can be rewritten as:
+Thus, we can rewrite the expression for $\alpha$ as:
 
 $$
-\alpha = P_{\sigma_0} \left( \sum_i X_i^2 / \sigma_0^2 > c/\sigma_0^2 \right) = P \left( \chi_n^2 > c/\sigma_0^2 \right)
+\alpha = P_{\sigma_0} \left( \sum_i X_i^2 > c \right) = P_{\sigma_0} \left( \sum_i X_i^2 / \sigma_0^2 > c / \sigma_0^2 \right) = P \left( \chi_n^2 > c / \sigma_0^2 \right)
 $$
 
-We then solve for $c$, taking the $(1 - \alpha)$-quantile of the $\chi_n^2$ distribution:
+Solving for $c$:
 
 $$
 c = \sigma_0^2 \cdot \chi_{n, 1-\alpha}^2
 $$
 
 where $\chi_{n, 1-\alpha}^2$ is the $(1 - \alpha)$-quantile of the $\chi_n^2$ distribution.
+
+The UMP test rejects $H_0$ if:
+
+$$
+\sum_i X_i^2 > c = \sigma_0^2 \cdot \chi_{n, 1-\alpha}^2
+$$
+
+This defines the rejection region for the most powerful test with Type I error probability $\alpha$.
