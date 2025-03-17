@@ -6,8 +6,8 @@ author: "Sam Olson"
 
 # Outline 
 
-  - Q1: G2G
-  - Q2: G2G
+  - Q1: SOLID
+  - Q2: SOLID
   - Q3: Iffy
   - Q4: Iffy
 
@@ -37,59 +37,194 @@ $$
 
 ## Answer
 
-By the Factorization Theorem, a statistic $T$ is sufficient if the joint pdf can be factorized as:
+By definition, a statistic $T$ is sufficient if the joint pdf of $X_1, \dots, X_n$ can be factorized into the form:
 
 $$
 f_{\theta}(x_1, \dots, x_n) = g(T, \theta) h(x_1, \dots, x_n)
 $$
 
-Or, two functions, one that is dependent upon $\theta$ and one that does not. 
+where:
 
-As given, the joint pdf of $X_1, \dots, X_n$ is:
+$g(T, \theta)$ depends on $\theta$,
 
-$$
-f_{\theta}(x_1, \dots, x_n)
-= \prod_{i=1}^{n} \left[ \exp(-x_i^p/\theta) (p/\theta) x_i^{p-1} \right]
-= \left( \frac{p}{\theta} \right)^n \exp\left( -\frac{T}{\theta} \right) \prod_{i=1}^{n} x_i^{p-1}
-$$
+$h(x_1, \dots, x_n)$ does not depend on $\theta$.
 
-We note then that for $g(T, \theta) = \left( \frac{p}{\theta} \right)^n \exp\left( -\frac{T}{\theta} \right)$ depends on the data only through $T$, and $h(x_1, \dots, x_n) = \prod_{i=1}^{n} x_i^{p-1}$ does not depend on $\theta$. So we meet the conditions to note the Factorization Theorem, such that $T$ is sufficient for $\theta$.
-
-Onto completeness: 
-
-A statistic $T$ is complete if for any function $g(T)$,
+Given $X_1, ..., X_n$ ($n \geq 2$) are iid with Common Weibull pdf, the joint pdf of $X_1, \dots, X_n$ is:
 
 $$
-E_{\theta}[g(T)] = 0 \quad \forall \theta \Rightarrow P(g(T) = 0) = 1
+f_{\theta}(x_1, \dots, x_n) = \prod_{i=1}^{n} \left[ \exp(-x_i^p/\theta) \cdot \frac{p}{\theta} x_i^{p-1} \right]
 $$
 
-Or, the zero function is the only function to satisfy the above expression. 
+Where: 
 
-We have $T = \sum_{i=1}^{n} X_i^p$, which we know follows a gamma distribution given the iid distribution of $X_i$ (sum of iid Exponential with common $\theta$ is a Gamma distribution), i.e.:
+$$
+0 < x_i < \infty \quad \text{and} \quad 0 < \theta < \infty \quad \forall i
+$$
+
+We can simplify this expression somewhat:
+
+$$
+f_{\theta}(x_1, \dots, x_n) = \left(\frac{p}{\theta}\right)^n \exp\left(-\frac{T}{\theta}\right) \prod_{i=1}^{n} x_i^{p-1}
+$$
+
+Of note: 
+
+  - The function $g(T, \theta) = \left(\frac{p}{\theta}\right)^n \exp\left(-\frac{T}{\theta}\right)$ depends on $T$ and $\theta$.
+
+  - The function $h(x_1, \dots, x_n) = \prod_{i=1}^{n} x_i^{p-1}$ does not depend on $\theta$ at all.
+
+Thus, by the Factorization Theorem, $T$ is sufficient for $\theta$.
+
+We then need to address completeness: 
+
+By definition, a statistic $T$ is complete if for any function $g(T)$:
+
+$$
+E_{\theta}[g(T)] = 0, \quad \forall \theta \quad \Rightarrow \quad P(g(T) = 0) = 1
+$$
+
+That is, if the expectation of $g(T)$ is zero for all $\theta$, then $g(T)$ must be the zero function.
+
+Since $X_1^p, \dots, X_n^p$ are iid Exponential($\theta$), following from rescaling the original Weibull-distributed $X_i$'s, we have the sum:
+
+$$
+T = \sum_{i=1}^{n} X_i^p
+$$
+
+follows a Gamma distribution:
 
 $$
 T \sim \text{Gamma}(n, \theta)
 $$
 
-We then take advantage of knowing that the Gamma family is a complete exponential family, meaning $T$ is complete for $\theta$.
+Yes, your statement is appropriate, but it can be slightly refined for clarity and precision. Here’s a suggested revision:
 
-One last item to tackle then, $U$ being ancillary. 
+We take advantage of the fact that the Gamma family is a complete exponential family in $\theta$, which implies that $T$ is a complete statistic for $\theta$. This follows from the general result that a one-parameter exponential family is complete in $\theta$, and the Gamma distribution is a specific instance of such a family for the scale parameter $\theta$ (we cannot find anything with expectation zero for all $\theta$ that is not the zero function itself).
 
-A statistic $U$ is ancillary if its distribution does not depend on $\theta$. 
+Thus, $T$ is both sufficient and complete for $\theta$.
 
-Let:
+Finally, we address the ancillary statistic. By definition, a statistic $U$ is ancillary if its distribution does not depend on $\theta$.
+
+We are given a hint to try:
 
 $$
 U = \frac{X_1^p}{T}
 $$
 
-Since $X_1^p, \dots, X_n^p$ are iid Exponential($\theta$), we can write
+Since $X_1^p, \dots, X_n^p$ are iid Exponential($\theta$), again following from the initial $X_i$'s being iid Weibull. At any rate, we can again rescale:
 
 $$
-\left( \frac{X_1^p}{\theta}, \dots, \frac{X_n^p}{\theta} \right) \sim \text{iid Exp}(1)
+\left( \frac{X_1^p}{\theta}, \dots, \frac{X_n^p}{\theta} \right) \sim \text{Exp}(1)
 $$
 
-I believe this is called "pivoting", and apologies if this was not the anticipated method for this proof. That notwithstanding, $T / \theta \sim \text{Gamma}(n,1)$, and $U = X_1^p/T$ follows a Beta(1, n-1) distribution. Of note, this (the distribution of U) does not depend on $\theta$, meaning $U$ is ancillary.
+While still retaining iid. 
+
+Taking the sum, we can express this as another sum of Exponential iid random variables, giving us:
+
+$$
+T / \theta \sim \text{Gamma}(n,1)
+$$
+
+Since:
+
+$$
+U = \frac{X_1^p}{T} = \frac{X_1^p / \theta}{T / \theta}
+$$
+
+By multiplying by a "cheeky one".
+
+We then note that $\frac{X_1^p}{\theta} \sim Gamma(1, 1)$ and $T / \theta \sim \text{Gamma}(n,1)$, we know that U is a ratio of two Gamma distributions that are independent is by definition a Beta distribution (the numerator and denominator being independent). 
+
+Specifically, $U$ is distributed: 
+
+$$
+U \sim \text{Beta}(1, n-1)
+$$
+
+Since the Beta(1, n-1) distribution does not depend on $\theta$, we know the statistic $U$ is ancillary.
+
+### Lil Extra Work
+
+I'm pretty sure the above is "enough" (avoiding using the word sufficient explicitly in a non-maths context), but in the event that some more work would help: 
+
+For finding the distribution of $U$: 
+
+$$
+U = \frac{X_1^p}{T} = \frac{X_1^p / \theta}{T / \theta}
+$$
+
+$$
+f_{X_1^p/\theta}(x) = \frac{x^{1-1} e^{-x}}{\Gamma(1)} = e^{-x}
+$$
+
+$$
+f_{T/\theta}(t) = \frac{t^{n-1} e^{-t}}{\Gamma(n)}
+$$
+
+Giving joint pdf: 
+
+$$
+f_{X_1^p/\theta, T/\theta}(x, t) = f_{X_1^p/\theta}(x) f_{T/\theta}(t)
+= e^{-x} \cdot \frac{t^{n-1} e^{-t}}{\Gamma(n)}
+$$
+
+For:
+
+$$
+U = \frac{X_1^p}{T}
+$$
+
+Gives:
+
+$$
+X_1^p = U T
+$$
+
+$$
+T = T
+$$
+
+With Jacobian:
+
+$$
+J = \left| \begin{matrix} \frac{\partial X_1^p}{\partial U} & \frac{\partial X_1^p}{\partial T} \\ \frac{\partial T}{\partial U} & \frac{\partial T}{\partial T} \end{matrix} \right|
+= \left| \begin{matrix} T & U \\ 0 & 1 \end{matrix} \right|
+= T
+$$
+
+Transformation of the prior joint pdf gives:
+
+$$
+f_{U, T}(u, t) = f_{X_1^p, T}(ut, t) \cdot |J|
+= e^{-ut} \cdot \frac{t^{n-1} e^{-t}}{\Gamma(n)} \cdot T
+= \frac{t^n e^{-t}}{\Gamma(n)} e^{-ut}
+$$
+
+Getting the marginal distribution of $U$, integrating over T, we have:
+
+$$
+f_U(u) 
+= \int_0^\infty f_{U, T}(u, t) dt
+= \int_0^\infty \frac{t^n e^{-t}}{\Gamma(n)} e^{-ut} dt
+= \frac{1}{\Gamma(n)} \int_0^\infty t^n e^{-(1+u)t} dt
+= \frac{\Gamma(n+1)}{\Gamma(n)} \cdot \frac{1}{(1+u)^{n+1}}
+$$
+
+As $\Gamma(n+1) = n\Gamma(n)$, we can simplify further:
+
+$$
+f_U(u) 
+= n \frac{1}{(1+u)^{n+1}}
+= \frac{u^{1-1} (1 - u)^{(n-1)-1}}{B(1, n-1)}
+$$
+
+Where B is the Beta function as is usually defined, and $u^{1-1} = u^0 = 0$ under the constraint 0<u<1 as a "cheeky one". 
+
+This confirms:
+
+$$
+U \sim \text{Beta}(1, n-1)
+$$
 
 \newpage 
 
@@ -103,37 +238,31 @@ Let $X_1, \dots, X_n$ be iid gamma$(\alpha, \beta)$ with $\alpha$ known. Find th
 
 ### Answer
 
-Since $X_i \sim \text{Gamma}(\alpha, \beta)$, the sum:
+Since $X_i \sim \text{Gamma}(\alpha, \beta)$ are iid, the sum:
 
 $$
-S_n = \sum_{i=1}^{n} X_i
+S_n = \sum_{i=1}^{n} X_i \sim \text{Gamma}(n\alpha, \beta)
 $$
 
-follows a Gamma distribution, with note of Problem 1:
+Taking expectation of this statistic: 
 
 $$
-S_n \sim \text{Gamma}(n\alpha, \beta)
+E_{\beta}(S_n) = n\alpha \beta
 $$
 
-Taking expectation:
+To get just the $\beta$ term, consider:
 
 $$
-E_{\theta}(S_n) = n\alpha \beta
+E_{\beta} \left[ \frac{n\alpha}{S_n} \right] = \frac{n\alpha}{E_{\beta}(S_n)} = \frac{n\alpha}{n\alpha \beta} = \frac{1}{\beta}
 $$
 
-Since:
+This shows that $\frac{n\alpha}{S_n}$ is an unbiased estimator of $\frac{1}{\beta}$
 
-$$
-E_{\theta} \left[ \frac{n\alpha}{S_n} \right] = \frac{n\alpha}{E_{\theta}(S_n)} = \frac{n\alpha}{n\alpha \beta} = \frac{1}{\beta}
-$$
+Noting the work shown previously in [.1], via the Factorization Theorem, we know $S_n$ is a sufficient statistic for $\beta$ (scale parameter of the Gamma).
 
-One possible unbiased estimator for $1/\beta$ is:
+Similarly, we know that the Gamma family is a specific instance of a a complete one-parameter exponential family, meaning we know that $S_n$ is also complete.
 
-$$
-\frac{n\alpha}{S_n}
-$$
-
-Since $S_n$ is a complete sufficient statistic for $\beta$ (by the Factorization Theorem and Lehmann-Scheffé Theorem), any unbiased estimator that is a function of $S_n$ is UMVUE, making it the best unbiased estimator for the purpose of this problem. 
+Now, we can do something new! Via Lehmann-Scheffé, since $\delta(S_n) = \frac{n\alpha}{S_n}$ is an unbiased function of the complete sufficient statistic,$S_n$, we know that $\delta(S_n) = \frac{n\alpha}{S_n}$ is the UMVUE of $1/\beta$. Yippee! 
 
 ## a) 
 
@@ -141,27 +270,106 @@ Let $S_n = \sum_{i=1}^{n} X_i$. Using Basu’s theorem, show $X_1/S_n$ and $S_n$
 
 ### Answer
 
-Using Basu’s theorem, we show that $X_1/S_n$ and $S_n$ are independent.
-
-Basu’s theorem: If $T$ is a complete sufficient statistic and $U$ is an ancillary statistic, then $T$ and $U$ are independent.
+By definition, Basu’s theorem: If $T$ is a complete sufficient statistic and $U$ is an ancillary statistic, then $T$ and $U$ are independent.
 
 From the prior question, we know that $S_n$ is complete and sufficient for $\beta$.
 
-We need to then find an ancillary statistic. To that end, let: 
+We need to then find an ancillary statistic. 
+
+To that end, let: 
 
 $$
 U = \frac{X_1}{S_n}
 $$
 
-Using given information, we know: 
+Where: 
+
+$$
+X_1 \sim \text{Gamma}(\alpha, \beta)
+$$
+
+$$
+S_n \sim \text{Gamma}(n\alpha, \beta)
+$$
+
+Using given information, we know U is a ratio of two Gamma random variables. However, this is complicated somewhat by $X_1$ and $S_n$ not being independent! So we need to do a bit of calculation to identify the underlying structure of their ratios (though it will be Beta-distributed, the parameter values don't follow the typical formula). To that end, using the known pdfs of each statistic: 
+
+$$
+f_{X_1}(x_1) = \frac{x_1^{\alpha - 1} e^{-x_1 / \beta}}{\beta^\alpha \Gamma(\alpha)}
+$$
+
+$$
+f_{S_n}(s) = \frac{s^{n\alpha - 1} e^{-s / \beta}}{\beta^{n\alpha} \Gamma(n\alpha)}
+$$
+
+By the product rule (noting $X_1$ and $S_n$ are not independent):
+
+$$
+f_{X_1, S_n}(x_1, s) = f_{X_1 | S_n}(x_1 | s) f_{S_n}(s)
+$$
+
+Where: 
+
+$$
+f_{X_1 | S_n}(x_1 | s) = \frac{x_1^{\alpha - 1} (s - x_1)^{(n-1)\alpha - 1}}{s^{n\alpha - 1} B(\alpha, (n-1)\alpha)}
+$$
+
+Giving joint pdf: 
+
+$$
+f_{X_1, S_n}(x_1, s) = \frac{x_1^{\alpha - 1} (s - x_1)^{(n-1)\alpha - 1} e^{-s / \beta} s^{n\alpha - 1}}{\beta^{n\alpha} \Gamma(\alpha) \Gamma((n-1)\alpha)}
+$$
+
+For
+
+$$
+U = \frac{X_1}{S_n}
+$$
+
+We have:
+
+$$
+X_1 = U S_n
+$$
+
+$$
+S = (1 - U) S_n
+$$
+
+Caluating the Jacobian determinant:
+
+$$
+J = \left| \begin{matrix} \frac{\partial X_1}{\partial U} & \frac{\partial X_1}{\partial S_n} \\ \frac{\partial S}{\partial U} & \frac{\partial S}{\partial S_n} \end{matrix} \right|
+=
+\left| \begin{matrix} S_n & U \\ -S_n & 1 - U \end{matrix} \right|
+= S_n (1 - U) + S_n U = S_n
+$$
+
+Via transformation, we have:
+
+$$
+f_{U, S_n}(u, s) = f_{X_1, S_n}(us, s) |J|
+= \frac{(us)^{\alpha - 1} ((1 - u)s)^{(n-1)\alpha - 1} e^{-s / \beta} s^{n\alpha - 1}}{\beta^{n\alpha} \Gamma(\alpha) \Gamma((n-1)\alpha)} s
+= \frac{u^{\alpha - 1} (1 - u)^{(n-1)\alpha - 1} s^{n\alpha - 1} e^{-s / \beta}}{\beta^{n\alpha} \Gamma(\alpha) \Gamma((n-1)\alpha)}
+$$
+
+Getting the the marginal distribution of $f_U(u)$:
+
+$$
+f_U(u) 
+= \int_0^\infty f_{U, S_n}(u, s) ds
+= \frac{u^{\alpha - 1} (1 - u)^{(n-1)\alpha - 1} \Gamma(n\alpha)}{\Gamma(\alpha) \Gamma((n-1)\alpha)}
+$$
+
+Thus, we can identify the distribution and parameters from the above! We know that U is Beta-distributed, specifically: 
 
 $$
 U \sim \text{Beta}(\alpha, (n-1)\alpha)
 $$
 
-Which does not depend on $\beta$ for any of its parameters! This means we have found U, our ancillary statistic. 
+Which does not depend on $\beta$ for any of its parameters! This means we have an ancillary statistic. 
 
-Then, by Basu’s theorem, $U = X_1/S_n$ and $S_n$ are independent.
+As such, by Basu’s theorem, $U = X_1/S_n$ and $S_n$ are independent.
 
 ## b) 
 
@@ -185,7 +393,7 @@ $$
 Using the properties of a known distribution, we know that: 
 
 $$
-E_{\theta} \left( \frac{X_1}{S_n} \right) = \frac{\alpha}{\alpha + (n-1)\alpha} = \frac{1}{n}.
+E_{\theta} \left( \frac{X_1}{S_n} \right) = \frac{\alpha}{\alpha + (n-1)\alpha} = \frac{1}{n}
 $$
 
 \newpage 
@@ -343,29 +551,36 @@ $$
 \beta_3(\theta) = P_\theta(X_{(1)} > 1 - \sqrt{0.05}) = (1 - (1 - \sqrt{0.05} - \theta))^2.
 $$
 
-Via the below: $\phi_3$ is more powerful than $\phi_2$ for all $\theta > 0$. This means for the range being considered that $\phi_3$ is uniformly more powerful than $\phi_2$.
+The power functions of $\phi_2$ and $\phi_3$ are compared below. The results indicate that $\phi_2$ is more powerful for small values of $\theta$, while $\phi_3$ is more powerful when $\theta > 0.395$.
 
 ```{r}
-# Define theta range
+# Define the range of theta values
 theta <- seq(0, 1.2, by = 0.01)
-C <- 2 - sqrt(0.1)  # Computed value of C for phi_2
 
-# Power function for phi_2
+# Define the critical value for phi_3
+t_crit <- 1 - sqrt(0.05)
+
+# Corrected power function for phi_3
+phi3_power <- function(theta) {
+    ifelse(theta < (1 - sqrt(0.05)), (sqrt(0.05) + theta)^2, 1)
+}
+
+# Compute the power for phi_3
+beta3 <- sapply(theta, phi3_power)
+
+# Corrected power function for phi_2
+C <- 2 - sqrt(0.1)  # The critical value used for phi_2
 beta2 <- ifelse(theta <= (C/2) - 1, 0,
          ifelse(theta <= (C - 1)/2, ((2*theta + 2 - C)^2)/2,
          ifelse(theta <= C/2, 1 - ((C - 2*theta)^2)/2, 1)))
 
-# Power function for phi_3
-phi3_power <- function(theta) {
-  pmin(1, (1 - pmax(0, 1 - sqrt(0.05) - theta))^2)
-}
-
-beta3 <- sapply(theta, phi3_power)
-
-# Plot
+# Plot the corrected power functions
 plot(theta, beta2, type = "l", col = "red", lwd = 2, ylim = c(0, 1),
-     ylab = "Power", xlab = expression(theta), main = "Power Functions of Phi2 and Phi3")
+     ylab = "Power", xlab = expression(theta), main = "Power Functions of Phi2 and Phi3",
+     lty = 2)
 lines(theta, beta3, col = "green", lwd = 2, lty = 3)
+
+# Add a legend
 legend("bottomright", legend = c(expression(phi[2]), expression(phi[3])),
        col = c("red", "green"), lty = c(2, 3), lwd = 2)
 ```
