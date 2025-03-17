@@ -6,9 +6,9 @@ author: "Sam Olson"
 
 # Outline 
 
-  - Q1: Skeleton
-  - Q2: Skeleton
-  - Q3: Skeleton 
+  - Q1: SOLID
+  - Q2: SOLID
+  - Q3: SOLID 
   - Q4: Skeleton
   - Q5: Skeleton
   - Q6: Skeleton
@@ -34,9 +34,18 @@ Estimate the total energy consumption for the full population of 100,000 dwellin
 
 ### Answer 
 
+```{r}
+nh <- c(35000, 45000, 20000)
+barY <- c(915, 641, 712)  
+tStr <- sum(nh * barY)
+tStr
+```
+
 $$
 \hat{T}_{str} = \sum_{h \in H}N_{h} \bar{y}_{h} = 915(35,000) + 641(45,000) + 712(20,000) = 75,110,000
 $$
+
+Units of kWh per dwelling unit
 
 ## 2. 
 
@@ -44,13 +53,22 @@ Estimate the standard error of the estimator used in (1).
 
 ### Answer 
 
+```{r}
+nh2 <- nh^2
+seBarY <- c(4.84, 2.98, 7.00)
+seHatT <- sqrt(sum(nh2 * (seBarY^2)))
+seHatT
+```
+
 $$
 SE(\hat{T}_{str}) = \sqrt{\text{Var}\left( \sum_{h \in H}N_{h} \bar{y}_{h} \right)} = \sqrt{\left( \sum_{h \in H} \text{Var} \left( N_{h} \bar{y}_{h} \right) \right)} = \sqrt{\left( \sum_{h \in H} N_{h}^2 \text{Var} \left( \bar{y}_{h} \right) \right)}
 $$
 
 $$
-SE(\hat{T}_{str}) = \sqrt{(35,000^2)(4.84^2) + (45,000^2)(2.98^2) + (20,000^2)(7.00^2)} = 257,447
+SE(\hat{T}_{str}) = \sqrt{(35,000^2)(4.84^2) + (45,000^2)(2.98^2) + (20,000^2)(7.00^2)} = 257,447.4
 $$
+
+Units of kWh per dwelling unit
 
 \newpage
 
@@ -66,22 +84,27 @@ What is the sample size $n_h$ for each stratum under proportional allocation?
 
 #### Answer 
 
-The overall sampling rate is  
-
 $$
 \frac{n}{N} = \frac{1,000}{100,000} = 0.01
 $$
 
-Under proportional allocation, the sample sizes are  
+Under proportional allocation, we just take the above sampling rate multiplied by the population of the strata, i.e.:
 
 $$
 n_h = N_h \times 0.01
 $$
 
-Thus, we have  
+Corresponding to 
+$$
+n_1 = 350
+$$
 
 $$
-n_1 = 350, \quad n_2 = 450, \quad n_3 = 200
+n_2 = 450
+$$
+
+$$
+n_3 = 200
 $$
 
 ### b) 
@@ -96,13 +119,21 @@ Thus, you can obtain $s_h^2$.
 
 #### Answer 
 
-Now, using  
+By definition: 
 
 $$
 SE(\bar{y}_h) = \sqrt{\left( \frac{1}{n_h} - \frac{1}{N_h} \right) S_h^2}
 $$
 
-we can obtain $S_h$. That is, we may solve  
+```{r}
+littlenH <- c(350, 450, 200) 
+
+# should be better with notation, but I love camel case
+bigSh <- (seBarY^2)/(littlenH^-1 - nh^(-1))
+sqrt(bigSh)
+```
+
+We want the population-level standard errors by strata. To that end: 
 
 $$
 \sqrt{\left( \frac{1}{350} - \frac{1}{35000} \right) S_1^2} = 4.84
@@ -116,7 +147,7 @@ $$
 \sqrt{\left( \frac{1}{200} - \frac{1}{20000} \right) S_3^2} = 7.00
 $$
 
-to obtain  
+Solving for $S_1, S_2, S_3$ respectively: 
 
 $$
 S_1 \approx 91.00, \quad S_2 \approx 63.53, \quad S_3 \approx 99.49
@@ -128,31 +159,42 @@ Apply Neyman allocation (optimal allocation) using $s_h$ in place of $S_h$.
 
 #### Answer 
 
-Finally, we can apply Neyman allocation  
+Combining everything from the above together: 
 
 $$
 n_h = \frac{N_h S_h}{\sum_{h=1}^{H} N_h S_h} n
 $$
 
-with $n = 1000$. Thus,
+where $n = 1000$. 
+
+```{r}
+sh <- c(91, 63.53, 99.49) 
+
+neyman <- round(((nh * sh)/ sum(nh *sh))*1000, 
+                digits = 0)
+neyman
+sum(neyman)
+```
+
+Explicitly, 
 
 $$
-n_1 = \frac{35(91.00)}{35(91.00) + 45(63.53) + 20(99.49)}  \cdot 1000 \approx 396
+n_1 = \frac{35,000(91.00)}{35,000(91.00) + 45,000(63.53) + 20,000(99.49)}  \cdot 1000 \approx 396
 $$
 
 $$
-n_2 = \frac{45(63.53)}{35(91.00) + 45(63.53) + 20(99.49)}  \cdot 1000 \approx 356
+n_2 = \frac{45,000(63.53)}{35,000(91.00) + 45,000(63.53) + 20,000(99.49)}  \cdot 1000 \approx 356
 $$
 
 $$
-n_3 = \frac{10(99.49)}{35(91.00) + 45(63.53) + 20(99.49)} \cdot 1000 \approx 248
+n_3 = \frac{10,000(99.49)}{35,000(91.00) + 45,000(63.53) + 20,000(99.49)} \cdot 1000 \approx 248
 $$
 
 $$
 n_1 \approx 396 \quad n_2 \approx 356, \quad n_3 \approx 248
 $$
 
-are the final sample sizes from Neyman allocation.
+Where we round to the nearest integer, and validate by checking the sum of samples is 1,000 as expected. 
 
 ## 4. 
 
@@ -163,6 +205,13 @@ What would be the estimated standard error of the total estimator under the opti
 $$
 SE(\hat{T}_{str}) = \sqrt{\sum_{h=1}^{H} \frac{N_h^2}{n_h} \left(1 - \frac{n_h}{N_h} \right) S_h^2}
 $$
+
+```{r}
+firstTerm <- nh^2 / littlenH
+secondTerm <- (1 - (littlenH/nh))
+thirdTerm <- sh^2
+sqrt(sum(firstTerm * secondTerm * thirdTerm))
+```
 
 Given:
 
@@ -229,60 +278,12 @@ $$
 Taking the square root:
 
 $$
-SE(\hat{T}_{str}) = \sqrt{63,870,173,181.82} \approx 252,725
+SE_{Prop}(\hat{T}_{str}) = \sqrt{63,870,173,181.82} \approx 257,435.2 < 257,447.4 = SE_{Srs}(\hat{T}_{str})
 $$
 
-This is smaller than the SE under proportional allocation given previously, which is what we expected.
+SE under proportional allocation is smaller than the previously calculated SE, which is expected.
 
 \newpage
-
-# Problem 2 (10 pt)
-
-Consider a simple random sample of size $n = 200$ from a finite population with size $N = 10,000$, measuring $(X,Y)$, taking values on $\{(0,0), (0,1), (1,0), (1,1)\}$. The finite population has the following distribution.
-
-$$
-\begin{array}{c|cc|c}
- & X = 1 & X = 0 &  \\
-\hline
-Y = 1 & N_{11} & N_{10} & N_{1+} \\
-Y = 0 & N_{01} & N_{00} & N_{0+} \\
-\hline
- & N_{+1} & N_{+0} & N \\
-\end{array}
-$$
-
-The population count $N_{ij}$ are unknown.
-
-Suppose that the realized sample has the following sample counts:
-
-$$
-\begin{array}{c|cc|c}
- & X = 1 & X = 0 &  \\
-\hline
-Y = 1 & 70 & 30 & 100 \\
-Y = 0 & 50 & 50 & 100 \\
-\hline
- & 120 & 80 & 200 \\
-\end{array}
-$$
-
-## 1. 
-
-If it is known that $N_{+1} = N_{+0} = 5000$, how can you make use of this information to obtain a post-stratified estimator of $\theta = E(Y)$, using $X$ as the post-stratification variable?
-
-### Answer 
-
-The poststratification estimator is  
-
-$$
-\hat{\theta} = W_1 \bar{y}_1 + W_2 \bar{y}_2 = 0.5 \times \left(\frac{30}{55}\right) + 0.5 \times \left(\frac{20}{45}\right).
-$$
-
-## 2. 
-
-If we are interested in estimating $\theta = P(Y = 1 | X = 1)$, discuss how to estimate $\theta$ from the above sample and how to estimate its variance (Hint: Use Taylor expansion of ratio estimator to obtain the sampling variance).
-
-### Answer 
 
 # Problem 2 (10 pt)
 
@@ -320,13 +321,11 @@ If it is known that $N_{+1} = N_{+0} = 5000$, how can you make use of this infor
 
 ### Answer
 
-For $\theta = P(Y = 1 \mid X = 1)$, we can use  
+We can obtain a post-stratified estimator of $\theta = E(Y)$ via: 
 
 $$
-\hat{\theta} = \frac{\hat{P}(X = 1, Y = 1)}{\hat{P}(X = 1)} = \frac{n_{11}}{n_{1+}} = \frac{70}{120} = 0.7,
+\hat{\theta} = W_1 \bar{y}_1 + W_2 \bar{y}_2 = 0.5 \cdot \left(\frac{70}{120}\right) + 0.5 \cdot \left(\frac{30}{80}\right) = 0.479
 $$
-
-where $n_{ij}$ is the number of sample elements with $(X = i, Y = j)$ and $n_{1+} = n_{11} + n_{10}$.  
 
 ## 2.
 
@@ -334,27 +333,35 @@ If we are interested in estimating $\theta = P(Y = 1 | X = 1)$, discuss how to e
 
 ### Answer
 
-Now, to obtain variance estimation, Taylor method can be used to get  
+For $\theta = P(Y = 1 \mid X = 1)$, we can make use of conditional probability, i.e., 
+
+$$
+P(Y = 1 \mid X = 1) = \frac{P(Y = 1 \cap X = 1)}{P(X = 1))}
+$$
+
+Substituting values known, and using hats for observed sample counts, we obtain:
+
+$$
+\hat{\theta} = \frac{\hat{P}(X = 1, Y = 1)}{\hat{P}(X = 1)} = \frac{n_{11}}{n_{1+}} = \frac{70}{120} = 0.583
+$$
+
+where $n_{1+} = n_{11} + n_{10}$.  
+
+Next, for variance estimation, we use the available hint and consider the Taylor expansion of the ratio estimator: 
 
 $$
 \hat{\theta} \approx \theta + \frac{1}{E(n_{1+})} (n_{11} - \theta n_{1+})
-$$
-
-$$
 = \theta + \frac{1}{E(n_{1+})/n} \left(\frac{n_{11}}{n} - \theta \frac{n_{1+}}{n} \right)
+= \theta + \frac{1}{E(\hat{P}_{1+})} \left( \hat{P}_{11} - \theta \hat{P}_{1+} \right)
 $$
 
-$$
-= \theta + \frac{1}{E(\hat{P}_{1+})} \left( \hat{P}_{11} - \theta \hat{P}_{1+} \right).
-$$
-
-Thus,  
+This gives us the variance of $\hat{\theta}$,  
 
 $$
-V(\hat{\theta}) \approx \frac{1}{P_{1+}^2} \left\{ V(\hat{P}_{11}) + \theta^2 V(\hat{P}_{1+}) - 2\theta \text{Cov}(\hat{P}_{11}, \hat{P}_{1+}) \right\}. \tag{1}
+V(\hat{\theta}) \approx \frac{1}{P_{1+}^2} \left\{ V(\hat{P}_{11}) + \theta^2 V(\hat{P}_{1+}) - 2\theta \text{Cov}(\hat{P}_{11}, \hat{P}_{1+}) \right\}
 $$
 
-Now, under simple random sampling, we have  
+Under SRS then, we have:  
 
 $$
 V(\hat{P}_{11}) = \frac{1}{n} (1 - f) P_{11} (1 - P_{11})
@@ -365,33 +372,43 @@ V(\hat{P}_{1+}) = \frac{1}{n} (1 - f) P_{1+} (1 - P_{1+})
 $$
 
 $$
-\text{Cov}(\hat{P}_{11}, \hat{P}_{1+}) = \frac{1}{n} (1 - f) P_{11} (1 - P_{1+}).
+\text{Cov}(\hat{P}_{11}, \hat{P}_{1+}) = \frac{1}{n} (1 - f) P_{11} (1 - P_{1+})
 $$
 
-Also, using $\theta = P_{11}/P_{1+}$, we can simplify (1) to get  
+Where $f$ is defined as usual, i.e. $f = \frac{n}{N} = \frac{200}{10,000} = 0.02$. 
+
+As given, we know, $\hat{\theta} = \hat{P_{11}}/\hat{P_{1+}} \rightarrow \theta = P_{11}/P_{1+}$. 
+
+The above allows us to further simplify the variance formula, specifically: 
 
 $$
 V(\hat{\theta}) = \frac{1}{n} (1 - f) \frac{1}{P_{1+}^2} \left\{ P_{11} (1 - P_{11}) + \frac{P_{11}^2}{P_{1+}^2} P_{1+} (1 - P_{1+}) - 2 \frac{P_{11}}{P_{1+}} P_{11} (1 - P_{1+}) \right\}
 $$
 
 $$
+V(\hat{\theta})
 = \frac{1}{n} (1 - f) \frac{1}{P_{1+}} \left\{ P_{11} - \frac{P_{11}^2}{P_{1+}} \right\}
+= \frac{1}{n} (1 - f) \frac{1}{P_{1+}} \theta (1 - \theta)
 $$
 
-$$
-= \frac{1}{n} (1 - f) \frac{1}{P_{1+}} \theta (1 - \theta).
-$$
-
-Thus, we can estimate the variance of $\hat{\theta}$ by  
+Using the above simplifciation, we can turn to the estimated variance formula:
 
 $$
-\hat{V}(\hat{\theta}) = (1 - f) \frac{1}{n_{1+}} \hat{\theta} (1 - \hat{\theta}).
+\hat{V}(\hat{\theta}) = (1 - f) \frac{1}{n_{1+}} \hat{\theta} (1 - \hat{\theta})
 $$
 
-Using $f = 0.02$, $n_{1+} = 120$, and $\hat{\theta} = 70/120$, we obtain  
+Using $f = 0.02$, $n_{1+} = 120$, and $\hat{\theta} = 70/120$, we then have:   
+
+```{r}
+f <- 0.02 
+n1Plus <- 120 
+hatTheta <- 70/120 
+
+(1 - f) * (1 / n1Plus) * hatTheta * (1 - hatTheta)
+```
 
 $$
-\hat{V}(\hat{\theta}) = 0.001985.
+\hat{V}(\hat{\theta}) = 0.001985
 $$
 
 \newpage
@@ -437,7 +454,7 @@ Compute the variance of $\hat{\tau}_{\text{sre}}$ using the model parameters in 
 
 ### Answer 
 
-Recall that  
+Under the given assumptions, by definition: 
 
 $$
 E (\hat{\tau}_{sre} \mid \mathcal{F}_N ) = \sum_{h=1}^{H} W_h \bar{\tau}_h
@@ -446,86 +463,155 @@ $$
 where  
 
 $$
-\bar{\tau}_h = N_h^{-1} \sum_{i=1}^{N_h} \{ Y_{hi}(1) - Y_{hi}(0) \}.
+\bar{\tau}_h = N_h^{-1} \sum_{i=1}^{N_h} \{ Y_{hi}(1) - Y_{hi}(0) \}
 $$
 
-Also, in the class, we have learned that  
-
-$$
-V (\hat{\tau}_{sre} \mid \mathcal{F}_N ) = \sum_{h=1}^{H} W_h^2 \frac{1}{N_h} \left( \frac{N_{h0}}{N_{h1}} S_{h1}^2 + \frac{N_{h1}}{N_{h0}} S_{h0}^2 + 2 S_{h01} \right).
-$$
-
-Hence, the total variance is  
+Via EVVE, we can express the total variance as: 
 
 $$
 V (\hat{\tau}_{sre}) = V \{E (\hat{\tau}_{sre} \mid \mathcal{F}_N )\} + E \{V (\hat{\tau}_{sre} \mid \mathcal{F}_N )\}
 $$
 
+For the first term, we note that: 
+
 $$
-= V \left\{ \sum_{h=1}^{H} W_h \bar{\tau}_h \right\} + E \left\{ \sum_{h=1}^{H} W_h^2 \frac{1}{N_h} \left( \frac{N_{h0}}{N_{h1}} S_{h1}^2 + \frac{N_{h1}}{N_{h0}} S_{h0}^2 + 2 S_{h01} \right) \right\}.
+V \{E (\hat{\tau}_{sre} \mid \mathcal{F}_N )\} = V\{ \sum_{h}^{H} W_{h} \bar{\tau}_{h} \}
 $$
 
-Now, under model (2), we can obtain  
+Also, noting the lecture slides, we know the second term of this expression too! 
+
+$$
+V (\hat{\tau}_{sre} \mid \mathcal{F}_N ) = \sum_{h=1}^{H} W_h^2 \frac{1}{N_h} \left( \frac{N_{h0}}{N_{h1}} S_{h1}^2 + \frac{N_{h1}}{N_{h0}} S_{h0}^2 + 2 S_{h01} \right)
+$$
+
+Substituting these into our initial total variance formula: 
+
+$$
+V (\hat{\tau}_{sre}) = V \left\{ \sum_{h=1}^{H} W_h \bar{\tau}_h \right\} + E \left\{ \sum_{h=1}^{H} W_h^2 \frac{1}{N_h} \left( \frac{N_{h0}}{N_{h1}} S_{h1}^2 + \frac{N_{h1}}{N_{h0}} S_{h0}^2 + 2 S_{h01} \right) \right\}
+$$
+
+As given from our model, we know our variance-covariance matrix, such that we have a known formula for the firm term in our total variance equation:  
 
 $$
 V \left\{ \sum_{h=1}^{H} W_h \bar{\tau}_h \right\} = \sum_{h=1}^{H} W_h^2 \frac{1}{N_h} (\sigma_{h1}^2 + \sigma_{h0}^2 - 2\sigma_{h01})
 $$
 
-and  
+Taking expectation, note that only the assignment of treatments is random (all else are considered fixed), giving us: 
 
 $$
 E \left\{ \sum_{h=1}^{H} W_h^2 \frac{1}{N_h} \left( \frac{N_{h0}}{N_{h1}} S_{h1}^2 + \frac{N_{h1}}{N_{h0}} S_{h0}^2 + 2 S_{h01} \right) \right\}  
-= \sum_{h=1}^{H} W_h^2 \frac{1}{N_h} \left( \frac{N_{h0}}{N_{h1}} \sigma_{h1}^2 + \frac{N_{h1}}{N_{h0}} \sigma_{h0}^2 + 2\sigma_{h01} \right).
+= \sum_{h=1}^{H} W_h^2 \frac{1}{N_h} \left( \frac{N_{h0}}{N_{h1}} \sigma_{h1}^2 + \frac{N_{h1}}{N_{h0}} \sigma_{h0}^2 + 2\sigma_{h01} \right)
 $$
 
-Therefore, combining the two, we obtain  
+So we have effectively simplified both parts of our total variance formula. We will find that a number of terms cancel when we bring them all back together, specifically: 
 
 $$
-V (\hat{\tau}_{sre}) = \sum_{h=1}^{H} W_h^2 \left( \frac{\sigma_{h1}^2}{N_{h1}} + \frac{\sigma_{h0}^2}{N_{h0}} \right).
+V (\hat{\tau}_{sre}) 
+= \sum_{h=1}^{H} W_h^2 \frac{1}{N_h} (\sigma_{h1}^2 + \sigma_{h0}^2 - 2\sigma_{h01}) + 
+\sum_{h=1}^{H} W_h^2 \frac{1}{N_h} \left( \frac{N_{h0}}{N_{h1}} \sigma_{h1}^2 + \frac{N_{h1}}{N_{h0}} \sigma_{h0}^2 + 2\sigma_{h01} \right)
+= \sum_{h=1}^{H} W_h^2 \left( \frac{\sigma_{h1}^2}{N_{h1}} + \frac{\sigma_{h0}^2}{N_{h0}} \right)
 $$
+
+Noting that: 
+
+$$
+\frac{1}{N_h}\sigma^2_{h1} + \frac{1}{N_h}\frac{N_{h0}}{N_{h1}}\sigma^2_{h1} = \frac{\sigma^2_{h1}}{N_{h1}}
+$$
+
+As $N_{h} = N_{h1} + N_{h0}$. 
 
 \newpage 
 
 ## 2. 
 
-Assuming the model parameters are known, determine the optimal sample allocation to minimize $\text{Var}(\hat{\tau}_{\text{sre}})$.
+Assuming the model parameters in (1) are known, what is the optimal sample allocation such that $\text{Var}(\hat{tau}_{Sre}$ is minimized subject to $N_h = N_{h1} + N_{h0}$ for $h=1,...,H$ are fixed? That is, how to choose $N_{h1}$ and $N_{h0}$ for a given $N_h$?
 
 ### Answer 
 
-For each $h$, we wish to minimize  
+We want to minimize: 
 
 $$
 Q(N_{h1}, N_{h0}) = \frac{\sigma_{h1}^2}{N_{h1}} + \frac{\sigma_{h0}^2}{N_{h0}}
 $$
 
-subject to $N_h = N_{h1} + N_{h0}$ being constant. Thus, by the Schwarz inequality, we can obtain  
+subject to the constraint:
 
 $$
-\left( \frac{\sigma_{h1}^2}{N_{h1}} + \frac{\sigma_{h0}^2}{N_{h0}} \right) (N_{h1} + N_{h0}) \geq (\sigma_{h1} + \sigma_{h0})^2.
+N_h = N_{h1} + N_{h0}
 $$
 
-which is equal to  
+Given this is a constrained optimization problem, we consider using Lagrange:
 
 $$
-\left( \frac{\sigma_{h1}^2}{N_{h1}} + \frac{\sigma_{h0}^2}{N_{h0}} \right) (N_{h1} + N_{h0}) \geq \frac{(\sigma_{h1} + \sigma_{h0})^2}{N_h}
+\mathcal{L}(N_{h1}, N_{h0}, \lambda) = \frac{\sigma_{h1}^2}{N_{h1}} + \frac{\sigma_{h0}^2}{N_{h0}} + \lambda (N_{h1} + N_{h0} - N_h)
 $$
 
-with equality if and only if  
+Taking partial derivatives, setting both zero:
 
 $$
-\frac{\sigma_{ht}}{N_{ht}^{1/2}} \propto N_{ht}^{1/2}, \quad t = 0, 1.
+\frac{\partial \mathcal{L}}{\partial N_{h1}} = -\frac{\sigma_{h1}^2}{N_{h1}^2} + \lambda = 0
 $$
 
-That is, the minimum of $Q(N_{h1}, N_{h0})$ is achieved at  
+$$
+\frac{\partial \mathcal{L}}{\partial N_{h0}} = -\frac{\sigma_{h0}^2}{N_{h0}^2} + \lambda = 0
+$$
+
+From the first equation:
+
+$$
+\lambda = \frac{\sigma_{h1}^2}{N_{h1}^2}
+$$
+
+From the second equation:
+
+$$
+\lambda = \frac{\sigma_{h0}^2}{N_{h0}^2}
+$$
+
+Setting these two expressions equal to one another gives us: 
+
+$$
+\frac{\sigma_{h1}^2}{N_{h1}^2} = \frac{\sigma_{h0}^2}{N_{h0}^2}
+$$
+
+Taking the square root on both sides to isolate $\sigma_{h1}, \sigma_h0$:
+
+$$
+\frac{\sigma_{h1}}{N_{h1}} = \frac{\sigma_{h0}}{N_{h0}}
+$$
+
+Now we want to isolate $N_{h1}$ and utilize our constraint: 
+
+$$
+N_{h1} = N_{h0} \frac{\sigma_{h1}}{\sigma_{h0}}
+$$
+
+As we are constrained by $N_h = N_{h1} + N_{h0}$, we have: $N_{h0} = N_h - N_{h1}$:
+
+$$
+N_{h1} = (N_h - N_{h1}) \frac{\sigma_{h1}}{\sigma_{h0}}
+$$
+
+Solving for $N_{h1}$:
+
+$$
+N_{h1} \left(1 + \frac{\sigma_{h1}}{\sigma_{h0}}\right) = N_h \frac{\sigma_{h1}}{\sigma_{h0}}
+$$
 
 $$
 N_{h1}^* = N_h \frac{\sigma_{h1}}{\sigma_{h1} + \sigma_{h0}}
 $$
 
-and  
+Noting: 
 
 $$
-N_{h0}^* = N_h - N_{h1}^*.
+\frac{\sigma_{h1}}{\sigma_{h1}} = 1 \text{ as by definition } \sigma_{h1}, \sigma_{h0} > 0
+$$
+
+With $N_{h1}^*$ and our contraint $N_h = N_{h1} + N_{h0}$, we can now easily find $N_{h0}^*$:
+
+$$
+N_{h0}^* = N_h - N_{h1}^* = N_h \frac{\sigma_{h0}}{\sigma_{h1} + \sigma_{h0}}
 $$
 
 \newpage
