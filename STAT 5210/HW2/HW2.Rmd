@@ -10,9 +10,9 @@ author: "Sam Olson"
   - Q2: SOLID
   - Q3: SOLID 
   - Q4: SOLID
-  - Q5: Skeleton
-  - Q6: Skeleton
-  - Q7: Skeleton
+  - Q5: SOLID
+  - Q6: SOLID
+  - Q7: Iffy, Just A Weird Question
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -769,34 +769,65 @@ Compute a 95% confidence interval for $\bar{Y}$ using the ratio estimator.
 
 ### Answer 
 
-The **ratio estimator** for the population mean sales is:
+By definition, the ratio estimator for the population mean sales is given by:
+
+```{r}
+n <- 100
+bary <- 5.2e6
+barx <- 45
+barX <- 50
+
+barYratio <- bary * barX / barx
+barYratio
+```
 
 $$
-\hat{\bar{Y}}_R = \bar{y}_n \frac{\bar{X}}{\bar{x}_n}.
+\hat{\bar{Y}}_R = \bar{y}_n \frac{\bar{X}}{\bar{x}_n}
 $$
 
-Substituting the given values:
+Calculating: 
 
 $$
-\hat{\bar{Y}}_R = (5.2 \times 10^6) \times \frac{50}{45} = 5.778 \times 10^6.
+\hat{\bar{Y}}_R = (5.2 \cdot 10^6) \cdot \frac{50}{45} = 5.778e6
 $$
 
-The variance of the ratio estimator is approximated by:
+The variance of the ratio estimator is approximated by the formula:
+
+```{r}
+r <- 0.8 
+barY <- 
+sy2 <- 25e10
+sx2 <- 15 
+barY <- bary * barX / barx
+
+involved <- (sy2 / bary^2) + (sx2/barx^2) - (2 * r * (sqrt(sy2) / bary) * (sqrt(sx2) / barx))
+varRatio <- barY^2 * (1/n) * involved
+varRatio
+```
 
 $$
-V(\hat{\bar{Y}}_R) \approx \bar{Y}^2 \left( \frac{1}{n} \right) \left( \frac{s_y^2}{\bar{y}_n^2} + \frac{s_x^2}{\bar{x}_n^2} - 2r \frac{s_y}{\bar{y}_n} \frac{s_x}{\bar{x}_n} \right).
+V(\hat{\bar{Y}}_R) \approx \bar{Y}^2 \left( \frac{1}{n} \right) \left( \frac{s_y^2}{\bar{y}_n^2} + \frac{s_x^2}{\bar{x}_n^2} - 2r \frac{s_y}{\bar{y}_n} \frac{s_x}{\bar{x}_n} \right)
 $$
 
-Substituting the values:
+Calculating: 
 
 $$
-V(\hat{\bar{Y}}_R) = (5.778 \times 10^6)^2 \times \frac{1}{100} \left( \frac{25 \times 10^{10}}{(5.2 \times 10^6)^2} + \frac{15}{45^2} - 2(0.8) \frac{5 \times 10^5}{5.2 \times 10^6} \frac{3.873}{45} \right).
+V(\hat{\bar{Y}}_R) = (5.778 \cdot 10^6)^2 \cdot \frac{1}{100} \left( \frac{25 \cdot 10^{10}}{(5.2 \cdot 10^6)^2} + \frac{15}{45^2} - 2(0.8) \frac{5 \cdot 10^5}{5.2 \cdot 10^6} \frac{3.873}{45} \right) 
+= 1.139018550e9 \approx 1.139e9
 $$
 
-Computing the standard error, the **95% confidence interval** is given by:
+From this we can calculate the standard error, and use that value to then calculate the 95% confidence interval. Doing so:
+
+```{r}
+interval <- qnorm(0.975)
+ue <- barYratio + (interval * sqrt(varRatio))
+le <- barYratio - (interval * sqrt(varRatio))
+interval <- c(le, ue)
+interval
+```
 
 $$
-\hat{\bar{Y}}_R \pm 1.96 \times \sqrt{V(\hat{\bar{Y}}_R)}.
+\hat{\bar{Y}}_R \pm 1.96 \cdot \sqrt{V(\hat{\bar{Y}}_R)} = 5.778e6 \pm \sqrt{1.139e9} \rightarrow (5.719e6, 5.844e6)
 $$
 
 ## 2. 
@@ -805,47 +836,75 @@ Compute a 95% confidence interval for $\bar{Y}$ using the regression estimator b
 
 ### Answer 
 
-The **regression estimator** for the population mean is:
+For the regression estimator, we use the known formula for the population mean given by:
 
 $$
-\hat{\bar{Y}}_{reg} = \bar{y}_n + b (\bar{X} - \bar{x}_n),
+\hat{\bar{Y}}_{reg} = \bar{y}_n + b (\bar{X} - \bar{x}_n)
 $$
 
 where the estimated slope $b$ is given by:
 
 $$
-b = r \frac{s_y}{s_x}.
+b = r \frac{s_y}{s_x}
 $$
+
+```{r}
+b <- r * sqrt(sy2) / sqrt(sx2)
+b
+```
 
 Substituting the values:
 
 $$
-b = 0.8 \times \frac{5 \times 10^5}{3.873} = 1.033 \times 10^5.
+b = 0.8 \cdot \frac{5 \cdot 10^5}{3.873} = 1.033e5
 $$
 
 Thus, the regression estimator is:
 
-$$
-\hat{\bar{Y}}_{reg} = (5.2 \times 10^6) + (1.033 \times 10^5)(50 - 45) = 5.7165 \times 10^6.
-$$
-
-The variance of the regression estimator is:
-
-$$
-V(\hat{\bar{Y}}_{reg}) = \frac{s_y^2}{n} (1 - r^2).
-$$
-
-Substituting the values:
+```{r}
+barYreg <- bary + b * (barX - barx)
+barYreg
+```
 
 $$
-V(\hat{\bar{Y}}_{reg}) = \frac{25 \times 10^{10}}{100} (1 - 0.64) = 9 \times 10^9.
+\hat{\bar{Y}}_{reg} 
+= \bar{y}_n + b (\bar{X} - \bar{x}_n) 
+= (5.2e6) + (1.033e5)(50 - 45) 
+= 5.717e6
 $$
 
-Computing the standard error, the **95% confidence interval** is given by:
+The variance of the regression estimator is then given by the formula:
 
 $$
-\hat{\bar{Y}}_{reg} \pm 1.96 \times \sqrt{V(\hat{\bar{Y}}_{reg})}.
+V(\hat{\bar{Y}}_{reg}) = \frac{s_y^2}{n} (1 - r^2)
 $$
+
+```{r}
+vYreg <- (sy2 / n) * (1 - r^2)
+vYreg
+```
+
+Evaluating this quantity: 
+
+$$
+V(\hat{\bar{Y}}_{reg}) = \frac{25 \cdot 10^{10}}{100} (1 - 0.64) = 9e9
+$$
+
+Again, we can then calculate the standard error, and use this value to calculate the 95% confidence interval:
+
+```{r}
+interval <- qnorm(0.975)
+ue2 <- barYreg + (interval * sqrt(vYreg))
+le2 <- barYreg - (interval * sqrt(vYreg))
+interval2 <- c(le2, ue2)
+interval2
+```
+
+$$
+\hat{\bar{Y}}_{reg} \pm 1.96 \cdot \sqrt{V(\hat{\bar{Y}}_{reg})} \rightarrow (5.658e6, 5.775e6)
+$$
+
+As a note, interestingly the interval constructed using the regression estimator is more precise (smaller margin of error). 
 
 \newpage
 
@@ -854,16 +913,16 @@ $$
 Under the setup of Chapter 6, Part 1 lecture, prove the last two equalities on page 23:
 
 $$
-\text{Cov} \left( \frac{1}{N_1} \sum_{i=1}^{N} T_i e_i(1), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0
+\text{Cov} \left( \frac{1}{N_1} \sum_{i=1}^{N} T_i e_i(1), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0 \tag{0}
 $$
 
 $$
-\text{Cov} \left( \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) e_i(0), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0
+\text{Cov} \left( \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) e_i(0), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0 \tag{1}
 $$
 
 ## Answer 
 
-### Setup
+### Setup, a note on known quantities and what they refer to
 
   - $T_i$ is the treatment indicator (1 for treated, 0 for control).
   - $N_1 = \sum_{i=1}^{N} T_i$ is the number of treated units.
@@ -877,64 +936,98 @@ $$
 Since treatment assignments $T_i$ are independent of errors and covariates, we have:
 
 $$
-E[T_i e_i(1) | \mathcal{F}_N] = \pi_i e_i(1), \quad E[(1 - T_i) e_i(0) | \mathcal{F}_N] = (1 - \pi_i) e_i(0)
+E[T_i e_i(1) | \mathcal{F}_N] = \pi_i e_i(1)
 $$
 
+And
+
 $$
-E[T_i \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N] = \pi_i \mathbf{x}_i' \mathbf{B}_0, \quad E[(1 - T_i) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N] = (1 - \pi_i) \mathbf{x}_i' \mathbf{B}_0
+E[(1 - T_i) e_i(0) | \mathcal{F}_N] = (1 - \pi_i) e_i(0)
 $$
 
-where $\pi_i = P(T_i = 1)$.
+Furthermore: 
 
-Expanding the first covariance:
+$$
+E[T_i \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N] = \pi_i \mathbf{x}_i' \mathbf{B}_0
+$$
+
+And 
+
+$$
+E[(1 - T_i) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N] = (1 - \pi_i) \mathbf{x}_i' \mathbf{B}_0
+$$
+
+where $\pi_i = P(T_i = 1)$ (first order inclusion probability of being assigned Treatment).
+
+For Equation (0), noting with glee a chance to start an index at 0: 
 
 $$
 \text{Cov} \left( \frac{1}{N_1} \sum_{i=1}^{N} T_i e_i(1), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right)
 $$
 
-Expanding linearly:
+Using the property of linearity, we may write this as equal to: 
 
 $$
 \frac{1}{N_1 N_0} \sum_{i=1}^{N} \sum_{j=1}^{N} \text{Cov} \left( T_i e_i(1), (1 - T_j) \mathbf{x}_j' \mathbf{B}_0 | \mathcal{F}_N \right)
 $$
 
-For $i \neq j$, $T_i$ and $(1 - T_j)$ are independent, making cross terms vanish. For $i = j$:
+Cross terms are 0 for $i = j$, and for $i \neq j$, $T_i$ and $(1 - T_j)$ are independent (independent treatments):
+
+As a quick note, the cross terms being zero stems from the underlying implication of independence, i.e., generally: 
+
+$$
+Cov(X, Y) = E[XY] - E[X]E[Y]
+$$
+
+But via independence: 
+
+$$
+E[XY] = E[X]E[X] \rightarrow Cov(X, Y) = 0
+$$
+
+That being said, we are left with, for $i \neq j$, 
 
 $$
 \text{Cov} (T_i e_i(1), (1 - T_i) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N ) = E[T_i(1 - T_i) | \mathcal{F}_N] E[e_i(1) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N]
 $$
 
-Since $T_i(1 - T_i) = 0$, the covariance is zero.
+Then, since $T_i(1 - T_i) = 0$, we know: 
 
-Similarly, for the second covariance:
+$$
+\text{Cov} \left( \frac{1}{N_1} \sum_{i=1}^{N} T_i e_i(1), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right)
+= E[T_i(1 - T_i) | \mathcal{F}_N] E[e_i(1) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N]
+= 0
+$$
+
+For the second equation, (1), with another note of glee: 
 
 $$
 \text{Cov} \left( \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) e_i(0), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right)
 $$
 
-Expanding:
+Similarly expanding the above with note of linearity, we have:
 
 $$
 \frac{1}{N_0^2} \sum_{i=1}^{N} \sum_{j=1}^{N} \text{Cov} \left( (1 - T_i) e_i(0), (1 - T_j) \mathbf{x}_j' \mathbf{B}_0 | \mathcal{F}_N \right)
 $$
 
-For $i \neq j$, the terms are independent and vanish. For $i = j$:
+By contrast with the prior argument used for (0), for $i \neq j$, the terms are independent and evaluate to zero. However, for $i = j$:
 
 $$
-\text{Cov} \left( (1 - T_i) e_i(0), (1 - T_i) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N \right) = 0.
+\text{Cov} \left( (1 - T_i) e_i(0), (1 - T_i) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N \right) = 0
 $$
 
-Thus, we have proven:
+And this relies again upon the base definition of covariance and the fact we have independence, i.e., 
 
 $$
-\text{Cov} \left( \frac{1}{N_1} \sum_{i=1}^{N} T_i e_i(1), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0
+\text{Cov} \left( (1 - T_i) e_i(0), (1 - T_i) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N \right) = (1 - T_i)^2 \text{Cov} \left( e_i(0), \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N \right)
 $$
 
-$$
-\text{Cov} \left( \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) e_i(0), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0
-$$
+And we have independence such that: 
 
-These results follow from the independence of treatment assignments and errors, ensuring that their covariances vanish. 
+$$
+E[e_i(0) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N] = 0 \rightarrow \text{Cov} \left( (1 - T_i) e_i(0), (1 - T_i) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N \right) = 0
+$$
 
 \newpage
 
@@ -964,9 +1057,6 @@ and $D$ $(p \times p$ symmetric, invertible matrix$)$, the minimizer of
 
 $$
 Q(\omega) = \gamma (\omega'X - \bar{x})' D (\omega'X - \bar{x}) + \omega'\omega
-$$
-
-$$
 = \gamma (X'\omega - \bar{x})' D (X'\omega - \bar{x}) + \omega'\omega
 $$
 
@@ -982,37 +1072,57 @@ $$
 
 ### Answer 
 
-We seek to minimize the quadratic objective function:
+We aim to minimize function:
 
 $$
-Q(\omega) = \gamma (X'\omega - \bar{x})' D (X'\omega - \bar{x}) + \omega'\omega.
+Q(\omega) = \gamma (X'\omega - \bar{x})' D (X'\omega - \bar{x}) + \omega'\omega
 $$
 
-Taking the gradient with respect to $\omega$:
+Where:
+
+  - $X$ is an $n \times p$ matrix of covariates,
+  - $\omega$ is an $n$-dimensional weight vector,
+  - $\bar{x} = N^{-1} \sum_{i=1}^{N} x_i'$ is the population mean of the covariates,
+  - $D$ is a $p \times p$ symmetric, positive definite matrix,
+  - $\gamma$ is a scalar tuning parameter.
+
+The gradient of $Q(\omega)$ with respect to $\omega$ is:
 
 $$
-\frac{dQ}{d\omega} = 2 \gamma X D (X' \omega - \bar{x}) + 2 \omega.
+\frac{dQ}{d\omega} = 2 \gamma X D (X' \omega - \bar{x}) + 2 \omega
 $$
 
-Setting this to zero:
+Setting the gradient to zero gives the first-order condition:
 
 $$
-\gamma X D X' \omega - \gamma X D \bar{x} + \omega = 0.
+\gamma X D X' \omega - \gamma X D \bar{x} + \omega = 0
 $$
 
-Rearranging:
+Rearranging terms, isolating $\omega$ gives us:
 
 $$
-(\gamma X D X' + I_n) \omega = \gamma X D \bar{x}.
+(\gamma X D X' + I_n) \omega = \gamma X D \bar{x} \rightarrow \hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D \bar{x}
 $$
 
-Multiplying by $(\gamma X D X' + I_n)^{-1}$:
+This gives us equation (10):
 
 $$
-\hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D \bar{x}.
+\hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D \bar{x} \tag{10}
 $$
 
-which proves equation (10), giving us Lemma 3.
+From there, we need to utilize the Woodbury identity, allowing us to rewrite the inverse term as:
+
+$$
+(\gamma X D X' + I_n)^{-1} \gamma X D = X (X'X + \gamma^{-1} D^{-1})^{-1}
+$$
+
+We use this formula with our prior (10) to get equation (11):
+
+$$
+\hat{\omega} = X (X'X + \gamma^{-1} D^{-1})^{-1} \bar{x} \quad \tag{11}
+$$
+
+Giving us Lemma 3.
 
 \newpage
 
@@ -1058,40 +1168,32 @@ where $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1} \}$ and $\gamma_2 
 
 ### Answer 
 
-We express the solution using the Woodbury identity:
+We need to show that $\hat{\omega}$ in equation (13) satisfies the hard calibration condition:
 
 $$
-(\gamma X D X' + I_n)^{-1} \gamma X D = X (X'X + \gamma^{-1} D^{-1})^{-1}.
+\sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_{1i}
 $$
 
-Thus, we obtain equation (11):
+To start we note that the weights in equation (13) are of the form:
 
 $$
-\hat{\omega} = X (X'X + \gamma^{-1} D^{-1})^{-1} \bar{x}.
+\hat{\omega}_i = \left( N^{-1} \sum_{i=1}^{N} x_i \right)' \left\{ \sum_{i=1}^{N} T_i x_i x_i' + \Omega^{-1} \right\}^{-1} x_i
 $$
 
-We need to show:
+Where $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1}\}$ and $\gamma_2 = \sigma_u^2 / \sigma_e^2$.
+
+We can turn back to our given Equation (13) using this known equal, specifically:
 
 $$
-\sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_{1i}.
+\sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \sum_{i \in A} \left( N^{-1} \sum_{i=1}^{N} x_i \right)' \left\{ \sum_{i=1}^{N} T_i x_i x_i' + \Omega^{-1} \right\}^{-1} x_i \mathbf{x}_{1i}
 $$
 
-From equation (13):
+Since $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1}\}$, the term $\Omega^{-1}$ does not affect the calibration for $\mathbf{x}_{1i}$. 
+
+Additionally, for large $\gamma_1$, the term $\gamma_1^{-1} D_p^{-1}$ is neglible, and the expression simplifies to:
 
 $$
-\hat{\omega}_i = \left( N^{-1} \sum_{i=1}^{N} x_i \right)' \left\{ \sum_{i=1}^{N} T_i x_i x_i' + \Omega^{-1} \right\}^{-1} x_i.
+\sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_{1i}
 $$
 
-Summing over $i \in A$:
-
-$$
-\sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \sum_{i \in A} \left( N^{-1} \sum_{i=1}^{N} x_i \right)' \left\{ \sum_{i=1}^{N} T_i x_i x_i' + \Omega^{-1} \right\}^{-1} x_i \mathbf{x}_{1i}.
-$$
-
-Since $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1} \}$, for large $\gamma_1$, the term simplifies to:
-
-$$
-\frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_{1i}.
-$$
-
-Thus, the final weight satisfies hard calibration.
+Which means our final weights $\hat{\omega}$ satisfy the hard calibration condition for $\mathbf{x}_{1i}$.
