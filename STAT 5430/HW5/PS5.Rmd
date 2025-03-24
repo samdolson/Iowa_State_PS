@@ -54,7 +54,7 @@ $$
 0 < x_i < \infty \quad \text{and} \quad 0 < \theta < \infty \quad \forall i
 $$
 
-We can simplify this expression somewhat:
+We can simplify this expression, somewhat:
 
 $$
 f_{\theta}(x_1, \dots, x_n) = \left(\frac{p}{\theta}\right)^n \exp\left(-\frac{T}{\theta}\right) \prod_{i=1}^{n} x_i^{p-1}
@@ -78,21 +78,15 @@ $$
 
 That is, if the expectation of $g(T)$ is zero for all $\theta$, then $g(T)$ must be the zero function.
 
-Since $X_1^p, \dots, X_n^p$ are iid Exponential($\theta$), following from rescaling the original Weibull-distributed $X_i$'s, we have the sum:
+Since $X_1^p, \dots, X_n^p$ are iid Exponential($\theta$), following from rescaling the original Weibull-distributed $X_i$'s, we have know the sum:
 
 $$
-T = \sum_{i=1}^{n} X_i^p
+T = \sum_{i=1}^{n} X_i^p \sim \text{Gamma}(n, \theta)
 $$
 
-follows a Gamma distribution:
+We then note that the Gamma family is a specific instance of the Exponential family, so we note that the above result holds for "a complete exponential family in $\theta$", which implies that $T$ is a complete statistic for $\theta$. 
 
-$$
-T \sim \text{Gamma}(n, \theta)
-$$
-
-Yes, your statement is appropriate, but it can be slightly refined for clarity and precision. Here’s a suggested revision:
-
-We take advantage of the fact that the Gamma family is a complete exponential family in $\theta$, which implies that $T$ is a complete statistic for $\theta$. This follows from the general result that a one-parameter exponential family is complete in $\theta$, and the Gamma distribution is a specific instance of such a family for the scale parameter $\theta$ (we cannot find anything with expectation zero for all $\theta$ that is not the zero function itself).
+Specifically, this result follows because we treat n as known, meaning the only unknown in the above of the parameter $\theta$, making this an instance of "a one-parameter exponential family is complete in $\theta$", though the general description is we cannot find anything with expectation zero for all $\theta$ that is not the zero function itself.
 
 Thus, $T$ is both sufficient and complete for $\theta$.
 
@@ -104,13 +98,13 @@ $$
 U = \frac{X_1^p}{T}
 $$
 
-Since $X_1^p, \dots, X_n^p$ are iid Exponential($\theta$), again following from the initial $X_i$'s being iid Weibull. At any rate, we can again rescale:
+Since $X_1^p, \dots, X_n^p$ are iid Exponential($\theta$), again following from the initial $X_i$'s being iid Weibull. At any rate, we can again rescale, but with a different linear combination, namely:
 
 $$
 \left( \frac{X_1^p}{\theta}, \dots, \frac{X_n^p}{\theta} \right) \sim \text{Exp}(1)
 $$
 
-While still retaining iid. 
+And note the above are still iid. 
 
 Taking the sum, we can express this as another sum of Exponential iid random variables, giving us:
 
@@ -243,7 +237,7 @@ $$
 E_{\beta}(S_n) = n\alpha \beta
 $$
 
-To get just the $\beta$ term, consider:
+To get $\frac{1}{\beta}$, consider:
 
 $$
 E_{\beta} \left[ \frac{n\alpha}{S_n} \right] = \frac{n\alpha}{E_{\beta}(S_n)} = \frac{n\alpha}{n\alpha \beta} = \frac{1}{\beta}
@@ -285,7 +279,7 @@ $$
 S_n \sim \text{Gamma}(n\alpha, \beta)
 $$
 
-Using given information, we know U is a ratio of two Gamma random variables. However, this is complicated somewhat by $X_1$ and $S_n$ not being independent! So we need to do a bit of calculation to identify the underlying structure of their ratios (though it will be Beta-distributed, the parameter values don't follow the typical formula). To that end, using the known pdfs of each statistic: 
+Using given information, we know U is a ratio of two Gamma random variables. However, this is complicated somewhat by $X_1$ and $S_n$ not being independent! So we need to do a bit of calculation to identify the underlying structure (distribution) of their ratios (though it will be Beta-distributed, the parameter values don't follow the typical formula, i.e. differences between numerator and denominator). To that end, using the known pdfs of each statistic: 
 
 $$
 f_{X_1}(x_1) = \frac{x_1^{\alpha - 1} e^{-x_1 / \beta}}{\beta^\alpha \Gamma(\alpha)}
@@ -346,7 +340,7 @@ f_{U, S_n}(u, s) = f_{X_1, S_n}(us, s) |J|
 = \frac{u^{\alpha - 1} (1 - u)^{(n-1)\alpha - 1} s^{n\alpha - 1} e^{-s / \beta}}{\beta^{n\alpha} \Gamma(\alpha) \Gamma((n-1)\alpha)}
 $$
 
-Getting the the marginal distribution of $f_U(u)$:
+Getting the the marginal distribution of $f_U(u)$, our variable of interest in this problem:
 
 $$
 f_U(u) 
@@ -383,7 +377,7 @@ $$
 U \sim \text{Beta}(\alpha, (n-1)\alpha)
 $$
 
-Using the properties of a known distribution, we know that: 
+Using the properties of a known distribution (distribution of U), we know that: 
 
 $$
 E_{\theta} \left( \frac{X_1}{S_n} \right) = \frac{\alpha}{\alpha + (n-1)\alpha} = \frac{1}{n}
@@ -657,9 +651,9 @@ for some constant, real-valued $c$.
 
 A couple notes: 
 
-The above assumes $\sigma_1 > \sigma_0$, so that $\frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} > 0$, is this switches, then the overall inequailty flips as well. 
+  - The above assumes $\sigma_1 > \sigma_0$, so that $\frac{1}{\sigma_0^2} - \frac{1}{\sigma_1^2} > 0$, is this switches, then the overall inequailty flips as well. 
 
-Also, the inequality $\sum_i x_i^2 > c$ defines the rejection region for the uniformly most powerful (UMP) test.
+  - Also, the inequality $\sum_i x_i^2 > c$ defines the rejection region for the uniformly most powerful (UMP) test.
 
 That being said, now the critical value $c$ is determined such that the Type I error probability is $\alpha$:
 
@@ -667,7 +661,7 @@ $$
 \alpha = P_{\sigma_0} \left( \sum_i X_i^2 > c \right)
 $$
 
-Under $H_0$, $\sum_i X_i^2 / \sigma_0^2$ follows a chi-squared distribution with $n$ degrees of freedom:
+Under $H_0$, $\sum_i X_i^2 / \sigma_0^2$ follows a chi-squared distribution with $n$ degrees of freedom (squared standard normal, where we achieve a standard normal variable by scaling by $\sigma_0^2$):
 
 $$
 \sum_i X_i^2 / \sigma_0^2 \sim \chi_n^2
@@ -694,3 +688,9 @@ $$
 $$
 
 This defines the rejection region for the most powerful test with Type I error probability $\alpha$.
+
+Note: All the above summations are equivalent to summing from i=1 to n, i.e. 
+
+$$
+\sum_i \equiv \sum_{i=1}^{n}
+$$
