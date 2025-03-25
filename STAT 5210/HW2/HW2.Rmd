@@ -4,16 +4,6 @@ output: pdf_document
 author: "Sam Olson"
 ---
 
-# Outline 
-
-  - Q1: SOLID
-  - Q2: SOLID
-  - Q3: SOLID 
-  - Q4: SOLID
-  - Q5: SOLID
-  - Q6: SOLID
-  - Q7: Iffy, Just A Weird Question
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -94,7 +84,8 @@ $$
 n_h = N_h \times 0.01
 $$
 
-Corresponding to 
+Corresponding to:
+
 $$
 n_1 = 350
 $$
@@ -119,7 +110,7 @@ Thus, you can obtain $s_h^2$.
 
 #### Answer 
 
-By definition: 
+To obtain $s_h^2$, note that by definition: 
 
 $$
 SE(\bar{y}_h) = \sqrt{\left( \frac{1}{n_h} - \frac{1}{N_h} \right) S_h^2}
@@ -159,7 +150,7 @@ Apply Neyman allocation (optimal allocation) using $s_h$ in place of $S_h$.
 
 #### Answer 
 
-Combining everything from the above together: 
+Combining everything from the above together, we use the Neyman allocation formula, i.e.: 
 
 $$
 n_h = \frac{N_h S_h}{\sum_{h=1}^{H} N_h S_h} n
@@ -201,6 +192,8 @@ Where we round to the nearest integer, and validate by checking the sum of sampl
 What would be the estimated standard error of the total estimator under the optimal allocation in (3)? Compare it with the answer in (2). Which one is smaller?
 
 ### Answer 
+
+The standard error via Neyman allocation is given by the formula:
 
 $$
 SE(\hat{T}_{str}) = \sqrt{\sum_{h=1}^{H} \frac{N_h^2}{n_h} \left(1 - \frac{n_h}{N_h} \right) S_h^2}
@@ -339,7 +332,7 @@ $$
 P(Y = 1 \mid X = 1) = \frac{P(Y = 1 \cap X = 1)}{P(X = 1))}
 $$
 
-Substituting values known, and using hats for observed sample counts, we obtain:
+Substituting known quantities into this formula gives us:
 
 $$
 \hat{\theta} = \frac{\hat{P}(X = 1, Y = 1)}{\hat{P}(X = 1)} = \frac{n_{11}}{n_{1+}} = \frac{70}{120} = 0.583
@@ -361,15 +354,19 @@ $$
 V(\hat{\theta}) \approx \frac{1}{P_{1+}^2} \left\{ V(\hat{P}_{11}) + \theta^2 V(\hat{P}_{1+}) - 2\theta \text{Cov}(\hat{P}_{11}, \hat{P}_{1+}) \right\}
 $$
 
-Under SRS then, we have:  
+Under SRS then, we know $V(\hat{P}_{11})$ is given by the expression:  
 
 $$
 V(\hat{P}_{11}) = \frac{1}{n} (1 - f) P_{11} (1 - P_{11})
 $$
 
+And similarly: 
+
 $$
 V(\hat{P}_{1+}) = \frac{1}{n} (1 - f) P_{1+} (1 - P_{1+})
 $$
+
+And also: 
 
 $$
 \text{Cov}(\hat{P}_{11}, \hat{P}_{1+}) = \frac{1}{n} (1 - f) P_{11} (1 - P_{1+})
@@ -377,9 +374,9 @@ $$
 
 Where $f$ is defined as usual, i.e. $f = \frac{n}{N} = \frac{200}{10,000} = 0.02$. 
 
-As given, we know, $\hat{\theta} = \hat{P_{11}}/\hat{P_{1+}} \rightarrow \theta = P_{11}/P_{1+}$. 
+As given, we know, $\hat{\theta} = \hat{P_{11}}/\hat{P_{1+}} \rightarrow \theta = P_{11}/P_{1+}$. So we have all quantities known to solve directly for $V(\hat{\theta})$! 
 
-The above allows us to further simplify the variance formula, specifically: 
+Simplifying: 
 
 $$
 V(\hat{\theta}) = \frac{1}{n} (1 - f) \frac{1}{P_{1+}^2} \left\{ P_{11} (1 - P_{11}) + \frac{P_{11}^2}{P_{1+}^2} P_{1+} (1 - P_{1+}) - 2 \frac{P_{11}}{P_{1+}} P_{11} (1 - P_{1+}) \right\}
@@ -391,7 +388,7 @@ V(\hat{\theta})
 = \frac{1}{n} (1 - f) \frac{1}{P_{1+}} \theta (1 - \theta)
 $$
 
-Using the above simplifciation, we can turn to the estimated variance formula:
+Using the above simplification, we can turn to the estimated variance formula:
 
 $$
 \hat{V}(\hat{\theta}) = (1 - f) \frac{1}{n_{1+}} \hat{\theta} (1 - \hat{\theta})
@@ -723,11 +720,7 @@ $$
 
 So we need the random variables X and Y to be negatively correlated and meet the above condition to ensure greater efficiency for $\hat{\theta}$ comapred to $\bar{y}$. 
 
-## 3. 
-
-Prove that if the population covariance of $x$ and $y$ is zero, then the product estimator is less efficient than $\bar{y}$.
-
-### Answer 
+\newpage
 
 ## 3.
 
@@ -771,6 +764,12 @@ Compute a 95% confidence interval for $\bar{Y}$ using the ratio estimator.
 
 By definition, the ratio estimator for the population mean sales is given by:
 
+$$
+\hat{\bar{Y}}_R = \bar{y}_n \frac{\bar{X}}{\bar{x}_n}
+$$
+
+Calculating: 
+
 ```{r}
 n <- 100
 bary <- 5.2e6
@@ -782,16 +781,16 @@ barYratio
 ```
 
 $$
-\hat{\bar{Y}}_R = \bar{y}_n \frac{\bar{X}}{\bar{x}_n}
-$$
-
-Calculating: 
-
-$$
 \hat{\bar{Y}}_R = (5.2 \cdot 10^6) \cdot \frac{50}{45} = 5.778e6
 $$
 
 The variance of the ratio estimator is approximated by the formula:
+
+$$
+V(\hat{\bar{Y}}_R) \approx \bar{Y}^2 \left( \frac{1}{n} \right) \left( \frac{s_y^2}{\bar{y}_n^2} + \frac{s_x^2}{\bar{x}_n^2} - 2r \frac{s_y}{\bar{y}_n} \frac{s_x}{\bar{x}_n} \right)
+$$
+
+Calculating: 
 
 ```{r}
 r <- 0.8 
@@ -804,12 +803,6 @@ involved <- (sy2 / bary^2) + (sx2/barx^2) - (2 * r * (sqrt(sy2) / bary) * (sqrt(
 varRatio <- barY^2 * (1/n) * involved
 varRatio
 ```
-
-$$
-V(\hat{\bar{Y}}_R) \approx \bar{Y}^2 \left( \frac{1}{n} \right) \left( \frac{s_y^2}{\bar{y}_n^2} + \frac{s_x^2}{\bar{x}_n^2} - 2r \frac{s_y}{\bar{y}_n} \frac{s_x}{\bar{x}_n} \right)
-$$
-
-Calculating: 
 
 $$
 V(\hat{\bar{Y}}_R) = (5.778 \cdot 10^6)^2 \cdot \frac{1}{100} \left( \frac{25 \cdot 10^{10}}{(5.2 \cdot 10^6)^2} + \frac{15}{45^2} - 2(0.8) \frac{5 \cdot 10^5}{5.2 \cdot 10^6} \frac{3.873}{45} \right) 
@@ -829,6 +822,8 @@ interval
 $$
 \hat{\bar{Y}}_R \pm 1.96 \cdot \sqrt{V(\hat{\bar{Y}}_R)} = 5.778e6 \pm \sqrt{1.139e9} \rightarrow (5.719e6, 5.844e6)
 $$
+
+\newpage
 
 ## 2. 
 
@@ -904,7 +899,7 @@ $$
 \hat{\bar{Y}}_{reg} \pm 1.96 \cdot \sqrt{V(\hat{\bar{Y}}_{reg})} \rightarrow (5.658e6, 5.775e6)
 $$
 
-As a note, interestingly the interval constructed using the regression estimator is more precise (smaller margin of error). 
+As a note, the interval constructed using the regression estimator is more precise than the one constructed using the ratio estimator (smaller margin of error). 
 
 \newpage
 
@@ -913,45 +908,47 @@ As a note, interestingly the interval constructed using the regression estimator
 Under the setup of Chapter 6, Part 1 lecture, prove the last two equalities on page 23:
 
 $$
-\text{Cov} \left( \frac{1}{N_1} \sum_{i=1}^{N} T_i e_i(1), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0 \tag{0}
+\text{Cov} \left( \frac{1}{N_1} \sum_{i=1}^{N} T_i e_i(1), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0 \tag{1}
 $$
 
 $$
-\text{Cov} \left( \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) e_i(0), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0 \tag{1}
+\text{Cov} \left( \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) e_i(0), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right) = 0 \tag{2}
 $$
 
 ## Answer 
 
 ### Setup, a note on known quantities and what they refer to
 
-  - $T_i$ is the treatment indicator (1 for treated, 0 for control).
-  - $N_1 = \sum_{i=1}^{N} T_i$ is the number of treated units.
-  - $N_0 = \sum_{i=1}^{N} (1 - T_i)$ is the number of control units.
-  - $e_i(1)$ and $e_i(0)$ are error terms under treatment and control.
-  - $\mathbf{x}_i$ is the covariate vector.
+  - $T_i$ is the treatment indicator for unit i (1 received treatment, 0 is control).
+  - $N_1 = \sum_{i=1}^{N} T_i$ is the number (size of sample) of treated units.
+  - $N_0 = \sum_{i=1}^{N} (1 - T_i)$ is the number (size of sample) of control units.
+  - $e_i(1)$ and $e_i(0)$ are error terms for treatment and control, respectively.
+  - $\mathbf{x}_i$ is the vector of covariates for unit i (including intercept). 
   - $\mathbf{B}_0$ is a fixed coefficient vector.
 
 ### Proof
 
 Since treatment assignments $T_i$ are independent of errors and covariates, we have:
 
+For treatment: 
+
 $$
 E[T_i e_i(1) | \mathcal{F}_N] = \pi_i e_i(1)
 $$
 
-And
+And for control:
 
 $$
 E[(1 - T_i) e_i(0) | \mathcal{F}_N] = (1 - \pi_i) e_i(0)
 $$
 
-Furthermore: 
+Additionally, for treatment: 
 
 $$
 E[T_i \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N] = \pi_i \mathbf{x}_i' \mathbf{B}_0
 $$
 
-And 
+And similarly, for control:
 
 $$
 E[(1 - T_i) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N] = (1 - \pi_i) \mathbf{x}_i' \mathbf{B}_0
@@ -959,7 +956,9 @@ $$
 
 where $\pi_i = P(T_i = 1)$ (first order inclusion probability of being assigned Treatment).
 
-For Equation (0), noting with glee a chance to start an index at 0: 
+### Equation 1 
+
+For Equation (1), the first of the quantities to prove: 
 
 $$
 \text{Cov} \left( \frac{1}{N_1} \sum_{i=1}^{N} T_i e_i(1), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right)
@@ -985,13 +984,13 @@ $$
 E[XY] = E[X]E[X] \rightarrow Cov(X, Y) = 0
 $$
 
-That being said, we are left with, for $i \neq j$, 
+Continuing on, we are left with, for $i \neq j$, 
 
 $$
 \text{Cov} (T_i e_i(1), (1 - T_i) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N ) = E[T_i(1 - T_i) | \mathcal{F}_N] E[e_i(1) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N]
 $$
 
-Then, since $T_i(1 - T_i) = 0$, we know: 
+Then, since $T_i(1 - T_i) = 0$, we may write: 
 
 $$
 \text{Cov} \left( \frac{1}{N_1} \sum_{i=1}^{N} T_i e_i(1), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right)
@@ -999,7 +998,9 @@ $$
 = 0
 $$
 
-For the second equation, (1), with another note of glee: 
+### Equation 2
+
+For the second equation, (2): 
 
 $$
 \text{Cov} \left( \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) e_i(0), \frac{1}{N_0} \sum_{i=1}^{N} (1 - T_i) \mathbf{x}'_i \mathbf{B}_0 | \mathcal{F}_N \right)
@@ -1011,7 +1012,7 @@ $$
 \frac{1}{N_0^2} \sum_{i=1}^{N} \sum_{j=1}^{N} \text{Cov} \left( (1 - T_i) e_i(0), (1 - T_j) \mathbf{x}_j' \mathbf{B}_0 | \mathcal{F}_N \right)
 $$
 
-By contrast with the prior argument used for (0), for $i \neq j$, the terms are independent and evaluate to zero. However, for $i = j$:
+By contrast with the prior argument used for (1), for $i \neq j$, the terms are independent and evaluate to zero. However, for $i = j$ we have:
 
 $$
 \text{Cov} \left( (1 - T_i) e_i(0), (1 - T_i) \mathbf{x}_i' \mathbf{B}_0 | \mathcal{F}_N \right) = 0
@@ -1041,44 +1042,38 @@ Prove Lemma 3.
 
 Lemma 3: 
 
+### Setup 
+
 Let $X$ be a $n \times p$ matrix such that
 
 $$
-X = \begin{pmatrix} x_1' \\ \vdots \\ x_n' \end{pmatrix}
+X = \begin{pmatrix} \mathbf{x_1}' \\ \vdots \\ \mathbf{x_n}' \end{pmatrix}
 $$
 
 and $\omega = (\omega_1, \dots, \omega_n)'$ be an $n$-dimensional weight vector $(n = N_1)$. Given
 
 $$
-\bar{x} = N^{-1} \sum_{i=1}^{N} x_i',
+\mathbf{\bar{x}} = N^{-1} \sum_{i=1}^{N} \mathbf{x}_i',
 $$
 
 and $D$ $(p \times p$ symmetric, invertible matrix$)$, the minimizer of
 
 $$
-Q(\omega) = \gamma (\omega'X - \bar{x})' D (\omega'X - \bar{x}) + \omega'\omega
-= \gamma (X'\omega - \bar{x})' D (X'\omega - \bar{x}) + \omega'\omega
+Q(\omega) = \gamma (\omega'X - \mathbf{\bar{x}})' D (\omega'X - \mathbf{\bar{x}}) + \omega'\omega
+= \gamma (X'\omega - \mathbf{\bar{x}})' D (X'\omega - \mathbf{\bar{x}}) + \omega'\omega
 $$
 
 is given by
 
 $$
-\hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D \bar{x} \tag{10}
+\hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D \mathbf{\bar{x}} \tag{10}
 $$
 
 $$
-= X (X'X + \gamma^{-1} D^{-1})^{-1} \bar{x} \tag{11}
+= X (X'X + \gamma^{-1} D^{-1})^{-1} \mathbf{\bar{x}} \tag{11}
 $$
 
-### Answer 
-
-We aim to minimize function:
-
-$$
-Q(\omega) = \gamma (X'\omega - \bar{x})' D (X'\omega - \bar{x}) + \omega'\omega
-$$
-
-Where:
+The goal of this problem is to derive (10), where: 
 
   - $X$ is an $n \times p$ matrix of covariates,
   - $\omega$ is an $n$-dimensional weight vector,
@@ -1086,43 +1081,71 @@ Where:
   - $D$ is a $p \times p$ symmetric, positive definite matrix,
   - $\gamma$ is a scalar tuning parameter.
 
-The gradient of $Q(\omega)$ with respect to $\omega$ is:
+### Answer 
+
+To derive (10), we start my minimizing the function:
+
+$$
+Q(\omega) = \gamma (X'\omega - \mathbf{\bar{x}})' D (X'\omega - \mathbf{\bar{x}}) + \omega'\omega
+$$
+In typical fashion, we take the first derivative of $Q(\omega)$ with respect to $\omega$, i.e.:
 
 $$
 \frac{dQ}{d\omega} = 2 \gamma X D (X' \omega - \bar{x}) + 2 \omega
 $$
 
-Setting the gradient to zero gives the first-order condition:
+If we take the second derivative we find: 
 
 $$
-\gamma X D X' \omega - \gamma X D \bar{x} + \omega = 0
+\frac{dQ^2}{d\omega^2} = {2 \gamma X D X' + 2I_{n}} > 0 
+$$
+
+Noting that $\mathbf{XDX'}$ is positive-semidefinite, we know that $Q(\omega)$ is strictly convex, allowing us to proceed knowing the first derivative (gradient) will lead us to the global minimum.  
+
+To that end we proceed by setting the first derivative to zero, giving us the first-order condition:
+
+$$
+\gamma X D X' \omega - \gamma X D \mathbf{\bar{x}} + \omega = 0
 $$
 
 Rearranging terms, isolating $\omega$ gives us:
 
 $$
-(\gamma X D X' + I_n) \omega = \gamma X D \bar{x} \rightarrow \hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D \bar{x}
+(\gamma X D X' + I_n) \omega = \gamma X D \mathbf{\bar{x}} \rightarrow \hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D \mathbf{\bar{x}}
 $$
 
 This gives us equation (10):
 
 $$
-\hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D \bar{x} \tag{10}
+\hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D \mathbf{\bar{x}} \tag{10}
 $$
 
-From there, we need to utilize the Woodbury identity, allowing us to rewrite the inverse term as:
+I believe that is sufficient for what is being asked, i.e. that we aren't being asked to provide proof for (11), but on the off-chance that needs coverage too: 
+
+To proceed to (11), we need to utilize the Woodbury identity, allowing us to rewrite the inverse term as:
+
+Woodbury Identity: 
 
 $$
-(\gamma X D X' + I_n)^{-1} \gamma X D = X (X'X + \gamma^{-1} D^{-1})^{-1}
+(A + UCV)^{-1} = A^{-1} - A^{-1}U(C^{-1} + V A^{-1} U)^{-1} V A^{-1}
+$$
+Where: 
+
+  - $A, U, C$ and $V$ are conformable matrices:  
+  - $A$ is $n \times n$
+  - $C$ is $k \times k$
+  - $U$ is $n \times k$
+  - $V$ is $k \times n$ 
+
+[Shout Out to Wikipedia for this one](https://en.wikipedia.org/wiki/Block_matrix#Blockwise_inversion).
+
+In Application to Lemma 3: 
+
+$$
+\hat{\omega} = (\gamma X D X' + I_n)^{-1} \gamma X D = X (X'X + \gamma^{-1} D^{-1})^{-1}
 $$
 
-We use this formula with our prior (10) to get equation (11):
-
-$$
-\hat{\omega} = X (X'X + \gamma^{-1} D^{-1})^{-1} \bar{x} \quad \tag{11}
-$$
-
-Giving us Lemma 3.
+And thus we have Lemma 3 in its entirety. 
 
 \newpage
 
@@ -1133,6 +1156,8 @@ Show that the final weight in (13) satisfies a hard calibration for $\mathbf{x}_
 $$
 \sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_{1i}.
 $$
+
+### Setup
 
 (9): 
 
@@ -1151,7 +1176,7 @@ where $u \sim (0, D_q \sigma_u^2)$ with known $D_q$ and $e(1) \sim (0, \sigma_e^
 Using (11), the solution can be written as
 
 $$
-\hat{\omega} = X \left( X'X + \Omega^{-1} \right)^{-1} \bar{x} \tag{12}
+\mathbf{\hat{\omega}} = X \left( X'X + \Omega^{-1} \right)^{-1} \mathbf{\bar{x}} \tag{12}
 $$
 
 where $\Omega^{-1} = \text{Diag}\{\gamma_1^{-1} D_p^{-1}, \gamma_2^{-1} D_q^{-1} \}$ and $\gamma_1 \to \infty$.
@@ -1161,39 +1186,53 @@ where $\Omega^{-1} = \text{Diag}\{\gamma_1^{-1} D_p^{-1}, \gamma_2^{-1} D_q^{-1}
 Under the mixed model setup in (9), the solution (12) can be written as
 
 $$
-\hat{\omega}_i = \left( N^{-1} \sum_{i=1}^{N} x_i \right)' \left\{ \sum_{i=1}^{N} T_i x_i x_i' + \Omega^{-1} \right\}^{-1} x_i, \tag{13}
+\hat{\omega}_i = \left( N^{-1} \sum_{i=1}^{N} \mathbf{x_i} \right)' \left\{ \sum_{i=1}^{N} T_i \mathbf{x}_i \mathbf{x}_i' + \Omega^{-1} \right\}^{-1} x_i, \tag{13}
 $$
 
-where $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1} \}$ and $\gamma_2 = \sigma_u^2 / \sigma_e^2$.
+Where:
+  
+  - $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1} \}$
+  - $\gamma_2 = \sigma_u^2 / \sigma_e^2$
 
-### Answer 
+The goal then is to take Equation (13)
 
-We need to show that $\hat{\omega}$ in equation (13) satisfies the hard calibration condition:
+$$
+\hat{\omega}_i = \left( N^{-1} \sum_{i=1}^{N} \mathbf{x}_i \right)' \left\{ \sum_{i=1}^{N} T_i \mathbf{x}_i \mathbf{x}_i' + \Omega^{-1} \right\}^{-1} \mathbf{x}_i
+$$
+
+And prove: 
 
 $$
 \sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_{1i}
 $$
+
+### Answer 
 
 To start we note that the weights in equation (13) are of the form:
 
 $$
-\hat{\omega}_i = \left( N^{-1} \sum_{i=1}^{N} x_i \right)' \left\{ \sum_{i=1}^{N} T_i x_i x_i' + \Omega^{-1} \right\}^{-1} x_i
+\hat{\omega}_i = \left( N^{-1} \sum_{i=1}^{N} \mathbf{x}_i \right)' \left\{ \sum_{i=1}^{N} T_i \mathbf{x}_i \mathbf{x}_i' + \Omega^{-1} \right\}^{-1} \mathbf{x}_i
 $$
 
-Where $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1}\}$ and $\gamma_2 = \sigma_u^2 / \sigma_e^2$.
+Where: 
 
-We can turn back to our given Equation (13) using this known equal, specifically:
+  - $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1}\}$
+  - $\gamma_2 = \sigma_u^2 / \sigma_e^2$
+  
+We can turn back to our given Equation (13) using these known alternative expressions, specifically:
 
 $$
-\sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \sum_{i \in A} \left( N^{-1} \sum_{i=1}^{N} x_i \right)' \left\{ \sum_{i=1}^{N} T_i x_i x_i' + \Omega^{-1} \right\}^{-1} x_i \mathbf{x}_{1i}
+\sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \sum_{i \in A} \left( N^{-1} \sum_{i=1}^{N} \mathbf{x}_i \right)' \left\{ \sum_{i=1}^{N} T_i \mathbf{x}_i \mathbf{x}_i' + \Omega^{-1} \right\}^{-1} \mathbf{x}_i \mathbf{x}_{1i}
 $$
 
 Since $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1}\}$, the term $\Omega^{-1}$ does not affect the calibration for $\mathbf{x}_{1i}$. 
 
-Additionally, for large $\gamma_1$, the term $\gamma_1^{-1} D_p^{-1}$ is neglible, and the expression simplifies to:
+Additionally, for large $\gamma_1$, the term $\gamma_1^{-1} D_p^{-1}$ is negligible, and the expression simplifies to:
 
 $$
 \sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_{1i}
 $$
 
-Which means our final weights $\hat{\omega}$ satisfy the hard calibration condition for $\mathbf{x}_{1i}$.
+Which means our final weights $\hat{\omega}$ satisfy the hard calibration condition for $\mathbf{x}_{1i}$, as desired.
+
+Note: Particularly for this problem, I attempted to be as precise as possible with matrix notation as used in the slides. There may be some discrepancies. 
