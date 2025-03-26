@@ -4,9 +4,6 @@ output: pdf_document
 author: "Sam Olson"
 ---
 
-# Outline 
-  - Q5: Skeleton
-
 # Q1
 
 An ecologist takes data $$(x_i, Y_i), i = 1, \dots, n,$$ where $x_i > 0$ is the size of an area and $Y_i$ is the number of moss plants. The data are modeled assuming $x_1, \dots, x_n$ are fixed; $Y_1, \dots, Y_n$ are independent; and:
@@ -314,9 +311,11 @@ Notably:
   - The likelihood ratio is decreasing in $x$, so the MP test rejects $H_0$ for the smallest values of $x$.
   - The smaller the $x$, the larger the likelihood ratio. 
 
+\newpage
+
 Using the above information, we can directly calculate the following: 
 
-| $x$ | LR $\Lambda(x)$ | $f(x|H_0)$ | Cumulative $P_{H_0}$ |
+| $x$ | $\Lambda$ | $f(x|H_0)$ | Cumulative $P_{H_0}$ |
 |---------|----------------------|----------------|--------------------------|
 | 1       | 6.00                 | 0.01           | 0.01                     |
 | 2       | 5.00                 | 0.01           | 0.02                     |
@@ -470,6 +469,42 @@ $$
 X > \frac{1}{2}.
 $$
 
+### Answer
+
+The power function, $\beta(\theta)$, is by definition the probability of rejecting $H_0$ under a given $\theta$:
+
+$$
+\beta(\theta) = P_\theta \left( X > \frac{1}{2} \right) = \int_{1/2}^1 \theta x^{\theta - 1} \, dx=  \left. x^\theta \right|_{1/2}^1 = 1 - \left( \frac{1}{2} \right)^\theta = 1 - \frac{1}{2^\theta}
+$$
+
+Then, the size, is by definition the supremum of $\beta(\theta)$ under $H_0$ ($\theta \leq 1$).  
+
+Since $\beta(\theta)$ is strictly increasing in $\theta$ (because $\beta'(\theta) = \ln(2) \cdot 2^{-\theta} > 0$), the maximum occurs at $\theta = 1$, which is:
+
+$$
+\sup_{\theta \leq 1} \beta(\theta) = \beta(1) = 1 - \frac{1}{2} = \frac{1}{2}
+$$
+
+Expectation of the sketch: ($\theta = 1$, $\beta(1) = 0.5$).   
+
+### A Sketch
+
+```{r}
+# setup
+theta_vals <- seq(0.01, 5, length.out = 300)
+power_vals <- 1 - (1 / 2^theta_vals)
+
+# plotting 
+plot(theta_vals, power_vals, type = "l", lwd = 2,
+     xlab = expression(theta), ylab = expression(beta(theta)),
+     main = "Power Function: Reject if X > 1/2")
+
+abline(h = 0.5, col = "red", lty = 2)
+
+legend("bottomright", legend = c("Size at expression(theta) = 1"),
+       col = c("red"), lty = 2, bty = "n")
+```
+
 ## b) 
 
 Find the most powerful level-$\alpha$ test of:
@@ -478,12 +513,94 @@ $$
 H_0 : \theta = 1 \quad \text{versus} \quad H_1 : \theta = 2.
 $$
 
+### Answer
+
+We find the MP test via Neyman-Pearson: The MP test rejects $H_0$ when the likelihood ratio exceeds a threshold k.
+
+Our likelihood ratio is given by: 
+
+$$
+\Lambda = \frac{f(x \mid \theta = 2)}{f(x \mid \theta = 1)} = \frac{2x^{2-1}}{1x^{1-1}} = 2x
+$$
+
+The test rejects $H_0$ when $\Lambda = 2x > k \rightarrow x > \frac{k}{2} = t$.
+
+Using the above, the size constraint requires:  
+
+$$
+P_{\theta=1}(X > t) = \alpha
+$$
+
+For $\theta = 1$, $X \sim \text{Uniform}(0,1)$, and the probability can be explicitly evaluated and solved for t:
+
+$$
+P(X > t) = 1 - t = \alpha \rightarrow t = 1 - \alpha
+$$
+
+Taken together, the most powerful level-$\alpha$ test is given by:
+
+$$
+\phi_{H_0}(X) = 
+\begin{cases}
+1 &  X > 1 - \alpha \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+Note: The above is under the assumption that U is the continuous normal distribution, meaning we can have $\gamma = 0$ for the "coin toss" scenario in the test function. 
+
 ## c) 
 
 Is there a UMP test of:
 
 $$
-H_0 : \theta \leq 1 \quad \text{versus} \quad H_1 : \theta > 1?
+H_0 : \theta \leq 1 \quad \text{versus} \quad H_1 : \theta > 1
 $$
 
 If so, find it. If not, prove so.
+
+### Answer 
+
+We start by checking whether the likelihood ratio is monotonic. To that end, for $\theta_2 > \theta_1$, the likelihood ratio is given by:
+
+$$
+\Lambda = \frac{f(x|\theta_2)}{f(x|\theta_1)} = \frac{\theta_2}{\theta_1}x^{\theta_2-\theta_1}
+$$
+
+Since $\theta_2 - \theta_1 > 0$ and $x \in (0,1)$, the function $x^{\theta_2 - \theta_1}$ is increasing in $x$, which in turn means the likelihood ratio $\Lambda(x)$ is increasing in $x$, which in turn means the family has a monotone likelihood ratio in $x$.
+
+Importantly, the family having a MLR in $x$ allows us to utilize Karlin-Rubin, i.e. the test that rejects for large values of $X$ is UMP for $H_0: \theta \leq 1$ vs $H_1: \theta > 1$.
+
+We choose $t$ such that:
+
+$$
+\sup_{\theta \leq 1} P_\theta(X > t) = \alpha
+$$
+
+Under $\theta = 1$ (where the sup is attained), $X \sim \text{Uniform}(0,1)$, so:
+
+$$
+P(X > t) = 1 - t = \alpha \rightarrow t = 1 - \alpha
+$$
+
+From part b), the MP test for $\theta = 1$ vs $\theta = 2$ was given by:  
+
+$$
+\phi_{H_0}(X) = 
+\begin{cases}
+1 &  X > 1 - \alpha \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+Which notably does not include the $\theta$ value! Because of this, it is UMP for all $\theta > 1$.  
+
+So the UMP level-$\alpha$ test is the same as the MP test in part b):  
+
+$$
+\phi(X) = 
+\begin{cases}
+1 & \text{if } X > 1 - \alpha \\
+0 & \text{otherwise}
+\end{cases}
+$$
