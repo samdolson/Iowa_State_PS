@@ -5,7 +5,6 @@ author: "Sam Olson"
 ---
 
 # Outline 
-  - Q1-Q4: Edit
   - Q5: Skeleton
 
 # Q1
@@ -30,24 +29,24 @@ $$
 
 ## Answer 
 
-We begin by constructing the likelihood ratio test statistic. The likelihood function under a general $\theta$ is:
+To start, we consider the likelihood ratio test statistic. The likelihood function under a general $\theta$ is:
 
 $$
 L(\theta) = \prod_{i=1}^n \frac{e^{-\theta x_i} (\theta x_i)^{Y_i}}{Y_i!}
 $$
 
-The likelihood ratio for testing $H_0: \theta = 2$ vs $H_1: \theta = 1$ is:
+The likelihood ratio for testing $H_0: \theta = 2$ vs $H_1: \theta = 1$ is then given as a ratio of the likelihood under the alternative over the likelihood over the null:
 
 $$
-\Lambda(\mathbf{Y}) = \frac{L(\theta = 1)}{L(\theta = 2)}
+\Lambda = \frac{L(\theta = 1)}{L(\theta = 2)}
 = \frac{\prod_{i=1}^n e^{-x_i}x_i^{Y_i}/Y_i!}{\prod_{i=1}^n e^{-2x_i}(2x_i)^{Y_i}/Y_i!} 
-= e^{\sum x_i} \cdot 2^{-\sum Y_i} 
+= e^{\sum_{i} x_i} \cdot 2^{-\sum_{i} Y_i} 
 = e^{5} \cdot 2^{-T}
 $$
 
-where $T = \sum_{i=1}^n Y_i$.
+where $T = \sum_{i=1}^n Y_i$ and substituting in other known quantities.
 
-The Neyman-Pearson lemma tells us the most powerful test rejects $H_0$ when $\Lambda(\mathbf{Y})$ is large, which corresponds to small values of $T$ (since $\Lambda$ decreases as $T$ increases). 
+Then, via Neyman-Pearson, the MP test rejects $H_0$ when $\Lambda$ is large, which corresponds to small values of $T$ (since $\Lambda$ decreases as $T$ increases). 
 
 Thus, the rejection region is of the form:
 
@@ -60,60 +59,61 @@ for some critical value $c$.
 Under $H_0: \theta = 2$, we have:
 
 $$
-T \sim \text{Poisson}(2 \cdot \sum x_i) = \text{Poisson}(10)
+T \sim \text{Poisson}(2 \cdot \sum_{i} x_i) = \text{Poisson}(10)
 $$
 
 We need to find $c$ such that:
 
 $$
-P_{H_0}(T \leq c) \leq \alpha = 9 \times 10^{-10}
+P_{H_0}(T \leq c) \leq \alpha = 9 \cdot 10^{-10}
 $$
 
-Compute the Poisson CDF for $T \sim \text{Poisson}(10)$:
+We can compute these probabilities for $T \in \mathbb{Z}_{0}$:
 
-- $P(T = 0) = e^{-10} \approx 4.54 \times 10^{-5}$
-- $P(T = 1) = e^{-10} \cdot 10 \approx 4.54 \times 10^{-4}$
-- $P(T \leq 1) = P(T=0) + P(T=1) \approx 4.99 \times 10^{-4}$
+  - $P(T = 0) = e^{-10} \approx 4.54 \times 10^{-5}$
+  - $P(T = 1) = e^{-10} \cdot 10 \approx 4.54 \times 10^{-4}$
+  - $P(T \leq 1) = P(T=0) + P(T=1) \approx 4.99 \times 10^{-4}$
 
-Since $\alpha = 9 \times 10^{-10}$ is much smaller than $P(T \leq 1)$, we see that only $T = 0$ satisfies:
+Since $\alpha = 9 \times 10^{-10}$ is much smaller than $P(T \leq 1)$, we see that only $T = 0$ satisfies the size requirement in this problem, i.e.:
 
 $$
 P(T \leq 0) = e^{-10} \approx 4.54 \times 10^{-5} < \alpha
 $$
 
-The most powerful test of size $\leq \alpha$ is:
+However, $P(T \leq 0) \neq \alpha$, so we must find a suitable $\gamma \in [0,1]$ to satisfy equality. 
 
-$$
-\text{Reject } H_0 \text{ if and only if } T = 0
-$$
+To that end, we would need to use a randomized test when $T = 1$, i.e. our test is of the form:
 
-The actual size of this test is $P_{H_0}(T = 0) = e^{-10} \approx 4.54 \times 10^{-5}$, which is less than $\alpha = 9 \times 10^{-10}$.
-
-To achieve exactly $\alpha = 9 \times 10^{-10}$, we would need to use a randomized test when $T = 1$:
-
-- Reject with probability 1 if $T = 0$
-- Reject with probability $\gamma$ if $T = 1$
-- Never reject if $T \geq 2$
+  - Reject with probability 1 if $T = 0$
+  - Reject with probability $\gamma$ if $T = 1$
+  - Never reject if $T \geq 2$
 
 Where $\gamma$ solves:
 
 $$
-P(T=0) + \gamma P(T=1) = \alpha \\
-e^{-10} + \gamma \cdot 10e^{-10} = 9e^{-10} \\
+P(T=0) + \gamma P(T=1) = \alpha
+$$
+
+$$
+e^{-10} + \gamma \cdot 10e^{-10} = 9e^{-10}
+$$
+
+Solving for $\gamma$: 
+
+$$
 \gamma = \frac{9e^{-10} - e^{-10}}{10e^{-10}} = 0.8
 $$
 
-However, since the problem asks for an exact form and doesn't specify that the size must be exactly $\alpha$, the non-randomized test that rejects only when $T = 0$ is sufficient.
-
-### Conclusion
-
-The most powerful test of size $\leq \alpha = 9 \times 10^{-10}$ is:
+So we may write the full form of the test now: 
 
 $$
-\text{Reject } H_0 \text{ if } T = 0
+\phi_{H_0}(X) = 
+\begin{cases}
+1 & \text{if } T = \sum Y_i = 0 \\
+\gamma = 0.8 & \text{if } T = \sum Y_i = 1 \\
+0 & \text{otherwise}
+\end{cases}
 $$
-
-where $T = \sum_{i=1}^n Y_i$. This test has size $e^{-10} \approx 4.54 \times 10^{-5}$.
 
 \newpage 
 
@@ -157,93 +157,114 @@ for some $k > 1$.
 
 ## Answer 
 
-Under the transformation $Y = X^\theta$, the inverse is $X = Y^{1/\theta}$, and the Jacobian is:
+Under the transformation $Y = X^\theta$, the inverse is $X = Y^{1/\theta}$, and:
 
 $$
-\frac{dx}{dy} = \frac{1}{\theta} y^{(1/\theta) - 1}.
+\frac{dx}{dy} = \frac{1}{\theta} y^{(1/\theta) - 1}
 $$
 
-Thus, the pdf of $Y$ is:
+The above Jacobian we will need for a change of variables, specifically, using the pdf of $X$, we have the pdf of $Y$ given by:
 
 $$
-f_Y(y|\theta) = f_X(y^{1/\theta}) \cdot \left| \frac{dx}{dy} \right| = e^{-y^{1/\theta}} \cdot \frac{1}{\theta} y^{(1/\theta) - 1}, \quad y > 0.
+f_Y(y|\theta) = f_X(y^{1/\theta}) \cdot \left| \frac{dx}{dy} \right| = e^{-y^{1/\theta}} \cdot \frac{1}{\theta} y^{(1/\theta) - 1}
 $$
 
-The Neyman-Pearson lemma states that the most powerful (MP) test rejects $H_0$ for large values of the likelihood ratio:
+Where: $y > 0$
+
+Via Neyman-Pearson, the MP test rejects $H_0$ for large values of the likelihood ratio, given by:
 
 $$
-\Lambda(y) = \frac{f_Y(y|2)}{f_Y(y|1)}.
+\Lambda = \frac{f_Y(y|2)}{f_Y(y|1)}
 $$
 
-Substituting the pdfs:
+Substituting the pdfs, and simplifying:
 
 $$
-\Lambda(y) = \frac{\frac{1}{2} y^{-1/2} e^{-y^{1/2}}}{e^{-y}} = \frac{1}{2} y^{-1/2} e^{y - \sqrt{y}}.
+\Lambda = \frac{\frac{1}{2} y^{-1/2} e^{-y^{1/2}}}{e^{-y}} = \frac{1}{2} y^{-1/2} e^{y - \sqrt{y}}
 $$
 
 The rejection region is of the form:
 
 $$
-\Lambda(y) > k \implies \frac{e^{y - \sqrt{y}}}{\sqrt{y}} > 2k = k'.
+\Lambda > k \rightarrow \frac{e^{y - \sqrt{y}}}{\sqrt{y}} > 2k = k_{1}
 $$
 
-Let $g(y) = \frac{e^{y - \sqrt{y}}}{\sqrt{y}}$. To determine the shape of $g(y)$, compute its logarithmic derivative:
+Where $k_{1} > 1$
+
+Let $g(y) = \frac{e^{y - \sqrt{y}}}{\sqrt{y}}$. Take derivative, with the intent to show monotonicity (Spoiler: Non-monotonicity due to two distinct rejection regions) and also noting log is a monotonic transformation:
 
 $$
-\frac{d}{dy} \ln g(y) = \frac{d}{dy} \left( y - \sqrt{y} - \frac{1}{2} \ln y \right) = 1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y}.
+\frac{d}{dy} \ln g(y) = \frac{d}{dy} \left( y - \sqrt{y} - \frac{1}{2} \ln y \right) = 1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y}
 $$
 
-- For $y \to 0^+$: The derivative $\approx -\frac{1}{2y} \to -\infty$ (decreasing).
-- For $y \to \infty$: The derivative $\approx 1$ (increasing).
-- Critical point: Setting the derivative to zero:
+Note then: 
+  
+  - For $y \to 0^+$: The derivative $\approx -\frac{1}{2y} \to -\infty$ (decreasing).
+  - For $y \to \infty$: The derivative $\approx 1$ (increasing).
+  - $g(y)$ is a convex function, such that setting the derivative to zero is a minimum. (Has strictly positive second derivative.)
+
+To that end: 
 
 $$
-1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y} = 0 \implies y = 1.
+1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y} = 0 \implies y = 1
 $$
 
-At $y = 1$, $g(y)$ has a minimum (verified by second derivative or numerical check).
-
-- $g(y)$ is decreasing for $y < 1$ and increasing for $y > 1$.
-- Thus, $\Lambda(y) > k'$ corresponds to:
+So at $y = 1$, $g(y)$ has a minimum. Thus, $\Lambda(y) > k_1$ corresponds to:
 
 $$
-Y \leq c_0 \quad \text{or} \quad Y \geq c_1,
+Y \leq c_0 \quad \text{or} \quad Y \geq c_1
 $$
 where $c_0 < 1 < c_1$.
 
 The UMP level-$\alpha$ test rejects $H_0$ if:
 
 $$
-Y \leq c_0 \quad \text{or} \quad Y \geq c_1,
+Y \leq c_0 \quad \text{or} \quad Y \geq c_1
 $$
 
 where $c_0, c_1$ are chosen such that:
 
 $$
-P_{H_0}(Y \leq c_0) + P_{H_0}(Y \geq c_1) = \alpha.
+P_{H_0}(Y \leq c_0) + P_{H_0}(Y \geq c_1) = \alpha
 $$
 
-Under $H_0$ ($\theta = 1$), $Y = X \sim \text{Exp}(1)$, so:
+Under $H_0$ ($\theta = 1$), $Y = X \sim \text{Exp}(1)$, so, these are probabilities we can explicitly calculate::
 
 $$
-P_{H_0}(Y \leq c_0) = 1 - e^{-c_0}, \quad P_{H_0}(Y \geq c_1) = e^{-c_1}.
+P_{H_0}(Y \leq c_0) = 1 - e^{-c_0}
 $$
 
-### Conclusion
-
-The UMP test for $H_0: \theta = 1$ vs $H_1: \theta = 2$ rejects $H_0$ if:
+And
 
 $$
-Y \leq c_0 \quad \text{or} \quad Y \geq c_1,
+P_{H_0}(Y \geq c_1) = e^{-c_1}
 $$
 
-where $c_0, c_1$ satisfy:
+Taken together then, the UMP test for $H_0: \theta = 1$ vs $H_1: \theta = 2$ rejects $H_0$ if:
 
 $$
-(1 - e^{-c_0}) + e^{-c_1} = \alpha.
+Y \leq c_0 \quad \text{or} \quad Y \geq c_1
 $$
 
-Note: The exact values of $c_0, c_1$ and the Type II error probability require solving the above equation numerically (not requested here). The key insight is the non-monotonicity of the likelihood ratio, leading to a two-sided rejection region.
+Written: 
+
+$$
+\phi_{H_0} (Y) = 
+\begin{cases}
+1 & Y \leq c_0 \quad \text{or} \quad Y \geq c_1 \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+Noting that $\gamma = 0$ in writing the above test function due to Y being a continuous random variable. 
+
+Where $c_0, c_1$ satisfy:
+
+$$
+(1 - e^{-c_0}) + e^{-c_1} = \alpha
+$$
+
+And noting to *"Skip the part involving $\alpha = 0.1$ or the Type II error part."*
 
 \newpage 
 
@@ -278,20 +299,22 @@ over the support $x = 1, 2, \dots, 7$, where $I(\cdot)$ denotes the indicator fu
 
 ## Answer
 
-The likelihood ratio (LR) is given by:
+The likelihood ratio is given by the Hint:
 
 $$
-\Lambda(x) = \frac{f(x|H_1)}{f(x|H_0)} = 7 - x + \frac{79}{94} I(x = 7),
+\Lambda = \frac{f(x|H_1)}{f(x|H_0)} = 7 - x + \frac{79}{94} I(x = 7),
 $$
 
 where $I(\cdot)$ is the indicator function. 
 
-1. For $x = 1, \dots, 6$, the LR simplifies to $\Lambda(x) = 7 - x$.
-2. For $x = 7$, $\Lambda(7) = \frac{79}{94} \approx 0.84$.
+Notably: 
 
-The LR is decreasing in $x$, so the MP test rejects $H_0$ for the smallest values of $x$ (where the LR is largest).
+  - For $x = 1, \dots, 6$, the LR simplifies to $\Lambda(x) = 7 - x$.
+  - For $x = 7$, $\Lambda(7) = \frac{79}{94} \approx 0.84$.
+  - The likelihood ratio is decreasing in $x$, so the MP test rejects $H_0$ for the smallest values of $x$.
+  - The smaller the $x$, the larger the likelihood ratio. 
 
-We order the support points by decreasing LR and compute cumulative probabilities under $H_0$:
+Using the above information, we can directly calculate the following: 
 
 | $x$ | LR $\Lambda(x)$ | $f(x|H_0)$ | Cumulative $P_{H_0}$ |
 |---------|----------------------|----------------|--------------------------|
@@ -303,33 +326,20 @@ We order the support points by decreasing LR and compute cumulative probabilitie
 | 6       | 1.00                 | 0.01           | 0.06                     |
 | 7       | 0.84                 | 0.94           | 1.00                     |
 
-- To achieve $\alpha = 0.04$, we include the smallest $x$ values until the cumulative probability under $H_0$ reaches $\alpha$.
-- The rejection region is:
+
+To achieve the desired size, $\alpha = 0.04$, we consider where the cumulative probability, $P_{H_0}$, achieves $\alpha$, which is at 4. As this is cumulative then, we have the rejection region given by:
 
 $$
-R = \{1, 2, 3, 4\},
+R = \{1, 2, 3, 4\}
 $$
-
-since $P_{H_0}(X \in R) = 0.04$.
 
 The Type II error probability $\beta$ is the probability of not rejecting $H_0$ when $H_1$ is true:
 
 $$
-\beta = P_{H_1}(X \notin R) = P_{H_1}(X = 5, 6, 7).
+\beta = P_{H_1}(X \notin R) = P_{H_1}(X = 5, 6, 7) = f(5|H_1) + f(6|H_1) + f(7|H_1) = 0.02 + 0.01 + 0.79 = 0.82
 $$
 
-Substituting the pmf under $H_1$:
-
-$$
-\beta = f(5|H_1) + f(6|H_1) + f(7|H_1) = 0.02 + 0.01 + 0.79 = 0.82.
-$$
-
-### Conclusion
-
-- Most Powerful Test: Reject $H_0$ if $X \in \{1, 2, 3, 4\}$.
-- Type II Error Probability: $\beta = 0.82$.
-- Size: $P_{H_0}(X \in R) = 0.04$ (exactly $\alpha$).
-- Power: $1 - \beta = 0.18$.
+Giving us a Type II Error Probability of $\beta = 0.82$.
 
 \newpage 
 
@@ -349,32 +359,11 @@ where:
 
 $\varphi(\tilde{X})$ does not depend on $\theta_1 \notin \Theta_0$, and
 
-### Answer 
-
-Condition a) requires that the MP test $\varphi(\tilde{X})$ derived for $H_0: \theta = \theta_0$ vs. $H_1: \theta = \theta_1$ does not depend on the specific alternative $\theta_1 \notin \Theta_0$.
-
-1. Universal Form: The test $\varphi(\tilde{X})$ has the same rejection region for all $\theta_1 \notin \Theta_0$. This typically arises when the likelihood ratio has a monotone structure (e.g., monotone likelihood ratio property).
-2. Consistency: The test is not tailored to a single alternative but is valid for the entire alternative space $\theta \notin \Theta_0$.
-
-For example, for exponential families with monotone likelihood ratios, the MP test rejects for large values of a sufficient statistic, regardless of $\theta_1$.
-
 ## b) 
 
 $\max_{\theta \in \Theta_0} E_\theta \varphi(\tilde{X}) = \alpha.$
 
-### Answer
-
-Condition b) ensures that the test $\varphi(\tilde{X})$ has size exactly $\alpha$ over the composite null $H_0: \theta \in \Theta_0$:
-$$
-\max_{\theta \in \Theta_0} E_\theta \varphi(\tilde{X}) = \alpha.
-$$
-
-1. Calibration: The test is not conservative; the worst-case Type I error rate is exactly $\alpha$.
-2. Sufficiency: The size condition for the simple null ($\theta = \theta_0$) extends to the composite null because $\theta_0$ is chosen to maximize $E_\theta \varphi(\tilde{X})$ over $\Theta_0$.
-
-For many exponential families, the power function is monotone in $\theta$, so the maximum Type I error occurs at the boundary of $\Theta_0$.
-
-## Extra 
+## Proof
 
 Show that if a) and b) both hold, then $\varphi(\tilde{X})$ must be a UMP size $\alpha$ test for $H_0 : \theta \in \Theta_0$ vs $H_1 : \theta \notin \Theta_0$.
 
@@ -402,20 +391,22 @@ must hold. The way to do this is to take the test $\bar{\varphi}(\tilde{X})$ and
 
 ### Answer 
 
-Assume a) and b) hold. We show $\varphi(\tilde{X})$ is UMP for $H_0: \theta \in \Theta_0$ vs. $H_1: \theta \notin \Theta_0$.
+Assume a) and b) hold. The goal then is to show that $\varphi(\tilde{X})$ is UMP for $H_0: \theta \in \Theta_0$ vs. $H_1: \theta \notin \Theta_0$.
 
 Consider testing:
 
 $$
-H_0: \theta = \theta_0 \quad \text{vs.} \quad H_1: \theta = \theta_1.
+H_0: \theta = \theta_0 \quad \text{vs.} \quad H_1: \theta = \theta_1
 $$
 
-By the NP lemma, $\varphi(\tilde{X})$ is MP at size $\alpha$ for this test.
+Where $\theta_0$ and $\theta_1$ are suitable parameters belonging to $\Theta_0$ and $\theta_1$ respectively. 
+
+By Neyman Pearson, $\varphi(\tilde{X})$ is MP at size $\alpha$ for this test.
 
 Let $\bar{\varphi}(\tilde{X})$ be another test with:
 
 $$
-\sup_{\theta \in \Theta_0} E_\theta \bar{\varphi}(\tilde{X}) \leq \alpha.
+\sup_{\theta \in \Theta_0} E_\theta \bar{\varphi}(\tilde{X}) \leq \alpha
 $$
 
 In particular, $E_{\theta_0} \bar{\varphi}(\tilde{X}) \leq \alpha$.
@@ -423,15 +414,39 @@ In particular, $E_{\theta_0} \bar{\varphi}(\tilde{X}) \leq \alpha$.
 Since $\varphi(\tilde{X})$ is MP for $\theta = \theta_0$ vs. $\theta = \theta_1$, it satisfies:
 
 $$
-E_{\theta_1} \varphi(\tilde{X}) \geq E_{\theta_1} \bar{\varphi}(\tilde{X}).
+E_{\theta_1} \varphi(\tilde{X}) \geq E_{\theta_1} \bar{\varphi}(\tilde{X})
 $$
 
-By a), $\varphi(\tilde{X})$ does not depend on $\theta_1$. Thus, the inequality holds for all $\theta_1 \notin \Theta_0$, proving $\varphi(\tilde{X})$ is UMP.
+Given condition a) holds then, we know that $\varphi(\tilde{X})$ does not depend on $\theta_1$. Thus, the inequality holds for all $\theta_1 \notin \Theta_0$, proving $\varphi(\tilde{X})$ is UMP.
 
-Under conditions a) and b):
-1. $\varphi(\tilde{X})$ is UMP for $H_0: \theta \in \Theta_0$ vs. $H_1: \theta \notin \Theta_0$.
-2. Size Control: $\max_{\theta \in \Theta_0} E_\theta \varphi(\tilde{X}) = \alpha$.
-3. Power Dominance: For all $\theta \notin \Theta_0$, $\varphi(\tilde{X})$ has higher power than any other size-$\alpha$ test.
+### An Alternative Approach 
+
+I believe there is also another approach via a proof by contradiction. To that end: 
+
+To start, assume (for contradiction) that $\varphi(\tilde{X})$ is not UMP of size $\alpha$, yet still meets conditions a) and b).  
+
+Then $\exists$ a test $\bar{\varphi}(\tilde{X})$ such that:  
+
+  - $\sup_{\theta \in \Theta_0} E_\theta[\bar{\varphi}(\tilde{X})] \leq \alpha$ (level $\alpha$),  
+  - $\exists \theta_1 \notin \Theta_0$ with $E_{\theta_1}[\bar{\varphi}(\tilde{X})] > E_{\theta_1}[\varphi(\tilde{X})]$.  
+
+Then, fix $\theta_0 \in \Theta_0$ where size $\alpha$ is attained:  
+
+  - By condition b), $E_{\theta_0}[\varphi(\tilde{X})] = \alpha$.  
+  - Additionally, we know $E_{\theta_0}[\bar{\varphi}(\tilde{X})] \leq \alpha$.  
+
+Via Neyman-Pearson for $H_0: \theta = \theta_0$ vs $H_1: \theta = \theta_1$:  
+
+  - $\varphi(\tilde{X})$ is MP of size $\alpha$ for this test (via condition a) and Neyman-Pearson).  
+
+However, $\bar{\varphi}(\tilde{X})$ has:  
+  
+  - Size $\leq \alpha$ (since $E_{\theta_0}[\bar{\varphi}] \leq \alpha$),  
+  - Higher power at $\theta_1$ (since $E_{\theta_1}[\bar{\varphi}] > E_{\theta_1}[\varphi]$).  
+
+This is a contradiction, as Neyman-Pearson guarantees no such $\bar{\varphi}$ can exist (any other MP test with the same size cannot have higher power!)  
+
+Thus, we conclude that $\varphi(\tilde{X})$ is UMP of size $\alpha$.  
 
 \newpage 
 
