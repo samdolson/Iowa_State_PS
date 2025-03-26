@@ -1219,15 +1219,50 @@ Where:
   - $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1}\}$
   - $\gamma_2 = \sigma_u^2 / \sigma_e^2$
   
-We can turn back to our given Equation (13) using these known alternative expressions, specifically:
+Using this equation, we then know:
 
 $$
 \sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \sum_{i \in A} \left( N^{-1} \sum_{i=1}^{N} \mathbf{x}_i \right)' \left\{ \sum_{i=1}^{N} T_i \mathbf{x}_i \mathbf{x}_i' + \Omega^{-1} \right\}^{-1} \mathbf{x}_i \mathbf{x}_{1i}
+= \sum_{i=1}^{N} N^{-1} \left( \sum_{i=1}^{N} x_i \right)' \left( \sum_{i=1}^{N} T_i x_i x_i' + \Omega^{-1} \right)^{-1} x_i x_{i1}
 $$
 
-Since $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1}\}$, the term $\Omega^{-1}$ does not affect the calibration for $\mathbf{x}_{1i}$. 
+$$
+\sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} =  N^{-1} \left( \sum_{i=1}^{N} x_i \right)' \left[ \left( \sum_{i=1}^{N} T_i x_i x_i' + \Omega^{-1} \right)^{-1} \sum_{i=1}^{N} x_i x_{i1} \right]
+$$
 
-Additionally, for large $\gamma_1$, the term $\gamma_1^{-1} D_p^{-1}$ is negligible, and the expression simplifies to:
+We know that: 
+
+$$
+S = \sum_{i=1}^{N} x_j x_j'
+$$
+
+So we may rewrite the above as: 
+
+$$
+\sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = N^{-1} \left( \sum_{j=1}^{N} x_j \right)' \left( \sum_{j=1}^{N} T_j S + \Omega^{-1} \right)^{-1} \sum_{i=1}^{N} x_i x_{i1}
+$$
+
+Using generalized regression estimators we can show  
+
+$$
+\left( \sum_{i=1}^{N} T_j S + \Omega^{-1} \right)^{-1} S \approx I
+$$
+
+For small $\Omega$ (large $\gamma_2$). For our purposes, I take the above as a given. 
+
+Using this, we then know: 
+
+$$
+\sum_{i=1}^{N} \hat{\omega}_i x_{i1} \approx N^{-1} \left( \sum_{j=1}^{N} x_j \right)' I \sum_{i=1}^{N} x_i x_{i1}
+= N^{-1} \sum_{i=1}^{N} x_{i1}'
+$$
+
+Descriptively, we're saying that: 
+
+  - Since $\Omega^{-1} = \text{Diag}\{0_p, \gamma_2^{-1} D_q^{-1}\}$, the term $\Omega^{-1}$ does not affect the calibration for $\mathbf{x}_{1i}$
+  - For large $\gamma_2$, the term $\gamma_2^{-1} D_p^{-1}$ is negligible, and the expression simplifies to:
+
+So we conclude: 
 
 $$
 \sum_{i \in A} \hat{\omega}_i \mathbf{x}_{1i} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_{1i}
