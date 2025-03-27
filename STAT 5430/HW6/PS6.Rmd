@@ -74,7 +74,7 @@ We can compute these probabilities for $T \in \mathbb{Z}_{0}$:
 Since $\alpha = 9 \times 10^{-10}$ is much smaller than $P(T \leq 1)$, we see that only $T = 0$ satisfies the size requirement in this problem, i.e.:
 
 $$
-P(T \leq 0) = e^{-10} \approx 4.54 \times 10^{-5} < \alpha
+P(T \leq 0) = e^{-10} \approx 4.54 \cdot 10^{-5} < \alpha
 $$
 
 However, $P(T \leq 0) \neq \alpha$, so we must find a suitable $\gamma \in [0,1]$ to satisfy equality. 
@@ -85,23 +85,23 @@ To that end, we would need to use a randomized test when $T = 1$, i.e. our test 
   - Reject with probability $\gamma$ if $T = 1$
   - Never reject if $T \geq 2$
 
-Where $\gamma$ solves:
+We then need to calculate $\gamma \in [0,1]$, using:
 
 $$
 P(T=0) + \gamma P(T=1) = \alpha
 $$
 
+Solving for $\gamma$: 
+
 $$
 e^{-10} + \gamma \cdot 10e^{-10} = 9e^{-10}
 $$
-
-Solving for $\gamma$: 
 
 $$
 \gamma = \frac{9e^{-10} - e^{-10}}{10e^{-10}} = 0.8
 $$
 
-So we may write the full form of the test now: 
+So we may write the full form of the test as: 
 
 $$
 \phi_{H_0}(X) = 
@@ -194,23 +194,41 @@ $$
 \frac{d}{dy} \ln g(y) = \frac{d}{dy} \left( y - \sqrt{y} - \frac{1}{2} \ln y \right) = 1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y}
 $$
 
-Note then: 
+For $y \to 0^+$: The derivative  
+
+$$
+\frac{d}{dy} \ln g(y) = 1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y} \to -\infty
+$$  
+
+so $g(y)$ is decreasing as $y \to 0^+$.
   
-  - For $y \to 0^+$: The derivative $\approx -\frac{1}{2y} \to -\infty$ (decreasing).
-  - For $y \to \infty$: The derivative $\approx 1$ (increasing).
-  - $g(y)$ is a convex function, such that setting the derivative to zero is a minimum. (Has strictly positive second derivative.)
-
-To that end: 
+For $y \to \infty$: The derivative  
 
 $$
-1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y} = 0 \implies y = 1
+\frac{d}{dy} \ln g(y) \to 1
+$$  
+so $g(y)$ is increasing for large $y$.
+
+Since  
+
+$$
+\frac{d^2}{dy^2} \ln g(y) = \frac{1}{4y^{3/2}} + \frac{1}{2y^2} > 0 \quad \text{for all } y > 0,
+$$  
+
+it follows that $\ln g(y)$ is strictly convex, so $g(y)$ has a minimum where the derivative is zero.
+
+We then seek to find that minimum! To that end: 
+
+$$
+1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y} = 0 \rightarrow y = 1
 $$
 
-So at $y = 1$, $g(y)$ has a minimum. Thus, $\Lambda(y) > k_1$ corresponds to:
+So at $y = 1$, $g(y)$ has a minimum. Thus, $\Lambda > k_1$ corresponds to:
 
 $$
 Y \leq c_0 \quad \text{or} \quad Y \geq c_1
 $$
+
 where $c_0 < 1 < c_1$.
 
 The UMP level-$\alpha$ test rejects $H_0$ if:
@@ -225,7 +243,7 @@ $$
 P_{H_0}(Y \leq c_0) + P_{H_0}(Y \geq c_1) = \alpha
 $$
 
-Under $H_0$ ($\theta = 1$), $Y = X \sim \text{Exp}(1)$, so, these are probabilities we can explicitly calculate::
+Under $H_0$ ($\theta = 1$), $Y = X \sim \text{Exp}(1)$. These are probabilities we can express as:
 
 $$
 P_{H_0}(Y \leq c_0) = 1 - e^{-c_0}
@@ -306,8 +324,8 @@ where $I(\cdot)$ is the indicator function.
 
 Notably: 
 
-  - For $x = 1, \dots, 6$, the LR simplifies to $\Lambda(x) = 7 - x$.
-  - For $x = 7$, $\Lambda(7) = \frac{79}{94} \approx 0.84$.
+  - For $x = 1, \dots, 6$, the LR simplifies to $\Lambda = 7 - x$.
+  - For $x = 7$, $\Lambda = \frac{79}{94} \approx 0.84$.
   - The likelihood ratio is decreasing in $x$, so the MP test rejects $H_0$ for the smallest values of $x$.
   - The smaller the $x$, the larger the likelihood ratio. 
 
@@ -392,13 +410,13 @@ must hold. The way to do this is to take the test $\bar{\varphi}(\tilde{X})$ and
 
 Assume a) and b) hold. The goal then is to show that $\varphi(\tilde{X})$ is UMP for $H_0: \theta \in \Theta_0$ vs. $H_1: \theta \notin \Theta_0$.
 
-Consider testing:
+We consider fixing the null and alternative hypotheses respectively by:
 
 $$
 H_0: \theta = \theta_0 \quad \text{vs.} \quad H_1: \theta = \theta_1
 $$
 
-Where $\theta_0$ and $\theta_1$ are suitable parameters belonging to $\Theta_0$ and $\theta_1$ respectively. 
+Where $\theta_0$ and $\theta_1$ are suitable parameters belonging to $\Theta_0$ and $\theta_1$, again resp.  
 
 By Neyman Pearson, $\varphi(\tilde{X})$ is MP at size $\alpha$ for this test.
 
@@ -429,14 +447,12 @@ Then $\exists$ a test $\bar{\varphi}(\tilde{X})$ such that:
   - $\sup_{\theta \in \Theta_0} E_\theta[\bar{\varphi}(\tilde{X})] \leq \alpha$ (level $\alpha$),  
   - $\exists \theta_1 \notin \Theta_0$ with $E_{\theta_1}[\bar{\varphi}(\tilde{X})] > E_{\theta_1}[\varphi(\tilde{X})]$.  
 
-Then, fix $\theta_0 \in \Theta_0$ where size $\alpha$ is attained:  
+Fix $\theta_0 \in \Theta_0$ where size $\alpha$ is attained:  
 
   - By condition b), $E_{\theta_0}[\varphi(\tilde{X})] = \alpha$.  
-  - Additionally, we know $E_{\theta_0}[\bar{\varphi}(\tilde{X})] \leq \alpha$.  
+  - We also know $E_{\theta_0}[\bar{\varphi}(\tilde{X})] \leq \alpha$.  
 
-Via Neyman-Pearson for $H_0: \theta = \theta_0$ vs $H_1: \theta = \theta_1$:  
-
-  - $\varphi(\tilde{X})$ is MP of size $\alpha$ for this test (via condition a) and Neyman-Pearson).  
+Via Neyman-Pearson for $H_0: \theta = \theta_0$ vs $H_1: \theta = \theta_1$, $\varphi(\tilde{X})$ is MP of size $\alpha$ for this test (via condition a) and Neyman-Pearson).  
 
 However, $\bar{\varphi}(\tilde{X})$ has:  
   
@@ -567,7 +583,7 @@ $$
 \Lambda = \frac{f(x|\theta_2)}{f(x|\theta_1)} = \frac{\theta_2}{\theta_1}x^{\theta_2-\theta_1}
 $$
 
-Since $\theta_2 - \theta_1 > 0$ and $x \in (0,1)$, the function $x^{\theta_2 - \theta_1}$ is increasing in $x$, which in turn means the likelihood ratio $\Lambda(x)$ is increasing in $x$, which in turn means the family has a monotone likelihood ratio in $x$.
+Since $\theta_2 - \theta_1 > 0$ and $x \in (0,1)$, the function $x^{\theta_2 - \theta_1}$ is increasing in $x$, which in turn means the likelihood ratio $\Lambda$ is increasing in $x$, which in turn means the family has a monotone likelihood ratio in $x$.
 
 Importantly, the family having a MLR in $x$ allows us to utilize Karlin-Rubin, i.e. the test that rejects for large values of $X$ is UMP for $H_0: \theta \leq 1$ vs $H_1: \theta > 1$.
 

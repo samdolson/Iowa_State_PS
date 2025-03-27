@@ -8,6 +8,11 @@ date: "2025-03-25"
 library(knitr)
 ```
 
+# Outline 
+  - 4: d), e), f) for additional edits 
+  - 5: 
+  - 6: 
+
 # 4. 
 
 Consider a one-way ANOVA model with two levels and two observations at each level,
@@ -16,7 +21,7 @@ $$
 E(y_{ij}) = \mu + \alpha_i, \quad i, j = 1, 2
 $$
 
-## Overall Setup 
+Using the given information, we may represent it in matrix form to aid in soliving the following questions: 
 
 $$
 \mathbf{y} =
@@ -49,35 +54,37 @@ $$
 knitr::include_graphics("4a.png")
 ```
 
-The definition of estimability is given above as first defined in Chapter 2. 
+The definition of estimability is given above as first defined in Chapter 2 of lecture ntoes. 
 
-For \( \alpha_1 \):
+For $\alpha_1$: Can we find a matrix $A$ to satisfy the above? 
+
+We have: 
 
 $$
 c^T = \begin{bmatrix} 0 & 1 & 0 \end{bmatrix}
 $$
 
-There does **not** exist a matrix \( A \) such that:
+There in fact does not exist a matrix A such that:
 
 $$
 C = A \mathbf{X}
 $$
 
-Hence, \( \alpha_1 \) is **not estimable** (this is not in row space of $\mathbf{X}$ and is not estimable). 
+This means that $\alpha_1$ is not estimable (this is also descriptively found by noting that the matrix C is not in row space of $\mathbf{X}$). 
 
-Using the above definition, no, $\alpha_1$ is not estimable. 
-
-Parameters are only estimable if they can be expressed as a linear combination of the rows of the design matrix. Additionally, the model matrix does not have full rank, which limits what is estimable in this scenario.  
+Generally, parameters (elements of the $\beta$ vector) are only estimable if they can be expressed as a linear combination of the rows of the design matrix, $\mathbf{X}$. For our purposes, the model matrix does not have full rank, so we know there are elements of the parameter vector that are not estimable, though we still have linear combinations that are (more on that in the following).  
 
 **(b)** Provide a quantity that is estimable. $\alpha_1 - \alpha_2$ or $\mu + \alpha_1$.
 
-For \( \alpha_1 - \alpha_2 \):
+We again utilize the above definition to determine estimability. We find there are more than one quantity (linear combination of parameters) that are estimable, despite our design matrix not being full rank. Two examples: 
+
+For $\alpha_1 - \alpha_2$, an estimable quantity:
 
 $$
 c^T = \begin{bmatrix} 0 & 1 & -1 \end{bmatrix} = 1 \cdot \begin{bmatrix}1 & 1 & 0\end{bmatrix} + (-1) \cdot \begin{bmatrix}1 & 0 & 1\end{bmatrix}
 $$
 
-Then, the corresponding matrix \( A \) (a row vector in \( \mathbb{R}^{1 \times 4} \)) satisfying \( C = A \mathbf{X} \) is:
+The corresponding matrix $A$ (a row vector) satisfying $C = A \mathbf{X}$ is:
 
 $$
 A =
@@ -86,13 +93,13 @@ A =
 \end{bmatrix}
 $$
 
-For \( \mu + \alpha_1 \):
+Another estimable quantity, $\mu + \alpha_1$ has C matrix:
 
 $$
 c^T = \begin{bmatrix} 1 & 1 & 0 \end{bmatrix}
 $$
 
-This is exactly the first row of \( \mathbf{X} \), so:
+But this is just the first row of $\mathbf{X}$! So the corresponding A matrix is:
 
 $$
 A =
@@ -105,7 +112,7 @@ $$
 
 The remaining questions refer to any general linear model as discussed in class. Thus, provide answers for a general $\mathbf{X}$ instead of referring to the particular $\mathbf{X}$ defined above.
 
-Noting the "Prerequisite Knowledge" Slides and an extension of the OLS Slides used for the following. 
+Additional Note: The following are related to the "Prerequisite Knowledge" Slides and an extension of the OLS Slides (Chapters 2 and 3) from lectures. Of note: 
 
 ```{r, eval = T, echo=FALSE, fig.cap="Linear Algebra Overview"}
 knitr::include_graphics("4d.png")
@@ -115,21 +122,29 @@ knitr::include_graphics("4d.png")
 knitr::include_graphics("4dOLS.png")
 ```
 
+\newpage
+
 **(c)** **True or False** Circle the appropriate choice. The expected value of any observation is only estimable when $\mathbf{X}$ has full column rank.
 
-False. The expected value of any observation is estimable as long as it is a linear combination of the columns of $\mathbf{X}$, not necessarily requiring full column rank.
+False. 
+
+The expected value of any observation is estimable as long as it is a linear combination of the columns of $\mathbf{X}$. Having full column rank just ensures that every element of the parameter vector, $\beta$, is estimable. There are examples of observations able to be estimated without having full column rank, such as the second estimable quantity in the above part b).
 
 **(d)** The set of vectors $\mathbf{c}$ for which $\mathbf{c}^T \boldsymbol{\beta}$ is estimable forms a vector space. Specify the vector space.
 
 Answer: **The column space of $\mathbf{X}$**.
 
+## Note: Add image specifically for vector spaces here from Linear Algebra Overview
+
 **(e)** **Fill in the blank.**
 
 The column rank of a model matrix $\mathbf{X}$ is always **equal to** the number of linearly independent vectors that span the vector space in part (d).
 
+## Note: Add connection of linearly independent vectors to estimability 
+
 **(f)** What is the relationship/connection between the column rank of $\mathbf{X}$ and the estimability of $\boldsymbol{\beta}$? Answer using a short sentence.
 
-The higher the column rank of $\mathbf{X}$, the more parameters in $\boldsymbol{\beta}$ that are estimable.
+The higher the column rank of $\mathbf{X}$, the more parameters in $\boldsymbol{\beta}$ that are estimable. The column rank of $\mathbf{X}$ determines the number of estimable parameters, specifically. 
 
 \newpage 
 
