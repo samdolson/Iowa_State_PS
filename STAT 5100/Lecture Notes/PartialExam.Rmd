@@ -10,8 +10,8 @@ library(knitr)
 
 # Outline 
   - 4: d), e), f) for additional edits 
-  - 5: 
-  - 6: 
+  - 5: b) onwards 
+  - 6: all but b) 
 
 # 4. 
 
@@ -186,7 +186,22 @@ Note that the columns of $\mathbf{X}$ are perpendicular so that $\mathbf{X}^T \m
 
 **(a)** In a Gauss-Markov version of this model, which of the parameters, $\beta_1, \beta_2, \beta_3$, can be estimated with greatest precision? Explain carefully.
 
-In a Gauss-Markov version of this model, $\beta_1$ can be estimated with the greatest precision. This is because $\beta_1$ corresponds to the first column of $\mathbf{X}$, which has the largest diagonal entry in $\mathbf{X}^T \mathbf{X}$ (indicating more information and smaller variance).
+In a Gauss-Markov version of this model, $\beta_1$ can be estimated with the greatest precision. 
+
+$\beta_1$ corresponds to the first column of the design matrix, $\mathbf{X}$, which has the largest diagonal entry in $\mathbf{X}^T \mathbf{X}$, corresponding to the 5 rows we can use in estimating $\beta_1$. This means we have more information to estimate $\beta_1$ which in turn corresponds to a smaller variance in estimation. 
+
+Calculating explicitly: 
+
+$$
+\mathbf{X}^T \mathbf{X} =
+\begin{pmatrix}
+5 & 0 & 0 \\
+0 & 4 & 0 \\
+0 & 0 & 4
+\end{pmatrix}
+$$
+
+By contrast, the other two parameter vectors, $\beta_2$ and $\beta_3$ can only be estimated using 4 of the rows, so they use comparatively less information and would have greater variance, less precision. 
 
 **(b)** Suppose $\mathbf{y}$ is such that $\text{SSE} = 3$ and $\hat{\boldsymbol{\beta}} = (5 \; 6 \; 2)^T$. Consider an analysis under the Gauss-Markov model with Normal errors and the following two null hypotheses:
 
@@ -203,7 +218,11 @@ $$
 \end{pmatrix}
 $$
 
+### Note: Add More Here
+
 ii. Based on $\mathbf{C}$ compute an $F$ statistic for testing $H_0$ (you need not do the arithmetic, but plug correct numbers into a correct formula).
+
+The formula we use for this problem is given by: 
 
 $$
 F = \frac{(\mathbf{C}\hat{\boldsymbol{\beta}})^T \left[ \mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T \right]^{-1} (\mathbf{C}\hat{\boldsymbol{\beta}}) / q}{\text{MSE}}
@@ -211,9 +230,13 @@ $$
 
 where $q$ is the number of linear constraints.
 
+### Note: Add More Here
+
 iii. Specify the reference distribution of $F$ under the null hypothesis.
 
 The reference distribution of $F$ under the null hypothesis is an $F$-distribution with $q$ and $n - p$ degrees of freedom, where $p$ is the number of parameters.
+
+### Note: Add More Here, Particularly Non-Centrality Parameter
 
 \newpage
 
@@ -239,16 +262,21 @@ Use the R code and partial output provided with this exam to answer the followin
 
 For the first model fit in R, called M1, the model matrix $\mathbf{X}$ used by R is a design matrix with an intercept and indicator columns for each level of `amt`.
 
-**(b)** Consider the following information from the output associated with model M1:
+### Note: Add More Here, Whether R uses first or last for baseline
 
-- $H_0$: All treatment means are equal ($\mu_1 = \mu_2 = \mu_3 = \mu_4 = \mu_5$).
-- $H_a$: At least one treatment mean differs.
+**(b)** Consider the following information from the output associated with model M1:
 
 ```
 F-statistic: 30.84 on 4 and 5 DF,   p-value: 0.001019
 ```
 
 Specify the null and alternative hypothesis associated with this test:
+
+$H_0$: All treatment means are equal ($\mu_1 = \mu_2 = \mu_3 = \mu_4 = \mu_5$).
+
+$H_a$: At least one treatment mean differs.
+
+### Note: Add More below on what BLUE is and how we know how to use it
 
 **(c)** Provide the BLUE of $\mu_2$:
 
