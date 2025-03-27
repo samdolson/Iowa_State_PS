@@ -16,15 +16,104 @@ $$
 E(y_{ij}) = \mu + \alpha_i, \quad i, j = 1, 2
 $$
 
+## Overall Setup 
+
+$$
+\mathbf{y} =
+\begin{bmatrix}
+y_{11} \\
+y_{12} \\
+y_{21} \\
+y_{22}
+\end{bmatrix},
+\quad
+\boldsymbol{\beta} =
+\begin{bmatrix}
+\mu \\
+\alpha_1 \\
+\alpha_2
+\end{bmatrix},
+\quad
+\mathbf{X} =
+\begin{bmatrix}
+1 & 1 & 0 \\
+1 & 1 & 0 \\
+1 & 0 & 1 \\
+1 & 0 & 1
+\end{bmatrix}
+$$
+
 **(a)** Is $\alpha_1$ estimable? Show work to justify why it is or is not estimable.
 
-No, $\alpha_1$ is not estimable. The reason is that the model matrix does not have full rank, and parameters are only estimable if they can be expressed as a linear combination of the rows of the design matrix. Since there is a constraint $\alpha_1 + \alpha_2 = 0$ (commonly imposed), $\alpha_1$ cannot be uniquely determined.
+```{r, eval = T, echo=FALSE, fig.cap="Ch. 2: Some Key Linear Models Results"}
+knitr::include_graphics("4a.png")
+```
+
+The definition of estimability is given above as first defined in Chapter 2. 
+
+For \( \alpha_1 \):
+
+$$
+c^T = \begin{bmatrix} 0 & 1 & 0 \end{bmatrix}
+$$
+
+There does **not** exist a matrix \( A \) such that:
+
+$$
+C = A \mathbf{X}
+$$
+
+Hence, \( \alpha_1 \) is **not estimable** (this is not in row space of $\mathbf{X}$ and is not estimable). 
+
+Using the above definition, no, $\alpha_1$ is not estimable. 
+
+Parameters are only estimable if they can be expressed as a linear combination of the rows of the design matrix. Additionally, the model matrix does not have full rank, which limits what is estimable in this scenario.  
 
 **(b)** Provide a quantity that is estimable. $\alpha_1 - \alpha_2$ or $\mu + \alpha_1$.
 
----
+For \( \alpha_1 - \alpha_2 \):
+
+$$
+c^T = \begin{bmatrix} 0 & 1 & -1 \end{bmatrix} = 1 \cdot \begin{bmatrix}1 & 1 & 0\end{bmatrix} + (-1) \cdot \begin{bmatrix}1 & 0 & 1\end{bmatrix}
+$$
+
+Then, the corresponding matrix \( A \) (a row vector in \( \mathbb{R}^{1 \times 4} \)) satisfying \( C = A \mathbf{X} \) is:
+
+$$
+A =
+\begin{bmatrix}
+1 & 0 & -1 & 0
+\end{bmatrix}
+$$
+
+For \( \mu + \alpha_1 \):
+
+$$
+c^T = \begin{bmatrix} 1 & 1 & 0 \end{bmatrix}
+$$
+
+This is exactly the first row of \( \mathbf{X} \), so:
+
+$$
+A =
+\begin{bmatrix}
+1 & 0 & 0 & 0
+\end{bmatrix}
+$$
+
+\newpage 
 
 The remaining questions refer to any general linear model as discussed in class. Thus, provide answers for a general $\mathbf{X}$ instead of referring to the particular $\mathbf{X}$ defined above.
+
+Noting the "Prerequisite Knowledge" Slides and an extension of the OLS Slides used for the following. 
+
+```{r, eval = T, echo=FALSE, fig.cap="Linear Algebra Overview"}
+knitr::include_graphics("4d.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="Column Rank"}
+knitr::include_graphics("4dOLS.png")
+```
 
 **(c)** **True or False** Circle the appropriate choice. The expected value of any observation is only estimable when $\mathbf{X}$ has full column rank.
 
@@ -40,7 +129,7 @@ The column rank of a model matrix $\mathbf{X}$ is always **equal to** the number
 
 **(f)** What is the relationship/connection between the column rank of $\mathbf{X}$ and the estimability of $\boldsymbol{\beta}$? Answer using a short sentence.
 
-The higher the column rank of $\mathbf{X}$, the more parameters in $\boldsymbol{\beta}$ are estimable.
+The higher the column rank of $\mathbf{X}$, the more parameters in $\boldsymbol{\beta}$ that are estimable.
 
 \newpage 
 
@@ -170,6 +259,8 @@ The value of $\mathbf{y}^T (\mathbf{I} - \mathbf{P_1}) \mathbf{y}$ is 3.826 (the
 
 The F-statistic is 30.84 with numerator df = 4, denominator df = 5, and p-value = 0.001019.
 
+p-value: probability that a random variable with distribution $F_{q, n-r}$ matches or exceeds the observed value of the test statistic F=30.84. 
+
 ```
 OLD
 > anova(M1)
@@ -190,6 +281,16 @@ Response: longevity
            Df   Sum Sq  Mean Sq   F value   Pr(>F)
 amt         4    94.398   23.5995   30.84     0.001019
 Residuals   5     3.826    0.7652
+```
+
+\newpage
+
+```{r, eval = T, echo=FALSE, fig.cap="Matrix Notation: Form of Partial F-Test"}
+knitr::include_graphics("Partial.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="Familiar Form of Partial F-Test"}
+knitr::include_graphics("Partial2.png")
 ```
 
 **(i)** Look at the output associated with Model 2, M2.
