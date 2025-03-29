@@ -6,7 +6,6 @@ output: pdf_document
 
 # Outline 
   - Q1: Skeleton
-  - Q4: Edits
 
 ```{r, eval = T, results = F, echo = F, warning = F, message = F}
 library(knitr)
@@ -263,7 +262,7 @@ Analysis of Linear Mixed-Effects Models.
 The slide addresses the estimation of estimable $\mathbf{C}\mathbf{\beta}$ and provides an expression for the variance $\mathbf{\Sigma} \equiv$ Var(y) and states that
 
 $$
-\hat{\beta}_{GLS} = (X^\top \Sigma^{-1} X)^{-1} X^\top \Sigma^{-1} y = (X^\top X)^{-1} X^\top y = \hat{\beta}_{OLS}. \tag{2}
+\hat{\mathbf{\beta}}_{GLS} = (\mathbf{X}^\top \mathbf{\Sigma}^{-1} \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{\Sigma}^{-1} \mathbf{y} = (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{y} = \hat{\mathbf{\beta}}_{OLS}. \tag{2}
 $$
 
 Thus, the GLS estimator of any estimable $\mathbf{C}\mathbf{\beta}$ is equal to the OLS estimator in this special case.
@@ -284,39 +283,53 @@ What conditions have to be fulfilled for the result in (2) to hold?
 
 #### 1. 
 
-The variance-covariance matrix $\boldsymbol{\Sigma}$ of the response vector $\mathbf{y}$ must satisfy:
+The first condition is multi-faceted, but I would say falls under the perview of the "Suppose..." from Slide 2 of the Chapter 12 Slides. That is, we assume: 
 
 $$
-\boldsymbol{\Sigma} = \sigma^2 \mathbf{I}
+\begin{bmatrix}
+\mathbf{u} \\
+\mathbf{e}
+\end{bmatrix}
+\sim \mathcal{N} \left( 
+\begin{bmatrix}
+\mathbf{0} \\
+\mathbf{0}
+\end{bmatrix},
+\begin{bmatrix}
+\sigma_u^2 \mathbf{I} & \mathbf{0} \\
+\mathbf{0} & \sigma_e^2 \mathbf{I}
+\end{bmatrix}
+\right), \text{ where } \sigma_u^2, \sigma_e^2 \in \mathbb{R}^+ \text{ are unknown variance components.}
 $$
 
-This implies:
+This means: 
 
-  - Homoscedasticity: constant variance across observations.
-  - No correlation between observations.
-  - The errors $\boldsymbol{\varepsilon}$ are i.i.d. with variance $\sigma^2$.
+  - The variance-covariance matrix $\boldsymbol{\Sigma}$ of the response vector $\mathbf{y}$ must satisfy $\boldsymbol{\Sigma} = \sigma^2 \mathbf{I}$
+  - The errors are iid with constant variance $\sigma^2$.
 
 #### 2. 
 
-It is sufficient that:
+The design matrix $\mathbf{X}$ must be of full column rank so that:
+
+$$
+\exists! (\mathbf{X}^\top \mathbf{X})^{-1}
+$$
+
+This ensures that the normal equations have a unique solution for $\boldsymbol{\beta}$, and thus both the GLS and OLS estimators are uniquely defined.
+
+Without full column rank, $(\mathbf{X}^\top \mathbf{X})^{-1}$ does not exist, and we would need to use a generalized inverse to define the estimators, in which case the equivalence in (2) may not hold.
+
+#### 3. 
+
+For estimable $\mathbf{C}\mathbf{\beta}$, $\mathbf{C}\hat{\mathbf{\beta}}_{\hat{\mathbf{\Sigma}}} = \mathbf{C}\hat{\mathbf{\beta}}$
+
+This is to say that: 
 
 $$
 \mathbf{X}^\top \boldsymbol{\Sigma}^{-1} \mathbf{X} = \mathbf{X}^\top \mathbf{X}
 $$
 
-That is, the matrix $\boldsymbol{\Sigma}^{-1}$ acts like the identity on the column space of $\mathbf{X}$, even if $\boldsymbol{\Sigma}$ is not a scalar multiple of the identity on the full space.
-
-#### 3. 
-
-The design matrix $\mathbf{X}$ must be of full column rank so that:
-
-$$
-(\mathbf{X}^\top \mathbf{X})^{-1}
-$$
-
-exists. 
-
-This ensures that both GLS and OLS estimators are uniquely defined.
+Meaning the inverse of the variance-covariance matrix $\boldsymbol{\Sigma}^{-1}$ acts like the identity on the column space of $\mathbf{X}$, even if $\boldsymbol{\Sigma}$ is not a scalar multiple of the identity on the full space.
 
 ---
 
@@ -326,15 +339,21 @@ Verify the result in (2) assuming the conditions are met.
 
 ### Answer
 
-Assume that the assumptions from the prior part hold. 
+Assume that the assumptions from part a) all hold. 
 
-Then:
+Then, for:
 
 $$
-\boldsymbol{\Sigma}^{-1} = \frac{1}{\sigma^2} \mathbf{I}.
+\boldsymbol{\Sigma}^{-1} = \frac{1}{\sigma^2} \mathbf{I}
 $$
 
-Substitute this into the expression for the GLS estimator:
+Given: 
+
+$$
+\hat{\mathbf{\beta}}_{GLS} = (\mathbf{X}^\top \mathbf{\Sigma}^{-1} \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{\Sigma}^{-1} \mathbf{y}
+$$
+
+Via substitution we have:
 
 $$
 \hat{\boldsymbol{\beta}}_{\boldsymbol{\Sigma}} = 
@@ -344,19 +363,25 @@ $$
 \mathbf{X}^\top \left( \frac{1}{\sigma^2} \mathbf{I} \right) \mathbf{y}
 $$
 
-Factor out $\frac{1}{\sigma^2}$:
+We may treat $\frac{1}{\sigma^2}$ as a scalar for the purposes of matrix algebra, such that we have:
 
 $$
 = \left( \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{X} \right)^{-1}
 \left( \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{y} \right)
 $$
 
-Now use the identity $(aA)^{-1} = \frac{1}{a} A^{-1}$ to simplify:
+Noting that $(aA)^{-1} = \frac{1}{a} A^{-1}$, applying to the above and simplifying:
 
 $$
-= \sigma^2 \left( \mathbf{X}^\top \mathbf{X} \right)^{-1} \cdot \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{y}
+\hat{\boldsymbol{\beta}}_{\boldsymbol{\Sigma}} = \sigma^2 \left( \mathbf{X}^\top \mathbf{X} \right)^{-1} \cdot \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{y}
 = \left( \mathbf{X}^\top \mathbf{X} \right)^{-1} \mathbf{X}^\top \mathbf{y}
-= \hat{\boldsymbol{\beta}}_{\text{OLS}}.
+= \hat{\boldsymbol{\beta}}_{\text{OLS}}
 $$
 
-So, under the assumption that $\boldsymbol{\Sigma} = \sigma^2 \mathbf{I}$, the GLS estimator reduces exactly to the OLS estimator. This verifies the result in Equation (2).
+Noting that by definition, noting the normal equations, OLS is given by: 
+
+$$
+\hat{\boldsymbol{\beta}}_{\text{OLS}} = \left( \mathbf{X}^\top \mathbf{X} \right)^{-1} \mathbf{X}^\top \mathbf{y}
+$$
+
+So, the primary condition required for the above to work is for $\boldsymbol{\Sigma} = \sigma^2 \mathbf{I}$. 

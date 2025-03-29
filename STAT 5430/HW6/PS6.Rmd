@@ -20,6 +20,11 @@ $$
 
 is known. Find an exact form of the most powerful (MP) test of size $\alpha = 9e^{-10}$ for testing:
 
+```{r}
+alpha <- 9 * exp(-10)
+alpha
+```
+
 $$
 H_0 : \theta = 2 \quad \text{vs} \quad H_1 : \theta = 1.
 $$
@@ -67,9 +72,14 @@ $$
 
 We can compute these probabilities for $T \in \mathbb{Z}_{0}$:
 
-  - $P(T = 0) = e^{-10} \approx 4.54 \times 10^{-5}$
-  - $P(T = 1) = e^{-10} \cdot 10 \approx 4.54 \times 10^{-4}$
-  - $P(T \leq 1) = P(T=0) + P(T=1) \approx 4.99 \times 10^{-4}$
+```{r}
+alpha > exp(-10)
+alpha > 10 * exp(-10)
+```
+
+  - $P(T = 0) = e^{-10} \approx 4.54 \cdot 10^{-5}$
+  - $P(T = 1) = e^{-10} \cdot 10 \approx 4.54 \cdot 10^{-4}$
+  - $P(T \leq 1) = P(T=0) + P(T=1) \approx 4.99 \cdot 10^{-4}$
 
 Since $\alpha = 9 \times 10^{-10}$ is much smaller than $P(T \leq 1)$, we see that only $T = 0$ satisfies the size requirement in this problem, i.e.:
 
@@ -585,7 +595,7 @@ $$
 
 Since $\theta_2 - \theta_1 > 0$ and $x \in (0,1)$, the function $x^{\theta_2 - \theta_1}$ is increasing in $x$, which in turn means the likelihood ratio $\Lambda$ is increasing in $x$, which in turn means the family has a monotone likelihood ratio in $x$.
 
-Importantly, the family having a MLR in $x$ allows us to utilize Karlin-Rubin, i.e. the test that rejects for large values of $X$ is UMP for $H_0: \theta \leq 1$ vs $H_1: \theta > 1$.
+(Side Note: The following is based on usage of language/ideas from Casella. After discussing with Dr. Nordman, the language preferred is to simply advance from "We have MLR" into the "(U)MP test of size $\alpha$". That being said, to elaborate further: "Importantly, the family having a MLR in $x$ allows us to utilize Karlin-Rubin, i.e. the test that rejects for large values of $X$ is UMP for $H_0: \theta \leq 1$ vs $H_1: \theta > 1$.")
 
 We choose $t$ such that:
 
