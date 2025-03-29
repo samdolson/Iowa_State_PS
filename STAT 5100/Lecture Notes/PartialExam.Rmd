@@ -7,9 +7,6 @@ date: "2025-03-25"
 ```{r, eval = T, results = F, echo = F, warning = F, message = F}
 library(knitr)
 ```
-
-# Outline 
-  - 5: b) onwards 
   
 # 4. 
 
@@ -48,7 +45,7 @@ $$
 
 **(a)** Is $\alpha_1$ estimable? Show work to justify why it is or is not estimable.
 
-```{r, eval = T, echo=FALSE, fig.cap="Ch. 2: Some Key Linear Models Results"}
+```{r, eval = T, echo=FALSE, fig.cap="Ch. 2: Some Key Linear Models Results", out.width="100%"}
 knitr::include_graphics("4a.png")
 ```
 
@@ -70,7 +67,9 @@ $$
 
 This means that $\alpha_1$ is not estimable (this is also descriptively found by noting that the matrix C is not in row space of $\mathbf{X}$). 
 
-Generally, parameters (elements of the $\beta$ vector) are only estimable if they can be expressed as a linear combination of the rows of the design matrix, $\mathbf{X}$. For our purposes, the model matrix does not have full rank, so we know there are elements of the parameter vector that are not estimable, though we still have linear combinations that are (more on that in the following).  
+Generally, parameters (elements of the $\beta$ vector) are only estimable if they can be expressed as a linear combination of the rows of the design matrix, $\mathbf{X}$. For our purposes, the model matrix does not have full rank, so we know there are elements of the parameter vector that are not estimable, though we still have linear combinations that are (more on that in the following). 
+
+---
 
 **(b)** Provide a quantity that is estimable. $\alpha_1 - \alpha_2$ or $\mu + \alpha_1$.
 
@@ -112,11 +111,11 @@ The remaining questions refer to any general linear model as discussed in class.
 
 Additional Note: The following are related to the "Prerequisite Knowledge" Slides and an extension of the OLS Slides (Chapters 2 and 3) from lectures. Of note: 
 
-```{r, eval = T, echo=FALSE, fig.cap="Linear Algebra Overview"}
+```{r, eval = T, echo=FALSE, fig.cap="Linear Algebra Overview", out.width="100%"}
 knitr::include_graphics("4d.png")
 ```
 
-```{r, eval = T, echo=FALSE, fig.cap="Column Rank"}
+```{r, eval = T, echo=FALSE, fig.cap="Column Rank", out.width="100%"}
 knitr::include_graphics("4dOLS.png")
 ```
 
@@ -134,9 +133,11 @@ Answer: **The column space of $\mathbf{X}$**.
 
 The above answer is based on the Linear Algebra overview, as well as review of "Alternative Parametrization" Lecture Slides, where we discuss how/what estimates are able to be produced when working with a design matrix that is not full rank, e.g. for the Additive Model. 
 
-```{r, eval = T, echo=FALSE, fig.cap="Column Rank"}
+```{r, eval = T, echo=FALSE, fig.cap="Vector Space", out.width="100%"}
 knitr::include_graphics("VectorSpace.png")
 ```
+
+\newpage
 
 **(e)** **Fill in the blank.**
 
@@ -213,32 +214,125 @@ $$
 
 i. Write $H_{0,1}$ and $H_{0,2}$ in testable form $H_0 : \mathbf{C} \boldsymbol{\beta} = 0$ by identifying an appropriate matrix $\mathbf{C}$. (**Hint:** Start out by expressing each expected value as a function of $\boldsymbol{\beta}$ given $\mathbf{X}$ and $\boldsymbol{\beta}$ as defined above.)
 
+From the model, the expected value for each observation is given by:
+
+$$
+E[y_i] = \mathbf{x}_i^\top \boldsymbol{\beta}
+$$
+
+Row 1: $y_1$, $\mathbf{x}_1^\top = (1, 0, 0) \Rightarrow \mathbb{E}[y_1] = \beta_1$
+
+Row 2: $y_2$, $\mathbf{x}_2^\top = (1, -1, -1) \Rightarrow \mathbb{E}[y_2] = \beta_1 - \beta_2 - \beta_3$
+
+Row 5: $y_5$, $\mathbf{x}_5^\top = (1, 1, 1) \Rightarrow \mathbb{E}[y_5] = \beta_1 + \beta_2 + \beta_3$
+
+For $H_{0,1}: \mathbb{E}[y_1] = \mathbb{E}[y_2]$
+
+$$
+\beta_1 = \beta_1 - \beta_2 - \beta_3 \rightarrow
+0 = -\beta_2 - \beta_3 \rightarrow
+[0 \;\; 1 \;\; 1] \boldsymbol{\beta} = 0
+$$
+
+For $H_{0,2}: \mathbb{E}[y_1] = \mathbb{E}[y_5]$
+
+$$
+\beta_1 = \beta_1 + \beta_2 + \beta_3 \rightarrow
+0 = \beta_2 + \beta_3 \rightarrow
+[0 \;\; 1 \;\; 1] \boldsymbol{\beta} = 0
+$$
+
+Taken together, we have: 
+
 $$
 \mathbf{C} = \begin{pmatrix}
-1 & 1 & 1 \\
-0 & -1 & -1
+0 & 1 & 1
 \end{pmatrix}
 $$
 
-### Note: Add More Here
+Noting we can have a matrix $\mathbf{C}$ with just one row for this problem uniquely determined by the above linear combinations simplifying to the same expressions. 
 
 ii. Based on $\mathbf{C}$ compute an $F$ statistic for testing $H_0$ (you need not do the arithmetic, but plug correct numbers into a correct formula).
 
-The formula we use for this problem is given by: 
+```{r, eval = T, echo=FALSE, fig.cap="F-Statistic Definition", out.width="100%"}
+knitr::include_graphics("FStat.png")
+```
+
+To test the hypothesis $H_0: \mathbf{C} \boldsymbol{\beta} = 0$, we the F-statistic defined by:
 
 $$
 F = \frac{(\mathbf{C}\hat{\boldsymbol{\beta}})^T \left[ \mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T \right]^{-1} (\mathbf{C}\hat{\boldsymbol{\beta}}) / q}{\text{MSE}}
 $$
 
-where $q$ is the number of linear constraints.
+With the following known values already calculated:
 
-### Note: Add More Here
+  - $\mathbf{C} = \begin{pmatrix} 0 & 1 & 1 \end{pmatrix}$ From part ii). 
+  - $\hat{\boldsymbol{\beta}} = \begin{pmatrix} 5 \\ 6 \\ 2 \end{pmatrix}$ As given in the beginning of the problem
+  - $\mathbf{X}^T \mathbf{X} = \begin{pmatrix} 5 & 0 & 0 \\ 0 & 4 & 0 \\ 0 & 0 & 4 \end{pmatrix}$ As calculated in part a). 
+  - $q = 1$ (the number of constraints, as given from the number of rows in our matrix $\mathbf{C}$
+  - MSE = $\text{SSE} / (n - p) = 3 / (5 - 3) = 3 / 2 = 1.5$ where SSE was given and the denominator calculated using known information.
+
+Computing this value directly then, and noting known method for finding the inverse of a 3x3 matrix, we have: 
+
+$\mathbf{C} \hat{\boldsymbol{\beta}} = 0 \cdot 5 + 1 \cdot 6 + 1 \cdot 2 = 8$
+
+And: 
+
+$$
+\mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T = 
+\begin{pmatrix} 0 & 1 & 1 \end{pmatrix}
+\begin{pmatrix} 
+1/5 & 0 & 0 \\
+0 & 1/4 & 0 \\
+0 & 0 & 1/4
+\end{pmatrix}
+\begin{pmatrix} 0 \\ 1 \\ 1 \end{pmatrix}
+= 1/4 + 1/4 = 1/2
+$$
+
+Combining the computations, the F-statistic is then given by:
+
+$$
+F = \frac{8^2 / 1}{(1/2) \cdot 1.5} = \frac{64}{0.75} = 85.33
+$$
+
+\newpage
 
 iii. Specify the reference distribution of $F$ under the null hypothesis.
 
-The reference distribution of $F$ under the null hypothesis is an $F$-distribution with $q$ and $n - p$ degrees of freedom, where $p$ is the number of parameters.
+```{r, eval = T, echo=FALSE, fig.cap="F-Statistic - Central", out.width="100%"}
+knitr::include_graphics("FStatCentral.png")
+```
 
-### Note: Add More Here, Particularly Non-Centrality Parameter
+```{r, eval = T, echo=FALSE, fig.cap="F-Statistic - Non-Central", out.width="100%"}
+knitr::include_graphics("FStatNonCentral.png")
+```
+
+\newpage
+
+Under the null hypothesis $H_0: \mathbf{C} \boldsymbol{\beta} = 0$, the F-statistic:
+
+$$
+F = \frac{(\mathbf{C}\hat{\boldsymbol{\beta}})^T \left[ \mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T \right]^{-1} (\mathbf{C}\hat{\boldsymbol{\beta}}) / q}{\text{MSE}}
+$$
+
+follows a central F-distribution with Numerator degrees of freedom: $q = 1$ and Denominator degrees of freedom: $n - p = 5 - 3 = 2$ (central meaning a non-central parameter of 0), i.e.:
+
+$$
+H_0: F \sim F_{1, 2}(0)
+$$
+
+Under the Alternative Hypothesis, the F-statistic follows a non-central F-distribution with the same numerator and denominator degrees of freedom, i.e.:
+
+$$
+H_{a}: F \sim F_{1, 2}(\lambda)
+$$
+
+Where the non-centrality parameter $\lambda$ is defined as:
+
+$$
+\lambda = \frac{(\mathbf{C} \boldsymbol{\beta})^T \left[ \mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T \right]^{-1} (\mathbf{C} \boldsymbol{\beta})}{\sigma^2}
+$$
 
 \newpage
 
@@ -401,11 +495,11 @@ Residuals   5     3.826    0.7652
 
 \newpage
 
-```{r, eval = T, echo=FALSE, fig.cap="Matrix Notation: Form of Partial F-Test"}
+```{r, eval = T, echo=FALSE, fig.cap="Matrix Notation: Form of Partial F-Test", out.width="100%"}
 knitr::include_graphics("Partial.png")
 ```
 
-```{r, eval = T, echo=FALSE, fig.cap="Familiar Form of Partial F-Test"}
+```{r, eval = T, echo=FALSE, fig.cap="Familiar Form of Partial F-Test", out.width="100%"}
 knitr::include_graphics("Partial2.png")
 ```
 
@@ -457,7 +551,7 @@ In the context of this experiment, we say there is evidence that the relationshi
 
 \newpage 
 
-```{r, eval = T, echo=FALSE, fig.cap="CocoMelon"}
+```{r, eval = T, echo=FALSE, fig.cap="R Output, Last Page", out.width="100%"}
 knitr::include_graphics("Output.png")
 ```
 
