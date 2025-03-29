@@ -4,6 +4,10 @@ author: "Sam Olson"
 output: pdf_document
 ---
 
+# Outline 
+  - Q1: Skeleton
+  - Q4: Edits
+
 ```{r, eval = T, results = F, echo = F, warning = F, message = F}
 library(knitr)
 ```
@@ -80,7 +84,7 @@ Suppose you were given $\bar{d}_\cdot = \sum_{i=1}^{20} d_i / 20$, $\bar{a}_\cdo
 
 # Q2
 
-Suppose the responses in problem 2 were sorted first by subject and then by drink into a response vector $y$; i.e.,
+Suppose the responses were sorted first by subject and then by drink into a response vector $y$; i.e.,
 
 $$
 y = [45, 52, 69, 73, \ldots, 29, 46, 35, 81, \ldots, 55, 17, 54, \ldots, 61]^\top.
@@ -90,17 +94,37 @@ Provide $X$ and $Z$ matrices so that the model in equation (1) may be written as
 
 ## Answer
 
-As given, the response vector would be given in vector notation as:
+Overall, we have 60 subjects, giving our experimental units. We also have 80 responses in total (rows in both our $\mathbf{X}$ and $\mathbf{Z}$ matrices), corresponding to an imbalanced design due to partial replication.  
+
+Supposing the responses were sorted first by subject and then by drink into a response vector, and modeled by: 
 
 $$
-y = [y_{11}, y_{21}, \cdots , y_{1,20}, y_{2,20}, y_{1,21}, \cdots , y_{1,40}, y_{2,41}, \cdots , y_{2,60}]'.
+y_{ij} = \mu_i + u_j + e_{ij}, \quad i = 1, 2,\quad j = 1, \dots, 60,
 $$
 
-And modelled by: 
+Each row of $\mathbf{X}$, fixed treatment effects, corresponds to receiving one of the two sports drinks, 1 in the first column if the observation (not experimental unit) received sports drink 1 and 0 otherwise, and mutually exclusive between columns. 
 
-$\mathbf{y} = \mathbf{X}\mathbf{\beta} + \mathbf{Z}\mathbf{u} + \mathbf{e}$,
+And each row of $\mathbf{Z}$, random effects, corresponds to one observation and contains a 1 in the column corresponding to the experimental unit, and 0 elsewhere, and mutually exclusive between columns.
+
+And it is given that: 
+
+$$
+\mathbf{\beta} = [ \mu_1, \mu_2] ^{\top} 
+$$
+
+$$
+\mathbf{u} = [ u_1, u_2, ... u_{60}]^{\top} 
+$$
 
 The Kronecker product notation for $\mathbf{X}$ and $\mathbf{Z}$ are then given by: 
+
+The top block ($\mathbf{1}_{20 \times 1} \otimes \mathbf{I}_{2 \times 2}$) corresponds to the 20 subjects who received both drinks, totaling 40 observations.
+
+The bottom block ($\mathbf{I}_{2 \times 2} \otimes \mathbf{1}_{20 \times 1}$) corresponds to the remaining 40 observations from subjects who received only one drink, 20 observations for each drink.
+
+Taken together: 
+
+### Matrix $\mathbf{X}$:
 
 $$
 X_{80 \times 2} =
@@ -111,6 +135,16 @@ I_{2\times 2} \otimes \mathbf{1}_{20\times 1}
 $$
 
 And
+
+Top-left block: $I_{20 \times 20} \otimes \mathbf{1}_{2 \times 1}$ corresponds to the 20 subjects who completed both drink trials--this gives 2 rows per subject, totaling 40 rows.
+
+Bottom-right block: $I_{40 \times 40}$ corresponds to the 40 subjects who completed only one trial, contributing one row each.
+
+Off-Diagonal Elements: The two subject groups are non-overlapping such that they are independent and have zero-valued entries.
+
+Taken together: 
+
+### Matrix $\mathbf{Z}$:
 
 $$
 Z_{80 \times 60} =
@@ -143,6 +177,10 @@ $$
 $$
 
 $$
+= \frac{1}{tn - t} E\left( \sum_{i=1}^m \sum_{j=1}^t \left( \left[ u_{ij} - \bar{u}_i \right] + \left[ \bar{\epsilon}_{ij.} - \bar{\epsilon}_{i..} \right] \right)^2 \right)
+$$
+
+$$
 = \frac{m}{tn - t} \sum_{i=1}^t \sum_{j=1}^n E\left( (u_{ij} - \bar{u}_{i.}) + (\bar{\epsilon}_{ij.} - \bar{\epsilon}_{i..}) \right)^2
 $$
 
@@ -151,6 +189,8 @@ $$
 $$
 
 ### Note: 
+
+The last step relies upon a few things. To begin with, the cross terms of the square cancel out (turn to zero). This is because: 
 
 $$
 E\left\{(u_{ij} - \bar{u}_{i.}) + (\bar{\epsilon}_{ij.} - \bar{\epsilon}_{i..})\right\}^2 = \text{Var}\left( (u_{ij} - \bar{u}_{i.}) + (\bar{\epsilon}_{ij.} - \bar{\epsilon}_{i..}) \right)
@@ -198,6 +238,8 @@ And
 $$
 \bar{\epsilon}_{ij.} \overset{iid}{\sim} \mathcal{N}\left(0, \frac{\sigma_e^2}{m}\right)
 $$
+
+We then have: 
 
 $$
 EMS_{xu(trt)} = \frac{m}{tn - t} \left\{ t(n - 1)\sigma_u^2 + t(n - 1)\frac{\sigma_e^2}{m} \right\}
