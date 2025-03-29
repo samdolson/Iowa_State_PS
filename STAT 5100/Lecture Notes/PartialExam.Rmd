@@ -9,10 +9,8 @@ library(knitr)
 ```
 
 # Outline 
-  - 4: d), e), f) for additional edits 
   - 5: b) onwards 
-  - 6: all but b) 
-
+  
 # 4. 
 
 Consider a one-way ANOVA model with two levels and two observations at each level,
@@ -132,19 +130,23 @@ The expected value of any observation is estimable as long as it is a linear com
 
 **(d)** The set of vectors $\mathbf{c}$ for which $\mathbf{c}^T \boldsymbol{\beta}$ is estimable forms a vector space. Specify the vector space.
 
-Answer: **The column space of $\mathbf{X}$**.
+Answer: **The column space of $\mathbf{X}$**. 
 
-## Note: Add image specifically for vector spaces here from Linear Algebra Overview
+The above answer is based on the Linear Algebra overview, as well as review of "Alternative Parametrization" Lecture Slides, where we discuss how/what estimates are able to be produced when working with a design matrix that is not full rank, e.g. for the Additive Model. 
+
+```{r, eval = T, echo=FALSE, fig.cap="Column Rank"}
+knitr::include_graphics("VectorSpace.png")
+```
 
 **(e)** **Fill in the blank.**
 
 The column rank of a model matrix $\mathbf{X}$ is always **equal to** the number of linearly independent vectors that span the vector space in part (d).
 
-## Note: Add connection of linearly independent vectors to estimability 
+The above answer is directly tied back to the definition of estimability, in addition to the Linear Algebra definition of span. 
 
 **(f)** What is the relationship/connection between the column rank of $\mathbf{X}$ and the estimability of $\boldsymbol{\beta}$? Answer using a short sentence.
 
-The higher the column rank of $\mathbf{X}$, the more parameters in $\boldsymbol{\beta}$ that are estimable. The column rank of $\mathbf{X}$ determines the number of estimable parameters, specifically. 
+The column rank of $\mathbf{X}$ determines the number of estimable parameters, i.e., the higher/larger/greater the column rank (Integer) of $\mathbf{X}$, the more parameters in $\boldsymbol{\beta}$ that are estimable.
 
 \newpage 
 
@@ -300,65 +302,76 @@ The BLUE of $\mu_2$ is the estimated expression using "intercept + coefficient",
 
 The standard error of the BLUE of $\mu_2$ is 0.8747, as given in the R output.
 
-## Here on down
-
 **(e)** Provide the BLUE of $\mu_1 - \mu_2$:
 
-Under R’s default treatment contrast coding, the model fitted with `lm(y ~ factor(amt))` uses the first level of the factor (i.e., `amt = 0`) as the baseline. Therefore, the model is:
+Under R’s default treatment contrast coding, the model fitted with `lm(y ~ factor(amt))` uses the first level of the factor as the baseline, which is for `amt == 0`. 
 
-\[
+The model is of the form:
+
+$$
 y_{ij} = \beta_0 + \beta_2 \cdot \mathbb{1}_{\text{amt}=2} + \beta_3 \cdot \mathbb{1}_{\text{amt}=4} + \dots + \varepsilon_{ij},
-\]
+$$
 
-where:
+Mean of treatment one is given by $\beta_0 = \mu_1$
 
-- $\beta_0 = \mu_1$ (mean of treatment 1),
-- $\beta_2 = \mu_2 - \mu_1$
+However, mean of treatment two is not $\beta_2$, as $\beta_2 = \mu_2 - \mu_1$.
 
-Then:
+So we must consider a linear combination of rows in the $\beta$ vector to get at $\mu_1 - \mu_2$. To that end: 
 
-\[
+$$
 \mu_1 - \mu_2 = \mu_1 - (\mu_1 + \beta_2) = -\beta_2
-\]
+$$
 
 So, the BLUE of $\mu_1 - \mu_2$ is:
 
-\[
+$$
 -\hat{\beta}_2 = -2.41
-\]
+$$
+
+Using the above output
 
 **(f)** What is the standard error of the BLUE of $\mu_1 - \mu_2$?
 
-Since $\mu_1 - \mu_2 = -\beta_2$, this is a direct transformation of a single coefficient estimate. Thus, the standard error of the BLUE is simply:
+Since $\mu_1 - \mu_2 = -\beta_2$, this is a direct transformation of a single coefficient estimate. 
 
-\[
+Thus, the standard error of the BLUE is also, similar to the prior SE question, given from a single standard error estimate, i.e.:
+
+$$
 \operatorname{SE}(\mu_1 - \mu_2) = \operatorname{SE}(-\hat{\beta}_2) = \operatorname{SE}(\hat{\beta}_2) = 0.8747
-\]
-
-The earlier expression using $\sqrt{0.8747^2 + 0.8747^2}$ would be appropriate **only if** the estimate were a difference of **two independent** parameters, which is not the case here. Since we are using just one coefficient ($\beta_2$), we use its standard error directly.
+$$
 
 **(g)** What is the value of $\mathbf{y}^T (\mathbf{I} - \mathbf{P_1}) \mathbf{y}$, where $\mathbf{y}$ denotes the vector containing the values of longevity?
 
-The quantity $\mathbf{y}^T (\mathbf{I} - \mathbf{P}_1) \mathbf{y}$ is the **residual sum of squares (RSS)** from the fitted model. It measures the variation in the data not explained by the model.
+The quantity $\mathbf{y}^T (\mathbf{I} - \mathbf{P}_1) \mathbf{y}$ is the residual Sums of Squares from the fitted model, M1. 
 
-From the `anova(M1)` output, the residual sum of squares is:
+From the provided R output, the residual sum of squares is:
 
-\[
+$$
 \mathbf{y}^T (\mathbf{I} - \mathbf{P}_1) \mathbf{y} = \text{RSS} = 3.826
-\]
+$$
 
 **(h)** Provide the value of the F-statistic, numerator and denominator df, and the p-value associated with the following ANOVA table:
 
-From the ANOVA table of the model `M1`, we have:
+The F-Statistic is of the form: 
 
-- **F-statistic**: 30.84  
-- **Numerator degrees of freedom**: 4 (number of groups – 1 = 5 – 1)  
-- **Denominator degrees of freedom**: 5 (total n – number of groups = 10 – 5)  
-- **p-value**: 0.001019
+$$
+F = \frac{\frac{SS_{amt}}{df_{amt}}}{\frac{SS_{Res}}{df_{Res}}} = \frac{94.398/4}{3.826/5} \approx 30.841
+$$
 
-The p-value is calculated as the probability that an \( F_{4,5} \) random variable exceeds the observed value of 30.84.
+With p-value: 
 
-You can compute it directly in R using:
+$$
+P(F_{4,5} > 30.84)
+$$
+
+Taken together, we have: 
+
+F-statistic: 30.84  
+amt Df (Numerator Df): Number of Groups – 1 = 5 – 1 = 4
+Residual Df (Denominator Df): Total Observations – Number of Groups = 10 – 5 = 5 
+p-value: 0.001019
+
+In R, the p-value can be directly calculated. However, on the exam, I believe keeping it closed form would have been the only viable solution since the p-value was not explicitly provided in the output and could not have been backward-inducted using known values. 
 
 ```{r}
 pf(30.84, df1 = 4, df2 = 5, lower.tail = FALSE)
@@ -426,16 +439,25 @@ Model 2: longevity ~ amt
 2    5      3.826   4    33.931     2.02   0.006412 **
 ```
 
+The above values were found using the known relation between Sums of Squares and RSS, and the corresponding F-statistic, similar to the calculations done previously, but with the p-value provided explicitly. The other key feature of this problem is recognizing the Residual Df. of 9 for the simplified model (only taking one degree of freedom when allowing `amt` to be treated as a continuous variable instead of multiple group, cell, means).
+
 ii. Provide an interpretation of Sum of Squares in part (i). This is the value denoted by (*).
 
-The sum of squares (*) represents the additional variability explained by adding the `amount` factor to the model.
+The value (*) = 33.931 represents the additional variability, the sum of squared errors, explained by using a more complex model that treats `amt` as a factor, compared to a simpler model that treats amount as a continuous numeric variable.
+
+This sum of squares quantifies the improvement in model fit when we allow each treatment level to have its own group (cell) mean, rather than assuming a single linear relationship across all levels of the compound amount.
 
 iii. Provide a conclusion in the context of the data about the null hypothesis that is tested in part (i).
 
-Conclusion: The small p-value (0.006412) suggests we reject the null hypothesis, concluding that the amount of compound has a statistically significant effect on longevity.
+The small p-value (0.006412) from the partial F-test comparing `M2` to `M1` provides strong evidence against the null hypothesis.
+
+The null hypothesis for this test is that the simpler model (with a linear relationship between compound amount and longevity) is sufficient, i.e., there is no significant improvement in model fit by allowing separate means for each treatment level.
+
+In the context of this experiment, we say there is evidence that the relationship between the amount of chemical compound added to the water and the longevity of Gerber daisies is not well explained by a simple linear trend, and instead (contra-positively) have evidence that treatment effects vary non-linearly across dose levels, and the more flexible model—where each treatment level has its own mean (i.e. the cell means model) better captures the pattern in the data and explains more of the observed variability in flower longevity.
 
 \newpage 
 
 ```{r, eval = T, echo=FALSE, fig.cap="CocoMelon"}
 knitr::include_graphics("Output.png")
 ```
+
