@@ -260,9 +260,23 @@ Use the R code and partial output provided with this exam to answer the followin
 
 **(a)** For the first model fit in R, called M1, specify the model matrix $\mathbf{X}$ used by R.
 
-For the first model fit in R, called M1, the model matrix $\mathbf{X}$ used by R is a design matrix with an intercept and indicator columns for each level of `amt`.
+The model matrix $\mathbf{X}$ used by R is a design matrix with an intercept and indicator columns for each level of `amt`. By default R produces a design matrix of full rank using the baseline constraint where the first level of the factor `amt` is used as the baseline. This corresponds to: 
 
-### Note: Add More Here, Whether R uses first or last for baseline
+$$
+\mathbf{X} =
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 \\
+1 & 1 & 0 & 0 & 0 \\
+1 & 1 & 0 & 0 & 0 \\
+1 & 0 & 1 & 0 & 0 \\
+1 & 0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 1 & 0 \\
+1 & 0 & 0 & 1 & 0 \\
+1 & 0 & 0 & 0 & 1 \\
+1 & 0 & 0 & 0 & 1 \\
+\end{bmatrix}
+$$
 
 **(b)** Consider the following information from the output associated with model M1:
 
@@ -272,37 +286,83 @@ F-statistic: 30.84 on 4 and 5 DF,   p-value: 0.001019
 
 Specify the null and alternative hypothesis associated with this test:
 
-$H_0$: All treatment means are equal ($\mu_1 = \mu_2 = \mu_3 = \mu_4 = \mu_5$).
+$H_0$: All treatment means (average response per level of `amt`) are equal ($\mu_1 = \mu_2 = \mu_3 = \mu_4 = \mu_5$).
 
-$H_a$: At least one treatment mean differs.
-
-### Note: Add More below on what BLUE is and how we know how to use it
+$H_a$: At least one treatment mean differs from the treatment mean of the other groups (levels of the factor `amt`).
 
 **(c)** Provide the BLUE of $\mu_2$:
 
-The BLUE of $\mu_2$ is the intercept + coefficient for `amt2` = 2.32 + 2.41 = 4.73.
+By default the estimate of $\beta_2 = \mu_2 - \mu_1$ due to the R baseline constraint, as noted more in part a). Additionally, R by default and as specified provides the OLS estimated effects, which are BLUE as they correspond to the normal equations under GMM. That is all to say: 
+
+The BLUE of $\mu_2$ is the estimated expression using "intercept + coefficient", which corresponds to $\hat{\mu}_2$ = 2.32 + 2.41 = 4.73.
 
 **(d)** What is the standard error of the BLUE of $\mu_2$?
 
-The standard error of the BLUE of $\mu_2$ is 0.8747.
+The standard error of the BLUE of $\mu_2$ is 0.8747, as given in the R output.
+
+## Here on down
 
 **(e)** Provide the BLUE of $\mu_1 - \mu_2$:
 
-The BLUE of $\mu_1 - \mu_2$ is $2.32 - 4.73 = -2.41$.
+Under R’s default treatment contrast coding, the model fitted with `lm(y ~ factor(amt))` uses the first level of the factor (i.e., `amt = 0`) as the baseline. Therefore, the model is:
+
+\[
+y_{ij} = \beta_0 + \beta_2 \cdot \mathbb{1}_{\text{amt}=2} + \beta_3 \cdot \mathbb{1}_{\text{amt}=4} + \dots + \varepsilon_{ij},
+\]
+
+where:
+
+- $\beta_0 = \mu_1$ (mean of treatment 1),
+- $\beta_2 = \mu_2 - \mu_1$
+
+Then:
+
+\[
+\mu_1 - \mu_2 = \mu_1 - (\mu_1 + \beta_2) = -\beta_2
+\]
+
+So, the BLUE of $\mu_1 - \mu_2$ is:
+
+\[
+-\hat{\beta}_2 = -2.41
+\]
 
 **(f)** What is the standard error of the BLUE of $\mu_1 - \mu_2$?
 
-The standard error of the BLUE of $\mu_1 - \mu_2$ is $\sqrt{0.8747^2 + 0.8747^2} = 1.237$ (calculated as the square root of the sum of variances).
+Since $\mu_1 - \mu_2 = -\beta_2$, this is a direct transformation of a single coefficient estimate. Thus, the standard error of the BLUE is simply:
+
+\[
+\operatorname{SE}(\mu_1 - \mu_2) = \operatorname{SE}(-\hat{\beta}_2) = \operatorname{SE}(\hat{\beta}_2) = 0.8747
+\]
+
+The earlier expression using $\sqrt{0.8747^2 + 0.8747^2}$ would be appropriate **only if** the estimate were a difference of **two independent** parameters, which is not the case here. Since we are using just one coefficient ($\beta_2$), we use its standard error directly.
 
 **(g)** What is the value of $\mathbf{y}^T (\mathbf{I} - \mathbf{P_1}) \mathbf{y}$, where $\mathbf{y}$ denotes the vector containing the values of longevity?
 
-The value of $\mathbf{y}^T (\mathbf{I} - \mathbf{P_1}) \mathbf{y}$ is 3.826 (the residual sum of squares).
+The quantity $\mathbf{y}^T (\mathbf{I} - \mathbf{P}_1) \mathbf{y}$ is the **residual sum of squares (RSS)** from the fitted model. It measures the variation in the data not explained by the model.
+
+From the `anova(M1)` output, the residual sum of squares is:
+
+\[
+\mathbf{y}^T (\mathbf{I} - \mathbf{P}_1) \mathbf{y} = \text{RSS} = 3.826
+\]
 
 **(h)** Provide the value of the F-statistic, numerator and denominator df, and the p-value associated with the following ANOVA table:
 
-The F-statistic is 30.84 with numerator df = 4, denominator df = 5, and p-value = 0.001019.
+From the ANOVA table of the model `M1`, we have:
 
-p-value: probability that a random variable with distribution $F_{q, n-r}$ matches or exceeds the observed value of the test statistic F=30.84. 
+- **F-statistic**: 30.84  
+- **Numerator degrees of freedom**: 4 (number of groups – 1 = 5 – 1)  
+- **Denominator degrees of freedom**: 5 (total n – number of groups = 10 – 5)  
+- **p-value**: 0.001019
+
+The p-value is calculated as the probability that an \( F_{4,5} \) random variable exceeds the observed value of 30.84.
+
+You can compute it directly in R using:
+
+```{r}
+pf(30.84, df1 = 4, df2 = 5, lower.tail = FALSE)
+```
 
 ```
 OLD
