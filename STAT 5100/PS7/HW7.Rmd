@@ -4,9 +4,6 @@ author: "Sam Olson"
 output: pdf_document
 ---
 
-# Outline 
-  - Q1: Skeleton
-
 ```{r, eval = T, results = F, echo = F, warning = F, message = F}
 library(knitr)
 ```
@@ -49,17 +46,62 @@ For each of the subjects who received both drinks, the difference between the sc
 
 ### Answer
 
+Based on the model assumptions of $e_{ij} \overset{iid}{\sim} N(0, \sigma_e^2)$, for each subject $j = 1, \ldots, 20$,
+
+$$
+\begin{aligned}
+d_j &= y_{1j} - y_{2j} \\
+&= \mu_1 + u_j + e_{1j} - (\mu_2 + u_j + e_{2j}) \\
+&= (\mu_1 - \mu_2) + e_{1j} - e_{2j}
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+E(d_j) &= \mu_1 - \mu_2, \quad \text{Var}(d_j) = \text{Var}(e_{1j}) + \text{Var}(e_{2j}) = 2\sigma_e^2 \\
+\text{Cov}(d_j, d_{j'}) &= \text{Cov}(e_{1j} - e_{2j}, e_{1j'} - e_{2j'}) = 0 \quad \text{for } j \ne j'
+\end{aligned}
+$$
+
+Thus, $d_j \overset{iid}{\sim} N(\mu_1 - \mu_2, 2\sigma_e^2)$, which is a constant mean model:
+
+$$
+\boldsymbol{d} = \mathbf{1}[\mu_1 - \mu_2] + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim N(0, 2\sigma_e^2 \mathbf{I})
+$$
+
 ## b)
 
-Suppose you were given only the differences $d_1, \ldots, d_{20}$ from part (a). Provide a formula for a test statistic (as a function of $d_1, \ldots, d_{20}$) that could be used to test $H_0: \mu_1 = \mu_2$.
+Suppose you were given only the differences $d_1, \ldots, d_{20}$ from part a). Provide a formula for a test statistic (as a function of $d_1, \ldots, d_{20}$) that could be used to test $H_0: \mu_1 = \mu_2$.
 
 ### Answer
+
+Let $\bar{d} = \frac{1}{20} \sum_{j=1}^{20} d_j$. Then $\bar{d} \sim N(\mu_d, \frac{\sigma_d^2}{20})$, where $\mu_d = \mu_1 - \mu_2$, $\sigma_d^2 = 2\sigma_e^2$.
+
+Under $H_0: \mu_d = 0$, the test statistic is:
+
+$$
+t = \frac{\bar{d}}{\sqrt{\text{Var}(\bar{d})}} = \frac{\bar{d}}{\sqrt{\frac{\hat{\sigma}_d^2}{20}}} = \frac{\bar{d}}{\sqrt{\frac{1}{20} \cdot \frac{1}{19} \sum_{j=1}^{20} (d_j - \bar{d})^2}}
+$$
+
+$$
+F = t^2 = \frac{380 \cdot \bar{d}^2}{\sum_{j=1}^{20} (d_j - \bar{d})^2}
+$$
+
+\newpage 
 
 ## c)
 
-Fully state the exact distribution of the test statistic provided in part (b).
+Fully state the exact distribution of the test statistic provided in part b).
 
 ### Answer
+
+$$
+t \sim t_{19} \left( \frac{\mu_d}{\sqrt{\sigma_d^2/20}} \right) \overset{d}{=} t_{19} \left( \frac{\mu_1 - \mu_2}{\sqrt{\sigma_e^2 / 10}} \right)
+$$
+
+$$
+F \sim F_{1,19} \left( \frac{5(\mu_1 - \mu_2)^2}{\sigma_e^2} \right)
+$$
 
 ## d)
 
@@ -67,17 +109,78 @@ Let $a_1, \ldots, a_{20}$ be the scores of the subjects who received only drink 
 
 ### Answer
 
+Model for all scores:
+$$
+\mathbf{y} = \left[ \mathbf{I}_{2\times2} \otimes \mathbf{1}_{20\times1} \right] 
+\begin{bmatrix}
+\mu_1 \\
+\mu_2
+\end{bmatrix}
++ \boldsymbol{\epsilon}
+$$
+
+Let:
+- $a_j$ and $b_j$ be scores from groups 1 and 2
+- $\bar{a} = \frac{1}{20} \sum a_j$, $\bar{b} = \frac{1}{20} \sum b_j$
+
+Then:
+
+$$
+\text{Var}(\bar{a} - \bar{b}) = \text{Var}(\bar{a}) + \text{Var}(\bar{b}) = \frac{1}{10} (\sigma_u^2 + \sigma_e^2)
+$$
+
+$$
+\hat{\text{MSE}} = \frac{1}{380} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)
+$$
+
+$$
+\text{CI}_{95\%} = (\bar{a} - \bar{b}) \pm t_{38, 0.975} \cdot \sqrt{ \frac{1}{380} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)}
+$$
+
+\newpage
+
 ## e)
 
 Suppose you were given $d_1, \ldots, d_{20}$ from part (a) and $a_1, \ldots, a_{20}$ and $b_1, \ldots, b_{20}$ from part (d). Provide formulas for unbiased estimators of $\sigma^2_u$ and $\sigma^2_e$ as a function of these observations.
 
 ### Answer
 
+From part b):
+
+$$
+\hat{\sigma}_d^2 = 2\hat{\sigma}_e^2 = \frac{1}{19} \sum_{j=1}^{20}(d_j - \bar{d})^2
+$$
+
+From part d):
+
+$$
+\sigma_u^2 + \sigma_e^2 = \frac{1}{38} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)
+$$
+
+Solving:
+
+$$
+\begin{cases}
+\hat{\sigma}_e^2 = \frac{1}{38} \sum_{j=1}^{20} (d_j - \bar{d})^2 \\
+\hat{\sigma}_u^2 = \frac{1}{38} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right) - \hat{\sigma}_e^2
+\end{cases}
+$$
+
 ## f)
 
 Suppose you were given $\bar{d}_\cdot = \sum_{i=1}^{20} d_i / 20$, $\bar{a}_\cdot = \sum_{i=1}^{20} a_i / 20$, and $\bar{b}_\cdot = \sum_{i=1}^{20} b_i / 20$; where $d_1, \ldots, d_{20}$ are from part (a) and $a_1, \ldots, a_{20}$ and $b_1, \ldots, b_{20}$ are from part (d). Furthermore, suppose $\sigma^2_e$ and $\sigma^2_u$ are known. Provide a simplified expression for the estimator of $\mu_1 - \mu_2$ that you would use. Your answer should be a function of $\bar{d}_\cdot, \bar{a}_\cdot, \bar{b}_\cdot, \sigma^2_u, \sigma^2_e$.
 
 ### Answer
+
+Both $\bar{d}$ and $\bar{a} - \bar{b}$ are independent unbiased estimators. So:
+
+$$
+\mu_1 - \mu_2 = \frac{\text{Var}^{-1}(\bar{d})}{\text{Var}^{-1}(\bar{d}) + \text{Var}^{-1}(\bar{a} - \bar{b})} \cdot \bar{d} + \frac{\text{Var}^{-1}(\bar{a} - \bar{b})}{\text{Var}^{-1}(\bar{d}) + \text{Var}^{-1}(\bar{a} - \bar{b})} \cdot (\bar{a} - \bar{b})
+$$
+
+$$
+= \frac{\sigma_u^2 + \sigma_e^2}{\sigma_u^2 + 2\sigma_e^2} \cdot \bar{d} + \frac{\sigma_e^2}{\sigma_u^2 + 2\sigma_e^2} \cdot (\bar{a} - \bar{b})
+$$
 
 \newpage
 
