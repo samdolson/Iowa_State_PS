@@ -31,13 +31,13 @@ $$
 
 ## Answer 
 
-To start, we consider the likelihood ratio test statistic. The likelihood function under a general $\theta$ is:
+To start, we consider the likelihood ratio test statistic. The likelihood function under a parameter $\theta$ is:
 
 $$
 L(\theta) = \prod_{i=1}^n \frac{e^{-\theta x_i} (\theta x_i)^{Y_i}}{Y_i!}
 $$
 
-The likelihood ratio for testing $H_0: \theta = 2$ vs $H_1: \theta = 1$ is then given as a ratio of the likelihood under the alternative over the likelihood over the null:
+The likelihood ratio for testing $H_0: \theta = 2$ vs $H_1: \theta = 1$ is then given as a ratio of the likelihood functions where the alternative is the numerator and the null is the denominator, which is: 
 
 $$
 \Lambda = \frac{L(\theta = 1)}{L(\theta = 2)}
@@ -46,7 +46,7 @@ $$
 = e^{5} \cdot 2^{-T}
 $$
 
-where $T = \sum_{i=1}^n Y_i$ and substituting in other known quantities.
+For simplification, we let $T = \sum_{i=1}^n Y_i$ and cancel terms when applicable.
 
 Then, via Neyman-Pearson, the MP test rejects $H_0$ when $\Lambda$ is large, which corresponds to small values of $T$ (since $\Lambda$ decreases as $T$ increases). 
 
@@ -81,11 +81,7 @@ alpha > 10 * exp(-10)
   - $P(T = 1) = e^{-10} \cdot 10 \approx 4.54 \cdot 10^{-4}$
   - $P(T \leq 1) = P(T=0) + P(T=1) \approx 4.99 \cdot 10^{-4}$
 
-Since $\alpha = 9 \times 10^{-10}$ is much smaller than $P(T \leq 1)$, we see that only $T = 0$ satisfies the size requirement in this problem, i.e.:
-
-$$
-P(T \leq 0) = e^{-10} \approx 4.54 \cdot 10^{-5} < \alpha
-$$
+Since $\alpha = 9 \times 10^{-10}$ is much smaller than $P(T \leq 1)$, we see that only $T = 0$ satisfies the size requirement in this problem.
 
 However, $P(T \leq 0) \neq \alpha$, so we must find a suitable $\gamma \in [0,1]$ to satisfy equality. 
 
@@ -101,7 +97,7 @@ $$
 P(T=0) + \gamma P(T=1) = \alpha
 $$
 
-Solving for $\gamma$: 
+Solving for $\gamma$, substituting known values: 
 
 $$
 e^{-10} + \gamma \cdot 10e^{-10} = 9e^{-10}
@@ -111,10 +107,12 @@ $$
 \gamma = \frac{9e^{-10} - e^{-10}}{10e^{-10}} = 0.8
 $$
 
+With special note of distinguishing between `e-10` as $10^{-10}$ vs. $e^{-10}$ = `exp(-10)`
+
 So we may write the full form of the test as: 
 
 $$
-\phi_{H_0}(X) = 
+\varphi_{H_0}(X) = 
 \begin{cases}
 1 & \text{if } T = \sum Y_i = 0 \\
 \gamma = 0.8 & \text{if } T = \sum Y_i = 1 \\
@@ -162,7 +160,7 @@ for some $k > 1$.
 
 (Skip the part involving $\alpha = 0.1$ or the Type II error part.)
 
-## Answer 
+## Answer
 
 Under the transformation $Y = X^\theta$, the inverse is $X = Y^{1/\theta}$, and:
 
@@ -170,126 +168,43 @@ $$
 \frac{dx}{dy} = \frac{1}{\theta} y^{(1/\theta) - 1}
 $$
 
-The above Jacobian we will need for a change of variables, specifically, using the pdf of $X$, we have the pdf of $Y$ given by:
+Using the change-of-variables formula, the pdf of $Y$ is:
 
 $$
 f_Y(y|\theta) = f_X(y^{1/\theta}) \cdot \left| \frac{dx}{dy} \right| = e^{-y^{1/\theta}} \cdot \frac{1}{\theta} y^{(1/\theta) - 1}
 $$
 
-Where: $y > 0$
+for $y > 0$.
 
-Via Neyman-Pearson, the MP test rejects $H_0$ for large values of the likelihood ratio, given by:
-
-$$
-\Lambda = \frac{f_Y(y|2)}{f_Y(y|1)}
-$$
-
-Substituting the pdfs, and simplifying:
+By the Neyman–Pearson, the MP test rejects $H_0$ for large values of the likelihood ratio, given by:
 
 $$
-\Lambda = \frac{\frac{1}{2} y^{-1/2} e^{-y^{1/2}}}{e^{-y}} = \frac{1}{2} y^{-1/2} e^{y - \sqrt{y}}
+\Lambda = \frac{f_Y(y|2)}{f_Y(y|1)} = \frac{\frac{1}{2} y^{-1/2} e^{-y^{1/2}}}{e^{-y}} = \frac{1}{2} y^{-1/2} e^{y - \sqrt{y}}
 $$
 
-The rejection region is of the form:
+Thus, the rejection region has the form:
 
 $$
-\Lambda > k \rightarrow \frac{e^{y - \sqrt{y}}}{\sqrt{y}} > 2k = k_{1}
+\Lambda > k  \iff \frac{e^{y - \sqrt{y}}}{\sqrt{y}} > 2k = k_1
 $$
 
-Where $k_{1} > 1$
+for some $k_1 > 1$. This last condition is included to ensure the test has size less than 1, i.e. to ensure that we do not always reject the null hypothesis (reject with probability 1, which would occur for values of $k_1 \leq 1$). 
 
-Let $g(y) = \frac{e^{y - \sqrt{y}}}{\sqrt{y}}$. Take derivative, with the intent to show monotonicity (Spoiler: Non-monotonicity due to two distinct rejection regions) and also noting log is a monotonic transformation:
+Noting Y is a continuous random variable, we again may set the value $\gamma = 0$, such that our UMP test function focuses solely on two unique cases. 
 
-$$
-\frac{d}{dy} \ln g(y) = \frac{d}{dy} \left( y - \sqrt{y} - \frac{1}{2} \ln y \right) = 1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y}
-$$
-
-For $y \to 0^+$: The derivative  
+To that end, the UMP test is given by:
 
 $$
-\frac{d}{dy} \ln g(y) = 1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y} \to -\infty
-$$  
-
-so $g(y)$ is decreasing as $y \to 0^+$.
-  
-For $y \to \infty$: The derivative  
-
-$$
-\frac{d}{dy} \ln g(y) \to 1
-$$  
-so $g(y)$ is increasing for large $y$.
-
-Since  
-
-$$
-\frac{d^2}{dy^2} \ln g(y) = \frac{1}{4y^{3/2}} + \frac{1}{2y^2} > 0 \quad \text{for all } y > 0,
-$$  
-
-it follows that $\ln g(y)$ is strictly convex, so $g(y)$ has a minimum where the derivative is zero.
-
-We then seek to find that minimum! To that end: 
-
-$$
-1 - \frac{1}{2\sqrt{y}} - \frac{1}{2y} = 0 \rightarrow y = 1
-$$
-
-So at $y = 1$, $g(y)$ has a minimum. Thus, $\Lambda > k_1$ corresponds to:
-
-$$
-Y \leq c_0 \quad \text{or} \quad Y \geq c_1
-$$
-
-where $c_0 < 1 < c_1$.
-
-The UMP level-$\alpha$ test rejects $H_0$ if:
-
-$$
-Y \leq c_0 \quad \text{or} \quad Y \geq c_1
-$$
-
-where $c_0, c_1$ are chosen such that:
-
-$$
-P_{H_0}(Y \leq c_0) + P_{H_0}(Y \geq c_1) = \alpha
-$$
-
-Under $H_0$ ($\theta = 1$), $Y = X \sim \text{Exp}(1)$. These are probabilities we can express as:
-
-$$
-P_{H_0}(Y \leq c_0) = 1 - e^{-c_0}
-$$
-
-And
-
-$$
-P_{H_0}(Y \geq c_1) = e^{-c_1}
-$$
-
-Taken together then, the UMP test for $H_0: \theta = 1$ vs $H_1: \theta = 2$ rejects $H_0$ if:
-
-$$
-Y \leq c_0 \quad \text{or} \quad Y \geq c_1
-$$
-
-Written: 
-
-$$
-\phi_{H_0} (Y) = 
+\varphi(y) =
 \begin{cases}
-1 & Y \leq c_0 \quad \text{or} \quad Y \geq c_1 \\
+1 & \text{if } \dfrac{e^{y - \sqrt{y}}}{\sqrt{y}} > k_1 \\
 0 & \text{otherwise}
 \end{cases}
 $$
 
-Noting that $\gamma = 0$ in writing the above test function due to Y being a continuous random variable. 
+for some $k_1 > 1$.
 
-Where $c_0, c_1$ satisfy:
-
-$$
-(1 - e^{-c_0}) + e^{-c_1} = \alpha
-$$
-
-And noting to *"Skip the part involving $\alpha = 0.1$ or the Type II error part."*
+And noting to, *"(Skip the part involving $\alpha = 0.1$ or the Type II error part.)"*
 
 \newpage 
 
@@ -334,16 +249,16 @@ where $I(\cdot)$ is the indicator function.
 
 Notably: 
 
-  - For $x = 1, \dots, 6$, the LR simplifies to $\Lambda = 7 - x$.
-  - For $x = 7$, $\Lambda = \frac{79}{94} \approx 0.84$.
   - The likelihood ratio is decreasing in $x$, so the MP test rejects $H_0$ for the smallest values of $x$.
   - The smaller the $x$, the larger the likelihood ratio. 
+  - For $x = 1, \dots, 6$, the LR simplifies to $\Lambda = 7 - x$.
+  - For $x = 7$, $\Lambda = \frac{0.79}{0.94} \approx 0.84$.
 
 \newpage
 
 Using the above information, we can directly calculate the following: 
 
-| $x$ | $\Lambda$ | $f(x|H_0)$ | Cumulative $P_{H_0}$ |
+| $x$     | $\Lambda$            | $f(x|H_0)$     | Cumulative  |
 |---------|----------------------|----------------|--------------------------|
 | 1       | 6.00                 | 0.01           | 0.01                     |
 | 2       | 5.00                 | 0.01           | 0.02                     |
@@ -543,13 +458,13 @@ $$
 
 We find the MP test via Neyman-Pearson: The MP test rejects $H_0$ when the likelihood ratio exceeds a threshold k.
 
-Our likelihood ratio is given by: 
+Via our now typical formulation, our likelihood ratio is given by: 
 
 $$
 \Lambda = \frac{f(x \mid \theta = 2)}{f(x \mid \theta = 1)} = \frac{2x^{2-1}}{1x^{1-1}} = 2x
 $$
 
-The test rejects $H_0$ when $\Lambda = 2x > k \rightarrow x > \frac{k}{2} = t$.
+The test rejects $H_0$ when $\Lambda = 2x > k \rightarrow x > \frac{k}{2} = t$, where t denotes our critical value.
 
 Using the above, the size constraint requires:  
 
@@ -566,14 +481,14 @@ $$
 Taken together, the most powerful level-$\alpha$ test is given by:
 
 $$
-\phi_{H_0}(X) = 
+\varphi_{H_0}(X) = 
 \begin{cases}
 1 &  X > 1 - \alpha \\
 0 & \text{otherwise}
 \end{cases}
 $$
 
-Note: The above is under the assumption that U is the continuous normal distribution, meaning we can have $\gamma = 0$ for the "coin toss" scenario in the test function. 
+Note: The above takes advantage of dealing with a continuous random variable, meaning we can have $\gamma = 0$ for the "coin toss" scenario $\gamma$ in the test function, further simplifying the number of unique cases for our test function. 
 
 ## c) 
 
@@ -587,6 +502,75 @@ If so, find it. If not, prove so.
 
 ### Answer 
 
+$\text{Beta}(\theta, 1)$ is in the exponential family since its likelihood function may be written as: 
+
+$$
+f_{X}(x) = \frac{x^{\theta - 1}(1 - x)^{1 - 1}}{B(\theta, 1)} = \frac{1}{B(\theta, 1)} \exp(\ln(x^{\theta - 1})) = \left(\frac{1}{B(\theta, 1)} \cdot 1 \right) \cdot \exp\left[ (\theta - 1) \ln(x) \right]
+$$
+
+Where 
+
+$$
+c(\theta) = \frac{1}{B(\theta, 1)}, \quad h(x) = 1, \quad q_1(\theta) = \theta - 1, \quad t_1(x) = \ln(x)
+$$
+
+Since $q_1(\theta)$ is a nondecreasing function, $\{f(x|\theta): \theta \in \Theta\}$ has MLR in $T = t_1(x)$. 
+
+Taking advantage of MLR, we know that a size $\alpha$ UMP test for:
+
+$$
+H_0: \theta \leq \theta_0 \quad \text{vs} \quad H_1: \theta > \theta_0
+$$
+
+is given by:
+
+$$
+\varphi(x) = 
+\begin{cases}
+1 & \text{if } t_1(x) > k \\
+\gamma & \text{if } t_1(x) = k \\
+0 & \text{if } t_1(x) < k
+\end{cases}
+$$
+
+with size $E_{\theta_0}(\varphi(x)) = \alpha$.
+
+Because the exponential family is continuous (i.e., $X$ is a continuous random variable), we may choose $\gamma = 0$, simplifying the test function to:
+
+$$
+\varphi(x) = 
+\begin{cases}
+1 & \text{if } \ln(x) > k \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+We then solve for the critical value $k$ using the size condition:
+
+$$
+\alpha = E_{\theta_0}[\varphi(x)] = P(\ln(x) > k) = P(x > e^k)
+$$
+
+Since $X \sim \text{Beta}(1,1) = \text{Uniform}(0,1)$ under $\theta_0 = 1$, we have:
+
+$$
+P(x > e^k) = 1 - e^k = \alpha \quad \rightarrow \quad e^k = 1 - \alpha \quad \rightarrow \quad k = \ln(1 - \alpha)
+$$
+
+Thus, the MP test is:
+
+$$
+\varphi(x) = 
+\begin{cases}
+1 & \text{if } x > 1 - \alpha \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+### Alternative Method
+
+Note: The following is based on usage of language/ideas from Casella. After discussing with Dr. Nordman, the method used is correct for this problem, but unnecessary compared to the first approach used above, particularly regarding the usage of Karlin-Rubin.
+
 We start by checking whether the likelihood ratio is monotonic. To that end, for $\theta_2 > \theta_1$, the likelihood ratio is given by:
 
 $$
@@ -595,7 +579,7 @@ $$
 
 Since $\theta_2 - \theta_1 > 0$ and $x \in (0,1)$, the function $x^{\theta_2 - \theta_1}$ is increasing in $x$, which in turn means the likelihood ratio $\Lambda$ is increasing in $x$, which in turn means the family has a monotone likelihood ratio in $x$.
 
-(Side Note: The following is based on usage of language/ideas from Casella. After discussing with Dr. Nordman, the language preferred is to simply advance from "We have MLR" into the "(U)MP test of size $\alpha$". That being said, to elaborate further: "Importantly, the family having a MLR in $x$ allows us to utilize Karlin-Rubin, i.e. the test that rejects for large values of $X$ is UMP for $H_0: \theta \leq 1$ vs $H_1: \theta > 1$.")
+Importantly, the family having a MLR in $x$ allows us to utilize Karlin-Rubin, i.e. the test that rejects for large values of $X$ is UMP for $H_0: \theta \leq 1$ vs $H_1: \theta > 1$.
 
 We choose $t$ such that:
 
@@ -612,7 +596,7 @@ $$
 From part b), the MP test for $\theta = 1$ vs $\theta = 2$ was given by:  
 
 $$
-\phi_{H_0}(X) = 
+\varphi_{H_0}(X) = 
 \begin{cases}
 1 &  X > 1 - \alpha \\
 0 & \text{otherwise}
@@ -624,9 +608,9 @@ Which notably does not include the $\theta$ value! Because of this, it is UMP fo
 So the UMP level-$\alpha$ test is the same as the MP test in part b):  
 
 $$
-\phi(X) = 
+\varphi(x) = 
 \begin{cases}
-1 & \text{if } X > 1 - \alpha \\
+1 & \text{if } x > 1 - \alpha \\
 0 & \text{otherwise}
 \end{cases}
 $$
