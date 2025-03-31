@@ -45,65 +45,110 @@ $$
 
 **(a)** Is $\alpha_1$ estimable? Show work to justify why it is or is not estimable.
 
-```{r, eval = T, echo=FALSE, fig.cap="Ch. 2: Some Key Linear Models Results", out.width="100%"}
-knitr::include_graphics("4a.png")
-```
+By definition, a parameter $c^T \boldsymbol{\beta}$ is estimable if $c^T \in \text{row space}(\mathbf{X})$, i.e., if there exists a vector $\mathbf{a}^T$ such that:
 
-The definition of estimability is given above as first defined in Chapter 2 of lecture ntoes. 
+$$
+c^T = \mathbf{a}^T \mathbf{X}
+$$
 
-For $\alpha_1$: Can we find a matrix $A$ to satisfy the above? 
-
-We have: 
+Then, to determine whether $\alpha_1$ is estimable, consider:
 
 $$
 c^T = \begin{bmatrix} 0 & 1 & 0 \end{bmatrix}
 $$
 
-There in fact does not exist a matrix A such that:
+The matrix $\mathbf{X}$ has only two linearly independent rows (has rank 2), so its row space is spanned by:
 
 $$
-C = A \mathbf{X}
+\text{span} \left\{ (1, 1, 0), \; (1, 0, 1) \right\}
 $$
 
-This means that $\alpha_1$ is not estimable (this is also descriptively found by noting that the matrix C is not in row space of $\mathbf{X}$). 
+To test whether $c^T = (0, 1, 0)$ lies in this row space, we ask whether there exist scalars $a, b$ such that:
 
-Generally, parameters (elements of the $\beta$ vector) are only estimable if they can be expressed as a linear combination of the rows of the design matrix, $\mathbf{X}$. For our purposes, the model matrix does not have full rank, so we know there are elements of the parameter vector that are not estimable, though we still have linear combinations that are (more on that in the following). 
+$$
+(0, 1, 0) = a(1, 1, 0) + b(1, 0, 1)
+$$
+
+This gives the system of linear equations:
+
+$$
+\begin{aligned}
+0 &= a + b \\
+1 &= a \\
+0 &= b
+\end{aligned}
+\quad \Rightarrow \quad a = 1, \; b = 0 \quad \Rightarrow \quad a + b = 1 \neq 0
+$$
+
+As we have arrived at a contradiction, there are no such real-valued $a, b$ that exist to solve the system of equations. Therefore, $c^T \notin \text{row space}(\mathbf{X})$, and $\alpha_1$ is not estimable.
 
 ---
 
-**(b)** Provide a quantity that is estimable. $\alpha_1 - \alpha_2$ or $\mu + \alpha_1$.
+**(b)** Provide a quantity that is estimable. 
 
-We again utilize the above definition to determine estimability. We find there are more than one quantity (linear combination of parameters) that are estimable, despite our design matrix not being full rank. Two examples: 
+Both $\alpha_1 - \alpha_2$ and $\mu + \alpha_1$ are estimable quantities.
 
-For $\alpha_1 - \alpha_2$, an estimable quantity:
-
-$$
-c^T = \begin{bmatrix} 0 & 1 & -1 \end{bmatrix} = 1 \cdot \begin{bmatrix}1 & 1 & 0\end{bmatrix} + (-1) \cdot \begin{bmatrix}1 & 0 & 1\end{bmatrix}
-$$
-
-The corresponding matrix $A$ (a row vector) satisfying $C = A \mathbf{X}$ is:
+By definition, a linear combination $c^T \boldsymbol{\beta}$ is estimable if and only if $c^T \in \text{row space}(\mathbf{X})$, i.e., if there exists a vector $\mathbf{a}^T$ such that:
 
 $$
-A =
-\begin{bmatrix}
-1 & 0 & -1 & 0
-\end{bmatrix}
+c^T = \mathbf{a}^T \mathbf{X}
 $$
 
-Another estimable quantity, $\mu + \alpha_1$ has C matrix:
+(1): For $\alpha_1 - \alpha_2$
+
+This corresponds to:
+
+$$
+c^T = \begin{bmatrix} 0 & 1 & -1 \end{bmatrix}
+$$
+
+We want to find $c^T$ as a linear combination of two independent rows of $\mathbf{X}$:
+
+Row 1: $\mathbf{x}_1^T = (1, 1, 0)$
+
+Row 3: $\mathbf{x}_3^T = (1, 0, 1)$
+
+Then:
+
+$$
+\begin{aligned}
+c^T &= (0, 1, -1) \\
+&= 1 \cdot (1, 1, 0) + (-1) \cdot (1, 0, 1) \\
+&= (1, 1, 0) - (1, 0, 1) = (0, 1, -1)
+\end{aligned}
+$$
+
+So there exists a linear combination to satisfy the expression. 
+
+Then, the corresponding $\mathbf{a}^T$ satisfying $c^T = \mathbf{a}^T \mathbf{X}$ is:
+
+$$
+\mathbf{a}^T = \begin{bmatrix} 1 & 0 & -1 & 0 \end{bmatrix}
+$$
+
+And we conclude that $\alpha_1 - \alpha_2$ is an estimable quantity.
+
+(2) For $\mu + \alpha_1$
+
+This corresponds to:
 
 $$
 c^T = \begin{bmatrix} 1 & 1 & 0 \end{bmatrix}
 $$
 
-But this is just the first row of $\mathbf{X}$! So the corresponding A matrix is:
+This is exactly the same as the first row of $\mathbf{X}$, so:
 
 $$
-A =
-\begin{bmatrix}
-1 & 0 & 0 & 0
-\end{bmatrix}
+c^T = \mathbf{e}_1^T \mathbf{X}, \quad \text{where } \mathbf{e}_1^T = \begin{bmatrix} 1 & 0 & 0 & 0 \end{bmatrix}
 $$
+
+So the corresponding $\mathbf{a}^T$ is:
+
+$$
+\mathbf{a}^T = \begin{bmatrix} 1 & 0 & 0 & 0 \end{bmatrix}
+$$
+
+And we also have the quantity $\mu + \alpha_1$ is also estimable.
 
 \newpage 
 
@@ -193,6 +238,8 @@ In a Gauss-Markov version of this model, $\beta_1$ can be estimated with the gre
 
 $\beta_1$ corresponds to the first column of the design matrix, $\mathbf{X}$, which has the largest diagonal entry in $\mathbf{X}^T \mathbf{X}$, corresponding to the 5 rows we can use in estimating $\beta_1$. This means we have more information to estimate $\beta_1$ which in turn corresponds to a smaller variance in estimation. 
 
+Another way to think about this: When multiplying the matrices $\mathbf{X} \mathbf{\beta}$, all five rows of the original design matrix contain "information" on $\beta_1$, and the first row of the design matrix contains no "information" on $\beta_2$ and $\beta_3$, hence why the diagonal matrix below has only "4" in the diagonal entries [2,2] and [3,3]. So, by contrast, the other two parameter vectors, $\beta_2$ and $\beta_3$ can only be estimated using 4 of the rows, so they use comparatively less information and would have greater variance, less precision. 
+
 Calculating explicitly: 
 
 $$
@@ -203,8 +250,6 @@ $$
 0 & 0 & 4
 \end{pmatrix}
 $$
-
-By contrast, the other two parameter vectors, $\beta_2$ and $\beta_3$ can only be estimated using 4 of the rows, so they use comparatively less information and would have greater variance, less precision. 
 
 **(b)** Suppose $\mathbf{y}$ is such that $\text{SSE} = 3$ and $\hat{\boldsymbol{\beta}} = (5 \; 6 \; 2)^T$. Consider an analysis under the Gauss-Markov model with Normal errors and the following two null hypotheses:
 
@@ -220,43 +265,63 @@ $$
 E[y_i] = \mathbf{x}_i^\top \boldsymbol{\beta}
 $$
 
-Row 1: $y_1$, $\mathbf{x}_1^\top = (1, 0, 0) \Rightarrow \mathbb{E}[y_1] = \beta_1$
+Row 1: $y_1$, $\mathbf{x}_1^\top = (1, 0, 0)$
 
-Row 2: $y_2$, $\mathbf{x}_2^\top = (1, -1, -1) \Rightarrow \mathbb{E}[y_2] = \beta_1 - \beta_2 - \beta_3$
+Giving: $E[y_1] = \beta_1$
 
-Row 5: $y_5$, $\mathbf{x}_5^\top = (1, 1, 1) \Rightarrow \mathbb{E}[y_5] = \beta_1 + \beta_2 + \beta_3$
+Row 2: $y_2$, $\mathbf{x}_2^\top = (1, -1, -1)$ 
 
-For $H_{0,1}: \mathbb{E}[y_1] = \mathbb{E}[y_2]$
+Giving: $E[y_2] = \beta_1 - \beta_2 - \beta_3$
+
+Row 5: $y_5$, $\mathbf{x}_5^\top = (1, 1, 1)$ 
+
+Giving: $E[y_5] = \beta_1 + \beta_2 + \beta_3$
+
+Using the above expectations, we now turn to the hypotheses:
+
+Base Formula: 
 
 $$
-\beta_1 = \beta_1 - \beta_2 - \beta_3 \rightarrow
-0 = -\beta_2 - \beta_3 \rightarrow
+\mathbf{C} \mathbf{\beta} = \mathbf{0}
+$$
+
+And then solving for the matrix $\mathbf{C}$, we go row-by-row: 
+
+(1): For $H_{0,1}: E[y_1] = E[y_2]$:
+
+$$
+\beta_1 = \beta_1 - \beta_2 - \beta_3 \rightarrow 
+0 = -\beta_2 - \beta_3 \rightarrow 
+[0 \;\; -1 \;\; -1] \boldsymbol{\beta} = 0
+$$
+
+(2): For $H_{0,2}: E[y_1] = E[y_5]$:
+
+$$
+\beta_1 = \beta_1 + \beta_2 + \beta_3 \rightarrow 
+0 = \beta_2 + \beta_3 \rightarrow 
 [0 \;\; 1 \;\; 1] \boldsymbol{\beta} = 0
 $$
 
-For $H_{0,2}: \mathbb{E}[y_1] = \mathbb{E}[y_5]$
+Combining both of the hypotheses together, we have:
 
 $$
-\beta_1 = \beta_1 + \beta_2 + \beta_3 \rightarrow
-0 = \beta_2 + \beta_3 \rightarrow
-[0 \;\; 1 \;\; 1] \boldsymbol{\beta} = 0
-$$
-
-Taken together, we have: 
-
-$$
-\mathbf{C} = \begin{pmatrix}
+\mathbf{C} = 
+\begin{pmatrix}
+0 & -1 & -1 \\
 0 & 1 & 1
 \end{pmatrix}
 $$
 
-Noting we can have a matrix $\mathbf{C}$ with just one row for this problem uniquely determined by the above linear combinations simplifying to the same expressions. 
+Notably, in the above, the two rows are linearly dependent. 
 
 ii. Based on $\mathbf{C}$ compute an $F$ statistic for testing $H_0$ (you need not do the arithmetic, but plug correct numbers into a correct formula).
 
 ```{r, eval = T, echo=FALSE, fig.cap="F-Statistic Definition", out.width="100%"}
 knitr::include_graphics("FStat.png")
 ```
+
+Where $\mathbf{d} = \mathbf{0}$ for the purposes of this problem. 
 
 To test the hypothesis $H_0: \mathbf{C} \boldsymbol{\beta} = 0$, we the F-statistic defined by:
 
@@ -266,35 +331,36 @@ $$
 
 With the following known values already calculated:
 
-  - $\mathbf{C} = \begin{pmatrix} 0 & 1 & 1 \end{pmatrix}$ From part ii). 
-  - $\hat{\boldsymbol{\beta}} = \begin{pmatrix} 5 \\ 6 \\ 2 \end{pmatrix}$ As given in the beginning of the problem
-  - $\mathbf{X}^T \mathbf{X} = \begin{pmatrix} 5 & 0 & 0 \\ 0 & 4 & 0 \\ 0 & 0 & 4 \end{pmatrix}$ As calculated in part a). 
-  - $q = 1$ (the number of constraints, as given from the number of rows in our matrix $\mathbf{C}$
-  - MSE = $\text{SSE} / (n - p) = 3 / (5 - 3) = 3 / 2 = 1.5$ where SSE was given and the denominator calculated using known information.
+  - $\mathbf{C} = \begin{pmatrix} 0 & -1 & -1 \end{pmatrix}$ from part i), and using the constraint $E[y_1] = E[y_2]$
+  - $\hat{\boldsymbol{\beta}} = \begin{pmatrix} 5 \\ 6 \\ 2 \end{pmatrix}$ as given in the beginning of the problem
+  - $\mathbf{X}^T \mathbf{X} = \begin{pmatrix} 5 & 0 & 0 \\ 0 & 4 & 0 \\ 0 & 0 & 4 \end{pmatrix}$ as calculated in part a)
+  - $q = 1$ (the number of linearly independent constraints, determined from the rank of $\mathbf{C}$)
+  - $\text{MSE} = \text{SSE} / (n - p) = 3 / (5 - 3) = 3 / 2 = 1.5$, where SSE was given and the denominator calculated using known information.
 
-Computing this value directly then, and noting known method for finding the inverse of a 3x3 matrix, we have: 
+Computing this value directly, and noting the method for finding the inverse of a diagonal matrix, we have:
 
-$\mathbf{C} \hat{\boldsymbol{\beta}} = 0 \cdot 5 + 1 \cdot 6 + 1 \cdot 2 = 8$
-
-And: 
+$$
+\mathbf{C} \hat{\boldsymbol{\beta}} = 0 \cdot 5 + (-1) \cdot 6 + (-1) \cdot 2 = -8
+$$
 
 $$
 \mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T = 
-\begin{pmatrix} 0 & 1 & 1 \end{pmatrix}
+\begin{pmatrix} 0 & -1 & -1 \end{pmatrix}
 \begin{pmatrix} 
 1/5 & 0 & 0 \\
 0 & 1/4 & 0 \\
 0 & 0 & 1/4
 \end{pmatrix}
-\begin{pmatrix} 0 \\ 1 \\ 1 \end{pmatrix}
+\begin{pmatrix} 0 \\ -1 \\ -1 \end{pmatrix}
 = 1/4 + 1/4 = 1/2
 $$
 
 Combining the computations, the F-statistic is then given by:
 
 $$
-F = \frac{8^2 / 1}{(1/2) \cdot 1.5} = \frac{64}{0.75} = 85.33
+F = \frac{(-8)^2 / 1}{(1/2) \cdot 1.5} = \frac{64}{0.75} = 85.33
 $$
+
 
 \newpage
 
