@@ -254,66 +254,42 @@ $$
 **(b)** Suppose $\mathbf{y}$ is such that $\text{SSE} = 3$ and $\hat{\boldsymbol{\beta}} = (5 \; 6 \; 2)^T$. Consider an analysis under the Gauss-Markov model with Normal errors and the following two null hypotheses:
 
 $$
-H_{0,1}: E(y_1) = E(y_2) \quad \text{and} \quad H_{0,2}: E(y_1) = E(y_5)
+H_{0,1}: E(y_1) = E(y_2) \quad \text{and} \quad H_{0,2}: E(y_1) = E(y_3)
 $$
 
 i. Write $H_{0,1}$ and $H_{0,2}$ in testable form $H_0 : \mathbf{C} \boldsymbol{\beta} = 0$ by identifying an appropriate matrix $\mathbf{C}$. (**Hint:** Start out by expressing each expected value as a function of $\boldsymbol{\beta}$ given $\mathbf{X}$ and $\boldsymbol{\beta}$ as defined above.)
 
-From the model, the expected value for each observation is given by:
+We are given:
 
 $$
-E[y_i] = \mathbf{x}_i^\top \boldsymbol{\beta}
+H_{0,1}: E[y_1] = E[y_2], \quad H_{0,2}: E[y_1] = E[y_3]
 $$
 
-Row 1: $y_1$, $\mathbf{x}_1^\top = (1, 0, 0)$
+The associated expected values of the rows of note are:
 
-Giving: $E[y_1] = \beta_1$
+$E[y_1] = \beta_1$
 
-Row 2: $y_2$, $\mathbf{x}_2^\top = (1, -1, -1)$ 
+$E[y_2] = \beta_1 - \beta_2 - \beta_3$
 
-Giving: $E[y_2] = \beta_1 - \beta_2 - \beta_3$
+$E[y_3] = \beta_1 + \beta_2 - \beta_3$
 
-Row 5: $y_5$, $\mathbf{x}_5^\top = (1, 1, 1)$ 
+This gives us two constraints: 
 
-Giving: $E[y_5] = \beta_1 + \beta_2 + \beta_3$
+$E[y_1] - E[y_2] = 0 \rightarrow -\beta_2 - \beta_3 = 0$
 
-Using the above expectations, we now turn to the hypotheses:
+And
 
-Base Formula: 
+$E[y_1] - E[y_3] = 0 \rightarrow -\beta_2 + \beta_3 = 0$
 
-$$
-\mathbf{C} \mathbf{\beta} = \mathbf{0}
-$$
-
-And then solving for the matrix $\mathbf{C}$, we go row-by-row: 
-
-(1): For $H_{0,1}: E[y_1] = E[y_2]$:
+Combining both rows together gives us $\mathbf{C}$, given by:
 
 $$
-\beta_1 = \beta_1 - \beta_2 - \beta_3 \rightarrow 
-0 = -\beta_2 - \beta_3 \rightarrow 
-[0 \;\; -1 \;\; -1] \boldsymbol{\beta} = 0
-$$
-
-(2): For $H_{0,2}: E[y_1] = E[y_5]$:
-
-$$
-\beta_1 = \beta_1 + \beta_2 + \beta_3 \rightarrow 
-0 = \beta_2 + \beta_3 \rightarrow 
-[0 \;\; 1 \;\; 1] \boldsymbol{\beta} = 0
-$$
-
-Combining both of the hypotheses together, we have:
-
-$$
-\mathbf{C} = 
+\mathbf{C} =
 \begin{pmatrix}
 0 & -1 & -1 \\
-0 & 1 & 1
+0 & -1 & 1
 \end{pmatrix}
 $$
-
-Notably, in the above, the two rows are linearly dependent. 
 
 ii. Based on $\mathbf{C}$ compute an $F$ statistic for testing $H_0$ (you need not do the arithmetic, but plug correct numbers into a correct formula).
 
@@ -321,46 +297,51 @@ ii. Based on $\mathbf{C}$ compute an $F$ statistic for testing $H_0$ (you need n
 knitr::include_graphics("FStat.png")
 ```
 
-Where $\mathbf{d} = \mathbf{0}$ for the purposes of this problem. 
-
-To test the hypothesis $H_0: \mathbf{C} \boldsymbol{\beta} = 0$, we the F-statistic defined by:
+The formula we use is: 
 
 $$
-F = \frac{(\mathbf{C}\hat{\boldsymbol{\beta}})^T \left[ \mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T \right]^{-1} (\mathbf{C}\hat{\boldsymbol{\beta}}) / q}{\text{MSE}}
+F = \frac{(\mathbf{C} \hat{\boldsymbol{\beta}})^T \left[ \mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T \right]^{-1} (\mathbf{C} \hat{\boldsymbol{\beta}})/q}{\text{MSE}}
 $$
 
-With the following known values already calculated:
+Where $\mathbf{d} = \mathbf{0}$, and we have known values:
 
-  - $\mathbf{C} = \begin{pmatrix} 0 & -1 & -1 \end{pmatrix}$ from part i), and using the constraint $E[y_1] = E[y_2]$
-  - $\hat{\boldsymbol{\beta}} = \begin{pmatrix} 5 \\ 6 \\ 2 \end{pmatrix}$ as given in the beginning of the problem
-  - $\mathbf{X}^T \mathbf{X} = \begin{pmatrix} 5 & 0 & 0 \\ 0 & 4 & 0 \\ 0 & 0 & 4 \end{pmatrix}$ as calculated in part a)
-  - $q = 1$ (the number of linearly independent constraints, determined from the rank of $\mathbf{C}$)
-  - $\text{MSE} = \text{SSE} / (n - p) = 3 / (5 - 3) = 3 / 2 = 1.5$, where SSE was given and the denominator calculated using known information.
+  - $\hat{\boldsymbol{\beta}} = \begin{pmatrix} 5 \\ 6 \\ 2 \end{pmatrix}$
+  - $\mathbf{X}^T \mathbf{X}^{-1} = \text{diag}(1/5, 1/4, 1/4)$
+  - $\text{SSE} = 3$, so $\text{MSE} = \frac{3}{5 - 3} = 1.5$
+  - $\mathbf{C} \hat{\boldsymbol{\beta}} = \begin{pmatrix} -6 - 2 \\ -6 + 2 \end{pmatrix} = \begin{pmatrix} -8 \\ -4 \end{pmatrix}$
+  - $q = \text{rank}(\mathbf{C}) = 2$
 
-Computing this value directly, and noting the method for finding the inverse of a diagonal matrix, we have:
-
-$$
-\mathbf{C} \hat{\boldsymbol{\beta}} = 0 \cdot 5 + (-1) \cdot 6 + (-1) \cdot 2 = -8
-$$
+Computing the F statistic directly, we have the following quantities:
 
 $$
 \mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T = 
-\begin{pmatrix} 0 & -1 & -1 \end{pmatrix}
-\begin{pmatrix} 
+\begin{pmatrix}
+0 & -1 & -1 \\
+0 & -1 & 1
+\end{pmatrix}
+\begin{pmatrix}
 1/5 & 0 & 0 \\
 0 & 1/4 & 0 \\
 0 & 0 & 1/4
 \end{pmatrix}
-\begin{pmatrix} 0 \\ -1 \\ -1 \end{pmatrix}
-= 1/4 + 1/4 = 1/2
+\begin{pmatrix}
+0 & 0 \\
+-1 & -1 \\
+-1 & 1
+\end{pmatrix}
+= 
+\begin{pmatrix}
+1/2 & 0 \\
+0 & 1/2
+\end{pmatrix}
 $$
 
-Combining the computations, the F-statistic is then given by:
+Then:
 
 $$
-F = \frac{(-8)^2 / 1}{(1/2) \cdot 1.5} = \frac{64}{0.75} = 85.33
+F = \frac{(-8, -4) \begin{pmatrix} 2 & 0 \\ 0 & 2 \end{pmatrix} \begin{pmatrix} -8 \\ -4 \end{pmatrix} / 2}{1.5} = 
+\frac{( -8^2 \cdot 2 + (-4)^2 \cdot 2 ) / 2}{1.5} = \frac{(128 + 32)/2}{1.5} = \frac{160/2}{1.5} = \frac{80}{1.5} = 53.33
 $$
-
 
 \newpage
 
@@ -376,28 +357,24 @@ knitr::include_graphics("FStatNonCentral.png")
 
 \newpage
 
-Under the null hypothesis $H_0: \mathbf{C} \boldsymbol{\beta} = 0$, the F-statistic:
+Under $H_0: \mathbf{C} \boldsymbol{\beta} = 0$, the $F$-statistic follows:
 
 $$
-F = \frac{(\mathbf{C}\hat{\boldsymbol{\beta}})^T \left[ \mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T \right]^{-1} (\mathbf{C}\hat{\boldsymbol{\beta}}) / q}{\text{MSE}}
+F \sim F_{2, 2}(0)
 $$
 
-follows a central F-distribution with Numerator degrees of freedom: $q = 1$ and Denominator degrees of freedom: $n - p = 5 - 3 = 2$ (central meaning a non-central parameter of 0), i.e.:
+Our F-statistic under the null hypothesis has numerator df = $q = 2$, denominator df = $n - p = 2$, and noncentrality parameter = $0$. 
+
+Under the alternative hypothesis, the numerator and denominator df don't change, but our $F_{2,2}$ now has noncentrality parameter:
 
 $$
-H_0: F \sim F_{1, 2}(0)
+F \sim F_{2, 2}(\lambda)
 $$
 
-Under the Alternative Hypothesis, the F-statistic follows a non-central F-distribution with the same numerator and denominator degrees of freedom, i.e.:
+Where: 
 
 $$
-H_{a}: F \sim F_{1, 2}(\lambda)
-$$
-
-Where the non-centrality parameter $\lambda$ is defined as:
-
-$$
-\lambda = \frac{(\mathbf{C} \boldsymbol{\beta})^T \left[ \mathbf{C} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T \right]^{-1} (\mathbf{C} \boldsymbol{\beta})}{\sigma^2}
+\lambda = \frac{(\mathbf{C} \boldsymbol{\beta})^T [\mathbf{C}(\mathbf{X}^T \mathbf{X})^{-1} \mathbf{C}^T]^{-1} (\mathbf{C} \boldsymbol{\beta})}{\sigma^2}
 $$
 
 \newpage
@@ -456,39 +433,42 @@ $H_a$: At least one treatment mean differs from the treatment mean of the other 
 
 By default the estimate of $\beta_2 = \mu_2 - \mu_1$ due to the R baseline constraint, as noted more in part a). Additionally, R by default and as specified provides the OLS estimated effects, which are BLUE as they correspond to the normal equations under GMM. That is all to say: 
 
-The BLUE of $\mu_2$ is the estimated expression using "intercept + coefficient", which corresponds to $\hat{\mu}_2$ = 2.32 + 2.41 = 4.73.
+The BLUE of $\mu_2$ is the estimated expression using "intercept + coefficient", which corresponds to $\hat{\mu}_2$ = $\hat{\beta_1} + \hat{\beta_2}$ = 2.32 + 2.41 = 4.73.
 
 **(d)** What is the standard error of the BLUE of $\mu_2$?
 
-The standard error of the BLUE of $\mu_2$ is 0.8747, as given in the R output.
+To get $\mu_2$ using the model equations, we have: 
+
+$$
+\mu_2 = \mu_1 + (\mu_2 - \mu_1) = \beta_0 + \beta_2
+$$
+
+So the BLUE of $\mu_2$ is $\hat{\mu}_2 = \hat{\beta}_0 + \hat{\beta}_2$, and the standard error is taken from the formula:
+
+$$
+\text{SE}(\hat{\mu}_2) = \text{SE}(\hat{\beta}_0 + \hat{\beta}_2) = \sqrt{\text{Var}(\hat{\beta}_0) + \text{Var}(\hat{\beta}_2)}
+$$
+
+Using known values from the output: 
+
+$$
+\text{SE}(\hat{\mu_2}) = \sqrt{(0.6185^2) + (0.8747^2)} = 1.0713
+$$
 
 **(e)** Provide the BLUE of $\mu_1 - \mu_2$:
 
-Under R’s default treatment contrast coding, the model fitted with `lm(y ~ factor(amt))` uses the first level of the factor as the baseline, which is for `amt == 0`. 
-
-The model is of the form:
+From the expressions of the model:
 
 $$
-y_{ij} = \beta_0 + \beta_2 \cdot \mathbb{1}_{\text{amt}=2} + \beta_3 \cdot \mathbb{1}_{\text{amt}=4} + \dots + \varepsilon_{ij},
+\mu_2 - \mu_1 = \hat{\beta}_2 \Rightarrow \mu_1 - \mu_2 = -\hat{\beta}_2
 $$
 
-Mean of treatment one is given by $\beta_0 = \mu_1$
-
-However, mean of treatment two is not $\beta_2$, as $\beta_2 = \mu_2 - \mu_1$.
-
-So we must consider a linear combination of rows in the $\beta$ vector to get at $\mu_1 - \mu_2$. To that end: 
+Substituting known values from the output:
 
 $$
-\mu_1 - \mu_2 = \mu_1 - (\mu_1 + \beta_2) = -\beta_2
+\hat{\beta}_2 = 2.41 \Rightarrow \mu_1 - \mu_2 = -2.41
 $$
 
-So, the BLUE of $\mu_1 - \mu_2$ is:
-
-$$
--\hat{\beta}_2 = -2.41
-$$
-
-Using the above output
 
 **(f)** What is the standard error of the BLUE of $\mu_1 - \mu_2$?
 
