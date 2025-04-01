@@ -6,10 +6,10 @@ author: "Sam Olson"
 
 # Outline 
 
-  - Q1: Skeleton
-  - Q2: Skeleton
-  - Q3: Skeleton
-  - Q4: Skeleton
+  - Q1: Edits
+  - Q2: Edits
+  - Q3: Edits
+  - Q4: Edits
 
 # Q1 
 
@@ -27,6 +27,32 @@ $$
 
 ### Answer
 
+The likelihood ratio is:
+
+$$
+\lambda(x, y) = \frac{\sup_{\theta} L(\theta | x, y)}{\sup_{\theta, \mu} L(\theta, \mu | x, y)}
+$$
+
+Under $H_0$ ($\theta = \mu$), the MLE is:
+
+$$
+\hat{\theta}_0 = \frac{\sum X_i + \sum Y_j}{n + m}
+$$
+
+Under the full model, the MLEs are:
+
+$$
+\hat{\theta} = \bar{X}, \quad \hat{\mu} = \bar{Y}
+$$
+
+The test statistic simplifies to:
+
+$$
+\lambda(x, y) = \frac{(n+m)^{n+m} (\sum X_i)^n (\sum Y_j)^m}{n^n m^m (\sum X_i + \sum Y_j)^{n+m}}
+$$
+
+Rejection rule: Reject $H_0$ if $\lambda(x, y) \leq c$.
+
 ## b) 
 
 Show that the test in part a) can be based on the statistic
@@ -36,6 +62,19 @@ T = \frac{\sum X_i}{\sum X_i + \sum Y_i}.
 $$
 
 ### Answer
+
+Let $T = \frac{\sum X_i}{\sum X_i + \sum Y_j}$. Then:
+
+$$
+\lambda(x, y) = \frac{(n+m)^{n+m}}{n^n m^m} T^n (1-T)^m
+$$
+
+Since $\lambda$ is a function of $T$ alone:
+
+- The test rejects when $T$ is too small or too large
+- Critical values satisfy $a^n(1-a)^m = b^n(1-b)^m$
+
+Thus, the LRT can be based entirely on $T$.
 
 \newpage
 
@@ -55,6 +94,20 @@ Show that this family has an MLR.
 
 ### Answer
 
+For $\theta_2 > \theta_1$, the likelihood ratio is:
+
+$$
+\frac{f(x|\theta_2)}{f(x|\theta_1)} = e^{\theta_1 - \theta_2} \left[ \frac{1 + e^{x-\theta_1}}{1 + e^{x-\theta_2}} \right]^2
+$$
+
+Taking the derivative of the ratio inside brackets:
+
+$$
+\frac{d}{dx}\left(\frac{1 + e^{x-\theta_1}}{1 + e^{x-\theta_2}}\right) = \frac{e^{x-\theta_1}(1+e^{x-\theta_2}) - e^{x-\theta_2}(1+e^{x-\theta_1})}{(1+e^{x-\theta_2})^2} > 0 \quad \text{for } \theta_2 > \theta_1
+$$
+
+Since the derivative is always positive, the likelihood ratio is strictly increasing in $x$. Therefore, the family has MLR.
+
 ## b) 
 
 Based on one observation $X$, find the most powerful size $\alpha$ test of
@@ -67,6 +120,36 @@ For $\alpha = 0.2$, find the size of the Type II error.
 
 ### Answer 
 
+By the Neyman-Pearson Lemma, the MP test rejects when:
+
+$$
+\frac{f(x|1)}{f(x|0)} = e^{-1}\left(\frac{1+e^x}{1+e^{x-1}}\right)^2 > k
+$$
+
+From part a), this is equivalent to rejecting when $x > k'$.
+
+Using the logistic CDF $F(x|\theta) = \frac{e^{x-\theta}}{1+e^{x-\theta}}$:
+
+1. Size $\alpha$ condition:
+
+$$
+P(X > k'|\theta=0) = 1-F(k'|0) = \frac{1}{1+e^{k'}} = \alpha
+$$
+
+$$
+\Rightarrow k' = \log\left(\frac{1-\alpha}{\alpha}\right)
+$$
+
+2. For $\alpha=0.2$:
+
+$$
+k' = \log(4) \approx 1.386
+$$
+
+$$
+\beta = P(X \leq k'|\theta=1) = F(1.386|1) \approx 0.595
+$$
+
 ## c) 
 
 Show that the test in part b) is UMP size $\alpha$ for testing
@@ -78,6 +161,12 @@ $$
 What can be said about UMP tests in general for the logistic location family?
 
 ### Answer 
+
+1. The family has MLR in $X$ (from part a)
+2. The test from part b) doesn't depend on the specific $\theta_1=1$ - it's of the form "reject when $X > c$"
+3. By Karlin-Rubin Theorem, this test is UMP size $\alpha$ for testing $H_0: \theta \leq 0$ vs $H_1: \theta > 0$
+
+General case: For the logistic location family, UMP tests exist for one-sided hypotheses due to the MLR property. The rejection region will always be of the form $\{X > c\}$ or $\{X < c\}$ depending on the direction of the alternative.
 
 \newpage
 
@@ -108,6 +197,29 @@ $$
 might not be monotone (either increasing or decreasing) in $x$.
 
 ### Answer 
+
+For $\theta_2 > \theta_1$, examine the likelihood ratio:
+
+$$
+\frac{f(x|\theta_2)}{f(x|\theta_1)} = \frac{1+(x-\theta_1)^2}{1+(x-\theta_2)^2}
+$$
+
+Key observations:
+
+1. Behavior at extremes:
+
+$$
+\lim_{x\to\pm\infty} \frac{f(x|\theta_2)}{f(x|\theta_1)} = 1
+$$
+   
+2. Non-monotonicity:
+
+   - The ratio achieves a maximum at finite $x$
+   - For example, with $\theta_1=0$, $\theta_2=1$:
+     - Ratio = 1 at $x=0$ and $x\to\infty$
+     - Ratio > 1 for some intermediate $x$
+
+Since the ratio is not monotone in $x$ for any $\theta_2 > \theta_1$, the family does not possess MLR.
 
 ## b)
 
@@ -141,14 +253,57 @@ and not rejecting otherwise. Conclude that this must be the most powerful (MP) t
 
 ### Answer 
 
+The given test:
+
+$$
+\phi(x) = \begin{cases} 
+1 & \text{if } 1 < x < 3 \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+Proof of MP property:
+1. By Neyman-Pearson, the MP test rejects when:
+
+$$
+\frac{f(x|1)}{f(x|0)} = \frac{1+x^2}{1+(x-1)^2} > k
+$$
+
+2. The ratio has critical points at $x=(1\pm\sqrt{5})/2$ and satisfies:
+
+$$
+\frac{f(1|1)}{f(1|0)} = \frac{f(3|1)}{f(3|0)} = 2
+$$
+   
+3. Thus $\{x: f(x|1)/f(x|0) > 2\} = (1,3)$ exactly matches $\phi(x)$
+
+Error probabilities:
+
+1. Type I error ($\alpha$):
+
+$$
+P(1<X<3|\theta=0) = \frac{1}{\pi}\left(\tan^{-1}(3) - \tan^{-1}(1)\right) \approx 0.1476
+$$
+
+2. Type II error ($\beta$):
+
+$$
+1 - P(1<X<3|\theta=1) = 1 - \frac{1}{\pi}\left(\tan^{-1}(2) - \tan^{-1}(0)\right) \approx 0.6476
+$$
+
+The test is MP because:
+
+- It implements the Neyman-Pearson rejection region exactly
+- No other test with $\alpha \approx 0.1476$ has smaller $\beta$
+
 \newpage
 
-## Q4
+# Q4
 
 Consider one observation $X$ from the probability density function
 
 $$
-f(x|\theta) = 1 - \theta^2 \left( x - \frac{1}{2} \right), \quad 0 \leq x \leq 1,\quad 0 \leq \theta \leq 1.
+f(x \mid \theta) = 1 - \theta^2 \left( x - \frac{1}{2} \right), \quad 0 \leq x \leq 1,\quad 0 \leq \theta \leq 1.
 $$
 
 We wish to test:
@@ -163,11 +318,77 @@ Find the UMP test of size $\alpha = 0.05$ based on $X$. Carefully justify your a
 
 ### Answer 
 
+1. Likelihood Ratio Analysis:  
+
+For $\theta_2 > \theta_1$, the likelihood ratio is:
+
+$$
+\frac{f(x \mid \theta_2)}{f(x \mid \theta_1)} = \frac{1 - \theta_2^2(x - \frac{1}{2})}{1 - \theta_1^2(x - \frac{1}{2})}
+$$
+
+2. Monotonicity Properties:
+
+   - For $x > \frac{1}{2}$: Ratio decreases in $x$ (since $x - \frac{1}{2} > 0$)
+   - For $x < \frac{1}{2}$: Ratio increases in $x$ (since $x - \frac{1}{2} < 0$)
+
+This shows the family has monotone likelihood ratio (MLR) in $T(X) = |X - \frac{1}{2}|$.
+
+3. UMP Test Construction:  
+
+By the Karlin-Rubin Theorem, the UMP test rejects for large values of $T(X)$. However, since:
+
+   - Under $H_0$ ($\theta = 0$): $X \sim \text{Uniform}(0,1)$
+   - The test that rejects when $X > c$ is most powerful
+
+4. Critical Value Calculation:
+
+$$
+P_{\theta = 0}(X > c) = 1 - c = 0.05 \quad \Rightarrow \quad c = 0.95
+$$
+
+Final UMP Test:
+
+$$
+\phi(x) = 
+\begin{cases} 
+1 & \text{if } x > 0.95 \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
 ## b)
 
 Find the likelihood ratio test statistic $\lambda(X)$ based on $X$, expressed as a function of $X$.
 
 ### Answer
+
+The LRT statistic is:
+
+$$
+\lambda(X) = \frac{f(X \mid 0)}{\sup_{\theta \in [0,1]} f(X \mid \theta)}
+$$
+
+1. Numerator: $f(X \mid 0) = 1$  
+
+2. Denominator:
+
+$$
+\sup_{\theta} f(X \mid \theta) = 
+\begin{cases} 
+1 - (X - \frac{1}{2}) & X < \frac{1}{2} \\
+1 & X \geq \frac{1}{2}
+\end{cases}
+$$
+
+Final LRT Statistic:
+
+$$
+\lambda(X) = 
+\begin{cases} 
+\frac{1}{1.5 - X} & X < \frac{1}{2} \\
+1 & X \geq \frac{1}{2}
+\end{cases}
+$$
 
 ## c)
 
@@ -175,3 +396,22 @@ Find the likelihood ratio test (LRT) of size $\alpha = 0.05$ for the above hypot
 
 ### Answer
 
+1. Rejection Region:  
+
+The test rejects when $\lambda(X) < c$, which occurs when: $X > k$ for some $k$ (since $\lambda(X) = 1$ for $X \geq \frac{1}{2}$)
+
+2. Size Condition:
+
+$$
+P_{\theta = 0}(X > k) = 1 - k = 0.05 \quad \Rightarrow \quad k = 0.95
+$$
+
+Final LRT: 
+
+Reject $H_0$ when $X > 0.95$
+
+### Note:
+
+The LRT coincides with the UMP test in this case, which occurs because:
+1. The family has the MLR property (though not in $X$ directly)
+2. Both tests are based on the same sufficient statistic ordering

@@ -46,28 +46,37 @@ For each of the subjects who received both drinks, the difference between the sc
 
 ### Answer
 
-Based on the model assumptions of $e_{ij} \overset{iid}{\sim} N(0, \sigma_e^2)$, for each subject $j = 1, \ldots, 20$,
+Given $e_{ij} \overset{iid}{\sim} N(0, \sigma_e^2)$, for each subject (experimental unit)
 
 $$
-\begin{aligned}
-d_j &= y_{1j} - y_{2j} \\
-&= \mu_1 + u_j + e_{1j} - (\mu_2 + u_j + e_{2j}) \\
-&= (\mu_1 - \mu_2) + e_{1j} - e_{2j}
-\end{aligned}
+d_j = y_{1j} - y_{2j} 
+= \mu_1 + u_j + e_{1j} - (\mu_2 + u_j + e_{2j}) 
+= (\mu_1 - \mu_2) + e_{1j} - e_{2j}
+$$
+
+Where: 
+
+$$
+E(d_j) = \mu_1 - \mu_2
 $$
 
 $$
-\begin{aligned}
-E(d_j) &= \mu_1 - \mu_2, \quad \text{Var}(d_j) = \text{Var}(e_{1j}) + \text{Var}(e_{2j}) = 2\sigma_e^2 \\
-\text{Cov}(d_j, d_{j'}) &= \text{Cov}(e_{1j} - e_{2j}, e_{1j'} - e_{2j'}) = 0 \quad \text{for } j \ne j'
-\end{aligned}
+\text{Var}(d_j) = \text{Var}(e_{1j}) + \text{Var}(e_{2j}) = 2\sigma_e^2
 $$
 
-Thus, $d_j \overset{iid}{\sim} N(\mu_1 - \mu_2, 2\sigma_e^2)$, which is a constant mean model:
+$$
+\text{Cov}(d_j, d_{j'}) = \text{Cov}(e_{1j} - e_{2j}, e_{1j'} - e_{2j'}) = 0 \quad \text{for } j \ne j'
+$$
+
+Thus, $d_j \overset{iid}{\sim} N(\mu_1 - \mu_2, 2\sigma_e^2)$,
+
+Where: 
 
 $$
-\boldsymbol{d} = \mathbf{1}[\mu_1 - \mu_2] + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim N(0, 2\sigma_e^2 \mathbf{I})
+\boldsymbol{d} = \mathbf{1_{20 \times 1}}[\mu_1 - \mu_2] + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim N(0, 2\sigma_e^2 \mathbf{I})
 $$
+
+And we can take advantage of describing the differences within the framework of a GMM. 
 
 ## b)
 
@@ -75,13 +84,19 @@ Suppose you were given only the differences $d_1, \ldots, d_{20}$ from part a). 
 
 ### Answer
 
-Let $\bar{d} = \frac{1}{20} \sum_{j=1}^{20} d_j$. Then $\bar{d} \sim N(\mu_d, \frac{\sigma_d^2}{20})$, where $\mu_d = \mu_1 - \mu_2$, $\sigma_d^2 = 2\sigma_e^2$.
+Let $\bar{d} = \frac{1}{20} \sum_{j=1}^{20} d_j$. 
 
-Under $H_0: \mu_d = 0$, the test statistic is:
+Then $\bar{d} \sim N(\mu_d, \frac{\sigma_d^2}{20})$, 
+
+Where $\mu_d = \mu_1 - \mu_2$, $\sigma_d^2 = 2\sigma_e^2$.
+
+Under $H_0: \mu_d = 0$, the test statistic is given by:
 
 $$
 t = \frac{\bar{d}}{\sqrt{\text{Var}(\bar{d})}} = \frac{\bar{d}}{\sqrt{\frac{\hat{\sigma}_d^2}{20}}} = \frac{\bar{d}}{\sqrt{\frac{1}{20} \cdot \frac{1}{19} \sum_{j=1}^{20} (d_j - \bar{d})^2}}
 $$
+
+With the corresponding F-statistic given by: 
 
 $$
 F = t^2 = \frac{380 \cdot \bar{d}^2}{\sum_{j=1}^{20} (d_j - \bar{d})^2}
@@ -99,8 +114,10 @@ $$
 t \sim t_{19} \left( \frac{\mu_d}{\sqrt{\sigma_d^2/20}} \right) \overset{d}{=} t_{19} \left( \frac{\mu_1 - \mu_2}{\sqrt{\sigma_e^2 / 10}} \right)
 $$
 
+And: 
+
 $$
-F \sim F_{1,19} \left( \frac{5(\mu_1 - \mu_2)^2}{\sigma_e^2} \right)
+F \sim F_{1,19} \left( \frac{5(\mu_1 - \mu_2)^2}{\sigma_e^2} \right) \overset{d}{=} F_{1,19} \left( \frac{10(\mu_1 - \mu_2)^2}{\sigma_d^2} \right)
 $$
 
 ## d)
@@ -109,7 +126,8 @@ Let $a_1, \ldots, a_{20}$ be the scores of the subjects who received only drink 
 
 ### Answer
 
-Model for all scores:
+The model for all scores is given by:
+
 $$
 \mathbf{y} = \left[ \mathbf{I}_{2\times2} \otimes \mathbf{1}_{20\times1} \right] 
 \begin{bmatrix}
@@ -119,9 +137,10 @@ $$
 + \boldsymbol{\epsilon}
 $$
 
-Let:
-- $a_j$ and $b_j$ be scores from groups 1 and 2
-- $\bar{a} = \frac{1}{20} \sum a_j$, $\bar{b} = \frac{1}{20} \sum b_j$
+Where:
+
+  - $a_j$ and $b_j$ be scores from groups 1 and 2
+  - $\bar{a} = \frac{1}{20} \sum a_j$, $\bar{b} = \frac{1}{20} \sum b_j$
 
 Then:
 
@@ -129,9 +148,13 @@ $$
 \text{Var}(\bar{a} - \bar{b}) = \text{Var}(\bar{a}) + \text{Var}(\bar{b}) = \frac{1}{10} (\sigma_u^2 + \sigma_e^2)
 $$
 
+And:
+
 $$
 \hat{\text{MSE}} = \frac{1}{380} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)
 $$
+
+Giving us the Confidence interval: 
 
 $$
 \text{CI}_{95\%} = (\bar{a} - \bar{b}) \pm t_{38, 0.975} \cdot \sqrt{ \frac{1}{380} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)}
@@ -145,25 +168,28 @@ Suppose you were given $d_1, \ldots, d_{20}$ from part (a) and $a_1, \ldots, a_{
 
 ### Answer
 
-From part b):
+From part b), we have:
 
 $$
 \hat{\sigma}_d^2 = 2\hat{\sigma}_e^2 = \frac{1}{19} \sum_{j=1}^{20}(d_j - \bar{d})^2
 $$
 
-From part d):
+From part d), we have:
 
 $$
 \sigma_u^2 + \sigma_e^2 = \frac{1}{38} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)
 $$
 
-Solving:
+We can treat this as a system of linear equations, such that we may solve for $\hat{\sigma}_e^2$ and $\hat{\sigma}_u^2$:
 
 $$
-\begin{cases}
-\hat{\sigma}_e^2 = \frac{1}{38} \sum_{j=1}^{20} (d_j - \bar{d})^2 \\
+\hat{\sigma}_e^2 = \frac{1}{38} \sum_{j=1}^{20} (d_j - \bar{d})^2
+$$
+
+And: 
+
+$$
 \hat{\sigma}_u^2 = \frac{1}{38} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right) - \hat{\sigma}_e^2
-\end{cases}
 $$
 
 ## f)
@@ -176,9 +202,6 @@ Both $\bar{d}$ and $\bar{a} - \bar{b}$ are independent unbiased estimators. So:
 
 $$
 \mu_1 - \mu_2 = \frac{\text{Var}^{-1}(\bar{d})}{\text{Var}^{-1}(\bar{d}) + \text{Var}^{-1}(\bar{a} - \bar{b})} \cdot \bar{d} + \frac{\text{Var}^{-1}(\bar{a} - \bar{b})}{\text{Var}^{-1}(\bar{d}) + \text{Var}^{-1}(\bar{a} - \bar{b})} \cdot (\bar{a} - \bar{b})
-$$
-
-$$
 = \frac{\sigma_u^2 + \sigma_e^2}{\sigma_u^2 + 2\sigma_e^2} \cdot \bar{d} + \frac{\sigma_e^2}{\sigma_u^2 + 2\sigma_e^2} \cdot (\bar{a} - \bar{b})
 $$
 
