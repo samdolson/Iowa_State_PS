@@ -54,29 +54,33 @@ d_j = y_{1j} - y_{2j}
 = (\mu_1 - \mu_2) + e_{1j} - e_{2j}
 $$
 
-Where: 
+Taking expectation: 
 
 $$
-E(d_j) = \mu_1 - \mu_2
+E(d_j) = E(y_{1j} - y_{2j}) = E(\mu_1 - \mu_2 + e_{1j}  - e_{2j}) = \mu_1 - \mu_2 + 0 - 0 = \mu_1 - \mu_2
 $$
 
+And Variance:
+
 $$
-\text{Var}(d_j) = \text{Var}(e_{1j}) + \text{Var}(e_{2j}) = 2\sigma_e^2
+\text{Var}(d_j) = \text{Var}(y_{1j} - y_{2j}) = \text{Var}(\mu_1 - \mu_2 + e_{1j}  - e_{2j}) = \text{Var}(e_{1j}) + \text{Var}(e_{2j}) = 2\sigma_e^2
 $$
+
+There is a Covariance to account for as well, however: 
 
 $$
 \text{Cov}(d_j, d_{j'}) = \text{Cov}(e_{1j} - e_{2j}, e_{1j'} - e_{2j'}) = 0 \quad \text{for } j \ne j'
 $$
 
-Thus, $d_j \overset{iid}{\sim} N(\mu_1 - \mu_2, 2\sigma_e^2)$,
+as our errors are all uncorrlated for $j=1, ..., 20$. So we may use our typical GMM, and say:
+
+$d_j \overset{iid}{\sim} N(\mu_1 - \mu_2, 2\sigma_e^2)$
 
 Where: 
 
 $$
-\boldsymbol{d} = \mathbf{1_{20 \times 1}}[\mu_1 - \mu_2] + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim N(0, 2\sigma_e^2 \mathbf{I})
+\boldsymbol{d} = \mathbf{1_{20 \times 1}}[\mu_1 - \mu_2] + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim N(0, 2\sigma_e^2 \mathbf{I}_{20 \times 20})
 $$
-
-And we can take advantage of describing the differences within the framework of a GMM. 
 
 ## b)
 
@@ -84,13 +88,27 @@ Suppose you were given only the differences $d_1, \ldots, d_{20}$ from part a). 
 
 ### Answer
 
-Let $\bar{d} = \frac{1}{20} \sum_{j=1}^{20} d_j$. 
+From part a), we have a GMM where: 
 
-Then $\bar{d} \sim N(\mu_d, \frac{\sigma_d^2}{20})$, 
+$d_j \overset{iid}{\sim} N(\mu_1 - \mu_2, 2\sigma_e^2)$
+
+Where: 
+
+$$
+\boldsymbol{d} = \mathbf{1_{20 \times 1}}[\mu_1 - \mu_2] + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim N(0, 2\sigma_e^2 \mathbf{I}_{20 \times 20})
+$$
+
+Taking this as given, we then can extend this via: 
+
+$\bar{d} = \frac{1}{20} \sum_{j=1}^{20} d_j$. 
+
+With known distribution (properties of normal distributions): 
+
+$\bar{d} \sim N(\mu_d, \frac{\sigma_d^2}{20})$, 
 
 Where $\mu_d = \mu_1 - \mu_2$, $\sigma_d^2 = 2\sigma_e^2$.
 
-Under $H_0: \mu_d = 0$, the test statistic is given by:
+Using the above, we can then turn to hypothesis testing, where $H_0: \mu_d = 0$, the test statistic is given by:
 
 $$
 t = \frac{\bar{d}}{\sqrt{\text{Var}(\bar{d})}} = \frac{\bar{d}}{\sqrt{\frac{\hat{\sigma}_d^2}{20}}} = \frac{\bar{d}}{\sqrt{\frac{1}{20} \cdot \frac{1}{19} \sum_{j=1}^{20} (d_j - \bar{d})^2}}
@@ -111,13 +129,13 @@ Fully state the exact distribution of the test statistic provided in part b).
 ### Answer
 
 $$
-t \sim t_{19} \left( \frac{\mu_d}{\sqrt{\sigma_d^2/20}} \right) \overset{d}{=} t_{19} \left( \frac{\mu_1 - \mu_2}{\sqrt{\sigma_e^2 / 10}} \right)
+t \sim t_{19} \left( \frac{\mu_d}{\sqrt{\sigma_d^2/20}} \right)
 $$
 
 And: 
 
 $$
-F \sim F_{1,19} \left( \frac{5(\mu_1 - \mu_2)^2}{\sigma_e^2} \right) \overset{d}{=} F_{1,19} \left( \frac{10(\mu_1 - \mu_2)^2}{\sigma_d^2} \right)
+F \sim F_{1,19} \left( \frac{10(\mu_1 - \mu_2)^2}{\sigma_d^2} \right)
 $$
 
 ## d)
@@ -126,10 +144,10 @@ Let $a_1, \ldots, a_{20}$ be the scores of the subjects who received only drink 
 
 ### Answer
 
-The model for all scores is given by:
+The model for all scores can be modeled via the typical linear model of the form: 
 
 $$
-\mathbf{y} = \left[ \mathbf{I}_{2\times2} \otimes \mathbf{1}_{20\times1} \right] 
+[a_1, ..., a_{20}, b_1, ..., b_{20} ]^{\top} = \mathbf{y} = \left[ \mathbf{I}_{2\times2} \otimes \mathbf{1}_{20\times1} \right] 
 \begin{bmatrix}
 \mu_1 \\
 \mu_2
@@ -139,8 +157,11 @@ $$
 
 Where:
 
-  - $a_j$ and $b_j$ be scores from groups 1 and 2
-  - $\bar{a} = \frac{1}{20} \sum a_j$, $\bar{b} = \frac{1}{20} \sum b_j$
+  - $\boldsymbol{\epsilon} \sim \mathcal{N}(0, (\sigma_u^2 + \sigma_e^2)\mathbf{I}_{40 \times 40})$
+  - rank(X) = 2
+  - $a_j$ and $b_j$ are scores from groups 1 and 2 resp., totaling 40 observations  
+  - $\bar{a} = \frac{1}{20} \sum a_j$, and $\bar{b} = \frac{1}{20} \sum b_j$
+  - BLUE is given by $\bar{a} - \bar{b}$
 
 Then:
 
@@ -148,13 +169,13 @@ $$
 \text{Var}(\bar{a} - \bar{b}) = \text{Var}(\bar{a}) + \text{Var}(\bar{b}) = \frac{1}{10} (\sigma_u^2 + \sigma_e^2)
 $$
 
-And:
+And our Margin of Error for the Confidence Interval is given by The MSE of the Markov Model, i.e.:
 
 $$
-\hat{\text{MSE}} = \frac{1}{380} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)
+\hat{\text{MSE}} = \frac{1}{10}\frac{1}{40-2} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right) = \frac{1}{380} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)
 $$
 
-Giving us the Confidence interval: 
+Giving the Confidence interval: 
 
 $$
 \text{CI}_{95\%} = (\bar{a} - \bar{b}) \pm t_{38, 0.975} \cdot \sqrt{ \frac{1}{380} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)}
@@ -164,32 +185,39 @@ $$
 
 ## e)
 
-Suppose you were given $d_1, \ldots, d_{20}$ from part (a) and $a_1, \ldots, a_{20}$ and $b_1, \ldots, b_{20}$ from part (d). Provide formulas for unbiased estimators of $\sigma^2_u$ and $\sigma^2_e$ as a function of these observations.
+Suppose you were given $d_1, \ldots, d_{20}$ from part a) and $a_1, \ldots, a_{20}$ and $b_1, \ldots, b_{20}$ from part d). Provide formulas for unbiased estimators of $\sigma^2_u$ and $\sigma^2_e$ as a function of these observations.
 
 ### Answer
 
-From part b), we have:
+From part b), we know:
 
 $$
-\hat{\sigma}_d^2 = 2\hat{\sigma}_e^2 = \frac{1}{19} \sum_{j=1}^{20}(d_j - \bar{d})^2
+\operatorname{Var}(d_j) = 2\sigma_e^2= 
+\hat{\sigma}_d^2 = \frac{1}{19} \sum_{j=1}^{20}(d_j - \bar{d})^2
+$$
+
+To isolate $\sigma_e^2$, we then have the expression:
+
+$$
+\hat{\sigma}_e^2 = \frac{1}{2} \cdot \frac{1}{19} \sum_{j=1}^{20}(d_j - \bar{d})^2 = \frac{1}{38} \sum_{j=1}^{20}(d_j - \bar{d})^2
 $$
 
 From part d), we have:
 
 $$
-\sigma_u^2 + \sigma_e^2 = \frac{1}{38} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)
+\widehat{\sigma_u^2 + \sigma_e^2} = \frac{1}{38} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)
 $$
 
-We can treat this as a system of linear equations, such that we may solve for $\hat{\sigma}_e^2$ and $\hat{\sigma}_u^2$:
+Solving for $\hat{\sigma}_u^2$ gives:
+
+Notationally, I think there is a minor note of assuming additivity, linearity of expectations such that $\widehat{\sigma_u^2 + \sigma_e^2} = \hat{\sigma}_u^2 + \hat{\sigma}_e^2$. 
+
+At any rate, we have a system of linear equations to solve for $\hat{\sigma}_u^2$ via: 
 
 $$
-\hat{\sigma}_e^2 = \frac{1}{38} \sum_{j=1}^{20} (d_j - \bar{d})^2
-$$
-
-And: 
-
-$$
-\hat{\sigma}_u^2 = \frac{1}{38} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right) - \hat{\sigma}_e^2
+\hat{\sigma}_u^2 = \hat{\sigma}_{\text{pooled}}^2 - \hat{\sigma}_e^2
+= \frac{1}{38} \left( \sum_{j=1}^{20}(a_j - \bar{a})^2 + \sum_{j=1}^{20}(b_j - \bar{b})^2 \right)
+- \frac{1}{38} \sum_{j=1}^{20}(d_j - \bar{d})^2
 $$
 
 ## f)
@@ -198,10 +226,14 @@ Suppose you were given $\bar{d}_\cdot = \sum_{i=1}^{20} d_i / 20$, $\bar{a}_\cdo
 
 ### Answer
 
-Both $\bar{d}$ and $\bar{a} - \bar{b}$ are independent unbiased estimators. So:
+Both $\bar{d}$ and $\bar{a} - \bar{b}$ are independent unbiased estimators of $\mu_1 - \mu_2$. 
+
+So the BLUE of $\mu_1 - \mu_2$ is a weighted average (a linear combination) of the terms $\bar{a}, \bar{b}, \text{ and } \bar{d}$ (no bar c, v sad). 
+
+We then need only identify an appropriate weighting scheme. To that end, we consider using inverse-variance weights, which are guaranteed to be positive and are motivated by the Gauss–Markov theorem: among all linear unbiased estimators, the one that minimizes variance assigns weights proportional to the inverse of each estimator's variance (to be honest this came to me via Survey Stats, I am less sure how explicitly this is covered in 5100).
 
 $$
-\mu_1 - \mu_2 = \frac{\text{Var}^{-1}(\bar{d})}{\text{Var}^{-1}(\bar{d}) + \text{Var}^{-1}(\bar{a} - \bar{b})} \cdot \bar{d} + \frac{\text{Var}^{-1}(\bar{a} - \bar{b})}{\text{Var}^{-1}(\bar{d}) + \text{Var}^{-1}(\bar{a} - \bar{b})} \cdot (\bar{a} - \bar{b})
+\widehat{\mu_1 - \mu_2} = \frac{\text{Var}^{-1}(\bar{d})}{\text{Var}^{-1}(\bar{d}) + \text{Var}^{-1}(\bar{a} - \bar{b})} \cdot \bar{d} + \frac{\text{Var}^{-1}(\bar{a} - \bar{b})}{\text{Var}^{-1}(\bar{d}) + \text{Var}^{-1}(\bar{a} - \bar{b})} \cdot (\bar{a} - \bar{b})
 = \frac{\sigma_u^2 + \sigma_e^2}{\sigma_u^2 + 2\sigma_e^2} \cdot \bar{d} + \frac{\sigma_e^2}{\sigma_u^2 + 2\sigma_e^2} \cdot (\bar{a} - \bar{b})
 $$
 
@@ -407,9 +439,10 @@ What conditions have to be fulfilled for the result in (2) to hold?
 
 What conditions have to be fulfilled for the result in (2) to hold?
 
-#### 1. 
+1. Constant Variance
+2. Uncorrelated Errors
 
-The first condition is multi-faceted, but I would say falls under the perview of the "Suppose..." from Slide 2 of the Chapter 12 Slides. That is, we assume: 
+Conditions 1 and 2 fall under the "Suppose..." from Slide 2 of the Chapter 12 Slides. That is, we assume: 
 
 $$
 \begin{bmatrix}
@@ -433,31 +466,7 @@ This means:
   - The variance-covariance matrix $\boldsymbol{\Sigma}$ of the response vector $\mathbf{y}$ must satisfy $\boldsymbol{\Sigma} = \sigma^2 \mathbf{I}$
   - The errors are iid with constant variance $\sigma^2$.
 
-#### 2. 
-
-The design matrix $\mathbf{X}$ must be of full column rank so that:
-
-$$
-\exists! (\mathbf{X}^\top \mathbf{X})^{-1}
-$$
-
-This ensures that the normal equations have a unique solution for $\boldsymbol{\beta}$, and thus both the GLS and OLS estimators are uniquely defined.
-
-Without full column rank, $(\mathbf{X}^\top \mathbf{X})^{-1}$ does not exist, and we would need to use a generalized inverse to define the estimators, in which case the equivalence in (2) may not hold.
-
-#### 3. 
-
-For estimable $\mathbf{C}\mathbf{\beta}$, $\mathbf{C}\hat{\mathbf{\beta}}_{\hat{\mathbf{\Sigma}}} = \mathbf{C}\hat{\mathbf{\beta}}$
-
-This is to say that: 
-
-$$
-\mathbf{X}^\top \boldsymbol{\Sigma}^{-1} \mathbf{X} = \mathbf{X}^\top \mathbf{X}
-$$
-
-Meaning the inverse of the variance-covariance matrix $\boldsymbol{\Sigma}^{-1}$ acts like the identity on the column space of $\mathbf{X}$, even if $\boldsymbol{\Sigma}$ is not a scalar multiple of the identity on the full space.
-
----
+Under the above conditions, we have $\boldsymbol{\Sigma}^{-1} = \frac{1}{\sigma^2} \mathbf{I}$, which allows us to simplify the GLS estimator in the following proof.
 
 ## b)
 
@@ -465,49 +474,46 @@ Verify the result in (2) assuming the conditions are met.
 
 ### Answer
 
-Assume that the assumptions from part a) all hold. 
+Assume that $\boldsymbol{\Sigma} = \sigma^2 \mathbf{I}$, i.e., that the assumptions from part a) hold. 
 
-Then, for:
+Then, we know $\exists \boldsymbol{\Sigma}^{-1}$, and that:
 
 $$
 \boldsymbol{\Sigma}^{-1} = \frac{1}{\sigma^2} \mathbf{I}
 $$
 
-Given: 
+Then, using the formula for the GLS estimator:
 
 $$
-\hat{\mathbf{\beta}}_{GLS} = (\mathbf{X}^\top \mathbf{\Sigma}^{-1} \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{\Sigma}^{-1} \mathbf{y}
+\hat{\boldsymbol{\beta}}_{\text{GLS}} = \left( \mathbf{X}^\top \boldsymbol{\Sigma}^{-1} \mathbf{X} \right)^{-} \mathbf{X}^\top \boldsymbol{\Sigma}^{-1} \mathbf{y}
 $$
 
-Via substitution we have:
+We may substitute the known expression for $\boldsymbol{\Sigma}^{-1}$:
 
 $$
-\hat{\boldsymbol{\beta}}_{\boldsymbol{\Sigma}} = 
-\left( \mathbf{X}^\top \boldsymbol{\Sigma}^{-1} \mathbf{X} \right)^{-1}
-\mathbf{X}^\top \boldsymbol{\Sigma}^{-1} \mathbf{y}
-= \left( \mathbf{X}^\top \left( \frac{1}{\sigma^2} \mathbf{I} \right) \mathbf{X} \right)^{-1}
-\mathbf{X}^\top \left( \frac{1}{\sigma^2} \mathbf{I} \right) \mathbf{y}
+\hat{\boldsymbol{\beta}}_{\text{GLS}} = \left( \mathbf{X}^\top \left( \frac{1}{\sigma^2} \mathbf{I} \right) \mathbf{X} \right)^{-} \mathbf{X}^\top \left( \frac{1}{\sigma^2} \mathbf{I} \right) \mathbf{y}
+= \left( \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{X} \right)^{-} \cdot \left( \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{y} \right)
 $$
 
-We may treat $\frac{1}{\sigma^2}$ as a scalar for the purposes of matrix algebra, such that we have:
+Noting the properties of scalar multiplication in matrix algebra, and that $\sigma^2$ is a positive real-valued scalar, we have:
 
 $$
-= \left( \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{X} \right)^{-1}
-\left( \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{y} \right)
+\hat{\boldsymbol{\beta}}_{\text{GLS}} 
+= \left( \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{X} \right)^{-} \cdot \left( \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{y} \right)
+= \left( \frac{1}{\sigma^2} \right)^{-1} \left( \mathbf{X}^\top \mathbf{X} \right)^{-} \cdot \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{y}
+= \sigma^2 \left( \mathbf{X}^\top \mathbf{X} \right)^{-} \cdot \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{y}
 $$
 
-Noting that $(aA)^{-1} = \frac{1}{a} A^{-1}$, applying to the above and simplifying:
+Giving:
 
 $$
-\hat{\boldsymbol{\beta}}_{\boldsymbol{\Sigma}} = \sigma^2 \left( \mathbf{X}^\top \mathbf{X} \right)^{-1} \cdot \frac{1}{\sigma^2} \mathbf{X}^\top \mathbf{y}
-= \left( \mathbf{X}^\top \mathbf{X} \right)^{-1} \mathbf{X}^\top \mathbf{y}
+\hat{\boldsymbol{\beta}}_{\text{GLS}} 
+= \left( \mathbf{X}^\top \mathbf{X} \right)^{-} \mathbf{X}^\top \mathbf{y}
 = \hat{\boldsymbol{\beta}}_{\text{OLS}}
 $$
 
-Noting that by definition, noting the normal equations, OLS is given by: 
+As, by definition the OLS equation is given via the normal equations as: 
 
 $$
-\hat{\boldsymbol{\beta}}_{\text{OLS}} = \left( \mathbf{X}^\top \mathbf{X} \right)^{-1} \mathbf{X}^\top \mathbf{y}
+\hat{\boldsymbol{\beta}}_{\text{OLS}} = \left( \mathbf{X}^\top \mathbf{X} \right)^{-} \mathbf{X}^\top \mathbf{y}
 $$
-
-So, the primary condition required for the above to work is for $\boldsymbol{\Sigma} = \sigma^2 \mathbf{I}$. 
