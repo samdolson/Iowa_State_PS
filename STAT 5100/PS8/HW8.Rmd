@@ -7,7 +7,7 @@ author: "Sam Olson"
 # Outline
 
   - Q1: Draft
-  - Q2: Skeleton
+  - Q2: Started, need access to .sas file 
   - Q3: All but part e) Draft
   - Q4: Example 1,2 Draft
   
@@ -53,17 +53,17 @@ The BLUE $\hat{\beta}_{\Sigma}$ weights $\bar{y}_{11.}$ and $y_{121}$ proportion
 
 For the average $\bar{y}_{11.} = \frac{y_{111} + y_{112}}{2}$:
 
-\[
+$$
 \text{Var}(\bar{y}_{11.}) = \frac{\sigma_e^2}{2} + \sigma_u^2
-\]
+$$
    
 since observations share the same random effect $u_1$.
 
 For the single observation $y_{121}$:
 
-\[
+$$
 \text{Var}(y_{121}) = \sigma_e^2 + \sigma_u^2
-\]
+$$
 
 with its own random effect $u_2$.
 
@@ -71,30 +71,30 @@ The weights are proportional to inverse variances:
 
 Weight for $\bar{y}_{11.}$:
 
-\[
+$$
 \frac{\frac{1}{\text{Var}(\bar{y}_{11.})}}{\frac{1}{\text{Var}(\bar{y}_{11.})} + \frac{1}{\text{Var}(y_{121})}} 
 = \frac{\frac{1}{\frac{\sigma_e^2}{2} + \sigma_u^2}}{\frac{1}{\frac{\sigma_e^2}{2} + \sigma_u^2} + \frac{1}{\sigma_e^2 + \sigma_u^2}}
-\]
+$$
    
 Simplifying numerator and denominator:
 
-\[
+$$
 = \frac{\frac{2}{\sigma_e^2 + 2\sigma_u^2}}{\frac{2}{\sigma_e^2 + 2\sigma_u^2} + \frac{1}{\sigma_e^2 + \sigma_u^2}}
 = \frac{2(\sigma_e^2 + \sigma_u^2)}{3\sigma_e^2 + 4\sigma_u^2}
-\]
+$$
 
 Weight for $y_{121}$:
 
-\[
+$$
 \frac{\frac{1}{\text{Var}(y_{121})}}{\frac{1}{\text{Var}(\bar{y}_{11.})} + \frac{1}{\text{Var}(y_{121})}}
 = \frac{\sigma_e^2 + 2\sigma_u^2}{3\sigma_e^2 + 4\sigma_u^2}
-\]
+$$
 
 Thus, the weights match the given expressions:
 
-\[
+$$
 \frac{2\sigma_e^2 + 2\sigma_u^2}{3\sigma_e^2 + 4\sigma_u^2} \quad \text{and} \quad \frac{\sigma_e^2 + 2\sigma_u^2}{3\sigma_e^2 + 4\sigma_u^2}
-\]
+$$
 
 \newpage
 
@@ -108,6 +108,9 @@ How many machines and how many persons are accounted for in the data set? How ma
 
 ### Answer 
 
+3 Machines
+6 Persons
+18 unique Machine-Person Combinations 
 
 ## b) 
 
@@ -115,23 +118,88 @@ Run the proc glm SAS code associated with Model 1. What model does SAS fit? Writ
 
 ### Answer 
 
+$$
+Y_{ij} = \mu + \alpha_i + u_{j(i)} + \varepsilon_{ij}
+$$
+
+
+Where: 
+
+- $Y_{ij}$: observed rating for the $j$-th person using the $i$-th machine
+- $\mu$: overall mean rating
+- $\alpha_i$: fixed effect of the $i$-th machine, for $i = 1, 2, 3$
+- $u_{j(i)}$: random effect of person $j$ nested within machine $i$, where
+  $$
+  u_{j(i)} \sim \text{Normal}(0, \sigma_u^2)
+  $$
+- $\varepsilon_{ij}$: residual error, assumed independent of $u_{j(i)}$, where
+  $$
+  \varepsilon_{ij} \sim \text{Normal}(0, \sigma^2)
+  $$
+
+
+Assumptions:
+
+- The person effects $u_{j(i)}$ are treated as random, capturing subject-to-subject variability within each machine.
+- The fixed machine effect $\alpha_i$ allows us to test whether different machines have systematically different ratings.
+- The errors $\varepsilon_{ij}$ are independent of the person effects and are assumed normally distributed.
+
 ## c) 
 
 Report the MSE.
 
 ### Answer 
 
+```{r, eval = T, echo=FALSE, fig.cap="MSE", out.width="100%"}
+knitr::include_graphics("GLMMSE.png")
+```
+
+\newpage
+
 ### 1. 
 
 Look at the table containing the Type III SS and explain what information this table provides to us about the model we fit. Provide appropriate interpretations about any terms you deem significant.
 
+```{r, eval = T, echo=FALSE, fig.cap="Type III SS", out.width="100%"}
+knitr::include_graphics("Type3.png")
+```
+
 #### Answer 
+
+The Type III Sum of Squares table provides information about the unique contribution of each term in the model, adjusting for all other effects.
+
+- Machine Effect:  
+  The machine effect has 2 degrees of freedom, with an F value of 709.52 and a p-value of < 0.0001. This indicates that, after accounting for individual differences, the type of machine used has a statistically significant effect on the rating. That is, the average rating differs significantly across machines.
+
+- Person(Machine) Effect:  
+  The nested person(machine) effect has 15 degrees of freedom, with an F value of 107.96 and a p-value of < 0.0001. This suggests that there are significant differences among people within each machine group. In other words, individual variation among raters is substantial even when they use the same machine.
+
+Conclusion: Both machine and person(machine) effects are highly significant, indicating that machine type and individual differences both play important roles in explaining variability in the ratings.
 
 ## d) 
 
 Look at the Interaction plot SAS provides. Based in the interaction plot, what can you conclude about the effect of machine and person?
 
+```{r, eval = T, echo=FALSE, fig.cap="InteractionPlot", out.width="100%"}
+knitr::include_graphics("InteractionPlot.png")
+```
+
 ### Answer 
+
+The interaction plot shows the distribution of ratings for each person nested within each machine.
+
+- Effect of Machine:  
+  There is a clear upward trend in average ratings from machine 1 to machine 3. This suggests a strong main effect of machine—on average, machine 3 receives higher ratings than machines 2 and 1.
+
+- Effect of Person:  
+  Within each machine, individual persons show noticeable variation in their ratings. For example, under machine 2, person 3 gives a much higher rating than person 6. This indicates a significant person effect nested within machine.
+
+- Potential Interaction:  
+  Although this plot does not explicitly show traditional interaction (crossed lines), the variability in how each person rates different machines suggests that the effect of machine may differ by person. For example, person 3 consistently gives high ratings across machines, while person 6's ratings vary more dramatically depending on the machine. This pattern hints at possible person-by-machine interaction effects, even though interaction was not included in the fitted model.
+
+Conclusion:  
+The plot supports the statistical findings: there are strong machine effects, strong person effects within machine, and possibly person-by-machine interaction. Including interaction in a future model may help capture this variability more completely.
+
 
 ## e) 
 
@@ -227,7 +295,7 @@ Review the derivations of the mean squares and expected mean squares we did for 
 
 For the second example with:
 
-\[
+$$
 \mathbf{y} = \begin{bmatrix}
 y_{111} \\ y_{112} \\ y_{121} \\ y_{211}
 \end{bmatrix}, \quad
@@ -243,84 +311,84 @@ y_{111} \\ y_{112} \\ y_{121} \\ y_{211}
 0 & 1 & 0 \\
 0 & 0 & 1
 \end{bmatrix}
-\]
+$$
 
 We define the projection matrices:
 
-### Overall Mean (\(P_1\)):
+### Overall Mean ($P_1$):
 
-\[
+$$
 P_1 \mathbf{y} =
 \begin{bmatrix}
 \bar{y}_{...} \\ \bar{y}_{...} \\ \bar{y}_{...} \\ \bar{y}_{...}
 \end{bmatrix}, \quad
 \bar{y}_{...} = \frac{y_{111} + y_{112} + y_{121} + y_{211}}{4}
-\]
+$$
 
-### Treatment Means (\(P_2\)):
+### Treatment Means ($P_2$):
 
-\[
+$$
 P_2 \mathbf{y} =
 \begin{bmatrix}
 \bar{y}_{1..} \\ \bar{y}_{1..} \\ \bar{y}_{1..} \\ \bar{y}_{2..}
 \end{bmatrix}, \quad
 \bar{y}_{1..} = \frac{y_{111} + y_{112} + y_{121}}{3}, \quad
 \bar{y}_{2..} = y_{211}
-\]
+$$
 
-### Subject Means (\(P_3\)):
+### Subject Means ($P_3$):
 
-\[
+$$
 P_3 \mathbf{y} =
 \begin{bmatrix}
 \bar{y}_{11.} \\ \bar{y}_{11.} \\ y_{121} \\ y_{211}
 \end{bmatrix}, \quad
 \bar{y}_{11.} = \frac{y_{111} + y_{112}}{2}
-\]
+$$
 
 ### Sums of Squares
 
-**Treatment SS:**
+Treatment SS:
 
-\[
+$$
 SS_{\text{trt}} = \mathbf{y}^\top (P_2 - P_1) \mathbf{y}
 = 3(\bar{y}_{1..} - \bar{y}_{...})^2 + (\bar{y}_{2..} - \bar{y}_{...})^2
-\]
+$$
 
-**Subject(Treatment) SS:**
+Subject(Treatment) SS:
 
-\[
+$$
 SS_{\text{subj(trt)}} = \mathbf{y}^\top (P_3 - P_2) \mathbf{y}
 = 2(\bar{y}_{11.} - \bar{y}_{1..})^2 + (y_{121} - \bar{y}_{1..})^2
-\]
+$$
 
-**Error SS:**
+Error SS:
 
-\[
+$$
 SS_{\text{error}} = \mathbf{y}^\top (I - P_3) \mathbf{y}
 = (y_{111} - \bar{y}_{11.})^2 + (y_{112} - \bar{y}_{11.})^2
-\]
+$$
 
 ### Expected Mean Squares
 
-**Expected MS for Treatment:**
+Expected MS for Treatment:
 
-\[
+$$
 E[MS_{\text{trt}}] =
 (\tau_1 - \tau_2)^2 + \frac{1}{3}(\sigma_u^2 + \sigma_e^2)
-\]
+$$
 
-**Expected MS for Subject(Treatment):**
+Expected MS for Subject(Treatment):
 
-\[
+$$
 E[MS_{\text{subj(trt)}}] = \sigma_u^2 + \sigma_e^2
-\]
+$$
 
-**Expected MS for Error:**
+Expected MS for Error:
 
-\[
+$$
 E[MS_{\text{error}}] = \sigma_e^2
-\]
+$$
 
 ## b) 
 
@@ -334,9 +402,9 @@ knitr::include_graphics("Slide45.png")
 
 | Source             | df | Expected Mean Square                              |
 |--------------------|----|----------------------------------------------------|
-| Treatment          | 1  | \( (\tau_1 - \tau_2)^2 + 1.5\sigma_u^2 + \sigma_e^2 \) |
-| Subject(Treatment) | 2  | \( \sigma_u^2 + \sigma_e^2 \)                      |
-| Error              | 1  | \( \sigma_e^2 \)                                   |
+| Treatment          | 1  | $(\tau_1 - \tau_2)^2 + 1.5\sigma_u^2 + \sigma_e^2$ |
+| Subject(Treatment) | 2  | $\sigma_u^2 + \sigma_e^2$                      |
+| Error              | 1  | $\sigma_e^2$                                   |
 
 
 ## c) 
@@ -347,29 +415,29 @@ Based on the table, what linear combination of expected mean squares provides an
 
 To test for a treatment effect, we use the test statistic:
 
-\[
+$$
 F = \frac{MS_{\text{trt}}}{\text{Estimator of variance components in } E[MS_{\text{trt}}]}
-\]
+$$
 
 The expected mean square for treatment includes:
 
-\[
+$$
 E[MS_{\text{trt}}] = (\tau_1 - \tau_2)^2 + 1.5\sigma_u^2 + \sigma_e^2
-\]
+$$
 
-We approximate the variance component part \( 1.5\sigma_u^2 + \sigma_e^2 \) using a linear combination of mean squares:
+We approximate the variance component part $1.5\sigma_u^2 + \sigma_e^2$ using a linear combination of mean squares:
 
-\[
+$$
 \widehat{V} = 1.5 \cdot MS_{\text{subj(trt)}} - 0.5 \cdot MS_{\text{error}}
-\]
+$$
 
 This combination eliminates the fixed treatment effect and gives an unbiased estimator of the variance component portion of the treatment EMS.
 
 Therefore, the test statistic becomes:
 
-\[
+$$
 F = \frac{MS_{\text{trt}}}{1.5 \cdot MS_{\text{subj(trt)}} - 0.5 \cdot MS_{\text{error}}}
-\]
+$$
 
 ## d) 
 
@@ -387,46 +455,58 @@ knitr::include_graphics("Slide17.png")
 
 To test the treatment effect, we use:
 
-\[
+$$
 F = \frac{MS_{\text{trt}}}{1.5 \cdot MS_{\text{subj(trt)}} - 0.5 \cdot MS_{\text{error}}}
-\]
+$$
 
 This denominator estimates the variance component portion of the treatment EMS:
 
-\[
+$$
 1.5 \sigma_u^2 + \sigma_e^2
-\]
+$$
 
 We apply the Cochran–Satterthwaite approximation to this linear combination:
 
-\[
+$$
 d = \frac{(1.5 MS_1 - 0.5 MS_2)^2}
 {(1.5)^2 \cdot \frac{MS_1^2}{df_1} + (-0.5)^2 \cdot \frac{MS_2^2}{df_2}}
-\]
+$$
 
 With:
 
-- \( MS_1 = MS_{\text{subj(trt)}} = 2.42 \), \( df_1 = 2 \)
-- \( MS_2 = MS_{\text{error}} = 0.18 \), \( df_2 = 1 \)
+- $MS_1 = MS_{\text{subj(trt)}} = 2.42$, $df_1 = 2$
+- $MS_2 = MS_{\text{error}} = 0.18$, $df_2 = 1$
 
 We compute:
 
-\[
+$$
 d = \frac{(1.5 \cdot 2.42 - 0.5 \cdot 0.18)^2}
 {(1.5)^2 \cdot \frac{2.42^2}{2} + (-0.5)^2 \cdot \frac{0.18^2}{1}} = \boxed{1.1}
-\]
+$$
 
 Thus, the approximate degrees of freedom for the denominator is:
 
-\[
+$$
 \boxed{d = 1.1}
-\]
+$$
 
 ## e) 
 
 Run all the code in SAS. Verify the work you derived in parts b), c) and d).
 
 ### Answer 
+
+```{r, eval = T, echo=FALSE, fig.cap="SAS Code", out.width="100%"}
+knitr::include_graphics("SASCode.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="SAS Output 1", out.width="100%"}
+knitr::include_graphics("Output1.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="SAS Output 2", out.width="100%"}
+knitr::include_graphics("Output2.png")
+```
 
 \newpage
 
