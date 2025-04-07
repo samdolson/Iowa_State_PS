@@ -7,9 +7,9 @@ author: "Sam Olson"
 # Outline
 
   - Q1: Draft
-  - Q2: Started, need access to .sas file 
-  - Q3: All but part e) Draft
-  - Q4: Example 1,2 Draft
+  - Q2: Draft
+  - Q3: Draft
+  - Q4: Draft
   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -100,7 +100,7 @@ $$
 
 # Q2
 
-In SAS Studio in the Stat 510 folder you can find a data set called Machines.xlsx and a SAS program called Proc Mixed Machines Data.sas. Open the SAS program and follow the instructions to read in the data.
+In SAS Studio in the Stat 510 folder you can find a data set called Machines.xlsx and a SAS program called `Proc Mixed Machines Data.sas`. Open the SAS program and follow the instructions to read in the data.
 
 ## a) 
 
@@ -166,15 +166,30 @@ knitr::include_graphics("Type3.png")
 
 #### Answer 
 
-The Type III Sum of Squares table provides information about the unique contribution of each term in the model, adjusting for all other effects.
+The Type III Sum of Squares (SS) table shows the unique contribution of each term in the model after adjusting for all other effects. Here’s what it tells us about the fitted model:
 
-- Machine Effect:  
-  The machine effect has 2 degrees of freedom, with an F value of 709.52 and a p-value of < 0.0001. This indicates that, after accounting for individual differences, the type of machine used has a statistically significant effect on the rating. That is, the average rating differs significantly across machines.
+- Machine Effect  
+  - DF = 2, F = 709.52, p < .0001  
+  - The machine effect is highly significant, indicating that different machines produce significantly different ratings, even after accounting for individual (person) effects and interactions.  
+  - This means the average rating varies across different machines in a statistically meaningful way.
 
-- Person(Machine) Effect:  
-  The nested person(machine) effect has 15 degrees of freedom, with an F value of 107.96 and a p-value of < 0.0001. This suggests that there are significant differences among people within each machine group. In other words, individual variation among raters is substantial even when they use the same machine.
+- Person Effect  
+  - DF = 5, F = 231.74, p < .0001  
+  - The person effect is also highly significant, suggesting that there are large differences between raters. This means some raters tend to give higher or lower ratings than others, regardless of the machine used.
 
-Conclusion: Both machine and person(machine) effects are highly significant, indicating that machine type and individual differences both play important roles in explaining variability in the ratings.
+- Machine × Person Interaction  
+  - DF = 10, F = 46.34, p < .0001  
+  - The significant interaction implies that the effect of the machine depends on the person using it. That is, different raters react differently to the machines—some might rate Machine A high and Machine B low, while others may do the opposite.  
+  - This interaction is important because it shows inconsistency in how machines are rated across different people.
+
+
+All three effects (machine, person, and their interaction) are statistically significant at the 0.0001 level. This implies:
+
+- There are meaningful differences in ratings across machines.
+- Raters differ substantially in how they rate.
+- The way raters evaluate machines depends on the combination of both factors.
+
+So, contrary to the original answer, there is no person(machines) nested effect here—instead, it is a two-way factorial design with interaction between machine and person.
 
 ## d) 
 
@@ -186,20 +201,28 @@ knitr::include_graphics("InteractionPlot.png")
 
 ### Answer 
 
-The interaction plot shows the distribution of ratings for each person nested within each machine.
+The interaction plot provides visual insight into the effects of machine, person, and their interaction on the response variable (*rating*).
 
-- Effect of Machine:  
-  There is a clear upward trend in average ratings from machine 1 to machine 3. This suggests a strong main effect of machine—on average, machine 3 receives higher ratings than machines 2 and 1.
+Effect of Machine
+There is a general upward trend across all lines from machine 1 to machine 3, indicating that:
 
-- Effect of Person:  
-  Within each machine, individual persons show noticeable variation in their ratings. For example, under machine 2, person 3 gives a much higher rating than person 6. This indicates a significant person effect nested within machine.
+- Machine 3 tends to receive the highest ratings, followed by machine 2, and then machine 1.
+- This confirms a strong main effect of machine on the rating, consistent with the ANOVA table where machine had a highly significant F-statistic.
 
-- Potential Interaction:  
-  Although this plot does not explicitly show traditional interaction (crossed lines), the variability in how each person rates different machines suggests that the effect of machine may differ by person. For example, person 3 consistently gives high ratings across machines, while person 6's ratings vary more dramatically depending on the machine. This pattern hints at possible person-by-machine interaction effects, even though interaction was not included in the fitted model.
+Effect of Person
+- The lines representing each person are distinctly separated, showing that different individuals give consistently higher or lower ratings across machines.
+- For instance, person 3 tends to rate machines the highest overall, while person 6 rates them the lowest.
+- This supports a significant main effect of person.
 
-Conclusion:  
-The plot supports the statistical findings: there are strong machine effects, strong person effects within machine, and possibly person-by-machine interaction. Including interaction in a future model may help capture this variability more completely.
+Interaction Effect
+- The lines are not parallel, and some even diverge or cross slightly, particularly person 6 who shows a unique pattern (a dip at machine 2 followed by a sharp increase).
+- This non-parallelism indicates a significant interaction: the effect of machine on the rating depends on the person.
+  - For example, while most people rate machine 3 highest, person 6 deviates from this trend.
 
+Conclusion
+The interaction plot confirms the results from the ANOVA table:
+- Strong main effects for both machine and person.
+- A significant machine × person interaction, suggesting that the impact of machine varies by individual.
 
 ## e) 
 
@@ -207,11 +230,49 @@ Run the proc mixed SAS code associated with Model 2. What model does SAS fit? Wr
 
 ### Answer 
 
+Model 2 – Statistical Notation
+
+Let:
+
+- $Y_{ij}$: observed rating given by person $j$ on machine $i$
+- $i = 1, 2, 3$: machine levels
+- $j = 1, 2, \dots, 6$: person levels
+
+The linear mixed model is:
+
+$$
+Y_{ij} = \mu + \alpha_i + u_j + \varepsilon_{ij}
+$$
+
+where:
+
+- $\mu$ is the overall mean rating
+- $\alpha_i$ is the fixed effect of machine $i$, with constraint $\sum_i \alpha_i = 0$
+- $u_j \sim \mathcal{N}(0, \sigma_u^2)$ is the random effect of person $j$, accounting for variability between persons
+- $\varepsilon_{ij} \sim \mathcal{N}(0, \sigma^2)$ is the residual error, assumed independent of $u_j$
+
+Key Model Features
+
+- Fixed effect: machine
+- Random effect: person
+- Assumes independence between random effects and residual errors
+- Captures person-to-person variation via the random effect $u_j$, instead of estimating separate fixed effects for each person
+
 ## f) 
 
 Report the MSE for Model 2 and compare it to the MSE for Model 1.
 
+```{r, eval = T, echo=FALSE, fig.cap="Model 2 Residual", out.width="100%"}
+knitr::include_graphics("Model2Residual.png")
+```
+
 ### Answer 
+
+The Mean Squared Error (MSE) for Model 2 is 11.8517, as reported in the "Residual" row of the Covariance Parameter Estimates table from the SAS PROC MIXED output.
+
+By comparison, Model 1 (the fixed effects model) has an MSE of 0.8726, as shown in the "Error" row of the GLM output.
+
+Though expected due to the inclusion of person as a random effect and the exclusion of the interaction term, Model 2 exhibits a higher residual error than Model 1. This reflects a looser fit to the observed data.
 
 ## g) 
 
@@ -219,11 +280,29 @@ How does the evidence for the fixed effect associated with Machines change? Why 
 
 ### Answer 
 
+In Model 1 (fixed effects for machine, person, and their interaction), the F-statistic for the fixed effect of machine is 709.52, with p < .0001.
+
+In Model 2 (machine as fixed, person as random), the F-statistic for machine drops to 58.41, though the p-value remains < .0001, indicating continued strong evidence for a machine effect.
+
+This change makes sense: in Model 1, person and interaction effects are modeled explicitly as fixed terms, which absorbs more variation and makes the machine effect look relatively stronger. In Model 2, more variability is attributed to the random person effect, which increases residual error and reduces the F-statistic for machine accordingly — even though significance is preserved.
+
 ## h) 
 
 Report the estimated variance components for this model – there should be two.
 
+```{r, eval = T, echo=FALSE, fig.cap="Model 2 Residual, Again", out.width="100%"}
+knitr::include_graphics("Model2Residual.png")
+```
+
 ### Answer 
+
+The two estimated variance components for this model are:
+
+Person (random effect): 24.3840
+
+Residual (error term): 11.8517
+
+These estimates represent the variability attributable to differences between persons and the residual variation within persons, respectively, as shown in the output above.
 
 ## i) 
 
@@ -231,23 +310,79 @@ Run the proc mixed SAS code associated with Model 3. What model does SAS fit? Wr
 
 ### Answer 
 
+Let:
+
+- $Y_{ijk}$: the rating given by person $j$ on machine $i$, observation $k$
+- $i = 1, 2, 3$: machine index
+- $j = 1, \dots, n_i$: person index nested within machine $i$
+- $k$: replicate index (if multiple ratings per person-machine combo)
+
+Then the model SAS fits is:
+
+$$
+Y_{ijk} = \mu + \alpha_i + u_{j(i)} + \varepsilon_{ijk}
+$$
+
+where:
+
+- $\mu$: overall mean rating
+- $\alpha_i$: fixed effect of machine $i$, with $\sum_i \alpha_i = 0$
+- $u_{j(i)} \sim \mathcal{N}(0, \sigma_u^2)$: random effect for person $j$ nested within machine $i$
+- $\varepsilon_{ijk} \sim \mathcal{N}(0, \sigma^2)$: residual error
+- $u_{j(i)} \perp \varepsilon_{ijk}$: random effects and residuals are independent
+
+This model accounts for person-to-person variation within each machine. It’s more flexible than Model 2 because it allows the distribution of person effects to vary across machines.
+
 ## j) 
 
 Report the MSE for Model 3 and compare it to the MSE for Models 1 and 2. Describe your findings.
 
+```{r, eval = T, echo=FALSE, fig.cap="Model 3 Residual", out.width="100%"}
+knitr::include_graphics("Model3Residual.png")
+```
+
 ### Answer 
+
+The MSE for Model 3 is 0.8721, as reported under the Residual in the Covariance Parameter Estimates table.
+
+This is nearly identical to the MSE from Model 1 (0.8726) and substantially lower than the MSE from Model 2 (11.8517).
+
+This similarity makes sense because both Models 1 and 3 account for person-level variation within machine—Model 1 through a fixed interaction, and Model 3 through a random effect nested within machine. Modeling this structure reduces residual error similarly in both cases.
 
 ## k) 
 
 Explain the main difference between Models 2 and 3. Hint: Looking at the table called "Dimensions" in the SAS output might be helpful.
 
+```{r, eval = T, echo=FALSE, fig.cap="Model 2 Dimensions", out.width="100%"}
+knitr::include_graphics("Model2Dimensions.png")
+```
+
+```{r, eval = T, echo=FALSE, fig.cap="Model 3 Dimensions", out.width="100%"}
+knitr::include_graphics("Model3Dimensions.png")
+```
 ### Answer 
+
+The key difference between Model 2 and Model 3 lies in how the random effects are structured:
+
+- Model 2 treats `person` as a single random effect, meaning each person has one random intercept across all machines.
+  - From the Dimensions table: 18 subjects, each with up to 3 observations (1 per machine).
+  
+- Model 3 uses `person(machine)` as the subject for the random effect, treating each person–machine combination as a unique random level.
+  - From the Dimensions table: only 1 subject, but with 44 observations, and 6 columns in Z, indicating 6 random effects (person nested within machine).
+
+Summary:
+- Model 2 assumes person effects are constant across machines.
+- Model 3 allows person effects to vary across machines, capturing interaction-like variability through nested random effects.
 
 ## l) 
 
 How does the evidence for the fixed effect associated with Machines change in Model 3 compared to Models 1 and 2? Why does this make sense?
 
 ### Answer 
+
+In Model 3, the F-statistic for the fixed effect of `machine` remains highly significant, similar to Models 1 and 2. The strength of evidence does not meaningfully decrease compared to Model 1, and it is stronger than in Model 2.
+
+This makes sense because Model 3, like Model 1, accounts for person-specific variation across machines—in Model 1 via a fixed interaction term, and in Model 3 via random effects nested within machine. By modeling this structure, Model 3 isolates the machine effect more effectively than Model 2, where person was treated as a single random effect without allowing variation across machines.
 
 \newpage
 
@@ -521,18 +656,13 @@ library(lme4)
 library(lmerTest)  
 ```
 
-### Note on Example 1
-
-In Example 1, each subject appears only once. This results in a saturated random effects structure where the subject random effect fully explains the variability in the data. Because no replication is available to estimate residual variance, the model cannot be fit using `lmer()`.
-
-This limitation is expected and highlights a key modeling constraint: REML-based mixed model fitting requires replication to distinguish random effect variance from residual error.
-
-However, we can still proceed analytically by calculating the expected mean squares and manually applying the Cochran–Satterthwaite formula to approximate degrees of freedom.
-
 ```{r, eval = F}
+library(nlme)
+library(lmerTest)
+
 d1 <- data.frame(
-  trt = factor(c(1, 1, 1, 2)),
-  subject = factor(c("1_1", "1_2", "1_3", "2_1")),  # All subjects unique
+  trt = factor(c(1, 1, 2, 2)),
+  xu = factor(c(1, 2, 1, 1)),
   y = c(6.4, 4.2, 1.5, 0.9)
 )
 
@@ -540,6 +670,12 @@ d1 <- data.frame(
 model1 <- lmer(y ~ trt + (1 | subject), data = d1)
 summary(model1)
 anova(model1)
+
+# Fit model: random xu nested in trt
+mod <- lmer(y ~ trt + (1 | trt:xu), data = d1)
+
+# Display summary (with Satterthwaite df)
+summary(mod)
 ```
 
 ```{r}
