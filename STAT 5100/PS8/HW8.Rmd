@@ -6,7 +6,6 @@ author: "Sam Olson"
 
 # Outline
 
-  - Q1: Draft
   - Q2: Draft
   - Q3: Draft
   - Q4: Draft
@@ -49,52 +48,53 @@ knitr::include_graphics("Slide55.png")
 
 \newpage
 
-The BLUE $\hat{\beta}_{\Sigma}$ weights $\bar{y}_{11.}$ and $y_{121}$ proportionally to their inverse variances. From the slides, we have:
+The BLUE of $\hat{\beta}_{\Sigma}$ uses weights on $\bar{y}_{11.}$ and $y_{121}$ proportionally to their inverse variances. 
 
-For the average $\bar{y}_{11.} = \frac{y_{111} + y_{112}}{2}$:
+From the slides, we have:
+
+For the average $\bar{y}_{11.} = \frac{y_{111} + y_{112}}{2}$, with Variance: 
 
 $$
 \text{Var}(\bar{y}_{11.}) = \frac{\sigma_e^2}{2} + \sigma_u^2
 $$
    
-since observations share the same random effect $u_1$.
+(Since the two observations share the same random effect $u_1$)
 
-For the single observation $y_{121}$:
+For the single observation $y_{121}$, with Variance:
 
 $$
 \text{Var}(y_{121}) = \sigma_e^2 + \sigma_u^2
 $$
 
-with its own random effect $u_2$.
+(As no other observations share the one random effect $u_2$)
 
-The weights are proportional to inverse variances:
+As the weights are proportional to inverse variances, we have: 
 
 Weight for $\bar{y}_{11.}$:
 
 $$
 \frac{\frac{1}{\text{Var}(\bar{y}_{11.})}}{\frac{1}{\text{Var}(\bar{y}_{11.})} + \frac{1}{\text{Var}(y_{121})}} 
 = \frac{\frac{1}{\frac{\sigma_e^2}{2} + \sigma_u^2}}{\frac{1}{\frac{\sigma_e^2}{2} + \sigma_u^2} + \frac{1}{\sigma_e^2 + \sigma_u^2}}
-$$
-   
-Simplifying numerator and denominator:
-
-$$
 = \frac{\frac{2}{\sigma_e^2 + 2\sigma_u^2}}{\frac{2}{\sigma_e^2 + 2\sigma_u^2} + \frac{1}{\sigma_e^2 + \sigma_u^2}}
 = \frac{2(\sigma_e^2 + \sigma_u^2)}{3\sigma_e^2 + 4\sigma_u^2}
 $$
 
-Weight for $y_{121}$:
+And the weight for $y_{121}$:
 
 $$
 \frac{\frac{1}{\text{Var}(y_{121})}}{\frac{1}{\text{Var}(\bar{y}_{11.})} + \frac{1}{\text{Var}(y_{121})}}
+= \frac{\frac{1}{\sigma_e^2 + \sigma_u^2}}{\frac{1}{\frac{\sigma_e^2 + 2\sigma_u^2}{2}} + \frac{1}{\sigma_e^2 + \sigma_u^2}}
+= \frac{\frac{1}{\sigma_e^2 + \sigma_u^2}}{\frac{2}{\sigma_e^2 + 2\sigma_u^2} + \frac{1}{\sigma_e^2 + \sigma_u^2}}
 = \frac{\sigma_e^2 + 2\sigma_u^2}{3\sigma_e^2 + 4\sigma_u^2}
-$$
+$$$
 
 Thus, the weights match the given expressions:
 
-$$
-\frac{2\sigma_e^2 + 2\sigma_u^2}{3\sigma_e^2 + 4\sigma_u^2} \quad \text{and} \quad \frac{\sigma_e^2 + 2\sigma_u^2}{3\sigma_e^2 + 4\sigma_u^2}
-$$
+$$\frac{\frac{1}{\text{Var}(\bar{y}_{11.})}}{\frac{1}{\text{Var}(\bar{y}_{11.})}+\frac{1}{\text{Var}(y_{121})}}=\frac{2\sigma_{e}^{2}+2\sigma_{u}^{2}}{3\sigma_{e}^{2}+4\sigma_{u}^{2}}$$
+
+And: 
+
+$$\frac{\frac{1}{\text{Var}( {y}_{121})}}{\frac{1}{\text{Var}(\bar{y}_{11.})}+\frac{1}{\text{Var}(y_{121})}}=\frac{\sigma_{e}^{2}+2\sigma_{u}^{2}}{3\sigma_{e}^{2}+4\sigma_{u}^{2}}.$$
 
 \newpage
 
@@ -428,7 +428,7 @@ Review the derivations of the mean squares and expected mean squares we did for 
 
 ### Answer 
 
-For the second example with:
+As given in the slides: 
 
 $$
 \mathbf{y} = \begin{bmatrix}
@@ -448,9 +448,7 @@ y_{111} \\ y_{112} \\ y_{121} \\ y_{211}
 \end{bmatrix}
 $$
 
-We define the projection matrices:
-
-### Overall Mean ($P_1$):
+Project Matrix 1: Overall Mean ($P_1$):
 
 $$
 P_1 \mathbf{y} =
@@ -460,7 +458,7 @@ P_1 \mathbf{y} =
 \bar{y}_{...} = \frac{y_{111} + y_{112} + y_{121} + y_{211}}{4}
 $$
 
-### Treatment Means ($P_2$):
+Projection Matrix 2: Treatment Means ($P_2$):
 
 $$
 P_2 \mathbf{y} =
@@ -471,7 +469,7 @@ P_2 \mathbf{y} =
 \bar{y}_{2..} = y_{211}
 $$
 
-### Subject Means ($P_3$):
+Projection Matrix 3: Subject Means ($P_3$):
 
 $$
 P_3 \mathbf{y} =
@@ -481,7 +479,7 @@ P_3 \mathbf{y} =
 \bar{y}_{11.} = \frac{y_{111} + y_{112}}{2}
 $$
 
-### Sums of Squares
+For the Sums of Squares
 
 Treatment SS:
 
@@ -504,7 +502,7 @@ SS_{\text{error}} = \mathbf{y}^\top (I - P_3) \mathbf{y}
 = (y_{111} - \bar{y}_{11.})^2 + (y_{112} - \bar{y}_{11.})^2
 $$
 
-### Expected Mean Squares
+Expected Mean Squares
 
 Expected MS for Treatment:
 
@@ -607,12 +605,15 @@ d = \frac{(1.5 MS_1 - 0.5 MS_2)^2}
 {(1.5)^2 \cdot \frac{MS_1^2}{df_1} + (-0.5)^2 \cdot \frac{MS_2^2}{df_2}}
 $$
 
-With:
+Where: 
 
-- $MS_1 = MS_{\text{subj(trt)}} = 2.42$, $df_1 = 2$
-- $MS_2 = MS_{\text{error}} = 0.18$, $df_2 = 1$
+$MS_1 = MS_{\text{subj(trt)}} = 2.42$, $df_1 = 2$
 
-We compute:
+And: 
+
+$MS_2 = MS_{\text{error}} = 0.18$, $df_2 = 1$
+
+Computing:
 
 $$
 d = \frac{(1.5 \cdot 2.42 - 0.5 \cdot 0.18)^2}
@@ -656,6 +657,36 @@ library(lme4)
 library(lmerTest)  
 ```
 
+```{r}
+d2 <- data.frame(
+  trt = factor(c(1, 1, 1, 2)),
+  subject = factor(c("1_1", "1_1", "1_2", "2_1")),
+  y = c(6.4, 4.2, 1.5, 0.9)
+)
+
+# Fit the mixed model with subject as random effect
+model2 <- lmer(y ~ trt + (1 | subject), data = d2)
+summary(model2)
+anova(model2)
+VarCorr(model2)
+```
+
+Sums of Squares:
+
+Mean Squares:
+
+Table listing source of variation, df, and expected mean squares
+
+| Source             | df | Expected Mean Square                              |
+|--------------------|----|----------------------------------------------------|
+| Treatment          | 1  | $(\tau_1 - \tau_2)^2 + 1.5\sigma_u^2 + \sigma_e^2$ |
+| Subject(Treatment) | 2  | $\sigma_u^2 + \sigma_e^2$                      |
+| Error              | 1  | $\sigma_e^2$                                   |
+
+Cochran-Satterthwaite Df Approximation: 1.1019
+
+### Bonus - Example 1
+
 ```{r, eval = F}
 library(nlme)
 library(lmerTest)
@@ -676,18 +707,4 @@ mod <- lmer(y ~ trt + (1 | trt:xu), data = d1)
 
 # Display summary (with Satterthwaite df)
 summary(mod)
-```
-
-```{r}
-d2 <- data.frame(
-  trt = factor(c(1, 1, 1, 2)),
-  subject = factor(c("1_1", "1_1", "1_2", "2_1")),
-  y = c(6.4, 4.2, 1.5, 0.9)
-)
-
-# Fit the mixed model with subject as random effect
-model2 <- lmer(y ~ trt + (1 | subject), data = d2)
-summary(model2)
-anova(model2)
-VarCorr(model2)
 ```

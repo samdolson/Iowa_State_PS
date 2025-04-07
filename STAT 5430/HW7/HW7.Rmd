@@ -23,12 +23,12 @@ $$
 The LRT statistic is of the form:  
 
 $$
-\lambda(x, y) = \frac{\text{max}_{\theta} L(\theta \mid x, y)}{\text{max}_{\theta, \mu} L(\theta, \mu \mid x, y)}
+\lambda(x, y) = \frac{\text{max}_{\theta} L(\theta \mid \underset{\sim}{x}, \underset{\sim}{y})}{\text{max}_{\theta, \mu} L(\theta, \mu \mid \underset{\sim}{x}, \underset{\sim}{y})}
 $$
 
 Where, under $H_0$ ($\theta = \mu$).
 
-Generally, we know that, the MLE will be some weighted average of the observations, taking advantage of the one parameter exponential families known to be complete and their MLEs of a general form. That is, the MLE will be some weighted average of the observations, taking advantage of the one parameter exponential families known to be complete and their MLEs of a general form. 
+Generally, we know that, the MLE will be some weighted average of the observations, taking advantage of the one parameter exponential families known to be complete and their MLEs of a general form. 
 
 Under $H_0$ (to get the numerator of the LRT) the MLE for $\theta$ is of the form:  
 
@@ -39,17 +39,17 @@ $$
 And, under the full model (the denominator of the LRT), the MLEs are the individual sample means, i.e.:  
 
 $$
-\hat{\theta} = \bar{X} = \frac{\sum X_i}{n}, \quad \hat{\mu} = \bar{Y} = \frac{\sum Y_j}{m}
+\hat{\theta}_{MLE} = \bar{X} = \frac{\sum X_i}{n}, \quad \hat{\mu}_{MLE} = \bar{Y} = \frac{\sum Y_j}{m}
 $$
 
-Returning to the original LRT expression, we then have:  
+Returning to the original expression, we then have:  
 
 $$
-\lambda(x, y) = \frac{(\hat{\theta}_0)^{-(n+m)} e^{-(n+m)}}{(\hat{\theta})^{-n} e^{-n} (\hat{\mu})^{-m} e^{-m}} = \frac{(\bar{X})^n (\bar{Y})^m}{\left( \frac{\sum X_i + \sum Y_j}{n + m} \right)^{n+m}}
+\lambda(x, y) = \frac{(\hat{\theta}_0)^{-(n+m)} e^{-(n+m)}}{(\hat{\theta}_{MLE})^{-n} e^{-n} (\hat{\mu}_{MLE})^{-m} e^{-m}} = \frac{(\bar{X})^n (\bar{Y})^m}{\left( \frac{\sum X_i + \sum Y_j}{n + m} \right)^{n+m}}
 = \frac{(n+m)^{n+m} (\sum X_i)^n (\sum Y_j)^m}{n^n m^m (\sum X_i + \sum Y_j)^{n+m}}
 $$
 
-We may then construct our test function, where our rejection rule is to "Reject $H_0$ if $\lambda(x, y) \leq c$", where $c$ is calibrated based on the significance level $\alpha$, i.e.:
+We may then construct our test function, where our rejection rule is to "Reject $H_0$ if $\lambda(x, y) \leq c$", where $c$ is calibrated based on the significance level $\alpha$, i.e. our test function is of the form:
 
 $$
 \varphi(x, y) = 
@@ -59,7 +59,7 @@ $$
 \end{cases}
 $$
 
-Where (to save space above), we have:
+Where (to save space above):
 
 $$
 \lambda(x, y) = \frac{(n+m)^{n+m} (\sum X_i)^n (\sum Y_j)^m}{n^n m^m (\sum X_i + \sum Y_j)^{n+m}}
@@ -87,27 +87,31 @@ $$
 
 Since $\lambda(x, y)$ depends on the data only through $T$, the LRT can be based entirely on $T$.
 
-Using the above, we may define the rejection region where the test rejects $H_0$ when $T$ is too small or too large with constants a and b, where:  
+Using the above, we may define the rejection region where the test rejects $H_0$ when $T$ is "too small" or "too large" with constants a and b, where:  
 
 $$
 T \leq a \quad \text{or} \quad T \geq b
 $$
 
-And where $a$ and $b$ are critical values satisfying:  
+And where $a$ and $b$ are values satisfying:  
 
 $$
 P(T \leq a \mid H_0) + P(T \geq b \mid H_0) = \alpha
 $$
 
-Under $H_0$ ($\theta = \mu$), $\sum X_i \sim \text{Gamma}(n, \theta)$, $\sum Y_j \sim \text{Gamma}(m, \theta)$, as the sum of iid Exponentials is Gamma, and a linear combination of Gamma distributions with common rate parameter $\theta$ is a Beta. Since both X and Y are independent of one another, their sums are also independent, and determining the parameters of the T Beta distribution becomes a matter of algebra (the distribution of T does not involve $\theta$).
+Under $H_0$ ($\theta = \mu$), $\sum X_i \sim \text{Gamma}(n, \theta)$, $\sum Y_j \sim \text{Gamma}(m, \theta)$. 
 
-And:  
+The above is taken as known because that the sum of iid Exponentials is Gamma, and a linear combination, specifically a ratio, of Gamma distributions with common rate parameter $\theta$ is a Beta. 
+
+Also, since both X and Y are independent of one another, their sums are also independent, and determining the parameters of the T Beta distribution becomes a matter of algebra (and the distribution of T does not involve $\theta$ in its parameters).
+
+Specifically, we know:  
 
 $$
 T = \frac{\sum X_i}{\sum X_i + \sum Y_j} \sim \text{Beta}(n, m)
 $$
 
-So the critical values being referenced above may be found via taking critical regions of the Beta distribution when n and m are known. 
+So the critical values being referenced above may be found via taking critical regions of the Beta distribution when n and m are known values (numbers of observations of X and Y respectively). 
 
 \newpage
 
@@ -143,7 +147,7 @@ $$
 
 And the inequality holds because of the assumption $\theta_2 > \theta_1$, which is allowed in the full parameter space. 
 
-Thus, our likelihood ratio is strictly increasing in $x$, meaning it is monotonic, i.e. that the family $\{f(x|\theta)\}$ has MLR in $x$.
+Thus, our likelihood ratio is strictly increasing in $x$, meaning it is monotonic, i.e. that the family $f(x|\theta)$ from the logistic location probability density function has MLR in $x$.
 
 ## b) 
 
@@ -171,10 +175,10 @@ $$
 F(x|\theta) = \frac{e^{x - \theta}}{1 + e^{x - \theta}}
 $$
 
-Under $H_0$, the size condition is:
+Under $H_0$, the size is given by the expression:
 
 $$
-P(X > k_1 \mid \theta = 0) = 1 - F(k_1|0) = \frac{1}{1 + e^{k_1}} = \alpha.
+P(X > k_1 \mid \theta = 0) = 1 - F(k_1|0) = \frac{1}{1 + e^{k_1}} = \alpha
 $$
 
 Solving for $k_1$:
@@ -189,7 +193,7 @@ $$
 k_1 = \log(0.2^{-1} - 1) = \log(4) \approx 1.386
 $$
 
-Under $H_1$:
+Under $H_1$, to calculate the Type II Error Rate:
 
 $$
 \beta = P(X \leq k_1 \mid \theta = 1) = F(k_1|1) = \frac{e^{k_1 - 1}}{1 + e^{k_1 - 1}} \approx \frac{e^{0.386}}{1 + e^{0.386}} \approx 0.595
@@ -211,9 +215,9 @@ What can be said about UMP tests in general for the logistic location family?
 
 Via MLR: From part a), the family has MLR in $X$.
 
-Via Karlin-Rubin Thm. (Knew it would come up again!): Since the MP test for $\theta = 0$ vs $\theta = 1$ rejects for large $X$ and does not depend on the specific parameter value, i.e., $\theta_1 = ...$, it depends solely upon the observed value X, the MP test is also the UMP test for $H_0: \theta \leq 0$ vs $H_1: \theta > 0$.
+Via Karlin-Rubin Thm. (Knew it would come up again!): Since the MP test for $\theta = 0$ vs $\theta = 1$ rejects for large $X$ and does not depend on the specific parameter value, i.e., $\theta_1 = ...$ (alternative hypothesis parameter value in particular), the rejection region depends solely upon the observed value X, meaning the MP test is also the UMP test for $H_0: \theta \leq 0$ vs $H_1: \theta > 0$.
 
-The above results extend to similar distributions within the the logistic location family, i.e., UMP tests for one-sided hypotheses both exist and take the form "Reject $H_0$ if $X > c$."
+The above results extend to similar distributions within the the logistic location family, i.e., UMP tests for one-sided hypotheses both exist and take the form "Reject $H_0$ if $X > c$." I do not believe it would necessarily extend to rate parameter family of distributions however, as that tends to be a bit more complicated. 
 
 \newpage
 
@@ -253,13 +257,11 @@ $$
 \Lambda = \frac{f(x|\theta_2)}{f(x|\theta_1)} = \frac{1 + (x - \theta_1)^2}{1 + (x - \theta_2)^2}
 $$
 
-We know that:  
+And it has limit(s):  
 
 $$
 \lim_{x \to \pm \infty} \frac{f(x|\theta_2)}{f(x|\theta_1)} = 1
 $$
-
-So, the ratio achieves a maximum at 1. 
 
 As we seek to disprove that the ratio is not monotonic, we need only one example that displays non-monotonicity. 
 
@@ -288,17 +290,30 @@ cauchy(1000)
 ```
 
 ```{r}
-x_vals <- seq(0, 10, length.out = 500)
+x_vals <- seq(0, 100, length.out = 500)
 y_vals <- cauchy(x_vals)
 
 plot(x_vals, y_vals, type = "l", lwd = 2, col = "black",
-     main = "Cauchy Ratio",
+     main = "Cauchy Ratio - Increasing Values of X",
      xlab = "x", ylab = expression(Lambda))
+abline(h = 1, col = "red", lty = 2)
+```
+
+```{r}
+x_vals <- seq(0, -100, length.out = 500)
+y_vals <- cauchy(x_vals)
+
+plot(x_vals, y_vals, type = "l", lwd = 2, col = "black",
+     main = "Cauchy Ratio - Decreasing Values of X",
+     xlab = "x", ylab = expression(Lambda))
+abline(h = 1, col = "red", lty = 2)
 ```
 
 At $x = 0$, $\Lambda = 0.5$. At $x = 1$, $\Lambda = 2$. At $x = 2$, $\Lambda = 2.5$. At $x = 1000$, $\Lambda = 1.002$ (as $x \to \infty$, $\Lambda \to 1$).  
 
 The ratio increases from 0 to around 2 and then decreases. So the ratio is not monotonic.
+
+A similar argument can be made, and is shown above, for decreasing values of X also exhibiting non-monotonicity for this example. 
 
 Because the likelihood ratio is not monotonic, then the $\text{Cauchy}(\theta)$ family lacks MLR in $X$ or $-X$.
 
@@ -337,7 +352,7 @@ and not rejecting otherwise. Conclude that this must be the most powerful (MP) t
 Consider the test provided in the hint:  
 
 $$
-\phi(x) = \begin{cases} 
+\varphi(x) = \begin{cases} 
 1 & \text{if } 1 < x < 3, \\
 0 & \text{otherwise}
 \end{cases}
@@ -367,25 +382,90 @@ $$
 \frac{f(1|1)}{f(1|0)} = \frac{f(3|1)}{f(3|0)} = 2
 $$  
 
-And the set $\{x: \frac{f(x|1)}{f(x|0)} > 2\} = (1, 3)$ exactly matches the closed form expression of $\phi(x)$.  
+And the set $\{x: \frac{f(x|1)}{f(x|0)} > 2\} = (1, 3)$ exactly matches the closed form expression of our test function, $\varphi(x)$.  
 
-Since these are one and the same, then $\phi(x)$ is the most powerful test for its size.
+Since these are one and the same, then $\varphi(x)$ is the most powerful test for its size.
 
 Let us then consider the hypotheses we're dealing with. 
 
-Under $H_0$:  
+Under $H_0$, the Type I Error Rate is:  
 
 $$
 \alpha = P(1 < X < 3 \mid \theta = 0) = \frac{1}{\pi} \left( \tan^{-1}(3) - \tan^{-1}(1) \right) \approx 0.1476
 $$
 
-Under $H_1$: 
+Under $H_1$, the Type II Error Rate is: 
 
 $$
 \beta = 1 - P(1 < X < 3 \mid \theta = 1) = 1 - \frac{1}{\pi} \left( \tan^{-1}(2) - \tan^{-1}(0) \right) \approx 0.6476
 $$
 
-So $\phi(x)$ is MP with $\alpha \approx 0.1476$ (Type I Error Rate) and $\beta \approx 0.6476$ (Type II Error Rate).  
+So $\varphi(x)$ as defined is MP with $\alpha \approx 0.1476$ (Type I Error Rate) and $\beta \approx 0.6476$ (Type II Error Rate).  
+
+### Additional Justification For Most Powerful Test
+
+I believe the above is an appropriate solution, but for the sake of completeness I wanted to make the connection a bit more explicit to the hint provided. 
+
+To that end: 
+
+The Neyman–Pearson Lemma tells us the MP test for testing simple hypotheses $H_0$ vs $H_1$ is:
+
+$$
+\varphi(x) =
+\begin{cases}
+1 & \text{if } \Lambda > k \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+where the likelihood ratio is given by the expression:
+
+$$
+\Lambda = \frac{f(x \mid \theta = 1)}{f(x \mid \theta = 0)} = \frac{1 + x^2}{1 + (x - 1)^2}
+$$
+
+Given the hint, let us see where this ratio exceeds 2, i.e. when:
+
+$$
+\frac{1 + x^2}{1 + (x - 1)^2} > 2
+$$
+
+"Solving" this inequality, i.e., finding the appropriate range of x values:
+
+$$
+\frac{1 + x^2}{x^2 - 2x + 2} > 2
+\quad \rightarrow \quad
+1 + x^2 > 2(x^2 - 2x + 2)
+\quad \rightarrow \quad
+1 + x^2 > 2x^2 - 4x + 4
+\rightarrow
+0 > x^2 - 4x + 3
+$$
+
+We then have: 
+
+$$
+x^2 - 4x + 3 < 0 \rightarrow  
+(x - 1)(x - 3) < 0
+\quad \rightarrow \quad
+x \in (1, 3)
+$$
+
+Thus, the likelihood ratio exceeds 2 exactly when $x \in (1, 3)$, matching directly with the hint provided. 
+
+Connecting this back to the test function, we then know: 
+
+$$
+\varphi(x) = 
+\begin{cases}
+1 & \text{if } 1 < x < 3 \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+is equivalent to the Neyman–Pearson test with k = 2, and since the test rejects $H_0$ when $\Lambda > 2$, with $\Lambda$ as defined previously. And we know the size of this test is fixed!  
+
+Such that we have the Type I and Type II errors derived previously, but now with a more explicit connection to the test equivalency. 
 
 \newpage
 
@@ -444,9 +524,9 @@ $$
 f(x \mid \theta_1) = 1 - \theta_1^2 \left( x - \frac{1}{2} \right)
 $$
 
-This density under the alternative hypothesis is greater than 1 when $x < \frac{1}{2}$, and less than 1 when $x > \frac{1}{2}$. So $f(x \mid \theta_1)$ has more mass in the tails (0 and 1) than under $H_0$. So we'd expect the LRT to be much larger (tend to reject $H_0$) for observations near the tails of the distribution (near 0 or near 1).  
+This density under the alternative hypothesis is greater than 1 when $x < \frac{1}{2}$, and less than 1 when $x > \frac{1}{2}$. So $f(x \mid \theta_1)$ has more mass in the tails (0 and 1) than under $H_0$. So we'd expect the likelihood ratio statistic to be much larger (and the test function will tend to reject $H_0$) for observations near the tails of the distribution (near 0 or near 1).  
 
-So, generally, the most powerful test at level $\alpha$ will reject $H_0$ for values of $x$ far from $1/2$, i.e. when values are "close" to 0 or "close" to 1.
+So, generally, the most powerful test at level $\alpha$ will reject $H_0$ for values of $x$ far from $1/2$, i.e. when values are "close" to 0 or "close" to 1. We want to, and will, calculate that exact level of "closeness" based on the size of the test. 
 
 Under $H_0$, $X \sim \text{Unif}(0, 1)$, we construct a level-$\alpha = 0.05$ test that rejects for extreme values of $x$. 
 
