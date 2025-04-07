@@ -5,10 +5,8 @@ author: "Sam Olson"
 ---
 
 # Outline
-
-  - Q2: Draft
-  - Q3: Draft
-  - Q4: Draft
+  - Q3: More explicit calculations
+  - Q4: Reconcile R code vs. manual calculations in R
   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -86,7 +84,7 @@ $$
 = \frac{\frac{1}{\sigma_e^2 + \sigma_u^2}}{\frac{1}{\frac{\sigma_e^2 + 2\sigma_u^2}{2}} + \frac{1}{\sigma_e^2 + \sigma_u^2}}
 = \frac{\frac{1}{\sigma_e^2 + \sigma_u^2}}{\frac{2}{\sigma_e^2 + 2\sigma_u^2} + \frac{1}{\sigma_e^2 + \sigma_u^2}}
 = \frac{\sigma_e^2 + 2\sigma_u^2}{3\sigma_e^2 + 4\sigma_u^2}
-$$$
+$$
 
 Thus, the weights match the given expressions:
 
@@ -118,31 +116,27 @@ Run the proc glm SAS code associated with Model 1. What model does SAS fit? Writ
 
 ### Answer 
 
+Let:
+
+- $Y_{ij}$: observed rating given by person $j$ on machine $i$
+- $i = 1, 2, 3$: machine levels
+- $j = 1, 2, \dots, 6$: person levels
+- $k = 1, 2, 3$: replications of experimental units; not necessarily balanced across all machine-person levels. 
+
+The Model formula is given by: 
+
 $$
-Y_{ij} = \mu + \alpha_i + u_{j(i)} + \varepsilon_{ij}
+Y_{ijk} = \mu + \alpha_i + \beta_j + \gamma_{ij} + \varepsilon_{ijk}
 $$
 
+Where:
 
-Where: 
-
-- $Y_{ij}$: observed rating for the $j$-th person using the $i$-th machine
-- $\mu$: overall mean rating
-- $\alpha_i$: fixed effect of the $i$-th machine, for $i = 1, 2, 3$
-- $u_{j(i)}$: random effect of person $j$ nested within machine $i$, where
-  $$
-  u_{j(i)} \sim \text{Normal}(0, \sigma_u^2)
-  $$
-- $\varepsilon_{ij}$: residual error, assumed independent of $u_{j(i)}$, where
-  $$
-  \varepsilon_{ij} \sim \text{Normal}(0, \sigma^2)
-  $$
-
-
-Assumptions:
-
-- The person effects $u_{j(i)}$ are treated as random, capturing subject-to-subject variability within each machine.
-- The fixed machine effect $\alpha_i$ allows us to test whether different machines have systematically different ratings.
-- The errors $\varepsilon_{ij}$ are independent of the person effects and are assumed normally distributed.
+- $Y_{ijk}$: Rating for the $k$-th observation of the $i$-th machine and $j$-th person.
+- $\mu$: Overall mean, no subscripts.
+- $\alpha_i$: Fixed effect of machine $i$.
+- $\beta_j$: Fixed effect of person $j$.
+- $\gamma_{ij}$: Fixed interaction effect between machine $i$ and person $j$.
+- $\varepsilon_{ijk}$: Residual error, with assumption $\varepsilon_{ijk} \sim N(0, \sigma^2)$.
 
 ## c) 
 
@@ -153,6 +147,8 @@ Report the MSE.
 ```{r, eval = T, echo=FALSE, fig.cap="MSE", out.width="100%"}
 knitr::include_graphics("GLMMSE.png")
 ```
+
+Reported MSE is 0.872564. 
 
 \newpage
 
@@ -166,30 +162,7 @@ knitr::include_graphics("Type3.png")
 
 #### Answer 
 
-The Type III Sum of Squares (SS) table shows the unique contribution of each term in the model after adjusting for all other effects. Here’s what it tells us about the fitted model:
-
-- Machine Effect  
-  - DF = 2, F = 709.52, p < .0001  
-  - The machine effect is highly significant, indicating that different machines produce significantly different ratings, even after accounting for individual (person) effects and interactions.  
-  - This means the average rating varies across different machines in a statistically meaningful way.
-
-- Person Effect  
-  - DF = 5, F = 231.74, p < .0001  
-  - The person effect is also highly significant, suggesting that there are large differences between raters. This means some raters tend to give higher or lower ratings than others, regardless of the machine used.
-
-- Machine × Person Interaction  
-  - DF = 10, F = 46.34, p < .0001  
-  - The significant interaction implies that the effect of the machine depends on the person using it. That is, different raters react differently to the machines—some might rate Machine A high and Machine B low, while others may do the opposite.  
-  - This interaction is important because it shows inconsistency in how machines are rated across different people.
-
-
-All three effects (machine, person, and their interaction) are statistically significant at the 0.0001 level. This implies:
-
-- There are meaningful differences in ratings across machines.
-- Raters differ substantially in how they rate.
-- The way raters evaluate machines depends on the combination of both factors.
-
-So, contrary to the original answer, there is no person(machines) nested effect here—instead, it is a two-way factorial design with interaction between machine and person.
+All three fixed effects (machine, person, and machine-person interactions) are statistically significant at the 0.0001 level, meaning we have overwhelming evidence against the null hypothesis for each of the sources in the table. Within the context of the study, this is evidence that (1) There are meaningful differences in average ratings across machines, even after accounting for the effects of people and machine-people interactions (2) There are meaningful differences in average ratings across people, even after accounting for the effects of machine and machine-people interactions, and (3) There are meaningful interaction effects, i.e. that machine differences (effects) are not consistent across people. 
 
 ## d) 
 
@@ -201,28 +174,11 @@ knitr::include_graphics("InteractionPlot.png")
 
 ### Answer 
 
-The interaction plot provides visual insight into the effects of machine, person, and their interaction on the response variable (*rating*).
+Effect of Machine: There is a general upward trend across all lines from machine 1 to machine 3, though not always from machine 1 to machine 2. This is evidence that machine 3 on average received the highest ratings, followed by machine 2, and then machine 1. This is consistent with the ANOVA table where machine had a statistically significant F-statistic.
 
-Effect of Machine
-There is a general upward trend across all lines from machine 1 to machine 3, indicating that:
+Effect of Person: The lines representing each person are distinctly separated, despite some intersections when moving from machine 1 to machine 2. Overall this shows that that different individuals tended to receive different ratings across machines. In particular, person 3 tended to receive the highest average ratings while person 6 tended to receive the lowest average ratings. This is consistent with the ANOVA table where person had a statistically significant F-statistic. 
 
-- Machine 3 tends to receive the highest ratings, followed by machine 2, and then machine 1.
-- This confirms a strong main effect of machine on the rating, consistent with the ANOVA table where machine had a highly significant F-statistic.
-
-Effect of Person
-- The lines representing each person are distinctly separated, showing that different individuals give consistently higher or lower ratings across machines.
-- For instance, person 3 tends to rate machines the highest overall, while person 6 rates them the lowest.
-- This supports a significant main effect of person.
-
-Interaction Effect
-- The lines are not parallel, and some even diverge or cross slightly, particularly person 6 who shows a unique pattern (a dip at machine 2 followed by a sharp increase).
-- This non-parallelism indicates a significant interaction: the effect of machine on the rating depends on the person.
-  - For example, while most people rate machine 3 highest, person 6 deviates from this trend.
-
-Conclusion
-The interaction plot confirms the results from the ANOVA table:
-- Strong main effects for both machine and person.
-- A significant machine × person interaction, suggesting that the impact of machine varies by individual.
+Interaction Effect: The lines are not parallel, changing slope or even intersecting (changing signage). The lines not being parallel indicate an interaction effect, i.e., that the effect of machine on the rating depends on the person. This is also consistent with the ANOVA table where person-machine interaction effect had a statistically significant F-statistic. 
 
 ## e) 
 
@@ -230,33 +186,25 @@ Run the proc mixed SAS code associated with Model 2. What model does SAS fit? Wr
 
 ### Answer 
 
-Model 2 – Statistical Notation
-
 Let:
 
 - $Y_{ij}$: observed rating given by person $j$ on machine $i$
 - $i = 1, 2, 3$: machine levels
 - $j = 1, 2, \dots, 6$: person levels
+- $k = 1, 2, 3$: replications of experimental units; not necessarily balanced across all machine-person levels. 
 
-The linear mixed model is:
+The Model formula is given by: 
 
 $$
 Y_{ij} = \mu + \alpha_i + u_j + \varepsilon_{ij}
 $$
 
-where:
+Where:
 
 - $\mu$ is the overall mean rating
-- $\alpha_i$ is the fixed effect of machine $i$, with constraint $\sum_i \alpha_i = 0$
-- $u_j \sim \mathcal{N}(0, \sigma_u^2)$ is the random effect of person $j$, accounting for variability between persons
+- $\alpha_i$ is the fixed effect of machine $i$, with sum-to-zero constraint $\sum_i \alpha_i = 0$
+- $u_j \sim \mathcal{N}(0, \sigma_u^2)$ is the random effect of person $j$
 - $\varepsilon_{ij} \sim \mathcal{N}(0, \sigma^2)$ is the residual error, assumed independent of $u_j$
-
-Key Model Features
-
-- Fixed effect: machine
-- Random effect: person
-- Assumes independence between random effects and residual errors
-- Captures person-to-person variation via the random effect $u_j$, instead of estimating separate fixed effects for each person
 
 ## f) 
 
@@ -268,11 +216,7 @@ knitr::include_graphics("Model2Residual.png")
 
 ### Answer 
 
-The Mean Squared Error (MSE) for Model 2 is 11.8517, as reported in the "Residual" row of the Covariance Parameter Estimates table from the SAS PROC MIXED output.
-
-By comparison, Model 1 (the fixed effects model) has an MSE of 0.8726, as shown in the "Error" row of the GLM output.
-
-Though expected due to the inclusion of person as a random effect and the exclusion of the interaction term, Model 2 exhibits a higher residual error than Model 1. This reflects a looser fit to the observed data.
+The MSE for Model 2 is 11.8517, as reported in the table. This is larger than the MSE for Model 1. Though expected due to the inclusion of person as a random effect and the exclusion of the interaction term in the model, is does appear Model 2 has a "worse" fit compared to Model 1 in having a larger MSE. 
 
 ## g) 
 
@@ -280,11 +224,11 @@ How does the evidence for the fixed effect associated with Machines change? Why 
 
 ### Answer 
 
-In Model 1 (fixed effects for machine, person, and their interaction), the F-statistic for the fixed effect of machine is 709.52, with p < .0001.
+Model 1: The F-statistic for the fixed effect of machine is 709.52, with p < .0001.
 
-In Model 2 (machine as fixed, person as random), the F-statistic for machine drops to 58.41, though the p-value remains < .0001, indicating continued strong evidence for a machine effect.
+Model 2: The F-statistic for machine drops to 58.41, though the p-value remains < .0001.
 
-This change makes sense: in Model 1, person and interaction effects are modeled explicitly as fixed terms, which absorbs more variation and makes the machine effect look relatively stronger. In Model 2, more variability is attributed to the random person effect, which increases residual error and reduces the F-statistic for machine accordingly — even though significance is preserved.
+While both models show overwhelming evidence for a machine effect (both having p < 0.0001), the F-statistic is much larger in Model 1 because it treats person and interaction effects as fixed, artificially reducing residual variance. Model 2 accounts for person-level variability (main effect of person) as random, which is a more conservative estimate of the model variability. In a word: The smaller F-statistic in Model 2 reflects better partitioning of the variance components, which should not (probably) be conflated as "weaker evidence".
 
 ## h) 
 
@@ -302,8 +246,6 @@ Person (random effect): 24.3840
 
 Residual (error term): 11.8517
 
-These estimates represent the variability attributable to differences between persons and the residual variation within persons, respectively, as shown in the output above.
-
 ## i) 
 
 Run the proc mixed SAS code associated with Model 3. What model does SAS fit? Write out the model using mathematical/statistical notation. Be sure to define all variables and parameters. Use appropriate subscripts where necessary.
@@ -312,26 +254,23 @@ Run the proc mixed SAS code associated with Model 3. What model does SAS fit? Wr
 
 Let:
 
-- $Y_{ijk}$: the rating given by person $j$ on machine $i$, observation $k$
-- $i = 1, 2, 3$: machine index
-- $j = 1, \dots, n_i$: person index nested within machine $i$
-- $k$: replicate index (if multiple ratings per person-machine combo)
+- $Y_{ij}$: observed rating given by person $j$ on machine $i$
+- $i = 1, 2, 3$: machine levels
+- $j = 1, 2, \dots, 6$: person levels
+- $k = 1, 2, 3$: replications of experimental units; not necessarily balanced across all machine-person levels. 
 
-Then the model SAS fits is:
+The Model formula is given by: 
 
 $$
-Y_{ijk} = \mu + \alpha_i + u_{j(i)} + \varepsilon_{ijk}
+Y_{ijk} = \mu + \alpha_i + u_{ij} + \varepsilon_{ijk}
 $$
 
-where:
+Where:
 
 - $\mu$: overall mean rating
 - $\alpha_i$: fixed effect of machine $i$, with $\sum_i \alpha_i = 0$
-- $u_{j(i)} \sim \mathcal{N}(0, \sigma_u^2)$: random effect for person $j$ nested within machine $i$
-- $\varepsilon_{ijk} \sim \mathcal{N}(0, \sigma^2)$: residual error
-- $u_{j(i)} \perp \varepsilon_{ijk}$: random effects and residuals are independent
-
-This model accounts for person-to-person variation within each machine. It’s more flexible than Model 2 because it allows the distribution of person effects to vary across machines.
+- $u_{ij} \sim \mathcal{N}(0, \sigma_u^2)$: random effect for person $j$ nested within machine $i$
+- $\varepsilon_{ijk} \sim \mathcal{N}(0, \sigma^2)$: residual error, independent of the random effects for person
 
 ## j) 
 
@@ -343,11 +282,9 @@ knitr::include_graphics("Model3Residual.png")
 
 ### Answer 
 
-The MSE for Model 3 is 0.8721, as reported under the Residual in the Covariance Parameter Estimates table.
+Model 3 MSE is 0.8721.
 
-This is nearly identical to the MSE from Model 1 (0.8726) and substantially lower than the MSE from Model 2 (11.8517).
-
-This similarity makes sense because both Models 1 and 3 account for person-level variation within machine—Model 1 through a fixed interaction, and Model 3 through a random effect nested within machine. Modeling this structure reduces residual error similarly in both cases.
+This is nearly identical to the MSE from Model 1 (0.8726) and substantially lower than the MSE from Model 2 (11.8517). This similarity makes sense because both Models 1 and 3 account interaction effects between person and machine, albeit somewhat differently--Model 1 through a fixed interaction, and Model 3 through a random effect nested within machine. In both cases, our model has smaller MSE through the inclusion of an interaction effect of some kind. 
 
 ## k) 
 
@@ -360,19 +297,14 @@ knitr::include_graphics("Model2Dimensions.png")
 ```{r, eval = T, echo=FALSE, fig.cap="Model 3 Dimensions", out.width="100%"}
 knitr::include_graphics("Model3Dimensions.png")
 ```
+
 ### Answer 
 
-The key difference between Model 2 and Model 3 lies in how the random effects are structured:
+Dimensions tables for Models 2 and 3 are provided. There is a noticeable differences between the two models considered in this question:  
 
-- Model 2 treats `person` as a single random effect, meaning each person has one random intercept across all machines.
-  - From the Dimensions table: 18 subjects, each with up to 3 observations (1 per machine).
+Model 2 treats `person` as a single random effect, meaning each person has one random intercept across all machines, hence why the Dimensions table reports 18 subjects, each with up to 3 observations per person-machine combination.
   
-- Model 3 uses `person(machine)` as the subject for the random effect, treating each person–machine combination as a unique random level.
-  - From the Dimensions table: only 1 subject, but with 44 observations, and 6 columns in Z, indicating 6 random effects (person nested within machine).
-
-Summary:
-- Model 2 assumes person effects are constant across machines.
-- Model 3 allows person effects to vary across machines, capturing interaction-like variability through nested random effects.
+By contrast, Model 3 uses `person(machine)` as the subject for the random effect, treating each person–machine combination as a unique random level, which in turn is why the respective Dimensions table reports only 1 subject, but with 44 observations, and 6 columns in Z, indicating 6 random effects to account for nesting `person` within `machine`.
 
 ## l) 
 
@@ -380,9 +312,11 @@ How does the evidence for the fixed effect associated with Machines change in Mo
 
 ### Answer 
 
-In Model 3, the F-statistic for the fixed effect of `machine` remains highly significant, similar to Models 1 and 2. The strength of evidence does not meaningfully decrease compared to Model 1, and it is stronger than in Model 2.
+In Model 3, the F-statistic for the fixed effect of `machine` remains highly significant, which is consistent with Models 1 and 2. The strength of evidence does not meaningfully decrease compared to Model 1, and it is stronger than in Model 2, based on comparisons of F-statistics.
 
-This makes sense because Model 3, like Model 1, accounts for person-specific variation across machines—in Model 1 via a fixed interaction term, and in Model 3 via random effects nested within machine. By modeling this structure, Model 3 isolates the machine effect more effectively than Model 2, where person was treated as a single random effect without allowing variation across machines.
+Similarity with Model 1 makes sense because Model 3 accounts for possible interaction effects between person and machine. There is also some sense to be made by them being somewhat different too, as Model 1 has fixed interaction effects whereas Model 3 has random interaction effects, in part due to the nesting of `person` within `machine`. 
+
+In comparison with Model 2, Model 3 is better able to partition the sources of variation through the interaction effect. By contrast, Model 2 treats `person` as a single random effect without allowing variation across machines.
 
 \newpage
 
@@ -448,80 +382,51 @@ y_{111} \\ y_{112} \\ y_{121} \\ y_{211}
 \end{bmatrix}
 $$
 
-Project Matrix 1: Overall Mean ($P_1$):
+Projection Matrices
+
+$P_1 = \mathbf{X}(\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T$
+
+$P_2 = [\mathbf{X}\ \mathbf{Z}] \left( [\mathbf{X}\ \mathbf{Z}]^T [\mathbf{X}\ \mathbf{Z}] \right)^{-1} [\mathbf{X}\ \mathbf{Z}]^T$
+
+$P_3 = \mathbf{I} - P_2$
+
+Probably need to actually calculate those matrices, don't I? 
+
+Sums of Squares
+
+Treatment sum of squares:
 
 $$
-P_1 \mathbf{y} =
-\begin{bmatrix}
-\bar{y}_{...} \\ \bar{y}_{...} \\ \bar{y}_{...} \\ \bar{y}_{...}
-\end{bmatrix}, \quad
-\bar{y}_{...} = \frac{y_{111} + y_{112} + y_{121} + y_{211}}{4}
+SS_{\text{trt}} = \mathbf{y}^T P_1 \mathbf{y}
 $$
 
-Projection Matrix 2: Treatment Means ($P_2$):
+Subject within treatment, random effect:
 
 $$
-P_2 \mathbf{y} =
-\begin{bmatrix}
-\bar{y}_{1..} \\ \bar{y}_{1..} \\ \bar{y}_{1..} \\ \bar{y}_{2..}
-\end{bmatrix}, \quad
-\bar{y}_{1..} = \frac{y_{111} + y_{112} + y_{121}}{3}, \quad
-\bar{y}_{2..} = y_{211}
+SS_{\text{xu(trt)}} = \mathbf{y}^T (P_2 - P_1) \mathbf{y}
 $$
 
-Projection Matrix 3: Subject Means ($P_3$):
+Residual:
 
 $$
-P_3 \mathbf{y} =
-\begin{bmatrix}
-\bar{y}_{11.} \\ \bar{y}_{11.} \\ y_{121} \\ y_{211}
-\end{bmatrix}, \quad
-\bar{y}_{11.} = \frac{y_{111} + y_{112}}{2}
+SS_{\text{Residual}} = \mathbf{y}^T (\mathbf{I} - P_2) \mathbf{y}
 $$
 
-For the Sums of Squares
+Mean Squares are the same as Sum of Squares, because...
 
-Treatment SS:
-
-$$
-SS_{\text{trt}} = \mathbf{y}^\top (P_2 - P_1) \mathbf{y}
-= 3(\bar{y}_{1..} - \bar{y}_{...})^2 + (\bar{y}_{2..} - \bar{y}_{...})^2
-$$
-
-Subject(Treatment) SS:
-
-$$
-SS_{\text{subj(trt)}} = \mathbf{y}^\top (P_3 - P_2) \mathbf{y}
-= 2(\bar{y}_{11.} - \bar{y}_{1..})^2 + (y_{121} - \bar{y}_{1..})^2
-$$
-
-Error SS:
-
-$$
-SS_{\text{error}} = \mathbf{y}^\top (I - P_3) \mathbf{y}
-= (y_{111} - \bar{y}_{11.})^2 + (y_{112} - \bar{y}_{11.})^2
-$$
+Degrees of freedom: $\text{df}_{\text{trt}} = 1$, $\text{df}_{\text{xu(trt)}} = 1$, $\text{df}_{\text{Residual}} = 1$
 
 Expected Mean Squares
 
-Expected MS for Treatment:
-
 $$
-E[MS_{\text{trt}}] =
-(\tau_1 - \tau_2)^2 + \frac{1}{3}(\sigma_u^2 + \sigma_e^2)
-$$
-
-Expected MS for Subject(Treatment):
-
-$$
-E[MS_{\text{subj(trt)}}] = \sigma_u^2 + \sigma_e^2
+\begin{aligned}
+E[\text{MS}_{\text{trt}}] &= (\tau_1 - \tau_2)^2 + 1.1667\sigma_u^2 + \sigma_e^2 \\
+E[\text{MS}_{\text{xu(trt)}}] &= 1.3333\sigma_u^2 + \sigma_e^2 \\
+E[\text{MS}_{\text{Residual}}] &= \sigma_e^2
+\end{aligned}
 $$
 
-Expected MS for Error:
-
-$$
-E[MS_{\text{error}}] = \sigma_e^2
-$$
+Primarily based on SAS output, need to actually calculate these
 
 ## b) 
 
@@ -535,8 +440,8 @@ knitr::include_graphics("Slide45.png")
 
 | Source             | df | Expected Mean Square                              |
 |--------------------|----|----------------------------------------------------|
-| Treatment          | 1  | $(\tau_1 - \tau_2)^2 + 1.5\sigma_u^2 + \sigma_e^2$ |
-| Subject(Treatment) | 2  | $\sigma_u^2 + \sigma_e^2$                      |
+| Treatment          | 1  | $(\tau_1 - \tau_2)^2 + \frac{7}{6}\sigma_u^2 + \sigma_e^2$ |
+| Subject(Treatment) | 1  | $\frac{4}{3}\sigma_u^2 + \sigma_e^2$                      |
 | Error              | 1  | $\sigma_e^2$                                   |
 
 
@@ -549,27 +454,39 @@ Based on the table, what linear combination of expected mean squares provides an
 To test for a treatment effect, we use the test statistic:
 
 $$
-F = \frac{MS_{\text{trt}}}{\text{Estimator of variance components in } E[MS_{\text{trt}}]}
+F = \frac{MS_{\text{trt}}}{\widehat{V}}
 $$
 
-The expected mean square for treatment includes:
+Where: 
+
+$\widehat{V}$ is an unbiased estimator of the variance component portion of $E[MS_{\text{trt}}]$. 
+
+From part c), to get an unbiased estimate of $1.1667\sigma_u^2 + \sigma_e^2$, we have a system of linear equations with real-valued constants a and b such that:
 
 $$
-E[MS_{\text{trt}}] = (\tau_1 - \tau_2)^2 + 1.5\sigma_u^2 + \sigma_e^2
+\widehat{V} = a \cdot MS_{\text{subj(trt)}} + b \cdot MS_{\text{error}}
 $$
 
-We approximate the variance component part $1.5\sigma_u^2 + \sigma_e^2$ using a linear combination of mean squares:
+And taking expectation: 
 
 $$
-\widehat{V} = 1.5 \cdot MS_{\text{subj(trt)}} - 0.5 \cdot MS_{\text{error}}
+E[\widehat{V}] = a(1.3333 \sigma_u^2 + \sigma_e^2) + b(\sigma_e^2) = 1.1667 \sigma_u^2 + \sigma_e^2
 $$
 
-This combination eliminates the fixed treatment effect and gives an unbiased estimator of the variance component portion of the treatment EMS.
+For $\sigma_u^2$: $1.3333a = 1.1667 \rightarrow a = \frac{1.1667}{1.3333} \approx 0.875$, and 
 
-Therefore, the test statistic becomes:
+For $\sigma_e^2$: $a + b = 1 \rightarrow b = 1 - 0.875 = 0.125$
+
+So we estimate the variance component part using:
 
 $$
-F = \frac{MS_{\text{trt}}}{1.5 \cdot MS_{\text{subj(trt)}} - 0.5 \cdot MS_{\text{error}}}
+\widehat{V} = 0.875 \cdot MS_{\text{subj(trt)}} + 0.125 \cdot MS_{\text{error}}
+$$
+
+So the test statistic becomes:
+
+$$
+F = \frac{MS_{\text{trt}}}{0.875 \cdot MS_{\text{subj(trt)}} + 0.125 \cdot MS_{\text{error}}}
 $$
 
 ## d) 
@@ -584,46 +501,50 @@ knitr::include_graphics("Slide4.png")
 knitr::include_graphics("Slide17.png")
 ```
 
-### Answer 
+### Answer
 
-To test the treatment effect, we use:
-
-$$
-F = \frac{MS_{\text{trt}}}{1.5 \cdot MS_{\text{subj(trt)}} - 0.5 \cdot MS_{\text{error}}}
-$$
-
-This denominator estimates the variance component portion of the treatment EMS:
+From part c), we have: 
 
 $$
-1.5 \sigma_u^2 + \sigma_e^2
+F = \frac{MS_{\text{trt}}}{\frac{7}{8} MS_{\text{subj(trt)}} + \frac{1}{8} MS_{\text{error}}}
 $$
 
-We apply the Cochran–Satterthwaite approximation to this linear combination:
+Via the Cochran–Satterthwaite approximation, we use the approximate F-Test to determine the approximated degrees of freedom:
 
 $$
-d = \frac{(1.5 MS_1 - 0.5 MS_2)^2}
-{(1.5)^2 \cdot \frac{MS_1^2}{df_1} + (-0.5)^2 \cdot \frac{MS_2^2}{df_2}}
+d = \frac{\left(\frac{7}{8} MS_{\text{subj(trt)}} + \frac{1}{8} MS_{\text{error}}\right)^2}{\left(\frac{7}{8} MS_{\text{subj(trt)}}\right)^2 + \left(\frac{1}{8} MS_{\text{error}}\right)^2}
 $$
 
-Where: 
+Simplify this further?
 
-$MS_1 = MS_{\text{subj(trt)}} = 2.42$, $df_1 = 2$
+### Some Actual Data
+
+From SAS Output: 
+
+$MS_1 = MS_{\text{subj(trt)}} = 9.626667$, $df_1 = 1$
 
 And: 
 
-$MS_2 = MS_{\text{error}} = 0.18$, $df_2 = 1$
+$MS_2 = MS_{\text{error}} = 2.42$, $df_2 = 1$
 
-Computing:
-
-$$
-d = \frac{(1.5 \cdot 2.42 - 0.5 \cdot 0.18)^2}
-{(1.5)^2 \cdot \frac{2.42^2}{2} + (-0.5)^2 \cdot \frac{0.18^2}{1}} = \boxed{1.1}
-$$
-
-Thus, the approximate degrees of freedom for the denominator is:
+Numerator:
 
 $$
-\boxed{d = 1.1}
+(0.875 \cdot 9.626667 + 0.125 \cdot 2.42)^2 = (8.422333 + 0.3025)^2 = (8.724833)^2 \approx 76.1208
+$$
+
+Denominator:
+
+$$
+(0.875)^2 \cdot \frac{9.626667^2}{1} + (0.125)^2 \cdot \frac{2.42^2}{1}
+= 0.765625 \cdot 92.6827 + 0.015625 \cdot 5.8564
+\approx 70.9728 + 0.0915 = 71.0643
+$$
+
+Calculating: 
+
+$$
+d = \frac{76.1208}{71.0643} \approx 1.0717
 $$
 
 ## e) 
@@ -644,6 +565,8 @@ knitr::include_graphics("Output1.png")
 knitr::include_graphics("Output2.png")
 ```
 
+Do I need to point at things? 
+
 \newpage
 
 # Q4
@@ -655,35 +578,62 @@ You have the SAS code to analyze the two mini examples discussed in Chapters 12 
 ```{r}
 library(lme4)
 library(lmerTest)  
-```
 
-```{r}
 d2 <- data.frame(
   trt = factor(c(1, 1, 1, 2)),
   subject = factor(c("1_1", "1_1", "1_2", "2_1")),
   y = c(6.4, 4.2, 1.5, 0.9)
 )
-
-# Fit the mixed model with subject as random effect
-model2 <- lmer(y ~ trt + (1 | subject), data = d2)
-summary(model2)
-anova(model2)
-VarCorr(model2)
 ```
 
-Sums of Squares:
+```{r, eval = F}
+model <- lmer(y ~ trt + (1 | subject), data = d2, REML = FALSE)
 
-Mean Squares:
+anova_table <- anova(model, type = 1)
+anova_table
+# model2 <- lmer(y ~ trt + (1 | subject), data = d2)
+# anova(model2, type = 1, ddf = "Satterthwaite")
+# anova(model2)
+# VarCorr(model2)
+```
 
-Table listing source of variation, df, and expected mean squares
 
-| Source             | df | Expected Mean Square                              |
+```{r}
+y_mean <- mean(d2$y)
+y_trt1 <- mean(d2$y[d2$trt == 1])
+y_trt2 <- mean(d2$y[d2$trt == 2])
+SS_trt <- 3 * (y_trt1 - y_mean)^2 + 1 * (y_trt2 - y_mean)^2
+SS_trt
+```
+
+```{r}
+model2 <- lmer(y ~ trt + (1 | subject), data = d2)
+
+anova_out <- anova(model2, type = 1)
+ms_trt <- anova_out$`Mean Sq`[1]  
+ss_trt <- anova_out$`Sum Sq`[1]    
+
+vc <- as.data.frame(VarCorr(model2))
+ms_error <- vc$vcov[vc$grp == "Residual"]   
+ss_error <- ms_error  
+
+ms_subject <- 1.3333 * vc$vcov[vc$grp == "subject"] + ms_error  
+ss_subject <- ms_subject  
+
+ss_trt
+ss_subject
+ss_error
+```
+
+For Type 1 SS Specifically: 
+
+| Source             | df | Sums of Squares| Mean Square | Expected Mean Square|                             
 |--------------------|----|----------------------------------------------------|
-| Treatment          | 1  | $(\tau_1 - \tau_2)^2 + 1.5\sigma_u^2 + \sigma_e^2$ |
-| Subject(Treatment) | 2  | $\sigma_u^2 + \sigma_e^2$                      |
-| Error              | 1  | $\sigma_e^2$                                   |
+| Treatment          | 1  | 7.363333   	       | 7.363333    	     |  $(\tau_1 - \tau_2)^2 + \frac{7}{6}\sigma_u^2 + \sigma_e^2$       |
+| Subject(Treatment) | 1  | 9.626487   	       | 9.626487    	     |  $\frac{4}{3}\sigma_u^2 + \sigma_e^2$       | 
+| Error              | 1  | 2.42   	           | 2.42     	     |  $\sigma_e^2$       |
 
-Cochran-Satterthwaite Df Approximation: 1.1019
+Notably, the Cochran-Satterthwaite Df Approximation from R is 1.1019. This is somewhat different, but approximately equal, to SAS because of differences in calculation. From what I gathered, it is REML-related. 
 
 ### Bonus - Example 1
 
@@ -697,14 +647,9 @@ d1 <- data.frame(
   y = c(6.4, 4.2, 1.5, 0.9)
 )
 
-# Fit using subject as random effect
 model1 <- lmer(y ~ trt + (1 | subject), data = d1)
 summary(model1)
 anova(model1)
-
-# Fit model: random xu nested in trt
 mod <- lmer(y ~ trt + (1 | trt:xu), data = d1)
-
-# Display summary (with Satterthwaite df)
 summary(mod)
 ```

@@ -478,6 +478,7 @@ f(x \mid \theta) = 1 - \theta^2 \left( x - \frac{1}{2} \right), \quad 0 \leq x \
 $$
 
 We wish to test:
+
 $$
 H_0: \theta = 0 \quad \text{vs.} \quad H_1: \theta > 0
 $$
@@ -488,83 +489,53 @@ Find the UMP test of size $\alpha = 0.05$ based on $X$. Carefully justify your a
 
 ### Answer 
 
-To find a UMP test of size $\alpha = 0.05$, we first turn to the question of monotonicity, specifically to determine if the family of distribution has MLR in x. 
-
-Let $\theta_2 > \theta_1 \geq 0$, as we do. 
-
-Then, the likelihood ratio is given by:
+Under $H_0$ ($\theta = 0$):
 
 $$
-\Lambda = \frac{f(x \mid \theta_2)}{f(x \mid \theta_1)} = \frac{1 - \theta_2^2 (x - \frac{1}{2})}{1 - \theta_1^2 (x - \frac{1}{2})}
+f(x \mid 0) = 1 \quad \Rightarrow \quad X \sim \text{Uniform}(0,1).
 $$
 
-To analyze monotonicity of the ratio, consider first that $x = \frac{1}{2}$ is a critical point. So, we analyze the behavior of the ratio when x is less than or greater than the critical point. Specifically:
-
-When $x < \frac{1}{2}$: both numerator and denominator are increasing in $x$, and the ratio increases.
-
-When $x > \frac{1}{2}$: both numerator and denominator are decreasing in $x$, and the ratio decreases.
-
-So unfortunately, $\Lambda$ is not monotonic across the domain, i.e., the direction of monotonicity changes at $x = \frac{1}{2}$. And consequently the family does not MLR in $x$ (no Karlin-Rubin to make things easier). 
-
-However, we can still turn to the Neyman–Pearson Lemma to construct the most powerful test for:
+And under $H_1$ ($\theta > 0$):
 
 $$
-H_0: \theta = 0 \quad \text{vs.} \quad H_1: \theta = \theta_1 > 0
+f(x \mid \theta) = 1 - \theta^2 \left( x - \frac{1}{2} \right).
 $$
 
-Under $H_0$:
+$x = \frac{1}{2}$ is an "inflection point" of sorts, such that the behavior of the pdf around $\frac{1}{2}$ will provide insight. 
+
+When $x < \frac{1}{2}$, $f(x \mid \theta) > 1$. So we observe larger density near $x=0$ under the alternative.   
+
+When $x > \frac{1}{2}$, $f(x \mid \theta) < 1$. So we observe smaller density near $x=1$ under the alternative. 
+
+Turning then to the likelihood ratio for $H_0: \theta = 0$ vs. $H_1: \theta = \theta_1 > 0$:
 
 $$
-f(x \mid 0) = 1, \quad \text{so } X \sim \text{Uniform}(0, 1)
+\Lambda = \frac{f(x \mid \theta_1)}{f(x \mid 0)} = 1 - \theta_1^2 \left( x - \frac{1}{2} \right)
 $$
 
-Under $H_1$:
+$\Lambda$ is decreasing in $x$, maximized at $x = 0$ (where $\Lambda = 1 + \frac{\theta_1^2}{2} > 1$), and minimized at $x = 1$ (where $\Lambda = 1 - \frac{\theta_1^2}{2} < 1$).
+
+Via Neyman-Pearson, the MP test rejects $H_0$ when $\Lambda > k$, which occurs when small $x$ is observed.
+
+Rejection Region: The MP test rejects for $x < c$, where $c$ is chosen to control the size of a given $\alpha$, $\alpha = 0.05$.  
+
+Under $H_0$, $X \sim \text{Uniform}(0,1)$, so we can calculate the probability explicitly:
 
 $$
-f(x \mid \theta_1) = 1 - \theta_1^2 \left( x - \frac{1}{2} \right)
+P_{\theta=0}(X < c) = c = 0.05 \rightarrow c = 0.05.
 $$
 
-This density under the alternative hypothesis is greater than 1 when $x < \frac{1}{2}$, and less than 1 when $x > \frac{1}{2}$. So $f(x \mid \theta_1)$ has more mass in the tails (0 and 1) than under $H_0$. So we'd expect the likelihood ratio statistic to be much larger (and the test function will tend to reject $H_0$) for observations near the tails of the distribution (near 0 or near 1).  
-
-So, generally, the most powerful test at level $\alpha$ will reject $H_0$ for values of $x$ far from $1/2$, i.e. when values are "close" to 0 or "close" to 1. We want to, and will, calculate that exact level of "closeness" based on the size of the test. 
-
-Under $H_0$, $X \sim \text{Unif}(0, 1)$, we construct a level-$\alpha = 0.05$ test that rejects for extreme values of $x$. 
-
-We define our test function as:
+Via the above rejection region, we may then construct the test function:  
 
 $$
-\varphi(x) =
-\begin{cases}
-1 & \text{if } x < c_1 \text{ or } x > c_2 \\
+\varphi(x) = 
+\begin{cases} 
+1 & \text{if } x < 0.05, \\ 
 0 & \text{otherwise}
 \end{cases}
 $$
 
-Noting that X is a continuous random variable such that our "coin flip" case in the above test is able to be simplified to $\gamma = 0$. 
-
-At any rate, our next objective is to further specify the values of $c_1$ and $c_2$ such that:
-
-$$
-P_{\theta = 0}(X < c_1) + P_{\theta = 0}(X > c_2) = 0.05
-$$
-
-Since the Uniform(0,1) (distribution under the null) is symmetric, we can divide the error equally to both sides of the density, i.e.,:
-
-$$
-c_1 = \frac{\alpha}{2} = 0.025, \quad \text{ and } c_2 = 1 - \frac{\alpha}{2} = 0.975
-$$
-
-Giving us the test function of the form: 
-
-$$
-\varphi(x) =
-\begin{cases}
-1 & \text{if } x < 0.025 \text{ or } x > 0.975 \\
-0 & \text{otherwise}
-\end{cases}
-$$
-
-This test has size $\alpha = 0.05$, and by the Neyman–Pearson Lemma since the above MP test does not depend on the parameter $\theta_1$, it is also the UMP test of size $\alpha = 0.05$ for testing $H_0: \theta = 0$ vs. $H_1: \theta > 0$.
+As this test function does not depend on $\theta_1$, it is also UMP for all $\theta > 0$.  
 
 ## b)
 
