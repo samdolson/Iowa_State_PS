@@ -384,20 +384,61 @@ $$
 
 Projection Matrices
 
-$P_1 = \mathbf{X}(\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T$
+Note, for the following we can take a true inverse, which eases computation. 
 
-$P_2 = [\mathbf{X}\ \mathbf{Z}] \left( [\mathbf{X}\ \mathbf{Z}]^T [\mathbf{X}\ \mathbf{Z}] \right)^{-1} [\mathbf{X}\ \mathbf{Z}]^T$
+$X_1 = \mathbf{1} \rightarrow P_1 = \mathbf{1}(\mathbf{1}^\top \mathbf{1})^{-}\mathbf{1}^{\top}$
 
-$P_3 = \mathbf{I} - P_2$
+$$
+P_1
+= \frac{1}{4}
+\begin{bmatrix}
+1 & 1 & 1 & 1 \\
+1 & 1 & 1 & 1 \\
+1 & 1 & 1 & 1 \\
+1 & 1 & 1 & 1
+\end{bmatrix}
+$$
+
+$X_2 = \mathbf{X} \rightarrow P_2 = \mathbf{X}(\mathbf{X}^\top \mathbf{X} )^{-}\mathbf{X}^{\top}$
+
+$$
+P_2 
+= \begin{bmatrix}
+\frac{1}{3} & \frac{1}{3} & \frac{1}{3} & 0 \\
+\frac{1}{3} & \frac{1}{3} & \frac{1}{3} & 0 \\
+\frac{1}{3} & \frac{1}{3} & \frac{1}{3} & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+$X_3 = \mathbf{Z} \rightarrow P_3 = \mathbf{Z}(\mathbf{Z}^\top \mathbf{Z} )^{-}\mathbf{Z}^{\top}$
+
+$$ 
+P_3 
+= \begin{bmatrix}
+\frac{1}{2} & \frac{1}{2} & 0 & 0 \\
+\frac{1}{2} & \frac{1}{2} & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$ 
 
 Probably need to actually calculate those matrices, don't I? 
 
-Sums of Squares
+Sums of Squares, General Form: 
+
+$$
+\mathbf{y}^\top (P_{i+1} - P_{i}) \mathbf{y}
+$$
 
 Treatment sum of squares:
 
 $$
 SS_{\text{trt}} = \mathbf{y}^T P_1 \mathbf{y}
+$$
+
+$$
+SS_{\text{trt}} = \frac{1}{4}(y_{111} + y_{112} + y_{121} + y_{211})^2 = \frac{1}{4}\bar{y}^2
 $$
 
 Subject within treatment, random effect:
@@ -406,24 +447,48 @@ $$
 SS_{\text{xu(trt)}} = \mathbf{y}^T (P_2 - P_1) \mathbf{y}
 $$
 
+$$
+SS_{\text{xu(trt)}} = \frac{1}{3}\left( (y_{111} + y_{112} + y_{121})^2 + y_{211}^2\right) - \frac{1}{4}(y_{111} + y_{112} + y_{121} + y_{211})^2 = \frac{1}{3}\bar{y}_{1..} + y_{211}^2 - \frac{1}{4}\bar{y}^2
+$$
+
 Residual:
 
 $$
 SS_{\text{Residual}} = \mathbf{y}^T (\mathbf{I} - P_2) \mathbf{y}
 $$
 
-Mean Squares are the same as Sum of Squares, because...
+$$
+SS_{\text{Residual}} = y_{111}^2 + y_{112}^2 + y_{121}^2 - \frac{1}{3}(y_{111} + y_{112} + y_{121})^2 = y_{111}^2 + y_{112}^2 + y_{121}^2 - \frac{1}{3}\bar{y_{1..}}
+$$
+
+Using the above Projection matrices. 
+
+Rank($X_1$) = 1, 
+Rank($X_2$) = 2, 
+Rank($X_3$) = 3. 
+
+Giving us the following degrees of freedom. 
+
+Treatment: 2 - 1 = 1
+Subject(Treatment): 3 - 2 = 1 
+Error: 1
+
+So the Mean Squares are the same as Sum of Squares. 
 
 Degrees of freedom: $\text{df}_{\text{trt}} = 1$, $\text{df}_{\text{xu(trt)}} = 1$, $\text{df}_{\text{Residual}} = 1$
 
 Expected Mean Squares
 
 $$
-\begin{aligned}
-E[\text{MS}_{\text{trt}}] &= (\tau_1 - \tau_2)^2 + 1.1667\sigma_u^2 + \sigma_e^2 \\
-E[\text{MS}_{\text{xu(trt)}}] &= 1.3333\sigma_u^2 + \sigma_e^2 \\
-E[\text{MS}_{\text{Residual}}] &= \sigma_e^2
-\end{aligned}
+E[\text{MS}_{\text{Residual}}] = \sigma_e^2
+$$
+
+$$
+E[\text{MS}_{\text{xu(trt)}}] = 1.3333\sigma_u^2 + \sigma_e^2 \\
+$$
+
+$$
+E[\text{MS}_{\text{trt}}] = (\tau_1 - \tau_2)^2 + 1.1667\sigma_u^2 + \sigma_e^2
 $$
 
 Primarily based on SAS output, need to actually calculate these
