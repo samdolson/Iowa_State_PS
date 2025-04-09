@@ -3,10 +3,6 @@ title: "HW8"
 output: pdf_document
 author: "Sam Olson"
 ---
-
-# Outline
-  - Q3: More explicit calculations
-  - Q4: Reconcile R code vs. manual calculations in R
   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -25,26 +21,6 @@ and consequently
 $$\frac{\frac{1}{\text{Var}( {y}_{121})}}{\frac{1}{\text{Var}(\bar{y}_{11.})}+\frac{1}{\text{Var}(y_{121})}}=\frac{\sigma_{e}^{2}+2\sigma_{u}^{2}}{3\sigma_{e}^{2}+4\sigma_{u}^{2}}.$$
 
 ## Answer
-
-First, refer back to the slides being referenced: 
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 52", out.width="100%"}
-knitr::include_graphics("Slide52.png")
-```
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 53", out.width="100%"}
-knitr::include_graphics("Slide53.png")
-```
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 54", out.width="100%"}
-knitr::include_graphics("Slide54.png")
-```
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 55", out.width="100%"}
-knitr::include_graphics("Slide55.png")
-```
-
-\newpage
 
 The BLUE of $\hat{\beta}_{\Sigma}$ uses weights on $\bar{y}_{11.}$ and $y_{121}$ proportionally to their inverse variances. 
 
@@ -138,6 +114,8 @@ Where:
 - $\gamma_{ij}$: Fixed interaction effect between machine $i$ and person $j$.
 - $\varepsilon_{ijk}$: Residual error, with assumption $\varepsilon_{ijk} \sim N(0, \sigma^2)$.
 
+\newpage 
+
 ## c) 
 
 Report the MSE.
@@ -180,6 +158,8 @@ Effect of Person: The lines representing each person are distinctly separated, d
 
 Interaction Effect: The lines are not parallel, changing slope or even intersecting (changing signage). The lines not being parallel indicate an interaction effect, i.e., that the effect of machine on the rating depends on the person. This is also consistent with the ANOVA table where person-machine interaction effect had a statistically significant F-statistic. 
 
+\newpage 
+
 ## e) 
 
 Run the proc mixed SAS code associated with Model 2. What model does SAS fit? Write out the model using mathematical/statistical notation. Be sure to define all variables and parameters. Use appropriate subscripts where necessary.
@@ -217,6 +197,8 @@ knitr::include_graphics("Model2Residual.png")
 ### Answer 
 
 The MSE for Model 2 is 11.8517, as reported in the table. This is larger than the MSE for Model 1. Though expected due to the inclusion of person as a random effect and the exclusion of the interaction term in the model, is does appear Model 2 has a "worse" fit compared to Model 1 in having a larger MSE. 
+
+\newpage 
 
 ## g) 
 
@@ -301,7 +283,6 @@ knitr::include_graphics("Model3Dimensions.png")
 ### Answer 
 
 Dimensions tables for Models 2 and 3 are provided. There is a noticeable differences between the two models considered in this question:  
-
 Model 2 treats `person` as a single random effect, meaning each person has one random intercept across all machines, hence why the Dimensions table reports 18 subjects, each with up to 3 observations per person-machine combination.
   
 By contrast, Model 3 uses `person(machine)` as the subject for the random effect, treating each person–machine combination as a unique random level, which in turn is why the respective Dimensions table reports only 1 subject, but with 44 observations, and 6 columns in Z, indicating 6 random effects to account for nesting `person` within `machine`.
@@ -325,36 +306,6 @@ In comparison with Model 2, Model 3 is better able to partition the sources of v
 In Chapter 12 we discussed two examples illustrating imbalanced designs. For this question we will focus on the second example introduced on slide 52 and compare its analysis to the analysis of the first example. 
 
 Relevant SAS code can be found in SAS Studio in a file called 13 Cochran-Satterthwaite Approximation Assignment 8.sas.
-
-## First Example 
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 40", out.width="100%"}
-knitr::include_graphics("Slide40.png")
-```
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 41", out.width="100%"}
-knitr::include_graphics("Slide41.png")
-```
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 42", out.width="100%"}
-knitr::include_graphics("Slide42.png")
-```
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 43", out.width="100%"}
-knitr::include_graphics("Slide43.png")
-```
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 44", out.width="100%"}
-knitr::include_graphics("Slide44.png")
-```
-
-## Second Example 
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 52", out.width="100%"}
-knitr::include_graphics("Slide52.png")
-```
-
-\newpage
 
 ## a) 
 
@@ -423,42 +374,123 @@ P_3
 \end{bmatrix}
 $$ 
 
-Probably need to actually calculate those matrices, don't I? 
-
 Sums of Squares, General Form: 
 
 $$
 \mathbf{y}^\top (P_{i+1} - P_{i}) \mathbf{y}
 $$
 
-Treatment sum of squares:
+### Treatment sum of squares:
 
 $$
-SS_{\text{trt}} = \mathbf{y}^T P_1 \mathbf{y}
+SS_{\text{trt}} = \mathbf{y}^T (P_2 - P_1) \mathbf{y}
 $$
 
-$$
-SS_{\text{trt}} = \frac{1}{4}(y_{111} + y_{112} + y_{121} + y_{211})^2 = \frac{1}{4}\bar{y}^2
-$$
-
-Subject within treatment, random effect:
+First term: 
 
 $$
-SS_{\text{xu(trt)}} = \mathbf{y}^T (P_2 - P_1) \mathbf{y}
+P_2 \mathbf{y} = 
+\begin{bmatrix}
+\bar{y}_{1..} \\
+\bar{y}_{1..} \\
+\bar{y}_{1..} \\
+y_{211}
+\end{bmatrix}
 $$
 
-$$
-SS_{\text{xu(trt)}} = \frac{1}{3}\left( (y_{111} + y_{112} + y_{121})^2 + y_{211}^2\right) - \frac{1}{4}(y_{111} + y_{112} + y_{121} + y_{211})^2 = \frac{1}{3}\bar{y}_{1..} + y_{211}^2 - \frac{1}{4}\bar{y}^2
-$$
-
-Residual:
+Where: 
 
 $$
-SS_{\text{Residual}} = \mathbf{y}^T (\mathbf{I} - P_2) \mathbf{y}
+\bar{y}_{1..} = \frac{1}{3}y\left( y_{111} + y_{112} + y_{121} \right)
 $$
 
+So, the second projection matrix expression is given by:
+
 $$
-SS_{\text{Residual}} = y_{111}^2 + y_{112}^2 + y_{121}^2 - \frac{1}{3}(y_{111} + y_{112} + y_{121})^2 = y_{111}^2 + y_{112}^2 + y_{121}^2 - \frac{1}{3}\bar{y_{1..}}
+\mathbf{y}^\top P_2 \mathbf{y} 
+= \bar{y}_1(y_{111} + y_{112} + y_{121}) + y_{211}^2
+= \frac{1}{3}(y_{111} + y_{112} + y_{121})^2 + y_{211}^2
+$$
+
+The first projection matrix expression is given by: 
+
+$$
+P_1 \mathbf{y} = 
+\begin{bmatrix}
+\bar{y}_{...} \\
+\bar{y}_{...} \\
+\bar{y}_{...} \\
+\bar{y}_{...}
+\end{bmatrix}
+$$
+
+Such that the expression is given by: 
+
+$$
+\mathbf{y}^\top P_1 \mathbf{y} 
+= \sum_{i=1}^4 y_i \cdot \bar{y}
+= \bar{y}(y_{111} + y_{112} + y_{121} + y_{211})
+= 4\bar{y}^2
+= \frac{1}{4}(y_{111} + y_{112} + y_{121} + y_{211})^2
+$$
+
+Taken together: 
+
+$$
+SS_{\text{trt}} = \frac{1}{3}\left( y_{111} + y_{112} + y_{121}\right)^2 + y_{211}^2 - \frac{1}{4}(y_{111} + y_{112} + y_{121} + y_{211})^2
+$$
+
+### Subject within treatment, random effect:
+
+$$
+SS_{\text{xu(trt)}} = \mathbf{y}^T (P_3 - P_2) \mathbf{y}
+$$
+
+As above we've calculated the expression for the second projection matrix, we need only calculate the expression for the third projection matrix and then combine. To that end: 
+
+For the third projection matrix. 
+
+$$
+P_3 \mathbf{y} = 
+\begin{bmatrix}
+\bar{y}_{11.} \\
+\bar{y}_{11.} \\
+y_{121} \\
+y_{211}
+\end{bmatrix}
+$$
+
+Giving: 
+
+$$
+\mathbf{y}^\top P_3 \mathbf{y} 
+= \bar{y}_{11.}(y_{111} + y_{112}) + y_{121}^2 + y_{211}^2 
+= \frac{1}{2}(y_{111} + y_{112})^2 + y_{121}^2 + y_{211}^2
+$$
+
+Combining with the known expression for the second projection matrix, we have: 
+
+$$
+SS_{\text{xu(trt)}} = \frac{1}{2}(y_{111} + y_{112})^2 + y_{121}^2 - \frac{1}{3}(y_{111} + y_{112} + y_{121})^2 
+$$
+
+### Residual:
+
+$$
+SS_{\text{Residual}} = \mathbf{y}^T (\mathbf{I_{4 \times 4}} - P_3) \mathbf{y}
+$$
+
+There's actually a shortcut we can take instead of comparing differences in projection matrices! Note: only the first two entries contribute to the residual sum of squares, so we know:
+
+$$
+SS_{\text{Residual}} 
+= (y_{111} - \bar{y}_{11.})^2 + (y_{112} - \bar{y}_{11.})^2
+$$
+
+Simplifying:
+
+$$
+SS_{\text{Residual}} = \left( y_{111} - y_{11.} \right) ^2 + \left( y_{112} - \bar{y}_{11.} \right)^2 = \frac{1}{2}(y_{111} - y_{112})^2 
 $$
 
 Using the above Projection matrices. 
@@ -469,37 +501,84 @@ Rank($X_3$) = 3.
 
 Giving us the following degrees of freedom. 
 
-Treatment: 2 - 1 = 1
-Subject(Treatment): 3 - 2 = 1 
-Error: 1
+Treatment: rank($X_2$) - rank($X_1$) = 1
+Subject(Treatment): rank($X_3$) - rank($X_2$) = 1 
+Error: rank($I_{4 \times 4}$) - rank($X_3$) = 1
 
-So the Mean Squares are the same as Sum of Squares. 
+So the Mean Squares are the same as Sum of Squares given above. 
 
 Degrees of freedom: $\text{df}_{\text{trt}} = 1$, $\text{df}_{\text{xu(trt)}} = 1$, $\text{df}_{\text{Residual}} = 1$
 
 Expected Mean Squares
 
 $$
+E(MS_{\text{Residual}}) = E(\frac{1}{2}(y_{111} - y_{112})^2 ) = E(\frac{1}{2}(y_{111}^2 - 2y_{111}y_{112} + y_{112}^2)) = \frac{1}{2}\sigma_e^2 + \frac{1}{2}\sigma_e^2
+$$
+
+Giving us: 
+
+$$
 E[\text{MS}_{\text{Residual}}] = \sigma_e^2
 $$
 
+And also: 
+
 $$
-E[\text{MS}_{\text{xu(trt)}}] = 1.3333\sigma_u^2 + \sigma_e^2 \\
+E(MS_{\text{xu(trt)}}) = E\left(\frac{1}{2}(y_{111} + y_{112})^2 + y_{121}^2 - \frac{1}{3}(y_{111} + y_{112} + y_{121})^2\right)
 $$
 
 $$
-E[\text{MS}_{\text{trt}}] = (\tau_1 - \tau_2)^2 + 1.1667\sigma_u^2 + \sigma_e^2
+E(MS_{\text{xu(trt)}}) = E\left(\frac{1}{2}(y_{111} + y_{112})^2\right) + E(y_{121}^2) - E\left(\frac{1}{3}(y_{111} + y_{112} + y_{121})^2\right)
 $$
 
-Primarily based on SAS output, need to actually calculate these
+$$
+E[MS_{\text{xu(trt)}}] = \left(2\sigma_u^2 + \sigma_e^2\right) + \left(\sigma_u^2 + \sigma_e^2\right) - \left(\frac{5}{3}\sigma_u^2 + \sigma_e^2\right)
+$$
+
+$$
+E[\text{MS}_{\text{xu(trt)}}] = \frac{4}{3}\sigma_u^2 + \sigma_e^2
+$$
+
+
+And lastly: 
+
+$$
+E(MS_{\text{trt}}) = E(\frac{1}{3}\left( (y_{111} + y_{112} + y_{121}\right)^2 + y_{211}^2 - \frac{1}{4}(y_{111} + y_{112} + y_{121} + y_{211})^2) 
+$$
+
+Let: 
+
+$$
+A = y_{111} + y_{112} + y_{121}
+= 3(\mu + \tau_1) + 2u_{11} + u_{12} + \varepsilon_{111} + \varepsilon_{112} + \varepsilon_{121}
+$$
+
+$$
+B = y_{211} = \mu + \tau_2 + u_{21} + \varepsilon_{211}
+$$
+
+Such that: 
+
+$$
+A + B = y_{111} + y_{112} + y_{121} + y_{211}
+= 4\mu + 3\tau_1 + \tau_2 + 2u_{11} + u_{12} + u_{21} + \varepsilon_{111} + \varepsilon_{112} + \varepsilon_{121} + \varepsilon_{211}
+$$
+
+Computing: 
+
+$$
+E[MS_{\text{trt}}] = E\left[ \frac{1}{3} A^2 \right] + E[y_{211}^2] - E\left[ \frac{1}{4} (A + B)^2 \right]
+$$
+
+$$
+E[\text{MS}_{\text{trt}}] = (\tau_1 - \tau_2)^2 + \frac{7}{6}\sigma_u^2 + \sigma_e^2
+$$
+
+\newpage 
 
 ## b) 
 
 Set up a table similar to the one see on slide 45 containing the Source of variation and the corresponding expected mean squares.
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 45", out.width="100%"}
-knitr::include_graphics("Slide45.png")
-```
 
 ### Answer 
 
@@ -526,7 +605,7 @@ Where:
 
 $\widehat{V}$ is an unbiased estimator of the variance component portion of $E[MS_{\text{trt}}]$. 
 
-From part c), to get an unbiased estimate of $1.1667\sigma_u^2 + \sigma_e^2$, we have a system of linear equations with real-valued constants a and b such that:
+From part c), to get an unbiased estimate of $\frac{7}{6}\sigma_u^2 + \sigma_e^2$, we have a system of linear equations with real-valued constants a and b such that:
 
 $$
 \widehat{V} = a \cdot MS_{\text{subj(trt)}} + b \cdot MS_{\text{error}}
@@ -535,36 +614,28 @@ $$
 And taking expectation: 
 
 $$
-E[\widehat{V}] = a(1.3333 \sigma_u^2 + \sigma_e^2) + b(\sigma_e^2) = 1.1667 \sigma_u^2 + \sigma_e^2
+E[\widehat{V}] = a(\frac{4}{3} \sigma_u^2 + \sigma_e^2) + b(\sigma_e^2) = \frac{7}{6} \sigma_u^2 + \sigma_e^2
 $$
 
-For $\sigma_u^2$: $1.3333a = 1.1667 \rightarrow a = \frac{1.1667}{1.3333} \approx 0.875$, and 
+For $\sigma_u^2$: $\frac{4}{3}a = \frac{7}{6} \rightarrow a = \frac{\frac{7}{6}}{\frac{4}{3}} = \frac{7}{8}$, and 
 
-For $\sigma_e^2$: $a + b = 1 \rightarrow b = 1 - 0.875 = 0.125$
+For $\sigma_e^2$: $a + b = 1 \rightarrow b = 1 - \frac{7}{8} = \frac{1}{8}$
 
 So we estimate the variance component part using:
 
 $$
-\widehat{V} = 0.875 \cdot MS_{\text{subj(trt)}} + 0.125 \cdot MS_{\text{error}}
+\widehat{V} = \frac{7}{8} \cdot MS_{\text{subj(trt)}} + \frac{1}{8} \cdot MS_{\text{error}}
 $$
 
 So the test statistic becomes:
 
 $$
-F = \frac{MS_{\text{trt}}}{0.875 \cdot MS_{\text{subj(trt)}} + 0.125 \cdot MS_{\text{error}}}
+F = \frac{MS_{\text{trt}}}{\frac{7}{8} \cdot MS_{\text{subj(trt)}} + \frac{1}{8} \cdot MS_{\text{error}}}
 $$
 
 ## d) 
 
 Calculate the error of using the Cochran-Satterthwaite approximation as done on slide 17 of Chapter 13.
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 4", out.width="100%"}
-knitr::include_graphics("Slide4.png")
-```
-
-```{r, eval = T, echo=FALSE, fig.cap="Slide 17", out.width="100%"}
-knitr::include_graphics("Slide17.png")
-```
 
 ### Answer
 
@@ -580,7 +651,7 @@ $$
 d = \frac{\left(\frac{7}{8} MS_{\text{subj(trt)}} + \frac{1}{8} MS_{\text{error}}\right)^2}{\left(\frac{7}{8} MS_{\text{subj(trt)}}\right)^2 + \left(\frac{1}{8} MS_{\text{error}}\right)^2}
 $$
 
-Simplify this further?
+Do we need to simplify this further? If so...
 
 ### Some Actual Data
 
@@ -612,25 +683,19 @@ $$
 d = \frac{76.1208}{71.0643} \approx 1.0717
 $$
 
+\newpage 
+
 ## e) 
 
 Run all the code in SAS. Verify the work you derived in parts b), c) and d).
 
 ### Answer 
 
-```{r, eval = T, echo=FALSE, fig.cap="SAS Code", out.width="100%"}
-knitr::include_graphics("SASCode.png")
-```
-
-```{r, eval = T, echo=FALSE, fig.cap="SAS Output 1", out.width="100%"}
-knitr::include_graphics("Output1.png")
-```
+The included SAS output was run and provides verification for parts b), c), and d), particularly in the Type 1 ANOVA table. 
 
 ```{r, eval = T, echo=FALSE, fig.cap="SAS Output 2", out.width="100%"}
 knitr::include_graphics("Output2.png")
 ```
-
-Do I need to point at things? 
 
 \newpage
 
@@ -640,7 +705,11 @@ You have the SAS code to analyze the two mini examples discussed in Chapters 12 
 
 ## Answer 
 
-```{r}
+As noted by Dr. G., this question is specific to Example 2 and is the focus of the below code. For reference, I did also include R code related to Example 1. 
+
+Also, I kept encountering discrepancies with the R output compared to SAS, even after making sure to note Type 1 Sum of Square and usage of the `lme4`, as used in Chapter 17 notes. That notwithstanding...
+
+```{r, message = F, warning = F}
 library(lme4)
 library(lmerTest)  
 
@@ -651,17 +720,20 @@ d2 <- data.frame(
 )
 ```
 
-```{r, eval = F}
+```{r, message = F, warning = F}
 model <- lmer(y ~ trt + (1 | subject), data = d2, REML = FALSE)
 
-anova_table <- anova(model, type = 1)
-anova_table
-# model2 <- lmer(y ~ trt + (1 | subject), data = d2)
-# anova(model2, type = 1, ddf = "Satterthwaite")
+# anova_table <- anova(model, type = 1)
+# anova_table
+model2 <- lmer(y ~ trt + (1 | subject), data = d2)
+anova(model2, type = 1, ddf = "Satterthwaite")
 # anova(model2)
 # VarCorr(model2)
 ```
 
+Here's the oddity. Despite properly nesting things, the above output does not match the output or derivations provided in Q3. Dang! 
+
+### Manual Calculation (Using R!) 
 
 ```{r}
 y_mean <- mean(d2$y)
