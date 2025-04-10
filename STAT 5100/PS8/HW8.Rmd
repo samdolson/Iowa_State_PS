@@ -374,13 +374,15 @@ P_3
 \end{bmatrix}
 $$ 
 
-Sums of Squares, General Form: 
+### Sums of Squares
+
+General Form: 
 
 $$
 \mathbf{y}^\top (P_{i+1} - P_{i}) \mathbf{y}
 $$
 
-### Treatment sum of squares:
+#### Treatment sum of squares:
 
 $$
 SS_{\text{trt}} = \mathbf{y}^T (P_2 - P_1) \mathbf{y}
@@ -440,7 +442,7 @@ $$
 SS_{\text{trt}} = \frac{1}{3}\left( y_{111} + y_{112} + y_{121}\right)^2 + y_{211}^2 - \frac{1}{4}(y_{111} + y_{112} + y_{121} + y_{211})^2
 $$
 
-### Subject within treatment, random effect:
+#### Subject within treatment, random effect:
 
 $$
 SS_{\text{xu(trt)}} = \mathbf{y}^T (P_3 - P_2) \mathbf{y}
@@ -474,7 +476,7 @@ $$
 SS_{\text{xu(trt)}} = \frac{1}{2}(y_{111} + y_{112})^2 + y_{121}^2 - \frac{1}{3}(y_{111} + y_{112} + y_{121})^2 
 $$
 
-### Residual:
+#### Residual:
 
 $$
 SS_{\text{Residual}} = \mathbf{y}^T (\mathbf{I_{4 \times 4}} - P_3) \mathbf{y}
@@ -509,7 +511,21 @@ So the Mean Squares are the same as Sum of Squares given above.
 
 Degrees of freedom: $\text{df}_{\text{trt}} = 1$, $\text{df}_{\text{xu(trt)}} = 1$, $\text{df}_{\text{Residual}} = 1$
 
-Expected Mean Squares
+### Expected Mean Squares
+
+Note, setup in the model: 
+
+$$
+y_{ijk} = \mu + \tau_i + u_{ij} + \varepsilon_{ijk}
+$$
+
+Where: 
+
+$$
+\bar{y}_{ij.} = \mu + \tau_i + u_{ij} + \bar{e}_{ij.}
+$$
+
+#### Residual 
 
 $$
 E(MS_{\text{Residual}}) = E(\frac{1}{2}(y_{111} - y_{112})^2 ) = E(\frac{1}{2}(y_{111}^2 - 2y_{111}y_{112} + y_{112}^2)) = \frac{1}{2}\sigma_e^2 + \frac{1}{2}\sigma_e^2
@@ -521,7 +537,7 @@ $$
 E[\text{MS}_{\text{Residual}}] = \sigma_e^2
 $$
 
-And also: 
+#### Subject within treatment, random effect:
 
 $$
 E(MS_{\text{xu(trt)}}) = E\left(\frac{1}{2}(y_{111} + y_{112})^2 + y_{121}^2 - \frac{1}{3}(y_{111} + y_{112} + y_{121})^2\right)
@@ -529,6 +545,53 @@ $$
 
 $$
 E(MS_{\text{xu(trt)}}) = E\left(\frac{1}{2}(y_{111} + y_{112})^2\right) + E(y_{121}^2) - E\left(\frac{1}{3}(y_{111} + y_{112} + y_{121})^2\right)
+$$
+
+Let $a = \mu + \tau_1$
+
+Then: 
+
+$$
+y_{111} + y_{112} = 2a + 2u_1 + e_{111} + e_{112} \rightarrow
+\frac{1}{2}(y_{111} + y_{112})^2 = \frac{1}{2}(2a + 2u_1 + e_{111} + e_{112})^2
+$$
+
+Taking expectations:
+
+$$
+E\left[\frac{1}{2}(y_{111} + y_{112})^2\right] = \frac{1}{2}\left(4a^2 + 4 \operatorname{Var}(u_1) + \operatorname{Var}(e_{111} + e_{112})\right)
+= \frac{1}{2}\left(4a^2 + 4\sigma_u^2 + 2\sigma_e^2\right) = 2a^2 + 2\sigma_u^2 + \sigma_e^2
+$$
+
+We also have: 
+
+$$
+y_{121} = a + u_2 + e_{121}
+$$
+
+Taking expectation:
+
+$$
+E[y_{121}^2] = E[(a + u_2 + e_{121})^2] = a^2 + \sigma_u^2 + \sigma_e^2
+$$
+
+The last component of the expression: 
+
+$$
+y_{111} + y_{112} + y_{121} = 3a + 2u_1 + u_2 + e_{111} + e_{112} + e_{121}
+$$
+
+Taking expectation:
+
+$$
+E\left[\frac{1}{3}(y_{111} + y_{112} + y_{121})^2\right] = \frac{1}{3}\left(9a^2 + \operatorname{Var}(2u_1 + u_2) + \operatorname{Var}(e_{111} + e_{112} + e_{121})\right)
+= \frac{1}{3}(9a^2 + 5\sigma_u^2 + 3\sigma_e^2) = 3a^2 + \frac{5}{3}\sigma_u^2 + \sigma_e^2
+$$
+
+Putting all parts together: 
+
+$$
+E[MS_{\text{xu(trt)}}] = \left(2a^2 + 2\sigma_u^2 + \sigma_e^2\right) + \left(a^2 + \sigma_u^2 + \sigma_e^2\right) - \left(3a^2 + \frac{5}{3}\sigma_u^2 + \sigma_e^2\right)
 $$
 
 $$
@@ -539,19 +602,39 @@ $$
 E[\text{MS}_{\text{xu(trt)}}] = \frac{4}{3}\sigma_u^2 + \sigma_e^2
 $$
 
-
-And lastly: 
+#### Treatment 
 
 $$
 E(MS_{\text{trt}}) = E(\frac{1}{3}\left( (y_{111} + y_{112} + y_{121}\right)^2 + y_{211}^2 - \frac{1}{4}(y_{111} + y_{112} + y_{121} + y_{211})^2) 
 $$
 
-Let: 
+$$
+E(MS_{\text{trt}}) = E(\frac{1}{3}\left( (y_{111} + y_{112} + y_{121}\right)^2) + E(y_{211}^2) - E(\frac{1}{4}(y_{111} + y_{112} + y_{121} + y_{211})^2) 
+$$
+
+To start, let the following terms be denoted, for convenience:
+
+$$
+a = \mu + \tau_1 \rightarrow a^2 = \mu^2 + 2\mu\tau_1 + \tau_1^2
+$$
+
+$$
+b = \mu + \tau_2 \rightarrow b^2 = \mu^2 + 2\mu\tau_2 + \tau_2^2
+$$
+
+$$
+d = 4\mu + 3\tau_1 + \tau_2 \rightarrow d^2 = 16\mu^2 + 24\mu\tau_1 + 8\mu\tau_2 + 9\tau_1^2 + 6\tau_1\tau_2 + \tau_2^2
+$$
+
+
+Also, let: 
 
 $$
 A = y_{111} + y_{112} + y_{121}
 = 3(\mu + \tau_1) + 2u_{11} + u_{12} + \varepsilon_{111} + \varepsilon_{112} + \varepsilon_{121}
 $$
+
+And: 
 
 $$
 B = y_{211} = \mu + \tau_2 + u_{21} + \varepsilon_{211}
@@ -564,11 +647,62 @@ A + B = y_{111} + y_{112} + y_{121} + y_{211}
 = 4\mu + 3\tau_1 + \tau_2 + 2u_{11} + u_{12} + u_{21} + \varepsilon_{111} + \varepsilon_{112} + \varepsilon_{121} + \varepsilon_{211}
 $$
 
-Computing: 
+The above relations taken together give us a simplified expression for the Expected MS for treatment, which is:  
 
 $$
 E[MS_{\text{trt}}] = E\left[ \frac{1}{3} A^2 \right] + E[y_{211}^2] - E\left[ \frac{1}{4} (A + B)^2 \right]
 $$
+
+Evaluating each term of the above expression: 
+
+$$
+E[A^2] = (3a)^2 + \operatorname{Var}(A) = 9a^2 + 5\sigma_u^2 + 3\sigma_e^2 \rightarrow
+E\left[\frac{1}{3}A^2\right] = 3a^2 + \frac{5}{3}\sigma_u^2 + \sigma_e^2
+$$
+
+And: 
+
+$$
+E[y_{211}^2] = E[(b + u_{21} + \varepsilon_{211})^2] = b^2 + \sigma_u^2 + \sigma_e^2
+$$
+
+And lastly
+
+$$
+E\left[\frac{1}{4}(A + B)^2\right] = \frac{1}{4}(d^2 + 6\sigma_u^2 + 4\sigma_e^2)
+$$
+
+So, in total, we have: 
+
+$$
+E[MS_{\text{trt}}] = (3a^2 + \frac{5}{3}\sigma_u^2 + \sigma_e^2) + (b^2 + \sigma_u^2 + \sigma_e^2) - \frac{1}{4}(d^2 + 6\sigma_u^2 + 4\sigma_e^2)
+$$
+
+
+Note then, that: 
+
+$$
+3a^2 + b^2 - \frac{1}{4}d^2 = (\tau_1 - \tau_2)^2
+$$
+
+The above follows from expanding $a = \mu + \tau_1$, $b = \mu + \tau_2$, and $d = 4\mu + 3\tau_1 + \tau_2$, giving: 
+
+$$
+3a^2 + b^2 - \frac{1}{4}d^2
+= 3(\mu + \tau_1)^2 + (\mu + \tau_2)^2 - \frac{1}{4}(4\mu + 3\tau_1 + \tau_2)^2
+= (\tau_1 - \tau_2)^2
+$$
+
+The remaining terms then simplify to: 
+
+$$
+\left(\frac{5}{3} + 1 - \frac{6}{4}\right)\sigma_u^2 + \left(1 + 1 - 1\right)\sigma_e^2
+= \frac{7}{6}\sigma_u^2 + \sigma_e^2
+$$
+
+Note: Throughout these calculations, all cross terms involving random effects are zero when taking expectations, due to independence between subject effects and error terms. We also assume independence among the error terms and among the subject random effects, so cross-products within each type also have zero expectation. As a result, only the variances of individual terms contribute to the expected values (in a non-zero way).
+
+Finally, combining terms, we have: 
 
 $$
 E[\text{MS}_{\text{trt}}] = (\tau_1 - \tau_2)^2 + \frac{7}{6}\sigma_u^2 + \sigma_e^2
