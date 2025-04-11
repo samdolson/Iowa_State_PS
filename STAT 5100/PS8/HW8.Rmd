@@ -130,7 +130,7 @@ Reported MSE is 0.872564.
 
 \newpage
 
-### 1. 
+## d) 
 
 Look at the table containing the Type III SS and explain what information this table provides to us about the model we fit. Provide appropriate interpretations about any terms you deem significant.
 
@@ -138,11 +138,11 @@ Look at the table containing the Type III SS and explain what information this t
 knitr::include_graphics("Type3.png")
 ```
 
-#### Answer 
+### Answer 
 
 All three fixed effects (machine, person, and machine-person interactions) are statistically significant at the 0.0001 level, meaning we have overwhelming evidence against the null hypothesis for each of the sources in the table. Within the context of the study, this is evidence that (1) There are meaningful differences in average ratings across machines, even after accounting for the effects of people and machine-people interactions (2) There are meaningful differences in average ratings across people, even after accounting for the effects of machine and machine-people interactions, and (3) There are meaningful interaction effects, i.e. that machine differences (effects) are not consistent across people. 
 
-## d) 
+## e) 
 
 Look at the Interaction plot SAS provides. Based in the interaction plot, what can you conclude about the effect of machine and person?
 
@@ -160,7 +160,7 @@ Interaction Effect: The lines are not parallel, changing slope or even intersect
 
 \newpage 
 
-## e) 
+## f) 
 
 Run the proc mixed SAS code associated with Model 2. What model does SAS fit? Write out the model using mathematical/statistical notation. Be sure to define all variables and parameters. Use appropriate subscripts where necessary.
 
@@ -186,7 +186,7 @@ Where:
 - $u_j \sim \mathcal{N}(0, \sigma_u^2)$ is the random effect of person $j$
 - $\varepsilon_{ij} \sim \mathcal{N}(0, \sigma^2)$ is the residual error, assumed independent of $u_j$
 
-## f) 
+## g) 
 
 Report the MSE for Model 2 and compare it to the MSE for Model 1.
 
@@ -200,7 +200,7 @@ The MSE for Model 2 is 11.8517, as reported in the table. This is larger than th
 
 \newpage 
 
-## g) 
+## h) 
 
 How does the evidence for the fixed effect associated with Machines change? Why does this make sense?
 
@@ -212,7 +212,7 @@ Model 2: The F-statistic for machine drops to 58.41, though the p-value remains 
 
 While both models show overwhelming evidence for a machine effect (both having p < 0.0001), the F-statistic is much larger in Model 1 because it treats person and interaction effects as fixed, artificially reducing residual variance. Model 2 accounts for person-level variability (main effect of person) as random, which is a more conservative estimate of the model variability. In a word: The smaller F-statistic in Model 2 reflects better partitioning of the variance components, which should not (probably) be conflated as "weaker evidence".
 
-## h) 
+## i) 
 
 Report the estimated variance components for this model – there should be two.
 
@@ -228,7 +228,7 @@ Person (random effect): 24.3840
 
 Residual (error term): 11.8517
 
-## i) 
+## j) 
 
 Run the proc mixed SAS code associated with Model 3. What model does SAS fit? Write out the model using mathematical/statistical notation. Be sure to define all variables and parameters. Use appropriate subscripts where necessary.
 
@@ -254,7 +254,7 @@ Where:
 - $u_{ij} \sim \mathcal{N}(0, \sigma_u^2)$: random effect for person $j$ nested within machine $i$
 - $\varepsilon_{ijk} \sim \mathcal{N}(0, \sigma^2)$: residual error, independent of the random effects for person
 
-## j) 
+## k) 
 
 Report the MSE for Model 3 and compare it to the MSE for Models 1 and 2. Describe your findings.
 
@@ -268,7 +268,7 @@ Model 3 MSE is 0.8721.
 
 This is nearly identical to the MSE from Model 1 (0.8726) and substantially lower than the MSE from Model 2 (11.8517). This similarity makes sense because both Models 1 and 3 account interaction effects between person and machine, albeit somewhat differently--Model 1 through a fixed interaction, and Model 3 through a random effect nested within machine. In both cases, our model has smaller MSE through the inclusion of an interaction effect of some kind. 
 
-## k) 
+## l) 
 
 Explain the main difference between Models 2 and 3. Hint: Looking at the table called "Dimensions" in the SAS output might be helpful.
 
@@ -283,21 +283,28 @@ knitr::include_graphics("Model3Dimensions.png")
 ### Answer 
 
 Dimensions tables for Models 2 and 3 are provided. There is a noticeable differences between the two models considered in this question:  
-Model 2 treats `person` as a single random effect, meaning each person has one random intercept across all machines, hence why the Dimensions table reports 18 subjects, each with up to 3 observations per person-machine combination.
-  
-By contrast, Model 3 uses `person(machine)` as the subject for the random effect, treating each person–machine combination as a unique random level, which in turn is why the respective Dimensions table reports only 1 subject, but with 44 observations, and 6 columns in Z, indicating 6 random effects to account for nesting `person` within `machine`.
 
-## l) 
+Model 2 treats `person` as a single random effect, meaning each person has one random intercept across all machines, hence why the Dimensions table reports 44 subjects, each with up to 1 observation per person-machine combination.
+  
+By contrast, Model 3 uses `person(machine)` as the subject for the random effect, treating each person–machine combination as a unique random level, which in turn is why the respective Dimensions table reports only 1 subject, but with 18 observations, each with up to 3 observations per person-machine combination. This is also with 6 columns in Z, indicating 6 random effects to account for nesting `person` within `machine`.
+
+## m) 
 
 How does the evidence for the fixed effect associated with Machines change in Model 3 compared to Models 1 and 2? Why does this make sense?
 
+```{r, eval = T, echo=FALSE, fig.cap="Model 3 Output", out.width="100%"}
+knitr::include_graphics("Type3FE.png")
+```
+
 ### Answer 
 
-In Model 3, the F-statistic for the fixed effect of `machine` remains highly significant, which is consistent with Models 1 and 2. The strength of evidence does not meaningfully decrease compared to Model 1, and it is stronger than in Model 2, based on comparisons of F-statistics.
+In Model 3, the F-statistic for the fixed effect of machine remains highly significant, consistent with Models 1 and 2. While the level of significance is somewhat lower than in the previous models, such that it would not meet the strict $\alpha = 0.001$ threshold in a decision framework (which we hate and openly rebel against in favor of "strength of evidence arguments"), and say that the evidence against the null hypothesis of no differences in mean scores of the machines remains strong. 
 
-Similarity with Model 1 makes sense because Model 3 accounts for possible interaction effects between person and machine. There is also some sense to be made by them being somewhat different too, as Model 1 has fixed interaction effects whereas Model 3 has random interaction effects, in part due to the nesting of `person` within `machine`. 
+This similarity with Model 1 is expected because both models account for person interacting with machine, though in different ways: Model 1 includes a fixed interaction term, whereas Model 3 models the interaction as a random effect through nesting person within machine.
 
-In comparison with Model 2, Model 3 is better able to partition the sources of variation through the interaction effect. By contrast, Model 2 treats `person` as a single random effect without allowing variation across machines.
+Compared to Model 2, Model 3 better partitions variation by including this interaction structure. Model 2 treats person as a single random effect, which carries the assumption of no interaction effect between person-machine across machines, which we have evidence in support of this being an unrealistic assumption (based on the arguments/conclusions of the above questions).
+
+Overall, it makes sense that the evidence for the fixed effect of machine is less statistically significant in Model 3 compared to Models 1 and 2. The reduced significance reflects a more appropriate modeling of the data structure, specifically in capturing and partitioning the sources of variability due to the inclusion of a `person` variable and its interaction effect with `machine`. As a result, some variation previously attributed to machine is now absorbed by the random effects, leading to a more conservative estimate of its fixed effect.
 
 \newpage
 
