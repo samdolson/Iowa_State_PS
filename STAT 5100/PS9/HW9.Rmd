@@ -10,6 +10,9 @@ library(tidyverse)
 library(dplyr)
 ```
 
+# Outline 
+  - Q1: a) and f) 
+
 # Q1 
 
 A plant scientist was interested in comparing two plant genotypes (1 and 2). An experiment was conducted in a greenhouse with one table, eight trays, and sixteen pots. The table in the greenhouse held the eight trays with two pots on each tray. For each of the eight trays, two genotype 1 seeds were planted in one pot, and two genotype 2 seeds were planted in the other pot. The assignment of genotypes 1 and 2 to the two pots within each tray was determined by flipping a fair coin. The response of interest is a quantitative measurement of overall plant health that was calculated for each plant 42 days after planting. These quantitative measurements of overall plant health are presented as integers in Table 1 to make calculations easier, but please answer all questions as if each measurement is a realization from a normal distribution.
@@ -147,12 +150,12 @@ Provide a 95% confidence interval for $\mu_1 - \mu_2$.
 
 ```{r}
 est <- mean(plant_data_wide$d_j)
-
 moe <- qt(p = 0.975, df = 7)*(sqrt(s_d_squared/8))
-  
+```
+
+```{r}
 lb <- est - moe
 ub <- est + moe
-
 cat("Lower bound:", lb, "\nUpper bound:", ub, "\n")
 ```
 
@@ -525,19 +528,19 @@ $$
 
 where the $\mu_{ik\ell}$ values are unknown parameters, $a_{ij} \sim \mathcal{N}(0, \sigma_a^2)$, $b_{ijk} \sim \mathcal{N}(0, \sigma_b^2)$, $e_{ijk\ell} \sim \mathcal{N}(0, \sigma_e^2)$, and all random terms are independent. Model (3) was fit to the dataset, and the following ANOVA table was obtained. Because we have a balanced experimental design, the type I and type III sums of squares are the same, and the lines of the ANOVA table can be reordered in a variety of ways without changing the results.
 
-| Source                        | Sum of Squares |
-|-------------------------------|----------------|
-| Type                          | 226            |
-| Direction                     | 255            |
-| Intensity                     | 8910           |
-| Type $\times$ Direction       | 207            |
-| Type $\times$ Intensity       | 2              |
-| Direction $\times$ Intensity  | 7              |
-| Type $\times$ Direction $\times$ Intensity | 9       |
-| Helmet(Type)                  | 254            |
-| Direction $\times$ Helmet(Type) | 114          |
-| Error                         | 59             |
-| C. Total                      | 10043          |
+| Source                             | Sum of Squares | Expected Mean Square                        |
+|------------------------------------|----------------|---------------------------------------------|
+| Type                               | 226            | —                                           |
+| Direction                          | 255            | —                                           |
+| Intensity                          | 8910           | —                                           |
+| Type × Direction                   | 207            | —                                           |
+| Type × Intensity                   | 2              | —                                           |
+| Direction × Intensity             | 7              | —                                           |
+| Type × Direction × Intensity      | 9              | —                                           |
+| Helmet(Type)                       | 254            | $4\sigma_a^2 + 2\sigma_b^2 + \sigma_e^2$ |
+| Direction × Helmet(Type)          | 114            | $2\sigma_b^2 + \sigma_e^2$               |
+| Error                              | 59             | $\sigma_e^2$                             |
+| Corrected Total                    | 10043          | —                                           |
 
 \newpage 
 
@@ -551,7 +554,7 @@ $$
 (k - 1)(\ell - 1) = 4 - 2 - 2 + 1 = 1
 $$
 
-So:
+So, using the shortcut, we have:
 
 $$
 SS_{\text{Dir} \times \text{Int}} = \sum_{i=1}^2 \sum_{j=1}^5 \sum_{k=1}^2 \sum_{l=1}^2 (\bar{y}_{-kl} - \bar{y}_{-k} - \bar{y}_{-l} + \bar{y}_{...})^2
@@ -564,13 +567,27 @@ Compute a t statistic that can be used to test $H_0: \bar{\mu}_{1\cdots} = \bar{
 
 ### Answer
 
-This is a test of a whole-plot (helmet type) effect. The appropriate test statistic uses the variation among helmet types divided by the variation among helmets within each type:
+This is a test of a whole-plot (helmet type) effect. The corresponding null hypothesis is:
 
 $$
-t = \sqrt{\frac{MS_{\text{Type}}}{MS_{\text{Helmet(Type)}}}} = \sqrt{\frac{226/1}{254/8}} \approx \sqrt{7.11} \approx 2.67
+H_0: \bar{\mu}_{1\cdots} = \bar{\mu}_{2\cdots}
 $$
 
-This statistic follows a noncentral t-distribution with 8 degrees of freedom.
+Since helmet type is a whole-plot factor and helmets are nested within helmet type, the correct denominator for the test statistic comes from the mean square for `Helmet(Type)`. The test statistic for comparing two group means in a mixed model can be written in two equivalent ways:
+
+As an F-test:
+
+$$
+F_{1,8} = \frac{MS_{\text{Type}}}{MS_{\text{Helmet(Type)}}} = \frac{226 / 1}{254 / 8} = \frac{226}{31.75} \approx 7.12,
+$$
+
+or equivalently, as a t-test:
+
+$$
+t_8 = \sqrt{ \frac{MS_{\text{Type}}}{MS_{\text{Helmet(Type)}}} } = \sqrt{ \frac{226}{31.75} } \approx \sqrt{7.12} \approx 2.67.
+$$
+
+This t-statistic follows a $t$-distribution with 8 degrees of freedom, corresponding to the degrees of freedom associated with the `Helmet(Type)` error term (i.e., 10 helmets (5 of each type) – 2 types = 8). This test assesses whether the average stress differs between helmet types.
 
 ## c)
 
@@ -578,19 +595,42 @@ The statistic in part b) has a noncentral t distribution. Provide an expression 
 
 ### Answer
 
-From the model, the variance of the difference in type means is:
+From part b), we are testing the difference between the type means:
 
 $$
-\text{Var}(\bar{y}_{1\cdots} - \bar{y}_{2\cdots}) = \frac{1}{10} (4\sigma_a^2 + 2\sigma_b^2 + \sigma_e^2)
+H_0: \bar{\mu}_{1\cdots} = \bar{\mu}_{2\cdots}
 $$
 
-So the noncentrality parameter is:
+Since we have a balanced design, the BLUE of $\mu_{1\cdots} - \mu_{2\cdots}$ is:
 
 $$
-\frac{\bar{\mu}_{1\cdots} - \bar{\mu}_{2\cdots}}{\sqrt{(4\sigma_a^2 + 2\sigma_b^2 + \sigma_e^2)/10}}
+\bar{y}_{1\cdots} - \bar{y}_{2\cdots}
 $$
 
-This follows directly from the expected mean squares and the structure of the linear mixed model.
+Which is normally distributed with:
+
+Mean: $E(\bar{y}_{1\cdots} - \bar{y}_{2\cdots}) = \mu_{1\cdots} - \mu_{2\cdots}$
+
+And variance:
+
+$$
+\begin{aligned}
+\text{Var}(\bar{y}_{1\cdots} - \bar{y}_{2\cdots}) 
+&= \text{Var}(a_{1.} - a_{2.} + b_{1..} - b_{2..} + e_{1...} - e_{2...}) \\
+&= \text{Var}(a_{1.} - a_{2.}) + \text{Var}(b_{1..} - b_{2..}) + \text{Var}(e_{1...} - e_{2...}) \\
+&= \frac{2\sigma_a^2}{5} + \frac{2\sigma_b^2}{10} + \frac{2\sigma_e^2}{20} \\
+&= \frac{1}{10} (4\sigma_a^2 + 2\sigma_b^2 + \sigma_e^2) \\
+&= \frac{1}{10} E\left\{ MS_{\text{Helmet(Type)}} \right\}
+\end{aligned}
+$$
+
+Taken together, the ncp, $\delta$ for the t-statistic in part b) is:
+
+$$
+\delta = \frac{\mu_{1\cdots} - \mu_{2\cdots}}{\sqrt{(4\sigma_a^2 + 2\sigma_b^2 + \sigma_e^2)/10}}
+$$
+
+This ncp is assumed to be 0 under the null and $\delta$ under the alternative hypothesis. 
 
 ## d)
 
@@ -598,13 +638,28 @@ Compute the value of an unbiased estimator for $\sigma_a^2$.
 
 ### Answer
 
-We estimate $\sigma_a^2$ by equating expectations of the mean squares:
+To estimate the variance component $\sigma_a^2$, we need to use the expected mean squares from the ANOVA decomposition.
+
+From the model, we know (and again, under a balanced design):
+
+$E(MS_{\text{Helmet(Type)}}) = 4\sigma_a^2 + 2\sigma_b^2 + \sigma_e^2$
+
+$E(MS_{\text{Direction} \times \text{Helmet(Type)}}) = 2\sigma_b^2 + \sigma_e^2$
+
+Subtracting these expressions eliminates the subplot-level variance terms:
 
 $$
-\hat{\sigma}_a^2 = \frac{MS_{\text{Helmet(Type)}} - MS_{\text{Dir} \times \text{Helmet(Type)}}}{4} = \frac{254/8 - 114/8}{4} = \frac{140}{32} = 4.375
+E(MS_{\text{Helmet(Type)}} - MS_{\text{Direction} \times \text{Helmet(Type)}}) = 4\sigma_a^2
 $$
 
-This uses the expectation difference of variance components associated with whole-plot and subplot levels.
+Thus, an unbiased estimator of $\sigma_a^2$ is:
+
+$$
+\hat{\sigma}_a^2 = \frac{MS_{\text{Helmet(Type)}} - MS_{\text{Dir} \times \text{Helmet(Type)}}}{4}
+= \frac{254/8 - 114/8}{4}
+= \frac{140}{32}
+= 4.375
+$$
 
 ## e)
 
@@ -612,25 +667,36 @@ The best linear unbiased estimator of $\bar{\mu}_{12\cdots} - \bar{\mu}_{11\cdot
 
 ### Answer
 
-We are given the BLUE estimate is 0.5. The variance for this estimator is:
+We are given that the BLUE of $\bar{\mu}_{12\cdots} - \bar{\mu}_{11\cdots}$ is:
+
+$$
+\bar{y}_{1\cdot2\cdot} - \bar{y}_{1\cdot1\cdot} = 0.5
+$$
+
+To form a confidence interval we need the estimated variance of $\bar{\mu}_{12\cdots} - \bar{\mu}_{11\cdots}$ as well. 
+
+Since the comparison is within helmet type, the appropriate error term is the subplot error, which includes variation due to `Direction × Helmet(Type)` and the residual error.
+
+Referring back to the model specification:
 
 $$
 \text{Var}(\bar{y}_{1\cdot2\cdot} - \bar{y}_{1\cdot1\cdot}) = \frac{1}{5} \left(2\sigma_b^2 + \sigma_e^2\right)
+= \frac{1}{5} \left( \frac{114}{8} \right) = \frac{1}{5} (14.25) = 2.85
 $$
 
-Using:
+```{r}
+tval <- qt(p = 0.975, df = 8)
+tval
+```
+
+We use $t_{0.975,8} = 2.306$, based on the 8 degrees of freedom associated with `Direction × Helmet(Type)`.
+
+Combining all the information together then, the 95% confidence interval is:
 
 $$
-\hat{\text{Var}} = \frac{1}{5} \left(\frac{114}{8}\right) = 2.85, \quad t_{0.975,8} = 2.306
+0.5 \pm 2.306 \cdot \sqrt{2.85} \approx 0.5 \pm 3.89
+\rightarrow (-3.39,\ 4.39)
 $$
-
-The 95% confidence interval is:
-
-$$
-0.5 \pm 2.306 \cdot \sqrt{2.85} = 0.5 \pm 2.306 \cdot 1.688 = ( -3.39, 4.39 )
-$$
-
-where $t_{0.975,8} = 2.306$ and the degrees of freedom (8) come from $Direction \times Helmet(Type)$ used previously.
 
 ## f)
 
@@ -638,17 +704,29 @@ Compute a standard error for the best linear unbiased estimator of $\mu_{121} - 
 
 ### Answer
 
-We estimate the standard error for the BLUE of the difference between high and low intensity impacts in the front direction for type 1 helmets:
+We are estimating the standard error for the difference between high and low intensity impacts in the front direction for type 1 helmets. This is a particular within helmet comparison, so it is derived from subplot-level variation only. 
+
+From the model, the variance of this contrast is given by:
 
 $$
 \text{Var}(\bar{y}_{1\cdot21} - \bar{y}_{1\cdot11}) = \frac{2}{5} \left( \sigma_b^2 + \sigma_e^2 \right)
 $$
 
-Estimate:
+Substituting known values of the mean squares, we have:
+
+$MS_{\text{Direction} \times \text{Helmet(Type)}} = \frac{114}{8} = 14.25$
+
+And: 
+
+$MS_{\text{Error}} = \frac{59}{16} = 3.6875$
+
+Taken together: 
 
 $$
-\hat{\text{Var}} = \frac{1}{5} \left( \frac{114}{8} + \frac{59}{16} \right) = \frac{1}{5} \cdot \frac{287}{16} = 3.5875
+\hat{\text{Var}} = \frac{2}{5} \left( \frac{14.25 + 3.6875}{2} \right) = \frac{2}{5} \cdot 8.96875 = 3.5875
 $$
+
+Giving us: 
 
 $$
 SE = \sqrt{3.5875} \approx 1.894
