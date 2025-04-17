@@ -6,6 +6,8 @@ author: "Sam Olson"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
 ```
 
 # Q1 
@@ -36,6 +38,7 @@ where $\mu_1$ and $\mu_2$ are unknown real-valued parameters, $t_j \sim \mathcal
 
 \newpage 
 
+# HERE 
 ## a)
 
 Explain what the $p_{ij}$ terms represent and provide one reason for including them in the model.
@@ -44,7 +47,7 @@ Explain what the $p_{ij}$ terms represent and provide one reason for including t
 
 The $p_{ij}$ terms are random effects corresponding to pots.
 
-Pots are the experimental units in this experiment because the levels of the factor genotype were randomly assigned to pots. Because there are multiple observations per experimental unit, it is important to explicitly include a random effect for each experimental unit in the model.
+Pots are the experimental units in this experiment because the genotype "treatments" (1 or 2) were randomly assigned to pots. Because there are multiple observations per experimental unit, it is important to explicitly include a random effect for each experimental unit in the model.
 
 These random effects account for pot-to-pot variation in the response that may occur due to differences among pots. The pot random effects allow for the correlation between the two observations from a given pot to be larger than the correlation between two observations from different pots.
 
@@ -65,12 +68,26 @@ $$
 Thus,
 
 $$
-E(\bar{y}_{11\cdot} - \bar{y}_{21\cdot}) = \mu_1 - \mu_2
+\begin{aligned}
+E(\bar{y}_{11\cdot} - \bar{y}_{21\cdot})
+&= \mu_1 - \mu_2 + E(p_{11}) - E(p_{21}) + E(\bar{e}_{11\cdot}) - E(\bar{e}_{21\cdot}) \\
+&= \mu_1 - \mu_2
+\end{aligned}
 $$
 
+And: 
+
 $$
-\text{Var}(\bar{y}_{11\cdot} - \bar{y}_{21\cdot}) = \sigma_p^2 + \sigma_p^2 + \sigma_e^2/2 + \sigma_e^2/2 = 2\sigma_p^2 + \sigma_e^2.
+\begin{aligned}
+\text{Var}(\bar{y}_{11\cdot} - \bar{y}_{21\cdot})
+&= \text{Var}(p_{11} - p_{21}) + \text{Var}(\bar{e}_{11\cdot} - \bar{e}_{21\cdot}) \\
+&= \text{Var}(p_{11}) + \text{Var}(p_{21}) + \text{Var}(\bar{e}_{11\cdot}) + \text{Var}(\bar{e}_{21\cdot}) \\
+&= \sigma_p^2 + \sigma_p^2 + \frac{1}{2}\sigma_e^2 + \frac{1}{2}\sigma_e^2 \\
+&= 2\sigma_p^2 + \sigma_e^2
+\end{aligned}
 $$
+
+Taken together, we have: 
 
 $$
 \bar{y}_{11\cdot} - \bar{y}_{21\cdot} \sim N(\mu_1 - \mu_2, 2\sigma_p^2 + \sigma_e^2)
@@ -98,7 +115,7 @@ $$
 
 is an unbiased estimator of $2\sigma_p^2 + \sigma_e^2$. 
 
-Calculating explicitly: 
+Calculating: 
 
 ```{r}
 plant_data_wide <- data.frame(
@@ -149,7 +166,9 @@ The model can be written in the form $y = X \beta + Z u + e$. Provide $X$, $\bet
 
 ### Answer
 
-If we order the $y$ vector by working our way across trays with the genotype 1 pot first and the genotype 2 pot second within each tray, we have:
+Assume an order, for convenience: order the response vector $y$ is ordered by tray, with measurements from the genotype 1 pot listed first and those from the genotype 2 pot listed second within each tray.
+
+Doing so gives us: 
 
 $$
 \boldsymbol{X} = \mathbf{1}_{8 \times 1} \otimes \mathbf{I}_{2 \times 2} \otimes \mathbf{1}_{2 \times 1}
@@ -169,6 +188,7 @@ $$
 \boldsymbol{u} = [t_1, t_2, \ldots, t_8, p_{11}, p_{21}, p_{12}, p_{22}, \ldots, p_{18}, p_{28}]^\top
 $$
 
+# HERE 
 ## f)
 
 Suppose the researchers would like to repeat their experiment again, using the same basic resources: eight trays, two pots per tray, sixteen seeds of genotype 1, and sixteen seeds of genotype 2. Would you recommend any changes to their experimental design? Explain why or why not.
@@ -229,6 +249,24 @@ Create an ANOVA table with columns Source and Degrees of Freedom.
 
 ### Answer
 
+| Source                  | DF         | 
+|-------------------------|------------|
+| Trays                   | 7          |
+| Genotypes               | 1          | 
+| Trays $\times$ Genotypes | 7         |
+| Infections              | 1          |
+| Genotypes $\times$ Infections | 1    | 
+| Error                   | 14         | 
+| Corrected Total         | 31         | 
+
+## f)
+
+Give formulas for each of the Sums of Squares of the ANOVA table. (Shortcut formulas for degrees of freedom and sums of squares work in this case because of the balanced experimental design.)
+
+### Answer
+
+Copying the prior table and adding Sums of Squares: 
+
 | Source                  | DF         | SS                                                                 |
 |-------------------------|------------|--------------------------------------------------------------------|
 | Trays                   | 7          | $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (\bar{y}_{.j.} - \bar{y}_{...})^2$ |
@@ -239,32 +277,60 @@ Create an ANOVA table with columns Source and Degrees of Freedom.
 | Error                   | 14         | $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (y_{ijk} - \bar{y}_{ij.} - \bar{y}_{i.k} + \bar{y}_{i..})^2$ |
 | Corrected Total         | 31         | $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (y_{ijk} - \bar{y}_{...})^2$ |
 
-## f)
-
-Give formulas for each of the Sums of Squares of the ANOVA table. (Shortcut formulas for degrees of freedom and sums of squares work in this case because of the balanced experimental design.)
-
-### Answer
-
-| Source                  | SS                                                                 |
-|-------------------------|--------------------------------------------------------------------|
-| Trays                   |  $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (\bar{y}_{.j.} - \bar{y}_{...})^2$ |
-| Genotypes               |  $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (\bar{y}_{i..} - \bar{y}_{...})^2$ |
-| Trays $\times$ Genotypes |  $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (\bar{y}_{ij.} - \bar{y}_{i..} - \bar{y}_{.j.} + \bar{y}_{...})^2$ |
-| Infections              |  $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (\bar{y}_{..k} - \bar{y}_{...})^2$ |
-| Genotypes $\times$ Infections |  $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (\bar{y}_{i.k} - \bar{y}_{i..} - \bar{y}_{..k} + \bar{y}_{...})^2$ |
-| Error                   |  $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (y_{ijk} - \bar{y}_{ij.} - \bar{y}_{i.k} + \bar{y}_{i..})^2$ |
-| Corrected Total         | $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (y_{ijk} - \bar{y}_{...})^2$ |
-
-\newpage 
-
 ## g)
 
 Derive the expected mean square for the second to last line of the ANOVA table (the line right before corrected total). This line is typically called error or split-plot error.
 
 ### Answer
 
+To start, note: 
+
 $$
-E(MS_{error}) = \sigma_e^2
+E(MS_{\text{error}}) = \frac{1}{14} E(SS_{\text{error}})
+$$
+
+From the formula given in the ANOVA table above:
+
+$$
+E(MS_{\text{error}}) = \frac{1}{14} E \left\{ \sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 \left( y_{ijk} - \bar{y}_{ij.} + \bar{y}_{i.k} + \bar{y}_{i..} \right)^2 \right\}
+$$
+
+Using the model form:
+
+$$
+E(MS_{\text{error}}) = \frac{1}{14} E \left\{ \sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 \left[ (\mu_{ik} + t_j + p_{ij} + e_{ijk}) - (\bar{\mu}_{i.} + \bar{t} + \bar{p}_{i.} + \bar{e}_{ij.}) - (\bar{\mu}_{.k} + \bar{t} + \bar{p}_{.} + \bar{e}_{i.k}) + (\bar{\mu} + \bar{t} + \bar{p} + \bar{e}_{i..}) \right]^2 \right\}
+$$
+
+Cancelling appropriate terms, and noting independence assumptions:
+
+$$
+E(MS_{\text{error}}) = \frac{1}{14} E \left\{ \sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 \left( e_{ijk} - \bar{e}_{ij.} - \bar{e}_{i.k} + \bar{e}_{i..} \right)^2 \right\}
+= \frac{1}{14} E \left\{ \sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 \left[ (e_{ijk} - \bar{e}_{ij.}) - (\bar{e}_{i.k} - \bar{e}_{i..}) \right]^2 \right\}
+$$
+
+Linearity of Expectation gives us:
+
+$$
+E(MS_{\text{error}}) = \frac{1}{14} \sum_{i=1}^2 \sum_{j=1}^8 E \left\{ \sum_{k=1}^2 \left[ (e_{ijk} - \bar{e}_{ij.}) - (\bar{e}_{i.k} - \bar{e}_{i..}) \right]^2 \right\}
+$$
+
+Now noting variance properties::
+
+$$
+E(MS_{\text{error}}) = \frac{1}{14} \sum_{i=1}^2 \sum_{j=1}^8 (2 - 1) \cdot \text{Var}(e_{ijk} - \bar{e}_{i.k})
+$$
+
+Expanding:
+
+$$
+E(MS_{\text{error}}) = \frac{1}{14} \sum_{i=1}^2 \sum_{j=1}^8 (2 - 1) \cdot \text{Var} \left( \frac{7}{8} e_{ijk} - \frac{1}{8} \sum_{j' \neq j} e_{ij'k} \right)
+= \frac{1}{14} \cdot 2 \cdot 8 \cdot 1 \cdot \left[ \left( \frac{7}{8} \right)^2 + 7 \cdot \left( \frac{1}{8} \right)^2 \right] \sigma_e^2
+$$
+
+Giving us the desired: 
+
+$$
+E(MS_{\text{error}}) = \sigma_e^2
 $$
 
 ## h)
@@ -289,19 +355,53 @@ $$
 
 Compute a 95% confidence interval for $\mu_{11} - \mu_{12}$.
 
-# HERE OFFICER 
-
 ### Answer
 
 ```{r}
+plant_data <- data.frame(
+  Tray = rep(1:8, each = 4),
+  Genotype = rep(c("G1", "G1", "G2", "G2"), times = 8),
+  Plant = rep(c("Plant1", "Plant2"), times = 16),
+  Value = c(
+    8, 7, 6, 7,
+    8, 9, 4, 5,
+    8, 8, 7, 7,
+    5, 7, 4, 2,
+    5, 6, 4, 3,
+    9, 10, 7, 9,
+    5, 7, 1, 4,
+    4, 6, 5, 5
+  )
+)
 
+plant_data <- plant_data |>
+  mutate(Infection = ifelse(Plant == "Plant1", "infected", "not_infected"))
+
+means <- plant_data |>
+  group_by(Genotype, Tray) |>
+  mutate(y_ij_dot = mean(Value)) |>
+  group_by(Genotype, Infection) |>
+  mutate(y_i_k = mean(Value)) |>
+  group_by(Genotype) |>
+  mutate(y_i_dot_dot = mean(Value)) |>
+  ungroup()
+
+means <- means |>
+  mutate(resid = Value - y_ij_dot - y_i_k + y_i_dot_dot,
+         sq_resid = resid^2)
+
+SS_error <- sum(means$sq_resid)
+MS_error <- SS_error/14
+varEst <- MS_error/4
+varEst
 ```
 
 ```{r}
 # est <- -plant_data_wide$d_j[1]
-est <- plant_data_wide$G1_P1 - plant_data_wide$G1_P2
+est <- mean(plant_data_wide$G1_P1) - mean(plant_data_wide$G1_P2)
 
-moe <- qt(p = 0.975, df = 14)*(sqrt(s_d_squared/8))
+varEst <- MS_error/4
+moe <- qt(p = 0.975, df = 14)*(sqrt(varEst))
   
 lb <- est - moe
 ub <- est + moe
@@ -319,17 +419,60 @@ Determine the distribution of $y_{111} - y_{112} - y_{211} + y_{212}$.
 
 ### Answer
 
+We consider a linear combination of four normally distributed random variables. Under the model:
+
 $$
-N(\mu_{11} - \mu_{12} - \mu_{21} + \mu_{22}, 4\sigma_e^2)
+y_{ijk} = \mu_{ik} + t_j + p_{ij} + e_{ijk},
 $$
 
-\newpage 
+we have:
+
+$$
+\begin{aligned}
+y_{111} &= \mu_{11} + t_1 + p_{11} + e_{111} \\
+y_{112} &= \mu_{12} + t_1 + p_{11} + e_{112} \\
+y_{211} &= \mu_{21} + t_1 + p_{21} + e_{211} \\
+y_{212} &= \mu_{22} + t_1 + p_{21} + e_{212}
+\end{aligned}
+$$
+
+So for the linear combination in question, we have:
+
+$$
+\begin{aligned}
+y_{111} - y_{112} - y_{211} + y_{212}
+&= (\mu_{11} - \mu_{12} - \mu_{21} + \mu_{22}) \\
+&\quad + (t_1 - t_1 - t_1 + t_1) \\
+&\quad + (p_{11} - p_{11} - p_{21} + p_{21}) \\
+&\quad + (e_{111} - e_{112} - e_{211} + e_{212}) \\
+&= (\mu_{11} - \mu_{12} - \mu_{21} + \mu_{22}) + (e_{111} - e_{112} - e_{211} + e_{212})
+\end{aligned}
+$$
+
+Because the random effects $t_1$ and $p_{ij}$ cancel out, the distribution depends only on the independent residual errors.
+
+Each $e_{ijk} \sim \mathcal{N}(0, \sigma_e^2)$, independently, so their linear combination has variance:
+
+$$
+\text{Var}(y_{111} - y_{112} - y_{211} + y_{212}) = \sigma_e^2 + \sigma_e^2 + \sigma_e^2 + \sigma_e^2 = 4\sigma_e^2
+$$
+
+Thus, the linear combination follows a normal distribution:
+
+$$
+y_{111} - y_{112} - y_{211} + y_{212} \sim \mathcal{N}(\mu_{11} - \mu_{12} - \mu_{21} + \mu_{22}, 4\sigma_e^2)
+$$
 
 ## l)
 
 Compute the value of the best linear unbiased estimator of $\mu_{11} - \mu_{12} - \mu_{21} + \mu_{22}$.
 
 ### Answer
+
+```{r}
+est <- mean(plant_data_wide$G1_P1) - mean(plant_data_wide$G1_P2) - mean(plant_data_wide$G2_P1) + mean(plant_data_wide$G2_P2)
+est
+```
 
 $\bar{y}_{1.1} - \bar{y}_{1.2} - \bar{y}_{2.1} + \bar{y}_{2.2} = -0.5$.
 
@@ -339,8 +482,31 @@ Derive an expression for the variance of the best linear unbiased estimator of $
 
 ### Answer
 
+We have:
+
 $$
-\text{Var}(\bar{y}_{1.1} - \bar{y}_{1.2} - \bar{y}_{2.1} + \bar{y}_{2.2}) = \frac{1}{2} \sigma_e^2
+\begin{aligned}
+\text{Var}(\bar{y}_{1.1} - \bar{y}_{1.2} - \bar{y}_{2.1} + \bar{y}_{2.2})
+&= \text{Var} \left( 
+(\mu_{11} + \bar{t} + \bar{p}_1 + \bar{e}_{1.1}) 
+- (\mu_{12} + \bar{t} + \bar{p}_1 + \bar{e}_{1.2}) \right. \\
+&\quad \left.
+- (\mu_{21} + \bar{t} + \bar{p}_2 + \bar{e}_{2.1}) 
++ (\mu_{22} + \bar{t} + \bar{p}_2 + \bar{e}_{2.2})
+\right) \\
+&= \text{Var}(\bar{e}_{1.1} - \bar{e}_{1.2} - \bar{e}_{2.1} + \bar{e}_{2.2})
+\end{aligned}
+$$
+
+Giving us:
+
+$$
+\begin{aligned}
+\text{Var}(\bar{e}_{1.1} - \bar{e}_{1.2} - \bar{e}_{2.1} + \bar{e}_{2.2})
+&= 4 \cdot \frac{1}{2} \sigma_e^2 \\
+&= \frac{4}{8} \sigma_e^2 \\
+&= \frac{1}{2} \sigma_e^2
+\end{aligned}
 $$
 
 \newpage 
@@ -382,8 +548,14 @@ We learned a shortcut for expressing sums of squares in summation notation that 
 ### Answer
 
 $$
-(k-1)(l-1) = kl - k - l + 1 \\
-\sum_{i=1}^{2} \sum_{j=1}^{5} \sum_{k=1}^{2} \sum_{l=1}^{2} (\bar{y}_{-kl} - \bar{y}_{-k} - \bar{y}_{-l} + \bar{y}_{-m})^2 = 10 \sum_{k=1}^{2} \sum_{l=1}^{2} (\bar{y}_{-kl} - \bar{y}_{-k} - \bar{y}_{-l} + \bar{y}_{-m})^2
+(k - 1)(\ell - 1) = 4 - 2 - 2 + 1 = 1
+$$
+
+So:
+
+$$
+SS_{\text{Dir} \times \text{Int}} = \sum_{i=1}^2 \sum_{j=1}^5 \sum_{k=1}^2 \sum_{l=1}^2 (\bar{y}_{-kl} - \bar{y}_{-k} - \bar{y}_{-l} + \bar{y}_{...})^2
+= 10 \sum_{k=1}^{2} \sum_{\ell=1}^{2} \left( \bar{y}_{\cdot\cdot k\ell} - \bar{y}_{\cdot\cdot k\cdot} - \bar{y}_{\cdot\cdot\cdot\ell} + \bar{y}_{\cdot\cdot\cdot\cdot} \right)^2
 $$
 
 ## b)
@@ -392,9 +564,13 @@ Compute a t statistic that can be used to test $H_0: \bar{\mu}_{1\cdots} = \bar{
 
 ### Answer
 
+This is a test of a whole-plot (helmet type) effect. The appropriate test statistic uses the variation among helmet types divided by the variation among helmets within each type:
+
 $$
-t = \sqrt{\frac{MS_{Type}}{MS_{Helmet(Type)}}} = \sqrt{\frac{226/1}{254/8}}
+t = \sqrt{\frac{MS_{\text{Type}}}{MS_{\text{Helmet(Type)}}}} = \sqrt{\frac{226/1}{254/8}} \approx \sqrt{7.11} \approx 2.67
 $$
+
+This statistic follows a noncentral t-distribution with 8 degrees of freedom.
 
 ## c)
 
@@ -402,9 +578,19 @@ The statistic in part b) has a noncentral t distribution. Provide an expression 
 
 ### Answer
 
+From the model, the variance of the difference in type means is:
+
+$$
+\text{Var}(\bar{y}_{1\cdots} - \bar{y}_{2\cdots}) = \frac{1}{10} (4\sigma_a^2 + 2\sigma_b^2 + \sigma_e^2)
+$$
+
+So the noncentrality parameter is:
+
 $$
 \frac{\bar{\mu}_{1\cdots} - \bar{\mu}_{2\cdots}}{\sqrt{(4\sigma_a^2 + 2\sigma_b^2 + \sigma_e^2)/10}}
 $$
+
+This follows directly from the expected mean squares and the structure of the linear mixed model.
 
 ## d)
 
@@ -412,24 +598,39 @@ Compute the value of an unbiased estimator for $\sigma_a^2$.
 
 ### Answer
 
+We estimate $\sigma_a^2$ by equating expectations of the mean squares:
+
 $$
-\frac{MS_{Helmet(Type)} - MS_{Direction \times Helmet(Type)}}{4} = \frac{254/8 - 114/8}{4} = \frac{140}{32} = 4.375
+\hat{\sigma}_a^2 = \frac{MS_{\text{Helmet(Type)}} - MS_{\text{Dir} \times \text{Helmet(Type)}}}{4} = \frac{254/8 - 114/8}{4} = \frac{140}{32} = 4.375
 $$
 
-\newpage
+This uses the expectation difference of variance components associated with whole-plot and subplot levels.
 
 ## e)
 
 The best linear unbiased estimator of $\bar{\mu}_{12\cdots} - \bar{\mu}_{11\cdots}$ is equal to 0.5 for this dataset. Provide a 95% confidence interval for $\bar{\mu}_{12\cdots} - \bar{\mu}_{11\cdots}$.
 
-# ALSO HERE 
 ### Answer
 
+We are given the BLUE estimate is 0.5. The variance for this estimator is:
+
 $$
-0.5 \pm 2.306 \sqrt{2.85}
+\text{Var}(\bar{y}_{1\cdot2\cdot} - \bar{y}_{1\cdot1\cdot}) = \frac{1}{5} \left(2\sigma_b^2 + \sigma_e^2\right)
 $$
 
-where $t_{0.975,8} = 2.306$ and the degrees of freedom (8) come from $Direction \times Helmet(Type)$.
+Using:
+
+$$
+\hat{\text{Var}} = \frac{1}{5} \left(\frac{114}{8}\right) = 2.85, \quad t_{0.975,8} = 2.306
+$$
+
+The 95% confidence interval is:
+
+$$
+0.5 \pm 2.306 \cdot \sqrt{2.85} = 0.5 \pm 2.306 \cdot 1.688 = ( -3.39, 4.39 )
+$$
+
+where $t_{0.975,8} = 2.306$ and the degrees of freedom (8) come from $Direction \times Helmet(Type)$ used previously.
 
 ## f)
 
@@ -437,14 +638,18 @@ Compute a standard error for the best linear unbiased estimator of $\mu_{121} - 
 
 ### Answer
 
-The standard error for the BLUE of $\mu_{121} - \mu_{111}$ is:
+We estimate the standard error for the BLUE of the difference between high and low intensity impacts in the front direction for type 1 helmets:
 
 $$
-\widehat{Var}(\bar{y}_{1.21} - \bar{y}_{1.11}) = \frac{1}{5}\left(\frac{114}{8} + \frac{59}{16}\right) = 3.5875
+\text{Var}(\bar{y}_{1\cdot21} - \bar{y}_{1\cdot11}) = \frac{2}{5} \left( \sigma_b^2 + \sigma_e^2 \right)
 $$
 
-Giving us: 
+Estimate:
 
 $$
-SE(\bar{y}_{1.21} - \bar{y}_{1.11}) = \sqrt{3.5875} = 1.89407
+\hat{\text{Var}} = \frac{1}{5} \left( \frac{114}{8} + \frac{59}{16} \right) = \frac{1}{5} \cdot \frac{287}{16} = 3.5875
+$$
+
+$$
+SE = \sqrt{3.5875} \approx 1.894
 $$
