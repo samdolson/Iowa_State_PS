@@ -42,7 +42,11 @@ Explain what the $p_{ij}$ terms represent and provide one reason for including t
 
 ### Answer
 
-The $p_{ij}$ terms are random effects corresponding to pots. Pots are the experimental units in this experiment because the levels of the factor genotype were randomly assigned to pots. Because there are multiple observations per experimental unit, it is important to explicitly include a random effect for each experimental unit in the model. These random effects account for pot-to-pot variation in the response that may occur due to differences among pots. The pot random effects allow for the correlation between the two observations from a given pot to be larger than the correlation between two observations from different pots.
+The $p_{ij}$ terms are random effects corresponding to pots.
+
+Pots are the experimental units in this experiment because the levels of the factor genotype were randomly assigned to pots. Because there are multiple observations per experimental unit, it is important to explicitly include a random effect for each experimental unit in the model.
+
+These random effects account for pot-to-pot variation in the response that may occur due to differences among pots. The pot random effects allow for the correlation between the two observations from a given pot to be larger than the correlation between two observations from different pots.
 
 ## b)
 
@@ -50,18 +54,26 @@ Let $\bar{y}_{ij} = \frac{1}{2} \sum_{k=1}^2 y_{ijk} \quad \forall \, i, j$. Det
 
 ### Answer
 
-Note: $\bar{y}_{11\cdot} - \bar{y}_{21\cdot} = \mu_1 - \mu_2 + p_{11} - p_{21} + \bar{e}_{11\cdot} - \bar{e}_{21\cdot}$. 
+Linear combinations of normal random variables are normal, so $\bar{y}_{11} - \bar{y}_{21}$ will be normally distributed. We then need only find the mean and variance to uniquely characterize the distribution. 
+
+To that end, note: 
+
+$$
+\bar{y}_{11\cdot} - \bar{y}_{21\cdot} = \mu_1 - \mu_2 + p_{11} - p_{21} + \bar{e}_{11\cdot} - \bar{e}_{21\cdot}
+$$
 
 Thus,
 
 $$
-E(\bar{y}_{11\cdot} - \bar{y}_{21\cdot}) = \mu_1 - \mu_2 \text{ and } \text{Var}(\bar{y}_{11\cdot} - \bar{y}_{21\cdot}) = \sigma_p^2 + \sigma_p^2 + \sigma_e^2/2 + \sigma_e^2/2 = 2\sigma_p^2 + \sigma_e^2.
+E(\bar{y}_{11\cdot} - \bar{y}_{21\cdot}) = \mu_1 - \mu_2
 $$
 
-Because linear combinations of normal random variables are normal,
+$$
+\text{Var}(\bar{y}_{11\cdot} - \bar{y}_{21\cdot}) = \sigma_p^2 + \sigma_p^2 + \sigma_e^2/2 + \sigma_e^2/2 = 2\sigma_p^2 + \sigma_e^2.
+$$
 
 $$
-\bar{y}_{11\cdot} - \bar{y}_{21\cdot} \sim N(\mu_1 - \mu_2, 2\sigma_p^2 + \sigma_e^2).
+\bar{y}_{11\cdot} - \bar{y}_{21\cdot} \sim N(\mu_1 - \mu_2, 2\sigma_p^2 + \sigma_e^2)
 $$
 
 ## c)
@@ -70,10 +82,12 @@ Compute the value of an unbiased estimator of the variance of $\bar{y}_{11} - \b
 
 ### Answer
 
-Let $d_j = \bar{y}_{1j\cdot} - \bar{y}_{2j\cdot} \forall j$. From problem 1(b), it follows that
+Let $d_j = \bar{y}_{1j\cdot} - \bar{y}_{2j\cdot} \forall j$. 
+
+From part b), it follows:
 
 $$
-d_1, \ldots, d_8 \overset{iid}{\sim} N(\mu_1 - \mu_2, 2\sigma_p^2 + \sigma_e^2).
+d_1, \ldots, d_8 \overset{iid}{\sim} N(\mu_1 - \mu_2, 2\sigma_p^2 + \sigma_e^2)
 $$
 
 Thus,
@@ -82,7 +96,31 @@ $$
 s_d^2 = \sum_{j=1}^8 (d_j - \bar{d}_{\cdot})^2 / (8-1)
 $$
 
-is an unbiased estimator of $2\sigma_p^2 + \sigma_e^2$. Straightforward calculations yield the estimate $13.5/7 \approx 1.929$.
+is an unbiased estimator of $2\sigma_p^2 + \sigma_e^2$. 
+
+Calculating explicitly: 
+
+```{r}
+plant_data_wide <- data.frame(
+  Tray = 1:8,
+  G1_P1 = c(8, 8, 8, 5, 5, 9, 5, 4),
+  G1_P2 = c(7, 9, 8, 7, 6, 10, 7, 6),
+  G2_P1 = c(6, 4, 7, 4, 4, 7, 1, 5),
+  G2_P2 = c(7, 5, 7, 2, 3, 9, 4, 5)
+)
+
+plant_data_wide$d_j <- rowMeans(plant_data_wide[, c("G1_P1", "G1_P2")]) -
+                       rowMeans(plant_data_wide[, c("G2_P1", "G2_P2")])
+
+d_bar <- mean(plant_data_wide$d_j)
+
+s_d_squared <- sum((plant_data_wide$d_j - d_bar)^2) / (length(plant_data_wide$d_j) - 1)
+s_d_squared
+```
+
+$$
+s_d^2 = 13.5/7 \approx 1.929
+$$
 
 ## d)
 
@@ -90,8 +128,19 @@ Provide a 95% confidence interval for $\mu_1 - \mu_2$.
 
 ### Answer
 
+```{r}
+est <- mean(plant_data_wide$d_j)
+
+moe <- qt(p = 0.975, df = 7)*(sqrt(s_d_squared/8))
+  
+lb <- est - moe
+ub <- est + moe
+
+cat("Lower bound:", lb, "\nUpper bound:", ub, "\n")
+```
+
 $$
-\bar{d}_{\cdot} \pm t_{0.975,7} \sqrt{s_d^2 / 8} \Longleftrightarrow 2 \pm 2.36 \times 0.49 \Longleftrightarrow (0.84, 3.16)
+\widehat{\mu_1 - \mu_2}  \pm t_{0.975,7} \sqrt{s_d^2 / 8} \rightarrow  2 \pm (2.36 \cdot 0.49) \rightarrow (0.84, 3.16)
 $$
 
 ## e)
@@ -107,7 +156,7 @@ $$
 $$
 
 $$
-\boldsymbol{\beta} = (\mu_1, \mu_2)^\prime
+\boldsymbol{\beta} = (\mu_1, \mu_2)^\top
 $$
 
 $$
@@ -117,7 +166,7 @@ $$
 and 
 
 $$
-\boldsymbol{u} = [t_1, t_2, \ldots, t_8, p_{11}, p_{21}, p_{12}, p_{22}, \ldots, p_{18}, p_{28}]^\prime.
+\boldsymbol{u} = [t_1, t_2, \ldots, t_8, p_{11}, p_{21}, p_{12}, p_{22}, \ldots, p_{18}, p_{28}]^\top
 $$
 
 ## f)
@@ -240,10 +289,28 @@ $$
 
 Compute a 95% confidence interval for $\mu_{11} - \mu_{12}$.
 
+# HERE OFFICER 
+
 ### Answer
 
+```{r}
+
+```
+
+```{r}
+# est <- -plant_data_wide$d_j[1]
+est <- plant_data_wide$G1_P1 - plant_data_wide$G1_P2
+
+moe <- qt(p = 0.975, df = 14)*(sqrt(s_d_squared/8))
+  
+lb <- est - moe
+ub <- est + moe
+
+cat("Lower bound:", lb, "\nUpper bound:", ub, "\n")
+```
+
 $$
--1 \pm 2.1448 \times 0.4818 = (-2.0334, 0.0334)
+\widehat{\mu_{11} - \mu_{12}} \pm t_{0.975, 14} \cdot (\frac{1}{4}) \sigma_e^2 \rightarrow -1 \pm (2.1448 \cdot 0.4818) = (-2.0334, 0.0334)
 $$
 
 ## k)
@@ -331,7 +398,7 @@ $$
 
 ## c)
 
-The statistic in part (b) has a noncentral t distribution. Provide an expression for the noncentrality parameter in terms of model (3) parameters.
+The statistic in part b) has a noncentral t distribution. Provide an expression for the noncentrality parameter in terms of model (3) parameters.
 
 ### Answer
 
@@ -355,6 +422,7 @@ $$
 
 The best linear unbiased estimator of $\bar{\mu}_{12\cdots} - \bar{\mu}_{11\cdots}$ is equal to 0.5 for this dataset. Provide a 95% confidence interval for $\bar{\mu}_{12\cdots} - \bar{\mu}_{11\cdots}$.
 
+# ALSO HERE 
 ### Answer
 
 $$
