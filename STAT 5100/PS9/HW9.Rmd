@@ -10,9 +10,6 @@ library(tidyverse)
 library(dplyr)
 ```
 
-# Outline 
-  - Q1: a) and f) 
-
 # Q1 
 
 A plant scientist was interested in comparing two plant genotypes (1 and 2). An experiment was conducted in a greenhouse with one table, eight trays, and sixteen pots. The table in the greenhouse held the eight trays with two pots on each tray. For each of the eight trays, two genotype 1 seeds were planted in one pot, and two genotype 2 seeds were planted in the other pot. The assignment of genotypes 1 and 2 to the two pots within each tray was determined by flipping a fair coin. The response of interest is a quantitative measurement of overall plant health that was calculated for each plant 42 days after planting. These quantitative measurements of overall plant health are presented as integers in Table 1 to make calculations easier, but please answer all questions as if each measurement is a realization from a normal distribution.
@@ -41,18 +38,15 @@ where $\mu_1$ and $\mu_2$ are unknown real-valued parameters, $t_j \sim \mathcal
 
 \newpage 
 
-# HERE 
 ## a)
 
 Explain what the $p_{ij}$ terms represent and provide one reason for including them in the model.
 
 ### Answer
 
-The $p_{ij}$ terms are random effects corresponding to pots.
+The $p_{ij}$ terms are random effects corresponding to pots, specifically the pot receiving genotype i on tray j.
 
-Pots are the experimental units in this experiment because the genotype "treatments" (1 or 2) were randomly assigned to pots. Because there are multiple observations per experimental unit, it is important to explicitly include a random effect for each experimental unit in the model.
-
-These random effects account for pot-to-pot variation in the response that may occur due to differences among pots. The pot random effects allow for the correlation between the two observations from a given pot to be larger than the correlation between two observations from different pots.
+Design-based rationale: The inclusion of the pot random effect is important to include because each pot is the experimental unit to which a genotype treatment is applied, and there are two observations per pot (one per plant). Specifying this as a random effect allows the model to account for possible variability brought about by sharing the same external conditions experienced by two different plants in the same pot, and allows us to more effectively partition the sources of variation between observations, specifically accounting for possible correlation (and variability) between measurements within the same pot, which is expected to be higher than the correlation (and variability) between plants from different pots. Though this would be expected to increase the overall variability in the model, it should improve estimation of quantities of interest (including contrasts) by more appropriately accounting for possible variation and their sources. 
 
 ## b)
 
@@ -95,6 +89,8 @@ Taken together, we have:
 $$
 \bar{y}_{11\cdot} - \bar{y}_{21\cdot} \sim N(\mu_1 - \mu_2, 2\sigma_p^2 + \sigma_e^2)
 $$
+
+\newpage 
 
 ## c)
 
@@ -141,6 +137,8 @@ s_d_squared
 $$
 s_d^2 = 13.5/7 \approx 1.929
 $$
+
+\newpage 
 
 ## d)
 
@@ -191,14 +189,39 @@ $$
 \boldsymbol{u} = [t_1, t_2, \ldots, t_8, p_{11}, p_{21}, p_{12}, p_{22}, \ldots, p_{18}, p_{28}]^\top
 $$
 
-# HERE 
+\newpage
+
 ## f)
 
 Suppose the researchers would like to repeat their experiment again, using the same basic resources: eight trays, two pots per tray, sixteen seeds of genotype 1, and sixteen seeds of genotype 2. Would you recommend any changes to their experimental design? Explain why or why not.
 
 ### Answer
 
-It would be better to put one plant of genotype 1 and one plant of genotype 2 in each of the 16 pots. Then the variance of the genotype 1 average minus the genotype 2 average would be $\sigma_e^2 / 8$ because both tray and pot random effects would cancel in the difference of averages. This variance ($\sigma_e^2 / 8$) is less than the variance for the estimated difference in genotype means for the original design: $(2\sigma_p^2 + \sigma_e^2)/8 = \sigma_p^2/4 + \sigma_e^2/8$. Thus, we have a more precise unbiased estimator of the difference in genotype means if we put one plant of each genotype in each pot.
+Yes, I have a recommendation.
+
+Instead of planting two seeds of the same genotype in each pot, I recommend placing one plant of genotype 1 and one plant of genotype 2 in each of the 16 pots. This would allow for a direct within-pot comparison of the two genotypes, with both plants experiencing the same local environment (same soil, same pot, and same general environment).
+
+This also improves the statistical efficiency of the experiment by reducing the variance of the estimator for the difference in genotype means.
+
+To illustrate this point, consider the original design. 
+
+The variance of the estimated difference between the two genotype means is:
+
+$$
+\text{Var}(\bar{y}_{1\cdot\cdot} - \bar{y}_{2\cdot\cdot}) = \frac{2\sigma_p^2 + \sigma_e^2}{8} = \frac{\sigma_p^2}{4} + \frac{\sigma_e^2}{8}
+$$
+
+By comparison, under the recommended design, the pot-level random effect $p_{ij}$ and the tray effect $t_j$ cancel out in the contrast (difference), since both genotypes are observed within the same pots and trays. 
+
+Making the variance under the recommended design: 
+
+$$
+\text{Var}(\bar{y}_{1\cdot\cdot} - \bar{y}_{2\cdot\cdot}) = \frac{\sigma_e^2}{8}
+$$
+
+This recommendation effectively eliminates additional sources of variation present in the original design, and as a result would provide more precise (and still unbiased) estimates of average genotype differences. 
+
+Also, for what it's worth, I believe this sort of paired design was something R.A. Fisher wrote about when he was doing soil-plot experiments some time ago.
 
 \newpage 
 
@@ -280,6 +303,8 @@ Copying the prior table and adding Sums of Squares:
 | Error                   | 14         | $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (y_{ijk} - \bar{y}_{ij.} - \bar{y}_{i.k} + \bar{y}_{i..})^2$ |
 | Corrected Total         | 31         | $\sum_{i=1}^2 \sum_{j=1}^8 \sum_{k=1}^2 (y_{ijk} - \bar{y}_{...})^2$ |
 
+\newpage 
+
 ## g)
 
 Derive the expected mean square for the second to last line of the ANOVA table (the line right before corrected total). This line is typically called error or split-plot error.
@@ -354,6 +379,8 @@ $$
 \widehat{\text{Var}({\mu_{11} - \mu_{12}})} = \frac{1}{4} \sigma_e^2
 $$
 
+\newpage 
+
 ## j)
 
 Compute a 95% confidence interval for $\mu_{11} - \mu_{12}$.
@@ -416,6 +443,8 @@ $$
 \widehat{\mu_{11} - \mu_{12}} \pm t_{0.975, 14} \cdot (\frac{1}{4}) \sigma_e^2 \rightarrow -1 \pm (2.1448 \cdot 0.4818) = (-2.0334, 0.0334)
 $$
 
+\newpage
+
 ## k)
 
 Determine the distribution of $y_{111} - y_{112} - y_{211} + y_{212}$.
@@ -465,6 +494,8 @@ Thus, the linear combination follows a normal distribution:
 $$
 y_{111} - y_{112} - y_{211} + y_{212} \sim \mathcal{N}(\mu_{11} - \mu_{12} - \mu_{21} + \mu_{22}, 4\sigma_e^2)
 $$
+
+\newpage 
 
 ## l)
 
@@ -589,6 +620,8 @@ $$
 
 This t-statistic follows a $t$-distribution with 8 degrees of freedom, corresponding to the degrees of freedom associated with the `Helmet(Type)` error term (i.e., 10 helmets (5 of each type) – 2 types = 8). This test assesses whether the average stress differs between helmet types.
 
+\newpage
+
 ## c)
 
 The statistic in part b) has a noncentral t distribution. Provide an expression for the noncentrality parameter in terms of model (3) parameters.
@@ -631,6 +664,8 @@ $$
 $$
 
 This ncp is assumed to be 0 under the null and $\delta$ under the alternative hypothesis. 
+
+\newpage
 
 ## d)
 
