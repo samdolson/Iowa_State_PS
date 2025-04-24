@@ -32,31 +32,31 @@ $$
 f(x \mid \theta) = 2\theta(1 - 2x) + 2x, \quad x \in [0, 1], \theta \in [0, 1]
 $$
 
-and a uniform prior:
+and a uniform prior, corresponding to:
 
 $$
 \pi(\theta) = 1, \quad \text{for } \theta \in [0, 1]
 $$
 
-We compute the (unnormalized) posterior:
+The posterior is then:
 
 $$
 \pi(\theta \mid x) \propto f(x \mid \theta)\pi(\theta) = 2\theta(1 - 2x) + 2x
 $$
 
-Normalize:
+Normalizing the posterior (to ensure the function is proper):
 
 $$
 \int_0^1 [2\theta(1 - 2x) + 2x] \, d\theta = (1 - 2x)\cdot1 + 2x\cdot1 = 1
 $$
 
-so:
+Giving a posterior of the form:
 
 $$
 \pi(\theta \mid x) = 2\theta(1 - 2x) + 2x
 $$
 
-Let us define the posterior probabilities of the hypotheses:
+The posterior probabilities under the null is given by:
 
 $$
 P(H_0 \mid x) = \int_0^{0.4} \pi(\theta \mid x) \, d\theta
@@ -69,17 +69,21 @@ $$
 P(H_0 \mid x) = 0.16 + 0.48x
 $$
 
+We may then construct the posterior probability under the alternative: 
+
 $$
 P(H_1 \mid x) = 1 - P(H_0 \mid x) = 0.84 - 0.48x
 $$
 
-The Bayes test rejects $H_0$ when $P(H_1 \mid x) > P(H_0 \mid x)$, that is:
+By definition, the Bayes test rejects $H_0$ when $P(H_1 \mid x) > P(H_0 \mid x)$. 
+
+Using our now known values of these probabilities, we have: 
 
 $$
-0.84 - 0.48x > 0.16 + 0.48x \Rightarrow 0.68 > 0.96x \Rightarrow x < \frac{17}{24}
+0.84 - 0.48x > 0.16 + 0.48x \rightarrow 0.68 > 0.96x \rightarrow x < \frac{17}{24}
 $$
 
-We define the (Bayes) test function $\varphi(x)$ as:
+We may now define the (Bayes) test function $\varphi(x)$ as:
 
 $$
 \varphi(x) =
@@ -89,8 +93,6 @@ $$
 0, & \text{if } x \geq \dfrac{17}{24}
 \end{cases}
 $$
-
-That is, we reject $H_0$ if $x < \frac{17}{24}$, and fail to reject $H_0$ otherwise.
 
 \newpage
 
@@ -106,52 +108,40 @@ Let $Y = -(\log X)^{-1}$. Evaluate the confidence coefficient of the set $[y/2, 
 
 ### Answer
 
-If $X \sim \text{Beta}(\theta, 1)$, then its pdf is:
+As given, $X \sim \text{Beta}(\theta, 1)$. So we know its pdf is of the form:
 
 $$
 f_X(x) = \theta x^{\theta - 1}, \quad 0 < x < 1
 $$
 
-Define the transformation:
+Define the continuous, monotonic, and one-to-one transformation (over the support):
 
 $$
 Y = -\frac{1}{\log X} \Rightarrow X = e^{-1/Y}, \quad Y > 0
 $$
 
-Compute the pdf of $Y$ via the change of variables:
+Via the change of variables, the pdf of Y has the form:
 
 $$
-f_Y(y) = f_X(e^{-1/y}) \cdot \left| \frac{d}{dy} e^{-1/y} \right| = \theta \cdot e^{-\theta / y} \cdot \frac{1}{y^2}, \quad y > 0
+f_Y(y) = f_X(e^{-1/y}) \cdot \left| \frac{d}{dy} e^{-1/y} \right| = \theta \cdot e^{-\theta / y} \cdot \frac{1}{y^2} = \frac{\theta}{y^2} e^{-\theta / y}, \quad y > 0
 $$
 
-So the pdf of $Y$ is:
+It then follows:
 
 $$
-f_Y(y) = \frac{\theta}{y^2} e^{-\theta / y}, \quad y > 0
-$$
-
-We seek:
-
-$$
-P\left( \frac{Y}{2} \leq \theta \leq Y \right) = P\left( \theta \in \left[\frac{Y}{2}, Y\right] \right)
-$$
-
-This is equivalent to:
-
-$$
-P\left( \theta \in \left[\frac{Y}{2}, Y\right] \right) = P\left( Y \in [\theta, 2\theta] \right)
+P\left( \frac{Y}{2} \leq \theta \leq Y \right) = P\left( \theta \in \left[\frac{Y}{2}, Y\right] \right)= P\left( Y \in [\theta, 2\theta] \right)
 $$
 
 Thus:
 
 $$
-\text{Confidence Coefficient} = \int_{\theta}^{2\theta} \frac{\theta}{y^2} e^{-\theta / y} \, dy
+\text{CC} = \text{min}_{\theta \in \Theta}P_{\theta}(\theta \in I(\underset{\sim}{Y})) = \int_{\theta}^{2\theta} \frac{\theta}{y^2} e^{-\theta / y} \, dy
 $$
 
-Make substitution $u = \theta / y \Rightarrow y = \theta / u, \, dy = -\theta/u^2 du$:
+Via u substitution to evaluate, where $u = \theta / y \Rightarrow y = \theta / u, \, dy = -\theta/u^2 du$:
 
 $$
-\text{Confidence Coefficient} = \int_{1/2}^{1} e^{-u} \, du = e^{-1/2} - e^{-1} \approx 0.6065 - 0.3679 = 0.2386
+\text{CC} = \int_{1/2}^{1} e^{-u} \, du = e^{-1/2} - e^{-1} \approx 0.6065 - 0.3679 = 0.2386
 $$
 
 ## b)
@@ -160,43 +150,45 @@ Find a pivotal quantity and use it to set up a confidence interval having the sa
 
 ### Answer
 
-The pdf of $X \sim \text{Beta}(\theta, 1)$ is:
+The pdf of X is: 
 
 $$
 f_X(x) = \theta x^{\theta - 1}, \quad x \in (0, 1)
 $$
 
-Let us consider the transformation:
+Consider the transformation:
 
 $$
 T = X^\theta
 $$
 
-Then the cdf of $T$ is:
+The cdf of the statistic $T$ is:
 
 $$
 P(X^\theta \leq t) = P(X \leq t^{1/\theta}) = \int_0^{t^{1/\theta}} \theta x^{\theta - 1} dx = t
 $$
 
-Thus, $T = X^\theta \sim \text{Uniform}(0,1)$, and is a pivotal quantity.
+This is a recognizable form! Specifically, $T = X^\theta \sim \text{Uniform}(0,1)$, and is a pivotal quantity (it does not depend on the parameter $\theta$).
 
-We want to find values $a, b \in (0,1)$ such that:
+To construct a confidence interval, we want to find values $a, b \in (0,1)$ such that:
 
 $$
 P(a \leq T \leq b) = b - a = 0.239
 $$
 
-This implies:
+Substituting known relations:
 
 $$
 P(a \leq X^\theta \leq b) = 0.239
 $$
 
-Solving for $\theta$ from $a \leq X^\theta \leq b$:
+Solving for $\theta$:
 
 $$
-a \leq X^\theta \leq b \Rightarrow \frac{\log a}{\log X} \leq \theta \leq \frac{\log b}{\log X}, \quad \text{(since } 0 < X < 1 \text{ and } \log X < 0)
+a \leq X^\theta \leq b \rightarrow \frac{\log a}{\log X} \leq \theta \leq \frac{\log b}{\log X}
 $$
+
+Noting: $0 < X < 1 \rightarrow log X < 0$
 
 ## c)
 
@@ -204,22 +196,16 @@ Compare the two confidence intervals.
 
 ### Answer
 
-The interval in part a), $[Y/2, Y]$, depends on the transformed variable $Y = -1/\log X$, and is symmetric on the log scale.
-
-The interval in part b) uses a pivotal quantity to define a confidence set for $\theta$.
-
-The part a) interval is a special case of the pivotal-based interval in part b), using fixed endpoints $a = e^{-1}, b = e^{-1/2}$ such that $b - a = 0.239$.
-
-The pivotal method in part b) allows for more flexibility and can produce shorter intervals.
-
-For example, choosing $b = 1$, $a = 1 - 0.239$, yields:
+The interval in part a) is a special case of part b), but doesn't always produce the shortest possible confidence interval. The pivotal method in part b) is more optimal as it minimizes the interval length by choosing $a = \alpha$ and $b = 1$, so the method from part b) produces the shortest $1-\alpha$ confidence interval via:
 
 $$
-\theta \in \left[ 0, \frac{\log(1 - 0.239)}{\log X} \right]
+\left\{ \theta : 0 \leq \theta \leq \frac{\log \alpha}{\log X} \right\}
 $$
 
-This is a one-sided interval of the same confidence level, and is often shorter or more desirable depending on the application.
+For $\alpha = 0.239$, the coverage from part a), part b) gives a shorter interval. However, the methods from part a) and b) agree in some instances (when $a = e^{-1}$ and $b = e^{-1/2}$). 
 
+I'd recommend using part a) for simplicity, but part b) for minimal length/optimality, which can be dependent upon the context of application (for example, Dr. Nordman gave an example of economists sometimes being interested in one-sided confidence intervals for the maximum/upper bounds, which would be an instance of using the method from part b). 
+   
 \newpage
 
 # Q3
@@ -234,17 +220,21 @@ $H_0: \theta = \theta_0$ versus $H_1: \theta \neq \theta_0$
 
 ### Answer
 
+As given, we have n iid Normal random variables. We may normalize these as follows (under $H_0$): 
+
 $$
-Z = \frac{\bar{X} - \theta_0}{\sigma / \sqrt{n}} \sim \text{N}(0, 1) \quad \text{under } H_0
+Z = \frac{\bar{X} - \theta_0}{\sigma / \sqrt{n}} \sim \text{N}(0, 1)
 $$
+
+For the null hypothesis as given,
 
 Reject $H_0$ if:
 
 $$
-|Z| > z_{\alpha/2} \quad \Longleftrightarrow \quad \left| \bar{X} - \theta_0 \right| > z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}
+|Z| > z_{\alpha/2} \quad \iff \quad \left| \bar{X} - \theta_0 \right| > z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}
 $$
 
-Accept $H_0$ if:
+And accept $H_0$ if:
 
 $$
 \theta_0 \in \left[ \bar{X} - z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}, \, \bar{X} + z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}} \right]
@@ -253,7 +243,7 @@ $$
 Inverting the test yields the $(1 - \alpha)$ confidence interval for $\theta$:
 
 $$
-\left[ \bar{X} - z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}, \, \bar{X} + z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}} \right]
+I(\underset{\sim}{X}) = \left[ \bar{X} - z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}, \, \bar{X} + z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}} \right]
 $$
 
 ## b)
@@ -262,17 +252,21 @@ $H_0: \theta \geq \theta_0$ versus $H_1: \theta < \theta_0$
 
 ### Answer
 
+We again have our standard normal iid random variable(s): 
+
 $$
 Z = \frac{\bar{X} - \theta_0}{\sigma / \sqrt{n}}
 $$
 
+As we now are dealing with a one-sided alternative hypothesis, we have: 
+
 Reject $H_0$ if:
 
 $$
-Z < -z_{\alpha} \quad \Longleftrightarrow \quad \bar{X} - \theta_0 < -z_{\alpha} \cdot \frac{\sigma}{\sqrt{n}}
+Z < -z_{\alpha} \quad \iff \quad \bar{X} - \theta_0 < -z_{\alpha} \cdot \frac{\sigma}{\sqrt{n}}
 $$
 
-Accept $H_0$ if:
+And accept $H_0$ if:
 
 $$
 \bar{X} \geq \theta_0 - z_{\alpha} \cdot \frac{\sigma}{\sqrt{n}}
@@ -281,7 +275,7 @@ $$
 Inverting the test yields the one-sided confidence interval:
 
 $$
-\left( -\infty, \, \bar{X} + z_{\alpha} \cdot \frac{\sigma}{\sqrt{n}} \right]
+I(\underset{\sim}{X}) = \left( -\infty, \, \bar{X} + z_{\alpha} \cdot \frac{\sigma}{\sqrt{n}} \right]
 $$
 
 ## c)
@@ -290,9 +284,13 @@ $H_0: \theta \leq \theta_0$ versus $H_1: \theta > \theta_0$
 
 ### Answer
 
+Once more, we have our standard normal iid random variables of the form: 
+
 $$
 Z = \frac{\bar{X} - \theta_0}{\sigma / \sqrt{n}}
 $$
+
+And given the direction of our one-sided alternative hypothesis, we have: 
 
 Reject $H_0$ if:
 
@@ -300,7 +298,7 @@ $$
 Z > z_{\alpha} \quad \Longleftrightarrow \quad \bar{X} - \theta_0 > z_{\alpha} \cdot \frac{\sigma}{\sqrt{n}}
 $$
 
-Accept $H_0$ if:
+And accept $H_0$ if:
 
 $$
 \bar{X} \leq \theta_0 + z_{\alpha} \cdot \frac{\sigma}{\sqrt{n}}
@@ -309,7 +307,7 @@ $$
 Inverting the test gives the one-sided interval:
 
 $$
-\left[ \bar{X} - z_{\alpha} \cdot \frac{\sigma}{\sqrt{n}}, \, \infty \right)
+I(\underset{\sim}{X}) = \left[ \bar{X} - z_{\alpha} \cdot \frac{\sigma}{\sqrt{n}}, \, \infty \right)
 $$
 
 \newpage
@@ -332,6 +330,8 @@ $$
 
 ## Answer
 
+As given: 
+
 Let $T$ be a continuous test statistic with cumulative distribution function $F_T(t \mid \theta)$.
 
 Under the null hypothesis $H_0: \theta = \theta_0$, we define the transformed variable:
@@ -340,19 +340,21 @@ $$
 U = F_T(T \mid \theta_0)
 $$
   
-Since $T$ is continuous and $F_T(\cdot \mid \theta_0)$ is strictly increasing, the probability integral transform implies:
+Since $T$ is continuous and $F_T(\cdot \mid \theta_0)$ is strictly increasing, via PIT, we know that under $H_0$:
 
 $$
-U \sim \text{Uniform}(0, 1) \quad \text{under } H_0
+U \sim \text{Uniform}(0, 1)
 $$
 
-We construct an acceptance region that excludes the lower $\alpha_1$ and upper $\alpha_2$ tails of this uniform distribution. Specifically, we accept $H_0$ if:
+So we then construct an acceptance region that excludes the lower $\alpha_1$ and upper $\alpha_2$ tails of this uniform distribution.
+
+More descriptively, we accept $H_0$ if:
 
 $$
 \alpha_1 \leq F_T(t \mid \theta_0) \leq 1 - \alpha_2
 $$
 
-The probability of rejecting $H_0$ is the sum of the tail probabilities:
+Meaning the probability of rejecting $H_0$ is the sum of the tail probabilities:
 
 $$
 P_{\theta_0}\left( F_T(T \mid \theta_0) < \alpha_1 \right) = \alpha_1
@@ -364,7 +366,7 @@ $$
 P_{\theta_0}\left( F_T(T \mid \theta_0) > 1 - \alpha_2 \right) = \alpha_2
 $$
 
-Hence, the total probability of rejection under $H_0$ is:
+Taken together, the total probability of rejection under $H_0$ is:
 
 $$
 P_{\theta_0}(\text{Reject } H_0) = \alpha_1 + \alpha_2 = \alpha
@@ -372,17 +374,15 @@ $$
 
 So this acceptance region defines a level $\alpha$ test.
 
-We now construct a $1 - \alpha$ confidence set by inverting the acceptance region:
+We then construct a $1 - \alpha$ confidence set by inverting the acceptance region:
 
-Fix observed value $t_{\text{obs}}$, and define the set of all parameter values $\theta$ for which $t_{\text{obs}}$ lies within the corresponding acceptance region:
+We then fix $t_{\text{obs}}$, and define the set of all parameter values $\theta$ for which $t_{\text{obs}}$ lies within the acceptance region:
 
 $$
 C(t_{\text{obs}}) = \left\{ \theta : \alpha_1 \leq F_T(t_{\text{obs}} \mid \theta) \leq 1 - \alpha_2 \right\}
 $$
 
-This set contains all values of $\theta$ that are not rejected when testing $H_0: \theta = \theta'$ for each possible $\theta'$.
-
-Since $F_T(T \mid \theta) \sim \text{Uniform}(0, 1)$ under the true parameter $\theta$, we have:
+Since $F_T(T \mid \theta) \sim \text{Uniform}(0, 1)$ (noting PIT) under the true parameter $\theta$, we have:
 
 $$
 P_\theta\left( \alpha_1 \leq F_T(T \mid \theta) \leq 1 - \alpha_2 \right) = 1 - \alpha_1 - \alpha_2 = 1 - \alpha
@@ -396,14 +396,20 @@ $$
 
 is a confidence set for $\theta$ with coverage probability $1 - \alpha$.
 
-Acceptance region (level $\alpha$):
+So we have an acceptance region (level $\alpha$):
 
 $$
 \left\{ t : \alpha_1 \leq F_T(t \mid \theta_0) \leq 1 - \alpha_2 \right\}
 $$
 
-Associated confidence set (level $1 - \alpha$):
+With confidence set (level $1 - \alpha$):
 
 $$
 \left\{ \theta : \alpha_1 \leq F_T(t \mid \theta) \leq 1 - \alpha_2 \right\}
+$$
+
+We may take advantage of the PIT further (knowing $F_T(t \mid \theta) \sim U(0,1)$) to note: 
+
+$$
+\alpha_1 = \alpha_2 \rightarrow C_{\underset{\sim}{X}} = \left\{ \theta : \frac{\alpha}{2} \leq F_T(t \mid \theta) \leq 1 - \frac{\alpha}{2} \right\}
 $$
