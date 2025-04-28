@@ -16,29 +16,139 @@ Let $X_1, \ldots, X_n$ be iid exponential($\theta$) and let $\hat{\theta}_n \equ
 
 Determine the limiting distribution of $\sqrt{n}(\hat{\theta}_n - \theta)$ as $n \to \infty$.
 
+### Answer
+
+Since $X_1, \ldots, X_n$ are iid with $X_i \sim \text{Exponential}(\theta)$, we know:
+
+$\mathbb{E}[X_i] = \theta$
+
+And: 
+
+$\text{Var}(X_i) = \theta^2$
+
+By the Central Limit Theorem, we also know: 
+
+$$
+\sqrt{n}(\bar{X}_n - \theta) \overset{d}{\longrightarrow} N(0, \theta^2)
+$$
+
+Thus,
+
+$$
+\sqrt{n}(\hat{\theta}_n - \theta) \overset{d}{\longrightarrow} N(0, \theta^2)
+$$
+
 ## b)
 
 Find a variance stabilizing transformation (VST) for $\{\hat{\theta}_n\}$ and use this to determine a large sample confidence interval for $\theta$ with approximate confidence coefficient $1 - \alpha$.
+
+### Answer
+
+Let $X_1, \ldots, X_n \overset{iid}{\sim} \text{Exp}(\theta)$, with MLE $\hat{\theta}_n = \bar{X}_n$.
+
+From part (a):
+
+$$
+\sqrt{n}(\hat{\theta}_n - \theta) \overset{d}{\longrightarrow} N(0, \theta^2).
+$$
+
+Using the Delta Method, for a differentiable function $g(\cdot)$:
+
+$$
+\sqrt{n}(g(\hat{\theta}_n) - g(\theta)) \overset{d}{\longrightarrow} N\left(0, [g'(\theta)]^2 \theta^2\right).
+$$
+
+To stabilize the variance, require:
+
+$$
+[g'(\theta)]^2 \theta^2 = 1.
+$$
+
+Taking square roots:
+
+$$
+g'(\theta) = \frac{1}{\theta}.
+$$
+
+Integrating:
+
+$$
+g(\theta) = \log \theta + C,
+$$
+
+where $C$ is an irrelevant additive constant.
+
+Thus, a variance stabilizing transformation is:
+
+$$
+g(\theta) = \log \theta.
+$$
+
+By the Delta Method:
+
+$$
+\sqrt{n}(\log \hat{\theta}_n - \log \theta) \overset{d}{\longrightarrow} N(0, 1).
+$$
+
+Thus, an approximate $1-\alpha$ confidence interval for $\log(\theta)$ is:
+
+$$
+\left( \log(\hat{\theta}_n) \pm \frac{z_{\alpha/2}}{\sqrt{n}} \right),
+$$
+
+where $z_{\alpha/2}$ is the $1-\alpha/2$ standard normal quantile.
+
+Exponentiating, the approximate confidence interval for $\theta$ is:
+
+$$
+\left( \hat{\theta}_n \exp\left(-\frac{z_{\alpha/2}}{\sqrt{n}}\right), \hat{\theta}_n \exp\left(\frac{z_{\alpha/2}}{\sqrt{n}}\right) \right).
+$$
+
+```{r}
+# Calculate VST CI numerically
+x_bar <- 1.835464
+n <- 100
+z_90 <- 1.6449
+
+lower_vst <- x_bar * exp(-z_90 / sqrt(n))
+upper_vst <- x_bar * exp(z_90 / sqrt(n))
+
+c(lower_vst, upper_vst)
+```
 
 ## c)
 
 Suppose a random sample $X_1, \ldots, X_{100}$ of $n = 100$ observations yields $\bar{x}_n = 1.835464$. Use this information to obtain a large sample confidence interval for $\theta$ based on a likelihood ratio statistic, which has approximate confidence coefficient $90\%$. (Use the chi-squared approximation for this; you should be able to then numerically determine the interval.) Using this data, compute also a confidence interval with approximate confidence coefficient $90\%$ using the VST approach from part(b).
 
-\newpage
+### Answer
 
-# Q2
+For testing $H_0: \theta = \theta_0$, the likelihood ratio statistic satisfies:
 
-For $\theta > 0$, suppose that $X_1, \ldots, X_n$ are iid Uniform(0, $\theta$). Consider the MLE of $\theta$, which is given by $\hat{\theta}_n = \max\{X_1, X_2, \ldots, X_n\}$.
+$$
+-2\log \Lambda(\theta) \overset{d}{\longrightarrow} \chi^2_1,
+$$
 
-# a)
+where $\Lambda(\theta) = \frac{L(\theta)}{L(\hat{\theta}_n)}$.
 
-Prove that, in distribution, $n(\theta - \hat{\theta}_n) \overset{d}{\longrightarrow}$ Exponential($\theta$) as $n \to \infty$ (i.e., converges in distribution to an exponential with mean $\theta$).
+The log-likelihood based on iid $\text{Exponential}(\theta)$ data is:
 
-(Hint: Evaluate $P_{\theta}[n(\theta - \hat{\theta}_n) > t]$ and remember that $\lim_{s \to \infty}(1 + \frac{a}{s})^s = \exp(a)$.)
+$$
+\ell(\theta) = -n\log \theta - \frac{n\bar{X}_n}{\theta}.
+$$
 
-## b)
+Thus, the likelihood ratio test statistic is:
 
-Argue carefully that $\{\theta > 0 : \theta \leq n\hat{\theta}_n/(n - \log(20))\}$ can be used as a one-sided (upper) confidence interval for $\theta$ with approximate confidence coefficient $95\%$ (that is, show that the interval will have an approximate coverage probability of $95\%$ for each $\theta > 0$).
+$$
+-2\log \Lambda(\theta) = 2n\left[\log\left(\frac{\theta}{\hat{\theta}_n}\right) + \frac{\hat{\theta}_n}{\theta} - 1\right].
+$$
+
+We seek values of $\theta$ satisfying:
+
+$$
+2n\left[\log\left(\frac{\theta}{\hat{\theta}_n}\right) + \frac{\hat{\theta}_n}{\theta} - 1\right] \leq \chi^2_{1,0.90},
+$$
+
+where $\chi^2_{1,0.90} \approx 2.7055$.
 
 \newpage
 
@@ -52,15 +162,124 @@ P(X_1 \leq x|\theta) =
 1 - e^{-(x/\theta)^2} & \text{if } x > 0 \\
 0 & \text{otherwise},
 \end{cases}
-\quad \theta > 0.
+\quad \theta > 0
 $$
 
 ## a)
 
 Use the Mood-Graybill-Boes Method to derive a CI for $\theta$ with C.C. $1 - \alpha$ based on the statistic $X_{(1)} = \min_{1 \leq i \leq n} X_i$.
 
+### Answer
+
+Since $X_1, \ldots, X_n$ are independent:
+
+$$
+P(X_{(1)} \leq x) = 1 - P(X_1 > x, \ldots, X_n > x) = 1 - \left(P(X_1 > x)\right)^n.
+$$
+
+Given:
+
+$$
+P(X_1 > x) = e^{-(x/\theta)^2},
+$$
+
+thus:
+
+$$
+P(X_{(1)} \leq x) = 1 - e^{-n(x/\theta)^2}.
+$$
+
+Define:
+
+$$
+V = n\left( \frac{X_{(1)}}{\theta} \right)^2.
+$$
+
+Then:
+
+$$
+P(V \leq v) = 1 - e^{-v},
+$$
+
+so $V \sim \text{Exponential}(1)$.
+
+Let $q_p = -\log(1-p)$ denote the $p$-th quantile of the $\text{Exponential}(1)$ distribution.
+
+We want:
+
+$$
+P\left( q_{\alpha/2} \leq V \leq q_{1-\alpha/2} \right) = 1-\alpha.
+$$
+
+In terms of $\theta$, solving:
+
+$$
+q_{\alpha/2} \leq n\left( \frac{X_{(1)}}{\theta} \right)^2 \leq q_{1-\alpha/2},
+$$
+
+or equivalently:
+
+$$
+\sqrt{ \frac{q_{\alpha/2}}{n} } \leq \frac{X_{(1)}}{\theta} \leq \sqrt{ \frac{q_{1-\alpha/2}}{n} }.
+$$
+
+Thus:
+
+$$
+\theta \in \left( \frac{X_{(1)}}{ \sqrt{q_{1-\alpha/2}/n} }, \frac{X_{(1)}}{ \sqrt{q_{\alpha/2}/n} } \right).
+$$
+Using $q_p = -\log(1-p)$:
+
+$$
+\left( \frac{X_{(1)}}{ \sqrt{ -\log(1-\alpha/2)/n } }, \, \frac{X_{(1)}}{ \sqrt{ -\log(\alpha/2)/n } } \right)
+$$
+
 ## b)
 
 Use the Mood-Graybill-Boes Method to derive a CI for $\theta$ with C.C. $1 - \alpha$ based on the statistic $T = \sum_{i=1}^n X_i^2$. Express your confidence interval using chi-squared quantiles.
 
 Note: One can show $X_i^2$ is Exponential($\theta^2$) distributed so that $2T/\theta^2$ is $\chi_{2n}^2$ distributed with $2n$ degrees of freedom.
+
+### Answer
+
+Since:
+
+$$
+X_i^2 \sim \text{Exponential}(\theta^2),
+$$
+
+then:
+
+$$
+T = \sum_{i=1}^n X_i^2,
+$$
+
+and:
+
+$$
+\frac{2T}{\theta^2} \sim \chi^2_{2n}.
+$$
+
+Thus:
+
+$$
+P\left( \chi^2_{2n,\alpha/2} \leq \frac{2T}{\theta^2} \leq \chi^2_{2n,1-\alpha/2} \right) = 1-\alpha.
+$$
+
+Solving for $\theta^2$:
+
+$$
+\frac{2T}{\chi^2_{2n,1-\alpha/2}} \leq \theta^2 \leq \frac{2T}{\chi^2_{2n,\alpha/2}}.
+$$
+
+Taking square roots:
+
+$$
+\sqrt{ \frac{2T}{\chi^2_{2n,1-\alpha/2}} } \leq \theta \leq \sqrt{ \frac{2T}{\chi^2_{2n,\alpha/2}} }.
+$$
+
+Thus, the confidence interval for $\theta$ is:
+
+$$
+\left( \sqrt{ \frac{2 \sum_{i=1}^n X_i^2}{\chi^2_{2n,1-\alpha/2}} }, \, \sqrt{ \frac{2 \sum_{i=1}^n X_i^2}{\chi^2_{2n,\alpha/2}} } \right)
+$$
