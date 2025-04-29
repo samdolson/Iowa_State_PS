@@ -237,13 +237,13 @@ Use the Mood-Graybill-Boes Method to derive a CI for $\theta$ with C.C. $1 - \al
 
 ### Answer
 
-Since $X_1, \ldots, X_n$ are random sample (they are iid):
+Since $X_1, \ldots, X_n$ are a random sample with common cdf, they are iid, such that we may write:
 
 $$
 P(X_{(1)} \leq x) = 1 - P(X_1 > x, \ldots, X_n > x) = 1 - \left(P(X_1 > x)\right)^n
 $$
 
-As given:
+With the cdf as given this simplifies:
 
 $$
 P(X_1 > x) = 1 - P(X_1 \leq x|\theta) = 1 - (1 - e^{-(x/\theta)^2}) = e^{-(x/\theta)^2}
@@ -261,11 +261,13 @@ $$
 V = n\left( \frac{X_{(1)}}{\theta} \right)^2 \rightarrow P(V \leq v) = 1 - e^{-v}
 $$
 
-Where V is a pivotal quantity. 
+The above cdf is from an Exponential distribution!
 
-The above cdf is from an Exponential distribution! So, $V \sim \text{Exponential}(1)$.
+So, $V \sim \text{Exponential}(1)$, and V is a pivotal quantity.
 
-Further, let $q_p = -\log(1-p)$ denote the $p$-th quantile of the $\text{Exponential}(1)$ distribution.
+We require quantiles of the $\text{Exponential}(1)$ distribution in order to form confidence intervals. 
+
+Let $q_p$ denote the $p$-th quantile of the $\text{Exponential}(1)$ distribution.
 
 We want coverage coefficient:
 
@@ -287,7 +289,63 @@ $$
 \theta \in \left( \frac{X_{(1)}}{ \sqrt{q_{1-\alpha/2}/n} }, \frac{X_{(1)}}{ \sqrt{q_{\alpha/2}/n} } \right)
 $$
 
-Again, using $q_p$ for quantiles of the $\text{Exponential}(1)$ distribution. 
+I believe the proof may end here, so leaving some space before continuing...
+
+---
+
+We may simplify further with a note: 
+
+By definition, the $p$-th quantile $q_p$ satisfies the expression:
+
+$$
+P(X \leq q_p) = p
+$$
+
+Substituting the given cdf:
+
+$$
+F(q_p) = p
+\quad \Rightarrow \quad
+1 - e^{-q_p} = p
+$$
+
+Rearranging:
+
+$$
+e^{-q_p} = 1 - p \rightarrow - q_p = \log(1-p) \rightarrow q_p = -\log(1-p)
+$$
+
+So, we may write the $p$-th quantile $q_p$ of an $\text{Exponential}(1)$ random variable as:
+
+$$
+q_p = -\log(1-p)
+$$
+
+So, taking our CI for $\theta$ given above, we may then write: 
+
+For a confidence coefficient of $1 - \alpha$, we have: 
+
+$$
+q_{1-\alpha/2} = -\log(\alpha/2)
+$$
+
+And: 
+
+$$
+q_{\alpha/2} = -\log(1-\alpha/2)
+$$
+
+Substituting into the above interval:
+
+$$
+\theta \in \left( \frac{X_{(1)}}{ \sqrt{ \frac{-\log(\alpha/2)}{n} } }, \frac{X_{(1)}}{ \sqrt{ \frac{-\log(1-\alpha/2)}{n} } } \right)
+$$
+
+Which is equivalent to:
+
+$$
+\theta \in \left( X_{(1)} \sqrt{ \frac{n}{-\log(\alpha/2)} }, \, X_{(1)} \sqrt{ \frac{n}{-\log(1-\alpha/2)} } \right)
+$$
 
 ## b)
 
@@ -303,7 +361,13 @@ $$
 X_i^2 \sim \text{Exponential}(\theta^2)
 $$
 
-Let:
+Note: 
+
+$$
+T = \sum_{i=1}^n X_i^2 \rightarrow T \sim \text{Gamma}(n, \theta^2)
+$$
+
+Using the above note, let:
 
 $$
 T = \sum_{i=1}^n X_i^2 \rightarrow \frac{2T}{\theta^2} \sim \chi^2_{2n}
