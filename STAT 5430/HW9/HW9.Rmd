@@ -94,116 +94,25 @@ $$
 \left( \log(\hat{\theta}_n) \pm \frac{z_{\alpha/2}}{\sqrt{n}} \right)
 $$
 
-Where $z_{\alpha/2}$ is the $1-\alpha/2$ standard normal quantile.
+Where $z_{\alpha/2}$ is the $1-\alpha/2$ standard normal quantile, and taking advantage of symmetry in the standard normal distribution (and further noting we go in order of ($L = \frac{\alpha}{2}, U = 1 - \frac{\alpha}{2}$) for the confidence interval that follows, as we have an increasing function with respect to $\theta$). 
 
-To then isolate into just an expression of $\theta$ then, we have the approximate confidence interval for $\theta$ with approximate confidence coefficient $1 - \alpha$ is:
-
-$$
-\left( \hat{\theta}_n \exp\left(-\frac{z_{\alpha/2}}{\sqrt{n}}\right), \hat{\theta}_n \exp\left(\frac{z_{\alpha/2}}{\sqrt{n}}\right) \right)
-$$
-
-Noting the use of ( instead of [ given the use of "approximate coverage". 
-
-## c)
-
-Suppose a random sample $X_1, \ldots, X_{100}$ of $n = 100$ observations yields $\bar{x}_n = 1.835464$. Use this information to obtain a large sample confidence interval for $\theta$ based on a likelihood ratio statistic, which has approximate confidence coefficient $90\%$. (Use the chi-squared approximation for this; you should be able to then numerically determine the interval.) 
-
-Using this data, compute also a confidence interval with approximate confidence coefficient $90\%$ using the VST approach from part b).
-
-### Answer
-
-For testing $H_0: \theta = \theta_0$, the likelihood ratio statistic satisfies:
+To then isolate into just an expression of $\theta$ then, we have a confidence interval for $\theta$ with approximate confidence coefficient $1 - \alpha$ given by:
 
 $$
--2 \log \Lambda(\theta) \overset{d}{\longrightarrow} \chi^2_1
+\left( \hat{\theta}_n \exp\left(-\frac{z_{\alpha/2}}{\sqrt{n}}\right), \hat{\theta}_n \exp\left(\frac{z_{1 - \alpha/2}}{\sqrt{n}}\right) \right)
 $$
 
-where:
+Note: We may simplify further, noting that $\hat{\theta}_n = \bar{X}_n$
+
+Substituting this into the above formula, we then have an equivalent expression of the confidence interval as: 
 
 $$
-\Lambda(\theta) = \frac{L(\theta)}{L(\hat{\theta}_n)}
+\left( \bar{X}_n \exp\left(-\frac{z_{\alpha/2}}{\sqrt{n}}\right), \bar{X}_n \exp\left(\frac{z_{1 - \alpha/2}}{\sqrt{n}}\right) \right)
 $$
 
-and degrees of freedom 1 (since $\theta$ is a single parameter).
+And noting the use of ( instead of [ given the use of "approximate coverage". 
 
-Since the data are iid Exponential$(\theta)$, the joint likelihood function is:
-
-$$
-L(\theta) = \prod_{i=1}^n \left( \frac{1}{\theta} e^{-x_i/\theta} \right) = \left( \frac{1}{\theta} \right)^n \exp\left( -\frac{1}{\theta} \sum_{i=1}^n x_i \right)
-$$
-
-Taking the log (noting that the logarithm is a monotonic transformation and preserves maxima):
-
-$$
-\ell(\theta) = \log L(\theta) = -n \log \theta - \frac{1}{\theta} \sum_{i=1}^n x_i
-$$
-
-Since:
-
-$$
-\sum_{i=1}^n x_i = n \bar{x}_n
-$$
-
-the log-likelihood simplifies to:
-
-$$
-\ell(\theta) = -n \log \theta - \frac{n\bar{x}_n}{\theta}
-$$
-
-Thus, the likelihood ratio test statistic simplifies to:
-
-$$
--2 \log \Lambda(\theta) = 2n \left[ \log\left( \frac{\theta}{\hat{\theta}_n} \right) + \frac{\hat{\theta}_n}{\theta} - 1 \right],
-$$
-
-Where $\hat{\theta}_n = \bar{X}_n$ is the MLE for $\theta$.
-
-We then have:
-
-$$
-2n \left[ \log\left( \frac{\theta}{\hat{\theta}_n} \right) + \frac{\hat{\theta}_n}{\theta} - 1 \right] \leq \chi^2_{1,0.90}
-$$
-
-Where $\chi^2_{1,0.90} \approx 2.7055$.
-
-We have everything we then need to construct a confidence interval, using $n = 100$ observations with $\bar{x}_n = 1.835464$. 
-
-We have the inequality:
-
-$$
-2n\left[\log\left(\frac{\theta}{\bar{x}_n}\right) + \frac{\bar{x}_n}{\theta} - 1\right] \leq 2.7055.
-$$
-
-Our goal then is to isolate into $\theta$ terms, when possible. To that end: 
-
-$$
-\log\left(\frac{\theta}{1.835464}\right) + \frac{1.835464}{\theta} - 1 \leq 0.0135275
-\rightarrow 
-\log\left(\frac{\theta}{1.835464}\right) + \frac{1.835464}{\theta} = 1.0135275
-$$
-
-This is rather tricky to solve for analytically! I will turn to the computer for help. 
-
-```{r}
-n <- 100
-x_bar <- 1.835464
-chi_sq_crit <- qchisq(0.90, df = 1)
-
-rhs_value <- chi_sq_crit / (2 * n)
-
-lrt_equation <- function(theta) log(theta/x_bar) + (x_bar/theta) - (1 + rhs_value)
-
-lower_theta <- uniroot(lrt_equation, lower = 0.5, upper = x_bar)$root
-upper_theta <- uniroot(lrt_equation, lower = x_bar, upper = 5)$root
-
-c(lower_theta, upper_theta)
-```
-
-Interestingly, this is similar (but different) to the interval via the VST method. 
-
-#### Aside (VST Method)
-
-Using the VST approach from part b): 
+Calculating this explicitly: 
 
 ```{r}
 x_bar <- 1.835464
@@ -215,6 +124,8 @@ upper_vst <- x_bar * exp(z_90 / sqrt(n))
 
 c(lower_vst, upper_vst)
 ```
+
+A large sample confidence interval for $\theta$ with approximate confidence coefficient $1-\alpha$ is $\theta \in$(1.557079 2.163620). 
 
 \newpage
 
@@ -304,8 +215,7 @@ $$
 Substituting the given cdf:
 
 $$
-F(q_p) = p
-\quad \Rightarrow \quad
+F(q_p) = p \rightarrow 
 1 - e^{-q_p} = p
 $$
 
@@ -335,7 +245,7 @@ $$
 q_{\alpha/2} = -\log(1-\alpha/2)
 $$
 
-Substituting into the above interval:
+Substituting into the above interval calculation:
 
 $$
 \theta \in \left( \frac{X_{(1)}}{ \sqrt{ \frac{-\log(\alpha/2)}{n} } }, \frac{X_{(1)}}{ \sqrt{ \frac{-\log(1-\alpha/2)}{n} } } \right)
