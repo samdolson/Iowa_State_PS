@@ -77,7 +77,7 @@ $$
 And integrating to solve for g:
 
 $$
-g(\theta) = \log \theta + C
+g(\theta) = \ln \theta + C
 $$
 
 Where $C = 0$ for our purposes.
@@ -85,21 +85,21 @@ Where $C = 0$ for our purposes.
 Thus, a VST via the Delta Method is:
 
 $$
-\sqrt{n}(\log \hat{\theta}_n - \log \theta) \overset{d}{\longrightarrow} N(0, 1)
+\sqrt{n}(\ln \hat{\theta}_n - \ln \theta) \overset{d}{\longrightarrow} N(0, 1)
 $$
 
-Then, fora large sample confidence interval, we may invert the test to get an approximate $1-\alpha$ confidence interval for $\log(\theta)$:
+Then, for a large sample confidence interval, we may invert the test to get an approximate $1-\alpha$ confidence interval for $\ln(\theta)$:
 
 $$
-\left( \log(\hat{\theta}_n) \pm \frac{z_{\alpha/2}}{\sqrt{n}} \right)
+\left( \ln(\hat{\theta}_n) \pm \frac{z_{\alpha/2}}{\sqrt{n}} \right)
 $$
 
-Where $z_{\alpha/2}$ is the $1-\alpha/2$ standard normal quantile, and taking advantage of symmetry in the standard normal distribution (and further noting we go in order of ($L = \frac{\alpha}{2}, U = 1 - \frac{\alpha}{2}$) for the confidence interval that follows, as we have an increasing function with respect to $\theta$). 
+Where $z_{\alpha/2}$ is the $1-\alpha/2$ standard normal quantile ("upper-tail case"), and taking advantage of symmetry in the standard normal distribution. 
 
-To then isolate into just an expression of $\theta$ then, we have a confidence interval for $\theta$ with approximate confidence coefficient $1 - \alpha$ given by:
+To get just an expression of $\theta$ then, we have a confidence interval for $\theta$ with approximate confidence coefficient $1 - \alpha$ given by:
 
 $$
-\left( \hat{\theta}_n \exp\left(-\frac{z_{\alpha/2}}{\sqrt{n}}\right), \hat{\theta}_n \exp\left(\frac{z_{1 - \alpha/2}}{\sqrt{n}}\right) \right)
+\left( \hat{\theta}_n \exp\left(-\frac{z_{\alpha/2}}{\sqrt{n}}\right), \hat{\theta}_n \exp\left(\frac{z_{\alpha/2}}{\sqrt{n}}\right) \right)
 $$
 
 Note: We may simplify further, noting that $\hat{\theta}_n = \bar{X}_n$
@@ -107,7 +107,7 @@ Note: We may simplify further, noting that $\hat{\theta}_n = \bar{X}_n$
 Substituting this into the above formula, we then have an equivalent expression of the confidence interval as: 
 
 $$
-\left( \bar{X}_n \exp\left(-\frac{z_{\alpha/2}}{\sqrt{n}}\right), \bar{X}_n \exp\left(\frac{z_{1 - \alpha/2}}{\sqrt{n}}\right) \right)
+\left( \bar{X}_n \exp\left(-\frac{z_{\alpha/2}}{\sqrt{n}}\right), \bar{X}_n \exp\left(\frac{z_{\alpha/2}}{\sqrt{n}}\right) \right)
 $$
 
 And noting the use of ( instead of [ given the use of "approximate coverage". 
@@ -222,13 +222,13 @@ $$
 Rearranging:
 
 $$
-e^{-q_p} = 1 - p \rightarrow - q_p = \log(1-p) \rightarrow q_p = -\log(1-p)
+e^{-q_p} = 1 - p \rightarrow - q_p = \ln(1-p) \rightarrow q_p = -\ln(1-p)
 $$
 
 So, we may write the $p$-th quantile $q_p$ of an $\text{Exponential}(1)$ random variable as:
 
 $$
-q_p = -\log(1-p)
+q_p = -\ln(1-p)
 $$
 
 So, taking our CI for $\theta$ given above, we may then write: 
@@ -236,25 +236,25 @@ So, taking our CI for $\theta$ given above, we may then write:
 For a confidence coefficient of $1 - \alpha$, we have: 
 
 $$
-q_{1-\alpha/2} = -\log(\alpha/2)
+q_{1-\alpha/2} = -\ln(\alpha/2)
 $$
 
 And: 
 
 $$
-q_{\alpha/2} = -\log(1-\alpha/2)
+q_{\alpha/2} = -\ln(1-\alpha/2)
 $$
 
 Substituting into the above interval calculation:
 
 $$
-\theta \in \left( \frac{X_{(1)}}{ \sqrt{ \frac{-\log(\alpha/2)}{n} } }, \frac{X_{(1)}}{ \sqrt{ \frac{-\log(1-\alpha/2)}{n} } } \right)
+\theta \in \left( \frac{X_{(1)}}{ \sqrt{ \frac{-\ln(\alpha/2)}{n} } }, \frac{X_{(1)}}{ \sqrt{ \frac{-\ln(1-\alpha/2)}{n} } } \right)
 $$
 
 Which is equivalent to:
 
 $$
-\theta \in \left( X_{(1)} \sqrt{ \frac{n}{-\log(\alpha/2)} }, \, X_{(1)} \sqrt{ \frac{n}{-\log(1-\alpha/2)} } \right)
+\theta \in \left( X_{(1)} \sqrt{ \frac{n}{-\ln(\alpha/2)} }, \, X_{(1)} \sqrt{ \frac{n}{-\ln(1-\alpha/2)} } \right)
 $$
 
 ## b)
