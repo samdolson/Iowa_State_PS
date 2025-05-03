@@ -1,0 +1,636 @@
+---
+title: "HW10"
+output: pdf_document
+date: "2025-05-03"
+---
+
+# Q1 
+
+Let $(X^T X)^-$ be any generalized inverse of $X^T X$. A generalized inverse of a symmetric matrix is not necessarily symmetric. Thus, we cannot assume that
+
+$$
+\left[(X^T X)^- \right]^T = [(X^T X)^T]
+$$
+
+always holds. 
+
+Find a matrix $X$ such that $\left[(X^T X)^- \right]^T \neq \left[(X^T X)^T\right]^-$.
+
+However, it is also true that a symmetric generalized inverse can always be found for a symmetric matrix.
+
+## Answer 
+
+To find a matrix $X$ such that the generalized inverse $(X^T X)^-$ is not symmetric, we can proceed with the following steps:
+
+Let $X$ be a $2 \times 2$ matrix:
+
+$$
+X = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}
+$$
+
+Compute $X^T X$:
+
+$$
+X^T X = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}
+$$
+
+A generalized inverse $(X^T X)^-$ must satisfy:
+
+$$
+X^T X \cdot (X^T X)^- \cdot X^T X = X^T X
+$$
+
+One such generalized inverse is:
+
+$$
+(X^T X)^- = \begin{bmatrix} 1 & 1 \\ 0 & 0 \end{bmatrix}
+$$
+
+This matrix is not symmetric because:
+
+$$
+\left[(X^T X)^-\right]^T = \begin{bmatrix} 1 & 0 \\ 1 & 0 \end{bmatrix} \neq \begin{bmatrix} 1 & 1 \\ 0 & 0 \end{bmatrix} = (X^T X)^-
+$$
+
+Check the generalized inverse condition:
+
+$$
+X^T X \cdot (X^T X)^- \cdot X^T X = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} = X^T X
+$$
+
+The condition holds, and $(X^T X)^-$ is indeed non-symmetric.
+
+The matrix 
+
+$$
+X = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}
+$$
+
+has a non-symmetric generalized inverse 
+
+$$
+(X^T X)^- = \begin{bmatrix} 1 & 1 \\ 0 & 0 \end{bmatrix},
+$$
+
+satisfying $\left[(X^T X)^-\right]^T \neq (X^T X)^-$. 
+
+This demonstrates that even for symmetric $X^T X$, a generalized inverse need not be symmetric.
+
+\newpage
+# Q2
+
+See [10-1]
+
+For each of the following special cases, derive the REML estimator of $\sigma^2$.
+
+## a) 
+
+Suppose $y_1, y_2, y_3 \overset{iid}{\sim} \mathcal{N}(\mu, \sigma^2)$.
+
+### Answer 
+
+1) Find $n - \text{rank}(\mathbf{X}) = 3 - 1 = 2$ linearly independent vectors $\mathbf{A} = [\mathbf{a}_1, \mathbf{a}_2]$ such that $\mathbf{a}_i' \mathbf{X} = \mathbf{0}'$. From the model, we have $\mathbf{X} = \begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix}$, so one of the choices can be $\mathbf{A} = \begin{bmatrix} 1 & 1 \\ -1 & 0 \\ 0 & -1 \end{bmatrix}$.  
+
+2) Find the MLE of $\sigma^2$ using $\mathbf{w} \equiv \mathbf{A}' \mathbf{y} = \begin{bmatrix} y_1 - y_2 \\ y_1 - y_3 \end{bmatrix}$ as data.  
+
+$$
+\mathbf{w} = \mathbf{A}' \mathbf{y} = \mathbf{A}' (\mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}) = \mathbf{A}' \mathbf{X} \boldsymbol{\beta} + \mathbf{A}' \boldsymbol{\epsilon} = \mathbf{0} + \mathbf{A}' \boldsymbol{\epsilon} = \mathbf{A}' \boldsymbol{\epsilon}
+$$  
+
+Thus, $\mathbf{w} \sim N(\mathbf{0}, \mathbf{A}' \boldsymbol{\Sigma} \mathbf{A})$, where  
+
+$$
+\mathbf{A}' \boldsymbol{\Sigma} \mathbf{A} = \begin{bmatrix} 1 & -1 & 0 \\ 1 & 0 & -1 \end{bmatrix} \begin{bmatrix} \sigma^2 & 0 & 0 \\ 0 & \sigma^2 & 0 \\ 0 & 0 & \sigma^2 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ -1 & 0 \\ 0 & -1 \end{bmatrix} = \sigma^2 \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}
+$$  
+
+And we have  
+
+$$
+\det(\mathbf{A}' \boldsymbol{\Sigma} \mathbf{A}) = 3\sigma^4
+$$  
+
+$$
+\mathbf{w}' (\mathbf{A}' \boldsymbol{\Sigma} \mathbf{A})^{-1} \mathbf{w} = \frac{2}{3\sigma^2} \left[ (y_1 - y_2)^2 - (y_1 - y_2)(y_1 - y_3) + (y_1 - y_3)^2 \right] \equiv \frac{2}{3\sigma^2} \Delta
+$$  
+
+So, $\mathbf{w} \sim N \left( \mathbf{0}, \sigma^2 \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix} \right)$, and the log-likelihood function is  
+
+$$
+l(\sigma^2 | \mathbf{w}) = -\frac{1}{2} \log(\det(\mathbf{A}' \boldsymbol{\Sigma} \mathbf{A})) - \frac{1}{2} \mathbf{w}' (\mathbf{A}' \boldsymbol{\Sigma} \mathbf{A})^{-1} \mathbf{w} - \frac{1}{2} \log(2\pi)
+$$  
+
+The score equation is  
+
+$$
+\frac{\partial l}{\partial \sigma^2} = -\frac{1}{\sigma^2} + \frac{\Delta}{3\sigma^4} = 0 \implies \hat{\sigma}^2 = \frac{\Delta}{3}
+$$  
+
+Therefore, the REML estimator of $\sigma^2$ in this case is  
+
+$$
+\frac{\Delta}{3} = \frac{1}{3} \left[ (y_1 - y_2)^2 - (y_1 - y_2)(y_1 - y_3) + (y_1 - y_3)^2 \right].
+$$
+
+## b) 
+
+Suppose
+
+$$
+\begin{bmatrix}
+y_1 \\
+y_2 \\
+y_3 \\
+y_4
+\end{bmatrix}
+\sim \mathcal{N}
+\begin{pmatrix}
+\mu_1 \\
+\mu_1 \\
+\mu_2 \\
+\mu_2
+\end{pmatrix},
+\begin{bmatrix}
+\sigma^2 & \sigma^2/2 & 0 & 0 \\
+\sigma^2/2 & \sigma^2 & 0 & 0 \\
+0 & 0 & \sigma^2 & \sigma^2/2 \\
+0 & 0 & \sigma^2/2 & \sigma^2
+\end{bmatrix}
+$$
+
+### Answer 
+
+# (b)
+
+Follow the steps of slide 8 of set 20:
+
+1) Find $n - \text{rank}(\mathbf{X}) = 4 - 2 = 2$ linearly independent vectors $\mathbf{A} = [\mathbf{a}_1, \mathbf{a}_2]$ such that
+
+$$
+\mathbf{a}_i' \mathbf{X} = \mathbf{0}'.
+$$
+
+From the model we have 
+
+$$
+\mathbf{X} = \begin{bmatrix}
+1 & 0 \\
+1 & 0 \\
+0 & 1 \\
+0 & 1
+\end{bmatrix},
+$$
+
+so one of the choices can be
+
+$$
+\mathbf{A} = \begin{bmatrix}
+1 & 0 \\
+-1 & 0 \\
+0 & 1 \\
+0 & -1
+\end{bmatrix}.
+$$
+
+2) Find the MLE of $\sigma^2$ using $\mathbf{w} \equiv \mathbf{A}' \mathbf{y} = \begin{bmatrix} y_1 - y_2 \\ y_3 - y_4 \end{bmatrix}$ as data.
+
+$$
+\mathbf{w} = \mathbf{A}' \mathbf{y} = \mathbf{A}' (\mathbf{X} \boldsymbol{\beta} + \boldsymbol{\epsilon}) = \mathbf{A}' \mathbf{X} \boldsymbol{\beta} + \mathbf{A}' \boldsymbol{\epsilon} = \mathbf{0} + \mathbf{A}' \boldsymbol{\epsilon} = \mathbf{A}' \boldsymbol{\epsilon}
+$$
+
+Thus $\mathbf{w} \sim N(\mathbf{0}, \mathbf{A}' \boldsymbol{\Sigma} \mathbf{A})$ where
+
+$$
+\mathbf{A}' \boldsymbol{\Sigma} \mathbf{A} = 
+\begin{bmatrix}
+1 & -1 & 0 & 0 \\
+0 & 0 & 1 & -1
+\end{bmatrix}
+\begin{bmatrix}
+\sigma^2 & \sigma^2/2 & 0 & 0 \\
+\sigma^2/2 & \sigma^2 & 0 & 0 \\
+0 & 0 & \sigma^2 & \sigma^2/2 \\
+0 & 0 & \sigma^2/2 & \sigma^2
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0 \\
+-1 & 0 \\
+0 & 1 \\
+0 & -1
+\end{bmatrix}
+= \sigma^2
+\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix}
+$$
+
+So $\mathbf{w} \sim N(\mathbf{0}, \sigma^2 \mathbf{I})$ and we can use the Gauss-Markov linear model result directly to find the MLE.
+
+$$
+\hat{\sigma}^2 = \frac{\mathbf{w}' (\mathbf{I} - \mathbf{P}) \mathbf{w}}{2} \quad \text{where} \quad \mathbf{P} = \mathbf{0} \quad \text{is the projection matrix for design matrix} \quad \mathbf{0}
+$$
+
+$$
+= \frac{\mathbf{w}' \mathbf{w}}{2}
+$$
+
+Therefore the REML estimator of $\sigma^2$ in this case is
+
+$$
+\frac{\mathbf{w}' \mathbf{w}}{2} = \frac{1}{2} \left[ (y_1 - y_2)^2 + (y_3 - y_4)^2 \right].
+$$
+
+\newpage
+# Q3
+
+See [10-2] 
+
+Suppose 100 maize genotypes were assigned to 304 plots in a field using an unbalanced completely randomized design in which some genotypes were assigned to only one plot while others were assigned to as many as six plots. Plots were planted with seed from their assigned genotypes, and yield in bushels per acre was recorded for each plot at the end of the growing season. The dataset is available in Canvas.
+Consider the model
+$$y_{ij} = \mu + g_i + e_{ij},$$
+where $\mu + g_i$ is the mean yield for the $i$th genotype, and $e_{ij} \sim \mathcal{N}(0, \sigma_e^2)$ for all $i$ and $j$, with independence among all $e_{ij}$ terms.
+
+## a) 
+
+Find the BLUE of $\mu + g_i$ for each $i = 1, \ldots, 100$.
+
+### Answer 
+
+If we use the parametrization $\boldsymbol{\beta} = (\mu_1, \cdots, \mu_{100})'$ where $\mu_i = \mu + g_i$, $i=1,...,100$, the model matrix is:
+
+$$
+\boldsymbol{X} = 
+\begin{bmatrix}
+\boldsymbol{1}_{n_1 \times 1} & & & \\
+& \boldsymbol{1}_{n_2 \times 1} & & \\
+& & \ddots & \\
+& & & \boldsymbol{1}_{n_{99} \times 1} \\
+& & & & \boldsymbol{1}_{n_{100} \times 1}
+\end{bmatrix}
+$$
+
+$$
+\boldsymbol{X}'\boldsymbol{X} = 
+\begin{bmatrix}
+n_1 & & & \\
+& n_2 & & \\
+& & \ddots & \\
+& & & n_{99} \\
+& & & & n_{100}
+\end{bmatrix}
+\text{ and }
+(\boldsymbol{X}'\boldsymbol{X})^{-1} = 
+\begin{bmatrix}
+\frac{1}{n_1} & & & \\
+& \frac{1}{n_2} & & \\
+& & \ddots & \\
+& & & \frac{1}{n_{99}} \\
+& & & & \frac{1}{n_{100}}
+\end{bmatrix}
+$$
+
+Thus, $\widehat{\boldsymbol{\beta}} = (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y} = (\bar{y}_1, ..., \bar{y}_{100})'$ and $\hat{\mu}_i = \widehat{\mu + g_i} = \bar{y}_i$ for $i=1,...,100$.
+
+R code:
+
+```{r}
+dat <- read.table("https://dnett.github.io/S510/hw10GenotypeYield.txt", 
+                 header = TRUE, col.names = c("genotype", "yield"),
+                 colClasses = c("factor", "numeric"))
+dat$genotype <- factor(dat$genotype, levels = 1:100)
+ols.f <- lm(yield ~ 0 + genotype, data = dat)
+ols.f
+```
+
+## b) 
+
+For this and all subsequent parts of this problem, assume $g_1, \ldots, g_{100} \overset{iid}{\sim} \mathcal{N}(0, \sigma_g^2)$ and independent of all the $e_{ij}$ terms. Find the REML estimates of $\sigma_g^2$ and $\sigma_e^2$.
+
+### Answer 
+
+Based on the output below, the REML estimates of $\sigma^2_g$ and $\sigma^2_e$ are $(2.6865)^2 = 7.2174$ and $(9.669)^2 = 93.4899$ respectively. The code and output are shown below:
+
+```{r}
+library(nlme)
+set.seed(1234)
+o=lme(yield~1,random=~1|genotype,data=dat)
+o
+```
+
+## c) 
+
+Find the BLUP of $\mu + g_i$ for each $i = 1, \ldots, 100$.
+
+### Answer 
+
+Note that $X = \mathbf{1}$, $\boldsymbol{\beta} = \mu$, and
+
+$$
+Z = 
+\begin{bmatrix}
+\mathbf{1}_{n_1 \times 1} \\
+\mathbf{1}_{n_2 \times 1} \\
+\vdots \\
+\mathbf{1}_{n_{100} \times 1}
+\end{bmatrix}, \quad
+G = \sigma_g^2 I, \quad
+R = \sigma_e^2 I
+$$
+
+The BLUP for $\mathbf{g} = (g_1, g_2, \dots, g_{100})'$ is
+
+$$
+\hat{\mathbf{g}} = G Z^\top \Sigma^{-1} (\mathbf{y} - X \hat{\beta}_\Sigma)
+$$
+
+where $\Sigma = Z G Z^\top + R$. Then, the BLUP for $\mu + g_i$ is
+
+$$
+\frac{n_i \sigma_g^2}{\sigma_e^2 + n_i \sigma_g^2} \left( \bar{y}_{i\cdot} - \hat{\beta}_\Sigma \right) +
+\frac{\sigma_e^2}{\sigma_e^2 + n_i \sigma_g^2} \hat{\beta}_\Sigma
+$$
+
+where
+
+$$
+\hat{\beta}_\Sigma = \left( \mathbf{1}^\top \Sigma^{-1} \mathbf{1} \right)^{-1} \mathbf{1}^\top \Sigma^{-1} \mathbf{y}
+= 
+\frac{ \sum_{i=1}^{100} \frac{n_i \bar{y}_{i\cdot}}{\sigma_e^2 + n_i \sigma_g^2} }
+     { \sum_{i=1}^{100} \frac{n_i}{\sigma_e^2 + n_i \sigma_g^2} }
+$$
+
+R Code Output for Empirical BLUP
+
+```{r}
+b = fixef(o)
+u = ranef(o)
+blup = as.matrix(b + u)
+blup
+```
+
+## d) 
+
+Make a plot of the BLUPs (vertical axis) vs. the BLUEs from part (a) (horizontal axis) with one point for each genotype. Add the $y = x$ line to your plot. Explain why the plot looks the way it does.
+
+### Answer 
+
+The plot of the eBLUPSs (vertical axis) vs. the BLUEs from part (a) (horizontal axis) is produced by the R code that follows:
+
+```{r}
+blue=as.vector(ols.f$coefficients)
+plot(blue,blup)
+abline(a=0,b=1,col=4,lwd=3)
+```
+
+## e) 
+
+According to the BLUEs from part a), list the top five highest yielding genotypes.
+
+### Answer 
+
+According to the BLUEs from part (a), the top five highest yielding genotypes are as follows:
+
+```{r}
+blue.ord = order(blue,decreasing = T)
+top5 = blue.ord[1:5]
+print(data.frame(Top5=top5,Blue=blue[top5]))
+```
+
+## f) 
+
+According to the BLUPs, list the top five highest yielding genotypes.
+
+### Answer 
+
+According to the eBLUPs, the top five highest yielding genotypes are as follows:
+
+```{r}
+blup.ord = order(blup,decreasing = T)
+top5 = blup.ord[1:5]
+print(data.frame(Top5=top5,Blup=blup[top5]))
+```
+
+## g) 
+
+Why is the top-yielding genotype according to the BLUEs from part a) not so highly rated according to the BLUPs?
+
+### Answer 
+
+### (g)
+
+The BLUE of $\mu + g_i$ from part (a) is simply the sample mean $\bar{y}_{i\cdot}$ for the $i$-th genotype.
+
+The BLUP of $\mu + g_i$, on the other hand, is a convex combination of:
+- the sample mean $\bar{y}_{i\cdot}$, and
+- the weighted average of all sample means $\hat{\beta}_\Sigma$ from part (c).
+
+The weights in this combination depend on the sample size $n_i$, as well as the variance components $\sigma_e^2$ (residual variance) and $\sigma_g^2$ (genotype variance).
+
+Even if a BLUE from part (a) is large, the corresponding BLUP may be smaller, due to this weighting structure. This explains why the top-yielding genotype according to the BLUEs may not rank as highly under the BLUPs.
+
+Example:  
+Genotype 48 has $n_{48} = 1$, so while the BLUE $\bar{y}_{48} = 206.2$ is the highest, it is based on a single observation and thus unreliable. As a result, the eBLUP for genotype 48 shrinks substantially toward the overall mean $\hat{\beta}_\Sigma$, giving it a lower rank among the eBLUPs.
+
+\newpage
+# Q4
+
+See [11-2] 
+
+This is a repeated measures analysis. An experiment was designed to compare the effect of three drugs (A, B, and C) on the heart rate of women. Fifteen women were randomly assigned to the drugs using a completely randomized design with five women for each drug. The heart rate (in beats per minute) of each woman was measured at 0, 5, 10, and 15 minutes after the drug was administered. The data are provided in the file HeartRate.txt. Let $y_{ijk}$ denote the heart rate at the $k$th time point for the $j$th woman treated with the $i$th drug. Suppose $$y_{ijk}=\mu_{ik}+\epsilon_{ijk},$$ where $\mu_{ik}$ is an unknown constant for each combination of $i=1,2,3$ and $k=1,2,3,4,5$ and $\epsilon_{ijk}$ is a normally distributed error term with mean 0 for all $i=1,2,3$, $j=1,2,3,4,5$, and $k=1,2,3,4$. For all $i=1,2,3$ and $j=1,2,3,4,5$, let $$\epsilon_{ij}=(\epsilon_{ij1},\epsilon_{ij2},\epsilon_{ij3},\epsilon_{ijd})^{\top}.$$ Suppose all the $\epsilon_{ij}$ vectors are mutually independent, and let $\mathbf{W}$ be the variance-covariance matrix of $\epsilon_{ij}$, which is assumed to be the same for all $i=1,2,3$ and $j=1,2,3,4,5$. 
+
+## a) 
+
+Find the REML estimate of $\mathbf{W}$ under the assumption that $\mathbf{W}$ is a positive definite, compound symmetric matrix. 
+
+### Answer 
+
+Under a compound symmetry assumption,
+
+$$
+\boldsymbol{W} = \sigma^{2}
+\begin{bmatrix}
+1 & \rho & \rho & \rho \\ 
+\rho & 1 & \rho & \rho \\ 
+\rho & \rho & 1 & \rho \\ 
+\rho & \rho & \rho & 1
+\end{bmatrix},
+$$
+
+where the REML estimates for the heart rate data are $\hat{\sigma} = 6.12$ and $\hat{\rho} = 0.777$ ($\hat{\sigma}_{s}^{2} = 29.13$, $\hat{\sigma}_{e}^{2} = 8.36$).
+
+## b) 
+
+Find AIC and BIC for the case where $\mathbf{W}$ is a positive definite, compound symmetric matrix. 
+
+### Answer 
+
+Using R,  
+AIC $= -2(-144.9602) + 2(14) = 317.92$  
+BIC $= -2(-144.9602) + (14)\log(48) = 344.12$
+
+Using SAS,  
+AIC $= -2(-144.9602) + 2(2) = 293.9$  
+BIC $= -2(-144.9602) + (2)\log(15) = 295.3$
+
+## c) 
+
+Find the REML estimate of $\mathbf{W}$ under the assumption that $\mathbf{W}$ is a positive definite matrix with constant variance and an AR(1) correlation structure. 
+
+### Answer 
+
+Under an AR(1) assumption,
+
+$$
+\boldsymbol{W} = \sigma^{2}
+\begin{bmatrix}
+1 & \rho & \rho^{2} & \rho^{3} \\ 
+\rho & 1 & \rho & \rho^{2} \\ 
+\rho^{2} & \rho & 1 & \rho \\ 
+\rho^{3} & \rho^{2} & \rho & 1
+\end{bmatrix},
+$$
+
+where the REML estimates for the heart rate data are $\hat{\sigma} = 6.00$ and $\hat{\rho} = 0.828$.
+
+## d) 
+
+Find AIC and BIC for the case where $\mathbf{W}$ is a a positive definite matrix with constant variance and an AR(1) correlation structure. 
+
+### Answer 
+
+Using R,  
+AIC $= -2(-142.9713) + 2(14) = 313.94$  
+BIC $= -2(-142.9713) + (14)\log(48) = 340.14$
+
+Using SAS,  
+AIC $= -2(-142.9713) + 2(2) = 289.9$  
+BIC $= -2(-142.9713) + (2)\log(15) = 291.4$
+
+## e) 
+
+Find the REML estimate of $\mathbf{W}$ under the assumption that $\mathbf{W}$ is a positive definite, symmetric matrix. 
+
+### Answer 
+
+Under a general symmetry assumption,
+
+$$
+\boldsymbol{W} = \sigma^{2}
+\begin{bmatrix}
+1 & \rho_{12}\delta_{2} & \rho_{13}\delta_{3} & \rho_{14}\delta_{4} \\ 
+\rho_{12}\delta_{2} & \delta_{2}^{2} & \rho_{23}\delta_{2}\delta_{3} & \rho_{24}\delta_{2}\delta_{4} \\ 
+\rho_{13}\delta_{3} & \rho_{23}\delta_{2}\delta_{3} & \delta_{3}^{2} & \rho_{34}\delta_{3}\delta_{4} \\ 
+\rho_{14}\delta_{4} & \rho_{24}\delta_{2}\delta_{4} & \rho_{34}\delta_{3}\delta_{4} & \delta_{4}^{2}
+\end{bmatrix},
+$$
+
+where the REML estimates for the heart rate data are:
+
+$$
+\hat{\sigma} = 6.10, \quad \hat{\delta}_{2} = 1.08, \quad \hat{\delta}_{3} = 0.995, \quad \hat{\delta}_{4} = 0.928,
+$$
+$$
+\hat{\rho}_{12} = 0.850, \quad \hat{\rho}_{13} = 0.889, \quad \hat{\rho}_{14} = 0.625,
+$$
+$$
+\hat{\rho}_{23} = 0.870, \quad \hat{\rho}_{24} = 0.631, \quad \hat{\rho}_{34} = 0.794.
+$$
+
+## f) 
+
+Find AIC and BIC for the case where $\mathbf{W}$ is a positive definite, symmetric matrix. 
+
+### Answer 
+
+Using R,  
+AIC $= -2(-139.424) + 2(22) = 322.85$  
+BIC $= -2(-139.424) + (22)\log(48) = 364.01$
+
+Using SAS,  
+AIC $= -2(-139.424) + 2(10) = 298.8$  
+BIC $= -2(-139.424) + (10)\log(15) = 305.9$
+
+## g) 
+
+Which of the three structures for $\mathbf{W}$ is preferred for this dataset? 
+
+### Answer 
+
+The model with an AR(1) correlation structure has the smallest AIC and BIC of the three (regardless of whether you used R or SAS). Consequently, the AR(1) correlation structure is preferred for this dataset.
+
+## h) 
+
+Using the preferred structure for $\mathbf{W}$, compute a 95% confidence interval for the mean heart rate 10 minutes after treatment with drug A minus the mean heart rate 10 minutes after treatment with drug B. 
+
+### Answer 
+
+There are several ways to find a 95% confidence interval for $\mu_{13} - \mu_{23}$ using the model with an AR(1) correlation structure. 
+
+- Using Cochran-Satterthwaite in SAS (df = 19.2): $(-3.54, 12.34)$  
+- Default SAS method (df = 36): $(-3.30, 12.10)$  
+- R's gls (df = 48): $(-3.23, 12.03)$ 
+
+## i) 
+
+Using the preferred structure for $\mathbf{W}$, compute a 95% confidence interval for the mean heart rate 10 minutes after treatment with drug A minus the mean heart rate 5 minutes after treatment with drug A.
+
+### Answer 
+
+An approximate 95% confidence interval for $\mu_{13} - \mu_{12}$:
+
+- Cochran-Satterthwaite (df=35.9): $(-3.7946, 2.5946)$  
+- Default SAS (df=36): $(-3.7942, 2.5943)$  
+- R (df=48): $(-3.7667, 2.5668)$
+
+\newpage 
+## Note: R Code 
+
+```{r}
+d=read.delim("https://dnett.github.io/S510/HeartRate.txt")
+library(nlme)
+```
+
+```{r}
+attach(d)
+woman <- as.factor(woman)
+drug <- as.factor(drug)
+time <- as.factor(time)
+model.cs <- gls(y ~ drug * time,
+correlation = corCompSymm(form = ~1 | woman),
+method = "REML")
+model.ar <- gls(y ~ drug * time,
+correlation = corAR1(form = ~1 | woman),
+method = "REML")
+model.sy <- gls(y ~ drug * time,
+correlation = corSymm(form = ~1 | woman),
+weight = varIdent(form = ~1 | time),
+method = "REML")
+summary(model.cs)
+getVarCov(model.cs)
+summary(model.ar)
+getVarCov(model.ar)
+summary(model.sy)
+getVarCov(model.sy)
+ci.gls <- function(lmeout, C, df, a = 0.05) {
+b = coef(lmeout)
+V = vcov(lmeout)
+Cb = C %*% b
+se = sqrt(diag(C %*% V %*% t(C)))
+tval = qt(1 - a / 2, df)
+low = Cb - tval * se
+up = Cb + tval * se
+m = cbind( Cb, se, low, up)
+dimnames(m)[[2]] = c("estimate", "se", paste(100 * (1 - a), "% Conf.", sep = ""), "limits")
+return(m)
+}
+
+C2 <- matrix(c(0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0), nrow = 1) # problem(h)
+ci.gls(model.ar, C2, 19.2) # Cheated and took Cochran-Satterthwaite df value from SAS.
+ci.gls(model.ar, C2, 36) # Default df method in SAS.
+ci.gls(model.ar, C2, 48) # Default df method in R.
+
+C3 <- matrix(c(0, 0, 0, -1, 1, 0, 0, 0, 0, 0, 0, 0), nrow = 1) # problem(i)
+ci.gls(model.ar, C3, 35.9) # Cheated and took Cochran-Satterthwaite df value from SAS.
+ci.gls(model.ar, C3, 36) # Default df method in SAS.
+ci.gls(model.ar, C3, 48) # Default df method in R.
+```

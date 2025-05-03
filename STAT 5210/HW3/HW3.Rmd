@@ -4,6 +4,12 @@ output: pdf_document
 author: "Sam Olson"
 ---
 
+# Outline: 
+  - Q1: G2G
+  - Q2: G2G 
+  - Q3: Check variance comparision b/w the two estimators (approximate formula is correct?) 
+  - Q4: Bit iffy around parts 1-3 
+  
 # Problem 1: 
 
 A researcher wants to estimate the total number of patients discharged from hospitals in Iowa in January 2019. It is known that there are $N = 145$ hospitals in Iowa and the researcher obtains a list of all $N = 145$ hospitals in Iowa from administrative data. The list contains the number of inpatient beds in each hospital in the population. She (= the researcher) decides to select a sample using probability proportional to size sampling with replacement. The size variable ($x_i$) is the number of inpatient beds in the hospital. The total of $x_i$ for all 145 hospitals in Iowa is $T_x = \sum_{i=1}^N x_i = 13,785$ inpatient beds. She selects a probability proportional to size sample with replacement with three independent draws and draw probability proportional to $x_i$. She collects the number of patients discharged in January 2019 for the sampled hospitals. The table below contains the data for the hospitals obtained in the three draws.
@@ -20,11 +26,33 @@ What is the estimate of the total number of patients discharged in January 2019 
 
 ### Answer
 
-The estimate of the total number of patients discharged is:
+For this problem, we use the PPS estimator, which is of the form: 
 
 $$
-\hat{T}_y = \frac{1}{3} \sum_{j=1}^{3} \frac{y_{i_j}}{\pi_{i_j}} = \frac{1}{3} \left( \frac{754}{250/13785} + \frac{321}{100/13785} + \frac{1362}{450/13785} \right) \approx 42{,}534.74
+\hat{T}_y = \frac{1}{n} \sum_{j=1}^{n} \frac{y_{i_j}}{\pi_{i_j}}
 $$
+
+With $n=3$.
+
+Calculating using the information provided, our estimate is:
+
+$$
+\hat{T}_y = \frac{1}{3} \sum_{j=1}^{3} \frac{y_{i_j}}{\pi_{i_j}} = \frac{1}{3} \left( \frac{754}{250/13785} + \frac{321}{100/13785} + \frac{1362}{450/13785} \right) \approx 42,516
+$$
+
+```{r}
+denom <- 13785
+pi_ij <- c((250/denom), (100/denom), (450/denom))
+y_ij <- c(754, 321, 1362)
+n <- 3
+
+tHat <- (1/n) * sum(y_ij / pi_ij)
+tHat
+```
+
+Or, we estimate the total number of patients discharged in January 2019 from the population of hospitals in this region is 42,516.   
+
+Note: When I manually calculated this (greater precision) the estimate came out to 42,517.87, which is close but slightly different than the above. This also has implications for the resulting confidence interval, though only slightly. 
 
 ## 2. 
 
@@ -32,17 +60,42 @@ Provide a 95% confidence interval for the total number of patients discharged in
 
 ### Answer
 
+We center our confidence interval on the point estimate calculated in the prior step. 
+
+We then need to find the critical value, which for a 95% confidence interval is roughly 1.96 (assuming normally distributed mean/average via CLT). 
+
+Then, we have to calculate our Standard Error. To begin with, we calculate the variance using the estimated variance formula for PPS, of the form: 
+
 $$
 \hat{V}(\hat{T}_y) = \frac{1}{n(n - 1)} \sum_{j=1}^{3} \left( \frac{y_{i_j}}{\pi_{i_j}} - \hat{T}_y \right)^2 \approx 759{,}188.4
 $$
 
+```{r}
+varianceEst <- (1/(n*(n-1))) * sum(((y_ij/pi_ij) - tHat)^2)
+varianceEst
+```
+
+With the variance estimate, we then get the standard error and combine with our typical confidence interval formula. Giving us: 
+
 $$
-\hat{SE}(\hat{T}_y) = \sqrt{759{,}188.4} \approx 871.41
+\hat{SE}(\hat{T}_y) = \sqrt{753533.3} \approx 868.063
 $$
 
 $$
-\text{CI}_{95\%} = \hat{T}_y \pm 1.96 \cdot \hat{SE} \approx (40{,}826.78,\ 44{,}242.70)
+\text{CI}_{95\%} = \hat{T}_y \pm 1.96 \cdot \hat{SE} \approx (40{,}833.34,\ 44{,}236.14)
 $$
+
+So, our 95% confidence interval for the total number of patients discharged in January 2019 is $(40{,}833.34,\ 44{,}236.14)$. 
+
+```{r}
+SE <- sqrt(varianceEst)
+SE
+CI_lower <- tHat - 1.96 * SE
+CI_upper <- tHat + 1.96 * SE
+c(CI_lower, CI_upper)
+```
+
+Note: Again, we get a slightly different answer when explicitly calculating this without any rounding in intermediate steps. The resulting confidence interval would be: $(40{,}826.78,\ 44{,}242.70)$
 
 ## 3. 
 
@@ -51,14 +104,22 @@ Estimate the average number of patients discharged per hospital in January 2019 
 ### Answer
 
 $$
-\hat{\bar{Y}} = \frac{\hat{T}_y}{N} = \frac{42{,}534.74}{145} \approx 293.34
+\hat{\bar{Y}} = \frac{\hat{T}_y}{N} = \frac{42{,}516}{145} \approx 293.34
 $$
 
 $$
-\hat{SE}(\hat{\bar{Y}}) = \frac{\hat{SE}(\hat{T}_y)}{N} = \frac{871.41}{145} \approx 6.01
+\hat{SE}(\hat{\bar{Y}}) = \frac{\hat{SE}(\hat{T}_y)}{N} = \frac{868.063}{145} \approx 5.99
 $$
 
-The average number of patients discharged per hospital is ${293.34 \pm 6.01}$.
+Via R with less precision, we have: Explicitly, without rounding, we have: The average number of patients discharged per hospital is ${293.34}$ with Standard Error 5.99.
+
+Explicitly, without rounding, we have: The average number of patients discharged per hospital is ${293.34}$ with Standard Error 6.01.
+
+```{r}
+N <- 145 
+tHat/N 
+SE/N
+```
 
 \newpage 
 
@@ -80,17 +141,23 @@ What is the estimated average household income and its estimated variance?
 
 ### Answer
 
-$$
-\hat{Y} = \frac{1}{n}\sum_{k=1}^{n}\bar{y}_{a_{k}} = \frac{30 + 70 + 80 + 50 + 60}{5} = 58 \times 10^{3}\$
-$$
+For this problem, we again use the PPS estimator, noting we are doing PPS with replacement. 
+
+For our point estimate, we have: 
 
 $$
-\hat{V}(\hat{Y}) = \frac{1}{n(n-1)}\sum_{k=1}^{n}\left(\bar{y}_{a_{k}}-\hat{Y}\right)^{2} = \frac{(30-58)^2 + \cdots + (60-58)^2}{5 \times 4} = 74 \times 10^6 \$^2
+\hat{\bar{Y}} = \frac{1}{n}\sum_{k=1}^{n}\bar{y}_k = \frac{30 + 70 + 80 + 50 + 60}{5} = 58
 $$
 
+And for the variance formula, we have: 
+
 $$
-SE(\hat{Y}) = \sqrt{74} \times 10^3 \approx 8.60 \times 10^3 \$
+\hat{V}(\hat{\bar{Y}}) = \frac{1}{n(n-1)}\sum_{k=1}^{n}(\bar{y}_k-\hat{\bar{Y}})^2 = \frac{(30-58)^2 + \cdots + (60-58)^2}{20} = 74 \ 
 $$
+
+Taken together, the estimated average household income is \$$58 \times 10^{-3}$ and its estimated variance is \$$74 \times 10^{-3}$.
+
+Note: Should this be $\times 10^{3}$ instead, why minus in the table?
 
 ## 2. 
 
@@ -101,53 +168,50 @@ What is the estimated per capita income (= income per person) and its estimated 
 First compute average household size:
 
 $$
-\hat{\bar{X}} = \frac{2 + 4 + 5 + 4 + 4}{5} = 3.8 \text{ people/household}
+\hat{\bar{X}} = \frac{2 + 4 + 5 + 4 + 4}{5} = 3.8
 $$
 
-Per capita income ratio:
+Giving us a point estimate of on average 3.8 people per household. We need to convert this into a ratio though, so we then have: 
 
 $$
-\hat{\theta} = \frac{\hat{Y}}{\hat{\bar{X}}} = \frac{58}{3.8} \approx 15.26 \times 10^3 \$
+\hat{\theta} = \frac{\hat{Y}}{\hat{\bar{X}}} = \frac{58}{3.8} \approx 15.26 
 $$
 
-Define the linearized variable:
+Giving us the ratio $15.26 \times 10^{\pm{3}}$ 
+
+Via linearizaton, we define the variable z as:
+
 $$
 z_k = y_k - \hat{\theta}x_k
 $$
 
-where:
-- $y_k$ = average household income for block $k$ (in $10^3\$)
-- $x_k$ = average household size for block $k$
-
-Compute $z_k$ values:
+Compute $z_k$ values for each of the five blocks by:
 
 $$
 \begin{aligned}
-z_1 &= 30 - 15.26 \times 2 = -0.52 \\
-z_2 &= 70 - 15.26 \times 4 = 8.96 \\
-z_3 &= 80 - 15.26 \times 5 = 3.70 \\
-z_4 &= 50 - 15.26 \times 4 = -11.04 \\
-z_5 &= 60 - 15.26 \times 4 = -1.04 \\
+z_1 &= 30 - 15.26 \cdot 2 = -0.52 \\
+z_2 &= 70 - 15.26 \cdot 4 = 8.96 \\
+z_3 &= 80 - 15.26 \cdot 5 = 3.70 \\
+z_4 &= 50 - 15.26 \cdot 4 = -11.04 \\
+z_5 &= 60 - 15.26 \cdot 4 = -1.04 \\
 \end{aligned}
 $$
 
-Variance of $z_k$:
+We can then compute the variance:
 
 $$
 s_z^2 = \frac{1}{n-1}\sum_{k=1}^n (z_k - \bar{z})^2 = \frac{(-0.52-0.012)^2 + \cdots + (-1.04-0.012)^2}{4} \approx 54.29
 $$
 
-Final variance estimate:
+Converting back to $\theta$ notation, we have:
 
 $$
-\hat{V}(\hat{\theta}) = \left(\frac{1}{\hat{\bar{X}}}\right)^2 \frac{s_z^2}{n} = \frac{1}{3.8^2} \cdot \frac{54.29}{5} \approx 0.752 \times 10^6 \$^2
+\hat{V}(\hat{\theta}) = \left(\frac{1}{\hat{\bar{X}}}\right)^2 \frac{s_z^2}{n} = \frac{1}{3.8^2} \cdot \frac{54.29}{5} \approx 0.752
 $$
 
-$$
-SE(\hat{\theta}) = \sqrt{0.752} \times 10^3 \approx 0.867 \times 10^3 \$
-$$
+Giving us an estimated per capita income of ${15.26}$ with estimated variance ${0.752}$. 
 
-Per capita income: ${15.26 \pm 0.87 \times 10^3 \$}$
+Note: The answer here is in units of "income per person", which I believe would be something like "\$$\times 10^{\pm{3}}$/person", though that again depends on the exact units of dollars here. 
 
 \newpage
 
@@ -169,25 +233,37 @@ If the second phase sample were selected using probability proportional to house
 
 #### Answer
 
-This cannot be numerically evaluated unless $T_x^{(1)}$ is known.
+We cannot explicitly compute the overall inclusion probability $\pi_i$ unless we know the total household size $T_x^{(1)} = \sum_{j=1}^{200} x_j$ from Phase 1. And this typically is something we don't know, as it would mean we already have data from all Phase 1 households. I believe this is a fundamental limitation of two-phase designs and why estimators such as $\pi^*$ estimator are used for two-phase sampling designs.
 
-This follows from: 
+Explicitly, the above comes from: 
 
-The Second-Phase Inclusion Probabilities for a household with $x_i = 3$ (2 adults + 1 child):  
-
-#### Conditional Probability ($\pi^{(2)}_{i|A_1}$):  
+Under the Two-Phase Sampling design, the second-phase inclusion probability for a household with $x_i = 3$ (2 adults + 1 child) is given by: 
 
 $$
-\pi^{(2)}_{i|A_1} = \frac{n_2 \cdot x_i}{T_x^{(1)}} = \frac{80 \times 3}{\sum_{j \in A_1} x_j} = \frac{240}{T_x^{(1)}}
+\pi^{(2)}_{i|A_1} = \frac{n_2 \cdot x_i}{T_x^{(1)}}
 $$  
 
-where $T_x^{(1)}$ is the total household size in the Phase 1 sample.  
-
-#### Overall Inclusion Probability:  
+Using all known quantities, this simplifies to: 
 
 $$
-\pi_i = \underbrace{\frac{200}{5000}}_{\text{Phase 1}} \times \underbrace{\frac{240}{T_x^{(1)}}_{\text{Phase 2}}}  
-$$ 
+\pi^{(2)}_{i|A_1} = \frac{80 \cdot 3}{\sum_{j \in A_1} x_j} = \frac{240}{T_x^{(1)}}
+$$  
+
+Where $T_x^{(1)}$ is the total household size in the Phase 1 sample.  
+
+We then have the overall inclusion probability given by:  
+
+$$
+\pi_i = \pi^{(1)} \cdot \pi^{(2)}_{i|A_1} = \frac{200}{5000} \cdot \left(80 \cdot \frac{x_i}{T_x^{(1)}}\right)
+$$
+
+At most, we may simplify to: 
+
+$$
+\pi_i = \frac{16000x_i}{5000T_x^{(1)}}
+$$
+
+However, as noted, we still require knowing $T_x^{(1)}$ explicitly to calculate the overall inclusion probability. 
 
 #### Back to the Question
 
@@ -207,27 +283,31 @@ Estimate the mean household income using $\pi^{\star}$-estimator.
 
 ### Answer
 
+The formula for the $\pi^{\star}$-estimator is of the form: 
+
 $$
-\bar{y}_{\pi^\star} = \bar{y}_2 + \underbrace{(\bar{x}_1 - \bar{x}_2)}_{\text{Adjustment}} \cdot \underbrace{\frac{s_{xy}}{s^2_{x2}}}_{\text{Coefficient}}
+\bar{y}_{\pi^\star} = \bar{y}_2 + (\bar{x}_1 - \bar{x}_2) \cdot \frac{s_{xy}}{s^2_{x2}}
 $$
 
-Covariance:  
+Where the term $s_{xy}$ is the covariance between X and Y, given by:  
 
 $$
 s_{xy} = r_{xy} \cdot s_{x2} \cdot s_{y2} = 0.6 \times \sqrt{2.2} \times 10 \approx 8.9
 $$
    
-Adjustment term:  
+Giving us the term $\frac{s_{xy}}{s^2_{x2}}$ given by:  
 
 $$
 \frac{8.9}{2.2} \approx 4.045
 $$
    
-Final estimate:  
+Taken together, combining all known quantities in the above formula, we have:  
 
 $$
-58 + (3.2 - 3.5) \times 4.045 \approx {56.79 \text{ (\$1,000)}}
+58 + (3.2 - 3.5) \times 4.045 \approx {56.79}
 $$
+
+Giving an estimate of the mean household income using $\pi^{\star}$-estimator of \$56,790. 
 
 ## 3. 
 
@@ -235,8 +315,16 @@ Calculate the approximate variance of the $\pi^{\star}$-estimate.
 
 ### Answer
 
+We use the following formula for the approximate variance: 
+
 $$
-\text{Var}(\bar{y}_{\pi^\star}) \approx \frac{1}{n_2} s^2_{y2}(1 - r^2_{xy}) = \frac{1}{80} \times 100 \times 0.64 = 0.8
+\text{Var}(\bar{y}_{\pi^\star}) \approx \frac{1}{n_2} s^2_{y2}(1 - r^2_{xy})
+$$
+
+Using known values and calculating: 
+
+$$
+\text{Var}(\bar{y}_{\pi^\star}) \approx = \frac{1}{80} \cdot 100 \cdot 0.64 = 0.8
 $$
 
 ## 4.
@@ -245,17 +333,25 @@ Calculate the regression estimator of the mean household income using household 
 
 ### Answer
 
-The regression estimator is:
+The regression estimator is formula is of the form:
 
 $$
-\bar{y}_{\text{reg}} = \bar{y}_2 + (\bar{x}_1 - \bar{x}_2) \cdot b \quad \text{where } b = \frac{s_{xy}}{s^2_{x2}} \approx 4.045
+\bar{y}_{\text{reg}} = \bar{y}_2 + (\bar{x}_1 - \bar{x}_2) \cdot b
 $$
 
+Where: 
+
 $$
-\bar{y}_{\text{reg}} = 58 - 1.2135 = 56.79 \text{ (\$1,000)}
+b = \frac{s_{xy}}{s^2_{x2}} \approx 4.045
 $$
 
-Note: Same numerical value as $\pi^{\star}$-estimator in this case.
+All other quantities are known values, so we may calculate: 
+
+$$
+\bar{y}_{\text{reg}} = 58 - 1.2135 = 56.79
+$$
+
+So, the regression estimator of the mean household income using household size as the covariate provides an estimate of \$56,790, which happens to be the same as the estimate using $\pi^{\star}$-estimator previously.
 
 ## 5. 
 
@@ -263,8 +359,16 @@ Calculate the approximate variance of the regression estimator.
 
 ### Answer
 
+The approximate variance is of the form: 
+
 $$
-\text{Var}(\bar{y}_{\text{reg}}) = \frac{1}{n_2} s^2_{y2}(1 - r^2_{xy}) = {0.8}
+\text{Var}(\bar{y}_{\text{reg}}) = \frac{1}{n_2} s^2_{y2}(1 - r^2_{xy})
+$$
+
+Using known quantities, we calculate: 
+
+$$
+\text{Var}(\bar{y}_{\text{reg}}) \approx \frac{1}{80} \cdot 100 \cdot 0.64 = 0.8
 $$
 
 ## 6. 
@@ -273,18 +377,9 @@ What advantage does the regression estimator have over the $\pi^{\star}$-estimat
 
 ### Answer
 
-Flexibility:  
-   - Regression does not assume the relationship passes through the origin (unlike ratio estimators).  
-   - Can incorporate multiple covariates if needed.  
+The regression estimator is more flexible, efficient, and robust. In that order: The regression estimator can incorporate multiple covariates, which can improve the generalizability of results. Also, because the regression estimator takes advantage of covariates, it exploits correlation structure more effectively, and as a result can be more efficient (have smaller variance) when the covariate(s) are strongly correlated with the response. Lastly, the regression estimator is more robust in the sense that it is less sensitive to violations of the ratio model assumptions, i.e., it can still be consistent when the model is mis-specified.  
 
-Efficiency:  
-   - Exploits correlation structure more effectively (here, $r_{xy} = 0.6$).  
-   - Generally achieves lower variance when $x$ and $y$ are strongly correlated.  
-
-Robustness:  
-   - Less sensitive to violations of the ratio model assumptions.  
-
-Note: The identical results here occur because the regression reduces to the ratio estimator when the intercept is zero. In practice, regression is preferred unless a ratio relationship is explicitly justified.
+Note: It just so happens that the estimates and approximate variances in the above are equal, which occurs because the regression reduces to (is functionally equivalent to) the ratio estimator when the intercept is zero. 
 
 \newpage
 
@@ -313,24 +408,52 @@ Calculate the IPW estimate of the average blood pressure change for the treated 
 
 ### Answer
 
-The Inverse Probability Weighted (IPW) estimates for each group are given by:
+#### Treatment Group, $T=1$:
+
+Formula: 
 
 $$
-\bar{Y}_{IPW}^{(1)} = \frac{1}{n} \sum_{i=1}^{n} \frac{T_i Y_i}{\hat{\pi}(X_i)} \quad,\quad
+\bar{Y}_{IPW}^{(1)} = \frac{1}{n} \sum_{i=1}^{n} \frac{T_i Y_i}{\hat{\pi}(X_i)}
+$$
+
+Calculating: 
+
+$$
+\bar{Y}_{IPW}^{(1)} = \frac{1}{10}\left(\frac{-12}{0.7} + \frac{-10}{0.6} + \frac{-13}{0.8} + \frac{-15}{0.5} + \frac{-11}{0.65}\right) = {-9.50}
+$$
+
+#### Control Group, $T=0$:
+
+Formula: 
+
+$$
 \bar{Y}_{IPW}^{(0)} = \frac{1}{n} \sum_{i=1}^{n} \frac{(1 - T_i) Y_i}{1 - \hat{\pi}(X_i)}
 $$
 
-#### Treated Group ($T=1$):
+Calculating: 
 
 $$
-\bar{Y}_{IPW}^{(1)} = \frac{1}{10}\left(\frac{-12}{0.7} + \frac{-10}{0.6} + \frac{-13}{0.8} + \frac{-15}{0.5} + \frac{-11}{0.65}\right) = {-9.50 \text{ mmHg}}
+\bar{Y}_{IPW}^{(0)} = \frac{1}{10}\left(\frac{-5}{0.3} + \frac{-6}{0.4} + \frac{-7}{0.2} + \frac{-9}{0.5} + \frac{-8}{0.45}\right) = {-10.05}
 $$
 
-#### Control Group ($T=0$):
+Explicitly, in R: 
 
-$$
-\bar{Y}_{IPW}^{(0)} = \frac{1}{10}\left(\frac{-5}{0.3} + \frac{-6}{0.4} + \frac{-7}{0.2} + \frac{-9}{0.5} + \frac{-8}{0.45}\right) = {-10.05 \text{ mmHg}}
-$$
+```{r}
+data <- data.frame(
+  ID = 1:10,
+  T = c(1, 1, 1, 1, 0, 0, 0, 0, 1, 0),
+  Y = c(-12, -10, -13, -15, -5, -6, -7, -9, -11, -8),
+  pi_X = c(0.7, 0.6, 0.8, 0.5, 0.7, 0.6, 0.8, 0.5, 0.65, 0.55)
+)
+
+ipw_treated <- (1/10) * sum((data$T * data$Y) / data$pi_X)
+ipw_control <- (1/10) * sum(((1 - data$T) * data$Y) / (1 - data$pi_X))
+
+ipw_treated
+ipw_control
+```
+
+Again, I think the difference in the manual calculations and my R validation is a result of R's precision/rounding when making these types calculation that involve a fair amount of precision. 
 
 ## 2. 
 
@@ -344,15 +467,32 @@ $$
 \widehat{ATE}_{DIME} = \bar{Y}_T - \bar{Y}_C
 $$
 
-With 
-- Treated group: \( \bar{Y}_T = \frac{-12 -10 -13 -15 -11}{5} = -12.2 \)
-- Control group: \( \bar{Y}_C = \frac{-5 -6 -7 -9 -8}{5} = -7.0 \)
+Where:  
+
+Treated group average: $\bar{Y}_T = \frac{-12 -10 -13 -15 -11}{5} = -12.2$
+
+And: 
+
+Control group average: $\bar{Y}_C = \frac{-5 -6 -7 -9 -8}{5} = -7.0$
 
 $$
-\widehat{ATE}_{DIME} = \underbrace{\frac{-12-10-13-15-11}{5}}_{\bar{Y}_T = -12.2} - \underbrace{\frac{-5-6-7-9-8}{5}}_{\bar{Y}_C = -7.0} = {-5.2 \text{ mmHg}}
+\widehat{ATE}_{DIME} = \frac{-12-10-13-15-11}{5} - \frac{-5-6-7-9-8}{5} = {-5.2}
 $$
 
-No, this is not a generally good estimate — this estimate is not generally reliable because treatment was not randomly assigned, so the groups may differ systematically in confounders like age. The DIME estimator can be biased in observational studies.
+```{r}
+treated_outcomes <- c(-12, -10, -13, -15, -11)
+control_outcomes <- c(-5, -6, -7, -9, -8)
+
+mean_treated <- mean(treated_outcomes)
+mean_control <- mean(control_outcomes)
+ate_dime <- mean_treated - mean_control
+
+ate_dime
+```
+
+No, this is not a generally good estimate! This estimate is problematic because it assumes treatments were randomly assigned, which is not the case! This introduces bias and is possibly being confounded by other factors that may be relevant to account for such as age, gender, or other factors.
+
+At least that one doesn't have any discrepancy with the R validation! 
 
 ## 3. 
 
@@ -361,8 +501,14 @@ Calculate the IPW estimate of the ATE.
 ### Answer
 
 $$
-\widehat{ATE}_{IPW} = -9.50 - (-10.05) = {0.55 \text{ mmHg}}
+\widehat{ATE}_{IPW} = -9.50 - (-10.05) = {0.55}
 $$
+
+```{r}
+ipw_treated - ipw_control
+```
+
+Rounding up, the R validation agrees with the manual calculations, with the IPW estimate of the ATE as $\approx 0.55$ (Treatment - Control). 
 
 ## 4. 
 
@@ -370,7 +516,7 @@ Calculate the optimal AIPW estimate of the ATE.
 
 ### Answer
 
-The Augmented IPW (AIPW) estimator is:
+The AIPW estimator formula is given by:
 
 $$
 \widehat{ATE}_{AIPW} = \frac{1}{n} \sum_{i=1}^n \left[
@@ -379,16 +525,17 @@ $$
 \right]
 $$
 
+I am not going to attempt this manually. I defer strictly to the R calculation below: 
+
 ```{r}
 df <- data.frame(
-  Trt = c(1,1,1,1,0,0,0,0,1,0),  # Changed from T to Trt
+  Trt = c(1,1,1,1,0,0,0,0,1,0),
   Y = c(-12,-10,-13,-15,-5,-6,-7,-9,-11,-8),
   pi = c(0.7,0.6,0.8,0.5,0.7,0.6,0.8,0.5,0.65,0.55),
   Q1 = c(-11,-12,-10,-14,-11,-12,-10,-14,-11,-12),
   Q0 = c(-6,-7,-5,-8,-6,-7,-5,-8,-6,-7)
 )
 
-# AIPW contribution per unit
 df$aipw <- with(df,
   Trt*(Y - Q1)/pi + Q1 - (1 - Trt)*(Y - Q0)/(1 - pi) - Q0
 )
@@ -396,24 +543,15 @@ df$aipw <- with(df,
 round(mean(df$aipw), 2)
 ```
 
+Giving us an optimal AIPW estimate of the ATE of -4.75. 
+
 ## 5. 
 
 What is the advantage of using AIPW over IPW?
 
 ### Answer
 
-The Augmented Inverse Probability Weighting (AIPW) estimator combines both the propensity score model and the outcome regression model, making it doubly robust (which is covered in more detail in the next part.
-
-The Augmented Inverse Probability Weighting (AIPW) estimator provides two key advantages over standard IPW:
-
-1. Double Robustness Property  
-   - Produces consistent estimates if either:
-      The propensity score model $\hat{\pi}(X)$ is correctly specified, or
-      The outcome models $\hat{Q}(X,1)$ and $\hat{Q}(X,0)$ are correctly specified
-
-2. Improved Efficiency  
-   - Reduces variance compared to IPW by combining weighting with regression adjustment
-   - More stable with extreme propensity scores (near 0 or 1)
+The advantages the AIPW estimator has compared to IPW is the fact it is "doubly robust" and its improved efficiency. The AIPW estimator combines both the propensity model (PM) and the outcome model (OM), making it doubly robust, covered in more detail in the next part. On the point of efficiency: The AIPW estimator reduces variance compared to IPW by combining weighting with regression adjustment, making it at least as efficient as the IPW estimator. The AIPW is also more stable with extreme propensity scores, i.e., scores near the tails, 0 or 1. 
 
 ## 6. 
 
@@ -421,10 +559,4 @@ Explain why AIPW is called doubly robust.
 
 ### Answer
 
-The AIPW estimator is referred to as doubly robust because AIPW is consistent if either the outcome model or the propensity model is correct. Specif:
-
-- It produces a consistent estimate of the ATE if either:
-  - The propensity score model is correctly specified, or
-  - The outcome regression model is correctly specified
-
-This property ensures that even if one of the two models is misspecified, the estimator still remains valid as long as the other is correct.
+The AIPW estimator is called "doubly robust" because the AIPW estimator is consistent if either the OM or the PM is correct. Specifically: The AIPW model can still be consistent if either the OM or PM are mis-specified. This is not XOR though, at least one needs to be correctly specified! 
