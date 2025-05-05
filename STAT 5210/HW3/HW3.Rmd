@@ -314,13 +314,52 @@ Calculate the approximate variance of the $\pi^{\star}$-estimate.
 We use the following formula for the approximate variance: 
 
 $$
-\text{Var}(\bar{y}_{\pi^\star}) \approx \frac{1}{n_2} s^2_{y2}(1 - r^2_{xy})
+\text{Var}(\hat{Y}^*) \approx \left(\frac{1}{n} - \frac{1}{N}\right)S_y^2 + \left(\frac{1}{r} - \frac{1}{n}\right)S_e^2
 $$
+
+Where the term $\left(\frac{1}{n} - \frac{1}{N}\right)S_y^2$ is the approximate Phase 1 variance and $\left(\frac{1}{r} - \frac{1}{n}\right)S_e^2$ is the approximate Phase 2 variance. 
 
 Using known values and calculating: 
 
+First Term (Phase): 
+
+We treat the term $\frac{1}{N} \approx 0$, giving us: 
+
 $$
-\text{Var}(\bar{y}_{\pi^\star}) \approx \frac{1}{80} \cdot 100 \cdot 0.64 = 0.8
+\frac{S_y^2}{n} = \frac{100}{200} = 0.5
+$$
+
+Second Term:  (Phase)
+
+$$
+S_e^2 = S_y^2 (1 - \rho^2)
+$$
+
+Where:
+
+$$
+\rho^2 = (0.6)^2 = 0.36
+\rightarrow 
+1 - \rho^2 = 1 - 0.36 = 0.64
+\rightarrow
+S_e^2 = 100 \cdot 0.64 = 64
+$$
+
+And: 
+
+$$
+\frac{1}{r} - \frac{1}{n} = \frac{1}{80} - \frac{1}{200}
+= 0.0125 - 0.005
+= 0.0075
+\rightarrow
+\left(\frac{1}{r} - \frac{1}{n}\right)S_e^2 = 
+0.0075 \cdot 64 = 0.48
+$$
+
+Combining: 
+
+$$
+\text{Var}(\bar{y}_{\pi^*}) \approx 0.5 + 0.48 = 0.98
 $$
 
 ## 4.
@@ -358,13 +397,31 @@ Calculate the approximate variance of the regression estimator.
 The approximate variance is of the form: 
 
 $$
-\text{Var}(\bar{y}_{\text{reg}}) = \frac{1}{n_2} s^2_{y2}(1 - r^2_{xy})
+\text{Var}(\bar{y}_{reg,tp}) \approx \left(\frac{1}{n} - \frac{1}{N}\right) B'S_{xx}B + \left(\frac{1}{r} - \frac{1}{n}\right) S_{ee}
 $$
+
+Where the term $\left(\frac{1}{n} - \frac{1}{N}\right) B'S_{xx}B$ is the approximate Phase 1 variance and $\left(\frac{1}{r} - \frac{1}{n}\right) S_{ee}$ is the approximate Phase 2 variance. 
 
 Using known quantities, we calculate: 
 
+First Term (Phase): 
+
 $$
-\text{Var}(\bar{y}_{\text{reg}}) \approx \frac{1}{80} \cdot 100 \cdot 0.64 = 0.8
+B'S_{xx}B = \rho^2 S_y^2 = 0.36 \cdot 100 = 36 
+\rightarrow
+\left(\frac{1}{200} - 0\right) \times 36 = 0.18
+$$
+
+Second Term (Phase): 
+
+$$
+\left(\frac{1}{80} - \frac{1}{200}\right) \cdot 64 = 0.48
+$$
+
+Combining: 
+
+$$
+0.18 + 0.48 = 0.66
 $$
 
 ## 6. 
@@ -409,13 +466,25 @@ Calculate the IPW estimate of the average blood pressure change for the treated 
 Formula: 
 
 $$
-\bar{Y}_{IPW}^{(1)} = \frac{1}{n} \sum_{i=1}^{n} \frac{T_i Y_i}{\hat{\pi}(X_i)}
+\bar{Y}_{IPW}^{(1)} = \frac{\sum_{i=1}^n \frac{T_i Y_i}{\hat{\pi}(X_i)}}{\sum_{i=1}^n \frac{T_i}{\hat{\pi}(X_i)}}
 $$
 
 Calculating: 
 
 $$
-\bar{Y}_{IPW}^{(1)} = \frac{1}{10}\left(\frac{-12}{0.7} + \frac{-10}{0.6} + \frac{-13}{0.8} + \frac{-15}{0.5} + \frac{-11}{0.65}\right) = {-9.50}
+\text{Numerator} = \frac{-12}{0.7} + \frac{-10}{0.6} + \frac{-13}{0.8} + \frac{-15}{0.5} + \frac{-11}{0.65}
+= -17.14 -16.67 -16.25 -30.00 -16.92 = -96.98
+$$
+
+$$
+\text{Denominator} = \frac{1}{0.7} + \frac{1}{0.6} + \frac{1}{0.8} + \frac{1}{0.5} + \frac{1}{0.65}
+= 1.429 + 1.667 + 1.25 + 2 + 1.538 = 7.884
+$$
+
+Combining
+
+$$
+\bar{Y}_{IPW}^{(1)} = \frac{-96.98}{7.884} \approx -12.31
 $$
 
 #### Control Group, $T=0$:
@@ -423,13 +492,25 @@ $$
 Formula: 
 
 $$
-\bar{Y}_{IPW}^{(0)} = \frac{1}{n} \sum_{i=1}^{n} \frac{(1 - T_i) Y_i}{1 - \hat{\pi}(X_i)}
+\bar{Y}_{IPW}^{(0)} = \frac{\sum_{i=1}^n \frac{(1 - T_i) Y_i}{1 - \hat{\pi}(X_i)}}{\sum_{i=1}^n \frac{(1 - T_i)}{1 - \hat{\pi}(X_i)}}
 $$
 
 Calculating: 
 
 $$
-\bar{Y}_{IPW}^{(0)} = \frac{1}{10}\left(\frac{-5}{0.3} + \frac{-6}{0.4} + \frac{-7}{0.2} + \frac{-9}{0.5} + \frac{-8}{0.45}\right) = {-10.05}
+\text{Numerator} = \frac{-5}{0.3} + \frac{-6}{0.4} + \frac{-7}{0.2} + \frac{-9}{0.5} + \frac{-8}{0.45}
+= -16.67 -15.00 -35.00 -18.00 -17.78 = -102.45
+$$
+
+$$
+\text{Denominator} = \frac{1}{0.3} + \frac{1}{0.4} + \frac{1}{0.2} + \frac{1}{0.5} + \frac{1}{0.45}
+= 3.333 + 2.5 + 5 + 2 + 2.222 = 15.055
+$$
+
+Combining terms: 
+
+$$
+\bar{Y}_{IPW}^{(0)} = \frac{-102.45}{15.055} \approx -6.81
 $$
 
 Explicitly, in R: 
@@ -442,14 +523,19 @@ data <- data.frame(
   pi_X = c(0.7, 0.6, 0.8, 0.5, 0.7, 0.6, 0.8, 0.5, 0.65, 0.55)
 )
 
-ipw_treated <- (1/10) * sum((data$T * data$Y) / data$pi_X)
-ipw_control <- (1/10) * sum(((1 - data$T) * data$Y) / (1 - data$pi_X))
+numer_treated <- sum((data$T * data$Y) / data$pi_X)
+denom_treated <- sum(data$T / data$pi_X)
+ipw_treated <- numer_treated / denom_treated
+
+numer_control <- sum(((1 - data$T) * data$Y) / (1 - data$pi_X))
+denom_control <- sum((1 - data$T) / (1 - data$pi_X))
+ipw_control <- numer_control / denom_control
 
 ipw_treated
 ipw_control
 ```
 
-Again, I think the difference in the manual calculations and my R validation is a result of R's precision/rounding when making these types calculation that involve a fair amount of precision. 
+Again, I think the difference in the manual calculations and my R validation is a result of R's precision/rounding when making these types calculation that involve a fair amount of precision. Though for this problem, the differences are very small (in the hundreths of decimal place). 
 
 ## 2. 
 
@@ -497,14 +583,14 @@ Calculate the IPW estimate of the ATE.
 ### Answer
 
 $$
-\widehat{ATE}_{IPW} = -9.50 - (-10.05) = {0.55}
+\widehat{ATE}_{IPW} = -12.31 - (-6.81) = -5.50
 $$
 
 ```{r}
 ipw_treated - ipw_control
 ```
 
-Rounding up, the R validation agrees with the manual calculations, with the IPW estimate of the ATE as $\approx 0.55$ (Treatment - Control). 
+The IPW estimate of the ATE is $\approx -5.50$ (Treatment - Control). 
 
 ## 4. 
 
