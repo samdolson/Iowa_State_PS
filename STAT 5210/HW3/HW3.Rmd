@@ -23,7 +23,7 @@ What is the estimate of the total number of patients discharged in January 2019 
 For this problem, we use the PPS estimator, which is of the form: 
 
 $$
-\hat{T}_y = \frac{1}{n} \sum_{j=1}^{n} \frac{y_{i_j}}{\pi_{i_j}}
+\hat{T}_y = \frac{1}{n} \sum_{j=1}^{n} \frac{y_{i_j}}{p_{i_j}}
 $$
 
 With $n=3$.
@@ -31,16 +31,16 @@ With $n=3$.
 Calculating using the information provided, our estimate is:
 
 $$
-\hat{T}_y = \frac{1}{3} \sum_{j=1}^{3} \frac{y_{i_j}}{\pi_{i_j}} = \frac{1}{3} \left( \frac{754}{250/13785} + \frac{321}{100/13785} + \frac{1362}{450/13785} \right) \approx 42,516
+\hat{T}_y = \frac{1}{3} \sum_{j=1}^{3} \frac{y_{i_j}}{p_{i_j}} = \frac{1}{3} \left( \frac{754}{250/13785} + \frac{321}{100/13785} + \frac{1362}{450/13785} \right) \approx 42,516
 $$
 
 ```{r}
 denom <- 13785
-pi_ij <- c((250/denom), (100/denom), (450/denom))
+p_ij <- c((250/denom), (100/denom), (450/denom))
 y_ij <- c(754, 321, 1362)
 n <- 3
 
-tHat <- (1/n) * sum(y_ij / pi_ij)
+tHat <- (1/n) * sum(y_ij / p_ij)
 tHat
 ```
 
@@ -61,24 +61,26 @@ We then need to find the critical value, which for a 95% confidence interval is 
 Then, we have to calculate our Standard Error. To begin with, we calculate the variance using the estimated variance formula for PPS, of the form: 
 
 $$
-\hat{V}(\hat{T}_y) = \frac{1}{n(n - 1)} \sum_{j=1}^{3} \left( \frac{y_{i_j}}{\pi_{i_j}} - \hat{T}_y \right)^2 \approx 759{,}188.4
+\hat{V}(\hat{T}_y) = \frac{1}{n(n - 1)} \sum_{j=1}^{3} \left( \frac{y_{i_j}}{p_{i_j}} - \hat{T}_y \right)^2 \approx 759{,}188.4
 $$
 
 ```{r}
-variance_est <- (1/(n*(n-1))) * sum(((y_ij/pi_ij) - tHat)^2)
+variance_est <- (1/(n*(n-1))) * sum(((y_ij/p_ij) - tHat)^2)
 variance_est
 ```
+
+The above R was used for validation, and for this problem in particular the estimates produced using R are similar but do not exactly match the hand calculations. 
 
 With the variance estimate, we then get the standard error and combine with our typical confidence interval formula. Giving us: 
 
 $$
-\hat{SE}(\hat{T}_y) = \sqrt{753533.3} \approx 868.063
+\hat{SE}(\hat{T}_y) = \sqrt{759{,}188.4} \approx 871.3142
 $$
 
 Taken together, our 95% confidence interval is of the form: 
 
 $$
-\text{CI}_{95\%} = \hat{T}_y \pm 1.96 \cdot \hat{SE} \approx (40{,}833.34,\ 44{,}236.14)
+\text{CI}_{95\%} = \hat{T}_y \pm 1.96 \cdot \hat{SE} \approx (40{,}808.22,\ 44{,}223.78)
 $$
 
 So, our 95% confidence interval for the total number of patients discharged in January 2019 is $(40{,}833.34,\ 44{,}236.14)$. 
@@ -91,7 +93,7 @@ CI_upper <- tHat + 1.96 * SE
 c(CI_lower, CI_upper)
 ```
 
-Note: Again, we get a slightly different answer when explicitly calculating this without any rounding in intermediate steps. The resulting confidence interval would be: $(40{,}826.78,\ 44{,}242.70)$
+Note: Again, we get a slightly different answer when explicitly calculating this without any rounding in intermediate steps. The resulting confidence interval would be: $(40{,}814.6,\ 44{,}217.4)$
 
 ## 3. 
 
@@ -104,12 +106,12 @@ $$
 $$
 
 $$
-\hat{SE}(\hat{\bar{Y}}) = \frac{\hat{SE}(\hat{T}_y)}{N} = \frac{868.063}{145} \approx 5.99
+\hat{SE}(\hat{\bar{Y}}) = \frac{\hat{SE}(\hat{T}_y)}{N} = \frac{871.3142}{145} \approx 6.01
 $$
 
-Via R with less precision, we have: Explicitly, without rounding, we have: The average number of patients discharged per hospital is ${293.34}$ with Standard Error 5.99.
+Explicitly, without rounding (hand calculation), we have: The average number of patients discharged per hospital is ${293.34}$ with Standard Error 6.01.
 
-Explicitly, without rounding, we have: The average number of patients discharged per hospital is ${293.34}$ with Standard Error 6.01.
+Via R with less precision, we have: The average number of patients discharged per hospital is ${293.34}$ with Standard Error 5.99.
 
 ```{r}
 N <- 145 
@@ -236,7 +238,7 @@ Explicitly, the above comes from:
 Under the Two-Phase Sampling design, the second-phase inclusion probability for a household with $x_i = 3$ (2 adults + 1 child) is given by: 
 
 $$
-\pi^{(2)}_{i|A_1} = \frac{n_2 \cdot x_i}{T_x^{(1)}}
+\pi^{(2)}_{i|A_1} = \frac{n \cdot x_i}{T_x^{(1)}}
 $$  
 
 Using all known quantities, this simplifies to: 
@@ -282,28 +284,58 @@ Estimate the mean household income using $\pi^{\star}$-estimator.
 The formula for the $\pi^{\star}$-estimator is of the form: 
 
 $$
-\bar{y}_{\pi^\star} = \bar{y}_2 + (\bar{x}_1 - \bar{x}_2) \cdot \frac{s_{xy}}{s^2_{x2}}
+\hat{Y}^* = \sum_{i \in A_2} \frac{y_i}{\pi_i^*}
 $$
 
-Where the term $s_{xy}$ is the covariance between X and Y, given by:  
+But we need to calculate: 
 
 $$
-s_{xy} = r_{xy} \cdot s_{x2} \cdot s_{y2} = 0.6 \cdot \sqrt{2.2} \cdot \sqrt{100} \approx 8.9
-$$
-   
-Giving us the term $\frac{s_{xy}}{s^2_{x2}}$ given by:  
-
-$$
-\frac{8.9}{2.2} \approx 4.045
-$$
-   
-Taken together, combining all known quantities in the above formula, we have:  
-
-$$
-58 + (3.2 - 3.5) \cdot 4.045 \approx {56.79}
+\pi_i^* = \pi_i^{(1)} \cdot \pi_{i|A_1}^{(2)}
 $$
 
-Giving an estimate of the mean household income using $\pi^{\star}$-estimator of \$56,790. 
+To that end, note that for any household $i$:  
+
+$$
+\pi_i^{(1)} = \frac{n_1}{N} = \frac{200}{5000} = 0.04
+$$
+
+Given Phase 1 sample, the conditional inclusion probability is:  
+
+$$
+\pi_{i|A_1}^{(2)} = \frac{n_2}{n_1} = \frac{80}{200} = 0.4
+$$
+
+Taken together, we have: 
+
+$$
+\pi_i^* = \pi_i^{(1)} \cdot \pi_{i|A_1}^{(2)} = 0.04 \cdot 0.4 = 0.016
+$$
+
+We can then return to the original expression for the $\pi^*$ estimator:  
+
+$$
+\hat{Y}^* = \sum_{i \in A_2} \frac{y_i}{\pi_i^*} = \frac{1}{0.016} \sum_{i \in A_2} y_i
+$$
+
+Using the Phase 2 sample mean, $\bar{y}_2 = 58$), we calculate $\sum_{i \in A_2} y_i$ by:  
+
+$$
+\sum_{i \in A_2} y_i = n_2 \cdot \bar{y}_2 = 80 \cdot 58 = 4,\!640
+$$
+
+Thus:  
+
+$$
+\hat{Y}^* = \frac{4,640}{0.016} = 290,000
+$$
+
+Dividing by the total population size $N = 5,000$, taken from Phase 1:  
+
+$$
+\bar{y}_{\pi^*} = \frac{\hat{Y}^*}{N} = \frac{290,000}{5,000} = 58
+$$
+
+Given units are in \$1,000, our $\pi^*$ estimator provides a mean income estimate of \$58,000. 
 
 ## 3. 
 
@@ -311,57 +343,82 @@ Calculate the approximate variance of the $\pi^{\star}$-estimate.
 
 ### Answer
 
-We use the following formula for the approximate variance: 
+Although the $\pi^\star$-estimator is exactly defined in the lecture slides, Slide 10 of Ch11p1, we do not have the exact unit-level information required for exact calculation, i.e., we do need the individual $y_i$ values and it is not sufficient to use the average like we did for the point estimate in the prior question. For that reason, we approximate its variance by deconstructing the variance formula into its Phase 1 and Phase 2 components. 
+
+To that end, we start with the closed form equation for the variance of the $\pi^*$ estimate: 
 
 $$
-\text{Var}(\hat{Y}^*) \approx \left(\frac{1}{n} - \frac{1}{N}\right)S_y^2 + \left(\frac{1}{r} - \frac{1}{n}\right)S_e^2
+V(\hat{Y}^*) = V_1\left(\sum_{i \in A_1} \frac{y_i}{\pi_i^{(1)}}\right) + E_1\left(\sum_{i \in A_1} \sum_{j \in A_1} \Delta_{ij|A_1}^{(2)} \frac{y_i}{\pi_i^*} \frac{y_j}{\pi_j^*}\right)
 $$
 
-Where the term $\left(\frac{1}{n} - \frac{1}{N}\right)S_y^2$ is the approximate Phase 1 variance and $\left(\frac{1}{r} - \frac{1}{n}\right)S_e^2$ is the approximate Phase 2 variance. 
+Where: 
 
-Using known values and calculating: 
-
-First Term (Phase): 
-
-We treat the term $\frac{1}{N} \approx 0$, giving us: 
+First Phase Variance: 
 
 $$
-\frac{S_y^2}{n} = \frac{100}{200} = 0.5
+V_1\left(\sum_{i \in A_1} \frac{y_i}{\pi_i^{(1)}}\right)
 $$
 
-Second Term:  (Phase)
+Second Phase Variance: 
 
 $$
-S_e^2 = S_y^2 (1 - \rho^2)
+E_1\left(\sum_{i \in A_1} \sum_{j \in A_1} \Delta_{ij|A_1}^{(2)} \frac{y_i}{\pi_i^*} \frac{y_j}{\pi_j^*}\right)
 $$
 
-Where:
+And where 
 
 $$
-\rho^2 = (0.6)^2 = 0.36
-\rightarrow 
-1 - \rho^2 = 1 - 0.36 = 0.64
-\rightarrow
-S_e^2 = 100 \cdot 0.64 = 64
+\Delta_{ij|A_1}^{(2)} = \pi_{ij|A_1}^{(2)} - \pi_{i|A_1}^{(2)}\pi_{j|A_1}^{(2)}
 $$
 
-And: 
+For Phase 1, we have SRS of $n_1=200$ from $N=5000$
+
+And for Phase 2, we have SRS of $n_2=80$ from $n_1=200$
+
+We may simplify the two variance components as follows: 
+
+Phase 1: 
 
 $$
-\frac{1}{r} - \frac{1}{n} = \frac{1}{80} - \frac{1}{200}
-= 0.0125 - 0.005
-= 0.0075
-\rightarrow
-\left(\frac{1}{r} - \frac{1}{n}\right)S_e^2 = 
-0.0075 \cdot 64 = 0.48
+V_1 = N^2\left(1 - \frac{n_1}{N}\right)\frac{S_y^2}{n_1}
 $$
 
-Combining: 
+Phase 2 
 
 $$
-\text{Var}(\bar{y}_{\pi^*}) \approx 0.5 + 0.48 = 0.98
+E_1\left[V_2\right] = N^2\left(\frac{1}{n_2} - \frac{1}{n_1}\right)\frac{S_y^2}{n_1}
 $$
 
+Taken together, we have a closed form variance approximation that can be calculated using known values, using: 
+
+$$
+\text{Var}(\hat{Y}^*) \approx N^2\left[\left(\frac{1}{n_1} - \frac{1}{N}\right) + \left(\frac{1}{n_2} - \frac{1}{n_1}\right)\right]s_{y2}^2
+$$
+
+Where $S_y^2 \approx s_{y2}^2$ 
+
+Calculating: 
+
+$$
+\left(\frac{1}{n_1} - \frac{1}{N}\right) = \frac{1}{200} - \frac{1}{5000} = 0.005 - 0.0002 = 0.0048
+$$
+
+$$
+\left(\frac{1}{n_2} - \frac{1}{n_1}\right) = \frac{1}{80} - \frac{1}{200} = 0.0125 - 0.005 = 0.0075
+$$
+
+The total variance then is given by: 
+
+$$
+5000^2 \cdot (0.0048 + 0.0075)* 100 = 30,750,000
+$$
+
+And the variance of the estimate is given by: 
+
+$$
+\text{Var}(\bar{y}_{\pi^*}) = \text{Var}\left(\frac{\hat{Y}^*}{N}\right) = \frac{30,\!750,\!000}{5000^2} = 1.23
+$$
+  
 ## 4.
 
 Calculate the regression estimator of the mean household income using household size as the covariate.
@@ -400,7 +457,31 @@ $$
 \text{Var}(\bar{y}_{reg,tp}) \approx \left(\frac{1}{n} - \frac{1}{N}\right) B'S_{xx}B + \left(\frac{1}{r} - \frac{1}{n}\right) S_{ee}
 $$
 
-Where the term $\left(\frac{1}{n} - \frac{1}{N}\right) B'S_{xx}B$ is the approximate Phase 1 variance and $\left(\frac{1}{r} - \frac{1}{n}\right) S_{ee}$ is the approximate Phase 2 variance. 
+Where:
+
+$$
+\left(\frac{1}{n} - \frac{1}{N}\right) B'S_{xx}B
+$$
+
+is the approximate Phase 1 variance, 
+
+$$
+\left(\frac{1}{r} - \frac{1}{n}\right) S_{ee}
+$$ 
+
+is the approximate Phase 2 variance, 
+
+Where: 
+
+$$
+B = \frac{S_{xy}}{S_{x}^2}
+$$
+
+And: 
+
+$$
+S_{ee} = S_y^2(1 - r^2)
+$$
 
 Using known quantities, we calculate: 
 
@@ -409,7 +490,7 @@ First Term (Phase):
 $$
 B'S_{xx}B = \rho^2 S_y^2 = 0.36 \cdot 100 = 36 
 \rightarrow
-\left(\frac{1}{200} - 0\right) \times 36 = 0.18
+\left(\frac{1}{200} - \frac{1}{5000}\right) \cdot 36 = 0.1728
 $$
 
 Second Term (Phase): 
@@ -421,7 +502,7 @@ $$
 Combining: 
 
 $$
-0.18 + 0.48 = 0.66
+0.1728 + 0.48 = 0.6528
 $$
 
 ## 6. 
@@ -598,10 +679,32 @@ Calculate the optimal AIPW estimate of the ATE.
 
 ### Answer
 
-The AIPW estimator formula is given by:
+The optimal AIPW estimator formula is given by:
 
 $$
-\widehat{ATE}_{AIPW} = \frac{1}{n} \sum_{i=1}^n \left[
+\hat{\tau}_{AIPW} = \hat{\mu}_{1,AIPW} - \hat{\mu}_{0, AIPW}
+$$
+
+Where:
+
+$$
+\hat{\mu}_{1, AIPW} = \frac{1}{n}\sum_{i=1}^n \left[
+\frac{T_i Y_i}{\hat{\pi}(X_i)} - \frac{T_i - \hat{\pi}(X_i)}{\hat{\pi}(X_i)}\hat{Q}(X_i,1)
+\right]
+$$
+
+$$
+\hat{\mu}_{0, AIPW} = \frac{1}{n}\sum_{i=1}^n \left[
+\frac{(1-T_i)Y_i}{1-\hat{\pi}(X_i)} + \frac{T_i - \hat{\pi}(X_i)}{1-\hat{\pi}(X_i)}\hat{Q}(X_i,0)
+\right]
+$$
+
+Where we use n instead of N, i.e., we swap our population N with the sample n for the purposes of estimation. 
+
+We may simplify the expression above somewhat, to get: 
+
+$$
+\hat{\tau}_{AIPW} = \frac{1}{n} \sum_{i=1}^n \left[
 \frac{T_i (Y_i - \hat{Q}(X_i,1))}{\hat{\pi}(X_i)} + \hat{Q}(X_i,1)
 - \frac{(1 - T_i)(Y_i - \hat{Q}(X_i,0))}{1 - \hat{\pi}(X_i)} - \hat{Q}(X_i,0)
 \right]
