@@ -20,7 +20,7 @@ What is the estimate of the total number of patients discharged in January 2019 
 
 ### Answer
 
-For this problem, we use the PPS estimator, which is of the form: 
+For this problem, we use the PPS estimator (with replacement). As we are given the "draw probabilities", the estimator is of the form: 
 
 $$
 \hat{T}_y = \frac{1}{n} \sum_{j=1}^{n} \frac{y_{i_j}}{p_{i_j}}
@@ -44,9 +44,9 @@ tHat <- (1/n) * sum(y_ij / p_ij)
 tHat
 ```
 
-Or, we estimate the total number of patients discharged in January 2019 from the population of hospitals in this region is 42,516.   
+Using the above, we estimate the total number of patients discharged in January 2019 from the population of hospitals in this region is 42,516.   
 
-Note: When I manually calculated this (greater precision) the estimate came out to 42,517.87, which is close but nonetheless different than the above. This also has implications for the resulting confidence interval, though only slightly.
+Note: When I manually calculated this (greater precision) the estimate came out to 42,517.87, which is close but nonetheless different than the above. This also has implications for the resulting confidence interval, though only slightly. For simplicity, the answers provided will align with the R output. 
 
 ## 2. 
 
@@ -61,7 +61,7 @@ We then need to find the critical value, which for a 95% confidence interval is 
 Then, we have to calculate our Standard Error. To begin with, we calculate the variance using the estimated variance formula for PPS, of the form: 
 
 $$
-\hat{V}(\hat{T}_y) = \frac{1}{n(n - 1)} \sum_{j=1}^{3} \left( \frac{y_{i_j}}{p_{i_j}} - \hat{T}_y \right)^2 \approx 759{,}188.4
+\hat{V}(\hat{T}_y) = \frac{1}{n(n - 1)} \sum_{j=1}^{3} \left( \frac{y_{i_j}}{p_{i_j}} - \hat{T}_y \right)^2 \approx 753{,}357.8
 $$
 
 ```{r}
@@ -69,21 +69,19 @@ variance_est <- (1/(n*(n-1))) * sum(((y_ij/p_ij) - tHat)^2)
 variance_est
 ```
 
-The above R was used for validation, and for this problem in particular the estimates produced using R are similar but do not exactly match the hand calculations. 
-
 With the variance estimate, we then get the standard error and combine with our typical confidence interval formula. Giving us: 
 
 $$
-\hat{SE}(\hat{T}_y) = \sqrt{759{,}188.4} \approx 871.3142
+\hat{SE}(\hat{T}_y) = \sqrt{753{,}357.8} \approx 867.96
 $$
 
 Taken together, our 95% confidence interval is of the form: 
 
 $$
-\text{CI}_{95\%} = \hat{T}_y \pm 1.96 \cdot \hat{SE} \approx (40{,}808.22,\ 44{,}223.78)
+\text{CI}_{95\%} = \hat{T}_y \pm 1.96 \cdot \hat{SE} \approx (40{,}814.79,\ 44{,}217.21)
 $$
 
-So, our 95% confidence interval for the total number of patients discharged in January 2019 is $(40{,}833.34,\ 44{,}236.14)$. 
+So, our 95% confidence interval for the total number of patients discharged in January 2019 is $(40{,}814.79,\ 44{,}217.21)$. 
 
 ```{r}
 SE <- sqrt(variance_est)
@@ -93,8 +91,6 @@ CI_upper <- tHat + 1.96 * SE
 c(CI_lower, CI_upper)
 ```
 
-Note: Again, we get a slightly different answer when explicitly calculating this without any rounding in intermediate steps. The resulting confidence interval would be: $(40{,}814.6,\ 44{,}217.4)$
-
 ## 3. 
 
 Estimate the average number of patients discharged per hospital in January 2019 and provide a corresponding standard error. Show intermediate steps.
@@ -102,16 +98,14 @@ Estimate the average number of patients discharged per hospital in January 2019 
 ### Answer
 
 $$
-\hat{\bar{Y}} = \frac{\hat{T}_y}{N} = \frac{42{,}516}{145} \approx 293.34
+\hat{\bar{Y}} = \frac{\hat{T}_y}{N} = \frac{42{,}516}{145} \approx 293.21
 $$
 
 $$
-\hat{SE}(\hat{\bar{Y}}) = \frac{\hat{SE}(\hat{T}_y)}{N} = \frac{871.3142}{145} \approx 6.01
+\hat{SE}(\hat{\bar{Y}}) = \frac{\hat{SE}(\hat{T}_y)}{N} = \frac{867.96}{145} \approx 5.99
 $$
 
-Explicitly, without rounding (hand calculation), we have: The average number of patients discharged per hospital is ${293.34}$ with Standard Error 6.01.
-
-Via R with less precision, we have: The average number of patients discharged per hospital is ${293.34}$ with Standard Error 5.99.
+Explicitly, without rounding (hand calculation), we have: The average number of patients discharged per hospital is ${293.21}$ with Standard Error 5.99.
 
 ```{r}
 N <- 145 
@@ -139,9 +133,7 @@ What is the estimated average household income and its estimated variance?
 
 ### Answer
 
-For this problem, we again use the PPS estimator, noting we are doing PPS with replacement. 
-
-For our point estimate, we have: 
+For this problem, we again use the PPS estimator (with replacement, again). However, as we are estimating an average, and do not have the draw probabilities, we use the following formula for our point estimate:  
 
 $$
 \hat{\bar{Y}} = \frac{1}{n}\sum_{k=1}^{n}\bar{y}_k = \frac{30 + 70 + 80 + 50 + 60}{5} = 58
@@ -175,7 +167,7 @@ $$
 \hat{\theta} = \frac{\hat{Y}}{\hat{\bar{X}}} = \frac{58}{3.8} \approx 15.26 
 $$
 
-Giving us the ratio $15.26 \times 10^{{3}}$ 
+Giving us the ratio \$$15.26 \times 10^{{3}}$ 
 
 Via linearizaton, we define the variable z (linarized variable) as:
 
@@ -183,7 +175,9 @@ $$
 z_k = y_k - \hat{\theta}x_k
 $$
 
-Compute $z_k$ values for each of the five blocks by:
+Note: This method of linearization is somewhat different than the method we've typically used in class. However, I believe it does match the ultimate results. 
+
+That being said, we compute $z_k$ values for each of the five blocks by:
 
 $$
 \begin{aligned}
@@ -195,21 +189,19 @@ z_5 &= 60 - 15.26 \cdot 4 = -1.04 \\
 \end{aligned}
 $$
 
-We can then compute the variance:
+Computing the variance using the values of the linearized variable:
 
 $$
 s_z^2 = \frac{1}{n-1}\sum_{k=1}^n (z_k - \bar{z})^2 = \frac{(-0.52-0.012)^2 + \cdots + (-1.04-0.012)^2}{4} \approx 54.29
 $$
 
-Converting back to $\theta$ notation, we have:
+Converting back to an estimated variance of $\theta$, we have:
 
 $$
 \hat{V}(\hat{\theta}) = \left(\frac{1}{\hat{\bar{X}}}\right)^2 \frac{s_z^2}{n} = \frac{1}{3.8^2} \cdot \frac{54.29}{5} \approx 0.752
 $$
 
 Giving us an estimated per capita income of ${15.26}$($\times 10^{{3}}$) with estimated variance ${0.752}$($\times 10^{{3}}$). 
-
-Note: The answer here is in units of "income per person", which I believe would be something like "\$$\times 10^{{3}}$/person". 
 
 \newpage
 
@@ -231,9 +223,9 @@ If the second phase sample were selected using probability proportional to house
 
 #### Answer
 
-We cannot explicitly compute the overall inclusion probability $\pi_i$ unless we know the total household size $T_x^{(1)} = \sum_{j=1}^{200} x_j$ from Phase 1. And this typically is something we don't know, as it would mean we already have data from all Phase 1 households. I believe this is a fundamental limitation of two-phase designs and why estimators such as $\pi^*$ estimator are used for two-phase sampling designs.
+We cannot explicitly compute the overall inclusion probability $\pi_i$ unless we know the total household size $T_x^{(1)} = \sum_{j=1}^{200} x_j$ from Phase 1. And this typically is something we don't know, as it would mean we already have data from all Phase 1 households. I believe this is a fundamental limitation of two-phase designs and why estimators such as $\pi^*$ estimator/regression estimator are used for two-phase sampling designs.
 
-Explicitly, the above comes from: 
+Explicitly, the above conclusion comes from: 
 
 Under the Two-Phase Sampling design, the second-phase inclusion probability for a household with $x_i = 3$ (2 adults + 1 child) is given by: 
 
@@ -241,7 +233,7 @@ $$
 \pi^{(2)}_{i|A_1} = \frac{n \cdot x_i}{T_x^{(1)}}
 $$  
 
-Using all known quantities, this simplifies to: 
+Using all known quantities, up to this point, this simplifies to: 
 
 $$
 \pi^{(2)}_{i|A_1} = \frac{80 \cdot 3}{\sum_{j \in A_1} x_j} = \frac{240}{T_x^{(1)}}
@@ -249,7 +241,7 @@ $$
 
 Where $T_x^{(1)}$ is the total household size in the Phase 1 sample.  
 
-We then have the overall inclusion probability given by:  
+The overall inclusion probability is then given by:  
 
 $$
 \pi_i = \pi^{(1)} \cdot \pi^{(2)}_{i|A_1} = \frac{200}{5000} \cdot \left(80 \cdot \frac{x_i}{T_x^{(1)}}\right)
@@ -293,13 +285,13 @@ $$
 \pi_i^* = \pi_i^{(1)} \cdot \pi_{i|A_1}^{(2)}
 $$
 
-To that end, note that for any household $i$:  
+To that end, for any household $i$, the Phase 1 inclusion probability is:  
 
 $$
 \pi_i^{(1)} = \frac{n_1}{N} = \frac{200}{5000} = 0.04
 $$
 
-Given Phase 1 sample, the conditional inclusion probability is:  
+Given Phase 1 sample, the conditional Phase 2 inclusion probability is:  
 
 $$
 \pi_{i|A_1}^{(2)} = \frac{n_2}{n_1} = \frac{80}{200} = 0.4
@@ -311,13 +303,13 @@ $$
 \pi_i^* = \pi_i^{(1)} \cdot \pi_{i|A_1}^{(2)} = 0.04 \cdot 0.4 = 0.016
 $$
 
-We can then return to the original expression for the $\pi^*$ estimator:  
+Returning to the original expression for the $\pi^*$ estimator:  
 
 $$
 \hat{Y}^* = \sum_{i \in A_2} \frac{y_i}{\pi_i^*} = \frac{1}{0.016} \sum_{i \in A_2} y_i
 $$
 
-Using the Phase 2 sample mean, $\bar{y}_2 = 58$), we calculate $\sum_{i \in A_2} y_i$ by:  
+One more issue: We need to derive $\sum_{i \in A_2} y_i$ using the Phase 2 sample mean, $\bar{y}_2 = 58$, by:  
 
 $$
 \sum_{i \in A_2} y_i = n_2 \cdot \bar{y}_2 = 80 \cdot 58 = 4,\!640
@@ -329,7 +321,7 @@ $$
 \hat{Y}^* = \frac{4,640}{0.016} = 290,000
 $$
 
-Dividing by the total population size $N = 5,000$, taken from Phase 1:  
+However, that quantity is the total estimate. To get to the average household estimate, we divide by the total population size $N = 5,000$, taken from Phase 1:  
 
 $$
 \bar{y}_{\pi^*} = \frac{\hat{Y}^*}{N} = \frac{290,000}{5,000} = 58
@@ -343,7 +335,7 @@ Calculate the approximate variance of the $\pi^{\star}$-estimate.
 
 ### Answer
 
-Although the $\pi^\star$-estimator is exactly defined in the lecture slides, Slide 10 of Ch11p1, we do not have the exact unit-level information required for exact calculation, i.e., we do need the individual $y_i$ values and it is not sufficient to use the average like we did for the point estimate in the prior question. For that reason, we approximate its variance by deconstructing the variance formula into its Phase 1 and Phase 2 components. 
+Although the $\pi^\star$-estimator is exactly defined in the lecture slides, Slide 10 of Ch11p1, we do not have all necessary information for an exact calculation, i.e., we do need the individual $y_i$ values, and for this calculation (unlike the point estimate) it is not sufficient to use the average. For that reason, we approximate its variance by deconstructing the variance formula into its Phase 1 and Phase 2 components. 
 
 To that end, we start with the closed form equation for the variance of the $\pi^*$ estimate: 
 
@@ -365,7 +357,7 @@ $$
 E_1\left(\sum_{i \in A_1} \sum_{j \in A_1} \Delta_{ij|A_1}^{(2)} \frac{y_i}{\pi_i^*} \frac{y_j}{\pi_j^*}\right)
 $$
 
-And where 
+And where: 
 
 $$
 \Delta_{ij|A_1}^{(2)} = \pi_{ij|A_1}^{(2)} - \pi_{i|A_1}^{(2)}\pi_{j|A_1}^{(2)}
@@ -407,10 +399,10 @@ $$
 \left(\frac{1}{n_2} - \frac{1}{n_1}\right) = \frac{1}{80} - \frac{1}{200} = 0.0125 - 0.005 = 0.0075
 $$
 
-The total variance then is given by: 
+The total variance is then given by: 
 
 $$
-5000^2 \cdot (0.0048 + 0.0075)* 100 = 30,750,000
+5000^2 \cdot (0.0048 + 0.0075) \cdot 100 = 30,750,000
 $$
 
 And the variance of the estimate is given by: 
@@ -418,6 +410,8 @@ And the variance of the estimate is given by:
 $$
 \text{Var}(\bar{y}_{\pi^*}) = \text{Var}\left(\frac{\hat{Y}^*}{N}\right) = \frac{30,\!750,\!000}{5000^2} = 1.23
 $$
+
+Given units are in \$1,000, our variance estimate is approximately \$$1,230$. 
   
 ## 4.
 
@@ -425,7 +419,7 @@ Calculate the regression estimator of the mean household income using household 
 
 ### Answer
 
-The regression estimator is formula is of the form:
+The regression estimator formula is of the form:
 
 $$
 \bar{y}_{\text{reg}} = \bar{y}_2 + (\bar{x}_1 - \bar{x}_2) \cdot b
@@ -443,7 +437,7 @@ $$
 \bar{y}_{\text{reg}} = 58 - 1.2135 = 56.79
 $$
 
-So, the regression estimator of the mean household income using household size as the covariate provides an estimate of \$56,790, which happens to be the same as the estimate using $\pi^{\star}$-estimator previously.
+Given units are in \$1,000, our regression estimator point estimate is \$$56,790$, which is close but not exactly our estimate from the $\pi^*$ estimator. 
 
 ## 5. 
 
@@ -459,19 +453,19 @@ $$
 
 Where:
 
+Phase 1 Variance: 
+
 $$
 \left(\frac{1}{n} - \frac{1}{N}\right) B'S_{xx}B
 $$
 
-is the approximate Phase 1 variance, 
+Phase 2 Variance: 
 
 $$
 \left(\frac{1}{r} - \frac{1}{n}\right) S_{ee}
 $$ 
 
-is the approximate Phase 2 variance, 
-
-Where: 
+And where: 
 
 $$
 B = \frac{S_{xy}}{S_{x}^2}
@@ -485,7 +479,7 @@ $$
 
 Using known quantities, we calculate: 
 
-First Term (Phase): 
+First Term (Phase 1): 
 
 $$
 B'S_{xx}B = \rho^2 S_y^2 = 0.36 \cdot 100 = 36 
@@ -493,7 +487,7 @@ B'S_{xx}B = \rho^2 S_y^2 = 0.36 \cdot 100 = 36
 \left(\frac{1}{200} - \frac{1}{5000}\right) \cdot 36 = 0.1728
 $$
 
-Second Term (Phase): 
+Second Term (Phase 2): 
 
 $$
 \left(\frac{1}{80} - \frac{1}{200}\right) \cdot 64 = 0.48
@@ -505,15 +499,17 @@ $$
 0.1728 + 0.48 = 0.6528
 $$
 
+Given units are in \$1,000, our regression estimator estimated variance is \$$652.80$, which is smaller than the estimated variance of the $\pi^*$ estimator.  
+
 ## 6. 
 
 What advantage does the regression estimator have over the $\pi^{\star}$-estimate?
 
 ### Answer
 
-The regression estimator is more flexible, efficient, and robust. In that order: The regression estimator can incorporate multiple covariates, which can improve the generalizability of results. Also, because the regression estimator takes advantage of covariates, it "exploits" the correlation structure between the response and covariate(s) more effectively, and as a result can be more efficient (have smaller variance) than the $\pi^{\star}$-estimator, especially so when the covariate(s) are strongly correlated with the response. Lastly, the regression estimator is more robust in the sense that it is less sensitive to violations of the model assumptions, i.e., it can still be consistent (in the traditional sense, i.e., converges to the true parameter) when the model is mis-specified.  
+The regression estimator is more flexible, efficient, and robust. In that order: The regression estimator can incorporate multiple covariates, which can improve the generalizability of results. Also, because the regression estimator takes advantage of covariates, it "exploits" the correlation structure between the response and covariate(s), and as a result can be more efficient (have smaller variance) than the $\pi^{\star}$-estimator, especially so when the covariate(s) are strongly correlated with the response. Lastly, the regression estimator is more robust in the sense that it is less sensitive to violations of the model assumptions, i.e., it can still be consistent (in the traditional sense, i.e., converges to the true parameter) when the model is mis-specified.  
 
-For the purposes of this problem, it just so happens that the estimates and approximate variances in the above are equal, which is a result of setting the intercept term to 0 in the regression model (in this scenario the regression reduces to the ratio estimator, which in the context of this problem is equivalent to the $\pi^{\star}$-estimator). 
+For the purposes of this problem, we observe the two estimators producing similar but different point estimates, and a more efficient estimator in the regression estimator compared to the $\pi^*$ estimator. So results are as expected, given we have a correlation coefficient of $r_{xy}=0.6$ from the Phase 2 Summary Statistics.  
 
 \newpage
 
@@ -616,7 +612,7 @@ ipw_treated
 ipw_control
 ```
 
-Again, I think the difference in the manual calculations and my R validation is a result of R's precision/rounding when making these types calculation that involve a fair amount of precision. Though for this problem, the differences are very small (in the hundreths of decimal place). 
+Similar to Q1, there is a slight difference in the manual calculations compared to the R calculations due to a loss of precision when using the `sum` function with fractions. For this problem though, the differences are very small (negligible). 
 
 ## 2. 
 
@@ -653,9 +649,7 @@ ate_dime <- mean_treated - mean_control
 ate_dime
 ```
 
-No, this is not a generally good estimate! This estimate is problematic because it assumes treatments were randomly assigned, which is not the case! This introduces bias and the estimate is possibly being confounded by other factors that may be relevant to the analysis such as age, gender, or other factors.
-
-But at least that one doesn't have any discrepancy with the R validation! 
+No, the DIME estimate of average treatment effect (ATE) without considering the propensity scores is generally **not** a good estimate! This estimate is problematic because it assumes treatments were randomly assigned, which is not the case! This introduces bias, as the estimate is possibly being confounded by other factors that may be relevant to the analysis (estimate of the treatment effect) such as age, gender, or other something else. 
 
 ## 3. 
 
@@ -664,7 +658,7 @@ Calculate the IPW estimate of the ATE.
 ### Answer
 
 $$
-\widehat{ATE}_{IPW} = -12.31 - (-6.81) = -5.50
+\hat{\tau}_{IPW} = \bar{Y}_{IPW}^{(1)} - \bar{Y}_{IPW}^{(0)} = -12.31 - (-6.81) = -5.50
 $$
 
 ```{r}
@@ -701,7 +695,7 @@ $$
 
 Where we use n instead of N, i.e., we swap our population N with the sample n for the purposes of estimation. 
 
-We may simplify the expression above somewhat, to get: 
+We may simplify the difference expression $\hat{\tau}$ somewhat, to get: 
 
 $$
 \hat{\tau}_{AIPW} = \frac{1}{n} \sum_{i=1}^n \left[
@@ -735,7 +729,7 @@ What is the advantage of using AIPW over IPW?
 
 ### Answer
 
-The advantages the AIPW estimator has compared to IPW is the fact it is "doubly robust" and its improved efficiency. The AIPW estimator combines both the propensity model (PM) and the outcome model (OM), making it doubly robust, covered in more detail in the next part. On the point of efficiency: The AIPW estimator reduces variance compared to IPW by combining weighting with regression adjustment, making it at least as efficient as the IPW estimator. The AIPW is also more stable with extreme propensity scores, i.e., scores near the tails, 0 or 1. 
+The advantages the AIPW estimator has compared to IPW is the fact it is "doubly robust" and that it has possibly improved efficiency. The AIPW estimator combines both the propensity model (PM) and the outcome model (OM), making it doubly robust, covered in more detail in the next part. On the point of efficiency: The AIPW estimator reduces variance compared to IPW by combining weighting with regression adjustment, making it at least as efficient as the IPW estimator. The AIPW is also more stable with extreme propensity scores, i.e., scores near the tails, 0 or 1, due to its weighting adjustment. 
 
 ## 6. 
 
