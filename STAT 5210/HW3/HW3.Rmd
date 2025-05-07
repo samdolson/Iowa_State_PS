@@ -723,14 +723,36 @@ round(mean(df$aipw), 2)
 
 Giving us an optimal AIPW estimate of the ATE of -4.75. 
 
+### Extra Validation: Individual Means, Then Difference
+
+```{r}
+n <- nrow(df)
+
+mu1_aipw <- with(df, mean(
+  Trt * Y / pi - (Trt - pi) / pi * Q1
+))
+
+mu0_aipw <- with(df, mean(
+  (1 - Trt) * Y / (1 - pi) + (Trt - pi) / (1 - pi) * Q0
+))
+
+mu1_aipw
+mu0_aipw
+
+diff <- mu1_aipw - mu0_aipw
+diff
+```
+
+With rounding, the formula is consistent with the initial optimal AIPW estimate of the ATE of -4.75. 
+
 ## 5. 
 
 What is the advantage of using AIPW over IPW?
 
 ### Answer
 
-The advantages the AIPW estimator has compared to IPW is the fact it is "doubly robust" and that it has possibly improved efficiency. The AIPW estimator combines both the propensity model (PM) and the outcome model (OM), making it doubly robust, covered in more detail in the next part. On the point of efficiency: The AIPW estimator reduces variance compared to IPW by combining weighting with regression adjustment, making it at least as efficient as the IPW estimator. The AIPW is also more stable with extreme propensity scores, i.e., scores near the tails, 0 or 1, due to its weighting adjustment. 
-
+The advantages the AIPW estimator has compared to IPW is the fact it is "doubly robust" and that it has possibly improved efficiency. The AIPW estimator combines both the propensity model (PM) and the outcome model (OM), making it doubly robust, covered in more detail in the next part. On the point of efficiency: The AIPW estimator reduces variance compared to IPW by combining weighting with regression adjustment, making it at least as efficient as the IPW estimator. The AIPW is also more stable with extreme propensity scores, i.e., scores near the tails, 0 or 1, due to its weighting adjustment. By comparison, the IPW estimate requires the propensity score model to be correct to ensure consistency. 
+ 
 ## 6. 
 
 Explain why AIPW is called doubly robust.
