@@ -1,0 +1,75 @@
+---
+title: "AnalyzeData"
+output: html_document
+date: "2025-05-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
+voyageDat <- read_excel("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/SIDI 2025/voyages_20211020.xlsx")
+```
+
+```{r}
+names(voyageDat)
+```
+
+[1] "voyageID"           "voyageRank"         "voyageName"         "port"               "sailingFrom"        "ground"            
+[7] "yearOut"            "dayOut"             "yearIn"             "dayIn"              "returnCode"         "agentID"           
+[13] "agent"              "bone"               "sperm"              "oil"                "customsDistrict"    "logbookExists"     
+[19] "aowlLink"           "crewListLink"       "source"             "masterID"           "master"             "fate"              
+[25] "birth"              "birthLocation"      "death"              "deathLocation"      "wife"               "wifeToSea"         
+[31] "vitalRecordsSource" "laterOccupation"    "vesselID"           "vessel"             "rig"                "tonnage"           
+[37] "builtPlace"         "builtDate"          "end"                "dennisWood"         "logbookScan" 
+
+```{r}
+summary(voyageDat)
+```
+
+names(voyageDat)[c(1, 2, 5)]
+
+```{r}
+voyageDat |> 
+  group_by(voyageRank) |> 
+  count() |> 
+  arrange(desc(n))
+```
+
+```{r}
+voyageDat |> 
+  group_by(sailingFrom) |> 
+  count() |> 
+  arrange(desc(n))
+```
+
+Standardize Dates (Birth Date `birth`, and Death Date `death`)
+
+Check for duplicates `voyageId` and `masterId`, these are possible "grain" of the dataset, i.e., it is a truly unique identifier
+
+```{r}
+nrow(voyageDat)
+```
+
+```{r}
+length(unique(voyageDat$voyageID))
+```
+
+```{r}
+length(unique(voyageDat$masterID))
+```
+
+# Thoughts
+
+- Possible Duplication of records, not tidy 
+- Also not tidy due to nesting of information in certain columns
+- Lots of missing data
+- Lacking information about what fields/columns mean, and their values 
+
