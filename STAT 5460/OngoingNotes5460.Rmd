@@ -1,9 +1,8 @@
 ---
-title: "Ongoing Notes"
+title: "Ongoing Notes - 546"
 output:
   pdf_document: default
   html_document: default
-date: "2025-08-27"
 ---
 
 ```{r setup, include=FALSE}
@@ -48,7 +47,7 @@ $$
 Let $\bf{X}$ be a random vector with covariance matrix $\Sigma_XX$. 
 
 If: $\bf{Y} = \bf{A}_{p \times n} \bf{X}$ and $\bf{Z} = \bf{B}_{m \times n} \bf{X}$, 
-where $\bf{A}$ and $\bf{B}$ are fixed matrices. Then, the cross-covariance matrix of $\bf{Y}$ and $\bf{Z} is:
+where $\bf{A}$ and $\bf{B}$ are fixed matrices. Then, the cross-covariance matrix of $\bf{Y}$ and $\bf{Z}$ is:
 
 $$
 \Sigma_{YZ} = \bf{A} \Sigma_{XX} \bf{B}^{\top}
@@ -56,7 +55,7 @@ $$
 
 ### Limiting Behavior of Functions 
 
-1. Big O 
+#### Big O 
 
 Let f and g be two functions defined on some subset of the real numbers. One writes: 
 
@@ -74,7 +73,7 @@ $$
 
 Note: Typically this course with use $n \rightarrow \infty$
 
-2. little o 
+#### little o 
 
 Description: This means that g(x) grows **much faster** than f(x). 
 
@@ -134,9 +133,84 @@ Note: $o_p(1)$ is short for a sequence of random vectors that converges to zero 
 
 (7): $o_p(O_p(1)) = o_p(1)$ 
 
+
+\newpage 
+
 ## Chapter 2 
 
+### 2.1 
 
+To evaluate the *global performance* of a density estimate, the most intuitively appealing global criterion is the $L_{\infty}$ norm
+
+$$
+\sup_x \, \big| \hat{f}_X(x) - f_X(x) \big|.
+$$
+
+(max deviation) 
+
+At the other end of the spectrum is the $L_{1}$ norm
+
+$$
+\int \big| \hat{f}_X(x) - f_X(x) \big| \, dx.
+$$
+
+The $L_{1}$ nor the $L_{\infty}$ criterion is as easily manipulated as the $L_{2}$ norm, which is referred to as **integrated squared error (ISE)**
+
+$$
+\text{ISE}(\hat{f}_X) \;=\; \int \big( \hat{f}_X(x) - f_X(x) \big)^2 \, dx,
+$$
+
+Note: ISE is a R.V. 
+
+However, the MISE is not a R.V. because of expectation. 
+
+$$
+E[ISE(\hat{f_{X}})] = IMSE(\hat{f}_{X})
+$$
+
+
+### 2.2 
+
+#### Histogram Estimator 
+
+Choose an origin $t_0$ and a bin width $h > 0$, where the bin width is the width of the classes (i.e., bins).  
+
+The $k$th bin is given by  
+
+$$
+B_k = [t_k, t_{k+1}], \quad k \in \mathbb{Z}
+$$
+
+with  
+
+$$
+t_{k+1} = t_k + h, \quad k \in \mathbb{Z}.
+$$
+
+Denote by $\nu_k$ the *bin count* of the $k$th bin, i.e., the number of sample points falling in the bin $B_k$.  
+The histogram estimator is defined as  
+
+$$
+\hat{f}_X(x) = \frac{\nu_k}{nh} = \frac{1}{nh} \sum_{i=1}^n \mathbf{1}_{[t_k, t_{k+1})}(X_i), 
+\quad \text{for } x \in B_k
+\tag{2.1}
+$$
+
+The histogram estimator is a very elementary estimator, but it can give the first good idea about the underlying unknown density function.  
+
+But if one wants to work further with the density estimate (discriminant analysis, hazard function estimation, ...) then a more accurate estimator is needed.  
+
+The histogram is a discontinuous function (a step function), and hence the density is estimated with a step function.  
+
+However, there are two unknown quantities in (2.1), i.e.,  
+
+- the bin width $h$  
+- the origin $t_0$ (position of the edges of the bins).  
+
+
+### 2.3
+
+\newpage 
 
 # Reading Notes 
 
@@ -166,5 +240,131 @@ Big O convergence: Is like convergence in Probability
 
 Little o convergence: Like Markov, Chebychev inequalities 
 
+
+\newpage 
+
 ## Chapter 2 
 
+### 2.1 
+
+$L_{1}$ vs. $L_{2}$
+
+- The $L_{1}$ criterion $\int \lvert \hat{f}_X(x) - f_X(x) \rvert dx$ puts more emphasis on the tails of a density than the $L_{2}$ criterion.  
+  The latter de-emphasizes the relatively small density values by squaring.  
+
+- Note that  
+
+$$
+\int \lvert \hat{f}_X(x) - f_X(x) \rvert dx \;\leq\; \int \lvert \hat{f}_X(x) \rvert dx + \int \lvert f_X(x) \rvert dx \;\leq\; 2
+$$
+
+if $\hat{f}_X$ is a density. Hence, it follows that  
+
+$$
+0 \;\leq\; \int \lvert \hat{f}_X(x) - f_X(x) \rvert dx \;\leq\; 2.
+$$
+
+- For the $L_{2}$ criterion, we have that  
+
+$$
+0 \;\leq\; \int \big( \hat{f}_X(x) - f_X(x) \big)^2 dx \;\leq +\infty.
+$$
+
+- In practical situations, the estimators that optimize these criteria are similar.  
+- The analytical simplicity of squared error and its adequacy in practical applications makes the $L_{2}$ criterion often the criterion of choice.  
+
+- $L_{1}$ error is invariant under any smooth monotone transformation.  
+
+Scheffé’s Lemma  
+
+(Scheffé, 1947; Devroye and Györfi, 1985). For all densities $f$ and $g$ on $\mathbb{R}^d$:
+
+$$
+\int | f(x) - g(x) | dx \;=\; 2 \, TV(f,g) 
+\;=\; 2 \int \max(f(x) - g(x),0)\, dx 
+\;=\; 2 \int \max(g(x) - f(x),0)\, dx
+$$
+
+- The result in Scheffé’s lemma provides a connection with statistical classification.
+
+
+### 2.2
+
+#### Histogram Estimator 
+
+The analysis of the histogram random variable $\hat{f}_X$ is quite simple once one recognizes that the bin counts are Binomial random variables.  
+For the bin count of the $k$th bin  
+
+$$
+\nu_k \sim \text{Bin}(n, p_k) 
+\quad \text{where} \quad 
+p_k = \int_{B_k} f(t) \, dt.
+$$
+
+Hence, we have  
+
+$$
+\mathbb{E}[\nu_k] = n \cdot p_k 
+\quad \text{and} \quad 
+\text{Var}[\nu_k] = n \cdot p_k \cdot (1 - p_k).
+$$
+
+and therefore, for $x \in B_k$ (see also Figure 2.4)  
+
+$$
+\mathbb{E}[\hat{f}_X(x)] = \frac{p_k}{h}
+\quad \text{and} \quad
+\text{Var}[\hat{f}_X(x)] = \frac{p_k \cdot (1 - p_k)}{n h^2}.
+$$
+
+The exact bias of the histogram estimator is  
+
+$$
+\mathbb{E}[\hat{f}_X(x)] - f_X(x) = \frac{p_k}{h} - f_X(x).
+$$
+
+Denote the optimal bin width by $h_{n,\text{MISE}}$. Then, an approximation for $h_{n,\text{MISE}}$ is obtained by minimizing the asymptotic expression for $\text{MISE}(\hat{f}_X)$ given in (2.3):
+
+$$
+h_{n,\text{AMISE}} 
+= \arg \min_h \text{AMISE}(\hat{f}_X)
+$$
+
+$$
+= \arg \min_h \left[ \frac{1}{n h} + \frac{1}{12} h^2 \int f_X''(x)^2 \, dx \right]
+$$
+
+$$
+= \left[ \frac{6}{\int f_X''(x)^2 \, dx} \right]^{1/3} n^{-1/3}.
+\tag{2.4}
+$$
+
+However, (2.4) is not useful in practice since it depends on the true unknown density $f_X$.  
+
+A quick and simple bin width selection rule is obtained by referring to a normal density.  
+
+If $f_X = N(\mu, \sigma^2)$, then  
+
+$$
+\int f_X''(x)^2 \, dx = \frac{1}{4 \sqrt{\pi} \, \sigma^3}
+$$
+
+and consequently  
+
+$$
+\hat{h}_{n,\text{AMISE}} 
+= \left[ \frac{24 \sqrt{\pi} \, \hat{\sigma}^3}{n} \right]^{1/3} 
+\;\;\approx\;\; 3.5 \hat{\sigma} n^{-1/3},
+$$
+
+where $\hat{\sigma}$ is a consistent estimator of $\sigma$, e.g.,  
+
+$$
+\hat{\sigma} = \sqrt{\frac{1}{n-1} \sum_{i=1}^n (X_i - \bar{X})^2}
+\quad \text{with} \quad
+\bar{X} = \frac{1}{n} \sum_{i=1}^n X_i.
+$$
+
+This bin width selector is the so-called **rule-of-thumb bin width selector**.  
+
+### 2.3 

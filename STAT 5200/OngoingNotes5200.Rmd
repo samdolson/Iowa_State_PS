@@ -58,6 +58,9 @@ Approaches to Statistical Analysis:
   
   (3): Bayesian Analysis: Construction of data model; makes use of epistemic probability in the form of prior and posterior distributions
 
+
+\newpage 
+
 ## Chapter 2 
 
 Abstract: To mean abstruse; but also, to separate, to express a quality apart from an object, or to consider a part as divorced from the whole 
@@ -114,6 +117,222 @@ Distinguishing between *motivation* and *verification*
 
 \newpage 
 
+
+\newpage 
+
+## Chapter 3 
+
+"...[W]e distinguish between classes and families of distributions.": 
+
+Family: "Consider the probability mass or density function $f(x \mid \theta)$ with support $x \in \Omega_x$, and where $\theta = (\theta_1, \ldots, \theta_p)^T$ is a parameter such that $\theta \in \Theta \subseteq \mathbb{R}^p$. As $\theta$ varies over its parameter space $\Theta$ we say that $f(x \mid \theta)$ generates a family of distributions." 
+
+  - Of interest is (1): Location-Scale families and (2): Exponential families 
+  
+Class: "Collections of different families of distributions may be grouped into classes ofdistributions."
+
+### Location-Scale Family: 
+
+Let $U$ be a random variable with a fixed distribution $F$. If $U$ is transformed into $Y$ as  
+
+$$
+Y = U + \mu, \quad -\infty < \mu < \infty,
+$$
+
+then $Y$ has distribution $F(y - \mu)$ since $\Pr(Y \leq y) = \Pr(U \leq y - \mu)$.  
+
+The set of distributions generated for a fixed $F$, as $\mu$ varies from $-\infty$ to $\infty$, is called a **location family** of distributions.  
+
+If the resultant distribution is of the same form as $F$ only with modified parameter values, then $F$ forms a location family.  
+
+A similar definition of a distribution $F$ forming a **scale family** is if $F$ is unchanged other than parameter values under transformations  
+
+$$
+Y = \sigma U, \quad \sigma > 0,
+$$
+
+in which case the distribution of $Y$ is $F(y/\sigma)$ since $\Pr(Y \leq y) = \Pr(U \leq y/\sigma)$.  
+
+The composition of location and scale transformations results in  
+
+$$
+Y = \mu + \sigma U, \quad -\infty < \mu < \infty, \; \sigma > 0,
+$$
+
+and $Y$ has distribution $F((y - \mu)/\sigma)$.  
+
+If $F$ has a density $f$, then the density of $Y$ is given by  
+
+$$
+g(y \mid \mu, \sigma) = \frac{1}{\sigma} f\!\left(\frac{y - \mu}{\sigma}\right).
+$$
+
+Properties: 
+
+Location–scale families have simple properties that stem directly from the transformations.  
+For example, if $Y$ is produced as a location–scale transformation of $U$,  
+
+$$
+Y = \mu + \sigma U,
+$$
+
+then  
+
+$$
+\mathbb{E}(Y) = \mu + \sigma \, \mathbb{E}(U)
+\quad \text{and} \quad
+\text{Var}(Y) = \sigma^2 \text{Var}(U).
+$$
+
+Traditionally, if $\mathbb{E}(U) = 0$ and $\text{Var}(U) = 1$ then the distribution of $U$ is called the **parent distribution** for the family
+
+\newpage 
+
+
+### Exponential Family: 
+
+Common (Basic Form of) representation: 
+
+$$
+f(y \mid \theta) \;=\; \exp \left\{ \sum_{j=1}^s \theta_j T_j(y) - B(\theta) + c(y) \right\}.
+\tag{3.4}
+$$
+
+Note: The term $\exp\{c(y)\}$ in the last expression of (3.4) could be absorbed into the relevant measure. This is typically not done so that integrals can be written with respect to the dominating **Lebesgue measure** (for continuous $Y$) or **counting measure** (for discrete $Y$).
+
+Properties: 
+
+(Property 2 is the case that the sufficient statistic and parameter does not satisfy a linear constraint, suchj that the representation is "minimal" or "full"); the subsequent properties follow fromm this.)
+
+3. For a minimal, regular exponential family, the statistic $T \equiv (T_1, \ldots, T_s)$ is minimal sufficient for $\theta$.  
+
+This property is often useful because, as we will see, the joint distribution of $iid$ random variables belonging to an exponential family are also of the exponential family form.  
+
+4. For an integrable function $h(\cdot)$, dominating measure $\nu$, and any $\theta$ in the interior of $\Theta$, the integral  
+
+$$
+\int h(y) \exp \left\{ \sum_{j=1}^s \theta_j T_j(y) - B(\theta) + c(y) \right\} d\nu(y)
+$$
+
+is continuous, has derivatives of all orders with respect to the $\theta_j$s,  
+and these derivatives can be obtained by interchanging differentiation and integration (e.g., Lehmann, 1983, Theorem 4.1).  
+
+This property does several things for us:  
+- It can be used to derive additional properties of exponential families such as the form of the moment generating function in property 6.  
+- It allows us to evaluate expressions needed for estimation and variance evaluation through numerical integration of derivatives, which can be important to actually conduct an analysis with real data.  
+
+5. Property 4 can be used to show that (e.g., Lehmann, 1983),  
+
+$$
+\mathbb{E}\{ T_j(Y) \} = \frac{\partial}{\partial \theta_j} B(\theta),
+$$
+
+$$
+\text{cov}\{ T_j(Y), T_k(Y) \} = \frac{\partial^2}{\partial \theta_j \partial \theta_k} B(\theta).
+$$
+
+These lead directly to $\mathbb{E}(Y)$ and $\text{Var}(Y)$ for what are called **natural exponential families** and **exponential dispersion families**, which will be discussed in the sequel.  
+
+They also provide an alternative parameterization of exponential families in general.  
+
+6. The moment generating function of an exponential family is defined to be that for the moments of the $T_j$s and may be derived to be,  
+
+$$
+M_T(u) = \frac{\exp\{ B(\theta + u) \}}{\exp\{ B(\theta) \}}.
+$$
+
+#### Exponential Dispersion Family 
+
+Consider a random variable $Y \sim N(\mu, \sigma_*^2)$ for which $\sigma_*^2$ is considered a fixed, known value.  
+In this case we can write, for $-\infty < \mu < \infty$ and $0 < \sigma^2$,  
+
+$$
+f(y \mid \mu) 
+= \exp \left[ \frac{-1}{2\sigma_*^2}(y - \mu)^2 - \tfrac{1}{2} \log(2\pi\sigma_*^2) \right]
+$$
+
+$$
+= \exp \left[ \frac{1}{\sigma_*^2}\left(\mu y - \tfrac{1}{2}\mu^2\right) 
+- \tfrac{1}{2}\left(\frac{y^2}{\sigma_*^2} - \log(2\pi\sigma_*^2)\right) \right].
+$$
+
+Letting $\theta = \mu$, $b(\theta) = (1/2)\theta^2$, $\phi = 1/\sigma_*^2$, and $c(y, \phi) = (1/2)[y/\sigma_*^2 - \log(2\pi\sigma_*^2)]$,  
+
+this density may be written as what is called an **exponential dispersion family**, which has the general form of  
+
+$$
+f(y \mid \theta, \phi) = \exp\{ \phi[y\theta - b(\theta)] + c(y, \phi)\}.
+\tag{3.7}
+$$
+
+For a distribution with pdf or pmf of the form (3.7) the properties of $s$–parameter exponential families may be used to demonstrate that  
+
+$$
+\mathbb{E}(Y) = \frac{d}{d\theta} b(\theta) = b'(\theta),
+$$
+
+$$
+\text{Var}(Y) = \frac{1}{\phi} \frac{d^2}{d\theta^2} b(\theta) = \frac{1}{\phi} b''(\theta) = \frac{1}{\phi} V(\mu).
+\tag{3.8}
+$$
+
+The function $V(\cdot)$ in (3.8) is often called the **variance function**, which is not the variance except for a few cases in which $\phi = 1$. The variance function is important because it quantifies the relation between the mean and variance of the distribution.
+
+Comments: 
+
+(1): What has happened in (3.7) is that we have coerced a two-parameter exponential family to look almost like a natural exponential family (see Example 3.5) but with the addition of an extra parameter $\phi$ called the **dispersion parameter**. This parameter is a scale factor for the variance (3.8).  
+
+(2): Clearly, it will not be possible to write an exponential family in the form of expression (3.7) unless one of the sufficient statistics is given by the identity function (i.e., $T_j(y) = y$ for some $j$). While this is not, in itself, sufficient for representation of a pdf or pmf as in (3.7), distributions for which one of the sufficient statistics is $y$ and which can subsequently be written in exponential dispersion family form include the **binomial, Poisson, normal, gamma, and inverse Gaussian**. But it is not possible, for example, to write a beta pdf in this form.  
+
+(3): Exponential dispersion families of the form (3.7) are the exponential families upon which **generalized linear models** are based (e.g., McCullagh and Nelder, 1989). But, as discussed in Chapter 1, the impetus provided by generalized linear models to consider random model components in a more serious light than mere error distributions has much wider applicability than just these families.
+
+#### Extending Exponential Families for Samples (Random Samples, Multivariate) 
+
+One additional property of exponential families will be useful in this subsection.  
+For $Y$ distributed according to an $s$-parameter exponential family as in (3.4) with $\theta = (\theta_1, \ldots, \theta_s)$, the sufficient statistic  
+
+$$
+T(y) = (T_1(Y), \ldots, T_s(Y))
+$$
+
+is distributed according to an exponential family with density or mass function  
+
+$$
+g(t \mid \theta) = \exp \left\{ \sum_{j=1}^s \theta_j t_j - B(\theta) + k(t) \right\}.
+\tag{3.9}
+$$
+
+Note that the dominating measure of the distributions of $Y$ and $T$ may differ, and that $k(t)$ may or may not be easily derived from the original $c(y)$, but $\theta$ and $B(\theta)$ are the same as for the original distributions $f_Y(y \mid \theta)$.  
+
+Consider now the case of $n$ independent and identically distributed random variables $Y_1, \ldots, Y_n$, with each variable having a pdf or pmf of the form  
+
+$$
+f(y \mid \theta) = \exp \left\{ \sum_{j=1}^s \theta_j T_j(y) - B(\theta) + c(y) \right\}.
+$$
+
+Under the $iid$ assumption, the joint distribution of  
+
+$$
+Y \equiv (Y_1, \ldots, Y_n)^T,
+$$
+
+is  
+
+$$
+f(y \mid \theta) = \exp \left\{ \sum_{j=1}^s \theta_j \sum_{i=1}^n T_j(y_i) - n B(\theta) + \sum_{i=1}^n c(y_i) \right\}.
+\tag{3.10}
+$$
+
+Note that expression (3.10) is still in the form of an exponential family, with sufficient statistics given by the sums of the $T_j(\cdot)$.  
+In particular, let $Y_1, \ldots, Y_n$ be distributed according to a one-parameter exponential family.  
+Then the joint distribution is again a one-parameter exponential family with the same canonical parameter and sufficient statistic given as the sum $\sum_{i=1}^n T(Y_i)$.
+
+\newpage 
+
+
+## Chapter 4 
+
+\newpage 
+
 # Reading Notes 
 
 ## Chapter 1
@@ -123,6 +342,9 @@ Distinguishing between *motivation* and *verification*
 "Probability is **not a thing** but a **concept**." 
 
 Question: For a given type of statistical analysis, is the "type" of probability concept you use "locked in place" throughout the analysis? 
+
+
+\newpage 
 
 ## Chapter 2 
 
@@ -148,3 +370,92 @@ Question: XU applied to treatments vs. Treatments applied to XU?
 "Distributions within a class share various statistical properties (which properties these are depends on which class)." 
 
 "The major impact of generalized linear models was to promote consideration of random and systematic model components rather than signal plus noise." 
+
+\newpage
+
+## Chapter 3
+
+"To adequately model the probabilistic behaviors of random variables, we must have access to a variety of theoretical probability distributions."
+
+"Thus, what we usually refer to as the normal distribution constitutes a family of distributions, as does the Poisson distribution and many others"
+
+"It is important to understand the context being used in a conditional statement so that, for example, the distinction between $E(Y|x)$ and $E(Y|X)$ is clear" (One is an observation of the R.V. X, the other is conditional on that random variable)
+
+(Regarding Location-Scale Families): "What can be called the *standard form* of a distribution is the distribution that results from eliminating parameters." 
+
+(Regarding Location-Scale Families): "location-scale families of distributions that have standard forms with expectation 0, variance 1, and support on the entire line are the traditional building blocks for models formulated in terms of what we will come to call a *signal plus noise structure.*"
+
+(On signal-plus-noise, spec. Normality assumptionms for inference): "But we may desire estimation of certain quantiles for responses, or in the probability that a response will exceed some regulatory threshold at a given covariate value, and those questions depend on more than expectations alone."
+
+In the final expression of (3.4) the parameters denoted as $\theta_j$, $j = 1, \ldots, s$ are called **canonical** or sometimes **natural** parameters for the exponential family.  
+
+While the canonical parameterization usually leads to the easiest derivation of properties such as those just given, it is not always the best parameterization for purposes of estimation, inference, or model interpretation.
+
+(On Mean Value Parameterization 1): It may be the case that none of the canonical parameters $\theta_j$ in (3.4) correspond to the expected value of the random variable $Y$.  
+A **mean value parameterization** can be accomplished by a transformation  
+
+$$
+(\theta_1, \ldots, \theta_s) \;\;\longrightarrow\;\; (\mu, \phi_1, \ldots, \phi_{s-1}),
+$$
+
+where $\mu \equiv \mathbb{E}(Y)$ and $\phi_1, \ldots, \phi_{s-1}$ are arbitrarily defined.  
+We will still need $s$ parameters because we are assuming the canonical representation is minimal, as defined previously.  
+
+Note, however, that the reparameterized family may no longer be in canonical form.
+
+(Mean Value Parameterization 2): In the canonical parameterization for exponential families there is a clear association between parameters $\theta_j$ and sufficient statistics $T_j$.  
+
+It is perhaps natural then to attempt to parameterize families using the expected values of the $T_j$, which are given in property 5 of the previous section as first derivatives of the function $B(\theta)$.  
+
+Thus, we transform  
+
+$$
+(\theta_1, \ldots, \theta_s) \;\;\longrightarrow\;\; (\mu_1(\theta), \ldots, \mu_s(\theta))
+$$
+
+where  
+
+$$
+\mu_j(\theta) = \mathbb{E}\{T_j(Y)\} = \frac{\partial}{\partial \theta_j} B(\theta).
+$$
+
+This parameterization has the potential advantage that each parameter of the density is then the expected value of an element of the complete sufficient statistic, namely $T_j(Y)$, which then immediately give us UMVU estimators for the parameters $\mu_j(\theta)$.  
+
+The relevant question is whether such parameters represent quantities that are meaningful for inference.  
+
+Families with this structure are among the more commonly used distributions in many types of models such as generalized linear models.
+
+### Reasons for Choosing a Particular Parametrization 
+
+(1): "It is possible, however, that with estimation by exact theory or least squares one might need to conduct a transformation before estimation to allow inference to be made on the transformed parameters."
+
+(2): "Parameter transformations are sometimes conducted to produce increased stability in numerical estimation procedures."
+
+(3): "[I]n model formulation, a primary goal is to connect the key elements of a scientific problem with parameters of a probabilistic model. It can occur that one parameterization makes this more clearly the case than does an alternative."
+
+(4): "A more easily comprehended goal of parameterization is to sometimes clearly identify how covariate information can appropriately be incorporated into a model."
+
+(5): 5. In the investigation of different parameterizations it is essential that one keep track of possible restrictions on the parameter space, both in terms of allowable values and in terms of restrictions that may be imposed on one parameter component (e.g., $\theta_2$) by the value of another (e.g., $\theta_1$).  
+
+Such restrictions (including possibly the lack of such restrictions) can render a parameterization either more or less appropriate to describe a given situation.  
+From a purely statistical viewpoint, it seems pleasing to have parameter elements that are **variation independent**.  
+
+A generic vector-valued parameter $\theta \equiv (\theta_1, \theta_2)$ has variation independent components if the parameter space can be written as the Cartesian product $\Theta = \Theta_1 \times \Theta_2$ where $\Theta_1$ and $\Theta_2$ are sets of possible values for $\theta_1$ and $\theta_2$, respectively.  
+
+While having variation independent parameters is probably typical of distributions we are familiar with, it is worth noting this property.  
+In models that have multiple random components, such as hierarchical models, variation independent parameters in the data model translate into something called the **positivity condition** for modeling random parameter values.  
+
+Formulating a proper model can become much more difficult when this condition does not hold.
+
+(Break) 
+
+(Exponential Dispersion Family): "This particular subclass of exponential dispersion families is, however, arguably one of the most common forms of exponential family distributions that appear in applications."
+
+(Exponential Dispersion Family): 
+
+"An important role is played in both the theory and application of exponential family distributions by one-parameter families for which the sufficient statistic is $T(y) = y$."
+
+"These are often called **natural exponential families**, following the extensive investigation of their behavior by Morris (1982, 1983). If a family of distributions has only one canonical parameter, then both the expectations and variances of those distributions must be functions of the sole parameter."
+
+## Chapter 4 
+
