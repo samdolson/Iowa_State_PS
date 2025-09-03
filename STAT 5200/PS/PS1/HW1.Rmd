@@ -18,6 +18,8 @@ For each of the following situations, define random variables that might be appr
 
 The USGS would like to use these data to address a number of questions related to the status of mayflies (Ephemeroptera) in the river. Mayflies form the basis for a number of aquatic food chains and are also generally considered an indicator of water quality (rather, their absence is considered an indicator of a lack of water quality). There are any number of objectives that might be identified for this study. Here, we will be concerned with only two. Restrict your answer to issues that are relevant for these two objectives. 
 
+\newpage 
+
 ### (a) 
 
 Is the presence/absence of mayflies at sampling locations related to the primary habitat category and/or the specific sediment type?
@@ -36,21 +38,25 @@ $$
 Y_{i,j} =
 \begin{cases}
 1 & \text{if mayflies are present at site i and year j} \\
-0 & \text{otherwise}
+0 & \text{o.w.}
 \end{cases}
 $$
 
-The support of the R.V.s is given by: $\Omega = \{ 0, 1\}$, where: 
+The support of the R.V.s is given by: $\Omega_{Y_{i,j}} = \{ 0, 1\}$, where: 
 
 $$
 Y_{i,j}(\omega) \in \{ 0, 1\} \quad \forall i, j
 $$
 
-(Covariates): For the purposes of this setup, we may consider "primary habitat category" and/or the "specific sediment type" to be covariates, and since these are observed (realized) we consider them non-random. 
+(Covariates): For the purposes of this setup, we may consider "primary habitat category" and the "specific sediment type" covariates. Also, since these are observed (realized) we consider them non-random. 
+
+Note: While we can consider "water depth", "stretch", and "number of invertebrates" to be covariates as well, I would not explicitly include them for the purposes because of the note to `"Restrict your answer to issues that are relevant for these two objectives."`. 
 
 Preliminary assessment about an assumption of independence:
 
-Independence of mayfly presence across samples *within a year* is unlikely due to spatial correlation (nearby sites may share environmental/morphological conditions, leading to clustering). *Between years*, independence is more plausible because sites are reselected annually, with no sites replicated year-over-year, though the prior point still stands. Additionally, there may not be independence between the noted covariates as particular sediment types may be correlated with specific habitat categories (and vice versa). 
+Independence of mayfly presence across samples *within a year* is unlikely due to spatial correlation (nearby sites may share environmental/morphological conditions, leading to clustering). *Between years*, independence is more plausible because sites are re-selected annually, with no sites replicated year-over-year. Additionally, there may be independence between the noted covariates (habitat and sediment types), but I do not have scientific expertise or theory to substantiate this point. It may be the case that particular sediment types may be correlated with specific habitat categories (and vice versa). 
+
+\newpage 
 
 ### (b) 
 
@@ -60,29 +66,33 @@ Has the abundance of mayflies exhibited a systematic change over the period 1992
 
 Define appropriate random variables (and perhaps covariates), and what support a distribution assigned to them should have: 
 
-We will use the same convention from part (a), namely: Let $i$ denote the sampling site, and let $j$ denote the sampling year, where $i = 1, ..., n_j$, $j = 1992, ..., 2004$, and where $n_j$ denotes the n-th sampling site on the j-th year. 
+Keeping the same convention from part (a), let $j = 1992, \ldots , 2004$, and let $i = 1, \ldots ,n_j$ where $n_j$ is the number of samples taken in year $j$.
 
-We may then define the R.V.s as follows: 
-
-Let $Y_{i,j}$ denote the R.V. for the number (abundance) of mayflies at sampling site $i$ on year $j$. We define the R.V.s by: 
+Then, for a single reach, we may then define the R.V.s for the sample-level counts of mayflies in a sample by: 
 
 $$
-Y_{i,j} = y_{i,j}
+X_{i,j} \in \{0,1,2,\ldots\}
 $$
 
-Where $y_{i, j}$ is the realized (observed) number of mayflies in the sample of site i and year j. 
+The support of each $X_{i,j}$ then is $\Omega_{X_{i,j}} = \mathbb{N}_0$, where $X_{i,j}(\omega) \in \mathbb{N}_0$.
 
-The support of the R.V.s is given by: $\Omega = \mathbb{N}_0$, where: 
+Using these random variables, we can construct another R.V. for the year-level quantity for a reach by aggregating over samples to form a *within-year* average count, defined by:
 
 $$
-Y_{i,j}(\omega) \in \mathbb{N}_{0} \quad \forall i, j
+Y_j = \frac{1}{n_j}\sum_{i=1}^{n_j} X_{i,j}
 $$
 
-(Covariates): For the purposes of this setup, we may consider the year of the sample to be a covariate, and since these are observed (realized) we consider them non-random. 
+The support of each of the $Y_j$'s then is $\Omega_{Y_j} = [ 0, \infty)$, and $Y_j(\omega) \in [0, \infty)$. 
+
+We would then extend the above R.V. constructions to include each of the six reaches (for the sake of subscript headaches, this was avoided). 
+
+Note: The above uses a continuous support despite being constructed as a linear function of discrete R.V.s $X_{i,j}$'s. Given the order of magnitude of 120 sites per reach, and the spacing between possible values small ($\frac{1}{n_j} \approx \frac{1}{120} = 0.008$), I would argue this treatment is reasonable.
+
+(Covariates): While year could serve as a covariate in a certain context, the parametrization of the random variables above treats time as an index, so it is not considered a covariate in this context.
 
 Preliminary assessment about an assumption of independence:
 
-*Between years* independence is plausible because sites are reselected annually, with no sites replicated year-over-year by design. 
+It seems reasonable to assume independence *across years* (between the R.V.s $Y_j$), though temporal dependence is possible because of repeated measurements from the same reach.
 
 \newpage 
 
@@ -128,19 +138,21 @@ S_{i,j} =
 \end{cases}
 $$
 
-The support of the R.V.s is given by: $\Omega = \{ 0, 1\}$, where: 
+The support of each of the R.V.s is given by: $\Omega = \{ 0, 1\}$, where: 
 
 $$
 N_{i,j}(\omega) \in \{ 0, 1\} \quad W_{i,j}(\omega) \in \{ 0, 1\} \quad S_{i,j}(\omega) \in \{ 0, 1\} \quad, \forall i, j
 $$
 
-Note: We also may parametrize the random variable(s) not as counts, but as proportions. 
+As defined, for each piglet–sow pair $(i,j)$, exactly one of $N_{i,j}, W_{i,j}, S_{i,j}$ equals 1; that is, the three R.V.s are mutually exclusive and collectively exhaustive, with $N_{i,j}+W_{i,j}+S_{i,j}=1$, $\forall i, j$.
 
-(Covariate) Vaccination status of sow $i$, $X_{i}:\Omega \to \{0,1\},\quad X_{i}(\omega)\in\{0,1\}$, where $1$ = vaccinated, $0$ = not vaccinated.
+Note: We also may construct random variable(s) not as counts, but as proportions, e.g. R.V.s for the proportions of piglets born to sow $i$ that were normal, weak, or stillborn. What's more, we could also instead construct R.V.s to "indicate" the status of a piglet $j$ born to sow $i$. 
+
+(Covariate) Vaccination status of sow ($i$) may be treated as a covariate; again, this is not explicitly random in the context of the experiment, but known/realized.
 
 Preliminary assessment about an assumption of independence:  
 
-Independence *between sows* seems reasonable since they are housed separately and treatment is applied at the sow level (the sampling unit/experimental unit for this experiment). Independence *within a litter* (across piglets) is not reasonable though because the piglets share a sow, and consequently share housing condition and vaccination status. 
+Independence *between sows* seems reasonable since they are housed separately and treatment (vaccine) is applied at the sow level (the sampling unit/experimental unit for this experiment). Independence *within a litter* (across piglets for a given sow) is not reasonable though because the piglets share a sow, and consequently share housing condition and vaccination status. Additionally, for each piglet-sow combination $(i,j)$, the three R.V.s being mutually exclusive and collectively exhaustive means they cannot be independent.
 
 \newpage 
 
@@ -154,24 +166,36 @@ Our concern here is not with the actual numbers that resulted from this study, b
 
 ### Answer
 
-Define appropriate random variables (and perhaps covariates), and what support a distribution assigned to them should have:
+Define appropriate random variables (and what support a distribution assigned to them should have):
 
-A R.V. for the number of wasp visits to plant $p$ during an observed plant–hour, $V : \Omega_{\mathrm{PH}} \to \mathbb{N}_0,\quad V(\omega) \in \mathbb{N}_0.$
+Given the setup, the R.V.s will be divided into direct and indirect observation. 
 
-A R.V. for the number of captures during an observed plant–hour, $C : \Omega_{\mathrm{PH}} \to \mathbb{N}_0,\quad (C,V)(\omega) \in \{(c,v): v \in \mathbb{N}_0,\; c \in \{0,1,\ldots,v\}\}$  
-(i.e., the maximum number of captures is constrained by the total number of wasp visits, $0 \leq C \leq V$).
+Respectively then, let us construct the R.V. for number of wasp visits by: 
 
-(Alternatively) A R.V. for capture during an observed plant–hour (per visit), $Z_j : \Omega_{\mathrm{visit}} \to \{0,1\},\quad Z_j(\omega) \in \{0,1\},\quad j=1,\dots,V(\omega).$
+$$
+X \in \{0,1,2,...\}
+$$
 
-A R.V. for the number of captures accumulated over an indirectly observed plant–window, $K : \Omega_{\mathrm{PW}} \to \mathbb{N}_0,\quad K(\omega) \in \{0,1,\ldots,\sum_{h \in \mathcal{H}} V_h\}$,  
-where $\mathcal{H}$ is the set of plant–hours aggregated by that window and $\sum_{h \in \mathcal{H}} V_h$ is the total number of visits across those hours.
+whose support is given by $\Omega_{X}  = \mathbb{N}_0$, $X(\omega) \in \mathbb{N}_0$.
 
-(Covariate) A R.V. for observation mode, $X_1 : \{\Omega_{\mathrm{PH}},\Omega_{\mathrm{PW}}\} \to \{ \text{direct},\text{indirect}\},\quad X_1(\omega) \in \{\text{direct},\text{indirect}\}.$
+Additionally, construct the R.V.s for the number of wasps captured (during a direct-observation period of time) by: 
 
-(Covariate) A R.V. for plant identifier, $X_2 : \{\Omega_{\mathrm{PH}},\Omega_{\mathrm{PW}}\} \to \{\text{plant IDs}\},\quad X_2(\omega) \in \{\text{plant ID 1, plant ID 2,} \ldots\}$ (number of plants not specified).
+$$
+Y_1 \in \{0,1,2,...\}
+$$
 
-(Covariate) A R.V. for exposure time (hours observed for that unit), $X_3 : \{\Omega_{\mathrm{PH}},\Omega_{\mathrm{PW}}\} \to [0,\infty),\quad X_3(\omega) \in [0,\infty).$
+However, the support of $Y_1$ is conditional on the maximum number of wasps visited. As such, we define the *conditional* support of $Y_1$ by $\Omega_{Y_1|X=x}=\{0,1,...,x\}$, $Y_1(\omega) \in \{0,1,...,x\}$, where $x$ denotes the number of wasp visits during a (direct) observation period of time. However, the *marginal* support of $Y_1$ is of the form $\Omega_{Y_1}=\mathbb{N}_0$, $Y_1(\omega) \in \mathbb{N}_0$
 
-Preliminary assessment about an assumption of independence:
+Then, for the indirect observation portion, construct the R.V.s for the number of wasps captured (during an indirect-observation period of time) by:  
 
-Within an hour, the random variables $C$ and $V$ are not independent because of the support constraint $0 \le C \le V$. Across units, independence *between different plants* is plausible if plants are spatially separated (say, by pot/plot). And *within the same plant* across hours, independence is suspect due to temporal clustering of wasp activity and persistent plant/hour conditions. For the indirect window counts $K$, dependence on the underlying $\{V_h\}$ and number of captures is expected (independence violated) when windows overlap in plant–time with direct observations; when windows and direct observations are disjoint sets, however, independence is more plausible.
+$$
+Y_2 \in \{0,1,2,...\}
+$$
+
+whose support is given by $\Omega_{Y_2} = \mathbb{N}_0$, $Y_2(\omega) \in \mathbb{N}_0$.
+
+Note: Of course, we do not know the number of wasp visits during the indirect observation period.
+
+Preliminary assessment about an assumption of independence:  
+
+The number of wasp visits and number of wasp captures, $X$ and $Y_1$, are clearly not independent, as the support of $Y_1$ necessarily depends on $X$. However, it seems reasonable to suppose that $Y_2$ is independent of both $X$ and $Y_1$ given the difference in construction and the experimental design of different observation modes (direct and indirect). 
