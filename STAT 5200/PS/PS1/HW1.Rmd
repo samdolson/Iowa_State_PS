@@ -14,7 +14,7 @@ For each of the following situations, define random variables that might be appr
 
 ## Q1 
 
-1. (20 pt.) As part of its Long Term Resource Monitoring Program, the USGS Upper Midwest Environmental Sciences Center located in LaCrosse, Wisconsin has sampled sediment from the Upper Mississippi River from about 120 sites at each of six reaches (or stretches) of the river, from 1992 to 2004. In each stretch of the river, samples were taken from a number of primary habitat categories used as strata in a sampling design. Those categories were Backwater, Impounded Water, Side Channel, and Main Channel Border. Sampling locations were selected separately each year so that repeated sampling of the same location over time did not occur. The sediment samples are brought back to the laboratory, run through a sieve, and the types and numbers of invertebrates are recorded, as is the specific predominant sediment type of sand, silt,or clay (there are actually 6 categories, but 3 is enough to get the idea). Water depth is also measured at the time each sample is collected.
+1. (20 pt.) As part of its Long Term Resource Monitoring Program, the USGS Upper Midwest Environmental Sciences Center located in LaCrosse, Wisconsin has sampled sediment from the Upper Mississippi River from about 120 sites at each of six reaches (or stretches) of the river, from 1992 to 2004. In each stretch of the river, samples were taken from a number of primary habitat categories used as strata in a sampling design. Those categories were Backwater, Impounded Water, Side Channel, and Main Channel Border. Sampling locations were selected separately each year so that repeated sampling of the same location over time did not occur. The sediment samples are brought back to the laboratory, run through a sieve, and the types and numbers of invertebrates are recorded, as is the specific predominant sediment type of sand, silt, or clay (there are actually 6 categories, but 3 is enough to get the idea). Water depth is also measured at the time each sample is collected.
 
 The USGS would like to use these data to address a number of questions related to the status of mayflies (Ephemeroptera) in the river. Mayflies form the basis for a number of aquatic food chains and are also generally considered an indicator of water quality (rather, their absence is considered an indicator of a lack of water quality). There are any number of objectives that might be identified for this study. Here, we will be concerned with only two. Restrict your answer to issues that are relevant for these two objectives. 
 
@@ -48,9 +48,9 @@ $$
 Y_{i,j}(\omega) \in \{ 0, 1\} \quad \forall i, j
 $$
 
-(Covariates): For the purposes of this setup, we may consider "primary habitat category" and the "specific sediment type" covariates. Also, since these are observed (realized) we consider them non-random. 
+(Covariates): For the purposes of this setup, we may consider "primary habitat category" and the "specific sediment type" covariates. Also, since these are observed (realized) quantities, we consider them non-random. 
 
-Note: While we can consider "water depth", "stretch", and "number of invertebrates" to be covariates as well, I would not explicitly include them for the purposes because of the note to `"Restrict your answer to issues that are relevant for these two objectives."`. 
+Note: While we can consider "water depth", "stretch", and "number of invertebrates" to be covariates as well, I would not explicitly include them for the purposes of this question because of the note to `"Restrict your answer to issues that are relevant for these two objectives."`. 
 
 Preliminary assessment about an assumption of independence:
 
@@ -76,7 +76,7 @@ $$
 
 The support of each $X_{i,j}$ then is $\Omega_{X_{i,j}} = \mathbb{N}_0$, where $X_{i,j}(\omega) \in \mathbb{N}_0$.
 
-Using these random variables, we can construct another R.V. for the year-level quantity for a reach by aggregating over samples to form a *within-year* average count, defined by:
+Using these random variables, we can construct another R.V. for average mayfly count in a sample *within a year*, again specific to a particular reach. The specific construction may be defined by:
 
 $$
 Y_j = \frac{1}{n_j}\sum_{i=1}^{n_j} X_{i,j}
@@ -86,13 +86,13 @@ The support of each of the $Y_j$'s then is $\Omega_{Y_j} = [ 0, \infty)$, and $Y
 
 We would then extend the above R.V. constructions to include each of the six reaches (for the sake of subscript headaches, this was avoided). 
 
-Note: The above uses a continuous support despite being constructed as a linear function of discrete R.V.s $X_{i,j}$'s. Given the order of magnitude of 120 sites per reach, and the spacing between possible values small ($\frac{1}{n_j} \approx \frac{1}{120} = 0.008$), I would argue this treatment is reasonable.
+Note: The above uses a continuous support despite being constructed as a linear function of discrete R.V.s $X_{i,j}$'s. Given the order of magnitude of 120 sites per reach, and the spacing between possible values small ($\frac{1}{n_j} \approx \frac{1}{120} = 0.008$), I would argue this treatment (continuous support) is reasonable.
 
-(Covariates): While year could serve as a covariate in a certain context, the parametrization of the random variables above treats time as an index, so it is not considered a covariate in this context.
+(Covariates): More of an additional note: Time is treated as an index, not as a covariate in the above. 
 
 Preliminary assessment about an assumption of independence:
 
-It seems reasonable to assume independence *across years* (between the R.V.s $Y_j$), though temporal dependence is possible because of repeated measurements from the same reach.
+It seems reasonable to assume independence *across years* (between the R.V.s $Y_j$), though temporal dependence is possible because of repeated measurements (from the same reach).
 
 \newpage 
 
@@ -108,7 +108,7 @@ Some R.V.s for sow $i$’s piglet outcomes (counts):
 
 Let $i$ denote the sows, where $i = 1, ..., 24$ (2 groups of 12 sows), and $j$ denote the piglets born from sow $i$, where $j = 0, 1, ..., n_i$, and where $n_i$ denotes the total number of piglets born from sow $i$. 
 
-We may then define a R.V.s for whether piglet $j$ born from sow $i$ was born normal as follows:
+We may then construct R.V.s for whether piglet $j$ born from sow $i$ was born normal as follows:
 
 $$
 N_{i,j} =
@@ -118,7 +118,7 @@ N_{i,j} =
 \end{cases}
 $$
 
-Similarly we may define R.V.s for whether piglet $j$ born from sow $i$ was born weak as follows:
+Similarly we may construct R.V.s for whether piglet $j$ born from sow $i$ was born weak as follows:
 
 $$
 W_{i,j} =
@@ -128,7 +128,7 @@ W_{i,j} =
 \end{cases}
 $$
 
-And also, we may define R.V.s for whether piglet $j$ born from sow $i$ was stillborn as:
+And also, we may construct R.V.s for whether piglet $j$ born from sow $i$ was stillborn as:
 
 $$
 S_{i,j} =
@@ -152,7 +152,7 @@ Note: We also may construct random variable(s) not as counts, but as proportions
 
 Preliminary assessment about an assumption of independence:  
 
-Independence *between sows* seems reasonable since they are housed separately and treatment (vaccine) is applied at the sow level (the sampling unit/experimental unit for this experiment). Independence *within a litter* (across piglets for a given sow) is not reasonable though because the piglets share a sow, and consequently share housing condition and vaccination status. Additionally, for each piglet-sow combination $(i,j)$, the three R.V.s being mutually exclusive and collectively exhaustive means they cannot be independent.
+Independence *between sows* seems reasonable since they are housed separately and treatment (the vaccine) is applied at the sow level (the sampling unit/experimental unit for this experiment). Independence *within a litter* (across piglets for a given sow) is not reasonable though because the piglets share a sow, and consequently share housing condition and vaccination status. Additionally, for each piglet-sow combination $(i,j)$, the three R.V.s being mutually exclusive and collectively exhaustive means they cannot be independent.
 
 \newpage 
 
@@ -170,7 +170,7 @@ Define appropriate random variables (and what support a distribution assigned to
 
 Given the setup, the R.V.s will be divided into direct and indirect observation. 
 
-Respectively then, let us construct the R.V. for number of wasp visits by: 
+Respectively then, let us construct a R.V. for number of wasp visits (direct observation) by: 
 
 $$
 X \in \{0,1,2,...\}
@@ -178,7 +178,7 @@ $$
 
 whose support is given by $\Omega_{X}  = \mathbb{N}_0$, $X(\omega) \in \mathbb{N}_0$.
 
-Additionally, construct the R.V.s for the number of wasps captured (during a direct-observation period of time) by: 
+Additionally, we may construct a R.V. for the number of wasps captured (during a direct-observation period of time) by: 
 
 $$
 Y_1 \in \{0,1,2,...\}
@@ -186,7 +186,7 @@ $$
 
 However, the support of $Y_1$ is conditional on the maximum number of wasps visited. As such, we define the *conditional* support of $Y_1$ by $\Omega_{Y_1|X=x}=\{0,1,...,x\}$, $Y_1(\omega) \in \{0,1,...,x\}$, where $x$ denotes the number of wasp visits during a (direct) observation period of time. However, the *marginal* support of $Y_1$ is of the form $\Omega_{Y_1}=\mathbb{N}_0$, $Y_1(\omega) \in \mathbb{N}_0$
 
-Then, for the indirect observation portion, construct the R.V.s for the number of wasps captured (during an indirect-observation period of time) by:  
+Then, for the indirect observation portion, we may construct a R.V. for the number of wasps captured (during an indirect-observation period of time) by:  
 
 $$
 Y_2 \in \{0,1,2,...\}
@@ -198,4 +198,4 @@ Note: Of course, we do not know the number of wasp visits during the indirect ob
 
 Preliminary assessment about an assumption of independence:  
 
-The number of wasp visits and number of wasp captures, $X$ and $Y_1$, are clearly not independent, as the support of $Y_1$ necessarily depends on $X$. However, it seems reasonable to suppose that $Y_2$ is independent of both $X$ and $Y_1$ given the difference in construction and the experimental design of different observation modes (direct and indirect). 
+The number of wasp visits and number of wasp captures, $X$ and $Y_1$, are not independent, as the support of $Y_1$ necessarily depends on $X$. However, it seems reasonable (I'd argue) that $Y_2$ is independent of $X$ and $Y_1$ given the difference in construction and design, i.e., the two different observation modes appear to cover non-overlapping periods of time, in plant-hours. 
