@@ -210,6 +210,54 @@ However, there are two unknown quantities in (2.1), i.e.,
 
 ### 2.3
 
+#### Second Mean Value Thm. 
+
+If $f$ and $g$ are continuous on $[a,b]$ and $g$ is nonnegative, then there is a number $c \in (a,b)$ for which
+
+$$
+\int_a^b f(x) g(x)\, dx = f(c) \int_a^b g(x)\, dx.
+$$
+
+This number $f(c)$ is called *the $g$-weighted average of $f$ on $[a,b]$*.
+
+#### Kernal Density Estimator 
+
+We define
+
+$$
+\hat{f}_X(x) = \frac{1}{n} \sum_{i=1}^n \frac{1}{h} w\!\left(\frac{x - X_i}{h}\right)
+$$
+
+with
+
+$$
+w(u) =
+\begin{cases}
+\dfrac{1}{2}, & \text{if } u \in [-1,1], \\
+0, & \text{elsewhere}.
+\end{cases}
+$$
+
+The estimator (2.8) has the following properties:
+
+No problem anymore with the choice of the origin as in the case of a histogram.
+
+$$
+\hat{f}_X(x) = \frac{1}{2nh} \sum_{i=1}^n \mathbf{1}\{x-h \leq X_i \leq x+h\}
+= \frac{1}{2nh} \sum_{i=1}^n \mathbf{1}\{X_i - h \leq x \leq X_i + h\}.
+$$
+
+Therefore, $\hat{f}_X(\cdot)$ is an estimator which is discontinuous at $X_i \pm h$ and is constant between those values.
+
+Can improve the estimator by instead using: 
+
+$$
+\boxed{
+\hat{f}_X(x) = \frac{1}{n} \sum_{i=1}^n \frac{1}{h} K\!\left(\frac{x - X_i}{h}\right)
+}
+\tag{2.6}
+$$
+
 \newpage 
 
 # Reading Notes 
@@ -239,7 +287,6 @@ Big O and little o: Descriptions of the limiting behavior of a function when the
 Big O convergence: Is like convergence in Probability
 
 Little o convergence: Like Markov, Chebychev inequalities 
-
 
 \newpage 
 
@@ -368,3 +415,54 @@ $$
 This bin width selector is the so-called **rule-of-thumb bin width selector**.  
 
 ### 2.3 
+
+(Histogram Estimator): The larger the bandwidth h the smoother the fit and details are starting to disappear. The smaller the bandwidth the more spurious effects are visible and the estimate becomes more wiggly. In the limit for h $\rightarrow$ 0, we have a sum of delta Dirac functions at the 
+
+(Using the improved kernal density estimator): 
+
+We conclude with some remarks regarding this estimator:
+
+- If $K$ is a probability density function, then $\hat{f}_X$ is also a probability density (prove this).
+- $\hat{f}_X$ will inherit all the continuity and differentiability properties of the kernel $K$.
+- If $K$ may take negative values, so does $\hat{f}_X$.
+- There is need for a bandwidth which adapts to location and the data.
+
+
+$$
+\boxed{
+\begin{aligned}
+& \text{If } h = h_n \to 0 \text{ as } n \to \infty, \text{ then } \operatorname{bias}\!\left[\hat{f}_X(x)\right] \to 0 \text{ as } n \to \infty \\[6pt]
+& \text{If } n h_n \to \infty \text{ as } n \to \infty, \text{ then } \operatorname{Var}\!\left[\hat{f}_X(x)\right] \to 0 \text{ as } n \to \infty
+\end{aligned}
+}
+$$
+
+The choices $h_{n,\text{AMISE}}$ and $h_{n,\text{AMSE}}(x)$ are theoretical choices and of not much practical use since they depend on the unknown quantities $f_X$ and $f_X''$.
+
+(On Kernal Choice): "It is clear that by using so-called ”suboptimal“ kernels one loses very little in terms of performa"
+
+Note: "Every symmetric probability density is a second order kernal." 
+
+#### Prove Kernal Density Estimator is a probability density: 
+
+**Claim.** If $K$ is a probability density function on $\mathbb{R}$ (i.e., $K\ge 0$ a.e. and $\int_{\mathbb{R}} K(u)\,du=1$), then for any $h>0$ and any sample $X_1,\dots,X_n$,
+$$
+\hat f_X(x)
+=\frac{1}{n}\sum_{i=1}^n \frac{1}{h}\,K\!\left(\frac{x-X_i}{h}\right)
+$$
+is itself a probability density in $x$.
+
+*Proof.*  
+1. **Nonnegativity.** Since $K\ge 0$ and $h>0$, each summand $\frac{1}{h}K\!\left(\frac{x-X_i}{h}\right)\ge 0$. Hence $\hat f_X(x)\ge 0$.
+
+2. **Unit integral.** Using linearity of the integral and a change of variables $u=(x-X_i)/h$ (so $dx=h\,du$),
+$$
+\int_{\mathbb{R}} \hat f_X(x)\,dx
+= \frac{1}{n}\sum_{i=1}^n \int_{\mathbb{R}} \frac{1}{h}\,K\!\left(\frac{x-X_i}{h}\right)\,dx
+= \frac{1}{n}\sum_{i=1}^n \int_{\mathbb{R}} K(u)\,du
+= \frac{1}{n}\sum_{i=1}^n 1
+= 1.
+$$
+Since $\hat f_X$ is nonnegative and integrates to one, it is a probability density.  $\square$
+
+*Remark.* The argument shows each term $x\mapsto \frac{1}{h}K\!\left(\frac{x-X_i}{h}\right)$ is itself a pdf (a shifted, rescaled version of $K$), and $\hat f_X$ is their equal-weight mixture; mixtures of densities are densities.
