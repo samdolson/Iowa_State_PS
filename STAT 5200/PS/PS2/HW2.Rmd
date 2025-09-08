@@ -1,5 +1,6 @@
 ---
 title: "PS2"
+author: "Sam Olson"
 output: pdf_document
 ---
 
@@ -30,6 +31,39 @@ Write the density (1) in exponential dispersion family form. Identify the natura
 
 ## Answer
 
+$$
+f(y \mid \mu, \lambda) = \exp \left( \text{log} \left( \left( \frac{\lambda}{2 \pi y^3} \right) \right) \right)^{1/2} \exp\left[ -\frac{\lambda}{2 \mu^2 y}(y - \mu)^2 \right], \quad y > 0.
+$$
+
+$$
+f(y \mid \mu, \lambda) = \exp \left[ \frac{1}{2} \text{log} \lambda - \frac{1}{2} \text{log} 2 \pi y^3 - \frac{\lambda}{2 \mu^2}\frac{(y - \mu)^2}{y} \right], \quad y > 0.
+$$
+
+Exponential Dispersion Family General Form (For Reference): 
+
+$$
+f(y \mid \theta, \phi) = \exp \left[ \phi\{ y \theta - b(\theta)\} + c(y, \phi)\right]
+$$
+
+Using a log-transformation then (preserving the structure of the likelihood function), we have: 
+
+$$
+\ell(y \mid \mu, \lambda) = \frac{1}{2} \frac{\lambda}{2 \pi y^3} - \frac{\lambda}{2y} - \frac{\lambda y}{2\mu^2} + \frac{\lambda}{\mu}, \quad y > 0.
+$$
+
+We then know (can equate) 
+
+$$
+c(y, \phi)  = \frac{1}{2} \frac{\lambda}{2 \pi y^3} - \frac{\lambda}{2y}
+$$
+
+$$
+\phi\{ y \theta - b(\theta)\}  = - \frac{\lambda y}{2\mu^2} + \frac{\lambda}{\mu}
+$$
+
+Using the above, we may then solve: 
+
+$\phi = \lambda$, $\theta = - \frac{1}{2 \mu^2}$
 
 \newpage 
 
@@ -41,6 +75,50 @@ How is the variance related to the expected value for this distribution?
 
 ## Answer
 
+Using Equations 3.8 from Ch. 3.2, we know: 
+
+$$
+E(Y) = \frac{d}{d\theta} b(\theta)
+$$
+
+And 
+
+$$
+var(Y) = \frac{1}{\phi} \frac{d^2}{d\theta^2} = \frac{1}{\phi} b^{''}(\theta) = \frac{1}{\phi} V(\mu)
+$$
+
+From Question 1, we know: 
+
+$$
+b = - \sqrt{ -2 \theta} = - (-2\theta)^{1/2}
+$$
+
+Such that: 
+
+$$
+E(Y) = \frac{d}{d\theta} b(\theta) = \frac{d}{d\theta} \left[ - (-2\theta)^{1/2} \right] = -(- 2 \theta)^{-1/2}
+$$ 
+
+Equivalently, we may write: 
+
+$$
+E(Y) = (- 2 (- \frac{1}{2 \mu^2})^{-1/2} = (\frac{1}{\mu^2})^{-1/2} = \mu
+$$
+
+For the variance then: 
+
+$$
+var(Y) = \frac{1}{\phi} \frac{d^2}{d\theta^2} = \frac{1}{\phi} b^{''}(\theta) = \frac{1}{\phi} \left[ -(-2\theta)^{-3/2} \right]
+$$
+
+With $\phi = \lambda$, $\theta = - \frac{1}{2 \mu^2}$, we then have, equivalently: 
+
+$$
+var(Y) = \frac{1}{\phi}\left[-(-2\theta)^{-3/2}\right]
+= \frac{1}{\lambda}\left[-(-2\theta)^{-3/2}\right]
+= \frac{1}{\lambda} \left[ -2\left(-\frac{1}{2\mu^2}\right) \right]^{-3/2}
+= \frac{\mu^3}{\lambda}
+$$
 
 \newpage 
 
@@ -50,10 +128,45 @@ To get a feel for this distribution with the same location but different values 
 
 ## Answer
 
-```{r, fig.height=4, fig.width=6}
-# Placeholder for your code
-# Example: curve plotting densities with dIG from a package
+$$
+f(y \mid \mu, \lambda) = \exp \left( \text{log} \left( \left( \frac{\lambda}{2 \pi y^3} \right) \right) \right)^{1/2} \exp\left[ -\frac{\lambda}{2 \mu^2 y}(y - \mu)^2 \right], \quad y > 0.
+$$
 
+```{r, fig.height=4, fig.width=6}
+# lambda, mu density
+f_y <- function(y, mu, lambda) {
+  out <- exp(0.5*log(lambda) -
+              0.5*log(2*pi*y^3) -
+              (lambda/(2*mu^2))*((y - mu)^2)/y )
+  out[!(y > 0)] <- 0
+  out
+}
+
+# inputs
+mu <- 1
+lambdas <- c(4, 8, 16)
+
+# making datapoints 
+# y > 0
+y_grid <- seq(0.01, 3, length.out = 1000)
+
+# call function
+densities <- lapply(lambdas, function(lam) f_y(y_grid, mu, lam))
+
+# plot
+y_max <- max(sapply(densities, max))
+
+# plot
+plot(y_grid, densities[[1]], type = "l", col = "skyblue", lwd = 2,
+     xlab = "y", ylab = expression(f(y~"|"~mu*","~lambda)),
+     main = expression(paste("Density curves for ", mu, "=1")),
+     ylim = c(0, y_max))
+lines(y_grid, densities[[2]], col = "wheat", lwd = 2)
+lines(y_grid, densities[[3]], col = "lightgrey", lwd = 2)
+
+# Legend
+legend("topright", legend = paste("lambda =", lambdas),
+       col = c("skyblue","wheat","lightgrey"), lwd = 2, bty = "n")
 ```
 
 \newpage 
