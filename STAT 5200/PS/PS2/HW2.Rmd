@@ -23,47 +23,68 @@ f(y \mid \mu, \lambda) =
 \tag{1}
 $$
 
-\newpage
-
 # Question 1 (5 pts)
 
 Write the density (1) in exponential dispersion family form. Identify the natural parameter $\theta$ and dispersion parameter $\phi$ in terms of the original parameters $\mu$ and $\lambda$.
 
 ## Answer
 
+Starting from the given density:
+
 $$
-f(y \mid \mu, \lambda) = \exp \left( \text{log} \left( \left( \frac{\lambda}{2 \pi y^3} \right) \right) \right)^{1/2} \exp\left[ -\frac{\lambda}{2 \mu^2 y}(y - \mu)^2 \right], \quad y > 0.
+f(y \mid \mu,\lambda) =
+\left( \frac{\lambda}{2\pi y^3} \right)^{1/2}
+\exp\!\left[
+-\frac{\lambda}{2\mu^2 y}(y-\mu)^2
+\right], \quad y > 0,
+$$
+
+we expand the quadratic term in the exponent:
+
+$$
+f(y \mid \mu,\lambda) = \left( \frac{\lambda}{2\pi y^3} \right)^{1/2}
+\exp\!\left[
+-\frac{\lambda}{2\mu^2}y + \frac{\lambda}{\mu} - \frac{\lambda}{2y}
+\right], \quad y > 0,
+$$
+
+Using $\text{log} \left( \exp (x) \right) = x$, we have: 
+
+$$
+f(y \mid \mu,\lambda)
+= \exp\!\left[
+-\frac{\lambda}{2\mu^2} y + \frac{\lambda}{\mu}
+-\frac{\lambda}{2y}
++ \tfrac{1}{2}\log\lambda - \tfrac{1}{2}\log(2\pi y^3)
+\right]
+$$
+
+Note: The general form of the exponential dispersion family is
+
+$$
+f(y \mid \theta,\phi)
+= \exp\!\left[\phi\{ y\theta - b(\theta)\} + c(y,\phi)\right]
+$$
+
+For the above density, we have: 
+
+$$
+\theta = -\frac{1}{2\mu^2}, \quad \theta < 0 
+$$ 
+
+$$
+\phi = \lambda, \quad \phi > 0 
 $$
 
 $$
-f(y \mid \mu, \lambda) = \exp \left[ \frac{1}{2} \text{log} \lambda - \frac{1}{2} \text{log} 2 \pi y^3 - \frac{\lambda}{2 \mu^2}\frac{(y - \mu)^2}{y} \right], \quad y > 0.
+b(\theta) = -\sqrt{-2\theta},
 $$
 
-Exponential Dispersion Family General Form (For Reference): 
+And 
 
 $$
-f(y \mid \theta, \phi) = \exp \left[ \phi\{ y \theta - b(\theta)\} + c(y, \phi)\right]
+c(y,\phi) = -\tfrac{1}{2}\log(2\pi y^3) - \tfrac{1}{2\phi y}
 $$
-
-Using a log-transformation then (preserving the structure of the likelihood function), we have: 
-
-$$
-\ell(y \mid \mu, \lambda) = \frac{1}{2} \frac{\lambda}{2 \pi y^3} - \frac{\lambda}{2y} - \frac{\lambda y}{2\mu^2} + \frac{\lambda}{\mu}, \quad y > 0.
-$$
-
-We then know (can equate) 
-
-$$
-c(y, \phi)  = \frac{1}{2} \frac{\lambda}{2 \pi y^3} - \frac{\lambda}{2y}
-$$
-
-$$
-\phi\{ y \theta - b(\theta)\}  = - \frac{\lambda y}{2\mu^2} + \frac{\lambda}{\mu}
-$$
-
-Using the above, we may then solve: 
-
-$\phi = \lambda$, $\theta = - \frac{1}{2 \mu^2}$
 
 \newpage 
 
@@ -77,48 +98,48 @@ How is the variance related to the expected value for this distribution?
 
 Using Equations 3.8 from Ch. 3.2, we know: 
 
-$$
-E(Y) = \frac{d}{d\theta} b(\theta)
-$$
+$$ 
+E(Y) = \frac{d}{d\theta} b(\theta) 
+$$ 
 
 And 
 
-$$
-var(Y) = \frac{1}{\phi} \frac{d^2}{d\theta^2} = \frac{1}{\phi} b^{''}(\theta) = \frac{1}{\phi} V(\mu)
-$$
-
-From Question 1, we know: 
-
-$$
-b = - \sqrt{ -2 \theta} = - (-2\theta)^{1/2}
-$$
-
-Such that: 
-
-$$
-E(Y) = \frac{d}{d\theta} b(\theta) = \frac{d}{d\theta} \left[ - (-2\theta)^{1/2} \right] = -(- 2 \theta)^{-1/2}
 $$ 
-
-Equivalently, we may write: 
-
-$$
-E(Y) = (- 2 (- \frac{1}{2 \mu^2})^{-1/2} = (\frac{1}{\mu^2})^{-1/2} = \mu
+\text{Var}(Y) = \frac{1}{\phi} \frac{d^2}{d\theta^2} = \frac{1}{\phi} b^{''}(\theta) = \frac{1}{\phi} V(\mu) 
 $$
 
-For the variance then: 
+With $b(\theta)=-\sqrt{-2\theta}$ (parameter space: $\theta<0$),
 
 $$
-var(Y) = \frac{1}{\phi} \frac{d^2}{d\theta^2} = \frac{1}{\phi} b^{''}(\theta) = \frac{1}{\phi} \left[ -(-2\theta)^{-3/2} \right]
+b'(\theta)=2^{-1/2} (-\theta)^{-1/2}, \quad
+b''(\theta)=2^{-3/2} (-\theta)^{-3/2}
 $$
 
-With $\phi = \lambda$, $\theta = - \frac{1}{2 \mu^2}$, we then have, equivalently: 
+In terms of $\theta,\phi$:
 
 $$
-var(Y) = \frac{1}{\phi}\left[-(-2\theta)^{-3/2}\right]
-= \frac{1}{\lambda}\left[-(-2\theta)^{-3/2}\right]
-= \frac{1}{\lambda} \left[ -2\left(-\frac{1}{2\mu^2}\right) \right]^{-3/2}
-= \frac{\mu^3}{\lambda}
+E(Y)=(-2\theta)^{-1/2}
 $$
+
+And
+
+$$
+\text{Var}(Y)=\frac{1}{\phi}\,(-2\theta)^{-3/2}
+$$
+
+In terms of $\theta, \mu$, we then have: $\theta=-\tfrac{1}{2\mu^{2}}$ and $\phi=\tfrac{1}{\lambda}$:
+
+$$
+E(Y)=(-2(-\tfrac{1}{2\mu^{2}}))^{-1/2} = \mu 
+$$
+
+And: 
+
+$$
+\text{Var}(Y)=\frac{1}{\lambda}(-2(-\tfrac{1}{2\mu^{2}}))^{-3/2} = \frac{\mu^{3}}{\lambda}
+$$
+
+Note: The variance is related to the expected value for this distribution in that it is a function of expectation, i.e., the variance is proportional to the cube of the mean, $\mu$, which is the expectation as parametrized. 
 
 \newpage 
 
@@ -135,11 +156,11 @@ $$
 ```{r, fig.height=4, fig.width=6}
 # lambda, mu density
 f_y <- function(y, mu, lambda) {
-  out <- exp(0.5*log(lambda) -
+  dat <- exp(0.5*log(lambda) -
               0.5*log(2*pi*y^3) -
               (lambda/(2*mu^2))*((y - mu)^2)/y )
-  out[!(y > 0)] <- 0
-  out
+  dat[!(y > 0)] <- 0
+  dat
 }
 
 # inputs
@@ -148,7 +169,7 @@ lambdas <- c(4, 8, 16)
 
 # making datapoints 
 # y > 0
-y_grid <- seq(0.01, 3, length.out = 1000)
+y_grid <- seq(0.01, 4, length.out = 5000)
 
 # call function
 densities <- lapply(lambdas, function(lam) f_y(y_grid, mu, lam))
@@ -157,16 +178,17 @@ densities <- lapply(lambdas, function(lam) f_y(y_grid, mu, lam))
 y_max <- max(sapply(densities, max))
 
 # plot
-plot(y_grid, densities[[1]], type = "l", col = "skyblue", lwd = 2,
-     xlab = "y", ylab = expression(f(y~"|"~mu*","~lambda)),
-     main = expression(paste("Density curves for ", mu, "=1")),
+plot(y_grid, densities[[1]], type = "l", col = "red", lwd = 2,
+     xlab = "y", 
+     ylab = expression(f(y)),
+     main = "Density curves",
      ylim = c(0, y_max))
-lines(y_grid, densities[[2]], col = "wheat", lwd = 2)
-lines(y_grid, densities[[3]], col = "lightgrey", lwd = 2)
+lines(y_grid, densities[[2]], col = "blue", lwd = 2)
+lines(y_grid, densities[[3]], col = "green", lwd = 2)
 
 # Legend
 legend("topright", legend = paste("lambda =", lambdas),
-       col = c("skyblue","wheat","lightgrey"), lwd = 2, bty = "n")
+       col = c("red","blue","green"), lwd = 2, bty = "n")
 ```
 
 \newpage 
@@ -198,25 +220,73 @@ For the three cases of Question 3, do you notice any systematic difference in in
 
 ## Answer
 
-```{r, fig.height=4, fig.width=6}
-# Placeholder code
-# Example structure (fill in with actual functions later):
-
-# Define parameters
-mu <- 1
-lambdas <- c(4, 8, 16)
-
-# Example plotting framework
-# for (lambda in lambdas) {
-#   # Compute IG density (statmod::dinvgauss)
-#   # Compute Gamma density (dgamma with matched mean/var)
-#   # Overlay plots
-# }
-```
-
 *To find the corresponding gamma distribution for an inverse Gaussian distribution with parameter values $\mu$ and $\lambda$, first determine the expected value and variance that result from your answer to Question 2, equate these with the expected value and variance for a $\text{Gamma}(\alpha, \beta)$ distribution as just given, and solve for $\alpha$ and $\beta$.*
+
+$E(Y) = \frac{\alpha}{\beta} = \mu$
+
+$\text{Var}(Y) = \frac{\alpha}{\beta^2} = \frac{\mu^3}{\lambda}$
+
+Solving for $\alpha, \beta$: 
+
+For $alpha = \mu \beta$:
+
+$\frac{\mu \beta}{\beta^2} = \frac{\mu^3}{\lambda} \rightarrow \frac{\mu}{\beta} = \frac{\mu^3}{\lambda} \rightarrow \beta = \frac{\lambda}{\mu^2}$
+
+And 
+
+$\frac{\alpha}{\frac{\lambda}{\mu^2}} = \mu \rightarrow \alpha = \frac{\lambda}{\mu}$
+
+So we have $(\alpha, \beta) = (\frac{\lambda}{\mu}, \frac{\lambda}{\mu^2})$
 
 *Finally, produce three graphs with the three inverse Gaussian distributions already computed in Question 3 and overlay the corresponding gamma distribution.*
 
+```{r}
+f_invgauss <- function(y, mu, lambda) {
+  dat <- exp(0.5*log(lambda) - 0.5*log(2*pi*y^3) -
+                (lambda/(2*mu^2)) * ((y - mu)^2)/y )
+  dat[!(y > 0)] <- 0
+  dat
+}
+
+# parameters
+mu       <- 1
+lambdas  <- c(4, 8, 16)
+cols     <- c("red", "blue", "green")
+
+# data gen
+y_grid <- seq(0.01, 4, length.out = 5000)
+
+# densities 
+dens_IG <- lapply(lambdas, function(lam) f_invgauss(y_grid, mu, lam))
+dens_GA <- lapply(lambdas, function(lam) dgamma(y_grid, shape = lam, rate = lam))
+
+# global
+y_max <- max(sapply(c(dens_IG, dens_GA), max))
+
+# base plot 
+plot(y_grid, dens_IG[[1]], type = "l", lwd = 2, col = cols[1],
+     xlab = "y",
+     ylab = expression(f(y)),
+     main = "Inverse Gaussian (solid) vs. matched Gamma (dashed)",
+     ylim = c(0, y_max))
+
+# IG curves
+lines(y_grid, dens_IG[[2]], lwd = 2, col = cols[2])
+lines(y_grid, dens_IG[[3]], lwd = 2, col = cols[3])
+
+# Gamma curves
+lines(y_grid, dens_GA[[1]], lwd = 2, col = cols[1], lty = 2)
+lines(y_grid, dens_GA[[2]], lwd = 2, col = cols[2], lty = 2)
+lines(y_grid, dens_GA[[3]], lwd = 2, col = cols[3], lty = 2)
+
+legend("topright",
+       legend = c("IG,  lambda = 4",  "Gamma, lambda = 4",
+                  "IG,  lambda = 8",  "Gamma, lambda = 8",
+                  "IG,  lambda = 16", "Gamma, lambda = 16"),
+       col = rep(cols, each = 2),
+       lty = rep(c(1, 2), 3), lwd = 2, bty = "n")
+```
+
 *For the three cases of Question 3, do you notice any systematic difference in inverse Gaussian and gamma distributions?*
 
+Yes, there appear to be systematic differences between the inverse Gaussian and Gamma distributions despite when they share the same mean and variance. The Gamma distribution is consistently less "peaked" and has different "tail behavior" of their respective distributions than the inverse Gaussian. I believe this is because of differences in higher-order moments (skewness and kurtosis). Generally, it seems that, holding $\mu$ constant, as $\lambda$ increases, both distributions concentrate more tightly around the mean, and the discrepancy between them diminishes, i.e., they more closely "overlap" one another; but the inverse Gaussian remains more sharply peaked with heavier tails compared to the Gamma with the same mean and variance.
