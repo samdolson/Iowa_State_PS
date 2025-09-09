@@ -169,22 +169,22 @@ lambdas <- c(4, 8, 16)
 
 # making datapoints 
 # y > 0
-y_grid <- seq(0.01, 4, length.out = 5000)
+y_dat <- seq(0.01, 4, length.out = 5000)
 
 # call function
-densities <- lapply(lambdas, function(lam) f_y(y_grid, mu, lam))
+densities <- lapply(lambdas, function(lam) f_y(y_dat, mu, lam))
 
 # plot
 y_max <- max(sapply(densities, max))
 
 # plot
-plot(y_grid, densities[[1]], type = "l", col = "red", lwd = 2,
+plot(y_dat, densities[[1]], type = "l", col = "red", lwd = 2,
      xlab = "y", 
      ylab = expression(f(y)),
      main = "Density curves",
      ylim = c(0, y_max))
-lines(y_grid, densities[[2]], col = "blue", lwd = 2)
-lines(y_grid, densities[[3]], col = "green", lwd = 2)
+lines(y_dat, densities[[2]], col = "blue", lwd = 2)
+lines(y_dat, densities[[3]], col = "green", lwd = 2)
 
 # Legend
 legend("topright", legend = paste("lambda =", lambdas),
@@ -228,7 +228,7 @@ $\text{Var}(Y) = \frac{\alpha}{\beta^2} = \frac{\mu^3}{\lambda}$
 
 Solving for $\alpha, \beta$: 
 
-For $alpha = \mu \beta$:
+For $\alpha = \mu \beta$:
 
 $\frac{\mu \beta}{\beta^2} = \frac{\mu^3}{\lambda} \rightarrow \frac{\mu}{\beta} = \frac{\mu^3}{\lambda} \rightarrow \beta = \frac{\lambda}{\mu^2}$
 
@@ -254,30 +254,30 @@ lambdas  <- c(4, 8, 16)
 cols     <- c("red", "blue", "green")
 
 # data gen
-y_grid <- seq(0.01, 4, length.out = 5000)
+y_dat <- seq(0.01, 5, length.out = 5000)
 
 # densities 
-dens_IG <- lapply(lambdas, function(lam) f_invgauss(y_grid, mu, lam))
-dens_GA <- lapply(lambdas, function(lam) dgamma(y_grid, shape = lam, rate = lam))
+dens_IG <- lapply(lambdas, function(lam) f_invgauss(y_dat, mu, lam))
+dens_GA <- lapply(lambdas, function(lam) dgamma(y_dat, shape = lam, rate = lam))
 
 # global
 y_max <- max(sapply(c(dens_IG, dens_GA), max))
 
 # base plot 
-plot(y_grid, dens_IG[[1]], type = "l", lwd = 2, col = cols[1],
+plot(y_dat, dens_IG[[1]], type = "l", lwd = 2, col = cols[1],
      xlab = "y",
      ylab = expression(f(y)),
-     main = "Inverse Gaussian (solid) vs. matched Gamma (dashed)",
+     main = "IG (solid) vs. Gamma (dashed) (Full Range)",
      ylim = c(0, y_max))
 
 # IG curves
-lines(y_grid, dens_IG[[2]], lwd = 2, col = cols[2])
-lines(y_grid, dens_IG[[3]], lwd = 2, col = cols[3])
+lines(y_dat, dens_IG[[2]], lwd = 2, col = cols[2])
+lines(y_dat, dens_IG[[3]], lwd = 2, col = cols[3])
 
 # Gamma curves
-lines(y_grid, dens_GA[[1]], lwd = 2, col = cols[1], lty = 2)
-lines(y_grid, dens_GA[[2]], lwd = 2, col = cols[2], lty = 2)
-lines(y_grid, dens_GA[[3]], lwd = 2, col = cols[3], lty = 2)
+lines(y_dat, dens_GA[[1]], lwd = 2, col = cols[1], lty = 2)
+lines(y_dat, dens_GA[[2]], lwd = 2, col = cols[2], lty = 2)
+lines(y_dat, dens_GA[[3]], lwd = 2, col = cols[3], lty = 2)
 
 legend("topright",
        legend = c("IG,  lambda = 4",  "Gamma, lambda = 4",
@@ -287,6 +287,86 @@ legend("topright",
        lty = rep(c(1, 2), 3), lwd = 2, bty = "n")
 ```
 
+```{r, echo = F}
+y_dat <- seq(3, 8, length.out = 5000)
+
+# densities 
+dens_IG <- lapply(lambdas, function(lam) f_invgauss(y_dat, mu, lam))
+dens_GA <- lapply(lambdas, function(lam) dgamma(y_dat, shape = lam, rate = lam))
+
+# global
+y_max <- max(sapply(c(dens_IG, dens_GA), max))
+
+# base plot 
+plot(y_dat, dens_IG[[1]], type = "l", lwd = 2, col = cols[1],
+     xlab = "y",
+     ylab = expression(f(y)),
+     main = "IG (solid) vs. Gamma (dashed) (Right-Half)",
+     ylim = c(0, y_max))
+
+# IG curves
+lines(y_dat, dens_IG[[2]], lwd = 2, col = cols[2])
+lines(y_dat, dens_IG[[3]], lwd = 2, col = cols[3])
+
+# Gamma curves
+lines(y_dat, dens_GA[[1]], lwd = 2, col = cols[1], lty = 2)
+lines(y_dat, dens_GA[[2]], lwd = 2, col = cols[2], lty = 2)
+lines(y_dat, dens_GA[[3]], lwd = 2, col = cols[3], lty = 2)
+
+legend("topright",
+       legend = c("IG,  lambda = 4",  "Gamma, lambda = 4",
+                  "IG,  lambda = 8",  "Gamma, lambda = 8",
+                  "IG,  lambda = 16", "Gamma, lambda = 16"),
+       col = rep(cols, each = 2),
+       lty = rep(c(1, 2), 3), lwd = 2, bty = "n")
+```
+
+```{r, echo = F}
+y_dat <- seq(0.00001, 1, length.out = 5000)
+
+# densities 
+dens_IG <- lapply(lambdas, function(lam) f_invgauss(y_dat, mu, lam))
+dens_GA <- lapply(lambdas, function(lam) dgamma(y_dat, shape = lam, rate = lam))
+
+# global
+y_max <- max(sapply(c(dens_IG, dens_GA), max))
+
+# base plot 
+plot(y_dat, dens_IG[[1]], type = "l", lwd = 2, col = cols[1],
+     xlab = "y",
+     ylab = expression(f(y)),
+     main = "IG (solid) vs. Gamma (dashed) (Left-Half)",
+     ylim = c(0, y_max))
+
+# IG curves
+lines(y_dat, dens_IG[[2]], lwd = 2, col = cols[2])
+lines(y_dat, dens_IG[[3]], lwd = 2, col = cols[3])
+
+# Gamma curves
+lines(y_dat, dens_GA[[1]], lwd = 2, col = cols[1], lty = 2)
+lines(y_dat, dens_GA[[2]], lwd = 2, col = cols[2], lty = 2)
+lines(y_dat, dens_GA[[3]], lwd = 2, col = cols[3], lty = 2)
+
+legend("topleft",
+       legend = c("IG,  lambda = 4",  "Gamma, lambda = 4",
+                  "IG,  lambda = 8",  "Gamma, lambda = 8",
+                  "IG,  lambda = 16", "Gamma, lambda = 16"),
+       col = rep(cols, each = 2),
+       lty = rep(c(1, 2), 3), lwd = 2, bty = "n")
+```
+
 *For the three cases of Question 3, do you notice any systematic difference in inverse Gaussian and gamma distributions?*
 
-Yes, there appear to be systematic differences between the inverse Gaussian and Gamma distributions despite when they share the same mean and variance. The Gamma distribution is consistently less "peaked" and has different "tail behavior" of their respective distributions than the inverse Gaussian. I believe this is because of differences in higher-order moments (skewness and kurtosis). Generally, it seems that, holding $\mu$ constant, as $\lambda$ increases, both distributions concentrate more tightly around the mean, and the discrepancy between them diminishes, i.e., they more closely "overlap" one another; but the inverse Gaussian remains more sharply peaked with heavier tails compared to the Gamma with the same mean and variance.
+Yes, there appear to be systematic differences between the inverse Gaussian and Gamma distributions despite when they share the same mean and variance. The Gamma distribution is consistently less "peaked" and has different "tail behavior" of their respective distributions than the inverse Gaussian. I believe this is because of differences in higher-order moments (skewness and kurtosis). Generally it seems that, holding $\mu$ constant, as $\lambda$ increases, both distributions have greater density about the mean, and the discrepancy between them diminishes, i.e., they more closely "overlap" one another; but the inverse Gaussian remains more sharply peaked with heavier tails compared to the Gamma with the same mean and variance.
+
+Note: The systematic differences above reflect differences in **distributional form** beyond what is summarized by skewness or kurtosis. The two families differ because their variance–mean relationships have different forms:
+
+$$
+\text{V}(Y) \propto \mu^3 \quad \text{(For the Inverse-Gaussian)}
+$$
+
+$$
+\text{V}(Y) \propto \mu^2 \quad \text{(For the Gamma)}
+$$
+
+This distinction between variance functions drives the observed shape differences seen above, i.e., the differences in the "tail behavior" of the distributions, which skewness and kurtosis alone cannot fully account for. 

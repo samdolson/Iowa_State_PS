@@ -258,6 +258,108 @@ $$
 \tag{2.6}
 $$
 
+### 2.4: Asymptotic properties, kernal density estimator
+
+**Lemma 2.1 (Bochner (1955))** 
+
+Suppose that the kernel $K$ satisfies the following properties  
+
+$$
+\text{(A1)} \quad \int |K(u)| \, du < \infty
+$$
+
+$$
+\text{(A2)} \quad \lim_{|u|\to \infty} |u K(u)| = 0.
+$$
+
+Let a function $g$ satisfy $\int |g(u)| \, du < \infty$ and let $\{h\}$ be a sequence of positive constants such that $\lim_{n \to \infty} h = 0.$  
+Define  
+
+$$
+g_n(x) = \frac{1}{h} \int K\!\left(\frac{u}{h}\right) g(x-u) \, du,
+$$
+
+then at every point of continuity of $g$ we have that  
+
+$$
+\lim_{n \to \infty} g_n(x) = g(x) \int K(u) \, du.
+$$
+
+**Theorem 2.1 (Parzen (1962))** 
+
+Let the kernel $K$ satisfy assumptions A1, A2 and $\int K(u) \, du = 1.$  
+If $nh \to \infty$ as $n \to \infty$ then  
+
+$$
+\lim_{n \to \infty} \mathbb{E}[\hat{f}_X(x)] = f_X(x)
+$$
+
+in all points $x$ where $f_X$ is continuous.
+
+**Theorem 2.2 (Parzen (1962))**  
+
+Let $K$ satisfy assumptions A1 and A2. Further, assume that $\int K(u) \, du = 1$ and  
+$\sup_u |K(u)| < \infty.$ If $nh \to \infty$ as $n \to \infty$ then  
+
+$$
+\lim_{n \to \infty} nh \, \text{Var}[\hat{f}_X(x)] = f_X(x) \int K^2(u) \, du,
+$$
+
+provided $f_X$ is continuous in $x$.
+
+**Theorem 2.3 (Parzen (1962))**  
+
+Suppose $K$ satisfies the conditions of Theorem 2.2. Assume that $h \to 0$ as $n \to \infty$ such that $nh \to \infty.$  
+Then, if $f_X$ is continuous in $x,$ we have  
+
+$$
+\hat{f}_X(x) \xrightarrow{P} f_X(x) 
+\quad \text{or} \quad 
+\lim_{n \to \infty} \Pr\left( \big| \hat{f}_X(x) - f_X(x) \big| \geq \epsilon \right) = 0 \quad \text{for any } \epsilon > 0.
+$$
+
+**Theorem 2.4 (Asymptotic normality, Parzen (1962))** 
+
+Suppose $K$ satisfies the conditions of Theorem 2.2. Assume that $h \to 0$ as $n \to \infty$ such that $nh \to \infty.$  
+Then, if $f_X$ is continuous in $x,$ we have  
+
+$$
+\frac{\hat{f}_X(x) - \mathbb{E}[\hat{f}_X(x)]}{\sqrt{\text{Var}[\hat{f}_X(x)]}} \xrightarrow{d} N(0,1).
+$$
+
+In what follows, we use the notation  
+
+$$
+k(u) = \int e^{-iuy} K(y) \, dy
+$$
+
+for the Fourier transform of the kernel function $K$.
+
+**Theorem 2.5 (uniform weak consistency, Parzen (1962))**  
+
+Suppose $K$ satisfies the conditions of Theorem 2.2, $K$ is symmetric and $\int |k(u)| \, du < \infty.$  
+Further assume $f_X$ is uniformly continuous and that $h \to 0$ as $n \to \infty$ such that $nh^2 \to \infty.$  
+Then,  
+
+$$
+\sup_x \big| \hat{f}_X(x) - f_X(x) \big| \xrightarrow{P} 0.
+$$
+
+**Theorem 2.6 (uniform strong consistency, Nadaraya (1965); Schuster (1969); Van Ryzin (1969))**  
+
+Let $K$ be a probability density function satisfying conditions A1 and A2 (see Lemma 2.1) and assume $K$ is of bounded variation.  
+Further assume $f_X$ is uniformly continuous and that  
+
+$$
+\sum_{n=1}^{\infty} \exp(-\gamma n h^2) < \infty
+$$
+
+for all $\gamma > 0.$ Then,  
+
+$$
+\sup_x \big| \hat{f}_X(x) - f_X(x) \big| \xrightarrow{a.s.} 0.
+$$
+
 \newpage 
 
 # Reading Notes 
@@ -466,3 +568,6 @@ $$
 Since $\hat f_X$ is nonnegative and integrates to one, it is a probability density.  $\square$
 
 *Remark.* The argument shows each term $x\mapsto \frac{1}{h}K\!\left(\frac{x-X_i}{h}\right)$ is itself a pdf (a shifted, rescaled version of $K$), and $\hat f_X$ is their equal-weight mixture; mixtures of densities are densities.
+
+### 2.4 
+
