@@ -55,7 +55,7 @@ f(y \mid \mu,\lambda)
 = \exp\!\left[
 -\frac{\lambda}{2\mu^2} y + \frac{\lambda}{\mu}
 -\frac{\lambda}{2y}
-+ \tfrac{1}{2}\log\lambda - \tfrac{1}{2}\log(2\pi y^3)
++ \frac{1}{2}\log\lambda - \frac{1}{2}\log(2\pi y^3)
 \right]
 $$
 
@@ -69,12 +69,12 @@ $$
 For the above density, we have: 
 
 $$
-\theta = -\frac{1}{2\mu^2}, \quad \theta < 0 
-$$ 
-
-$$
 \phi = \lambda, \quad \phi > 0 
 $$
+
+$$
+\theta = -\frac{1}{2\mu^2}, \quad \theta < 0 
+$$ 
 
 $$
 b(\theta) = -\sqrt{-2\theta},
@@ -83,8 +83,11 @@ $$
 And 
 
 $$
-c(y,\phi) = -\tfrac{1}{2}\log(2\pi y^3) - \tfrac{1}{2\phi y}
+c(y,\phi)
+= \frac{1}{2}\log \phi - \frac{1}{2}\log(2\pi y^{3}) - \frac{\phi}{2y} \quad y>0,\ \phi>0
 $$
+
+Note: This parametrization of the exponential dispersion family as given above is not unique.
 
 \newpage 
 
@@ -127,19 +130,19 @@ $$
 \text{Var}(Y)=\frac{1}{\phi}\,(-2\theta)^{-3/2}
 $$
 
-In terms of $\theta, \mu$, we then have: $\theta=-\tfrac{1}{2\mu^{2}}$ and $\phi=\tfrac{1}{\lambda}$:
+In terms of $\theta, \mu$, we then have: $\theta=-\frac{1}{2\mu^{2}}$ and $\phi=\frac{1}{\lambda}$:
 
 $$
-E(Y)=(-2(-\tfrac{1}{2\mu^{2}}))^{-1/2} = \mu 
+E(Y)=(-2(-\frac{1}{2\mu^{2}}))^{-1/2} = \mu 
 $$
 
 And: 
 
 $$
-\text{Var}(Y)=\frac{1}{\lambda}(-2(-\tfrac{1}{2\mu^{2}}))^{-3/2} = \frac{\mu^{3}}{\lambda}
+\text{Var}(Y)=\frac{1}{\lambda}(-2(-\frac{1}{2\mu^{2}}))^{-3/2} = \frac{\mu^{3}}{\lambda}
 $$
 
-Note: The variance is related to the expected value for this distribution in that it is a function of expectation, i.e., the variance is proportional to the cube of the mean, $\mu$, which is the expectation as parametrized. 
+Note: The variance is related to the expected value for this distribution in that it is a function of expectation, i.e., the variance is proportional to the cube of the mean, $\mu$, which corresponds to the expectation as parametrized. 
 
 \newpage 
 
@@ -236,7 +239,7 @@ And
 
 $\frac{\alpha}{\frac{\lambda}{\mu^2}} = \mu \rightarrow \alpha = \frac{\lambda}{\mu}$
 
-So we have $(\alpha, \beta) = (\frac{\lambda}{\mu}, \frac{\lambda}{\mu^2})$
+So we have $(\alpha, \beta) = (\frac{\lambda}{\mu}, \frac{\lambda}{\mu^2})$ ($\alpha > 0$, $\beta > 0$, and $\mu > 0$, $\lambda > 0$)
 
 *Finally, produce three graphs with the three inverse Gaussian distributions already computed in Question 3 and overlay the corresponding gamma distribution.*
 
@@ -254,105 +257,59 @@ lambdas  <- c(4, 8, 16)
 cols     <- c("red", "blue", "green")
 
 # data gen
-y_dat <- seq(0.01, 5, length.out = 5000)
+y_dat <- seq(0.01, 3, length.out = 5000)
 
 # densities 
 dens_IG <- lapply(lambdas, function(lam) f_invgauss(y_dat, mu, lam))
 dens_GA <- lapply(lambdas, function(lam) dgamma(y_dat, shape = lam, rate = lam))
 
-# global
-y_max <- max(sapply(c(dens_IG, dens_GA), max))
+# 1st 
+y_max <- max(sapply(c(dens_IG[[1]], dens_GA[[1]]), max))
 
-# base plot 
 plot(y_dat, dens_IG[[1]], type = "l", lwd = 2, col = cols[1],
      xlab = "y",
      ylab = expression(f(y)),
-     main = "IG (solid) vs. Gamma (dashed) (Full Range)",
+     main = "IG (solid) vs. Gamma (dashed) (lambda = 4)",
      ylim = c(0, y_max))
 
-# IG curves
-lines(y_dat, dens_IG[[2]], lwd = 2, col = cols[2])
-lines(y_dat, dens_IG[[3]], lwd = 2, col = cols[3])
-
-# Gamma curves
 lines(y_dat, dens_GA[[1]], lwd = 2, col = cols[1], lty = 2)
+
+legend("topright",
+       legend = c("IG",  "Gamma"),
+       col = cols[1],
+       lty = c(1, 2), lwd = 2, bty = "n")
+
+# 2nd
+y_max <- max(sapply(c(dens_IG[[2]], dens_GA[[2]]), max))
+
+plot(y_dat, dens_IG[[2]], type = "l", lwd = 2, col = cols[2],
+     xlab = "y",
+     ylab = expression(f(y)),
+     main = "IG (solid) vs. Gamma (dashed) (lambda = 8)",
+     ylim = c(0, y_max))
+
 lines(y_dat, dens_GA[[2]], lwd = 2, col = cols[2], lty = 2)
+
+legend("topright",
+       legend = c("IG",  "Gamma"),
+       col = cols[2],
+       lty = c(1, 2), lwd = 2, bty = "n")
+
+# 3rd 
+y_max <- max(sapply(c(dens_IG[[3]], dens_GA[[3]]), max))
+
+plot(y_dat, dens_IG[[3]], type = "l", lwd = 2, col = cols[3],
+     xlab = "y",
+     ylab = expression(f(y)),
+     main = "IG (solid) vs. Gamma (dashed) (lambda = 16)",
+     ylim = c(0, y_max))
+
 lines(y_dat, dens_GA[[3]], lwd = 2, col = cols[3], lty = 2)
 
 legend("topright",
-       legend = c("IG,  lambda = 4",  "Gamma, lambda = 4",
-                  "IG,  lambda = 8",  "Gamma, lambda = 8",
-                  "IG,  lambda = 16", "Gamma, lambda = 16"),
-       col = rep(cols, each = 2),
-       lty = rep(c(1, 2), 3), lwd = 2, bty = "n")
-```
-
-```{r, echo = F}
-y_dat <- seq(3, 8, length.out = 5000)
-
-# densities 
-dens_IG <- lapply(lambdas, function(lam) f_invgauss(y_dat, mu, lam))
-dens_GA <- lapply(lambdas, function(lam) dgamma(y_dat, shape = lam, rate = lam))
-
-# global
-y_max <- max(sapply(c(dens_IG, dens_GA), max))
-
-# base plot 
-plot(y_dat, dens_IG[[1]], type = "l", lwd = 2, col = cols[1],
-     xlab = "y",
-     ylab = expression(f(y)),
-     main = "IG (solid) vs. Gamma (dashed) (Right-Half)",
-     ylim = c(0, y_max))
-
-# IG curves
-lines(y_dat, dens_IG[[2]], lwd = 2, col = cols[2])
-lines(y_dat, dens_IG[[3]], lwd = 2, col = cols[3])
-
-# Gamma curves
-lines(y_dat, dens_GA[[1]], lwd = 2, col = cols[1], lty = 2)
-lines(y_dat, dens_GA[[2]], lwd = 2, col = cols[2], lty = 2)
-lines(y_dat, dens_GA[[3]], lwd = 2, col = cols[3], lty = 2)
-
-legend("topright",
-       legend = c("IG,  lambda = 4",  "Gamma, lambda = 4",
-                  "IG,  lambda = 8",  "Gamma, lambda = 8",
-                  "IG,  lambda = 16", "Gamma, lambda = 16"),
-       col = rep(cols, each = 2),
-       lty = rep(c(1, 2), 3), lwd = 2, bty = "n")
-```
-
-```{r, echo = F}
-y_dat <- seq(0.00001, 1, length.out = 5000)
-
-# densities 
-dens_IG <- lapply(lambdas, function(lam) f_invgauss(y_dat, mu, lam))
-dens_GA <- lapply(lambdas, function(lam) dgamma(y_dat, shape = lam, rate = lam))
-
-# global
-y_max <- max(sapply(c(dens_IG, dens_GA), max))
-
-# base plot 
-plot(y_dat, dens_IG[[1]], type = "l", lwd = 2, col = cols[1],
-     xlab = "y",
-     ylab = expression(f(y)),
-     main = "IG (solid) vs. Gamma (dashed) (Left-Half)",
-     ylim = c(0, y_max))
-
-# IG curves
-lines(y_dat, dens_IG[[2]], lwd = 2, col = cols[2])
-lines(y_dat, dens_IG[[3]], lwd = 2, col = cols[3])
-
-# Gamma curves
-lines(y_dat, dens_GA[[1]], lwd = 2, col = cols[1], lty = 2)
-lines(y_dat, dens_GA[[2]], lwd = 2, col = cols[2], lty = 2)
-lines(y_dat, dens_GA[[3]], lwd = 2, col = cols[3], lty = 2)
-
-legend("topleft",
-       legend = c("IG,  lambda = 4",  "Gamma, lambda = 4",
-                  "IG,  lambda = 8",  "Gamma, lambda = 8",
-                  "IG,  lambda = 16", "Gamma, lambda = 16"),
-       col = rep(cols, each = 2),
-       lty = rep(c(1, 2), 3), lwd = 2, bty = "n")
+       legend = c("IG",  "Gamma"),
+       col = cols[3],
+       lty = c(1, 2), lwd = 2, bty = "n")
 ```
 
 *For the three cases of Question 3, do you notice any systematic difference in inverse Gaussian and gamma distributions?*
@@ -369,4 +326,4 @@ $$
 \text{V}(Y) \propto \mu^2 \quad \text{(For the Gamma)}
 $$
 
-This distinction between variance functions drives the observed shape differences seen above, i.e., the differences in the "tail behavior" of the distributions, which skewness and kurtosis alone cannot fully account for. 
+This difference between the two variance functions drives the observed shape differences seen above, i.e., the differences in the "tail behavior" of the distributions, which skewness and kurtosis alone cannot fully characterize. 
