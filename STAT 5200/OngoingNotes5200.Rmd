@@ -328,8 +328,255 @@ Then the joint distribution is again a one-parameter exponential family with the
 
 \newpage 
 
-
 ## Chapter 4 
+
+\newpage
+
+## Chapter 5 
+
+Positivity Condition: "The positivity condition states that, if a random variable can assume a given value, it can assume that value in combination with any other set of values for the other random variables involved in the problem, that is, there are no forbidden states in the possible joint configurations."
+
+$$
+L(\theta \mid y) = \Pr(y \mid \theta) \propto \prod_{i=1}^n f_i(y_i \mid \theta),
+$$
+
+Equality if f is pmf, $\propto$ if f is pdf 
+
+### Assymptotic Normality: 
+
+If $\psi$ is a scalar parameter and $\hat{\psi}_n$ denotes a consistent sequence of estimators of $\psi$, that sequence is asymptotically normal if there exists a sequence of constants $\sigma_n$ such that,
+
+$$
+\frac{\hat{\psi}_n - \psi}{\sigma_n} \;\;\xrightarrow{d}\;\; N(0,1),
+\tag{5.5}
+$$
+
+### Fisher Information: 
+
+The expected or Fisher information plays an important role in the theory of estimation. In the case of iid random variables $Y_1, \ldots, Y_n$ with common distribution depending on a scalar parameter $\psi$, define the expected information in a single random variable as,
+
+$$
+I(\psi) = E \left( \left[ \frac{d}{d\psi} \log \{ f(Y \mid \psi) \} \right]^2 \right).
+\tag{5.8}
+$$
+
+If the random variables $Y_1, \ldots, Y_n$ are independent but not identically distributed (inid) with distributions that depend on a common parameter $\psi$, the total expected information is defined as the $p \times p$ matrix $I_n(\psi)$ with $jk^{th}$ element,
+
+$$
+I_{n,jk}(\psi) = \sum_{i=1}^n E \left[ 
+\frac{\partial}{\partial \psi_j} \log \{ f_i(Y_i \mid \psi) \} \;
+\frac{\partial}{\partial \psi_k} \log \{ f_i(Y_i \mid \psi) \} 
+\right].
+\tag{5.10}
+$$
+
+### Efficiency 
+
+An estimator for which there is equality in the information inequality is said to be efficient, which is a small sample or exact property
+
+### Scalar Parameter Regularity Conditions 
+
+**R1.** The distributions of the response variables are identifiable, meaning that 
+different parameter values result in distinct distributions. We will assume these 
+distributions have a common probability density or mass function $f(y \mid \theta)$; 
+$y \in \Omega$ and that the support $\Omega$ does not depend on $\theta$.
+
+**R2.** The parameter space $\Theta$ is an open interval (not necessarily finite).
+
+**R3.** The common density or mass function $f(y \mid \theta)$ has three continuous 
+derivatives with respect to $\theta$.
+
+**R4.** With $\mu(y)$ denoting the dominating measure (Lebesgue or counting) the 
+first and second derivatives of the integral $\int f(y \mid \theta) \, d\mu(y)$ 
+can be evaluated by passing the derivative under the integral operator, that is, 
+for $k = 1, 2$,
+
+$$
+\frac{d^k}{d\theta^k} \int f(y \mid \theta) \, d\mu(y) 
+= \int \frac{d^k}{d\theta^k} f(y \mid \theta) \, d\mu(y).
+$$
+
+**R5.** The expected (or Fisher) information in a single random variable, 
+
+$$
+I(\theta) = E \left[ \left( \frac{d}{d\theta} \log \{ f(y \mid \theta) \} \right)^2 \right],
+$$
+
+is positive and finite, $0 < I(\theta) < \infty$.
+
+**R6.** For all elements of the support $y \in \Omega$ and in an interval of the 
+true parameter value, $\theta_0 - c < \theta < \theta_0 + c$, the third derivative of 
+$\log \{ f(y \mid \theta) \}$ satisfies
+
+$$
+\left| \frac{d^3}{d\theta^3} \log \{ f(y \mid \theta) \} \right| \leq M(y),
+$$
+
+where 
+
+$$
+E_{\theta_0}[M(y)] < \infty.
+$$
+
+"It should be noted that the regularity conditions just listed are typicalbut not unique in developing asymptotic results for likelihood estimation"
+
+"Also, not all of these conditions are needed for resolution of each of the individual issues listed previously." 
+
+### Properties/Results When Regularity Conditions Hold 
+
+Suppose that conditions R1–R6 are satisfied. If the sequence of solutions to the likelihood equation given by Lemma 1 is unique for all $n$ and $y$, then it is a  sequence of maximum likelihood estimators $\hat{\theta}_n$ and,
+
+$$
+\sqrt{n} \, [I(\theta)]^{1/2} (\hat{\theta}_n - \theta) 
+\;\;\xrightarrow{d}\;\; N(0,1),
+\tag{5.19}
+$$
+
+where
+
+$$
+I(\theta) = -E \left[ \frac{d^2}{d\theta^2} \log \{ f(Y \mid \theta) \} \right].
+$$
+
+If $Y_1, ... , Y_n$ in Likelihood Theorem 1 follow a common distribution that constitutes an exponential family, then solutions to the likelihood equations, if they exist, are unique.
+
+### Multiple Parameter Regularity Conditions
+
+**R1, R2.** The first two regularity conditions remain identical to those given previously.
+
+**RM3.** The common density or mass function $f(y \mid \theta)$ has continuous partial 
+derivatives up to order three with respect to the elements of $\theta$.
+
+**RM4.** Typically, R4 is restated as the direct consequence of what that condition 
+implies for the single parameter case, generalized to multiple parameters so that, 
+for $j, k = 1, \ldots, p$,
+
+$$
+E \left[ \frac{\partial}{\partial \theta_j} \log \{ f(y \mid \theta) \} \right] = 0
+$$
+
+and
+
+$$
+I_{j,k}(\theta) 
+= E \left[ \frac{\partial}{\partial \theta_j} \log \{ f(y \mid \theta) \} 
+          \frac{\partial}{\partial \theta_k} \log \{ f(y \mid \theta) \} \right] 
+= -E \left[ \frac{\partial^2}{\partial \theta_j \partial \theta_k} \log \{ f(y \mid \theta) \} \right].
+$$
+
+**RM5.** Each element of the information matrix $I_{j,k}(\theta)$ is positive and finite 
+and the matrix itself $I(\theta)$ is positive definite.
+
+**RM6.** The smoothness condition R6 is generalized to hold for third partial derivatives as, 
+for $j, k, \ell = 1, \ldots, p$,
+
+$$
+\left| \frac{\partial^3}{\partial \theta_j \, \partial \theta_k \, \partial \theta_\ell} 
+\log \{ f(y \mid \theta) \} \right| \leq M_{j,k,\ell}(y),
+$$
+
+such that for $j, k, \ell = 1, \ldots, p$,
+
+$$
+E_{\theta_0}[M_{j,k,\ell}(\theta)] < \infty.
+$$
+
+### Additional Propoerties of Likelihood-based Estimators 
+
+1. If a given scalar parameter $\theta$ (which may be an element of the parameter vector $\boldsymbol{\theta}$) has a single sufficient statistic $T(y)$, then the maximum likelihood estimator must be a function of that sufficient statistic. 
+
+If that sufficient statistic is minimal and complete, then the maximum likelihood estimator is unique. If the maximum likelihood estimator is unbiased then it is the UMVU 
+
+2. Likelihood-based estimators, determined as solutions to the likelihood equations, possess a property called *invariance* that is very useful but is not, in general, a property of other types of estimators, such as unbiased or least squares estimators.  
+
+The invariance property can be stated as: if $\tilde{\theta}_n$ is a consistent sequence of solutions to the likelihood equations, and $g(\theta)$ is a continuous, real-valued function of $\theta$, then $g(\tilde{\theta}_n)$ is a consistent sequence of solutions to the likelihood equations when the likelihood is reparameterized in terms of $g(\theta)$.  
+
+If $\hat{\theta}_n$ is the maximum likelihood estimator of $\theta$, then $g(\hat{\theta}_n)$ is the maximum likelihood estimator of $g(\theta)$.  
+
+Invariance is particularly useful in considering alternate parameterizations of random model components.
+
+### Wald Theory 
+
+If $\{ \hat{\theta}_n \}$ is a sequence of consistent, asymptotically normal and 
+efficient estimators of $\theta \equiv (\theta_1, \ldots, \theta_p)^T$, then
+
+$$
+(\hat{\theta}_n - \theta)^T I_n(\hat{\theta}_n) (\hat{\theta}_n - \theta) 
+\;\;\xrightarrow{d}\;\; \chi^2_p,
+\tag{5.23}
+$$
+
+### Delta Method 
+
+Let $g(\psi) = [g_1(\psi), \ldots, g_r(\psi)]^T$, $r \leq p$, where each component function $g_k(\psi)$ is continuously differentiable in a neighborhood of $\theta$. 
+
+Then,
+
+$$
+g(\hat{\psi}_n) \;\;\dot{\sim}\;\; AN \big[ g(\psi), \; a_n^2 D \Sigma D^T \big],
+\tag{5.26}
+$$
+
+where, $D$ is an $r \times p$ matrix with $k, j^{\text{th}}$ element
+
+$$
+\frac{\partial}{\partial \psi_j} g_k(\psi).
+$$
+
+In both the covariance $\Sigma$ and in the matrix $D$, $\hat{\psi}_n$ may be used as a plug-in estimator of $\psi$. Consistency of $\hat{\psi}$ allows the asymptotic result to be applied without modification.
+
+### Properties of Log Likelihood 
+
+To set the stage, consider two models of the same form (i.e., the same random 
+component) but of differing parameter spaces. Specifically, suppose we have a 
+*full model* of the form
+
+$$
+\ell_n(\theta) = \log f(y \mid \theta), \quad \theta \in \Theta,
+$$
+
+and a *reduced model* of the form
+
+$$
+\ell_n(\theta_0) = \log f(y \mid \theta_0), \quad \theta_0 \in \Theta_0,
+$$
+
+where $\Theta_0 \subset \Theta$. This last condition is crucial, and is called the 
+condition of *nested parameter spaces*.
+
+The procedure we are about to discuss only applies to the comparison of nested models. 
+What results in nested parameter spaces is not simply $\Theta_0 \subset \Theta$, but that 
+the parameter $\theta$ is the same for both full and reduced models. In particular, models 
+with different random components or response distributions are not amenable to comparison 
+using the procedures of this subsection.
+
+Let $\dim\{\Theta\} = p$ and $\dim\{\Theta_0\} = r$, and
+
+$$
+\hat{\theta}_n = \sup_{\theta \in \Theta} \ell_n(\theta), 
+\qquad 
+\tilde{\theta}_n = \sup_{\theta \in \Theta_0} \ell_n(\theta).
+$$
+
+Then, assuming that $\theta \in \Theta_0$ (the reduced model),
+
+$$
+T_n \equiv -2 \left\{ \ell_n(\tilde{\theta}_n) - \ell_n(\hat{\theta}_n) \right\} 
+\;\;\xrightarrow{d}\;\; \chi^2_{p-r}.
+\tag{5.27}
+$$
+
+"As a final comment, we will point out that the likelihood region (5.28) is invariant to parameter transformation, while the Wald theory region of (5.25) is not. This is because the likelihood and log likelihood functions are invariant to parameter transformation."
+
+### Numerical Algorithms 
+
+"Basic numerical algorithms for optimization can be divided into three broad categories of (1) direct search algorithms, (2) gradient-based algorithms, and (3) Newton-type algorithms."
+
+Equal Interval Search (A Direct Search Method): Typically taken for single dimensions iteratively 
+
+Newton-Raphson Algorithm (Newton-Type): "The Newton-Raphson algorithm is most easily understood as a simple application of Newton’s method for finding the roots of equations, where that method is applied to a function that is already a first derivative. This algorithm is useful in regular problems in which estimates may be determined by solving the likelihood equations."
+
+Fisher Scoring (Newton-Type): "Equal interval search and Newton-Raphson algorithms have many applications outside of statistical estimation. A Fisher Scoring algorithm, in contrast, is specific to the problem of estimation and, in particular, maximization of a log likelihood function"
 
 \newpage 
 
@@ -343,6 +590,19 @@ Then the joint distribution is again a one-parameter exponential family with the
 
 Question: For a given type of statistical analysis, is the "type" of probability concept you use "locked in place" throughout the analysis? 
 
+1. Direct Search Algorithms.
+
+Direct search algorithms are characterized by requiring computation of only the relevant objective function and not any derivatives of that function. Thus, direct search algorithms are useful in problems for which derivatives of the objective function are difficult to compute, or in which we do not need derivatives for the purpose of calculating inferential quantities.
+
+2. Gradient-Based Algorithms.
+
+Gradient algorithms provide the same information as direct search algorithms along with the value of the gradient, which
+should be zero at the maximum. They are generally more efficient than direct search algorithms in terms of the number of function evaluations needed, at the cost of requiring computer functions to be written for evaluation of the first derivatives of the objective function, and typically need the first derivatives to be continuous as well.
+
+3. Newton-type Algorithms.
+Newton-type algorithms make use of information provided by not onlythe objective function and gradient, but also the second derivatives of the objective function. 
+
+In the case that the objective function is a full log likelihood, they provide the benefit of including the observed information matrix as part of the output, which can make inference easier if an approach based on Wald theory is to be used.
 
 \newpage 
 
@@ -458,4 +718,56 @@ Formulating a proper model can become much more difficult when this condition do
 "These are often called **natural exponential families**, following the extensive investigation of their behavior by Morris (1982, 1983). If a family of distributions has only one canonical parameter, then both the expectations and variances of those distributions must be functions of the sole parameter."
 
 ## Chapter 4 
+
+\newpage 
+
+## Chapter 5 
+
+"Recall from Chapter 1 that a statistical model must lead to a joint probability distribution for the entire collection of random variables involved in a problem."
+
+Likelihood Function and Joint Distribution Function: Same Formula, but Different Functions 
+
+  - Joint Distribution: Fixed parameter, function of Data 
+  - Likelihood: Fixed data, function of Parameter 
+
+"While likelihoods are not necessarily equal to probabilities, there is a connection between likelihood and probability."
+
+When the context is that of a given set of observed data, we often write the likelihood without explicit conditioning on
+those data as simply $L(\theta$) or $\ell(\theta)$. On the other hand, if the context involves probabilistic behavior of the likelihood we may write the random version as $L(\theta | Y)$ or $\ell(\theta | Y)$.
+
+That is, having the value of the parameter that maximizes the probability of seeing what we saw certainly justifies the maximum likelihood estimate (mle) as a summarization of the available data, but it does not necessarily indicate that maximum likelihood is a good procedure for estimation of the parameter of interest $\mathbf{\theta}$.
+
+This provides a connection between a maximum
+likelihood estimate and the true parameter value in a hypothetical model. That is, as the sample size increases, the parameter value that maximizes the joint distribution not only provides a good value for describing the observations at hand, but also must become close to the true value under a given model.
+
+"Asymptotic normality refers to the convergence in distribution of a suitably centered and scaled sequence of statistics to a standard normal distribution"
+
+"It is important to understand that efficiency is a property of estimators, not estimates. So the fact that an estimator is efficient does not imply that an estimate produced from a set of data somehow has optimal properties. An estimate has no properties at all and cannot be claimed to be accurate or biased, precise or imprecise, it is simply a numerical value whose relation to the true parameter is unknown. Properties such as precision are properties of procedures or estimators only and statements of those properties such as (5.14) and (5.15) involve limiting quantities that can never be used or even approximated in practice. We can have some level of confidence or comfort about a particular estimate only because we know the tool used to produce it had good or optimal properties such as efficiency or asymptotic efficiency."
+
+"We can identify four issues connected with the development of asymptotic results for estimators obtained as solutions to the likelihood equations, (i) consistency of a sequence of likelihood equation solutions, (ii) demonstration that asymptotic normality holds for such a sequence, (iii) verification that the information inequality holds for such a sequence, and (iv) uniqueness of such a sequence."
+
+"Properties of estimators are developed under sets of conditions called regularity conditions. There are a variety of regularity conditions that have been developed, and different sets of conditions are needed to prove different results about likelihood-based estimators."
+
+"In the independent but not identically distributed case, conditions that allow a central limit theorem for non-identically distributed random variables is needed."
+
+"Full maximum likelihood estimation for problems involving spatial and spatio-temporal models is often difficult at best and alternative methods may be employed for estimation and inference, but likelihood-based estimation and inference are practical in a some cases involving Gaussian distributions"
+
+From this (exponential family of distributions) and Corollary 2.1 we have that the MLE of $\theta$, if it exists, is  
+
+  - (i) unique,  
+  - (ii) uniform minimum variance unbiased (UMVU),  
+  - (iii) asymptotically normal, and  
+  - (iv) asymptotically efficient.  
+
+That the MLE is UMVU follows from the fact that the $\{ T_j : j = 1, \ldots, s \}$ are minimal sufficient for $\theta$ and the MLE is unbiased and a function of these statistics. That the MLE is UMVU gives an optimal exact-theory property, but the sampling distribution is not immediately available, except in the case of normal distributions, for which we typically do not rely on likelihood asymptotics for inference.
+
+"The regular theory does not apply in the case where the support of the distribution of response variables depends on the value of the parameter."
+
+(Inference from Properties of thje Log Likelihood) "The title is given, however, to distinguish inference based on the asymptotic normality of maximum likelihood estimates (i.e., Wald Theory) from the topic of this section, which is inference based on asymptotic properties of the log likelihood function itself. The basis of this type of inference is the asymptotic distribution of the likelihood ratio statistic."
+
+(Nunmerical Algorithms): "In the vast majority of problems for which we might choose to conduct analysis based on likelihood theory, the likelihood or log likelihood cannot be maximized analytically"
+
+"If required, maximization can be accomplished by minimizing the negative objective function and it might be noted that literature on numerical analysis usually takes the problem to be minimization rather than maximization."
+
+(Equal Interval Search, a type of Direct Search Algorithm) "Equal interval search algorithms also have application in Bayesian analyses for which we need to quickly locate the mode of a (posterior) distribution in one dimension"
 

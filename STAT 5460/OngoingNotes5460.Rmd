@@ -138,7 +138,7 @@ Note: $o_p(1)$ is short for a sequence of random vectors that converges to zero 
 
 ## Chapter 2 
 
-### 2.1 
+### 2.1: Error Criteria 
 
 To evaluate the *global performance* of a density estimate, the most intuitively appealing global criterion is the $L_{\infty}$ norm
 
@@ -169,7 +169,7 @@ E[ISE(\hat{f_{X}})] = IMSE(\hat{f}_{X})
 $$
 
 
-### 2.2 
+### 2.2: Histogram Estimation of Density 
 
 #### Histogram Estimator 
 
@@ -208,7 +208,7 @@ However, there are two unknown quantities in (2.1), i.e.,
 - the origin $t_0$ (position of the edges of the bins).  
 
 
-### 2.3
+### 2.3: Kernal Density Estimator 
 
 #### Second Mean Value Thm. 
 
@@ -359,6 +359,48 @@ for all $\gamma > 0.$ Then,
 $$
 \sup_x \big| \hat{f}_X(x) - f_X(x) \big| \xrightarrow{a.s.} 0.
 $$
+
+### 2.5 Density Estimation at Boundaries 
+
+(Addressing Boundary Issues): 
+
+Let $\hat{f}_{X,K}$ and $\hat{f}_{X,L}$ be the KDE based on the kernels $K$ and $L$ respectively.  
+
+The idea is this. Take a linear combination of $K$ and $L$ in such a way that the resulting kernel has the desired properties $a_0(p) = 1$ and $a_1(p) = 0$.  
+
+Such a procedure is called generalized jackknifing (Jones, 1993).  
+
+This procedure seeks a linear combination
+
+$$
+\hat{f}_{X,B} = \alpha \hat{f}_{X,K} + \beta \hat{f}_{X,L}.
+$$
+
+#### 2.5.2 Transformation of kernel density estimators
+
+If the random sample $X_1, \ldots, X_n$ has a density $f_X$ that is difficult to estimate, then another possibility is to apply a transformation to the data to obtain a new sample $Y_1, \ldots, Y_n$ having a density $g_Y$ that can be more easily estimated using KDE. One would then *backtransform* the estimate $\hat{g}_Y$ to obtain the estimate of $f_X$.  
+
+Suppose the transformation is given by $Y_i = t(X_i)$, where $t$ is an increasing differentiable function on the support of $f_X$. Then from statistical distribution theory it follows that
+
+$$
+f_X(x) = g_Y(t(x)) t'(x).
+$$
+
+The KDE of $f_X$ is then given by
+
+$$
+\hat{f}_{X,T}(x) = \frac{1}{n} \sum_{i=1}^n K\!\left( \frac{t(x) - t(X_i)}{h} \right) \frac{t'(x)}{h}. \tag{2.12}
+$$
+
+The transformation KDE is neither a local nor a variable KDE. An application of the mean value theorem to (2.12) gives
+
+$$
+\hat{f}_{X,T}(x) = \frac{1}{n} \sum_{i=1}^n K\!\left( \frac{t'(\xi_i)(x - X_i)}{h} \right) \frac{t'(x)}{h},
+$$
+
+where $\xi_i$ lies between $x$ and $X_i$.
+
+### 2.6 
 
 \newpage 
 
@@ -571,3 +613,14 @@ Since $\hat f_X$ is nonnegative and integrates to one, it is a probability densi
 
 ### 2.4 
 
+
+
+### 2.5 
+
+"Kernel density estimation can fail dramatically when the region of definition of the data at hand is not unbounded, e.g. for support on $[0,\infty)$."
+
+"Away from the boundary, i.e., $p \geq 1$, these expressions reduce to the usual ones, but near the boundary the KDE is not even consistent, unless $f_X(x) = 0$ (since $a_0(p) < 1$). Even if the kernel is locally normalized to integrate to $1$ (by dividing $\hat{f}_X(ph)$ by $a_0(p)$), the bias in the boundary region is still $O(h)$ rather than $O(h^2)$ in the interior region."
+
+"One way of correcting the boundary bias of the KDE is by using special kernels called *boundary kernels*. These kernels are only used within the boundary region (and the usual kernel $K$ is used in the interior)."
+
+### 2.6 
