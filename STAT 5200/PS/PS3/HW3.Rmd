@@ -14,7 +14,7 @@ f(y \mid \alpha, \beta) = \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\be
 y^{\alpha - 1} (1 - y)^{\beta - 1}, \quad 0 < y < 1.
 $$
 
-Put this density in **canonical exponential family form**.  
+Put this density in canonical exponential family form.  
 
 Using properties of exponential families, find $E\{\log(Y)\}$ and $E\{\log(1-Y)\}$ expressed in terms of the original $\alpha$ and $\beta$ parameters.  
 
@@ -26,6 +26,43 @@ $$
 
 ## Answer
 
+The canonical exponential family form of the density is: 
+
+$$
+f(y \mid \alpha, \beta) = \exp\{(\alpha-1)\log(y) + (\beta-1)\log(1-y)
++ \log\Big(\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}\Big)\}\ \mathbb{I}[y\in(0,1)]
+$$
+
+
+Where: 
+
+$\theta_1=\alpha-1,\quad \theta_2=\beta-1$.
+
+$T=(T_1,T_2)$ for $T_1(y)=\log(y),\ T_2(y)=\log(1-y)$.
+
+$B(\theta)=-\log\Big(\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}\Big) = \log \Gamma(\alpha) + \log \Gamma(\beta) - \log \Gamma(\alpha + \beta)$.
+
+$c(y) = \mathbb{I}[y\in(0,1)]$, where $\mathbb{I}$ denotes the indicator function 
+
+Note: Though $B(\theta)$ is as given above, a simplified version which makes taking partial derivatives easier is the equivalent form: 
+
+Using properties of exponential families, and noting that the natural parameters $(\theta_1, \theta_2)$ are linearly related to the parameters $(\alpha, \beta)$: 
+
+$$
+\begin{aligned}
+E\{\log(Y)\} = E\{T_1(Y)\} = \frac{\partial}{\partial \theta_1} B(\theta) = \frac{\partial}{\partial \alpha} \left(\log \Gamma(\alpha) + \log \Gamma(\beta) - \log \Gamma(\alpha + \beta) \right) \\ 
+= \frac{\Gamma^{\prime}(\alpha)}{\Gamma(\alpha)} - \frac{\Gamma^{\prime}(\alpha + \beta)}{\Gamma(\alpha + \beta)}
+\end{aligned}
+$$
+
+And
+
+$$
+\begin{aligned}
+E\{\log(1-Y)\} = E\{T_2(Y)\} = \frac{\partial}{\partial \theta_2} B(\theta) = \frac{\partial}{\partial \beta}\left( \log \Gamma(\alpha) + \log \Gamma(\beta) - \log \Gamma(\alpha + \beta) \right) \\ 
+= \frac{\Gamma^{\prime}(\beta)}{\Gamma(\beta)} - \frac{\Gamma^{\prime}(\alpha + \beta)}{\Gamma(\alpha + \beta)}
+\end{aligned}
+$$
 
 \newpage
 
@@ -37,11 +74,31 @@ f(y \mid \lambda) = \frac{1}{y!} \lambda^y \exp(-\lambda),
 \quad y = 0, 1, 2, \ldots
 $$
 
-Put this probability mass function in **canonical exponential family form**.  
+Put this probability mass function in canonical exponential family form.  
 
 Using properties of exponential families, verify that $E(Y) = \lambda$.
 
 ## Answer
+
+The canonical exponential family form of the density is: 
+
+$$
+f(y \mid \lambda) = \exp \{ y \log (\lambda)  - \lambda - \log(y!)\}
+$$
+
+$\theta_1= \log(\lambda)$.
+
+$T_1(y)= y$.
+
+$B(\theta)= \exp (\theta_1)$.
+
+$c(y)= -\log(y!)$
+
+Using properties of exponential families, and noting the natural parameter $\theta_1$ is non-linearly related to the parameter $\lambda$: 
+
+$$
+E \{ T_1(Y) \} = \frac{\partial}{\partial \theta_1} B(\theta) = \frac{\partial}{\partial \theta_1} e^{\theta_1} = e^{\log(\lambda)} = \lambda
+$$
 
 \newpage
 
@@ -54,14 +111,75 @@ $$
 
 *Note:* You may have seen a gamma density written with a parameter that is equal to $1/\beta$ in the above expression. Use the parameterization given above to answer this question (I think it will be easier).
 
-**(a) (5 pts.)** Write the gamma density in the form of a two-parameter exponential family.  
-Using properties of exponential families, derive the expected values of $Y$ and $\log(Y)$.
+**(a) (5 pts.)** Write the gamma density in the form of a two-parameter exponential family. Using properties of exponential families, derive the expected values of $Y$ and $\log(Y)$.
 
-**(b) (5 pts.)** Write the gamma density in the form of an exponential dispersion family with parameters $\theta$ and $\phi$.  
-Derive the expected value of $Y$.
+**(b) (5 pts.)** Write the gamma density in the form of an exponential dispersion family with parameters $\theta$ and $\phi$. Derive the expected value of $Y$.
 
 ## Answer
 
 (a) 
 
+The gamma density in the form of a (canonical) two-parameter exponential family is of the form: 
+
+$$
+f(y \mid \alpha, \beta) = \exp \{(\alpha - 1) \log(y) - \beta  y + \alpha \log(\beta) - \log\Gamma(\alpha) \} \mathbb{I}[y >0]
+$$
+
+Where: 
+
+$\theta_1 = \alpha - 1 \quad \theta_2 = - \beta,$
+
+$T = (T_1(y), T_2(y)), \quad T_1(y) = \log (y), \quad T_2(y) = y,$
+
+$B(\mathbf{\theta}) = \log\Gamma(\alpha) - \alpha \log(\beta)$
+
+And 
+
+$c(y) = \mathbb{I}[y >0]$, where $\mathbb{I}$ denotes the indicator function 
+
+Using properties of exponential families, and noting the natural parameters $(\theta_1, \theta_2)$ are linear functions of the parameters $(\alpha, \beta)$, then: 
+
+$$
+E(\log(Y)) = E \{ T_1(Y) \} = \frac{\partial}{\partial \theta_1} B(\theta) = \frac{\partial}{\partial \alpha} \left( \log\Gamma(\alpha) - \alpha \log(\beta) \right) = \frac{\Gamma^{\prime}(\alpha)}{\Gamma(\alpha)} - \log(\beta)
+$$
+
+(Another Digamma function, in the flesh!) 
+
+Also: 
+
+$$
+E(Y) = E \{ T_2(Y) \} = \frac{\partial}{\partial \theta_2} B(\theta) = \frac{\partial}{\partial (-\beta)} \left( \log(\Gamma(\alpha) - \alpha \log(\beta) \right) = \frac{\alpha}{\beta}
+$$
+
 (b)
+
+Now, taking the canonical form, we may then write the exponential dispersion family form as: 
+
+$$
+\begin{aligned}
+f(y\mid \alpha,\beta)
+&= \exp\!\Big((\alpha-1)\log y - \beta y + \alpha\log\beta - \log\Gamma(\alpha)\Big) \\
+&= \exp\!\Big\{ \alpha\Big( \log(\frac{\beta}{\alpha}) - y \frac{\beta}{\alpha}\Big) 
+  + \big((\alpha-1)\log y + \alpha\log\alpha - \log\Gamma(\alpha)\big)\Big\} \\
+&= \exp\!\left\{\,\phi\,(y\theta - b(\theta)) + c(y,\phi)\right\}, \qquad y>0,
+\end{aligned}
+$$
+
+where
+
+$$
+\phi = \alpha, \quad \theta = -\frac{\beta}{\alpha}
+$$
+
+And 
+
+$$
+b(\theta) = -\log(-\theta), \quad \text{and }
+c(y,\phi) = (\alpha-1)\log y + \alpha\log\alpha - \log\Gamma(\alpha)
+$$
+
+Using the properties of an exponential dispersion family, we may calculate expectation via: 
+
+$$
+E(Y) = \frac{d}{d\theta} b(\theta) = \frac{d}{d\theta} \left( -\log(-\theta) \right) = -\frac{1}{\theta} = \frac{\alpha}{\beta}
+$$
