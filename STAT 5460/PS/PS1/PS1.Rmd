@@ -1,40 +1,57 @@
 ---
+# title: "HW1"
 output: pdf_document
 header-includes:
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
-  - \fancyhead[L]{Sam Olson}        % top left header
-  - \fancyhead[C]{}                 % clear center header
-  - \fancyhead[R]{STAT 5460 HW 1}   % top right header
+  - \fancyhf{}                         % clear all header/footer
+  - \fancyhead[L]{Sam Olson}
+  - \fancyhead[R]{STAT 5460 HW 1}
+  - \setlength{\headheight}{14pt}      % avoid "headheight too small" error
 ---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
 
 # Problem 1
 
-## a) 
+## a)
 
 Show that the kernel density estimate
 
 $$
-\hat{f}(x) = \frac{1}{nh} \sum_{i=1}^n K\!\left( \frac{x - X_i}{h} \right),
+\hat{f}(x) = \frac{1}{nh} \sum_{i=1}^n K\!\left(\frac{x - X_i}{h}\right),
 $$
 
-with kernel $K$ and bandwidth $h > 0$, is a valid density.
-What condition(s) did you require on $K$?
+with kernel $K$ and bandwidth $h > 0$, is a valid density. What condition(s) did you require on $K$?
 
-We need nonnegativity and unit integral. If $K$ is a probability density on $\mathbb R$ (i.e., $K(u)\ge 0$ a.e. and $\int K(u)\,du=1$), then each term $x\mapsto \frac{1}{h}K\!\left(\frac{x-X_i}{h}\right)$ is a shifted, rescaled pdf. A uniform mixture of pdfs is a pdf:
+### Answer 
+
+For $\hat f$ to be a valid density, it must be nonnegative and integrate to one.
+
+- Assume $K:\mathbb{R}\to [0,\infty)$ is measurable with  
+  $\int_{-\infty}^{\infty} K(u)\,du = 1$.
+- If $K \ge 0$, then clearly $\hat f(x) \ge 0$ for all $x$.
+
+For the integral:
 
 $$
-\int \hat f(x)\,dx
-=\frac{1}{n}\sum_{i=1}^n \int \frac{1}{h}K\!\left(\frac{x-X_i}{h}\right)\,dx
-=\frac{1}{n}\sum_{i=1}^n \int K(u)\,du
-=1,
+\begin{aligned}
+\int_{-\infty}^{\infty} \hat f(x)\,dx
+&= \frac{1}{n}\sum_{i=1}^n \int_{-\infty}^\infty \frac{1}{h}\,
+   K\!\left(\frac{x-X_i}{h}\right)\,dx \\
+&\overset{u=(x-X_i)/h}{=} \frac{1}{n}\sum_{i=1}^n \int_{-\infty}^\infty K(u)\,du \\
+&= \frac{1}{n}\sum_{i=1}^n 1 = 1.
+\end{aligned}
 $$
 
-and $\hat f(x)\ge 0$. Hence $\hat f$ is a density when $K$ itself is a density.
+Hence $\hat f$ is a valid probability density function whenever $K$ itself is a density.
 
-Answer: Take $K\ge 0$ and $\int K=1$ (i.e., $K$ a pdf). Then $\hat f$ is a density.
+\newpage 
 
-## b) 
+## b)
 
 Show that the kernel density estimate
 
@@ -44,17 +61,50 @@ $$
 
 with kernel $K$ and bandwidth function $h(x) > 0, \ \forall x$, is *not* a valid density.
 
-Check the integral:
+### Answer 
+
+Positivity still holds if $K \ge 0$, so $\hat f(x)\ge 0$.  
+The issue lies in normalization:
 
 $$
-\int \hat f(x)\,dx = \frac{1}{n}\sum_{i=1}^n \int \frac{1}{h(x)}\,K\!\left(\frac{x-X_i}{h(x)}\right)\,dx.
+\int_{-\infty}^{\infty} \hat f(x)\,dx
+= \frac{1}{n}\sum_{i=1}^n \int_{-\infty}^{\infty}
+   \frac{1}{h(x)}\,K\!\left(\frac{x-X_i}{h(x)}\right) dx.
 $$
 
-With $h$ depending on $x$, the change of variables $u=(x-X_i)/h(x)$ is not a simple linear map (Jacobian is not constant and involves $h$ and $h'$). Thus $\int \frac{1}{h(x)}K\!\big(\frac{x-X_i}{h(x)}\big)\,dx$ does not generally equal 1, so the overall integral need not be 1. Therefore $\hat f$ may fail to integrate to 1 (and can even be $<1$ or $>1$). (The notes distinguish local variable bandwidth $h(x)$ from constant $h$ precisely as a different estimator; only the constant-$h$ KDE is guaranteed to be a density under $K$ a pdf.)
+When $h$ depends on $x$, the substitution $u=(x-X_i)/h(x)$ is not a simple linear map—its Jacobian involves $h(x)$ and $h'(x)$. Consequently, the integral of each term does not generally equal 1. The estimator is therefore not guaranteed to integrate to one.
 
-Answer: In general $\int \hat f \neq 1$ when $h=h(x)$, so this estimator is not a valid density.
+**Counterexample.**  
+Take $K=\phi$ the standard normal pdf, $X_i=2$, and
 
-\newpage 
+$$
+h(x) =
+\begin{cases}
+1, & x \le 0, \\
+2, & x > 0.
+\end{cases}
+$$
+
+Then
+
+$$
+\int_{-\infty}^{\infty} \frac{1}{h(x)}\,
+   \phi\!\left(\frac{x-2}{h(x)}\right)\,dx
+= \int_{-\infty}^{0} \phi(x-2)\,dx
++ \int_{0}^{\infty} \tfrac{1}{2}\,\phi\!\left(\tfrac{x-2}{2}\right) dx.
+$$
+
+Evaluating,
+
+$$
+= \Phi(-2) + \Phi(1) \approx 0.0228 + 0.8413 = 0.8641 \neq 1.
+$$
+
+Thus the integral can be strictly less (or greater) than one, so $\hat f$ is not a valid density in general.
+
+**Note.** This form is often called the *balloon estimator*, and it is distinct from the fixed-bandwidth KDE in part (a). Only the constant-bandwidth version is guaranteed to be a valid density.
+
+\newpage
 
 # Problem 2
 
@@ -66,117 +116,150 @@ $$
 
 assuming that $K$ satisfies the necessary differentiability conditions.
 
-## a) 
+## a)
 
-Derive an asymptotic expression for the bias of $\hat{f}^{(r)}(x)$.
-Also mention the assumptions you made to obtain this result.
+Derive an asymptotic expression for the bias of $\hat{f}^{(r)}(x)$. Also mention the assumptions you made to obtain this result.
 
-Write $\mathrm{E}\,\hat f^{(r)}(x) = \frac{1}{h^{r+1}}\int K^{(r)}\!\left(\frac{x-y}{h}\right) f(y)\,dy$.
-Let $u=(x-y)/h\Rightarrow y=x-hu,\,dy=-h\,du$:
+### Answer 
+
+We have
 
 $$
 \mathrm{E}\,\hat f^{(r)}(x)
-= \frac{1}{h^{r}}\int K^{(r)}(u)\, f(x-hu)\,du.
+= \frac{1}{h^{r+1}}\int K^{(r)}\!\left(\frac{x-y}{h}\right) f(y)\,dy.
 $$
 
-Expand $f(x-hu)$ in Taylor series around $x$: $f(x-hu)=\sum_{j\ge 0}\frac{(-hu)^j}{j!}f^{(j)}(x)$.
-Integration by parts $r$ times (or using that differentiation w\.r.t. $x$ passes inside the convolution) yields the leading terms (paralleling the $r=0$ case where bias $\sim \tfrac{1}{2}\mu_2(K) f''(x)h^2$):
+With $u=(x-y)/h$ so $y=x-hu,\ dy=-h\,du$,
 
 $$
-\mathrm{bias}\big[\hat f^{(r)}(x)\big]
-= \frac{\mu_2(K)}{2}\, f^{(r+2)}(x)\, h^2 + o(h^2)\ ,
+\mathrm{E}\,\hat f^{(r)}(x)
+= \frac{1}{h^r}\int K^{(r)}(u)\, f(x-hu)\,du.
 $$
 
-with $\mu_2(K)=\int u^2K(u)\,du$.
-
-Assumptions: $f$ has $r+2$ continuous derivatives near $x$; $K$ has finite second moment and $nh\to\infty,\,h\to 0$. (Pattern follows the lecture’s $r=0$ derivation.)
-
-## b) 
-
-Derive an asymptotic expression for the variance of $\hat{f}^{(r)}(x)$.
-Mention the assumptions you made to obtain this result.
-
-As in the notes for $r=0$,
+Expand $f(x-hu)$ by Taylor expansion around $x$:
 
 $$
-\mathrm{Var}\big[\hat f^{(r)}(x)\big]
-= \frac{1}{n}\mathrm{Var}\!\left(\frac{1}{h^{r+1}}K^{(r)}\!\left(\frac{x-X}{h}\right)\right)
-\approx \frac{1}{n h^{2r+1}} f(x) \int \big(K^{(r)}(u)\big)^2\,du,
+f(x-hu)= \sum_{j\ge 0}\frac{(-hu)^j}{j!}\, f^{(j)}(x).
 $$
 
-so
+Carrying derivatives inside the convolution (or equivalently integrating by parts $r$ times), the leading bias term is
 
 $$
-\ \mathrm{Var}\big[\hat f^{(r)}(x)\big]
-= \frac{f(x)\,R\!\big(K^{(r)}\big)}{n\,h^{2r+1}} + o\!\left(\frac{1}{n h^{2r+1}}\right)\,
-\quad R\!\big(K^{(r)}\big)=\int \big(K^{(r)}(u)\big)^2\,du.
+\mathrm{bias}\!\left[\hat f^{(r)}(x)\right]
+= \frac{\mu_2(K)}{2}\, f^{(r+2)}(x)\, h^2 + o(h^2),
 $$
 
-This mirrors the $r=0$ formula $\mathrm{Var}[\hat f(x)]=\frac{f(x)R(K)}{nh}+o((nh)^{-1})$ from the notes.
+where $\mu_2(K)=\int u^2 K(u)\,du$.
 
-## c) 
+**Assumptions:** $f$ has $r+2$ continuous derivatives in a neighborhood of $x$; $K$ has finite second moment; $h\to 0$, $nh\to\infty$.
+
+\newpage 
+
+## b)
+
+Derive an asymptotic expression for the variance of $\hat{f}^{(r)}(x)$. Mention the assumptions you made to obtain this result.
+
+### Answer 
+
+By independence of the sample,
+
+$$
+\mathrm{Var}\!\big[\hat f^{(r)}(x)\big]
+= \frac{1}{n}\mathrm{Var}\!\left(\frac{1}{h^{r+1}}K^{(r)}\!\left(\frac{x-X}{h}\right)\right).
+$$
+
+As $h\to 0$,
+
+$$
+\mathrm{Var}\!\big[\hat f^{(r)}(x)\big]
+\approx \frac{f(x)}{n h^{2r+1}} \int \big(K^{(r)}(u)\big)^2\,du
+= \frac{f(x)\,R(K^{(r)})}{n h^{2r+1}} + o\!\left(\frac{1}{n h^{2r+1}}\right),
+$$
+
+where $R(K^{(r)})=\int \big(K^{(r)}(u)\big)^2\,du$.
+
+## c)
 
 Calculate the mean squared error (MSE) of $\hat{f}^{(r)}(x)$.
 
+### Answer 
+
+Combining squared bias and variance from parts a) and b):
+
 $$
-\ \mathrm{MSE}\big(\hat f^{(r)}(x)\big)
-=\left(\frac{\mu_2(K)}{2} f^{(r+2)}(x) h^2\right)^2
-+\frac{f(x)\,R\!\big(K^{(r)}\big)}{n\,h^{2r+1}}
-+ o\!\left(h^4+\frac{1}{n h^{2r+1}}\right)\ .
+\mathrm{MSE}\!\big(\hat f^{(r)}(x)\big)
+= \left(\tfrac{\mu_2(K)}{2} f^{(r+2)}(x) h^2\right)^2
++ \frac{f(x)\,R(K^{(r)})}{n h^{2r+1}}
++ o\!\left(h^4+\tfrac{1}{n h^{2r+1}}\right).
 $$
 
-(Compare with the $r=0$ MSE in the notes.)
-
-## d) 
+## d)
 
 Calculate the mean integrated squared error (MISE) of $\hat{f}^{(r)}$.
 
-Integrate the MSE over $x$ (assuming $f^{(r+2)}\in L^2$):
+### Answer 
+
+Integrating the MSE over $x$ gives
 
 $$
-\ \mathrm{MISE}\big(\hat f^{(r)}\big)
-= \frac{\mu_2(K)^2}{4}\, h^4 \int \big(f^{(r+2)}(x)\big)^2\,dx
-\;+\; \frac{R\!\big(K^{(r)}\big)}{n\,h^{2r+1}}
-\;+\; o\!\left(h^4+\frac{1}{n h^{2r+1}}\right)\ .
+\mathrm{MISE}\!\big(\hat f^{(r)}\big)
+= \frac{\mu_2(K)^2}{4} h^4 \int \big(f^{(r+2)}(x)\big)^2\,dx
++ \frac{R(K^{(r)})}{n h^{2r+1}}
++ o\!\left(h^4 + \tfrac{1}{n h^{2r+1}}\right).
 $$
 
-This is the direct analogue of the AMISE expression given for $r=0$ in the slides.
+This parallels the AMISE expression given for $r=0$.
 
-## e) 
+\newpage 
+
+## e)
 
 From all your previous results, can you conclude why density derivative estimation is becoming increasingly more difficult for estimating higher order derivatives?
 
-From (b)–(d), the variance term scales as $1/(n h^{2r+1})$. As $r$ increases, for a given $h$ the variance explodes (the kernel derivatives are rougher and amplify noise). To control variance you must increase $h$, but that worsens the bias term $O(h^2)$ times $\|f^{(r+2)}\|$. Hence the bias–variance tradeoff deteriorates with $r$. (The same phenomenon is emphasized in the $r=0$ discussion of how $h$ balances bias and variance.)
+### Answer 
+
+From b)–d), the variance term scales as $1/(n h^{2r+1})$. As $r$ increases:
+
+- The variance grows more quickly for a fixed $h$.
+- To control variance one must increase $h$, but that worsens the $O(h^2)$ bias.
+- Thus the bias–variance tradeoff deteriorates with $r$.
+
+This explains why estimating higher derivatives is increasingly difficult.
 
 ## f)
 
 Find an expression for the asymptotically optimal constant bandwidth.
 
-Minimize the leading-term MISE in (d):
+### Answer 
+
+Let
 
 $$
-\mathrm{AMISE}(h)
-= A\, h^4 + \frac{B}{n\,h^{2r+1}},
-\quad
-A=\frac{\mu_2(K)^2}{4}\int \big(f^{(r+2)}\big)^2,\quad
-B=R\!\big(K^{(r)}\big).
+\mathrm{AMISE}(h) = A h^4 + \frac{B}{n h^{2r+1}},
 $$
 
-Set derivative to zero:
+with
+
+$$
+A=\tfrac{\mu_2(K)^2}{4}\int \big(f^{(r+2)}(x)\big)^2 dx,
+\qquad B=R(K^{(r)}).
+$$
+
+Differentiate and set to zero:
 
 $$
 4Ah^3 - \frac{(2r+1)B}{n} h^{-(2r+2)}=0
-\ \Rightarrow\
-h^{2r+5}=\frac{(2r+1)B}{4A\,n}.
+\quad\Rightarrow\quad
+h^{2r+5} = \frac{(2r+1)B}{4An}.
 $$
 
-Thus
+Therefore,
 
 $$
-\ h_{\text{AMISE}}^{*}
-= \left[\frac{(2r+1)\,R\!\big(K^{(r)}\big)}
-{\mu_2(K)^2 \,\int (f^{(r+2)}(x))^2\,dx}\right]^{\!\!\frac{1}{2r+5}}
-\; n^{-\frac{1}{2r+5}}\ .
+h_{\text{AMISE}}^{*}
+= \left[\frac{(2r+1)\,R(K^{(r)})}
+{\mu_2(K)^2 \int (f^{(r+2)}(x))^2\,dx}\right]^{\tfrac{1}{2r+5}}
+\, n^{-\tfrac{1}{2r+5}}.
 $$
 
-For $r=0$ this reduces to the familiar $h_{AMISE}=\big[\tfrac{R(K)}{\mu_2(K)^2 R(f'')}\big]^{1/5} n^{-1/5}$ given in the notes.
+For $r=0$, this reduces to the familiar bandwidth expression from the notes.
