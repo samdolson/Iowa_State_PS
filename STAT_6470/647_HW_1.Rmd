@@ -1,0 +1,96 @@
+---
+title: "647_HW_1"
+author: "Taj Mahal"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Multivariate Normality test scripts
+
+```{r, warning=F}
+# Reading in necessary scripts/libraries
+# SO annoying to do this...
+setwd("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6470")
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6470/647_mvntest_fns.R")
+# source("~/647_mvntest_fns.R")
+
+library(mvtnorm)
+library(Rfast)
+library(Compositional)
+library(parallel)
+```
+
+```{r}
+n <- 250
+p <- 10
+v <- 10
+
+# Testing normality test functions out...
+Sigma <- as.matrix(rWishart(1, df = p, Sigma = diag(p))[,,1])
+t_samp <- Rfast::rmvt(n, sigma = Sigma, v = v, mu = rep(0, p)) # This package is faster than rmvt and allows for singular sigma...
+```
+
+```{r}
+gen_SW_p <- gen.SW(t_samp)$p.value
+testnormality_p <- testnormality(t_samp)
+JB_p <- Jonsson(t_samp)
+MB_p <- p.value.MB(t_samp)
+BB_p <- p.value.BB(t_samp)
+RJB_p <- ft.RJB.multi(t_samp,p)
+```
+
+```{r}
+# Setting a random seed, as suggested...
+# 1e8*runif(1)
+set.seed(819856)
+# Generate simulations with n ∈ {100,250} and p ∈ {5,10,50,100,500}. Also,for ν ∈ {3,5,10,30,100}.
+# 1000 sims each, this amounts to 50,000 total trials... may want to do some kinda Cholesky decomp for p = 500??
+# Probably best to create the data, run all the tests, store their p-values / whatever else, then chuck it and repeat
+n_s <- c(100)#, 250)
+p_s <- c(5,10)#,50,100,500)
+v_s <- c(3,5)#,10,30)#,100)
+n_sims <- 1
+
+# There are 6 methods we are comparing (that I can find in his scripts/notes lol)
+# Columns are : Method, p-value, n, p, v
+result_df <- matrix(0, nrow = 0, ncol = 5)
+for(n in n_s){
+  for(p in p_s){
+    for(v in v_s){
+      for(j in 1:n_sims)
+        print(j)
+      # Simulate 
+      Sigma <- as.matrix(rWishart(1, df = p, Sigma = diag(p))[,,1])
+      t_samp <- Rfast::rmvt(n, sigma = Sigma, v = v, mu = rep(0, p)) # This package is faster than rmvt and allows for singular sigma...
+     
+      gen_SW_p <- gen.SW(t_samp)$p.value
+      result_df <- rbind(result_df, c("Generalized S-W",as.numeric(gen_SW_p),n,p,v))
+      testnormality_p <- testnormality(t_samp)
+      result_df <- rbind(result_df, c("Cramer",testnormality_p,n,p,v))
+      JB_p <- Jonsson(t_samp)
+      result_df <- rbind(result_df, c("Jonsson",gen_SW_p,n,p,v))
+      MB_p <- p.value.MB(t_samp)
+      result_df <- rbind(result_df, c("Mardia",MB_p,n,p,v))
+      BB_p <- p.value.BB(t_samp)
+      result_df <- rbind(result_df, c("BHEP",BB_p,n,p,v))
+      RJB_p <- ft.RJB.multi(t_samp,p)
+      result_df <- rbind(result_df, c("Multivariate RJB",RJB_p,n,p,v))
+
+    }
+  }
+}
+```
+
+```{r}
+result_df[,2] <- as.numeric(result_df[,2])
+result_df[,3] <- as.numeric(result_df[,3])
+result_df[,4] <- as.numeric(result_df[,4])
+result_df[,5] <- as.numeric(result_df[,5])
+print(result_df)
+```
+
+
+

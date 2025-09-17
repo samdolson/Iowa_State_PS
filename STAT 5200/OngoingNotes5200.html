@@ -1023,8 +1023,116 @@ Newton-Raphson algorithms have many applications outside of statistical
 estimation. A Fisher Scoring algorithm, in contrast, is specific to the
 problem of estimation and, in particular, maximization of a log
 likelihood function”</p>
-<div style="page-break-after: always;"></div>
 </div>
+</div>
+<div id="note-some-terms" class="section level2">
+<h2>Note some terms:</h2>
+<p>Likelihood Equations:</p>
+<p>Score Function:</p>
+<p>Objective Function:</p>
+</div>
+<div id="chapter-6" class="section level2">
+<h2>Chapter 6</h2>
+<p>General Least Squares</p>
+<p>Equation (6.1):</p>
+<p><span class="math display">\[
+\min_{\beta \in \mathbb{R}^p} (y - X\beta)^T W (y - X\beta).
+\]</span></p>
+<p>Equation (6.2):</p>
+<p><span class="math display">\[
+\begin{aligned}
+(y - X\beta^*)^T W X\beta^* &amp;= 0 \\
+\Rightarrow \beta^{*T} X^T W y - \beta^{*T} X^T W X \beta^* &amp;= 0 \\
+\Rightarrow X^T W X \beta^* &amp;= X^T W y \\
+\Rightarrow (X^T W X)^{-1} X^T W y &amp;= \beta^* .
+\end{aligned}
+\]</span></p>
+<p>Equation (6.3):</p>
+<p><span class="math display">\[
+\min_{\beta \in \mathbb{R}^p} [y - g(X, \beta)]^T W [y - g(X, \beta)].
+\]</span></p>
+<p>OLS (Ordinary)</p>
+<p>Equation (6.4):</p>
+<p><span class="math display">\[
+Y_i = x_i^T \beta + \sigma \epsilon_i, \quad i = 1, \ldots, n,
+\]</span></p>
+<p>where <span class="math inline">\(\beta \in \mathbb{R}^p\)</span>,
+<span class="math inline">\(\sigma &gt; 0\)</span>, and <span class="math inline">\(\epsilon_i \sim \text{iid } F\)</span>.</p>
+<p>Objective function:</p>
+<p><span class="math display">\[
+Q = \sum_{i=1}^n (y_i - x_i^T \beta)^2,
+\]</span></p>
+<p>Equation (6.5):</p>
+<p><span class="math display">\[
+\hat{\beta} = (X^T X)^{-1} X^T Y.
+\]</span></p>
+<p>WLS (Weighted)</p>
+<p>Equation (6.6):</p>
+<p><span class="math display">\[
+Y_i = x_i^T \beta + \left(\frac{\sigma}{\sqrt{c_i}}\right) \epsilon_i,
+\quad i = 1, \ldots, n,
+\]</span></p>
+<p>Objective function:</p>
+<p><span class="math display">\[
+Q = \sum_{i=1}^n w_i \, (y_i - x_i^T \beta)^2,
+\]</span></p>
+<p>Equation (6.7):</p>
+<p><span class="math display">\[
+\hat{\beta} = (X^T W X)^{-1} X^T W Y.
+\]</span></p>
+<p>GLS (Generalized)</p>
+<p>Inference, specifically.</p>
+<p>Equation (6.9):</p>
+<p><span class="math display">\[
+\beta_n^{(j)} \;\; \overset{AN}{\sim} \;\;
+\mathcal{N}\!\left( \beta, \; \frac{\sigma^2}{n} \Sigma_\beta^{-1}
+\right),
+\]</span></p>
+<p>Equation (6.10):</p>
+<p><span class="math display">\[
+\Sigma_\beta = \frac{1}{n} \sum_{i=1}^n
+\frac{v(x_i, \beta) v(x_i, \beta)^T}{w_i^2}.
+\]</span></p>
+<p>Equation (6.11):</p>
+<p><span class="math display">\[
+\hat{\sigma}_n^2
+= \frac{1}{n - p} \sum_{i=1}^n
+\left\{ \frac{Y_i - g(x_i, \hat{\beta}_n)}{w_i} \right\}^2 .
+\]</span></p>
+<p>Note that except in the special cases leading to models (6.4) or
+(6.6) this estimator no longer possesses any small sample properties,
+despite the divisor of <span class="math inline">\(n - p\)</span> which
+suggests it might be unbiased (it is not). It is, however, consistent as
+long as <span class="math inline">\(\hat{\beta}_n\)</span> is
+consistent, which was a condition of the theorem.</p>
+<p>Equation (6.12):</p>
+<p><span class="math display">\[
+\hat{C}(\hat{\beta}_n)
+= \frac{\hat{\sigma}_n^2}{n}
+\left[ \frac{1}{n} \sum_{i=1}^n
+\frac{v(x_i, \hat{\beta}_n) v(x_i, \hat{\beta}_n)^T}{\hat{w}_i}
+\right]^{-1}.
+\]</span></p>
+<p>Equation (6.13):</p>
+<p><span class="math display">\[
+\hat{\beta}_{n,k} \;\; \pm \;\; t_{1-\alpha/2; \, n-p}
+\left\{ \hat{C}(\hat{\beta}_n)_{k,k} \right\}^{1/2}
+\]</span></p>
+<p>or</p>
+<p><span class="math display">\[
+\hat{\beta}_{n,k} \;\; \pm \;\; z_{1-\alpha/2}
+\left\{ \hat{C}(\hat{\beta}_n)_{k,k} \right\}^{1/2},
+\]</span></p>
+<p>where <span class="math inline">\(\hat{C}(\hat{\beta}_n)_{k,k}\)</span> is the <span class="math inline">\(k^{\text{th}}\)</span> diagonal element of the
+estimated covariance matrix given in (6.12),<br />
+<span class="math inline">\(t_{1-\alpha/2; \, n-p}\)</span> is the <span class="math inline">\(1-\alpha/2\)</span> quantile of a <span class="math inline">\(t\)</span>-distribution with <span class="math inline">\(n-p\)</span> degrees of freedom, and <span class="math inline">\(z_{1-\alpha/2}\)</span> is the <span class="math inline">\(1-\alpha/2\)</span> quantile of a standard normal
+distribution.</p>
+<p><strong>Note:</strong> There is absolutely no justification for using
+the quantile of a <span class="math inline">\(t\)</span>-distribution in
+these intervals rather than that of a standard normal distribution.
+These intervals are constructed on the basis of an asymptotic result,
+but you will unfortunately see such things done in the literature.</p>
+<div style="page-break-after: always;"></div>
 </div>
 </div>
 <div id="reading-notes" class="section level1">
@@ -1360,6 +1468,120 @@ than maximization.”</p>
 interval search algorithms also have application in Bayesian analyses
 for which we need to quickly locate the mode of a (posterior)
 distribution in one dimension”</p>
+</div>
+<div id="chapter-6-1" class="section level2">
+<h2>Chapter 6</h2>
+<p>“The fundamental domain of application for least squares estimation
+is linear models with constant variance additive errors, for which least
+squares estimators typically have optimal small sample properties, at
+least within a restricted class of estimators. Note that linear models
+and linear estimators refer to different things, models that are linear
+functions of additive errors versus estimators that are linear
+combinations of response variables, although the two often go hand in
+hand.”</p>
+<p>“We can now state the projection theorem in a more general form. For
+the majority of statistical applications we can take the Hilbert space
+in this theorem to be <span class="math inline">\(\mathbb{R}^n\)</span>
+and the inner product to be the ordinary dot product with respect to a
+matrix of weights <span class="math inline">\(W\)</span>.”</p>
+<p>“Take note of the fact that, the exact theory results in this case
+lead to <span class="math inline">\(t\)</span>-distributions as
+<em>results</em> so that it is entirely appropriate and correct to use
+quantiles of these distributions for interval estimation.”</p>
+<p>(WLS): “A studentization of elements of <span class="math inline">\(\hat{\beta}\)</span> then again results in <span class="math inline">\(t\)</span>-distributions which are used to produce
+intervals and other inferential quantities.”</p>
+<p>(GLS): “Formulation of the least squares problem will depend on the
+combination of expectation function and variance model structure under
+consideration. For example if the expectation function is linear with
+parameters <span class="math inline">\(\beta\)</span> and the variance
+model depends on <span class="math inline">\(\beta\)</span> as well as
+<span class="math inline">\(\sigma^2\)</span>, then the least squares
+problem becomes similar to (6.1) except with a weight matrix <span class="math inline">\(W(\beta)\)</span> rather than a fixed <span class="math inline">\(W\)</span> that is free of parameters. If the
+expectation function is nonlinear <span class="math inline">\(g(X,
+\beta)\)</span> but the variance model is constant depending only on
+<span class="math inline">\(\sigma^2\)</span>, then the least squares
+problem is given by (6.3). If the expectation function is nonlinear and
+the variance model depends on <span class="math inline">\(\beta\)</span>
+then the least squares problem is as in (6.3) except with <span class="math inline">\(W(\beta)\)</span> rather than <span class="math inline">\(W\)</span>.”</p>
+<p>(GLS Inference):</p>
+<p>Thus, inference is approximate, based on a result that has been
+called the <em>Fundamental Theorem of Generalized Least Squares</em>.
+The context for this theorem is an additive error model such that</p>
+<p><span class="math display">\[
+E(Y_i) = g(x_i, \beta)
+\quad \text{and} \quad
+\mathrm{var}(Y_i) = w_i^{-1/2} \sigma^2,
+\]</span></p>
+<p>where <span class="math inline">\(g\)</span> is a known smooth
+function and <span class="math inline">\(w_i\)</span> may be a constant
+or a function of <span class="math inline">\(\beta\)</span>.</p>
+<p>The quantities <span class="math inline">\(\mathbf{V}(\beta)\)</span>
+and <span class="math inline">\(\mathbf{W}(\beta)\)</span> are as
+previously defined, and we now include an index for sample size <span class="math inline">\(n\)</span> to emphasize that we are concerned with
+the behavior of sequences of estimators as sample size grows without
+bound.</p>
+<p>An estimator <span class="math inline">\(\hat{\theta}_n\)</span> is
+<span class="math inline">\(n^{1/2}\)</span>–consistent for a parameter
+<span class="math inline">\(\theta\)</span> if <span class="math inline">\(n^{1/2}(\hat{\theta}_n - \theta)\)</span> is
+bounded in probability (meaning that <span class="math inline">\(\hat{\theta}_n\)</span> converges to <span class="math inline">\(\theta\)</span> at least at the rate <span class="math inline">\(1/n^{1/2}\)</span>).</p>
+<p>Given this, the stated asymptotic normality holds for estimators that
+result from <em>any number</em> of iterations of the algorithm, and
+there are proponents for various choices.</p>
+<p>Summary of Chapter 6:</p>
+<ol style="list-style-type: decimal">
+<li><p>Least squares is used nearly exclusively with additive error
+models and is concerned primarily with parameters of the expectation
+function or systematic model component.</p></li>
+<li><p>Least squares can be motivated in a number of ways, including as
+the solution to a general minimization problem in linear
+algebra.</p></li>
+<li><p>For linear models with either constant variance or variances that
+are proportional to known weights, least squares estimators have exact
+theory properties. In particular, they are UMVU estimators, and may be
+used in conjunction with UMVU estimators of the variance parameter <span class="math inline">\(\sigma^2\)</span>. Inferential procedures in these
+situations are typically developed under the additional assumption of
+normally distributed errors so that estimated marginal sampling
+distributions of expectation function parameters are <span class="math inline">\(t\)</span>–distributions, which are then used to
+construct intervals and tests.</p></li>
+<li><p>For nonlinear models with constant variance, or for either linear
+or nonlinear models with variances that depend on parameters of the
+expectation function and <span class="math inline">\(\sigma^2\)</span>,
+but no additional unknown parameters, generalized least squares
+estimators are asymptotically normal. Generalized least squares
+estimators are typically used in conjunction with consistent estimators
+of <span class="math inline">\(\sigma^2\)</span> developed from a
+moment-based approach. Intervals for individual parameter elements may
+be based on this asymptotic normality. Note that the development of the
+approximate sampling distribution of expectation function parameters
+does <em>not</em> depend on the additional model assumption of normally
+distributed errors. It does, however, require reliance on an asymptotic
+result.</p></li>
+<li><p>Putting together the information in items 3 and 4 immediately
+above, we arrive at the “no free lunch” conclusion for estimation by
+least squares methods. Avoiding strong distributional assumptions on
+model terms is often considered a good thing. Being able to develop
+exact properties for estimators that do not depend on asymptotic
+arguments is often considered a good thing. Under models for which we
+can apply ordinary or weighted least squares we can accomplish both but
+only up to the point of verifying optimal behavior of <em>point</em>
+estimators. We then generally rely on strong distributional assumptions
+for <em>inference</em>. Under models for which we turn to generalized
+least squares we can avoid strong distributional assumptions on the
+model entirely, but must rely on asymptotic results for both properties
+of point estimators and inferential procedures.</p></li>
+<li><p>The ability to develop properties for least squares estimators,
+either exact theory for point estimation or asymptotic theory for both
+point estimation and inference, without assuming a specific parametric
+form for model distributions is often considered a robustness property
+or aspect of least squares, and this is true insomuch as robustness
+refers to small departures from an assumed distributional form. But this
+concept of robustness is different than what is properly called
+<em>resistance</em>, which refers to the degree to which an estimator is
+affected by extreme observations. It is well known that, while least
+squares estimators have a certain amount of robustness, they are
+extremely sensitive to the effect of extreme and high leverage
+observations and thus have low resistance.</p></li>
+</ol>
 </div>
 </div>
 
