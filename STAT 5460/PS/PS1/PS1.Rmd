@@ -53,7 +53,7 @@ $$
 \end{aligned}
 $$
 
-Hence $\hat f$ is a valid probability density function whenever $K$ itself is a density, needing only assume that the kernel $K$ is a proper density.
+This is to say that $\hat f$ is a valid probability density function whenever $K$ itself is a density, such that the only necessary assumption(s) are that the kernel $K$ is a proper (valid) density.
 
 \newpage 
 
@@ -70,8 +70,6 @@ with kernel $K$ and bandwidth function $h(x) > 0, \ \forall x$, is *not* a valid
 ### Answer 
 
 As given, define a kernel $K$ and bandwidth function $h(x) > 0, \ \forall x$. These will be the sole assumptions made, otherwise, provided enough assumptions, we could define a valid density. 
-
-Let $h:\text{R}\to(0,\infty)$ be a bandwidth function of the point $x$.
 
 We still get the first property of a), namely: $K \ge 0$, then $\hat f(x) \ge 0$ for all $x$. The potential culprit then is whether we satisfy the other property (normalization, integrates to 1 over the support). To that end, we note the KDE is then given by: 
 
@@ -106,7 +104,7 @@ $$
 du = \frac{h(x) - (x - X)h'(x)}{h(x)^2}
 $$
 
-Notably, the above du term involves both $h(x)$ and $h'(x)$, such that $dx$ is **not** just a constant multiple of $du$. 
+Notably, the above du term involves both $h(x)$ and $h'(x)$, such that $dx$ is **not** just a constant multiple of $du$ (not a linear transformation). 
 
 It then follows that, without additional assumptions, there is no guarantee that:
 
@@ -115,7 +113,26 @@ $$
 K\!\left(\frac{x - X_i}{h(x)}\right) dx= 1
 $$
 
-and hence why in general the variable bandwidth kernel density estimator is not a valid density when based solely upon the assumptions given.
+and hence why in general the variable bandwidth kernel density estimator is not a valid density when based solely upon the assumptions given (there is dependence on the bandwidth function $h(x)$, which would necessitate additional assumptions to ensure $\hat{f}(x)$ is a valid density).
+
+Note: An alternative approach we could take is to define some bandwidth function that satisfies $h(x) > 0, \ \forall x$, assume $\hat{f}(x)$ is a valid density, and then arrive at some nonsense (for a proof by negation).
+
+To that end, one such function could be $h(x) = |x|+1$, using a Uniform kernel, with
+
+$$
+\hat{f}(x) = \frac{1}{2(|x|+1)}
+$$
+
+This bandwidth function meets our base assumptions, yet:
+
+$$
+\int_{-\infty}^\infty \hat f(x)\,dx
+= \int_{-\infty}^\infty \frac{1}{2(|x|+1)}\,dx
+= \int_0^\infty \frac{1}{|x|+1}\,dx
+= \infty
+$$
+
+So, clearly $\hat{f}(x)$ is not a valid density.
 
 \newpage
 
@@ -133,42 +150,93 @@ assuming that $K$ satisfies the necessary differentiability conditions.
 
 Derive an asymptotic expression for the bias of $\hat{f}^{(r)}(x)$. Also mention the assumptions you made to obtain this result.
 
-### Answer 
+### Answer
 
-To calculate bias, we first need to evaluate the expectation:
+Start with the expectation of the estimator:
 
 $$
 \begin{aligned}
 \text{E}\,\hat f^{(r)}(x)
-=& \frac{1}{h^{r+1}} \int K^{(r)}\!\left(\frac{x-y}{h}\right) f(y)\,dy \\
-=& \frac{1}{h^r}\int K^{(r)}(u)\, f(x-hu)\,du \quad \text{Via } u=(x-y)/h \ \Rightarrow \ y=x-hu, \ dy=-h\,du \\ 
+&= \frac{1}{h^{\,r+1}} \int K^{(r)}\!\left(\frac{x-y}{h}\right) f(y)\,dy \\ 
+&= \frac{1}{h^r} \int K^{(r)}(u)\, f(x-hu)\,du \\ 
 \end{aligned}
 $$
 
-We then use a Taylor's series approximation for $f(x-hu)$ around $x$:
+Where:
 
 $$
-f(x-hu) = f(x) - hu f'(x) + \tfrac{1}{2} h^2 u^2 f''(x) + \cdots + \frac{(-hu)^{r+2}}{(r+2)!} f^{(r+2)}(x) + o(h^2)
+u = \frac{x-y}{h}, 
+\quad y = x - hu, 
+\quad dy = -h\,du
 $$
 
-Substituting this into the original equation, we have:
+Our goal is to simplify/evaluate $\int K^{(r)}(u)\, f(x-hu)\,du$. To that end note: Via integration by parts ($r$-many times), for any sufficiently smooth $g$ (see Assumptions),
+
+$$
+\int K^{(r)}(u)\,g(u)\,du 
+= (-1)^r \int K(u)\,g^{(r)}(u)\,du
+$$
+
+With $g(u)=f(x-hu)$, $g^{(r)}(u)=(-h)^r f^{(r)}(x-hu)$. 
+
+Such that: 
+
+$$
+\int K^{(r)}(u)\,f(x-hu)\,du
+= h^r \int K(u)\, f^{(r)}(x-hu)\,du
+$$
+
+Therefore,
+
+$$
+\text{E}\,\hat f^{(r)}(x)
+= \frac{1}{h^r} h^r \int K(u)\, f^{(r)}(x-hu)\,du
+= \int K(u)\, f^{(r)}(x-hu)\,du
+$$
+
+Now seems a good time for a Taylor Series. To that end, expand $f^{(r)}(x-hu)$ around $x$:
+
+$$
+f^{(r)}(x-hu)
+= f^{(r)}(x) - h u f^{(r+1)}(x)
++ \tfrac{1}{2}h^2 u^2 f^{(r+2)}(x) + o(h^2)
+$$
+
+\newpage 
+
+Some Assumptions being made at this step: 
+
+  - $\int K(u),du = 1$,
+  - $\int uK(u),du = 0$ (e.g. for symmetric $K$, to make calculations easier),
+  - $\mu_2 = \int u^2 K(u),du < \infty$, following the notation used in the text.
+
+Taken together, we have:
+
+$$
+\text{E}\,\hat f^{(r)}(x)
+= f^{(r)}(x) + \frac{\mu_2}{2}\,h^2 f^{(r+2)}(x) + o(h^2)
+$$
+
+Then, turning back to the original Bias formula: 
 
 $$
 \begin{aligned}
-\operatorname{Bias}\!\left[\hat f^{(r)}(x)\right]
-&= \text{E}\ \hat f^{(r)}(x) - f^{(r)}(x) \quad \text{Via bias formula} \\
-&= \frac{1}{h^r} \left(\int K^{(r)}(u)\, \left( f(x) - hu f'(x) + \tfrac{1}{2} h^2 u^2 f''(x) + \cdots + \frac{(-hu)^{r+2}}{(r+2)!} f^{(r+2)}(x)o(h^2) \right) \right) - f^{(r)}(x) \quad \text{Substitution} \\
-&= \frac{\mu_2}{2}\, f^{(r+2)}(x)\, h^2 + o(h^2) \quad \text{Identifying leading order term}\\
-\end{aligned}
+\operatorname{Bias}\!\big[\hat f^{(r)}(x)\big]
+&= \text{E}\,\hat f^{(r)}(x) - f^{(r)} \\ 
+&= f^{(r)}(x) + \frac{\mu_2}{2}\,h^2 f^{(r+2)}(x) + o(h^2) - f^{(r)}(x) \\ 
+&= \frac{\mu_2}{2}\, f^{(r+2)}(x)\, h^2 + o(h^2) \\
+\end{aligned} 
 $$
 
-Following the text's standard notation where $\mu_2=\int u^2 K(u)\,du$.
+(Overall) Assumptions:
 
-The assumptions are as follows (and are similar to those used in Chapter 2):  
+(1): $f$ has $r+2$ continuous derivatives in a neighborhood of $x$ (could also say "absolutely continuous", though this is a much stronger assumption)
 
-(1): $f$ has $r+2$ continuous derivatives (in a neighborhood of $x$, though we could just say absolutely continuous to make our lives easier).  
-(2): $K$ has finite second moment (K symmetric would also accomplish the same result, though would be more imposing).  
-(3): $h \to 0$, $nh \to \infty$. 
+(2):$K$ is a kernel and a valid density (based on allusions made in-class, $K$ need not be a valid density, but instead satisfy being real-valued and $\int K = 1$)
+
+(3): $K$ is $r$-times differentiable, with derivatives up to order $r$ continuous and integrable
+
+(4): $h \to 0$. 
 
 \newpage 
 
@@ -176,51 +244,71 @@ The assumptions are as follows (and are similar to those used in Chapter 2):
 
 Derive an asymptotic expression for the variance of $\hat{f}^{(r)}(x)$. Mention the assumptions you made to obtain this result.
 
-### Answer 
+### Answer
 
 $$
 \begin{aligned}
-\text{Var}\!\big[\hat f^{(r)}(x)\big]
-&= \frac{1}{n}\,\text{Var}\!\left(\frac{1}{h^{r+1}}K^{(r)}\!\left(\frac{x-X}{h}\right)\right) \quad \text{Via iid assumption} \\
-&= \frac{1}{n}\left\{ \text E\!\left[\frac{1}{h^{2r+2}}\Big(K^{(r)}\!\left(\tfrac{x-X}{h}\right)\Big)^2\right]
-- \Big(\text E\!\left[\tfrac{1}{h^{r+1}}K^{(r)}\!\left(\tfrac{x-X}{h}\right)\right]\Big)^2 \right\} 
-\quad \text{Using the definition of variance}
+\mathrm{Var}\!\big[\hat f^{(r)}(x)\big]
+&= \frac{1}{n}\,\mathrm{Var}\!\left(\frac{1}{h^{\,r+1}}\,K^{(r)}\!\left(\frac{x-X}{h}\right)\right) \quad \text{under iid X's} \\
+&= \frac{1}{n}\!\left\{ \text{E}\!\left[\frac{1}{h^{\,2r+2}}\Big(K^{(r)}\!\left(\tfrac{x-X}{h}\right)\Big)^{\!2}\right]
+- \Big(\text{E}\!\left[\tfrac{1}{h^{\,r+1}}K^{(r)}\!\left(\tfrac{x-X}{h}\right)\right]\Big)^{\!2} \right\} \quad \text{variance formula}
 \end{aligned}
 $$
 
-For the leading term, compute the expectation by substitution:
+As in part a), we use the change of variables where $u=(x-y)/h$, $dy=-h\,du$:
 
 $$
 \begin{aligned}
-\text E\!\left[\frac{1}{h^{2r+2}}\Big(K^{(r)}\!\left(\tfrac{x-X}{h}\right)\Big)^2\right]
-&= \frac{1}{h^{2r+2}} \int \Big(K^{(r)}\!\left(\tfrac{x-y}{h}\right)\Big)^2 f(y)\,dy \\[6pt]
-&= \frac{1}{h^{2r+1}} \int \big(K^{(r)}(u)\big)^2 f(x-hu)\,du 
-\quad \text{Where } u=\frac{(x-y)}{h}, dy = - h du \\
-&= \frac{f(x)}{h^{2r+1}} \int \big(K^{(r)}(u)\big)^2 du 
-+ o\!\left(\tfrac{1}{h^{2r+1}}\right)
-\quad \text{as h} \to 0 \\ 
+\text{E}\!\left[\frac{1}{h^{\,2r+2}}\Big(K^{(r)}\!\left(\tfrac{x-X}{h}\right)\Big)^{\!2}\right]
+&= \frac{1}{h^{\,2r+2}}\!\int \Big(K^{(r)}\!\left(\tfrac{x-y}{h}\right)\Big)^{\!2} f(y)\,dy \\
+&= \frac{1}{h^{\,2r+1}}\!\int \big(K^{(r)}(u)\big)^{2} f(x-hu)\,du \\
+&= \frac{1}{h^{\,2r+1}}\!\left[\, f(x)\!\int \big(K^{(r)}(u)\big)^{2}\,du \;+\; o(1) \right] \quad h\to 0 \\
+&= \frac{f(x)}{h^{\,2r+1}}\, R\!\big(K^{(r)}\big) \;+\; o\!\Big(\tfrac{1}{h^{\,2r+1}}\Big) \quad \text{noted below}
 \end{aligned}
 $$
 
-So, returning back to the variance formula, we have: 
+where $R(K^{(r)})=\int (K^{(r)}(u))^{2}du$, following similar notation used in the text.
+
+Note on last line: By continuity of $f$ at $x$ we have $f(x-hu)\to f(x)$ pointwise convergence, and by the dominated convergence theorem:
 
 $$
-\begin{aligned}
-\text{Var}\!\big[\hat f^{(r)}(x)\big]
-&= \frac{f(x)\,R(K^{(r)})}{n h^{2r+1}}
-+ o\!\left(\tfrac{1}{n h^{2r+1}}\right) \quad \text{As } \Big(\text E\!\left[\tfrac{1}{h^{r+1}}K^{(r)}\!\left(\tfrac{x-X}{h}\right)\right]\Big)^2 \text{ Is } O(1) \\ 
-\end{aligned}
+\int (K^{(r)})^{2} f(x-hu)\,du = f(x)R(K^{(r)}) + o(1)
 $$
 
-Where: $R(K^{(r)})=\int \big(K^{(r)}(u)\big)^2\,du$, following a similar convention to that used in the text. 
+Note: We evaluated the first term in the variance decomposition. For the second term, from part a), we know that 
 
-The assumptions are as follows,and are similar to those used in Chapter 2 and part a):  
+$$
+\mathbb E\!\left[\tfrac{1}{h^{\,r+1}}K^{(r)}\!\left(\tfrac{x-X}{h}\right)\right]
+= f^{(r)}(x) + O(h^2)
+$$
 
-(1): $f$ is continuous (absolutely, or at least in a neighborhood of $x$)
+so its square is $O(1)$ and, after multiplying by $1/n$, contributes $O(1/n)$; and since $h\to 0$, noting little o arithmetic properties: 
 
-(2): $R(K^{(r)})<\infty$
+$$
+\frac{O(1/n)}{\,1/(n h^{2r+1})\,} \;=\; O(h^{2r+1})
+$$
 
-(3): $h\to 0$ and $n h^{2r+1}\to\infty$
+meaning $O(1/n)=o\!\big(1/(n h^{2r+1})\big)$. Therefore the squared-mean term is negligible relative to the leading term from the first component of the variance decomposition. 
+
+Leaving us with an overall Variance expression of the form: 
+
+$$
+\mathrm{Var}\!\big[\hat f^{(r)}(x)\big]
+= \frac{f(x)\,R(K^{(r)})}{n\,h^{\,2r+1}}
+\;+\; o\!\Big(\tfrac{1}{n\,h^{\,2r+1}}\Big)
+$$
+
+Assumptions on next page 
+
+\newpage 
+
+Assumptions:
+
+(1): $f$ is continuous at $x$
+
+(2): $R\!\big(K^{(r)}\big)=\displaystyle\int (K^{(r)}(u))^{2}\,du<\infty$ 
+
+(3): $h\to 0$ and $n\,h^{\,2r+1}\to\infty$.
 
 ## c)
 
@@ -228,7 +316,7 @@ Calculate the mean squared error (MSE) of $\hat{f}^{(r)}(x)$.
 
 ### Answer 
 
-Combining squared bias and variance from parts a) and b):
+Combining squared bias and variance from parts a) and b), and gathering terms for the remainder error term:
 
 $$
 \begin{aligned}
@@ -263,11 +351,9 @@ $$
 \quad \text{For spacing purposes, isolating the "o" terms}\\
 &= \frac{\mu_2^2}{4}\,h^4 \int \big(f^{(r+2)}(x)\big)^2\,dx
 \;+\; \frac{R(K^{(r)})}{n h^{2r+1}}
-\;+\; o\!\left(h^4 + \tfrac{1}{n h^{2r+1}}\right)
+\;+\; o\!\left(h^4 + \tfrac{1}{n h^{2r+1}}\right) \quad \text{as } \int f(x)\,dx = 1\\ 
 \end{aligned}
 $$
-
-This agrees with the AMISE expression for $r=0$.  
 
 ## e)
 
@@ -283,19 +369,19 @@ $$
 + o\!\left(\tfrac{1}{n h^{2r+1}}\right)
 $$
 
-As every little-o is also Big-O we may then say:
+As every little-o is also Big-O (not the other way around though!) we may then say:
 
 $$
 \mathrm{Var}\!\big[\hat f^{(r)}(x)\big] = O\!\left(\tfrac{1}{n h^{2r+1}}\right)
 $$
 
-So, as $r$ increases:
+As $r$ increases (and for a fixed $h$):
 
-(1): The variance increases (for a fixed $h$).  
+(1): The variance increases.  
 
-(2): If we wish to reduce variance, we ultimately do so by trading off with increased bias (bias being of order $O(h^2)$)
+(2): If we wish to reduce variance, we do so by trading off with increased bias (bias being of order $O(h^2)$)
 
-(3): So you effectively introduce more bias to get a lower variance for higher-order derivations, i.e., the bias–variance tradeoff becomes "more costly"   
+(3): So we effectively introduce more bias to get a lower variance for higher-order derivations, i.e., the bias–variance tradeoff becomes "more costly"   
 
 \newpage 
 
@@ -328,5 +414,3 @@ h_{\text{AMISE}}^{*}
 {\mu_2^2 \int (f^{(r+2)}(x))^2 dx}\right]^{\tfrac{1}{2r+5}}
 n^{-\tfrac{1}{2r+5}}
 $$
-
-For $r=0$, this reduces to the "typical" optimal bandwidth expression given in Chapter 2.
