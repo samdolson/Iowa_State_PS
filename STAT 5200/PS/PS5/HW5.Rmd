@@ -1,7 +1,13 @@
 ---
 title: "Statistics 520: Assignment 5"
 author: "Sam Olson"
-output: pdf_document
+output:
+  pdf_document:
+    keep_tex: true
+header-includes:
+  - \usepackage{amsmath,amssymb,mathtools,bm}
+  - \usepackage[T1]{fontenc}
+  - \usepackage{lmodern}
 ---
 
 # Assignment 5
@@ -14,9 +20,11 @@ Your answer should contain complete and consistent notation using no undefined s
 
 Again, do not include copied computer function output. You will not get credit for anything presented in that way.
 
-```{R}
+```{r, echo = F, warning = F, message = F}
 source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS5/newtraph.txt")
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS5/hw5source.R")
 gammadat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS5/gammadat.txt", header = T)
+dat <- gammadat
 ```
 
 \newpage 
@@ -25,11 +33,161 @@ gammadat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/
 
 Assume random variables $Y_{1,1}, \ldots, Y_{1,n_1}$ and $Y_{2,1}, \ldots, Y_{2,n_2}$ have been defined for the responses in this problem. These responses are strictly positive numbers, and an assumption of independence is reasonable. Formulate a two-sample model using gamma distributions. For one group, write the form of the log likelihood that will need to be computed to find estimates and other inferential quantities.
 
+### Answer
+
+Let the two independent samples be
+
+$$
+\{Y_{1,1},\dots,Y_{1,n_1}\}\quad\text{and}\quad\{Y_{2,1},\dots,Y_{2,n_2}\},
+$$
+
+with all observations strictly positive and independent within and across groups. Model each group with a (potentially different) Gamma distribution parameterized by shape–rate:
+
+$$
+Y_{g,i}\;\stackrel{\text{iid}}{\sim}\;\mathrm{Gamma}(\alpha_g,\beta_g), \qquad g\in\{1,2\},\; i=1,\dots,n_g,
+$$
+
+with density
+
+$$
+f(y\mid \alpha_g,\beta_g)=\frac{\beta_g^{\alpha_g}}{\Gamma(\alpha_g)}\,y^{\alpha_g-1}e^{-\beta_g y},\qquad y>0,\;\alpha_g>0,\;\beta_g>0.
+$$
+
+For a single group $g$ with data $y_{g,1},\dots,y_{g,n_g}$, the (sample) log-likelihood is
+
+$$
+\ell_g(\alpha_g,\beta_g)
+=\sum_{i=1}^{n_g}\log f(y_{g,i}\mid \alpha_g,\beta_g)
+= n_g\Big(\alpha_g\log\beta_g-\log\Gamma(\alpha_g)\Big)
++(\alpha_g-1)\sum_{i=1}^{n_g}\log y_{g,i}
+-\beta_g\sum_{i=1}^{n_g} y_{g,i}.
+$$
+
+It depends on the sufficient statistics
+
+$$
+T_{g,1}=\sum_{i=1}^{n_g}\log y_{g,i}
+\quad\text{and}\quad
+T_{g,2}=\sum_{i=1}^{n_g} y_{g,i}.
+$$
+
+If you will compute MLEs via Newton–Raphson, the score and Hessian for group $g$ under the shape–rate parameterization are
+
+$$
+\frac{\partial \ell_g}{\partial \alpha_g}
+= n_g\log \beta_g - n_g\psi(\alpha_g) + T_{g,1}, 
+\qquad
+\frac{\partial \ell_g}{\partial \beta_g}
+= \frac{n_g\alpha_g}{\beta_g} - T_{g,2},
+$$
+
+$$
+\frac{\partial^2 \ell_g}{\partial \alpha_g^2}
+= -n_g \psi'(\alpha_g),\qquad
+\frac{\partial^2 \ell_g}{\partial \beta_g^2}
+= -\frac{n_g\alpha_g}{\beta_g^2},\qquad
+\frac{\partial^2 \ell_g}{\partial \alpha_g\,\partial \beta_g}
+=\frac{n_g}{\beta_g},
+$$
+
+where $\psi(\cdot)$ and $\psi'(\cdot)$ are the digamma and trigamma functions.
+
+\newpage 
+
+The full two-sample log-likelihood is the sum
+
+$$
+\ell(\alpha_1,\beta_1,\alpha_2,\beta_2)
+= \ell_1(\alpha_1,\beta_1)+\ell_2(\alpha_2,\beta_2),
+$$
+
+with $\ell_g$ as above for each group $g$. (Common-shape or common-rate special cases can be imposed by setting $\alpha_1=\alpha_2$ or $\beta_1=\beta_2$ before maximizing.)
+
 \newpage
 
 ## 2. 
 
 Find maximum likelihood estimates and 95% Wald theory intervals for the parameters of each group. Recall that, in the data file, the first column of values is Group 1 and the second column of values is Group 2.
+
+### Answer
+
+```{r, echo = F, warning = F, message = F}
+res1 <- gamma_mle_wald(dat$group1)
+res2 <- gamma_mle_wald(dat$group2)
+
+summary_tbl <- rbind(
+  to_row("group1", res1),
+  to_row("group2", res2)
+)
+
+# summary_tbl
+```
+
+For each group $g\in\{1,2\}$, assume
+
+$$
+Y_{g,i}\stackrel{\text{iid}}{\sim}\mathrm{Gamma}(\alpha_g,\beta_g)\quad\text{(shape–rate)},
+\qquad i=1,\dots,n_g,
+$$
+
+with density $f(y\mid\alpha_g,\beta_g)=\dfrac{\beta_g^{\alpha_g}}{\Gamma(\alpha_g)}y^{\alpha_g-1}e^{-\beta_g y}$ for $y>0$.
+
+Let $\bar Y_g=\dfrac{1}{n_g}\sum_i Y_{g,i}$ and $\overline{\log Y}_g=\dfrac{1}{n_g}\sum_i \log Y_{g,i}$.
+The log-likelihood for group $g$ is
+
+$$
+\ell_g(\alpha_g,\beta_g)
+= n_g\big(\alpha_g\log\beta_g-\log\Gamma(\alpha_g)\big)
+ +(\alpha_g-1)\sum_{i=1}^{n_g}\log Y_{g,i}
+ -\beta_g\sum_{i=1}^{n_g}Y_{g,i}.
+$$
+
+Setting the score to zero gives the standard MLE system
+
+$$
+\log(\hat\alpha_g)-\psi(\hat\alpha_g)\;=\;\log(\bar Y_g)-\overline{\log Y}_g
+$$
+
+And
+
+$$
+ \hat\beta_g=\dfrac{\hat\alpha_g}{\bar Y_g}
+$$
+
+where $\psi(\cdot)$ is the digamma function. The first equation is solved numerically for $\hat\alpha_g$.
+
+The observed information for $(\alpha_g,\beta_g)$ under the shape–rate parametrization is
+
+$$
+I_g(\alpha_g,\beta_g)=
+\begin{pmatrix}
+n_g\,\psi'(\alpha_g) & -\,n_g/\beta_g\\[4pt]
+-\,n_g/\beta_g & n_g\,\alpha_g/\beta_g^2
+\end{pmatrix},
+$$
+
+with $\psi'(\cdot)$ the trigamma function. The Wald covariance is
+
+$$
+\widehat{\mathrm{Var}}\!\begin{pmatrix}\hat\alpha_g\\ \hat\beta_g\end{pmatrix}
+= I_g(\hat\alpha_g,\hat\beta_g)^{-1}.
+$$
+
+Let the resulting standard errors be $\text{SE}(\hat\alpha_g)$ and $\text{SE}(\hat\beta_g)$.
+Wald 95% intervals are $\hat\theta \pm 1.96\,\text{SE}(\hat\theta)$ for $\theta\in\{\alpha_g,\beta_g\}$.
+
+<!-- > (Remark: Because $\alpha_g,\beta_g>0$, one can also report log-scale Wald CIs via the delta method; the natural-scale Wald CIs below already behave well for these data.) -->
+
+\newpage 
+
+Each group has $n_1=n_2=50$. Using the equations above,
+
+| Group | $\hat\alpha$ | SE($\hat\alpha$) | 95% CI for $\alpha$ | $\hat\beta$ | SE($\hat\beta$) | 95% CI for $\beta$ |
+| ----- | -----------: | ---------------: | :------------------ | ----------: | --------------: | :----------------- |
+| 1     |        3.497 |            0.669 | (2.186, 4.808)      |       1.519 |           0.312 | (0.907, 2.131)     |
+| 2     |        1.626 |            0.298 | (1.042, 2.210)      |       0.726 |           0.155 | (0.421, 1.031)     |
+
+Numbers are rounded to three decimals (interval endpoints to three). These were obtained by solving $\log(\alpha)-\psi(\alpha)=\log(\bar Y)-\overline{\log Y}$ for each group and then applying $\hat\beta=\hat\alpha/\bar Y$ followed by inversion of $I_g(\hat\alpha,\hat\beta)$ to get Wald SEs and CIs.
 
 \newpage 
 
@@ -37,11 +195,183 @@ Find maximum likelihood estimates and 95% Wald theory intervals for the paramete
 
 Using a likelihood ratio test, determine whether you would reject a model having a common gamma distribution for both groups in favor of a model having separate gamma distributions for each of the two groups. Produce a plot of the estimated densities for each group (both densities on the same plot).
 
+### Answer
+
+Let $Y_{g,i}\stackrel{\text{iid}}{\sim}\mathrm{Gamma}(\alpha_g,\beta_g)$ (shape–rate), $g\in\{1,2\}$.
+
+* $H_0:$ $\alpha_1=\alpha_2=\alpha_0$ and $\beta_1=\beta_2=\beta_0$ (one common Gamma for both groups; 2 parameters).
+* $H_1:$ $(\alpha_1,\beta_1)$ and $(\alpha_2,\beta_2)$ are unconstrained (two separate Gammas; 4 parameters).
+
+Let $\hat\theta_0=(\hat\alpha_0,\hat\beta_0)$ be the MLE under $H_0$ (fitted to the pooled data), and $\hat\theta_1=((\hat\alpha_1,\hat\beta_1),(\hat\alpha_2,\hat\beta_2))$ the MLEs fitted to each group separately. The LRT statistic is
+
+$$
+\Lambda = 2\bigl\{\ell(\hat\theta_1)-\ell(\hat\theta_0)\bigr\}
+\;\xrightarrow{d}\; \chi^2_{\,2},
+$$
+
+because $H_1$ has two more free parameters than $H_0$.
+
+From the data in `gammadat.txt`:
+
+* Separate-group MLEs:
+  $\hat\alpha_1=3.497,\;\hat\beta_1=1.519$ and $\hat\alpha_2=1.626,\;\hat\beta_2=0.726$.
+* Common (pooled) MLEs:
+  $\hat\alpha_0=2.202,\;\hat\beta_0=0.970$.
+
+Log-likelihoods:
+
+$$
+\ell(\hat\theta_1)=-163.447,\qquad \ell(\hat\theta_0)=-167.526.
+$$
+
+LRT statistic and p-value:
+
+$$
+\Lambda = 2(-163.447 + 167.526)=8.157,\qquad
+p\text{-value} = 0.0169\ (\chi^2_{2}).
+$$
+
+**Decision:** Reject $H_0$ at the 5% level.
+
+**Conclusion:** Since $p=0.0169<0.05$, the evidence favors different Gamma laws between groups; modeling them separately is warranted as the two groups are better described by **separate** Gamma distributions than by a single common Gamma.
+
+```{r, echo = F, warning = F, message = F}
+y1 <- dat$group1
+y2 <- dat$group2
+y_all <- c(y1, y2)
+
+# Separate MLEs
+fit1 <- mle_gamma_sr(y1)
+fit2 <- mle_gamma_sr(y2)
+ll_alt <- loglik_gamma_sr(y1, fit1$alpha, fit1$beta) +
+          loglik_gamma_sr(y2, fit2$alpha, fit2$beta)
+
+# Common (pooled) MLEs
+fit0 <- mle_gamma_sr(y_all)
+ll_null <- loglik_gamma_sr(y_all, fit0$alpha, fit0$beta)
+
+# LRT statistic, df = 2
+LR <- 2 * (ll_alt - ll_null)
+pval <- pchisq(LR, df = 2, lower.tail = FALSE)
+# cat(sprintf("LRT = %.3f, df=2, p-value = %.4f\n", LR, pval))
+
+# Plot fitted densities with distinct colors
+rng <- range(y_all)
+x <- seq(0, max(rng[2], quantile(y_all, 0.999)), length.out = 400)
+plot(x, dgamma(x, shape = fit1$alpha, rate = fit1$beta),
+     type = "l", col = "blue", lwd = 2,
+     xlab = "y", ylab = "Density", main = "Fitted Gamma Densities by Group")
+lines(x, dgamma(x, shape = fit2$alpha, rate = fit2$beta),
+      col = "red", lwd = 2)
+legend("topright", legend = c("Group 1 fit", "Group 2 fit"),
+       col = c("blue","red"), lty = 1, lwd = 2, bty = "n")
+
+```
+
 \newpage 
 
 ## 4. 
 
 Find maximum likelihood estimates and 95% Wald theory intervals for the expected value of each group. Also produce a 95% interval for the difference in expected values (Group 1 minus Group 2).
+
+### Answer
+
+For a Gamma distribution in shape–rate form,
+
+$$
+Y \sim \mathrm{Gamma}(\alpha,\beta),\qquad
+E[Y] = \frac{\alpha}{\beta}.
+$$
+
+Thus the expected values for each group are
+
+$$
+\mu_g = \frac{\alpha_g}{\beta_g},\qquad g=1,2.
+$$
+
+Let $(\hat\alpha_g,\hat\beta_g)$ be the MLEs with covariance matrix
+$\widehat\Sigma_g = \begin{bmatrix}\widehat{\mathrm{Var}}(\hat\alpha_g) & \widehat{\mathrm{Cov}}(\hat\alpha_g,\hat\beta_g)\\ \widehat{\mathrm{Cov}}(\hat\alpha_g,\hat\beta_g) & \widehat{\mathrm{Var}}(\hat\beta_g)\end{bmatrix}.$
+
+Use the delta method with gradient
+
+$$
+\nabla\mu_g(\alpha,\beta) = \left(\tfrac{1}{\beta},\; -\tfrac{\alpha}{\beta^2}\right).
+$$
+
+Then
+
+$$
+\widehat{\mathrm{Var}}(\hat\mu_g)
+= \nabla\mu_g^\top \,\widehat\Sigma_g \,\nabla\mu_g.
+$$
+
+A 95% Wald interval for $\mu_g$ is
+
+$$
+\hat\mu_g \pm 1.96\,\mathrm{SE}(\hat\mu_g).
+$$
+
+For the difference $\mu_1-\mu_2$, treat groups as independent, so
+
+$$
+\widehat{\mathrm{Var}}(\hat\mu_1-\hat\mu_2)
+= \widehat{\mathrm{Var}}(\hat\mu_1)+\widehat{\mathrm{Var}}(\hat\mu_2).
+$$
+
+<!-- * Group 1 MLEs: $\hat\alpha_1=3.497,\;\hat\beta_1=1.519$. -->
+<!--   Expected value: $\hat\mu_1 = 2.303.$ -->
+<!--   SE($\hat\mu_1$) = 0.278. -->
+<!--   95% Wald CI: (1.758, 2.848). -->
+
+<!-- * Group 2 MLEs: $\hat\alpha_2=1.626,\;\hat\beta_2=0.726$. -->
+<!--   Expected value: $\hat\mu_2 = 2.240.$ -->
+<!--   SE($\hat\mu_2$) = 0.284. -->
+<!--   95% Wald CI: (1.683, 2.797). -->
+
+<!-- * Difference: $\hat\mu_1-\hat\mu_2=0.063.$ -->
+<!--   SE(diff) = $\sqrt{0.278^2+0.284^2}=0.397.$ -->
+<!--   95% Wald CI: $(-0.715,\;0.841).$ -->
+
+* The expected values of the two groups are both around 2.3.
+* Wald 95% CIs for each mean overlap heavily.
+* The difference $\mu_1-\mu_2$ is small relative to its SE; the 95% CI includes 0 widely.
+* Conclusion: there is no evidence of a meaningful difference in the **expected values** between groups, even though the likelihood ratio test (Q3) showed their **distributions** differ in shape and rate.
+
+```{r, echo = F, warning = F, message = F}
+library(knitr)
+library(kableExtra)
+
+fit1 <- fit_gamma_sr(dat$group1)
+fit2 <- fit_gamma_sr(dat$group2)
+
+m1 <- mean_from_fit(fit1)
+m2 <- mean_from_fit(fit2)
+
+## Difference (independent groups): Var(diff) = Var(m1) + Var(m2)
+diff_hat <- m1$mu - m2$mu
+se_diff  <- sqrt(m1$se^2 + m2$se^2)
+z <- qnorm(0.975)
+ci_diff  <- c(diff_hat - z*se_diff, diff_hat + z*se_diff)
+
+summary_q4 <- data.frame(
+  group = c("group1", "group2", "difference (1 - 2)"),
+  mu_hat = c(m1$mu, m2$mu, diff_hat),
+  se     = c(m1$se,  m2$se,  se_diff),
+  ci_L   = c(m1$ci[1], m2$ci[1], ci_diff[1]),
+  ci_U   = c(m1$ci[2], m2$ci[2], ci_diff[2])
+)
+
+summary_q4_out <- summary_q4
+num_cols <- sapply(summary_q4_out, is.numeric)
+summary_q4_out[num_cols] <- lapply(summary_q4_out[num_cols], function(x) round(x, 3))
+
+# print(summary_q4_out)
+# If using knitr:
+num_cols <- sapply(summary_q4, is.numeric)
+summary_q4[num_cols] <- lapply(summary_q4[num_cols], round, 3)
+knitr::kable(summary_q4, caption = "Gamma means and 95% Wald intervals")
+# knitr::kable(summary_q4, caption = "Gamma means and 95% Wald intervals")
+```
 
 \newpage
 
@@ -49,11 +379,153 @@ Find maximum likelihood estimates and 95% Wald theory intervals for the expected
 
 Test whether the two groups should be considered significantly different using a two-sample $t$-test. (Take square roots if you think it makes the data look more symmetric for each group, though this is optional.) Does your result agree with the likelihood ratio test? Does it agree with the interval for difference in expected values?
 
+### Answer
+
+From the raw data, the group sample means are close to the MLE means we reported earlier:
+
+* Group 1: $\bar y_1 \approx 2.29$,
+* Group 2: $\bar y_2 \approx 2.24$.
+
+Both groups have $n_1=n_2=50$. Sample standard deviations are around 1.2–1.3.
+
+We can test
+
+$$
+H_0:\; \mu_1=\mu_2 \quad\text{vs}\quad H_A:\; \mu_1\ne \mu_2
+$$
+
+using the Welch two-sample $t$-test (does not assume equal variances).
+
+* Test statistic:
+
+  $$
+  t = \frac{\bar y_1-\bar y_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}},
+  $$
+
+  where $s_g^2$ is the sample variance in group $g$.
+
+* For these data, $t\approx 0.15$, with $p\approx 0.88$.
+
+If we instead take square roots of the data (to reduce right-skewness), the result is very similar: $p$ remains far above 0.05.
+
+* **Likelihood ratio test (Q3):** There we rejected the common-Gamma null in favor of group-specific Gammas ($p=0.017$). That test was sensitive not only to mean differences but also to shape/rate (variance and skewness).
+* **Wald interval for the difference in expectations (Q4):** That CI was wide, centered near 0, and easily covered 0. Thus we saw no evidence of a mean difference.
+* **$t$-test here:** Agrees with the Wald CI—there is *no significant difference in group means*.
+
+The two-sample $t$-test suggests **no difference in means**. This is consistent with the Wald interval for $\mu_1-\mu_2$, but **contradicts the LRT**, which found evidence that the *distributions* (including shape and variance) differ between groups.
+
+```{r, echo = F, warning = F, message = F}
+y1 <- dat$group1
+y2 <- dat$group2
+
+# Run tests
+res_raw_welch   <- summarize_ttest(y1, y2, "Raw (Welch)", var_equal = FALSE)
+res_sqrt_welch  <- summarize_ttest(sqrt(y1), sqrt(y2), "Sqrt (Welch)", var_equal = FALSE)
+res_raw_eqvar   <- summarize_ttest(y1, y2, "Raw (pooled-variance)", var_equal = TRUE)
+res_sqrt_eqvar  <- summarize_ttest(sqrt(y1), sqrt(y2), "Sqrt (pooled-variance)", var_equal = TRUE)
+
+# Combine and round numeric columns for display
+results <- rbind(res_raw_welch, res_sqrt_welch, res_raw_eqvar, res_sqrt_eqvar)
+num_cols <- sapply(results, is.numeric)
+results_out <- results
+results_out[num_cols] <- lapply(results_out[num_cols], function(x) round(x, 4))
+
+# print(results_out)
+
+## Optional (if using knitr):
+num_cols <- sapply(results_out, is.numeric)
+results_out[num_cols] <- lapply(results_out[num_cols], round, 3)
+knitr::kable(results_out, caption = "Two-sample t-tests (raw and sqrt transformed)")
+```
+
 \newpage 
 
 ## 6.
 
 Find maximum likelihood estimates and 95% Wald theory intervals for the mode of each group. Also produce a 95% interval for the difference in modes (Group 1 minus Group 2).
+
+### Answer
+
+For a Gamma$(\alpha,\beta)$ in **shape–rate** form,
+
+$$
+\text{mode} =
+\begin{cases}
+\dfrac{\alpha-1}{\beta}, & \alpha>1,\\[6pt]
+0, & \alpha\le 1\ \text{(boundary at 0).}
+\end{cases}
+$$
+
+Let $(\hat\alpha_g,\hat\beta_g)$ be the MLEs for group $g$ with covariance $\widehat\Sigma_g$ (from the inverted observed information). For $\hat\alpha_g>1$, use the delta method with
+
+$$
+m_g(\alpha,\beta)=\frac{\alpha-1}{\beta},\qquad 
+\nabla m_g(\alpha,\beta)=\Big(\tfrac{1}{\beta},\ -\tfrac{\alpha-1}{\beta^2}\Big).
+$$
+
+Then
+
+$$
+\widehat{\mathrm{Var}}(\hat m_g)=\nabla m_g^\top\,\widehat\Sigma_g\,\nabla m_g,\qquad
+\text{SE}(\hat m_g)=\sqrt{\widehat{\mathrm{Var}}(\hat m_g)}.
+$$
+
+A 95% Wald CI is $\hat m_g \pm 1.96\,\text{SE}(\hat m_g)$.
+
+For the difference $m_1-m_2$, independence of groups gives
+
+$$
+\widehat{\mathrm{Var}}(\hat m_1-\hat m_2)=
+\widehat{\mathrm{Var}}(\hat m_1)+\widehat{\mathrm{Var}}(\hat m_2).
+$$
+
+<!-- Using the MLEs from earlier: -->
+
+<!-- * Group 1: $\hat\alpha_1=3.497$, $\hat\beta_1=1.519$ $\Rightarrow$ -->
+<!--   $\hat m_1=(\hat\alpha_1-1)/\hat\beta_1=1.644$, -->
+<!--   $\text{SE}(\hat m_1)=0.177$, -->
+<!--   95% CI: $(1.297,\ 1.991)$. -->
+
+<!-- * Group 2: $\hat\alpha_2=1.626$, $\hat\beta_2=0.726$ $\Rightarrow$ -->
+<!--   $\hat m_2=0.862$, -->
+<!--   $\text{SE}(\hat m_2)=0.270$, -->
+<!--   95% CI: $(0.334,\ 1.391)$. -->
+
+<!-- * Difference (Group 1 - Group 2): -->
+<!--   $\widehat{m_1-m_2}=0.782$, $\text{SE}=0.348$, -->
+<!--   95% CI: $(0.149,\ 1.414)$. -->
+
+<!-- (Values rounded to three decimals; both groups have $\hat\alpha>1$, so interior-mode delta method applies.) -->
+
+```{r, echo = F, warning = F, message = F}
+fit1 <- fit_gamma_sr(dat$group1)
+fit2 <- fit_gamma_sr(dat$group2)
+
+m1 <- mode_from_fit(fit1)
+m2 <- mode_from_fit(fit2)
+
+# Difference in modes (independent groups): Var(diff) = Var(m1) + Var(m2)
+diff_mode <- m1$mode - m2$mode
+se_diff   <- sqrt(m1$se^2 + m2$se^2)
+z <- qnorm(0.975)
+ci_diff   <- c(diff_mode - z*se_diff, diff_mode + z*se_diff)
+
+summary_q6 <- data.frame(
+  group = c("group1", "group2", "difference (1 - 2)"),
+  mode_hat = c(m1$mode, m2$mode, diff_mode),
+  se       = c(m1$se,   m2$se,   se_diff),
+  ci_L     = c(m1$ci[1], m2$ci[1], ci_diff[1]),
+  ci_U     = c(m1$ci[2], m2$ci[2], ci_diff[2])
+)
+
+# Round only numeric columns
+summary_q6_out <- summary_q6
+num_cols <- sapply(summary_q6_out, is.numeric)
+summary_q6_out[num_cols] <- lapply(summary_q6_out[num_cols], function(x) round(x, 3))
+
+# print(summary_q6_out)
+knitr::kable(summary_q6_out, caption = "Gamma modes and 95% Wald intervals")
+```
 
 \newpage 
 
@@ -61,8 +533,38 @@ Find maximum likelihood estimates and 95% Wald theory intervals for the mode of 
 
 Although model assessment has not yet been covered formally, it is intuitive that the estimated distribution function (CDF) under our model and the empirical distribution function of the data should be similar. Produce plots of the estimated distribution function for each group with the empirical distribution function overlaid.
 
+### Answer
+
+```{r, echo = F, warning = F, message = F}
+y1 <- dat$group1; y2 <- dat$group2
+f1 <- fit_gamma_sr(y1); f2 <- fit_gamma_sr(y2)
+
+# make sure we're NOT in multi-panel mode
+par(mfrow = c(1,1))
+
+## Plot 1: Group 1
+x1 <- seq(0, max(y1, na.rm = TRUE), length.out = 400)
+plot(ecdf(y1), main = "Group 1: ECDF vs Fitted Gamma CDF",
+     xlab = "y", ylab = "CDF", vert = TRUE, do.points = FALSE, col = "gray30")
+lines(x1, pgamma(x1, shape = f1$alpha, rate = f1$beta), lwd = 2, col = "blue")
+legend("bottomright", c("Empirical CDF", "Gamma CDF (MLE)"),
+       lty = 1, lwd = c(1,2), col = c("gray30","blue"), bty = "n")
+
+## Plot 2: Group 2
+x2 <- seq(0, max(y2, na.rm = TRUE), length.out = 400)
+plot(ecdf(y2), main = "Group 2: ECDF vs Fitted Gamma CDF",
+     xlab = "y", ylab = "CDF", vert = TRUE, do.points = FALSE, col = "gray30")
+lines(x2, pgamma(x2, shape = f2$alpha, rate = f2$beta), lwd = 2, col = "red")
+legend("bottomright", c("Empirical CDF", "Gamma CDF (MLE)"),
+       lty = 1, lwd = c(1,2), col = c("gray30","red"), bty = "n")
+```
+
 \newpage 
 
 ## 8.  
 
 Write a short paragraph giving your conclusions about this group comparison.
+
+### Answer
+
+The two groups differ in their estimated **Gamma distributional forms**, as shown by the likelihood ratio test (p = 0.017), which rejected the null of a common distribution. However, their **expected values** are nearly identical (=2.3 for both groups), and both the Wald interval for the mean difference and the two-sample $t$-test indicated no significant mean difference. The **modes** differ more clearly: Group 1 has a higher estimated mode (1.64 vs. 0.86), with the 95% Wald interval for the difference excluding zero. Graphical comparisons of the fitted and empirical CDFs suggest that the Gamma model fits each group reasonably well, though Group 2 shows slightly heavier tail behavior than the fitted curve. Overall, the analysis indicates that while the two groups are similar in central tendency (mean), they differ in **distributional shape** (and hence in features like the mode), supporting the use of separate Gamma models for each group.
