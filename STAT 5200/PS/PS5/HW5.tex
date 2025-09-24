@@ -98,7 +98,11 @@
 \begin{document}
 \maketitle
 
-{[}1{]} X {[}2{]} X {[}3{]} X {[}4{]} {[}5{]} {[}6{]} {[}7{]} {[}8{]}
+{[}7{]} Do we include any code for this (``code dump'')?
+
+{[}8{]} Should this include more or less? What needs to be included,
+i.e., ``how overall should the analysis be'' (just ECDF or
+all-encompassing)?
 
 \section{Assignment 5}\label{assignment-5}
 
@@ -273,7 +277,8 @@ As noted in part 1)., the log-likelihood is of the form:
 Setting the score functions to zero gives the standard MLE system of
 equations.
 
-The (observed) Information Matrix for \((\alpha_g,\beta_g)\) then is:
+The Fisher Information (negative of the Hessian of the log-likelihood
+evaluated at the MLE, \((\alpha_g,\beta_g)\)) then is:
 
 \[
 I_g(\alpha_g,\beta_g)=
@@ -373,7 +378,7 @@ the MLEs fitted to each group separately.
 The LRT statistic is of the form:
 
 \[
-\Lambda = 2\bigl\{\ell(\hat\theta_1)-\ell(\hat\theta_0)\bigr\}
+\Lambda = - 2\bigl\{\ell(\hat\theta_0) - \ell(\hat\theta_1)\bigr\}
 \;\xrightarrow{d}\; \chi^2_{\,2}
 \]
 
@@ -399,7 +404,7 @@ Where:
 Using the log-likelihood values then, the LRT statistic is:
 
 \[
-\Lambda = 2(-163.447 + 167.526) = 8.157
+\Lambda = - 2 (- 167.526 - (-163.447)) = 8.158
 \]
 
 With corresponding p-value:
@@ -418,7 +423,7 @@ a better fit than pooling them together as a single Gamma distribution
 
 And a graph!
 
-\pandocbounded{\includegraphics[keepaspectratio]{HW5_files/figure-latex/unnamed-chunk-3-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{HW5_files/figure-latex/unnamed-chunk-4-1.pdf}}
 
 \newpage
 
@@ -430,63 +435,79 @@ difference in expected values (Group 1 minus Group 2).
 
 \subsubsection{Answer}\label{answer-3}
 
-For a Gamma distribution in shape--rate form,
+For a Gamma distributed random variable Y, whose distribution is
+parametrized by the shape and rate parameters, the expected value is of
+the form:
 
 \[
-Y \sim \mathrm{Gamma}(\alpha,\beta),\qquad
-E[Y] = \frac{\alpha}{\beta}.
+E[Y] = \frac{\alpha}{\beta}
 \]
 
-Thus the expected values for each group are
+For our case, thus the expected values for each group are given by:
 
 \[
-\mu_g = \frac{\alpha_g}{\beta_g},\qquad g=1,2.
+\mu_g = \frac{\alpha_g}{\beta_g},\qquad g=1,2
 \]
 
-Let \((\hat\alpha_g,\hat\beta_g)\) be the MLEs with covariance matrix
-\(\widehat\Sigma_g = \begin{bmatrix}\widehat{\mathrm{Var}}(\hat\alpha_g) & \widehat{\mathrm{Cov}}(\hat\alpha_g,\hat\beta_g)\\ \widehat{\mathrm{Cov}}(\hat\alpha_g,\hat\beta_g) & \widehat{\mathrm{Var}}(\hat\beta_g)\end{bmatrix}.\)
-
-Use the delta method with gradient
+Let \((\hat\alpha_g,\hat\beta_g)\) be the MLEs, then:
 
 \[
-\nabla\mu_g(\alpha,\beta) = \left(\tfrac{1}{\beta},\; -\tfrac{\alpha}{\beta^2}\right).
+\hat{\mu_g} = \frac{\hat{\alpha_g}}{\hat{\beta_g}},\qquad g=1,2
+\]
+
+Note then that the covariance matrix of the MLEs is given by:
+
+\[
+\widehat\Sigma_g = \begin{bmatrix}\widehat{\mathrm{Var}}(\hat\alpha_g) & \widehat{\mathrm{Cov}}(\hat\alpha_g,\hat\beta_g)\\ \widehat{\mathrm{Cov}}(\hat\alpha_g,\hat\beta_g) & \widehat{\mathrm{Var}}(\hat\beta_g)\end{bmatrix}
+\]
+
+Then, using the delta method with gradient given by:
+
+\[
+\begin{aligned}
+\nabla\mu_g(\alpha,\beta) 
+&= (\frac{\partial}{\partial \alpha} (\hat{\mu_g}), \frac{\partial}{\partial \beta} (\hat{\mu_g})) \\ 
+&= (\frac{\partial}{\partial \alpha} (\frac{\hat{\alpha_g}}{\hat{\beta_g}}), \frac{\partial}{\partial \beta} (\frac{\hat{\alpha_g}}{\hat{\beta_g}})) \\ 
+&= \left(\tfrac{1}{\beta},\; -\tfrac{\alpha}{\beta^2}\right) \\ 
+\end{aligned}
 \]
 
 Then
 
 \[
 \widehat{\mathrm{Var}}(\hat\mu_g)
-= \nabla\mu_g^\top \,\widehat\Sigma_g \,\nabla\mu_g.
+= \nabla\mu_g^\top \,\widehat\Sigma_g \,\nabla\mu_g
 \]
 
-A 95\% Wald interval for \(\mu_g\) is
+Taking the SE then is just taking the root of the above quantity.
+
+Note: When calculating the quantities of interest, we use the sample
+(observed) variances of \(\hat{\alpha}\) and \(\hat{\beta}\).
+
+Then, we may construct a 95\% Wald interval for \(\mu_g\) by:
 
 \[
-\hat\mu_g \pm 1.96\,\mathrm{SE}(\hat\mu_g).
+\hat\mu_g \pm z_{1 - \frac{\gamma}{2}} \mathrm{SE}(\hat\mu_g)
+= \hat\mu_g \pm 1.96\,\mathrm{SE}(\hat\mu_g)
 \]
 
-For the difference \(\mu_1-\mu_2\), treat groups as independent, so
+(Using 1.96 based on the Standard Normal distribution, where
+\(\gamma = 0.05\), as Wald Theory uses asymptotic results.)
+
+\newpage
+
+For the difference \(\mu_1-\mu_2\), treat groups as independent, i.e.,
+\(\mathrm{Cov}(\hat{\mu_1}, \hat{\mu_2}) = 0\), so
 
 \[
+\begin{aligned}
 \widehat{\mathrm{Var}}(\hat\mu_1-\hat\mu_2)
-= \widehat{\mathrm{Var}}(\hat\mu_1)+\widehat{\mathrm{Var}}(\hat\mu_2).
+&= \widehat{\mathrm{Var}}(\hat\mu_1)+\widehat{\mathrm{Var}}(\hat\mu_2) + 2\widehat{\mathrm{Cov}}(\hat{\mu_1}, \hat{\mu_2})\\
+&= \widehat{\mathrm{Var}}(\hat\mu_1)+\widehat{\mathrm{Var}}(\hat\mu_2) \\ 
+\end{aligned}
 \]
 
-\begin{itemize}
-\tightlist
-\item
-  The expected values of the two groups are both around 2.3.
-\item
-  Wald 95\% CIs for each mean overlap heavily.
-\item
-  The difference \(\mu_1-\mu_2\) is small relative to its SE; the 95\%
-  CI includes 0 widely.
-\item
-  Conclusion: there is no evidence of a meaningful difference in the
-  \textbf{expected values} between groups, even though the likelihood
-  ratio test (Q3) showed their \textbf{distributions} differ in shape
-  and rate.
-\end{itemize}
+Taken together, the quantities of interest we estimate are:
 
 \begin{longtable}[]{@{}lrrrr@{}}
 \caption{Gamma means and 95\% Wald intervals}\tabularnewline
@@ -517,91 +538,89 @@ with the interval for difference in expected values?
 
 \subsubsection{Answer}\label{answer-4}
 
-From the raw data, the group sample means are close to the MLE means we
-reported earlier:
+The observed group sample means are given by:
 
 \begin{itemize}
-\tightlist
 \item
-  Group 1: \(\bar y_1 \approx 2.29\),
+  Group 1: \(\bar y_1 \approx 2.29\) (2.302 expected),
 \item
-  Group 2: \(\bar y_2 \approx 2.24\).
+  Group 2: \(\bar y_2 \approx 2.24\) (2.240 expected).
 \end{itemize}
 
-Both groups have \(n_1=n_2=50\). Sample standard deviations are around
-1.2--1.3.
+Also, the observed sample standard deviation is given by.
 
-We can test
+\begin{itemize}
+\item
+  Group 1: \(s_1 \approx 1.31\)
+\item
+  Group 2: \(s_2 \approx 1.75\)
+\item
+  Pooled: \(s_0 \approx 1.55\)
+\end{itemize}
+
+And we have equal number of samples per group, \(n_1=n_2=50\), which
+taken together could justify use of the two-sample t-test.
+
+The hypotheses we may then test are o the form:
 
 \[
-H_0:\; \mu_1=\mu_2 \quad\text{vs}\quad H_A:\; \mu_1\ne \mu_2
+H_0:\; \mu_1=\mu_2 \quad\text{vs.}\quad H_A:\; \mu_1\ne \mu_2
 \]
 
-using the Welch two-sample \(t\)-test (does not assume equal variances).
+Using the Welch two-sample \(t\)-test (which does not assume equal
+variances between groups).
 
-\begin{itemize}
-\item
-  Test statistic:
+\[
+t_{df} = \frac{\bar y_1-\bar y_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}} \approx 0.15
+\]
 
-  \[
-  t = \frac{\bar y_1-\bar y_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}},
-  \]
+Where the degrees of freedom are calculated using the
+Welch-Satterthwaite approximation:
 
-  where \(s_g^2\) is the sample variance in group \(g\).
-\item
-  For these data, \(t\approx 0.15\), with \(p\approx 0.88\).
-\end{itemize}
+\[
+\nu \;=\; 
+\frac{\left(\dfrac{s_1^2}{n_1} + \dfrac{s_2^2}{n_2}\right)^{2}}
+{\dfrac{\left(\dfrac{s_1^2}{n_1}\right)^{2}}{n_1 - 1} \;+\; \dfrac{\left(\dfrac{s_2^2}{n_2}\right)^{2}}{n_2 - 1}}
+\]
 
-If we instead take square roots of the data (to reduce right-skewness),
-the result is very similar: \(p\) remains far above 0.05.
+The corresponding p-value is then: \(p\approx 0.84\) (using Welch, no
+transformation).
 
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Likelihood ratio test (Q3):} There we rejected the
-  common-Gamma null in favor of group-specific Gammas (\(p=0.017\)).
-  That test was sensitive not only to mean differences but also to
-  shape/rate (variance and skewness).
-\item
-  \textbf{Wald interval for the difference in expectations (Q4):} That
-  CI was wide, centered near 0, and easily covered 0. Thus we saw no
-  evidence of a mean difference.
-\item
-  \textbf{\(t\)-test here:} Agrees with the Wald CI---there is \emph{no
-  significant difference in group means}.
-\end{itemize}
+If we repeat this process \emph{after} doing a \texttt{sqrt}
+transformation on the observed samples, the result is very similar: The
+test statistic is \(t_{98} \approx 0.78\) with corresponding
+\(p \approx 0.44\). So, reducing to a decision ``Accept''/``Reject'' or
+even a ``strength of evidence'' argument, the interpretation remains
+largely the same.
 
-The two-sample \(t\)-test suggests \textbf{no difference in means}. This
-is consistent with the Wald interval for \(\mu_1-\mu_2\), but
-\textbf{contradicts the LRT}, which found evidence that the
-\emph{distributions} (including shape and variance) differ between
-groups.
+However, these results at first glance seem counter to the Likelihood
+ratio test from part 3). Importantly, these two methods correspond to
+different tests though. The two-sample \(t\)-test suggests no difference
+in means. This is consistent with the Wald interval for \(\mu_1-\mu_2\),
+whereas the LRT, tests whether the two \emph{distributions} (which
+includes shape, variance, and other aspects of ``general form'' of the
+distribution) differ significantly between groups.
+
+The results of the two-sample test are consistent when we use the normal
+``pooled'' two-sample t-test, and also when we transform the original
+data using the \texttt{sqrt} transformation. The results of those
+calculations follow in the table:
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.1811}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0787}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0236}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0236}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0472}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0472}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0472}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0472}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0551}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0551}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0630}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0709}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.0709}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 26\tabcolsep) * \real{0.1890}}@{}}
-\caption{Two-sample t-tests (raw and sqrt transformed)}\tabularnewline
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.2500}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0761}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0761}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0761}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0761}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0761}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0870}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0870}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}@{}}
+\caption{Tabular Data of Two-Sample Tests}\tabularnewline
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 analysis
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-equal\_var
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-n1
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-n2
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 mean1
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
@@ -620,20 +639,12 @@ p\_value
 ci\_lower
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 ci\_upper
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-method
 \end{minipage} \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 analysis
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-equal\_var
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-n1
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-n2
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 mean1
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
@@ -652,22 +663,42 @@ p\_value
 ci\_lower
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 ci\_upper
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-method
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Raw (Welch) & FALSE & 50 & 50 & 2.302 & 2.240 & 1.308 & 1.755 & 0.203 &
-90.609 & 0.840 & -0.552 & 0.678 & Welch Two Sample t-test \\
-Sqrt (Welch) & FALSE & 50 & 50 & 1.463 & 1.386 & 0.406 & 0.571 & 0.781 &
-88.470 & 0.437 & -0.119 & 0.274 & Welch Two Sample t-test \\
-Raw (pooled-variance) & TRUE & 50 & 50 & 2.302 & 2.240 & 1.308 & 1.755 &
-0.203 & 98.000 & 0.840 & -0.552 & 0.677 & Two Sample t-test \\
-Sqrt (pooled-variance) & TRUE & 50 & 50 & 1.463 & 1.386 & 0.406 & 0.571
-& 0.781 & 98.000 & 0.436 & -0.119 & 0.274 & Two Sample t-test \\
+Raw (Welch) & 2.3023 & 2.2396 & 1.3082 & 1.7549 & 0.2026 & 90.6085 &
+0.8399 & -0.5522 & 0.6776 \\
+Sqrt (Welch) & 1.4631 & 1.3857 & 0.4060 & 0.5708 & 0.7814 & 88.4705 &
+0.4366 & -0.1194 & 0.2743 \\
+Raw (pooled-variance) & 2.3023 & 2.2396 & 1.3082 & 1.7549 & 0.2026 &
+98.0000 & 0.8399 & -0.5516 & 0.6770 \\
+Sqrt (pooled-variance) & 1.4631 & 1.3857 & 0.4060 & 0.5708 & 0.7814 &
+98.0000 & 0.4364 & -0.1192 & 0.2740 \\
 \end{longtable}
+
+Misc: There are two notes to the above. First is, the Welch seemed most
+appropriate, hence why it was formally introduced. However, since the
+two-sample t-test was also calculated, the formulas used are as follows:
+
+\[
+s_p^2 \;=\; \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{\,n_1+n_2-2\,} 
+\]
+
+\[
+t_P \;=\; \frac{\bar{y}_1 - \bar{y}_2}{s_p \sqrt{\tfrac{1}{n_1} + \tfrac{1}{n_2}}},
+\qquad \text{df} = n_1+n_2-2
+\]
+
+Where \(\text{df}, s_p^2,  \text{ and } t_P\) as given in the above
+table.
+
+Also, since I included the \texttt{sqrt} evaluation as well in the
+table, below is visual evidence that the distributions appear more
+symmetric after \texttt{sqrt} transformation to the data.
+
+\pandocbounded{\includegraphics[keepaspectratio]{HW5_files/figure-latex/unnamed-chunk-10-1.pdf}}
 
 \newpage
 
@@ -679,40 +710,57 @@ modes (Group 1 minus Group 2).
 
 \subsubsection{Answer}\label{answer-5}
 
-For a Gamma\((\alpha,\beta)\) in \textbf{shape--rate} form,
+For Y a Gamma-distributed random variable, parametrized in shape--rate
+form, the mode is of the form:
 
 \[
 \text{mode} =
 \begin{cases}
 \dfrac{\alpha-1}{\beta}, & \alpha>1,\\[6pt]
-0, & \alpha\le 1\ \text{(boundary at 0).}
+0, & 0 < \alpha\le 1\ 
 \end{cases}
 \]
 
-Let \((\hat\alpha_g,\hat\beta_g)\) be the MLEs for group \(g\) with
-covariance \(\widehat\Sigma_g\) (from the inverted observed
-information). For \(\hat\alpha_g>1\), use the delta method with
+As the MLEs of \(\hat{\alpha_1}, \hat{\alpha_2} > 1\), we won't worry
+about the second condition where \(0 < \alpha \leq 1\).
+
+As defined previously, \((\hat\alpha_g,\hat\beta_g)\) are the MLEs for
+group \(g\) with covariance given by \(\widehat\Sigma_g\).
+
+For \(\hat\alpha_g>1\), we use the delta method with the expressions:
 
 \[
 m_g(\alpha,\beta)=\frac{\alpha-1}{\beta},\qquad 
-\nabla m_g(\alpha,\beta)=\Big(\tfrac{1}{\beta},\ -\tfrac{\alpha-1}{\beta^2}\Big).
+\nabla m_g(\alpha,\beta)=\Big(\tfrac{1}{\beta},\ -\tfrac{\alpha-1}{\beta^2}\Big)
 \]
 
-Then
+Again, mirroring the formulae used in part 4).
+
+We then have the quantities:
 
 \[
 \widehat{\mathrm{Var}}(\hat m_g)=\nabla m_g^\top\,\widehat\Sigma_g\,\nabla m_g,\qquad
-\text{SE}(\hat m_g)=\sqrt{\widehat{\mathrm{Var}}(\hat m_g)}.
+\text{SE}(\hat m_g)=\sqrt{\widehat{\mathrm{Var}}(\hat m_g)}
 \]
 
-A 95\% Wald CI is \(\hat m_g \pm 1.96\,\text{SE}(\hat m_g)\).
+To construct a 95\% Wald CI, given by:
+
+\[
+\hat m_g \pm z_{1 - \frac{\gamma}{2}} \,\text{SE}(\hat m_g) =
+\hat m_g \pm 1.96\,\text{SE}(\hat m_g)
+\]
 
 For the difference \(m_1-m_2\), independence of groups gives
 
 \[
-\widehat{\mathrm{Var}}(\hat m_1-\hat m_2)=
-\widehat{\mathrm{Var}}(\hat m_1)+\widehat{\mathrm{Var}}(\hat m_2).
+\begin{aligned}
+\widehat{\mathrm{Var}}(\hat{m_1}-\hat{m_2})
+&= \widehat{\mathrm{Var}}(\hat{m_1})+\widehat{\mathrm{Var}}(\hat{m_2}) + 2\widehat{\mathrm{Cov}}(\hat{m_1}, \hat{m_2})\\
+&= \widehat{\mathrm{Var}}(\hat{m_1})+\widehat{\mathrm{Var}}(\hat{m_2}) \\ 
+\end{aligned}
 \]
+
+Calculating these quantities gives us the following table:
 
 \begin{longtable}[]{@{}lrrrr@{}}
 \caption{Gamma modes and 95\% Wald intervals}\tabularnewline
@@ -743,8 +791,14 @@ the empirical distribution function overlaid.
 
 \subsubsection{Answer}\label{answer-6}
 
-\pandocbounded{\includegraphics[keepaspectratio]{HW5_files/figure-latex/unnamed-chunk-7-1.pdf}}
-\pandocbounded{\includegraphics[keepaspectratio]{HW5_files/figure-latex/unnamed-chunk-7-2.pdf}}
+To avoid any potential ``code dump'' regarding this question, I just
+wanted to note that the \texttt{stats} package contains an \texttt{ecdf}
+function. This was used for the following comparisons with the
+``expected'' line (based on the MLEs \(\hat{\alpha_g}, \hat{\beta_g}\),
+\(g \in \{1, 2 \}\)).
+
+\pandocbounded{\includegraphics[keepaspectratio]{HW5_files/figure-latex/unnamed-chunk-12-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{HW5_files/figure-latex/unnamed-chunk-12-2.pdf}}
 
 \newpage
 
@@ -755,20 +809,20 @@ comparison.
 
 \subsubsection{Answer}\label{answer-7}
 
-The two groups differ in their estimated \textbf{Gamma distributional
-forms}, as shown by the likelihood ratio test (p = 0.017), which
-rejected the null of a common distribution. However, their
-\textbf{expected values} are nearly identical (=2.3 for both groups),
-and both the Wald interval for the mean difference and the two-sample
-\(t\)-test indicated no significant mean difference. The \textbf{modes}
-differ more clearly: Group 1 has a higher estimated mode (1.64
-vs.~0.86), with the 95\% Wald interval for the difference excluding
-zero. Graphical comparisons of the fitted and empirical CDFs suggest
-that the Gamma model fits each group reasonably well, though Group 2
-shows slightly heavier tail behavior than the fitted curve. Overall, the
-analysis indicates that while the two groups are similar in central
-tendency (mean), they differ in \textbf{distributional shape} (and hence
-in features like the mode), supporting the use of separate Gamma models
-for each group.
+Comparing the ECDFs to their fitted Gamma distributions, both groups
+match reasonably well, although Group 1 has more visually apparent
+differences in the 2--4 range (domain). In terms of expectation/central
+tendency, the two groups have very similar means, as evidenced when
+comparing means via the two-sample t-tests. It is then perhaps
+unsurprising that the Wald confidence interval for the difference in
+expected values includes zero. However, the likelihood ratio test
+provides some evidence that the overall distributions differ, with Group
+1 and Group 2 having distinct shape--rate parameter combinations (their
+individual parameter values). This is also evidenced somewhat in the
+above visual, as the ECDFs and fitted Gamma CDFs look different between
+the two groups. To put it hopefully succinctly: The results from the
+prior parts (1 through 7) suggest that while the groups do not differ
+significantly in their means, their distributional shapes are different
+enough to warrant modeling them separately.
 
 \end{document}
