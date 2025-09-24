@@ -10,6 +10,15 @@ header-includes:
   - \usepackage{lmodern}
 ---
 
+[1] X
+[2] X 
+[3] X
+[4]
+[5]
+[6]
+[7]
+[8]
+
 # Assignment 5
 
 The objectives of this assignment are to (1) ensure that you have a grasp on using the tools of basic likelihood in a data analysis and (2) help you to continue to develop the precise use of notation in presenting descriptions of analyses. On the course web page is a file in the Data folder called `gammadat.txt`. This file contains two columns of values with a header having labels `group1` and `group2`. Each column should be considered to contain values corresponding to a set of independent and identical gamma random variables. That is, the two columns are values from two groups that we wish to compare using a two-sample model with gamma distributions. Consider the first column to contain values for Group 1 and the second column to contain values for Group 2.
@@ -35,73 +44,94 @@ Assume random variables $Y_{1,1}, \ldots, Y_{1,n_1}$ and $Y_{2,1}, \ldots, Y_{2,
 
 ### Answer
 
-Let the two independent samples be
+Assuming the random variables defined as given, taking observed values that are strictly positive and iid. 
+
+Each group is then modeled with a (potentially different) Gamma distribution parameterized by the ($\alpha, \beta$) parameters (shape and rate, repectively):
 
 $$
-\{Y_{1,1},\dots,Y_{1,n_1}\}\quad\text{and}\quad\{Y_{2,1},\dots,Y_{2,n_2}\},
+Y_{g,i}\;\stackrel{\text{iid}}{\sim}\;\mathrm{Gamma}(\alpha_g,\beta_g), \qquad g\in\{1,2\},\quad \text{and } i=1,\dots,n_g
 $$
 
-with all observations strictly positive and independent within and across groups. Model each group with a (potentially different) Gamma distribution parameterized by shape–rate:
+Where, for our purposes $n_{1} = n_{2}$ (equal sample sizes between the two groups of Gamma-distributed random variables). 
+
+With pdf of the form: 
 
 $$
-Y_{g,i}\;\stackrel{\text{iid}}{\sim}\;\mathrm{Gamma}(\alpha_g,\beta_g), \qquad g\in\{1,2\},\; i=1,\dots,n_g,
+f(y\mid \alpha_g,\beta_g)=\frac{\beta_g^{\alpha_g}}{\Gamma(\alpha_g)}\,y^{\alpha_g-1}e^{-\beta_g y},\qquad y>0,\;\alpha_g>0,\;\beta_g>0
 $$
 
-with density
-
-$$
-f(y\mid \alpha_g,\beta_g)=\frac{\beta_g^{\alpha_g}}{\Gamma(\alpha_g)}\,y^{\alpha_g-1}e^{-\beta_g y},\qquad y>0,\;\alpha_g>0,\;\beta_g>0.
-$$
-
-For a single group $g$ with data $y_{g,1},\dots,y_{g,n_g}$, the (sample) log-likelihood is
+Using the pdf, we then take the log to define a single group $g$'s log-likelihood function by: 
 
 $$
 \ell_g(\alpha_g,\beta_g)
-=\sum_{i=1}^{n_g}\log f(y_{g,i}\mid \alpha_g,\beta_g)
+= \sum_{i=1}^{n_g}\log f(y_{g,i}\mid \alpha_g,\beta_g)
 = n_g\Big(\alpha_g\log\beta_g-\log\Gamma(\alpha_g)\Big)
 +(\alpha_g-1)\sum_{i=1}^{n_g}\log y_{g,i}
--\beta_g\sum_{i=1}^{n_g} y_{g,i}.
+-\beta_g\sum_{i=1}^{n_g} y_{g,i}
 $$
 
-It depends on the sufficient statistics
+Note: The log-likelihood function is defined by 2 sufficient statistics, of the form: 
 
 $$
 T_{g,1}=\sum_{i=1}^{n_g}\log y_{g,i}
 \quad\text{and}\quad
-T_{g,2}=\sum_{i=1}^{n_g} y_{g,i}.
+T_{g,2}=\sum_{i=1}^{n_g} y_{g,i}
 $$
 
-If you will compute MLEs via Newton–Raphson, the score and Hessian for group $g$ under the shape–rate parameterization are
+So, for the score equations, computing MLEs (say, via Newton–Raphson or some other optimization methods) is done via: 
 
 $$
 \frac{\partial \ell_g}{\partial \alpha_g}
-= n_g\log \beta_g - n_g\psi(\alpha_g) + T_{g,1}, 
+= n_g\log \beta_g - n_g\psi_{0}(\alpha_g) + T_{g,1}, 
 \qquad
 \frac{\partial \ell_g}{\partial \beta_g}
-= \frac{n_g\alpha_g}{\beta_g} - T_{g,2},
+= \frac{n_g\alpha_g}{\beta_g} - T_{g,2}
 $$
+
+With the Hessian given by: 
 
 $$
 \frac{\partial^2 \ell_g}{\partial \alpha_g^2}
-= -n_g \psi'(\alpha_g),\qquad
+= -n_g \psi_{1}(\alpha_g),\qquad
 \frac{\partial^2 \ell_g}{\partial \beta_g^2}
 = -\frac{n_g\alpha_g}{\beta_g^2},\qquad
 \frac{\partial^2 \ell_g}{\partial \alpha_g\,\partial \beta_g}
-=\frac{n_g}{\beta_g},
+=\frac{n_g}{\beta_g}
 $$
 
-where $\psi(\cdot)$ and $\psi'(\cdot)$ are the digamma and trigamma functions.
-
-\newpage 
-
-The full two-sample log-likelihood is the sum
+Giving the Hessian:
 
 $$
+\begin{bmatrix}
+\displaystyle \frac{\partial^2 \ell_g}{\partial \alpha_g^2} &
+\displaystyle \frac{\partial^2 \ell_g}{\partial \alpha_g \,\partial \beta_g} \\[1.2em]
+\displaystyle \frac{\partial^2 \ell_g}{\partial \beta_g \,\partial \alpha_g} &
+\displaystyle \frac{\partial^2 \ell_g}{\partial \beta_g^2}
+\end{bmatrix}
+=
+\begin{bmatrix}
+-\,n_g \psi_{1}(\alpha_g) & \tfrac{n_g}{\beta_g} \\[0.8em]
+\tfrac{n_g}{\beta_g} & -\,\tfrac{n_g \alpha_g}{\beta_g^2}
+\end{bmatrix}
+$$
+
+where $\psi_{0}(\cdot)$ and $\psi_{1}(\cdot)$ are the digamma and trigamma functions, respectively (following notation convention seen on Wikipedia).
+
+Then, taking the individual group log-likelihoods, we calculate the full two-sample log-likelihood as the sum (again, noting iid assumption between and within groups):
+
+$$
+\begin{aligned}
 \ell(\alpha_1,\beta_1,\alpha_2,\beta_2)
-= \ell_1(\alpha_1,\beta_1)+\ell_2(\alpha_2,\beta_2),
+&= \ell_1(\alpha_1,\beta_1)+\ell_2(\alpha_2,\beta_2) \\ 
+&= \sum_{g=1}^{2}\sum_{i=1}^{n_g}\log f(y_{g,i}\mid \alpha_g,\beta_g) \\ 
+&= n_1\Big(\alpha_1\log\beta_1-\log\Gamma(\alpha_1)\Big)
++(\alpha_1-1)\sum_{i=1}^{n_1}\log y_{1,i}
+-\beta_1\sum_{i=1}^{n_1} y_{1,i} \\ 
+&+ n_2\Big(\alpha_2\log\beta_2-\log\Gamma(\alpha_2)\Big)
++(\alpha_2-1)\sum_{j=1}^{n_2}\log y_{2,j}
+-\beta_2\sum_{j=1}^{n_2} y_{2,j} \\
+\end{aligned}
 $$
-
-with $\ell_g$ as above for each group $g$. (Common-shape or common-rate special cases can be imposed by setting $\alpha_1=\alpha_2$ or $\beta_1=\beta_2$ before maximizing.)
 
 \newpage
 
@@ -119,75 +149,53 @@ summary_tbl <- rbind(
   to_row("group1", res1),
   to_row("group2", res2)
 )
-
 # summary_tbl
 ```
 
-For each group $g\in\{1,2\}$, assume
-
-$$
-Y_{g,i}\stackrel{\text{iid}}{\sim}\mathrm{Gamma}(\alpha_g,\beta_g)\quad\text{(shape–rate)},
-\qquad i=1,\dots,n_g,
-$$
-
-with density $f(y\mid\alpha_g,\beta_g)=\dfrac{\beta_g^{\alpha_g}}{\Gamma(\alpha_g)}y^{\alpha_g-1}e^{-\beta_g y}$ for $y>0$.
-
-Let $\bar Y_g=\dfrac{1}{n_g}\sum_i Y_{g,i}$ and $\overline{\log Y}_g=\dfrac{1}{n_g}\sum_i \log Y_{g,i}$.
-The log-likelihood for group $g$ is
+As noted in part 1)., the log-likelihood is of the form:  
 
 $$
 \ell_g(\alpha_g,\beta_g)
 = n_g\big(\alpha_g\log\beta_g-\log\Gamma(\alpha_g)\big)
  +(\alpha_g-1)\sum_{i=1}^{n_g}\log Y_{g,i}
- -\beta_g\sum_{i=1}^{n_g}Y_{g,i}.
+ -\beta_g\sum_{i=1}^{n_g}Y_{g,i} \quad \text{where } g \in \{1, 2\}
 $$
 
-Setting the score to zero gives the standard MLE system
+Setting the score functions to zero gives the standard MLE system of equations. 
 
-$$
-\log(\hat\alpha_g)-\psi(\hat\alpha_g)\;=\;\log(\bar Y_g)-\overline{\log Y}_g
-$$
-
-And
-
-$$
- \hat\beta_g=\dfrac{\hat\alpha_g}{\bar Y_g}
-$$
-
-where $\psi(\cdot)$ is the digamma function. The first equation is solved numerically for $\hat\alpha_g$.
-
-The observed information for $(\alpha_g,\beta_g)$ under the shape–rate parametrization is
+The (observed) Information Matrix for $(\alpha_g,\beta_g)$ then is: 
 
 $$
 I_g(\alpha_g,\beta_g)=
 \begin{pmatrix}
-n_g\,\psi'(\alpha_g) & -\,n_g/\beta_g\\[4pt]
+n_g\,\psi_{1}(\alpha_g) & -\,n_g/\beta_g\\[4pt]
 -\,n_g/\beta_g & n_g\,\alpha_g/\beta_g^2
-\end{pmatrix},
+\end{pmatrix}
 $$
 
-with $\psi'(\cdot)$ the trigamma function. The Wald covariance is
+Taking these quantities, the Wald covariance is then given by: 
 
 $$
 \widehat{\mathrm{Var}}\!\begin{pmatrix}\hat\alpha_g\\ \hat\beta_g\end{pmatrix}
-= I_g(\hat\alpha_g,\hat\beta_g)^{-1}.
+= I_g(\hat\alpha_g,\hat\beta_g)^{-1}
 $$
 
-Let the resulting standard errors be $\text{SE}(\hat\alpha_g)$ and $\text{SE}(\hat\beta_g)$.
-Wald 95% intervals are $\hat\theta \pm 1.96\,\text{SE}(\hat\theta)$ for $\theta\in\{\alpha_g,\beta_g\}$.
-
-<!-- > (Remark: Because $\alpha_g,\beta_g>0$, one can also report log-scale Wald CIs via the delta method; the natural-scale Wald CIs below already behave well for these data.) -->
-
-\newpage 
-
-Each group has $n_1=n_2=50$. Using the equations above,
+After numeric approximation, taking square roots where appropriate (square root of the variance is SE), and evaluating the typical expression for confidence intervals, we have (with each group having $n_1=n_2=50$ samples): 
 
 | Group | $\hat\alpha$ | SE($\hat\alpha$) | 95% CI for $\alpha$ | $\hat\beta$ | SE($\hat\beta$) | 95% CI for $\beta$ |
 | ----- | -----------: | ---------------: | :------------------ | ----------: | --------------: | :----------------- |
 | 1     |        3.497 |            0.669 | (2.186, 4.808)      |       1.519 |           0.312 | (0.907, 2.131)     |
 | 2     |        1.626 |            0.298 | (1.042, 2.210)      |       0.726 |           0.155 | (0.421, 1.031)     |
 
-Numbers are rounded to three decimals (interval endpoints to three). These were obtained by solving $\log(\alpha)-\psi(\alpha)=\log(\bar Y)-\overline{\log Y}$ for each group and then applying $\hat\beta=\hat\alpha/\bar Y$ followed by inversion of $I_g(\hat\alpha,\hat\beta)$ to get Wald SEs and CIs.
+Note, to be explicit about the formula for confidence intervals: 
+
+$$
+\exp \left( \log \hat\alpha \;\pm\; z_{1-\gamma/2}\,\mathrm{SE}(\log \hat\alpha) \right) \quad \text{ and } \exp \left( \log \hat\beta \;\pm\; z_{1-\gamma/2}\,\mathrm{SE}(\log \hat\beta) \right)
+$$
+
+Where $\gamma = 0.05, 1- \frac{\gamma}{2} = 0.975$
+
+And to be explicit about the optimization method used: Using R's `optim` function for maximization (minimize negative log-likelihood), which is a "quasi-Newton method", i.e., using the original log-likelihood, first derivative, and second derivative (also using `method = ‘BFGS’`). 
 
 \newpage 
 
@@ -197,43 +205,54 @@ Using a likelihood ratio test, determine whether you would reject a model having
 
 ### Answer
 
-Let $Y_{g,i}\stackrel{\text{iid}}{\sim}\mathrm{Gamma}(\alpha_g,\beta_g)$ (shape–rate), $g\in\{1,2\}$.
+Define the (nested) hypotheses by: 
 
-* $H_0:$ $\alpha_1=\alpha_2=\alpha_0$ and $\beta_1=\beta_2=\beta_0$ (one common Gamma for both groups; 2 parameters).
-* $H_1:$ $(\alpha_1,\beta_1)$ and $(\alpha_2,\beta_2)$ are unconstrained (two separate Gammas; 4 parameters).
+  - $H_0:$ $\alpha_1=\alpha_2$ and $\beta_1=\beta_2$ (one common Gamma for both groups, only 2 unique parameters between groups).
+  - $H_1:$ $(\alpha_1 \neq \alpha_2)$ and $(\beta_1 \neq \beta_2)$ (two separate Gammas, 4 unique parameters between groups).
 
-Let $\hat\theta_0=(\hat\alpha_0,\hat\beta_0)$ be the MLE under $H_0$ (fitted to the pooled data), and $\hat\theta_1=((\hat\alpha_1,\hat\beta_1),(\hat\alpha_2,\hat\beta_2))$ the MLEs fitted to each group separately. The LRT statistic is
+Let $\hat\theta_0=(\hat\alpha_0,\hat\beta_0)$ be the MLE under $H_0$ (fitted using pooled data), and $\hat\theta_1=((\hat\alpha_1,\hat\beta_1),(\hat\alpha_2,\hat\beta_2))$ the MLEs fitted to each group separately. 
+
+The LRT statistic is of the form: 
 
 $$
 \Lambda = 2\bigl\{\ell(\hat\theta_1)-\ell(\hat\theta_0)\bigr\}
-\;\xrightarrow{d}\; \chi^2_{\,2},
+\;\xrightarrow{d}\; \chi^2_{\,2}
 $$
 
-because $H_1$ has two more free parameters than $H_0$.
+With degrees of freedom 2 from (full - reduced = 4 - 2), i.e., $H_1$ has two more "free" parameters than $H_0$.
 
-From the data in `gammadat.txt`:
+Using the same optimization method using in part 2., we calculate: 
 
-* Separate-group MLEs:
-  $\hat\alpha_1=3.497,\;\hat\beta_1=1.519$ and $\hat\alpha_2=1.626,\;\hat\beta_2=0.726$.
-* Common (pooled) MLEs:
-  $\hat\alpha_0=2.202,\;\hat\beta_0=0.970$.
+  - Separate-group MLEs: $\hat\alpha_1=3.497,\;\hat\beta_1=1.519$, and $\hat\alpha_2=1.626,\;\hat\beta_2=0.726$
+  
+  - Common (pooled) MLEs: $\hat\alpha_0=2.202,\;\hat\beta_0=0.970$
 
-Log-likelihoods:
-
-$$
-\ell(\hat\theta_1)=-163.447,\qquad \ell(\hat\theta_0)=-167.526.
-$$
-
-LRT statistic and p-value:
+Where:
 
 $$
-\Lambda = 2(-163.447 + 167.526)=8.157,\qquad
-p\text{-value} = 0.0169\ (\chi^2_{2}).
+\ell(\hat\theta_1)=-163.447,\qquad \ell(\hat\theta_0)=-167.526
 $$
 
-**Decision:** Reject $H_0$ at the 5% level.
+Using the log-likelihood values then, the LRT statistic is:
 
-**Conclusion:** Since $p=0.0169<0.05$, the evidence favors different Gamma laws between groups; modeling them separately is warranted as the two groups are better described by **separate** Gamma distributions than by a single common Gamma.
+$$
+\Lambda = 2(-163.447 + 167.526) = 8.157
+$$
+
+<!-- # ```{r, echo = F, message = F, warning = F} -->
+<!-- # T <- 8.157 -->
+<!-- # pchisq(T, df = 2, lower.tail = FALSE) -->
+<!-- # ``` -->
+
+With corresponding p-value: 
+
+$$
+p\text{-value} = 0.01693 
+$$
+
+Reducing the question to an "Accept"/"Reject" framework, we'd Reject $H_0$ at the $\alpha = 0.05$ level (or make a "strength of evidence" argument to say we have strong evidence in favor of rejecting the null hypothesis). Interpreting this, we'd say that modeling the two groups as separate (differently parametrized) Gamma distributions seems a better fit than pooling them together as a single Gamma distribution (with shared shape and rate parameters). 
+
+And a graph! 
 
 ```{r, echo = F, warning = F, message = F}
 y1 <- dat$group1
@@ -276,17 +295,16 @@ Find maximum likelihood estimates and 95% Wald theory intervals for the expected
 
 ### Answer
 
-For a Gamma distribution in shape–rate form,
+For a Gamma distributed random variable Y, whose distribution is parametrized by the shape and rate parameters, the expected value is of the form:
 
 $$
-Y \sim \mathrm{Gamma}(\alpha,\beta),\qquad
-E[Y] = \frac{\alpha}{\beta}.
+E[Y] = \frac{\alpha}{\beta}
 $$
 
-Thus the expected values for each group are
+For our case, thus the expected values for each group are given by: 
 
 $$
-\mu_g = \frac{\alpha_g}{\beta_g},\qquad g=1,2.
+\mu_g = \frac{\alpha_g}{\beta_g},\qquad g=1,2
 $$
 
 Let $(\hat\alpha_g,\hat\beta_g)$ be the MLEs with covariance matrix
