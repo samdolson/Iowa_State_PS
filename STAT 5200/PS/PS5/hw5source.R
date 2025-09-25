@@ -178,7 +178,7 @@ mean_from_fit <- function(fit, conf = 0.95) {
   se_mu  <- sqrt(var_mu)
   z <- qnorm(0.5 + conf/2)
   ci_mu <- c(mu_hat - z*se_mu, mu_hat + z*se_mu)
-  list(mu = mu_hat, se = se_mu, ci = ci_mu)
+  list(mu = mu_hat, se = se_mu, ci = ci_mu, gradient = g, Hessian = S)
 }
 
 # Helper to summarize a t.test object + group descriptives

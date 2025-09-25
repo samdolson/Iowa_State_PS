@@ -98,12 +98,6 @@
 \begin{document}
 \maketitle
 
-{[}7{]} Do we include any code for this (``code dump'')?
-
-{[}8{]} Should this include more or less? What needs to be included,
-i.e., ``how overall should the analysis be'' (just ECDF or
-all-encompassing)?
-
 \section{Assignment 5}\label{assignment-5}
 
 The objectives of this assignment are to (1) ensure that you have a
@@ -398,22 +392,22 @@ Using the same optimization method using in part 2., we calculate:
 Where:
 
 \[
-\ell(\hat\theta_1)=-163.447,\qquad \ell(\hat\theta_0)=-167.526
+\ell(\hat\theta_1)=-163.447 (= \ell_1(\alpha_1,\beta_1)+\ell_2(\alpha_2,\beta_2) = -76.22814 + -87.21866),\qquad \ell(\hat\theta_0)=-167.526
 \]
 
-Using the log-likelihood values then, the LRT statistic is:
+Using the log-likelihood values above, the LRT statistic is:
 
 \[
 \Lambda = - 2 (- 167.526 - (-163.447)) = 8.158
 \]
 
-With corresponding p-value:
+With corresponding p-value (with reference distribution \(\chi^2_2\):
 
 \[
 p\text{-value} = 0.01693 
 \]
 
-Reducing the question to an ``Accept''/``Reject'' framework, we'd Reject
+Reducing the question to an ``Accept''/``Reject'' framework, we Reject
 \(H_0\) at the \(\alpha = 0.05\) level (or make a ``strength of
 evidence'' argument to say we have strong evidence in favor of rejecting
 the null hypothesis). Interpreting this, we'd say that modeling the two
@@ -455,7 +449,8 @@ Let \((\hat\alpha_g,\hat\beta_g)\) be the MLEs, then:
 \hat{\mu_g} = \frac{\hat{\alpha_g}}{\hat{\beta_g}},\qquad g=1,2
 \]
 
-Note then that the covariance matrix of the MLEs is given by:
+Note then that the covariance matrix of the MLEs (the inverse observed
+information) is given by:
 
 \[
 \widehat\Sigma_g = \begin{bmatrix}\widehat{\mathrm{Var}}(\hat\alpha_g) & \widehat{\mathrm{Cov}}(\hat\alpha_g,\hat\beta_g)\\ \widehat{\mathrm{Cov}}(\hat\alpha_g,\hat\beta_g) & \widehat{\mathrm{Var}}(\hat\beta_g)\end{bmatrix}
@@ -542,9 +537,9 @@ The observed group sample means are given by:
 
 \begin{itemize}
 \item
-  Group 1: \(\bar y_1 \approx 2.29\) (2.302 expected),
+  Group 1: \(\bar y_1 \approx 2.29\) (2.30 expected),
 \item
-  Group 2: \(\bar y_2 \approx 2.24\) (2.240 expected).
+  Group 2: \(\bar y_2 \approx 2.24\) (2.24 expected).
 \end{itemize}
 
 Also, the observed sample standard deviation is given by.
@@ -567,11 +562,21 @@ The hypotheses we may then test are o the form:
 H_0:\; \mu_1=\mu_2 \quad\text{vs.}\quad H_A:\; \mu_1\ne \mu_2
 \]
 
-Using the Welch two-sample \(t\)-test (which does not assume equal
-variances between groups).
+Since there are differences in variance between Group 1 and Group 2, I
+used the Welch two-sample \(t\)-test (which does not assume equal
+variances between groups). Notably, while I cannot emphatically justify
+using Welch, I prefer to use it in this instance because it reduces to
+the (``pooled'') two-sample \(t\)-test when the sample variances are
+close (which I think they are, though still distinct between groups).
+
+Additionally: While the formulas below are for the Welch two-sample
+\(t\)-test, I also calculate and provide formulas for the (non-Welch,
+standard) two-sample \(t\)-test.
+
+That being said, the relevant formulas for the Welch are of the form:
 
 \[
-t_{df} = \frac{\bar y_1-\bar y_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}} \approx 0.15
+t_{\nu} = \frac{\bar y_1-\bar y_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}} \approx 0.15
 \]
 
 Where the degrees of freedom are calculated using the
@@ -583,41 +588,46 @@ Welch-Satterthwaite approximation:
 {\dfrac{\left(\dfrac{s_1^2}{n_1}\right)^{2}}{n_1 - 1} \;+\; \dfrac{\left(\dfrac{s_2^2}{n_2}\right)^{2}}{n_2 - 1}}
 \]
 
-The corresponding p-value is then: \(p\approx 0.84\) (using Welch, no
-transformation).
+The corresponding p-value is then: \(p\approx 0.84\) (using Welch, and
+with no transformation).
 
 If we repeat this process \emph{after} doing a \texttt{sqrt}
 transformation on the observed samples, the result is very similar: The
 test statistic is \(t_{98} \approx 0.78\) with corresponding
-\(p \approx 0.44\). So, reducing to a decision ``Accept''/``Reject'' or
-even a ``strength of evidence'' argument, the interpretation remains
-largely the same.
+\(p \approx 0.44\) (again, using Welch). So, reducing to a decision
+``Accept''/``Reject'' or even a ``strength of evidence'' argument, the
+interpretation remains largely the same.
 
-However, these results at first glance seem counter to the Likelihood
-ratio test from part 3). Importantly, these two methods correspond to
-different tests though. The two-sample \(t\)-test suggests no difference
-in means. This is consistent with the Wald interval for \(\mu_1-\mu_2\),
-whereas the LRT, tests whether the two \emph{distributions} (which
-includes shape, variance, and other aspects of ``general form'' of the
-distribution) differ significantly between groups.
+These results may (at first) seem opposed to the Likelihood ratio test
+from part 3), but it isn't. Importantly, these two methods (LRT test
+vs.~the two-sample t-test) correspond to different tests. The two-sample
+\(t\)-test does not provide evidence of a significant difference in
+means between the two groups. This is also consistent with the Wald
+interval for the difference in means \(\mu_1-\mu_2\), containing 0. But
+LRT is not a direct comparison of means; instead, the LRT tests whether
+the two \emph{distributions} (particularly, the parameters and
+distributional form, so encompassing distributional shape, spread, and
+other aspects of the distributional form) differ significantly between
+groups.
 
-The results of the two-sample test are consistent when we use the normal
-``pooled'' two-sample t-test, and also when we transform the original
-data using the \texttt{sqrt} transformation. The results of those
-calculations follow in the table:
+Also, the results of the two-sample test are consistent when we use the
+normal ``pooled'' two-sample t-test, and also when we transform the
+original data using the \texttt{sqrt} transformation. All the relevant
+statistics and summary information of the calculations considered are in
+the following table:
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.2500}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0761}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0761}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0761}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0761}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0761}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0870}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0870}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}@{}}
-\caption{Tabular Data of Two-Sample Tests}\tabularnewline
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1688}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0779}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0779}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0779}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0779}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0909}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0909}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1039}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1169}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1169}}@{}}
+\caption{Table of Two-Sample Test Statistics}\tabularnewline
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 analysis
@@ -668,26 +678,28 @@ ci\_upper
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Raw (Welch) & 2.3023 & 2.2396 & 1.3082 & 1.7549 & 0.2026 & 90.6085 &
-0.8399 & -0.5522 & 0.6776 \\
-Sqrt (Welch) & 1.4631 & 1.3857 & 0.4060 & 0.5708 & 0.7814 & 88.4705 &
-0.4366 & -0.1194 & 0.2743 \\
-Raw (pooled-variance) & 2.3023 & 2.2396 & 1.3082 & 1.7549 & 0.2026 &
-98.0000 & 0.8399 & -0.5516 & 0.6770 \\
-Sqrt (pooled-variance) & 1.4631 & 1.3857 & 0.4060 & 0.5708 & 0.7814 &
-98.0000 & 0.4364 & -0.1192 & 0.2740 \\
+Raw, Welch & 2.302 & 2.240 & 1.308 & 1.755 & 0.203 & 90.608 & 0.840 &
+-0.552 & 0.678 \\
+Sqrt, Welch & 1.463 & 1.386 & 0.406 & 0.571 & 0.781 & 88.471 & 0.437 &
+-0.119 & 0.274 \\
+Raw, pooled & 2.302 & 2.240 & 1.308 & 1.755 & 0.203 & 98.000 & 0.840 &
+-0.552 & 0.677 \\
+Sqrt, pooled & 1.463 & 1.386 & 0.406 & 0.571 & 0.781 & 98.000 & 0.436 &
+-0.119 & 0.274 \\
 \end{longtable}
 
 Misc: There are two notes to the above. First is, the Welch seemed most
-appropriate, hence why it was formally introduced. However, since the
-two-sample t-test was also calculated, the formulas used are as follows:
+appropriate given differences in variance (and differences in shape-rate
+parameters), hence why it was formally noted and used. However, since
+the two-sample t-test was also calculated, the formulas used are as
+follows:
 
 \[
 s_p^2 \;=\; \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{\,n_1+n_2-2\,} 
 \]
 
 \[
-t_P \;=\; \frac{\bar{y}_1 - \bar{y}_2}{s_p \sqrt{\tfrac{1}{n_1} + \tfrac{1}{n_2}}},
+t_{df} \;=\; \frac{\bar{y}_1 - \bar{y}_2}{s_p \sqrt{\tfrac{1}{n_1} + \tfrac{1}{n_2}}},
 \qquad \text{df} = n_1+n_2-2
 \]
 
@@ -696,7 +708,9 @@ table.
 
 Also, since I included the \texttt{sqrt} evaluation as well in the
 table, below is visual evidence that the distributions appear more
-symmetric after \texttt{sqrt} transformation to the data.
+symmetric after \texttt{sqrt} transformation to the data (which also
+gives further visual evidence of the spread/variance being different
+between the two groups).
 
 \pandocbounded{\includegraphics[keepaspectratio]{HW5_files/figure-latex/unnamed-chunk-10-1.pdf}}
 
@@ -722,7 +736,8 @@ form, the mode is of the form:
 \]
 
 As the MLEs of \(\hat{\alpha_1}, \hat{\alpha_2} > 1\), we won't worry
-about the second condition where \(0 < \alpha \leq 1\).
+about the second condition of the mode, i.e., where
+\(0 < \alpha \leq 1\).
 
 As defined previously, \((\hat\alpha_g,\hat\beta_g)\) are the MLEs for
 group \(g\) with covariance given by \(\widehat\Sigma_g\).
@@ -798,7 +813,6 @@ function. This was used for the following comparisons with the
 \(g \in \{1, 2 \}\)).
 
 \pandocbounded{\includegraphics[keepaspectratio]{HW5_files/figure-latex/unnamed-chunk-12-1.pdf}}
-\pandocbounded{\includegraphics[keepaspectratio]{HW5_files/figure-latex/unnamed-chunk-12-2.pdf}}
 
 \newpage
 

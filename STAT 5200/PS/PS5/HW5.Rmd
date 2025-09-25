@@ -10,10 +10,6 @@ header-includes:
   - \usepackage{lmodern}
 ---
 
-[7] Do we include any code for this ("code dump")?
-
-[8] Should this include more or less? What needs to be included, i.e., "how overall should the analysis be" (just ECDF or all-encompassing)? 
-
 # Assignment 5
 
 The objectives of this assignment are to (1) ensure that you have a grasp on using the tools of basic likelihood in a data analysis and (2) help you to continue to develop the precise use of notation in presenting descriptions of analyses. On the course web page is a file in the Data folder called `gammadat.txt`. This file contains two columns of values with a header having labels `group1` and `group2`. Each column should be considered to contain values corresponding to a set of independent and identical gamma random variables. That is, the two columns are values from two groups that we wish to compare using a two-sample model with gamma distributions. Consider the first column to contain values for Group 1 and the second column to contain values for Group 2.
@@ -245,10 +241,10 @@ Using the same optimization method using in part 2., we calculate:
 Where:
 
 $$
-\ell(\hat\theta_1)=-163.447,\qquad \ell(\hat\theta_0)=-167.526
+\ell(\hat\theta_1)=-163.447 (= \ell_1(\alpha_1,\beta_1)+\ell_2(\alpha_2,\beta_2) = -76.22814 + -87.21866),\qquad \ell(\hat\theta_0)=-167.526
 $$
 
-Using the log-likelihood values then, the LRT statistic is:
+Using the log-likelihood values above, the LRT statistic is:
 
 $$
 \Lambda = - 2 (- 167.526 - (-163.447)) = 8.158
@@ -259,13 +255,13 @@ $$
 <!-- # pchisq(T, df = 2, lower.tail = FALSE) -->
 <!-- # ``` -->
 
-With corresponding p-value: 
+With corresponding p-value (with reference distribution $\chi^2_2$: 
 
 $$
 p\text{-value} = 0.01693 
 $$
 
-Reducing the question to an "Accept"/"Reject" framework, we'd Reject $H_0$ at the $\alpha = 0.05$ level (or make a "strength of evidence" argument to say we have strong evidence in favor of rejecting the null hypothesis). Interpreting this, we'd say that modeling the two groups as separate (differently parametrized) Gamma distributions seems a better fit than pooling them together as a single Gamma distribution (with shared shape and rate parameters). 
+Reducing the question to an "Accept"/"Reject" framework, we Reject $H_0$ at the $\alpha = 0.05$ level (or make a "strength of evidence" argument to say we have strong evidence in favor of rejecting the null hypothesis). Interpreting this, we'd say that modeling the two groups as separate (differently parametrized) Gamma distributions seems a better fit than pooling them together as a single Gamma distribution (with shared shape and rate parameters). 
 
 And a graph! 
 
@@ -294,10 +290,10 @@ rng <- range(y_all)
 x <- seq(0, max(rng[2], quantile(y_all, 0.999)), length.out = 400)
 plot(x, dgamma(x, shape = fit1$alpha, rate = fit1$beta),
      type = "l", col = "blue", lwd = 2,
-     xlab = "y", ylab = "Density", main = "Fitted Gamma Densities by Group")
+     xlab = "y", ylab = "Density", main = "MLE Gamma Densities by Group")
 lines(x, dgamma(x, shape = fit2$alpha, rate = fit2$beta),
       col = "red", lwd = 2)
-legend("topright", legend = c("Group 1 fit", "Group 2 fit"),
+legend("topright", legend = c("Group 1", "Group 2"),
        col = c("blue","red"), lty = 1, lwd = 2, bty = "n")
 
 ```
@@ -328,7 +324,7 @@ $$
 \hat{\mu_g} = \frac{\hat{\alpha_g}}{\hat{\beta_g}},\qquad g=1,2
 $$
 
-Note then that the covariance matrix of the MLEs is given by: 
+Note then that the covariance matrix of the MLEs (the inverse observed information) is given by: 
 
 $$
 \widehat\Sigma_g = \begin{bmatrix}\widehat{\mathrm{Var}}(\hat\alpha_g) & \widehat{\mathrm{Cov}}(\hat\alpha_g,\hat\beta_g)\\ \widehat{\mathrm{Cov}}(\hat\alpha_g,\hat\beta_g) & \widehat{\mathrm{Var}}(\hat\beta_g)\end{bmatrix}
@@ -444,9 +440,9 @@ Test whether the two groups should be considered significantly different using a
 
 The observed group sample means are given by:
 
-  - Group 1: $\bar y_1 \approx 2.29$ (2.302 expected),
+  - Group 1: $\bar y_1 \approx 2.29$ (2.30 expected),
 
-  - Group 2: $\bar y_2 \approx 2.24$ (2.240 expected).
+  - Group 2: $\bar y_2 \approx 2.24$ (2.24 expected).
 
 ```{r, echo = F, message = F, warning = F}
 # y1 <- dat$group1
@@ -480,10 +476,14 @@ $$
 H_0:\; \mu_1=\mu_2 \quad\text{vs.}\quad H_A:\; \mu_1\ne \mu_2
 $$
 
-Using the Welch two-sample $t$-test (which does not assume equal variances between groups).
+Since there are differences in variance between Group 1 and Group 2, I used the Welch two-sample $t$-test (which does not assume equal variances between groups). Notably, while I cannot emphatically justify using Welch, I prefer to use it in this instance because it reduces to the (“pooled”) two-sample $t$-test when the sample variances are close (which I think they are, though still distinct between groups). 
+
+Additionally: While the formulas below are for the Welch two-sample $t$-test, I also calculate and provide formulas for the (non-Welch, standard) two-sample $t$-test. 
+
+That being said, the relevant formulas for the Welch are of the form: 
 
 $$
-t_{df} = \frac{\bar y_1-\bar y_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}} \approx 0.15
+t_{\nu} = \frac{\bar y_1-\bar y_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}} \approx 0.15
 $$
 
 Where the degrees of freedom are calculated using the Welch-Satterthwaite approximation: 
@@ -546,23 +546,23 @@ $$
 # c(t_statistic = t_stat, df = df, p_value = p_val)
 ```
 
-The corresponding p-value is then: $p\approx 0.84$ (using Welch, no transformation).
+The corresponding p-value is then: $p\approx 0.84$ (using Welch, and with no transformation).
 
-If we repeat this process *after* doing a `sqrt` transformation on the observed samples, the result is very similar: The test statistic is $t_{98} \approx 0.78$ with corresponding $p \approx 0.44$. So, reducing to a decision "Accept"/"Reject" or even a "strength of evidence" argument, the interpretation remains largely the same. 
+If we repeat this process *after* doing a `sqrt` transformation on the observed samples, the result is very similar: The test statistic is $t_{98} \approx 0.78$ with corresponding $p \approx 0.44$ (again, using Welch). So, reducing to a decision "Accept"/"Reject" or even a "strength of evidence" argument, the interpretation remains largely the same. 
 
-However, these results at first glance seem counter to the Likelihood ratio test from part 3). Importantly, these two methods correspond to different tests though. The two-sample $t$-test suggests no difference in means. This is consistent with the Wald interval for $\mu_1-\mu_2$, whereas the LRT, tests whether the two *distributions* (which includes shape, variance, and other aspects of "general form" of the distribution) differ significantly between groups.
+These results may (at first) seem opposed to the Likelihood ratio test from part 3), but it isn't. Importantly, these two methods (LRT test vs. the two-sample t-test) correspond to different tests. The two-sample $t$-test does not provide evidence of a significant difference in means between the two groups. This is also consistent with the Wald interval for the difference in means $\mu_1-\mu_2$, containing 0. But LRT is not a direct comparison of means; instead, the LRT tests whether the two *distributions* (particularly, the parameters and distributional form, so encompassing distributional shape, spread, and other aspects of the distributional form) differ significantly between groups.
 
-The results of the two-sample test are consistent when we use the normal "pooled" two-sample t-test, and also when we transform the original data using the `sqrt` transformation. The results of those calculations follow in the table:  
+Also, the results of the two-sample test are consistent when we use the normal "pooled" two-sample t-test, and also when we transform the original data using the `sqrt` transformation. All the relevant statistics and summary information of the calculations considered are in the following table:  
 
 ```{r, echo = F, warning = F, message = F}
 y1 <- dat$group1
 y2 <- dat$group2
 
 # Run tests
-res_raw_welch   <- summarize_ttest(y1, y2, "Raw (Welch)", var_equal = FALSE)
-res_sqrt_welch  <- summarize_ttest(sqrt(y1), sqrt(y2), "Sqrt (Welch)", var_equal = FALSE)
-res_raw_eqvar   <- summarize_ttest(y1, y2, "Raw (pooled-variance)", var_equal = TRUE)
-res_sqrt_eqvar  <- summarize_ttest(sqrt(y1), sqrt(y2), "Sqrt (pooled-variance)", var_equal = TRUE)
+res_raw_welch   <- summarize_ttest(y1, y2, "Raw, Welch", var_equal = FALSE)
+res_sqrt_welch  <- summarize_ttest(sqrt(y1), sqrt(y2), "Sqrt, Welch", var_equal = FALSE)
+res_raw_eqvar   <- summarize_ttest(y1, y2, "Raw, pooled", var_equal = TRUE)
+res_sqrt_eqvar  <- summarize_ttest(sqrt(y1), sqrt(y2), "Sqrt, pooled", var_equal = TRUE)
 
 # Combine and round numeric columns for display
 results <- rbind(res_raw_welch, res_sqrt_welch, res_raw_eqvar, res_sqrt_eqvar)
@@ -581,25 +581,25 @@ results_out <- subset(results,
 
 # Round numeric columns
 num_cols <- sapply(results_out, is.numeric)
-results_out[num_cols] <- lapply(results_out[num_cols], function(x) round(x, 4))
+results_out[num_cols] <- lapply(results_out[num_cols], function(x) round(x, 3))
 
-knitr::kable(results_out, caption = "Tabular Data of Two-Sample Tests")
+knitr::kable(results_out, caption = "Table of Two-Sample Test Statistics")
 ```
 
-Misc: There are two notes to the above. First is, the Welch seemed most appropriate, hence why it was formally introduced. However, since the two-sample t-test was also calculated, the formulas used are as follows: 
+Misc: There are two notes to the above. First is, the Welch seemed most appropriate given differences in variance (and differences in shape-rate parameters), hence why it was formally noted and used. However, since the two-sample t-test was also calculated, the formulas used are as follows: 
 
 $$
 s_p^2 \;=\; \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{\,n_1+n_2-2\,} 
 $$
 
 $$
-t_P \;=\; \frac{\bar{y}_1 - \bar{y}_2}{s_p \sqrt{\tfrac{1}{n_1} + \tfrac{1}{n_2}}},
+t_{df} \;=\; \frac{\bar{y}_1 - \bar{y}_2}{s_p \sqrt{\tfrac{1}{n_1} + \tfrac{1}{n_2}}},
 \qquad \text{df} = n_1+n_2-2
 $$
 
 Where $\text{df}, s_p^2,  \text{ and } t_P$ as given in the above table.  
 
-Also, since I included the `sqrt` evaluation as well in the table, below is visual evidence that the distributions appear more symmetric after `sqrt` transformation to the data.
+Also, since I included the `sqrt` evaluation as well in the table, below is visual evidence that the distributions appear more symmetric after `sqrt` transformation to the data (which also gives further visual evidence of the spread/variance being different between the two groups).
 
 ```{r, echo = F, warning = F, message = F}
 y1 <- sqrt(dat$group1)
@@ -626,10 +626,10 @@ rng <- range(y_all)
 x <- seq(0, max(rng[2], quantile(y_all, 0.999)), length.out = 400)
 plot(x, dgamma(x, shape = fit1$alpha, rate = fit1$beta),
      type = "l", col = "blue", lwd = 2,
-     xlab = "y", ylab = "Density", main = "Sqrt -- Fitted Gamma Densities by Group")
+     xlab = "y", ylab = "Density", main = "Sqrt -- MLE Gamma Densities by Group")
 lines(x, dgamma(x, shape = fit2$alpha, rate = fit2$beta),
       col = "red", lwd = 2)
-legend("topright", legend = c("Group 1 fit", "Group 2 fit"),
+legend("topright", legend = c("Group 1", "Group 2"),
        col = c("blue","red"), lty = 1, lwd = 2, bty = "n")
 ```
 
@@ -651,7 +651,7 @@ $$
 \end{cases}
 $$
 
-As the MLEs of $\hat{\alpha_1}, \hat{\alpha_2} > 1$, we won't worry about the second condition where $0 < \alpha \leq 1$. 
+As the MLEs of $\hat{\alpha_1}, \hat{\alpha_2} > 1$, we won't worry about the second condition of the mode, i.e., where $0 < \alpha \leq 1$. 
 
 As defined previously, $(\hat\alpha_g,\hat\beta_g)$ are the MLEs for group $g$ with covariance given by $\widehat\Sigma_g$. 
 
@@ -756,20 +756,38 @@ f1 <- fit_gamma_sr(y1); f2 <- fit_gamma_sr(y2)
 par(mfrow = c(1,1))
 
 ## Plot 1: Group 1
-x1 <- seq(0, max(y1, na.rm = TRUE), length.out = 400)
-plot(ecdf(y1), main = "Group 1: ECDF vs Fitted Gamma CDF",
-     xlab = "y", ylab = "CDF", vert = TRUE, do.points = FALSE, col = "black")
-lines(x1, pgamma(x1, shape = f1$alpha, rate = f1$beta), lwd = 2, col = "blue")
-legend("bottomright", c("Empirical CDF", "Gamma CDF (MLE)"),
-       lty = 1, lwd = c(1,2), col = c("black","blue"), bty = "n")
+# x1 <- seq(0, max(y1, na.rm = TRUE), length.out = 400)
+# plot(ecdf(y1), main = "Group 1: ECDF vs MLE Gamma CDF",
+#      xlab = "y", ylab = "CDF", vert = TRUE, do.points = FALSE, col = "black")
+# lines(x1, pgamma(x1, shape = f1$alpha, rate = f1$beta), lwd = 2, col = "blue")
+# legend("bottomright", c("Empirical CDF", "Gamma CDF (MLE)"),
+#        lty = 1, lwd = c(1,2), col = c("black","blue"), bty = "n")
+# 
+# ## Plot 2: Group 2
+# x2 <- seq(0, max(y2, na.rm = TRUE), length.out = 400)
+# plot(ecdf(y2), main = "Group 2: ECDF vs MLE Gamma CDF",
+#      xlab = "y", ylab = "CDF", vert = TRUE, do.points = FALSE, col = "black")
+# lines(x2, pgamma(x2, shape = f2$alpha, rate = f2$beta), lwd = 2, col = "red")
+# legend("bottomright", c("Empirical CDF", "Gamma CDF (MLE)"),
+#        lty = 1, lwd = c(1,2), col = c("black","red"), bty = "n")
 
-## Plot 2: Group 2
-x2 <- seq(0, max(y2, na.rm = TRUE), length.out = 400)
-plot(ecdf(y2), main = "Group 2: ECDF vs Fitted Gamma CDF",
-     xlab = "y", ylab = "CDF", vert = TRUE, do.points = FALSE, col = "black")
-lines(x2, pgamma(x2, shape = f2$alpha, rate = f2$beta), lwd = 2, col = "red")
-legend("bottomright", c("Empirical CDF", "Gamma CDF (MLE)"),
-       lty = 1, lwd = c(1,2), col = c("black","red"), bty = "n")
+# Base plot: ECDF of group 1
+plot(ecdf(y1), main = "ECDF vs MLE Gamma CDF (Group 1 vs. 2)",
+     xlab = "y", ylab = "CDF", vert = TRUE, do.points = FALSE, col = "blue")
+
+# Add ECDF of group 2
+lines(ecdf(y2), col = "red", vert = TRUE, do.points = FALSE)
+# Add fitted Gamma CDFs
+lines(x, pgamma(x, shape = f1$alpha, rate = f1$beta), col = "blue", lwd = 2, lty = 2)
+lines(x, pgamma(x, shape = f2$alpha, rate = f2$beta), col = "red", lwd = 2, lty = 2)
+
+# Legend
+legend("bottomright",
+       legend = c("ECDF (Group 1)", "ECDF (Group 2)",
+                  "Gamma CDF MLE (Group 1)", "Gamma CDF MLE (Group 2)"),
+       col = c("blue", "red", "blue", "red"),
+       lwd = c(1,1,2,2), lty = c(1,1,2,2), bty = "n")
+
 ```
 
 \newpage 

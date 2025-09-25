@@ -1,0 +1,189 @@
+---
+title: "NP Report"
+output: pdf_document
+author: "Sam Olson"
+bibliography: references.bib
+reference-section-title: "References"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# General Timeline
+
+1897 — Fechner introduces the *method of signs* for succession-dependence.
+
+1938 — Kendall develops the $\tau$ rank correlation coefficient.
+
+1958 — Kruskal broadens Kendall’s ideas into a general nonparametric testing framework.
+
+1958 to ??? — Others (such as El-Shaarawi, 1992) apply rank-based methods to time series problems.
+
+2024 — Shi et al. (focus of this summary report) develop a "adaptive high-dimensional independence tests" using Kendall’s $\tau$.
+
+2025 — Han et al. extend this framework to a broader class of sum-of-powers tests.
+
+# General Summary
+
+The trajectory from Fechner to modern adaptive tests highlights how a simple sign-based idea grew into a major branch of nonparametric inference.
+
+Fechner’s *Kollektivmasslehre* (1897) [@Fechner1897] anticipated many of the ideas behind Kendall’s $\tau$. His *method of signs* looked for succession-dependence in sequences of observations, asking whether runs of increases or decreases occurred more often than chance would predict. Though Fechner restricted his comparisons to *adjacent* pairs, the spirit was the same: assess concordance and discordance using only the signs of differences, not their magnitudes. He even applied this method to meteorological series and anthropometric data, extending the idea to two dimensions.
+
+Kendall (1938) [@Kendall1938] generalized Fechner’s idea by considering **all possible pairs** of observations, not just consecutive ones. His $\tau$ statistic became the canonical **rank correlation coefficient**, widely adopted as a nonparametric alternative to Pearson’s correlation. In this sense, Kendall formalized what Fechner had hinted at decades earlier: a distribution-free measure of association based solely on ranks.
+
+The following decades saw Kendall’s $\tau$ move beyond descriptive correlation. Kruskal (1958) [@Kruskal1958] emphasized its place within a broader family of nonparametric statistics for ordinal data, framing it as a tool for hypothesis testing rather than mere association. Later, applications expanded to time series, where rank-based measures allowed testing for persistence or independence in hydrological and environmental data [@ElShaarawi1992; @Hamed2011].
+
+Today, this lineage culminates in the use of Kendall’s $\tau$ for **independence testing in high dimensions**. Modern methods exploit its distribution-free and robust properties to develop procedures that remain valid under heavy tails or complex dependence structures. In particular, recent adaptive tests [@Shi2024; @Han2025] extend Kendall’s original idea into settings Kendall himself could not have imagined, where dozens or even hundreds of variables may be simultaneously tested for independence.
+
+**Key point:** What began as Fechner’s attempt to quantify succession-dependence has, through Kendall’s formalization and subsequent expansions, become a cornerstone of nonparametric statistics — not only for measuring correlation but also for designing powerful and robust tests of independence.
+
+# Concise Comparison to Kendall’s $\tau$
+
+* **Fechner (1897):** focused on successive changes in time series, measuring whether runs of same-direction changes predominated over alternating changes. His measure was essentially a **sign-based concordance statistic**, but restricted to *adjacent pairs*.
+
+* **Kendall (1938):** generalized this concordance/discordance idea to **all possible pairs** of observations, yielding a general **rank correlation coefficient** applicable beyond time-ordered data [@Kendall1938].
+
+**Key point:** Fechner’s *Abh.* was the first sign-based dependence measure, rooted in succession of values, while Kendall’s $\tau$ became the general measure of ordinal association.
+
+# Motivation and Relevance
+
+This historical progression highlights why Kendall’s $\tau$ remains of interest today. Modern work continues to explore distribution-free and rank-based tests of independence:
+
+* Adaptive tests for independence in high dimensions build directly on Kendall’s $\tau$ [@Shi2024; @Han2025].
+* Applications to time series echo Fechner’s original focus [@ElShaarawi1992].
+* Broader treatments of ordinal association [@Kruskal1958] and nonparametric effect size measures [@Newson] underscore its role as a general nonparametric tool.
+* Kendall’s $\tau$ has also been extended to dependence testing in persistent data [@Hamed2011].
+
+# Recent Development: Shi et al. (2024)
+
+Shi, Jiang, Du, and Miao (2024) tackle the problem of **testing mutual independence** among the components of a high-dimensional random vector:
+
+$$
+H_0: X_1, X_2, \dots, X_d \;\text{are mutually independent}.
+$$
+
+This problem is central in modern statistics — for example, in independent component analysis, causal inference, or portfolio management — but especially difficult when the number of variables $d$ is large relative to the sample size $n$.
+
+## Why Kendall’s $\tau$?
+
+Classical Pearson correlation–based approaches often assume finite second moments and Gaussian structure. In contrast, Kendall’s $\tau$ is:
+
+* **Rank-based** and invariant to monotone transformations,
+* **Distribution-free**, valid without parametric assumptions,
+* **Robust** to heavy-tailed or skewed data, even when variance is infinite.
+
+These properties make it ideal for high-dimensional independence testing.
+
+## Dense vs. Sparse Alternatives
+
+The key difficulty is that dependence can manifest in two very different ways:
+
+* **Dense alternatives**: many weak dependencies across variables.
+* **Sparse alternatives**: a few strong dependencies, with most variables independent.
+
+Statistical tests traditionally specialize in one of these regimes:
+
+* **$L_2$-type tests**: sum of squared pairwise correlations, pooling many small effects (good for dense alternatives).
+* **$L_\infty$-type tests**: maximum pairwise correlation, sensitive to the largest effect (good for sparse alternatives).
+
+But analysts rarely know which type of dependence dominates in practice.
+
+## Methodology
+
+The authors construct **rank-based $L_2$ and $L_\infty$ statistics** using Kendall’s $\tau$:
+
+### $L_2$-type statistic
+
+$$
+S_\tau = \frac{1}{\sqrt{\omega_2}} \left( \sum_{k<\ell} \tau_{k\ell}^2 - \frac{d(d-1)}{2}\,\omega_1 \right),
+$$
+
+where $\omega_1, \omega_2$ are the exact mean and variance of $\tau_{k\ell}^2$ under $H_0$.
+
+* Asymptotically: $S_\tau \sim N(0,1)$.
+* Pools weak signals across many pairs → powerful for dense dependence.
+* Limitation: poor when only a few strong signals exist.
+
+### $L_\infty$-type statistic
+
+$$
+M_\tau = \frac{1}{\omega_1} \max_{k<\ell} \tau_{k\ell}^2 - 4\ln d + \ln \ln d.
+$$
+
+* Asymptotically: $M_\tau$ follows a Gumbel distribution.
+* Sensitive to the largest pairwise correlation → powerful for sparse dependence.
+* Limitation: slow convergence in finite samples.
+
+### Adaptive combination
+
+To cover both regimes, the authors define:
+
+$$
+C_\tau = \min \{\, 1 - F(M_\tau), \; 1 - \Phi(S_\tau) \,\},
+$$
+
+where $F$ is the Gumbel CDF and $\Phi$ the standard normal CDF.
+
+Key theoretical results:
+
+1. **Asymptotic independence**: $S_\tau$ and $M_\tau$ are asymptotically independent under $H_0$, despite both being based on Kendall’s $\tau$.
+
+   * Justified by U-statistic theory and bounding higher-order moments.
+   * Holds without moment restrictions (even infinite variance).
+
+2. **Null distribution of $C_\tau$**:
+   If $d \to \infty$, $n$ large, and $\ln d = o(n^{1/3})$, then
+
+   $$
+   C_\tau \overset{d}{\to} W = \min\{A,B\}, \quad A,B \sim \text{Uniform}[0,1].
+   $$
+
+   So the null CDF is $H(t) = 2t - t^2$. This provides a simple rejection rule:
+   reject $H_0$ if $C_\tau < 1 - \sqrt{1-\alpha}$.
+
+3. **Robustness**: Because Kendall’s $\tau$ is rank-based, the test is valid under monotone transformations and non-normal distributions.
+
+## Simulation Results
+
+The authors benchmark $C_\tau$ against both Pearson- and rank-based competitors.
+
+* **Size control:**
+
+  * Pearson-based methods often inflate type I error under heavy tails.
+  * $C_\tau$, $S_\tau$, and $M_\tau$ maintain nominal size, even under Cauchy data (infinite variance).
+
+* **Power:**
+
+  * Dense dependence → $S_\tau$ excels, $M_\tau$ weak.
+  * Sparse dependence → $M_\tau$ excels, $S_\tau$ weak.
+  * $C_\tau$ consistently adapts, performing near the best of both.
+
+* **Finite samples:** Using Monte Carlo–calibrated critical values improves $M_\tau$’s finite-sample behavior.
+
+## Applications
+
+1. **Welding dataset (4 variables, $n=40$):**
+
+   * Variables: voltage, current, feed speed, airflow.
+   * Heavy-tailed, skewed data.
+   * $S_\tau$ and $C_\tau$ strongly reject independence (p < 0.01).
+   * Pearson-based Schott test fails to reject → highlights robustness of rank-based tests.
+
+2. **Biochemical dataset (8 serum measures):**
+
+   * Control group: $C_\tau = 0.008$ (p = 0.016) → strong dependence.
+   * Alcohol group: $C_\tau = 0.042$ (p = 0.081) → weaker evidence.
+   * Suggests biological differences in dependence structure between groups.
+
+## Conclusion
+
+Shi et al. (2024) provide a **practical, distribution-free, and adaptive procedure** for high-dimensional independence testing. By combining $L_2$- and $L_\infty$-type rank-based statistics, the method adapts automatically to dense or sparse dependence structures without requiring parametric assumptions.
+
+A more recent contribution by Han et al. (2025) [@Han2025] generalizes this framework further, introducing **sum-of-powers statistics** that extend beyond squares and maxima. While more technical, this shows how Kendall’s century-old idea continues to inspire active methodological development.
+
+# Next Steps
+
+* Add a section on **Consulting Application**: how Kendall’s $\tau$–based adaptive tests could be used in practice (e.g., survey data, biochemical or environmental measurements).
+* Conclude with reflections: Kendall’s $\tau$ is not just a historical curiosity but an active area of research that bridges foundational nonparametric methods and cutting-edge high-dimensional inference.
+

@@ -402,6 +402,37 @@ where $\xi_i$ lies between $x$ and $X_i$.
 
 ### 2.6 
 
+The oversmoothed bandwidth selector is defined as
+
+$$
+\hat{h}_{n, \text{OS}} \;=\; 
+\left[ \frac{243 R(K)}{35 \mu_2^2} \right]^{1/5} \, n^{-1/5} S
+\tag{2.15}
+$$
+
+where \( S \) is the sample standard deviation.
+
+The least squares cross-validation bandwidth selector is the one that minimizes the least squares cross-validation quantity
+
+$$
+\hat{h}_{\text{LSCV}} \;=\; \arg \min_h \, \text{LSCV}(h)
+\tag{2.16}
+$$
+
+Replacing \( R(f'') \) in (2.20) by the kernel estimator \( \hat{\psi}_4 \) in (2.21) leads to the Direct Plug-In bandwidth selector
+
+$$
+\hat{h}_{\text{DPI}} \;=\; 
+\left[ \frac{R(K)}{\mu_2^2 \, \hat{\psi}_4(g)} \right]^{1/5} \, n^{-1/5}
+$$
+
+
+### 2.7 
+
+## Chapter 3 
+
+
+
 \newpage 
 
 # Reading Notes 
@@ -624,3 +655,20 @@ Since $\hat f_X$ is nonnegative and integrates to one, it is a probability densi
 "One way of correcting the boundary bias of the KDE is by using special kernels called *boundary kernels*. These kernels are only used within the boundary region (and the usual kernel $K$ is used in the interior)."
 
 ### 2.6 
+
+The main advantage of \( \hat{h}_{BCV} \) is that it is more stable than \( \hat{h}_{LSCV} \), in the sense that its asymptotic variance is considerably lower. Indeed, Jones and Kappenman (1992) showed that the ratio of the variance of LSCV and BCV for a Gaussian kernel is
+
+$$
+\frac{\sigma^2_{\text{LSCV}}}{\sigma^2_{\text{BCV}}} \;\approx\; 15.7
+$$
+
+Smoothed cross-validation (SCV) (Müller, 1985; Staniswalis, 1985; Hall et al., 1992) is similar to plug-in bandwidth selection in that it uses a kernel estimator with pilot bandwidth \( g \) to estimate the integrated squared bias component of \( \text{MISE}(\hat{f}_X) \). Because of this, the methods have similar theoretical properties. The difference is that SCV is based on the exact integrated squared bias rather than its asymptotic approximation. This has the intuitively appealing feature of having less dependence on asymptotic approximations. On the other hand, SCV is not as easy to implement as DPI and is somewhat more difficult to analyze. It can be shown that an exact MISE expression for the kernel density
+
+If a single objective bandwidth selector is required then the general recommendation, based on simulation evidence, is to use a version of 
+\( \hat{h}_{\text{DPI}}, \hat{h}_{\text{STE}} \) or \( \hat{h}_{\text{SCV}} \), 
+rather than \( \hat{h}_{\text{LSCV}} \) or \( \hat{h}_{\text{BCV}} \).
+
+### 2.7 
+
+## Chapter 3 
+
