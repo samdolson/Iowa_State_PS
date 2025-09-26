@@ -1,0 +1,122 @@
+---
+title: "Trying it out!"
+output: html_document
+date: "2025-09-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+kendall_adaptive_test <- function(X, alpha = 0.05,
+                                  mtype = c("asymptotic","mc"),
+                                  B = 2000, seed = NULL, quiet = FALSE) {
+  mtype <- match.arg(mtype)
+  X <- as.matrix(X)
+  n <- nrow(X); d <- ncol(X)
+  if (!quiet && any(duplicated(X, MARGIN = 1)) || any(apply(X, 2, anyDuplicated) > 0)) {
+    message("Note: theory assumes continuous margins (no ties). ",
+            "R's Kendall (tau-b) handles ties, but asymptotics are for no ties.")
+  }
+
+  ## pairwise Kendall taus
+  Tau <- suppressWarnings(stats::cor(X, method = "kendall", use = "pairwise.complete.obs"))
+  # keep upper triangle only
+  Tau[lower.tri(Tau, diag = TRUE)] <- NA           
+  tau2 <- Tau^2
+  idx <- which(!is.na(tau2))
+  sum_tau2 <- sum(tau2[idx])
+  max_tau2 <- max(tau2[idx])
+
+  ## constants (paper's exact null moments for Kendall's tau)
+  w1 <- 2*(2*n + 5) / (9*n*(n - 1))
+  w2 <- 4 * d*(d-1) * (n - 2) * (100*n^3 + 492*n^2 + 731*n + 279) /
+        (2025 * n^3 * (n - 1)^3)
+
+  ## L2-type statistic: S_tau
+  S_tau <- (sum_tau2 - (d*(d-1)/2) * w1) / sqrt(w2)
+  pS <- 1 - stats::pnorm(S_tau)    # upper-tail p-value
+
+  ## L∞-type statistic: M_tau
+  M_tau <- (max_tau2 / w1) - 4*log(d) + log(log(d))
+
+  ## p-value for M_tau
+  if (mtype == "asymptotic") {
+    # Gumbel(0,2) form used in the paper: F(y)=exp{-(8*pi)^(-1/2) * exp(-y/2)}
+    gumbel_cdf <- function(y) exp(- (8*pi)^(-1/2) * exp(-y/2))
+    pM <- 1 - gumbel_cdf(M_tau)
+  } else {
+    # Monte Carlo finite-sample null (distribution-free under H0)
+    if (!is.null(seed)) set.seed(seed)
+    sim_M <- numeric(B)
+    for (b in seq_len(B)) {
+      # generate independent continuous margins under H0 (random normals)
+      Z <- matrix(rnorm(n*d), n, d)
+      Tz <- suppressWarnings(stats::cor(Z, method = "kendall"))
+      Tz[lower.tri(Tz, diag = TRUE)] <- NA
+      max_t2 <- max(Tz^2, na.rm = TRUE)
+      sim_M[b] <- (max_t2 / w1) - 4*log(d) + log(log(d))
+    }
+    pM <- mean(sim_M >= M_tau)
+  }
+
+  ## Adaptive p-value and rejection rule
+  C_tau <- min(pS, pM)
+  # reject if C_tau < crit
+  crit  <- 1 - sqrt(1 - alpha)  
+  reject <- (C_tau < crit)
+
+  list(
+    n = n, d = d,
+    w1 = w1, w2 = w2,
+    S_tau = S_tau, p_S = pS,
+    M_tau = M_tau, p_M = pM, p_method = mtype,
+    C_tau = C_tau, alpha = alpha, critical_value = crit, reject = reject
+  )
+}
+
+```
+
+```{r}
+# X is n x d with columns = variables
+set.seed(1)
+X <- matrix(rnorm(50*50), 50, 50)
+
+kendall_adaptive_test(X, alpha = 0.05, B = 500, mtype = "asymptotic")
+# or finite-sample null for M_tau:
+kendall_adaptive_test(X, alpha = 0.05, B = 500, mtype = "mc", seed = 42)
+```
+
+```{r}
+# make var2 highly dependent on var1
+Y <- X
+Y[,2] <- X[,1] + rnorm(50, sd = 0.1)  
+kendall_adaptive_test(Y, alpha = 0.05)
+```
+
+## What the code matches from the paper (where it matters)
+
+* **Kendall’s τ** for each pair $(k,\ell)$ and the **L2 statistic**
+
+$$
+S_\tau=\omega_2^{-1/2}\left(\sum_{k=2}^d\sum_{\ell=1}^{k-1}\tau_{k\ell}^2-\frac{d(d-1)}{2}\,\omega_1\right),
+$$
+
+with $\omega_1=\frac{2(2n+5)}{9n(n-1)}$ and
+$\omega_2=\frac{4d(d-1)(n-2)(100n^3+492n^2+731n+279)}{2025\,n^3(n-1)^3}$. 
+* **L∞ statistic**
+
+$$
+M_\tau=\omega_1^{-1}\max_{\ell<k}\tau_{k\ell}^2 - 4\ln d + \ln\ln d,
+$$
+
+with asymptotic null $F(y)=\exp\!\{- (8\pi)^{-1/2} e^{-y/2}\}$. 
+* **Adaptive p-value**
+
+$$
+C_\tau=\min\{1-F(M_\tau),\,1-\Phi(S_\tau)\},
+$$
+
+and **reject** if $C_\tau<1-\sqrt{1-\alpha}$. 
+
