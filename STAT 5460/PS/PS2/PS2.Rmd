@@ -12,7 +12,7 @@ header-includes:
 Consider the kernel density estimator with $X_1, \ldots, X_n \overset{\text{i.i.d.}}{\sim} X$:
 
 $$
-\hat{f}(x) = \frac{1}{nh} \sum_{i=1}^n K\!\left(\frac{x - X_i}{h}\right) 
+\hat{f}_{h}(x) = \frac{1}{nh} \sum_{i=1}^n K\!\left(\frac{x - X_i}{h}\right) 
 = \frac{1}{n} \sum_{i=1}^n K_h(x - X_i),
 $$
 
@@ -27,7 +27,7 @@ $$
 Show that the exact bias of the kernel density estimator is given by
 
 $$
-\text{E}[\hat{f}(x)] - f(x) = (K_h * f)(x) - f(x).
+\text{E}[\hat{f}_{h}(x)] - f(x) = (K_h * f)(x) - f(x).
 $$
 
 ### Answer
@@ -37,8 +37,8 @@ $$
 \text E[\widehat f(x)]
 &=\text E\left[\frac{1}{n}\sum_{i=1}^n K_h(x-X_i)\right] \\ 
 &= \sum_{i=1}^{n} \frac{1}{n} \text E\left[K_h(x-X_i)\right] \quad\text{Expectation is a linear function}\ \\
-&= \text E\left[K_h(x-X_1)\right] \quad\text{X's iid, specifically identical}\ \\
-&= \int K_h(x-y)f(y)dy \quad \text{See Note} \\ 
+&= \text E\left[K_h(x-X)\right] \quad\text{X's iid, specifically identical}\ \\
+&= \int_{\mathbb R}K_h(x-y)f(y)dy \quad \text{See Note} \\ 
 &= (K_h*f)(x) \quad \text{Convolution definition} \\ 
 \end{aligned}
 $$
@@ -48,7 +48,7 @@ Note: The penultimate step follows from the definition of expectation for a cont
 Returning then to the bias formula, it then follows: 
 
 $$
-\text{E}[\hat{f}(x)] - f(x) = (K_h * f)(x) - f(x)
+\text{E}[\hat{f}_{h}(x)] - f(x) = (K_h * f)(x) - f(x)
 $$
 
 ## b) 
@@ -56,7 +56,7 @@ $$
 Show that the exact variance of the kernel density estimator equals
 
 $$
-\operatorname{Var}(\hat{f}(x)) 
+\operatorname{Var}(\hat{f}_{h}(x)) 
 = \frac{1}{n}\Big[(K_h^2 * f)(x) - (K_h * f)^2(x)\Big].
 $$
 
@@ -78,8 +78,8 @@ $$
 \quad\text{(sum of the variance of iid R.V.'s)} \\ 
 &= \tfrac{1}{n}\Big(\text{E}[Z_1^2] - (\text{E}[Z_1])^2\Big) \quad \text{Variance definition/decomposition} \\
 &= \tfrac{1}{n}\Big(\text{E}[K_h^2(x-X_1)] - \left( \text{E}[K_h(x-X_1)]\right)^2\Big) \quad \text{Substituting original definitionb of } Z_i \\
-&= \tfrac{1}{n}\left(\int K_h^2(x-y)\,f(y)\,dy 
-       - \left\{\int K_h(x-y)\,f(y)\,dy\right\}^2\right) \quad \text{Convolution definition} \\
+&= \tfrac{1}{n}\left(\int_{\mathbb R}K_h^2(x-y)\,f(y)\,dy 
+       - \left\{\int_{\mathbb R}K_h(x-y)\,f(y)\,dy\right\}^2\right) \quad \text{Convolution definition} \\
 &= \tfrac{1}{n}\Big[(K_h^{\,2}*f)(x) - (K_h*f)^2(x)\Big]
 \end{aligned}
 $$
@@ -130,61 +130,63 @@ $$
 = \int_{\mathbb R} \mathrm{MSE}(\hat f(x))dx
 $$
 
-Using the result from c) (the original, "unsimplified version"):
+Using the result from c), i.e., the original, "unsimplified version":
 
 $$
 \mathrm{MISE}(\hat f)
-= \frac{1}{n}\left[\int (K_h^{\,2}*f)(x)\,dx - \int (K_h*f)^2(x)\,dx\right]
-+ \int \big[(K_h*f)(x)-f(x)\big]^2\,dx
+= \frac{1}{n}\left[\int_{\mathbb R}(K_h^{\,2}*f)(x)\,dx - \int_{\mathbb R}(K_h*f)^2(x)\,dx\right]
++ \int_{\mathbb R}\big[(K_h*f)(x)-f(x)\big]^2\,dx
 $$
 
 Evaluating the first integral of the above:
 
 $$
 \begin{aligned}
-\int (K_h^{\,2}*f)(x)\,dx
-&= \int \int K_h^{\,2}(x-y)\, f(y)\,dy\,dx \\
-&= \int f(y)\left\{ \int K_h^{\,2}(x-y)\,dx \right\}dy
-\qquad\text{Fubini to swap integrals} \\
-&= \int f(y)\left\{ \int K_h^{\,2}(u)\,du \right\}dy
+\int_{\mathbb R}(K_h^{\,2}*f)(x)\,dx
+&= \int_{\mathbb R}\int_{\mathbb R}K_h^{\,2}(x-y)\, f(y)\,dy\,dx \\
+&= \int_{\mathbb R}f(y)\left\{ \int_{\mathbb R}K_h^{\,2}(x-y)\,dx \right\}dy
+\qquad\text{Fubini to swap order of integration} \\
+&= \int_{\mathbb R}f(y)\left\{ \int_{\mathbb R}K_h^{\,2}(u)\,du \right\}dy
 \qquad \text{u substitution where } u = x-y, du = dx \\
-&= \left(\int f(y)\,dy\right)\left(\int K_h^{\,2}(u)\,du\right) \\
-&= \int K_h^{\,2}(u)\,du \quad \text{as we integrate y over its support}
+&= \left(\int_{\mathbb R}f(y)\,dy\right)\left(\int_{\mathbb R}K_h^{\,2}(u)\,du\right) \\
+&= \int_{\mathbb R}K_h^{\,2}(u)\,du \quad \text{as we integrate f(y) over its support}
 \end{aligned}
 $$
 
-Because we used Fubini we then are assuming that the function is Lebesgue integrable, which we have, since f is a (valid) density. 
+Because we used Fubini we then are assuming that the function is Lebesgue integrable, which is a given when we assume f is a (valid) density. 
 
 Note then, that the squared kernel density is of the form:
 
 $$
-\int (K_h^{\,2}*f)(x)\,dx
-= \int K_h^{\,2}(u)\,du 
-= \int \frac{1}{h^2}\,K^2\left(\frac{u}{h}\right)\,du
+\int_{\mathbb R}(K_h^{\,2}*f)(x)\,dx
+= \int_{\mathbb R}K_h^{\,2}(u)\,du 
+= \int_{\mathbb R}\frac{1}{h^2}\,K^2\left(\frac{u}{h}\right)\,du
 $$
 
-Consider an additional change of variables then, where $v = u/h$, and $du = h\,dv$. 
+Consider an additional change of variables, where $v = u/h$, and $du = h\,dv$. 
 
 Then:
 
 $$
-\int \frac{1}{h^2} K^2\left(\frac{u}{h}\right)\,du
-= \int \frac{1}{h^2} K^2(v),(h,dv)
-= \frac{1}{h}\int K^2(v)\,dv
+\int_{\mathbb R}\frac{1}{h^2} K^2\left(\frac{u}{h}\right)\,du
+= \int_{\mathbb R}\frac{1}{h^2} \left( K^2(v)\,hdv \right)
+= \frac{1}{h}\int_{\mathbb R}K^2(v)\,dv
 $$
 
-Notably, this simplification/evaluation was for the first integral. I do not believe the other two integrals nicely evaluate, and thus will be left to a form of simplification more akin to notational convenience later on.  
+Notably, up until this point the simplification/evaluation was for the first integral of the original MISE expression. 
 
-Taking the simplifications/evaluations we could muster, the overall MISE expression is of the form: 
+I do not believe the other two integrals evaluate/simplify nicely, and thus will be left to a form of simplification more akin to notational convenience.  
+
+We then have the overall (exact) MISE is of the form: 
 
 $$
 \mathrm{MISE}(\hat f)
-= \frac{1}{nh}\int K^2(u)\,du
-- \frac{1}{n}\int (K_h*f)^2(x)\,dx
-+ \int \big[(K_h*f)(x)-f(x)\big]^2\,dx
+= \frac{1}{nh}\int_{\mathbb R}K^2(u)\,du
+- \frac{1}{n}\int_{\mathbb R}(K_h*f)^2(x)\,dx
++ \int_{\mathbb R}\big[(K_h*f)(x)-f(x)\big]^2\,dx
 $$
 
-We can simplify this somewhat, following the convention of the text to define $R(K):=\int_{\mathbb R} K(x)^2,dx$, to write:
+We can simplify this somewhat, following the convention of the text to define $R(K)=\int_{\mathbb R} K(x)^2\,dx$:
 
 $$
 \mathrm{MISE}(\hat f)=\frac{1}{nh}\,R(K) - \frac{1}{n}\,R(K_h*f) + R\big((K_h*f)-f\big)
@@ -215,25 +217,25 @@ $$
 
 ### Answer
 
-Let
+Starting with our typical form of the kernel and kernel density estimator, let:
 
 $$
 Y_i = K_h(x - X_i) = \frac{1}{h}\,K\left(\frac{x - X_i}{h}\right) \qquad \text{where } i=1,\dots,n,
 $$
 
-so that the kernel density estimator is
+Then, we may write the kernel density estimator as: 
 
 $$
 \hat f_h(x) = \frac{1}{n}\sum_{i=1}^n Y_i
 $$
 
-Since $|K|_\infty = \sup_{u\in\mathbb{R}} |K(u)| < \infty$, we have the almost sure bound
+Since $|K|_\infty = \sup_{u\in\mathbb{R}} |K(u)| < \infty$, we have bounds given by: 
 
 $$
 -\frac{|K|_\infty}{h} \le Y_i \le \frac{|K|_\infty}{h}
 $$
 
-Thus we may take
+Thus we may take (noting the hint): 
 
 $$
 a = -\frac{|K|_\infty}{h},
@@ -251,7 +253,7 @@ P\left( \big|\hat f_h(x) - \text{E}[\hat f_h(x)]\big| > \epsilon \right)
 2\exp\left( - \frac{2n\epsilon^2}{(b-a)^2} \right)
 $$
 
-That is,
+Simplifying the right-hand side of the inequality:
 
 $$
 2\exp\left( - \frac{2n\epsilon^2}{4|K|_\infty^2/h^2} \right)
@@ -266,22 +268,12 @@ P\left( \big|\hat f_h(x) - \text{E}[\hat f_h(x)]\big| > \epsilon \right)
 2\exp\left( - \frac{n h^2 \epsilon^2}{2|K|_\infty^2} \right)
 $$
 
-**Dependence:** The bound decays exponentially in $n$ and $\epsilon^2$, and is tighter when $h$ is larger (since the summands are bounded by $|K|_\infty/h$).
-
-**Special case (nonnegative kernel):** If $K \ge 0$, then $0 \le Y_i \le |K|_\infty/h$, so $(b-a)^2 = (|K|_\infty/h)^2$, and the exponent improves by a factor of 4:
-
-$$
-P\left( \big|\hat f_h(x) - \text{E}[\hat f_h(x)]\big| > \epsilon \right)
-\le
-2\exp\left( - \frac{2n h^2 \epsilon^2}{|K|_\infty^2} \right)
-$$
-
 ## b) 
 
 Suppose you want to construct a uniform bound over a compact interval $[a, b]$. Show that
 
 $$
-P\!\left( \sup_{x \in [a, b]} \big|\hat{f}(x) - \text{E}[\hat{f}_h(x)]\big| > \epsilon \right) 
+P\!\left( \sup_{x \in [a, b]} \big|\hat{f}_{h}(x) - \text{E}[\hat{f}_h(x)]\big| > \epsilon \right) 
 \leq \text{something small}.
 $$
 
@@ -294,12 +286,21 @@ Write down all the assumptions you’re making in the process.
 
 ### Answer
 
-(1): $X_1,\dots,X_n$ are i.i.d. with some density on $\mathbb{R}$.
-(2): The kernel $K$ is bounded: $|K|_{\infty} := \sup_{u\in\mathbb{R}} |K(u)| < \infty$.
-(3): The kernel $K$ is differentiable with bounded derivative: $|K'|_{\infty} = \sup_{u\in\mathbb{R}} |K'(u)| < \infty$.
-(4): Work on a compact interval $[a,b]$ with a fixed bandwidth $h>0$.
+(1): Throughout, we assume $X_1,\dots,X_n$ are iid with valid density.
 
-Given the setup from part a), we know that boundedness gives $|Y_i(x)| \le |K|_{\infty}/h$ for all $x$. We then also know that $|K'|_{\infty}<\infty$ (assumptions of differentiability), and, by the mean-value theorem:
+(2): The kernel $K$ is bounded ($|K|_{\infty} = \sup_{u\in\mathbb{R}} |K(u)| < \infty$).
+
+(3): The kernel $K$ is differentiable and has bounded derivative ($|K'|_{\infty} = \sup_{u\in\mathbb{R}} |K'(u)| < \infty$).
+
+(4): The kernel density estimator $f$ is bounded (a stronger assumption would be is integrable)
+
+(5): As $h \rightarrow 0$, $n h^{2}\to\infty$
+
+(6): (Perhaps not an assumption, but a given?) We have a compact interval $[a,b]$ (closed and bounded interval)
+
+Given the setup and results from part a), we know that boundedness gives $|Y_i(x)| \le \frac{|K|_{\infty}}{h}$ for all $x$. 
+
+We then also know that $|K'|_{\infty}<\infty$ (that is both exists and is bounded). Then, by the Mean-Value Theorem:
 
 $$
 |Y_i(x) - Y_i(x')|
@@ -315,14 +316,14 @@ $$
 |\text{E}\hat f_h(x) - \text{E}\hat f_h(x')| \le \frac{|K'|_{\infty}}{h^2}\,|x - x'|
 $$
 
-(Noting the terms on the right-side of the inequality are non-random)
+(Noting the terms on the right-side of the inequality are non-random, i.e., fixed)
 
-Then, fix some (small) $\delta>0$, and define a $\delta$-net $N_\delta\subset[a,b]$ by: 
+We then fix some (small) $\delta>0$, and define a $\delta$-net $N_\delta\subset[a,b]$ by: 
 
 $$
 |N_\delta|\le \left\lceil\frac{b-a}{\delta}\right\rceil + 1,
 \qquad
-\forall x\in[a,b]\ \exists x'\in N_\delta:\ |x-x'|\le \delta.
+\forall x\in[a,b]\ \quad \exists x'\in N_\delta \text{ such that } |x-x'|\le \delta
 $$
 
 Then for such $x$ and $x'$,
@@ -331,13 +332,13 @@ $$
 \begin{aligned}
 \big|\hat f_h(x) - \text{E}\hat f_h(x)\big|
 &\le \big|\hat f_h(x) - \hat f_h(x')\big|
-* \big|\hat f_h(x') - \text{E}\hat f_h(x')\big|
-* \big|\text{E}\hat f_h(x') - \text{E}\hat f_h(x)\big| \
++ \big|\hat f_h(x') - \text{E}\hat f_h(x')\big|
++ \big|\text{E}\hat f_h(x') - \text{E}\hat f_h(x)\big| \
 \le \frac{2|K'|_{\infty}}{h^2}\,\delta + \big|\hat f_h(x') - \text{E}\hat f_h(x')\big|
 \end{aligned}
 $$
 
-(The additional terms come from adding a "clever zero", and then taking the XXX Inequality)
+(The additional terms come from "adding zeros" via $\pm \hat{f}_{h}(x') \pm \text{E}\hat{f}_{h}(x')$, followed by the Triangle Inequality)
 
 Choose
 
@@ -350,49 +351,84 @@ $$
 Hence
 
 $$
-\left \{ \sup_{x\in[a,b]} \big|\hat f_h(x)-\text{E}\hat f_h(x)\big|>\epsilon \right \}
+\Big\{ \sup_{x\in[a,b]} \big|\hat f_h(x)-\mathbb E\hat f_h(x)\big|>\epsilon \Big\}
 \subseteq
-\left \{ \max_{x'\in N_\delta} \big|\hat f_h(x')-\text{E}\hat f_h(x')\big|>\tfrac{\epsilon}{2} \right \}
+\Big\{ \max_{x'\in N_\delta} \big|\hat f_h(x')-\mathbb E\hat f_h(x')\big|>\tfrac{\epsilon}{2} \Big\}
+$$
+
+Therefore, by the union bound,
+
+$$
+\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x)-\mathbb E\hat f_h(x)\big|>\epsilon \right)
+\le
+|N_\delta|\,
+\max_{x'\in N_\delta} \text{P}\!\left(\big|\hat f_h(x')-\mathbb E\hat f_h(x')\big|>\tfrac{\epsilon}{2}\right).
 $$
 
 Applying results (the bound) from part a), for each fixed $x'$ we have
 
 $$
-P\left( \big|\hat f_h(x') - \text{E}\hat f_h(x')\big| > \tfrac{\epsilon}{2} \right)
+\text{P}\left( \big|\hat f_h(x') - \text{E}\hat f_h(x')\big| > \tfrac{\epsilon}{2} \right)
 \le
-2\exp\left( - \frac{n h^{2} \epsilon^{2}}{8,|K|_{\infty}^{2}} \right)
+2\exp\left( - \frac{n h^{2} \epsilon^{2}}{8\,|K|_{\infty}^{2}} \right)
 $$
-
-Noting that with $|Y_i(x')|\le |K|_{\infty}/h$, $(b-a)^2=(2|K|_{\infty}/h)^2$)
 
 Then, we have: 
 
 $$
-P\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \text{E}\hat f_h(x)\big| > \epsilon \right)
+\text{P}\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \text{E}\hat f_h(x)\big| > \epsilon \right)
 \le
 \left( \left\lceil \frac{4(b-a)\,|K'|_{\infty}}{\epsilon h^{2}} \right\rceil + 1 \right)
 \cdot 2\exp\left( - \frac{n h^{2} \epsilon^{2}}{8\,|K|_{\infty}^{2}} \right)
 $$
 
+We then need to determine whether this term is "something small". 
 
-For some fixed $\epsilon$, since $|N_\delta| \asymp (b-a)|K'|_\infty/(\epsilon h^2)$ and the tail is $2\exp{(-c\,n h^2\epsilon^2)}$ with $c=1/(8|K|_\infty^2)$, we have, as $n h^2\to\infty$, 
-
-$$
-\frac{C}{\epsilon h^2}\,\exp(-c\,n h^2\epsilon^2) \to 0
-\quad\text{if }
-$$
-
-Such that we may say that: 
+To that end note that from the bound
 
 $$
-\left( \left\lceil \frac{4(b-a)\,|K'|_{\infty}}{\epsilon h^{2}} \right\rceil + 1 \right)
-\cdot 2\exp\left( - \frac{n h^{2} \epsilon^{2}}{8\,|K|_{\infty}^{2}} \right)\equiv \text{something small}
+\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \mathbb{E}\hat f_h(x)\big| > \epsilon \right)
+\le
+\left( \left\lceil \frac{4(b-a)\,\|K'\|_{\infty}}{\epsilon h^{2}} \right\rceil + 1 \right)
+\cdot 2\exp\!\left( - \frac{n h^{2} \epsilon^{2}}{8\,\|K\|_{\infty}^{2}} \right)
 $$
 
-And our desired outcome: 
+Then, for any fixed $\epsilon>0$,
 
 $$
-P\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \text{E}\hat f_h(x)\big| > \epsilon \right)
+\left\lceil \frac{4(b-a)\,\|K'\|_{\infty}}{\epsilon h^{2}} \right\rceil + 1
+\;\le\;
+\frac{4(b-a)\,\|K'\|_{\infty}}{\epsilon h^{2}} + 1
+\le \frac{C_1}{\epsilon h^{2}}
+$$
+
+For some constant $C_1=4(b-a)\|K'\|_\infty+1$
+
+Hence, for $c_1=\frac{1}{8\|K\|_\infty^2}$,
+
+$$
+\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \mathbb{E}\hat f_h(x)\big| > \epsilon \right)
+\;\le\;
+\frac{2C_1}{\epsilon h^{2}}\,\exp\!\big(-c_1\,n h^{2}\epsilon^{2}\big)
+$$
+
+Since $h \equiv h_n$ satisfies $n h^{2}\to\infty$ 
+
+$$
+\frac{2C_1}{\epsilon h^{2}}\,\exp\!\big(-c_1\,n h^{2}\epsilon^{2}\big) \underset{n h^2 \to \infty} \to 0
+$$
+
+Such that: 
+
+$$
+\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \mathbb{E}\hat f_h(x)\big| > \epsilon \right)
+\underset{n h^{2}\to\infty} \to 0 
+$$
+
+And we have our desired outcome: 
+
+$$
+\text{P}\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \text{E}\hat f_h(x)\big| > \epsilon \right)
 \le \text{something small}
 $$
 
@@ -406,133 +442,49 @@ $$
 
 ### Answer
 
-From part b), for any $\delta>0$ and any $\delta$-net $N_\delta\subset[a,b]$,
+For notational convenience, let $\Lambda=\|K'\|_\infty/h^2$. 
+
+Then, from part b), for any $\delta>0$ and any $\delta$-net $N_\delta\subset[a,b]$,
 
 $$
-\left\{ \sup_{x\in[a,b]} \big|\hat f_h(x)-\text{E}[\hat f_h(x)]\big| > \varepsilon \right\}
+\Big\{\sup_{x\in[a,b]} \big|\hat f_h(x)-\text{E}\hat f_h(x)\big| > \varepsilon \Big\}
 \subseteq
-\left\{ \max_{x'\in N_\delta} \big|\hat f_h(x')-\text{E}[\hat f_h(x')]\big| > \varepsilon - 2L\delta \right\}
+\Big\{ \max_{x'\in N_\delta} \big|\hat f_h(x')-\text{E}\hat f_h(x')\big|
+> \varepsilon - 2\Lambda\,\delta \Big\}
 $$
-where $L=|K'|_{\infty}/h^2$.
 
-Applying Hoeffding’s inequality at each $x'\in N_\delta$ and the union bound gives, for any $t>0$,
+Applying Hoeffding's Inequality at each $x'\in N_\delta$ and the union bound, for any $t>0$,
 
 $$
-P\left(\sup_{x\in[a,b]} \big|\hat f_h(x)-\text{E}[\hat f_h(x)]\big| > t+2L\delta\right)
+\text{P}\Big(\sup_{x\in[a,b]} \big|\hat f_h(x)-\text{E}\hat f_h(x)\big| > t+2\Lambda\delta\Big)
 \le
-2\,|N_\delta|\exp\left(-\frac{n h^2 t^2}{8\,|K|_{\infty}^2}\right)
+2\,|N_\delta|\exp\!\Big(-\tfrac{n h^2 t^2}{8\,\|K\|_{\infty}^2}\Big)
 $$
 
 Let
 
 $$
-m_\delta = \left\lceil \frac{b-a}{\delta} \right\rceil + 1
-\qquad\text{and}\qquad
-t_\alpha(\delta) = \sqrt{\frac{8\,|K|_{\infty}^2}{n\,h^2}\,
-\log\left(\frac{2\,m_\delta}{\alpha}\right)}
+m_\delta=\Big\lceil\tfrac{b-a}{\delta}\Big\rceil+1,
+\quad \text{and }
+t_\alpha(\delta)=\sqrt{\frac{8\,\|K\|_{\infty}^2}{n\,h^2}\,
+\log\!\Big(\frac{2\,m_\delta}{\alpha}\Big)}
 $$
 
 Then
 
 $$
-P\left(\sup_{x\in[a,b]} \big|\hat f_h(x)-\text{E}[\hat f_h(x)]\big|
-\le t_\alpha(\delta)+2L\delta\right)\ge1-\alpha
+\text{P}\Big(\sup_{x\in[a,b]} \big|\hat f_h(x)-\text{E}\hat f_h(x)\big|
+\le t_\alpha(\delta)+2\Lambda\delta\Big)\ge 1-\alpha
 $$
 
-Therefore, a $(1-\alpha)$ uniform confidence band for $\text{E}[\hat f_h(x)]$ on $[a,b]$ is given by $L(x), U(x)$, where: 
+Therefore, we may construct a nonparametric uniform $1 - \alpha$ confidence band for $\text{E}[\hat{f}_h(x)]$ a $(1-\alpha)$ (on a compact interval $[a,b]$) via $(L(x), U(x))$, where: 
 
 $$
-L(x) = \hat f_h(x)-\big(t_\alpha(\delta)+2L\delta\big)
+L(x)=\hat f_h(x)-\big(t_\alpha(\delta)+2\Lambda\delta\big)
 $$
 
-And
-
 $$
-U(x) = \hat f_h(x)+\big(t_\alpha(\delta)+2L\delta\big)
+U(x)=\hat f_h(x)+\big(t_\alpha(\delta)+2\Lambda\delta\big)
 $$
 
-with $L=|K'|_{\infty}/h^2$ and $t_\alpha(\delta)$ as above.
-
-Notes: You can pick any convenient $\delta$ (e.g., $\delta=h$ or $\delta=(b-a)/m$ for some integer $m$). If you want a slightly tighter (yet simple) band, you can minimize $t_\alpha(\delta)+2L\delta$ over $\delta>0$, but that optimization isn’t required for validity.
-
-\newpage 
-
-# Explanation of Q2 
-
-Here’s the big picture of what you just did in Problem 2:
-
----
-
-### What’s going on?
-
-We are studying **how far the kernel density estimator (KDE)**
-$$
-\hat f_h(x) = \frac{1}{nh}\sum_{i=1}^n K!\left(\frac{x-X_i}{h}\right)
-$$
-deviates from its **expectation** $\mathbb{E}[\hat f_h(x)]$.
-
-* The expectation $\mathbb{E}[\hat f_h(x)]$ is the **“smoothed truth”** (bias comes from the kernel and bandwidth).
-* The deviation $\hat f_h(x)-\mathbb{E}[\hat f_h(x)]$ measures **random error (variance)**.
-* The tools here are **concentration inequalities** (Hoeffding’s inequality) and **covering arguments** (nets) to control the maximum deviation over an interval.
-
----
-
-### Part (a): Pointwise control
-
-* At a **single point $x$**, write $\hat f_h(x)$ as the average of bounded i.i.d. random variables.
-* Apply Hoeffding’s inequality.
-* Conclusion: with high probability, $\hat f_h(x)$ is within
-  $$
-  O!\left(\frac{1}{h}\sqrt{\frac{1}{n}}\right)
-  $$
-  of its mean.
-* The probability of a big deviation decays like $\exp(-c,n h^2 \varepsilon^2)$.
-
----
-
-### Part (b): Uniform control over $[a,b]$
-
-* A bound at one point isn’t enough — we want **uniform control** across a whole interval.
-* Use a **$\delta$-net**: approximate $[a,b]$ by finitely many grid points.
-* Because the kernel is Lipschitz (bounded derivative), values at nearby points are close.
-* So bounding at grid points suffices to bound everywhere.
-* Apply Hoeffding at each grid point, then union bound over the net.
-* Result:
-  $$
-  P\Big(\sup_{x\in[a,b]}|\hat f_h(x)-\mathbb{E}\hat f_h(x)|>\varepsilon\Big)
-  ;\le; \big(\text{covering factor}\big)\times \exp(-c,n h^2 \varepsilon^2).
-  $$
-* The exponential dominates the polynomial covering factor, so the probability goes to $0$ if $n h^2 \to \infty$.
-
----
-
-### Part (c): Confidence bands
-
-* From the uniform deviation inequality, we know that with high probability
-  $$
-  \sup_{x\in[a,b]}|\hat f_h(x)-\mathbb{E}\hat f_h(x)| ;\le; t_\alpha(\delta)+2L\delta.
-  $$
-* This lets us build a **uniform confidence band**:
-  $$
-  L(x) = \hat f_h(x) - \big(t_\alpha(\delta)+2L\delta\big),
-  \qquad
-  U(x) = \hat f_h(x) + \big(t_\alpha(\delta)+2L\delta\big).
-  $$
-* Meaning: with probability at least $1-\alpha$, the true smoothed expectation $\mathbb{E}[\hat f_h(x)]$ lies between $L(x)$ and $U(x)$ simultaneously for all $x\in[a,b]$.
-
----
-
-### Why we’re doing this
-
-* Kernel density estimation is **random**, and we need to know how reliable it is.
-* These steps show that:
-
-  1. At each point, $\hat f_h(x)$ is tightly concentrated around its expectation.
-  2. Uniformly across an interval, the deviations are also controlled, despite infinitely many $x$.
-  3. This leads to **honest confidence bands** for the density curve (or really its expectation), a key tool in nonparametric inference.
-
----
-
-You bounded the random error of the KDE using Hoeffding (pointwise), extended it over an interval with covering arguments (uniform control), and then turned that into a practical tool (confidence bands).
-
-Would you like me to also give you a **“one-sentence intuition”** for each part (a), (b), (c), so you can recall the flow without technical detail?
+(And again, using $\Lambda=\|K'\|_\infty/h^2$ and $t_\alpha(\delta)$ as defined previously.)
