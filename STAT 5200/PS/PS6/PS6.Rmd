@@ -4,14 +4,6 @@ author: "Sam Olson"
 output: pdf_document
 ---
 
-## Introduction
-
-This assignment is a short exercise in using generalized least squares to estimate the parameters of a nonlinear regression model.  
-
-There are a number of rather classic nonlinear curves used to model the growth of populations of organisms. Although their use is not strictly tied to one field, different curves have been developed by scientists concerned with the growth of animal populations, plant populations, and microbial populations. A great many papers have been written on the origins, estimation, and interpretation of these curves (e.g., Birch, C. 1999. A new generalized logistic sigmoid growth equation compared with the Richards growth equation. Annals of Botany 83: 713–723).  
-
-One of these traditional curves is known as the Gompertz model, and there are many versions of the Gompertz curve (e.g., Tjorve, K.M.C. and Tjorve, E. 2017. The use of Gompertz models in growth analysis, and new Gompertz model approach: an addition to the unified Richards family. PLoS One, 12(6): e0178691). We will use a four-parameter version of the Gompertz model as the expectation function in a nonlinear regression model.
-
 ## The Model
 
 Define random variables $Y_1, \dots, Y_n$ connected with the growth of some organism, observed at times $t_1, \dots, t_n$. Assume the response variables are independent and follow the model:
@@ -37,7 +29,7 @@ This model describes a sigmoidal curve with both upper and lower asymptotes, but
 - k: growth rate (slope of the linear portion of the curve)  
 - T: the time at which the inflection point occurs  
 
-## Data
+### Data
 
 On the course web page in the Data module is a file `growthdat.txt` that contains data simulated from the Gompertz regression model. The variable names in this file are `x` and `y`, where:
 
@@ -46,14 +38,96 @@ On the course web page in the Data module is a file `growthdat.txt` that contain
 
 \newpage 
 
-## Assignment
+```{r, echo = F, warning = F, message = F}
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS6/nonlin.txt")
+dat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS6/growthdat.txt", header = TRUE)
+```
 
 ## Q1
 
-Find generalized least squares estimates of the parameters $A, B, k, T$, and the associated moment-based estimate of $\sigma^2$.  
+Find generalized least squares estimates of the parameters $A, B, k, T$, and the associated moment-based estimate of $\sigma^2$. Describe how you determined effective starting values for the estimation procedure. Present a scatterplot along with the fitted expectation function.  
 
-   - Describe how you determined effective starting values for the estimation procedure.  
-   - Present a scatterplot along with the fitted expectation function.  
+### Answer 
+
+We fit the four-parameter Gompertz model
+
+$$
+\mu(t) = B + A \exp\!\left(-\exp\{-k(t - T)\}\right)
+$$
+
+with random component
+
+$$
+Y_i = \mu(t_i) + \sigma \varepsilon_i, \quad \varepsilon_i \overset{\text{iid}}{\sim} N(0,1).
+$$
+
+Here:
+
+* (A): distance between the upper and lower asymptotes,
+* (B): lower asymptote,
+* (k): growth rate (slope at the inflection point),
+* (T): time of inflection,
+* ($\sigma^2$): error variance.
+
+Effective starting values were intuited inductively, i.e., based upon visual inspection/descriptive statistics of the dataset. Since there is no reasonable basis to suppose numbers must be discrete, the observed values were largely used as starting values (treated the observations as a continuous R.V.).
+
+* Lower asymptote ((B)): The min observed y-value is 0.948, so set ($B \approx 0.95$).
+
+* Upper asymptote ((A + B)): The max observed y-value is 233.37. So, to get A we take the (observed) range ($A \approx 232.42$).
+
+* Inflection time ((T)): From visual inspection, the curve rises steeply from t = 10 to t = 20; taking the midpoint of this period aas an initial starting point for "inflection" ($T \approx 15$).
+
+* Growth rate ((k)): The sharpest rise in the data occurs around t = 12 to 18. For example, between t=13 ($y \approx 64)$) and (t=17) (($y \approx 140)$), the increase is about 76 units over 4 time units, or roughly 19 units per unit time. This provides an empirical sense of the “steepness” of the curve. However, in the Gompertz formulation the parameter (k) does not equal the raw slope; instead, the actual slope at the inflection point is ($\frac{kA}{e}$). Using ($A \approx 232$ and equating ($\frac{kA}{e}$) with the observed slope (~19) yields ($k \approx 0.22$). To keep the starting value moderate and ensure convergence, we round slightly upward and set ($k \approx 0.3$).
+
+Thus the starting parameter vector is
+
+$$
+\theta^{(0)} = (A=232.42, B=0.95, k=0.3, T=15)
+$$
+
+
+Actual Computation yields: 
+
+```{r, echo = F, warning = F, message = F}
+## Expectation function
+gompertz_fun <- function(x, p) {
+  A <- p[1]; B <- p[2]; k <- p[3]; T <- p[4]
+  B + A * exp(-exp(-k*(x - T)))
+}
+
+## Derivative matrix wrt (A, B, k, T)
+gompertz_der <- function(x, p) {
+  A <- p[1]; B <- p[2]; k <- p[3]; T <- p[4]
+  z <- -k*(x - T)
+  e1 <- exp(z)
+  e2 <- exp(-e1)
+  dA <- e2
+  dB <- rep(1, length(x))
+  dk <- A * (x - T) * e1 * e2
+  dT <- -A * k * e1 * e2
+  cbind(dA, dB, dk, dT)
+}
+
+## Variance weights (homoskedastic here)
+wts <- function(x, p) diag(rep(1, length(x)))
+
+## Fit with nonlin()
+start <- c(232.42, 0.95, 0.3, 15)
+out <- nonlin(dat$x, dat$y, start, gompertz_fun, gompertz_der, wts)
+
+# parameter estimates
+out$bs
+# moment-based estimate of sigma^2
+out$sshat   
+```
+
+Plotting the observed vs. estimated values: 
+
+```{r, echo = F, warning = F, message = F}
+plot(dat$x, dat$y, pch=19, main="Gompertz Growth Fit",
+     xlab="Time", ylab="Growth")
+lines(dat$x, out$yhat, col="blue", lwd=2)
+```
 
 \newpage 
 
@@ -61,38 +135,163 @@ Find generalized least squares estimates of the parameters $A, B, k, T$, and the
 
 Compute 95% approximate confidence intervals for the parameters of the expectation function ($A, B, k, T$).  
 
+### Answer
+
+```{r, echo = F, warning = F, message = F}
+# asymptotic Wald-type
+ests <- out$bs
+V    <- out$covb
+se   <- sqrt(diag(V))
+z    <- qnorm(0.975)
+
+ci_L <- ests - z*se
+ci_U <- ests + z*se
+
+ci_tbl <- data.frame(
+  param = c("A","B","k","T"),
+  estimate = ests,
+  SE = se,
+  CI_L = ci_L,
+  CI_U = ci_U,
+  row.names = NULL
+)
+ci_tbl
+```
+
+
+```{r, echo = F, warning = F, message = F}
+# delta method
+# also asymptotic, Wald-type, but on transformed data (log) 
+
+log_ci <- function(theta_hat, var_hat, level = 0.95) {
+  z <- qnorm(0.5 + level/2)
+  m <- log(theta_hat)
+  se_log <- sqrt(var_hat) / theta_hat
+  exp(c(m - z*se_log, m + z*se_log))
+}
+
+A_log_CI <- log_ci(ests[1], V[1,1])
+B_log_CI <- log_ci(ests[2], V[2,2])
+k_log_CI <- log_ci(ests[3], V[3,3])
+T_log_CI <- log_ci(ests[4], V[4,4])
+
+print("A CI")
+A_log_CI
+print("B CI")
+B_log_CI
+print("k CI")
+k_log_CI
+print("T CI")
+T_log_CI
+```
+
 \newpage 
 
 ## Q3 
 
 Compute pairwise correlations between $\hat{A}, \hat{B}, \hat{k}, \hat{T}$.  
 
+### Answer
+
+The `nonlin()` output includes the estimated covariance matrix of the parameter estimates (`out$covb`). From this matrix we can derive the correlations:
+
+$$
+\text{Corr}(\hat\theta_i, \hat\theta_j) =
+\frac{\widehat{\text{Cov}}(\hat\theta_i,\hat\theta_j)}
+{\sqrt{\widehat{\text{Var}}(\hat\theta_i)};\sqrt{\widehat{\text{Var}}(\hat\theta_j)}}
+$$
+
+for parameters ($\theta_i, \theta_j \in \{A,B,k,T\}$).
+
+Computing these quantities: 
+
+```{r, echo = F, warning = F, message = F}
+# start with covariance matrix
+V <- out$covb
+
+# cov2cor from stats, nifty! 
+cor_mat <- cov2cor(V)
+
+# label
+colnames(cor_mat) <- rownames(cor_mat) <- c("A","B","k","T")
+
+cor_mat
+```
+
 \newpage 
 
 ## Q4
 
-Scientists often care about the maximum relative growth rate and the maximum absolute growth rate. These relate to the slope of the growth curve at the inflection point:  
-
-- Maximum absolute growth rate:  
+Two quantities of interest to scientists are called the maximum relative growth rate and the maximum absolute growth rate. These quantities are related to the slope of the growth curve at the inflection point and give the per time unit increase in growth relative to the upper asymptote and in absolute scale at that time point. The maximum absolute growth rate is defined as, 
 
 $$
 k_{\text{abs}} = \frac{k(A + B)}{\exp(1)}
 $$
 
-- Plug-in estimator:  
+A plug-in estimate of $k_{abs}$ is then
 
 $$
 \hat{k}_{\text{abs}} = \frac{\hat{k}(\hat{A} + \hat{B})}{\exp(1)}.
 $$
 
-- Compute a 90% approximate confidence interval for $k_{\text{abs}}$.  
-- Outline the procedure you used to calculate the required quantities.  
+and note that $k_{abs}$ is an absolute function of its components. Given this, compute a 90% approximate confidence interval for $k_{abs}$ (note a 90% interval -- I get tired of using 95% all the time). Outline the procedure you used to calculate the quantities needed.
 
-\newpage 
+### Answer
 
-## Computational Options
+As defined,
 
-There are multiple ways to perform the computations:  
+$$
+k_{\text{abs}} \;=\; \frac{k(A+B)}{e}.
+$$
 
-- The base R function `nls()` (nonlinear least squares) can be used for most of the tasks.  
-- Alternatively, there is an R function called `nonlin` available on the course web page (Computing Functions module), with a supporting document Using nonlin in the Computing Notes module explaining syntax and output.  
+Given $(\hat A,\hat B,\hat k,\hat T)$ from `nonlin` and the estimated covariance matrix $\widehat{\operatorname{Cov}}(\hat\theta)$ for $\hat\theta=(\hat A,\hat B,\hat k,\hat T)$,
+
+use a Wald (delta-method) interval.
+
+Let $g(A,B,k,T) = k(A+B)/e$. Its gradient at $\hat\theta$ is
+
+$$
+\nabla g(\hat\theta)
+= \left(\frac{\partial g}{\partial A},\frac{\partial g}{\partial B},\frac{\partial g}{\partial k},\frac{\partial g}{\partial T}\right)^\top
+= \left(\frac{\hat k}{e},\ \frac{\hat k}{e},\ \frac{\hat A+\hat B}{e},\ 0\right)^\top.
+$$
+
+Then
+
+$$
+\widehat{\operatorname{Var}}(\hat k_{\text{abs}})
+= \nabla g(\hat\theta)^\top\ \widehat{\operatorname{Cov}}(\hat\theta)\ \nabla g(\hat\theta),
+\qquad
+\operatorname{SE}(\hat k_{\text{abs}}) = \sqrt{\widehat{\operatorname{Var}}(\hat k_{\text{abs}})}.
+$$
+
+A two-sided 90\% CI uses $z_{0.95}=1.645$:
+
+$$
+\hat k_{\text{abs}} \ \pm\ 1.645 \times \operatorname{SE}(\hat k_{\text{abs}}).
+$$
+
+Computing
+
+```{r, echo = F, warning = F, message = F}
+# order: A, B, k, T
+Ahat <- out$bs[1]
+Bhat <- out$bs[2]
+khat <- out$bs[3]  
+V    <- out$covb
+
+k_abs_hat <- khat * (Ahat + Bhat) / exp(1)
+
+# d/d(A,B,k,T)
+grad <- c(khat/exp(1), khat/exp(1), (Ahat + Bhat)/exp(1), 0)  
+var_kabs <- as.numeric(t(grad) %*% V %*% grad)
+se_kabs  <- sqrt(var_kabs)
+
+# 1.645 for 90% two-sided
+# alpha / 2 = 0.05, hence 95 here 
+z <- qnorm(0.95)  
+ci90 <- c(k_abs_hat - z*se_kabs, k_abs_hat + z*se_kabs)
+
+k_abs_hat
+ci90
+```
