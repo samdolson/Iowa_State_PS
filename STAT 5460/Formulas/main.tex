@@ -1,0 +1,396 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amsthm,amssymb,mathtools,bbm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{Inequalities, Theorems, \& Functions}
+\author{}
+\date{}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{inequality}[theorem]{Inequality}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ---------- Shortcuts ----------
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\1}{\mathbbm{1}}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Useful Inequalities}
+
+\begin{inequality}[Jensen’s Inequality]
+Let $(\Omega,\mathcal{F},\mathbb{P})$ be a probability space, $X$ integrable, and $\varphi:\mathbb{R}\to\mathbb{R}$ some convex function with $\E[\,|\varphi(X)|\,]<\infty$. Then
+\[
+\varphi\!\big(\E[X]\big) \;\le\; \E\!\big[\varphi(X)\big].
+\]
+\emph{Equality} holds if $X$ is degenerate (a.s.\ constant), or if $\varphi$ is affine (linear plus constant) on the support of $X$.
+\end{inequality}
+
+\begin{remark}[Convexity]
+A function $\varphi:\mathbb{R}\to\mathbb{R}$ is \emph{convex} if for all $x,y\in\mathbb{R}$ and $\lambda\in[0,1]$,
+\[
+\varphi(\lambda x + (1-\lambda)y) \;\le\; \lambda \varphi(x) + (1-\lambda)\varphi(y).
+\]
+Equivalently:
+\begin{itemize}
+  \item If $\varphi$ is differentiable, convexity is equivalent to $\varphi'$ being nondecreasing.
+  \item If $\varphi$ is twice differentiable, convexity is equivalent to $\varphi''(x)\ge 0$ for all $x$.
+\end{itemize}
+\end{remark}
+
+\vspace{1em}
+
+\begin{inequality}[Cauchy--Schwarz Inequality]
+For $x,y$ in an inner-product space,
+\[
+|\langle x,y\rangle| \le \|x\|\,\|y\|.
+\]
+Integral form: if $f,g\in L^2(\mu)$,
+\[
+\Big|\int fg\,d\mu\Big| \le \big(\int |f|^2\,d\mu\big)^{1/2}\!\big(\int |g|^2\,d\mu\big)^{1/2}.
+\]
+\emph{Equality} iff $x,y$ are linearly dependent (a.e.\ for functions).
+\end{inequality}
+
+\newpage
+
+\begin{inequality}[Markov’s Inequality]
+If $X\ge 0$ and $a>0$,
+\[
+\mathbb{P}(X\ge a) \le \frac{\E[X]}{a}.
+\]
+More generally, for $p>0$, $\mathbb{P}(X\ge a)\le \E[X^p]/a^p$.
+\end{inequality}
+
+\vspace{1em}
+
+\begin{inequality}[Chebyshev’s Inequality]
+(A generalization of Markov’s inequality.) 
+
+Let $X$ be a random variable with finite mean $\mu=\E[X]$ and variance $\sigma^2=\Var(X)<\infty$.  
+Then for any $k>0$,
+\[
+\mathbb{P}\big(|X-\mu|\ge k\sigma\big) \;\le\; \frac{1}{k^2}.
+\]
+
+Equivalently, for any $\epsilon>0$,
+\[
+\mathbb{P}\big(|X-\mu|\ge \epsilon\big) \;\le\; \frac{\sigma^2}{\epsilon^2}.
+\]
+
+\emph{Interpretation:} The probability that $X$ deviates from its mean by more than $k$ standard deviations is at most $1/k^2$.
+\end{inequality}
+
+\begin{remark}[Big-O Interpretation]
+Chebyshev’s inequality provides an explicit bound on tail probabilities:
+\[
+\mathbb{P}\big(|X-\mu|\ge k\sigma\big) \;\le\; \frac{1}{k^2}.
+\]
+In asymptotic notation this means the probability of a $k$-standard-deviation
+deviation is bounded above on the order of $O(1/k^2)$. It is stronger than
+a generic Big-$O$ statement; however, it should not be interpreted as an $o(1/k^2)$ bound, since the
+decay of the tail probability may in some cases be exactly of order
+$1/k^2$, not strictly faster.
+\end{remark}
+
+\vspace{1em}
+
+\begin{inequality}[Hölder’s Inequality]
+Let $p,q \in (1,\infty)$ be \emph{conjugate exponents}, meaning 
+\[
+\frac{1}{p} + \frac{1}{q} = 1.
+\]
+If $f \in L^p(\mu)$ and $g \in L^q(\mu)$, then
+\[
+\int |fg|\, d\mu \;\le\; \|f\|_{L^p}\, \|g\|_{L^q}.
+\]
+
+Where:
+\begin{itemize}
+  \item $L^p(\mu)$ is the space of measurable functions with finite $p$-norm:
+  \[
+  L^p(\mu) = \Big\{ f : \int |f|^p \, d\mu < \infty \Big\}.
+  \]
+  \item The $p$-norm of $f$ is
+  \[
+  \|f\|_{L^p} = \Big(\int |f|^p \, d\mu\Big)^{1/p}.
+  \]
+  \item The exponents $p$ and $q$ are linked: e.g.\ if $p=2$, then $q=2$; if $p=3$, then $q=3/2$.
+\end{itemize}
+
+\emph{Equality} holds if and only if $|f|^p$ and $|g|^q$ are proportional almost everywhere.
+\end{inequality}
+
+\newpage
+
+\begin{inequality}[Minkowski’s Inequality (Triangle in $L^p$)]
+For $p \in [1,\infty]$ and $f,g \in L^p(\mu)$,
+\[
+\|f+g\|_{L^p} \;\le\; \|f\|_{L^p} + \|g\|_{L^p}.
+\]
+
+\noindent This applies strictly to sums like $f+g$. For differences, one typically uses
+the triangle inequality in the form
+\[
+\|f-g\|_{L^p} = \|f+(-g)\|_{L^p} \;\le\; \|f\|_{L^p} + \|g\|_{L^p},
+\]
+which follows by applying Minkowski with $-g$ in place of $g$.
+\end{inequality}
+
+\vspace{1em}
+
+\begin{inequality}[Triangle Inequality]
+For any normed vector space $(V,\|\cdot\|)$ and any $x,y \in V$, 
+\[
+\|x+y\| \;\le\; \|x\| + \|y\|.
+\]
+
+\noindent In words: the length of one side of a triangle is at most the
+sum of the lengths of the other two sides.
+
+\begin{itemize}
+  \item In $\mathbb{R}^n$ with the Euclidean norm, this corresponds to the
+        geometric triangle inequality.
+  \item In $L^p$ spaces, this is exactly Minkowski’s inequality.
+\end{itemize}
+\end{inequality}
+
+\vspace{1em}
+
+\begin{inequality}[Young’s Inequality (for products)]
+If $a,b\ge 0$ and $p,q>1$ with $1/p+1/q=1$, then
+\[
+ab \le \frac{a^p}{p}+\frac{b^q}{q}.
+\]
+\emph{Equality} iff $a^p=b^q$ (equivalently, $a^{p-1}=b^{q-1}$).
+\end{inequality}
+
+\vspace{1em}
+
+\begin{inequality}[Cramér--Rao (CR) Inequality]
+Let $X_1,\dots,X_n$ have density $f_\theta$ satisfying standard regularity conditions. If $T=T(X_1,\dots,X_n)$ is unbiased for $g(\theta)$, $\E_\theta[T]=g(\theta)$, then
+\[
+\Var_\theta(T) \;\ge\; \frac{\big(g'(\theta)\big)^2}{\mathcal{I}_n(\theta)}, 
+\qquad \mathcal{I}_n(\theta)=n\,\mathcal{I}(\theta)
+\]
+\emph{Equality} holds if the estimator is efficient, i.e.\ it achieves the bound. 
+In many cases, such an estimator is also UMVU.
+\end{inequality}
+
+\vspace{1em}
+
+\begin{inequality}[Bernstein’s Inequality (bounded/sub-exponential)]
+Let $X_1,\dots,X_n$ be independent with $\E[X_i]=0$, $|X_i|\le M$ a.s., and $\sum_{i=1}^n \Var(X_i)=\sigma^2$. For all $t>0$,
+\[
+\mathbb{P}\!\left(\sum_{i=1}^n X_i \ge t\right)
+\le \exp\!\left(-\frac{t^2}{2\sigma^2 + \tfrac{2}{3}Mt}\right).
+\]
+Equivalently, for $\bar X=\tfrac1n\sum X_i$,
+\[
+\mathbb{P}\!\left(\bar X \ge \epsilon\right)
+\le \exp\!\left(-\frac{n\epsilon^2}{2\Var(X_1)+ \tfrac{2}{3}M\epsilon}\right).
+\]
+\noindent Note: Stronger moment or tail assumptions can yield sharper bounds with faster rates of convergence, but for this course, we typically use Bernstein’s inequality in the bounded/sub-exponential form given above (thus far).
+\end{inequality}
+
+\vspace{1em}
+
+\begin{inequality}[Hoeffding’s Inequality (bounded differences)]
+Let $X_1,\dots,X_n$ be independent with $a_i\le X_i\le b_i$ a.s. Set $S_n=\sum_{i=1}^n X_i$ and $\mu=\E[S_n]$. Then for all $t>0$,
+\[
+\mathbb{P}\!\left(|S_n-\mu|\ge t\right)
+\le 2\exp\!\left(-\frac{2t^2}{\sum_{i=1}^n (b_i-a_i)^2}\right).
+\]
+In particular, if $a\le X_i\le b$,
+\[
+\mathbb{P}\!\left(|\bar X-\E[X_1]|\ge \epsilon\right)
+\le 2\exp\!\left(-\frac{2n\epsilon^2}{(b-a)^2}\right).
+\]
+\noindent Note: same note as for Bernstein's Inequality.
+\end{inequality}
+
+\newpage 
+
+\section{Useful Theorems}
+
+\begin{theorem}[Fubini’s Theorem]
+Let $f$ be Lebesgue integrable on the rectangle $X \times Y \subset \mathbb{R}^2$. 
+Then the double integral of $f$ can be computed as an iterated integral:
+\[
+\iint_{X \times Y} f(x,y)\, d(x,y)
+= \int_X \!\left( \int_Y f(x,y)\, dy \right) dx
+= \int_Y \!\left( \int_X f(x,y)\, dx \right) dy.
+\]
+\end{theorem}
+
+\begin{remark}[Tonelli (Nonnegative Fubini)]
+If $f\ge 0$ is measurable on $X\times Y$, then the same equalities hold (with value possibly $+\infty$) without assuming $f\in L^1$.
+\end{remark}
+
+\vspace{1em}
+
+\begin{theorem}[Volterra’s Theorem: Differentiation under the Integral Sign]
+Let $f:[a,b]\times(\alpha,\beta)\to\mathbb{R}$ be continuous and $\partial f/\partial\theta$ be continuous on $[a,b]\times(\alpha,\beta)$. Then for $\theta\in(\alpha,\beta)$,
+\[
+\frac{d}{d\theta}\int_a^b f(x,\theta)\,dx
+= \int_a^b \frac{\partial}{\partial\theta} f(x,\theta)\,dx.
+\]
+A common generalization is that continuity of $\tfrac{\partial}{\partial \theta} f(x,\theta)$ 
+can be replaced by the existence of an \emph{integrable dominating function} $g(x)$ such that
+\[
+\Big|\frac{\partial}{\partial \theta} f(x,\theta)\Big| \le g(x)
+\quad \text{for all } \theta \text{ in the parameter range}.
+\]
+Then, by the Dominated Convergence Theorem, the derivative can be 
+moved inside the integral:
+\[
+\frac{d}{d\theta}\int f(x,\theta)\,dx \;=\; \int \frac{\partial}{\partial\theta} f(x,\theta)\, dx.
+\]
+\end{theorem}
+
+\vspace{1em}
+
+\begin{theorem}[Squeeze (Sandwich) Theorem]
+\leavevmode
+
+\noindent\textbf{(Sequences).} 
+If $a_n, x_n, b_n$ satisfy 
+\[
+a_n \;\le\; x_n \;\le\; b_n \quad \text{for all } n,
+\]
+and
+\[
+\lim_{n\to\infty} a_n \;=\; \lim_{n\to\infty} b_n \;=\; L,
+\]
+then
+\[
+\lim_{n\to\infty} x_n \;=\; L.
+\]
+
+\medskip
+
+\noindent\textbf{(Functions).} 
+If $g(x) \le f(x) \le h(x)$ near $x_0$ and 
+\[
+\lim_{x\to x_0} g(x) \;=\; \lim_{x\to x_0} h(x) \;=\; L,
+\]
+then
+\[
+\lim_{x\to x_0} f(x) \;=\; L.
+\]
+\end{theorem}
+
+\newpage 
+
+\section{Useful Functions}
+
+\begin{definition}[Convolution]
+Let $f,g:\mathbb{R}\to\mathbb{R}$ (or $\mathbb{C}$) be integrable functions.  
+Their \emph{convolution} is defined by
+\[
+(f * g)(t) 
+= \int_{-\infty}^{\infty} f(\tau)\, g(t-\tau)\, d\tau,
+\qquad t \in \mathbb{R}.
+\]
+
+\noindent Properties:
+\begin{itemize}
+  \item Commutativity: $f * g = g * f$.
+  \item Associativity: $(f * g) * h = f * (g * h)$.
+  \item Distributivity: $f * (g+h) = f * g + f * h$.
+  \item Convolution theorem: $\widehat{f * g}(\xi) = \widehat{f}(\xi)\,\widehat{g}(\xi)$ 
+        (Fourier transform turns convolution into multiplication).
+\end{itemize}
+
+\noindent In probability, if $X$ and $Y$ are independent random variables with densities 
+$f_X$ and $f_Y$, then the density of $X+Y$ is the convolution $f_X * f_Y$.
+\end{definition}
+
+\begin{definition}[Characteristic Function]
+For a real-valued random variable $X$ with distribution function $F_X$, the characteristic function is
+\[
+\varphi_X(t) \;=\; \E\!\left[e^{itX}\right]
+= \int_{-\infty}^{\infty} e^{itx}\, dF_X(x), 
+\qquad t\in\mathbb{R}.
+\]
+If $X$ has a probability density function $f_X$, then
+\[
+\varphi_X(t) \;=\; \int_{-\infty}^{\infty} e^{itx}\, f_X(x)\, dx.
+\]
+
+The characteristic function uniquely determines the distribution of $X$, satisfies $\varphi_X(0)=1$, and has some other properties not noted here.
+\[
+\varphi_{aX+b}(t) \;=\; e^{itb}\,\varphi_X(at), \qquad a,b\in\mathbb{R}.
+\]
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}[Empirical Characteristic Function]
+Given a random sample $X_1, X_2, \dots, X_n$ from a distribution, the empirical characteristic function (ECF) is defined by
+\[
+\hat{\varphi}_n(t) 
+\;=\; \frac{1}{n}\sum_{j=1}^n e^{itX_j}, 
+\qquad t\in\mathbb{R}.
+\]
+
+\noindent Properties:
+\begin{itemize}
+  \item $\hat{\varphi}_n(0) = 1$ always.
+  \item Each term $e^{itX_j}$ has modulus $1$, hence $\hat{\varphi}_n(t)$ always exists for any finite sample.
+  \item $\hat{\varphi}_n(t)$ is an unbiased estimator of the true characteristic function:
+  \[
+  \E\!\left[\hat{\varphi}_n(t)\right] = \varphi_X(t).
+  \]
+  \item As $n\to\infty$, $\hat{\varphi}_n(t) \to \varphi_X(t)$ almost surely for each fixed $t$ (law of large numbers).
+\end{itemize}
+\end{definition}
+
+\vspace{1em}
+
+\begin{remark}[Why Fourier Transforms?]
+The Fourier transform is often used to simplify problems involving
+integrals and convolutions by moving from the time or spatial domain
+into the \emph{frequency (spectral) domain}. In this domain,
+operations such as convolution become easier to evaluate, and
+dependence on variables like $x$ can often be removed or simplified.
+\end{remark}
+
+\vspace{1em}
+
+\begin{definition}[Fourier Transform]
+For $f\in L^1(\mathbb{R})$, define
+\[
+\widehat{f}(\xi) \;=\; \int_{-\infty}^{\infty} f(x)\,e^{-i\xi x}\,dx, \qquad \xi\in\mathbb{R}.
+\]
+This extends to $L^2(\mathbb{R})$ (up to sets of measure zero) with Plancherel’s theorem (not detailed here).
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}[Inverse Fourier Transform]
+If $\widehat{f}\in L^1(\mathbb{R})$, then
+\[
+f(x) \;=\; \frac{1}{2\pi}\int_{-\infty}^{\infty} \widehat{f}(\xi)\,e^{i\xi x}\,d\xi, \qquad x\in\mathbb{R}.
+\]
+Under mild conditions (e.g.,\ both $f$ and $\widehat{f}$ in $L^1$), this inversion holds pointwise at continuity points of $f$ (conditions not exhaustively detailed, but seem fairly tame compared to typical kde-based assumptions).
+\end{definition}
+
+\end{document}

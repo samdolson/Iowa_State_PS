@@ -84,13 +84,13 @@ $$
 Actual Computation yields: 
 
 ```{r, echo = F, warning = F, message = F, results = F}
-## Expectation function
+# expectation 
 gompertz_fun <- function(x, p) {
   A <- p[1]; B <- p[2]; k <- p[3]; T <- p[4]
   B + A * exp(-exp(-k*(x - T)))
 }
 
-## Derivative matrix wrt (A, B, k, T)
+# derivative matrix
 gompertz_der <- function(x, p) {
   A <- p[1]; B <- p[2]; k <- p[3]; T <- p[4]
   z <- -k*(x - T)
@@ -103,7 +103,7 @@ gompertz_der <- function(x, p) {
   cbind(dA, dB, dk, dT)
 }
 
-## Variance weights (homoskedastic here)
+# variance weights, use inverse variance weighting 
 wts <- function(x, p) diag(rep(1, length(x)))
 
 ## Fit with nonlin()
@@ -115,6 +115,7 @@ out <- nonlin(dat$x, dat$y, start, gompertz_fun, gompertz_der, wts)
 # moment-based estimate of sigma^2
 # out$sshat   
 ```
+
 Convergence met with estimates: 
 
 $\hat A = 201.30$
@@ -234,7 +235,7 @@ $$
 A plug-in estimate of $k_{abs}$ is then
 
 $$
-\hat{k}_{\text{abs}} = \frac{\hat{k}(\hat{A} + \hat{B})}{\exp(1)}.
+\hat{k}_{\text{abs}} = \frac{\hat{k}(\hat{A} + \hat{B})}{\exp(1)}
 $$
 
 and note that $k_{abs}$ is an absolute function of its components. Given this, compute a 90% approximate confidence interval for $k_{abs}$ (note a 90% interval -- I get tired of using 95% all the time). Outline the procedure you used to calculate the quantities needed.
