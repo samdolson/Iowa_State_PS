@@ -49,46 +49,41 @@ Find generalized least squares estimates of the parameters $A, B, k, T$, and the
 
 ### Answer 
 
-We fit the four-parameter Gompertz model
+As given, the form of four-parameter Gompertz model is: 
 
 $$
-\mu(t) = B + A \exp\!\left(-\exp\{-k(t - T)\}\right)
+\mu_i = B + A \exp\!\Big[ - \exp\{ -k(t_i - T) \} \Big]
 $$
 
-with random component
-
-$$
-Y_i = \mu(t_i) + \sigma \varepsilon_i, \quad \varepsilon_i \overset{\text{iid}}{\sim} N(0,1).
-$$
-
-Here:
+Again, as given, the parameters are:
 
 * (A): distance between the upper and lower asymptotes,
 * (B): lower asymptote,
 * (k): growth rate (slope at the inflection point),
 * (T): time of inflection,
-* ($\sigma^2$): error variance.
 
-Effective starting values were intuited inductively, i.e., based upon visual inspection/descriptive statistics of the dataset. Since there is no reasonable basis to suppose numbers must be discrete, the observed values were largely used as starting values (treated the observations as a continuous R.V.).
+To determine "effective" starting values, we check the underlying data visually and descriptively, i.e., we intuited the values inductively. Also, since there is no reasonable basis to suppose numbers must be discrete, the observed values were largely used as starting values (treated observations as realizations of continuous R.V.s).
 
-* Lower asymptote ((B)): The min observed y-value is 0.948, so set ($B \approx 0.95$).
+The values used (and how they were determined) are as follows: 
 
-* Upper asymptote ((A + B)): The max observed y-value is 233.37. So, to get A we take the (observed) range ($A \approx 232.42$).
+* Lower asymptote (B): The min observed y-value is 0.948, so set ($B \approx 0.95$).
 
-* Inflection time ((T)): From visual inspection, the curve rises steeply from t = 10 to t = 20; taking the midpoint of this period aas an initial starting point for "inflection" ($T \approx 15$).
+* Distance between the upper and lower asymptotes (A): The max observed y-value is 233.37. So, to get A we take the (observed) range ($A \approx 232.42$).
 
-* Growth rate ((k)): The sharpest rise in the data occurs around t = 12 to 18. For example, between t=13 ($y \approx 64)$) and (t=17) (($y \approx 140)$), the increase is about 76 units over 4 time units, or roughly 19 units per unit time. This provides an empirical sense of the “steepness” of the curve. However, in the Gompertz formulation the parameter (k) does not equal the raw slope; instead, the actual slope at the inflection point is ($\frac{kA}{e}$). Using ($A \approx 232$ and equating ($\frac{kA}{e}$) with the observed slope (~19) yields ($k \approx 0.22$). To keep the starting value moderate and ensure convergence, we round slightly upward and set ($k \approx 0.3$).
+* Time of Inflection (T): From visual inspection, the curve rises steeply from t = 10 to t = 20; taking the midpoint of this period as an initial starting point for "inflection" ($T \approx 15$), knowing that the optimization method, particularly a Newton-type optimizer, will more accurately determine the "direction" to proceed for maximization.
+
+* Growth rate (k): A rather tricky determination. To start, the sharpest rise in the data seems to occur around t = 12 to 18. For example, between t=13 ($y \approx 64)$) and t=17 ($y \approx 140$), the increase is about 76 units over 4 time units, or roughly 19 units per unit time (if we were to fit a "linear" trend over this time period). This provides a sense of the “steepness” of the curve. However, in the Gompertz formulation the parameter (k) is not the slope, but instead, is of the form $\frac{kA}{e}$ (Euler's number, not Euler's constant). Using $A \approx 232$ and equating $\frac{kA}{e}$ with the observed slope ($\approx 19$) gives us a "reasonable" starting estimate of $k \approx 0.22$.
 
 Thus the starting parameter vector is
 
 $$
-\theta^{(0)} = (A=232.42, B=0.95, k=0.3, T=15)
+\theta^{(0)} = (A=232.42, B=0.95, k=0.22, T=15)
 $$
 
 
 Actual Computation yields: 
 
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, results = F}
 ## Expectation function
 gompertz_fun <- function(x, p) {
   A <- p[1]; B <- p[2]; k <- p[3]; T <- p[4]
@@ -112,14 +107,21 @@ gompertz_der <- function(x, p) {
 wts <- function(x, p) diag(rep(1, length(x)))
 
 ## Fit with nonlin()
-start <- c(232.42, 0.95, 0.3, 15)
+start <- c(232.42, 0.95, 0.22, 15)
 out <- nonlin(dat$x, dat$y, start, gompertz_fun, gompertz_der, wts)
 
 # parameter estimates
-out$bs
+# out$bs
 # moment-based estimate of sigma^2
-out$sshat   
+# out$sshat   
 ```
+Convergence met with estimates: 
+
+$\hat A = 201.30$
+$\hat B = 9.76$
+$\hat k = 0.35$
+$\hat T = 14.26$
+$\hat \sigma^2 = 85.57$
 
 Plotting the observed vs. estimated values: 
 
@@ -155,9 +157,10 @@ ci_tbl <- data.frame(
   CI_U = ci_U,
   row.names = NULL
 )
+
+ci_tbl[] <- lapply(ci_tbl, function(x) if(is.numeric(x)) round(x, 3) else x)
 ci_tbl
 ```
-
 
 ```{r, echo = F, warning = F, message = F}
 # delta method
@@ -170,19 +173,19 @@ log_ci <- function(theta_hat, var_hat, level = 0.95) {
   exp(c(m - z*se_log, m + z*se_log))
 }
 
-A_log_CI <- log_ci(ests[1], V[1,1])
-B_log_CI <- log_ci(ests[2], V[2,2])
-k_log_CI <- log_ci(ests[3], V[3,3])
-T_log_CI <- log_ci(ests[4], V[4,4])
-
-print("A CI")
-A_log_CI
-print("B CI")
-B_log_CI
-print("k CI")
-k_log_CI
-print("T CI")
-T_log_CI
+# A_log_CI <- log_ci(ests[1], V[1,1])
+# B_log_CI <- log_ci(ests[2], V[2,2])
+# k_log_CI <- log_ci(ests[3], V[3,3])
+# T_log_CI <- log_ci(ests[4], V[4,4])
+# 
+# print("A CI")
+# A_log_CI
+# print("B CI")
+# B_log_CI
+# print("k CI")
+# k_log_CI
+# print("T CI")
+# T_log_CI
 ```
 
 \newpage 
@@ -215,7 +218,7 @@ cor_mat <- cov2cor(V)
 # label
 colnames(cor_mat) <- rownames(cor_mat) <- c("A","B","k","T")
 
-cor_mat
+round(cor_mat,3)
 ```
 
 \newpage 
@@ -241,37 +244,39 @@ and note that $k_{abs}$ is an absolute function of its components. Given this, c
 As defined,
 
 $$
-k_{\text{abs}} \;=\; \frac{k(A+B)}{e}.
+k_{\text{abs}} \;=\; \frac{k(A+B)}{e}
 $$
 
-Given $(\hat A,\hat B,\hat k,\hat T)$ from `nonlin` and the estimated covariance matrix $\widehat{\operatorname{Cov}}(\hat\theta)$ for $\hat\theta=(\hat A,\hat B,\hat k,\hat T)$,
-
-use a Wald (delta-method) interval.
+Given $(\hat A,\hat B,\hat k,\hat T)$ from Q1 and the estimated covariance matrix from Q3, we can (again, like Q2) use a Wald (delta-method) interval.
 
 Let $g(A,B,k,T) = k(A+B)/e$. Its gradient at $\hat\theta$ is
 
 $$
 \nabla g(\hat\theta)
 = \left(\frac{\partial g}{\partial A},\frac{\partial g}{\partial B},\frac{\partial g}{\partial k},\frac{\partial g}{\partial T}\right)^\top
-= \left(\frac{\hat k}{e},\ \frac{\hat k}{e},\ \frac{\hat A+\hat B}{e},\ 0\right)^\top.
+= \left(\frac{\hat k}{e},\ \frac{\hat k}{e},\ \frac{\hat A+\hat B}{e},\ 0\right)^\top
 $$
 
 Then
 
 $$
 \widehat{\operatorname{Var}}(\hat k_{\text{abs}})
-= \nabla g(\hat\theta)^\top\ \widehat{\operatorname{Cov}}(\hat\theta)\ \nabla g(\hat\theta),
-\qquad
-\operatorname{SE}(\hat k_{\text{abs}}) = \sqrt{\widehat{\operatorname{Var}}(\hat k_{\text{abs}})}.
+= \nabla g(\hat\theta)^\top\ \widehat{\operatorname{Cov}}(\hat\theta)\ \nabla g(\hat\theta)
 $$
 
-A two-sided 90\% CI uses $z_{0.95}=1.645$:
+And 
 
 $$
-\hat k_{\text{abs}} \ \pm\ 1.645 \times \operatorname{SE}(\hat k_{\text{abs}}).
+\operatorname{SE}(\hat k_{\text{abs}}) = \sqrt{\widehat{\operatorname{Var}}(\hat k_{\text{abs}})}
 $$
 
-Computing
+For a (presumably two-sided) 90\% CI, using $z_{0.95}=1.645$:
+
+$$
+\hat k_{\text{abs}} \ \pm\ 1.645 \cdot \operatorname{SE}(\hat k_{\text{abs}})
+$$
+
+Computing:
 
 ```{r, echo = F, warning = F, message = F}
 # order: A, B, k, T
@@ -292,6 +297,10 @@ se_kabs  <- sqrt(var_kabs)
 z <- qnorm(0.95)  
 ci90 <- c(k_abs_hat - z*se_kabs, k_abs_hat + z*se_kabs)
 
-k_abs_hat
-ci90
+# k_abs_hat
+# ci90
+sprintf(
+  "A 90%% approximate confidence interval for k_abs is (%.3f, %.3f)",
+  ci90[1], ci90[2]
+)
 ```
