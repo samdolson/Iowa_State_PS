@@ -204,7 +204,7 @@ $$
 P\!\left( \big|\hat{f}_h(x) - \text{E}[\hat{f}_h(x)]\big| > \epsilon \right)
 $$
 
-for some $\epsilon$, and show how the bound depends on $n, h, \epsilon$ and $\lVert K \rVert_\infty = \sup_{u \in \text{R}} |K(u)| < \infty$.
+for some $\epsilon$, and show how the bound depends on $n, h, \epsilon$ and $| K |_\infty = \sup_{u \in \text{R}} |K(u)| < \infty$.
 
 **Hint:** Hoeffding’s inequality states that for i.i.d. random variables $Y_i$ such that $a \leq Y_i \leq b$,
 
@@ -284,47 +284,57 @@ Write down all the assumptions you’re making in the process.
 
 ### Answer
 
-(1): Throughout, we assume $X_1,\dots,X_n$ are iid with valid density.
+(1): As $n \to \infty$, $h \to 0$ with $n h^2 \to \infty$.
 
-(2): The kernel $K$ is bounded ($|K|_{\infty} = \sup_{u\in\mathbb{R}} |K(u)| < \infty$).
+(2): $X_1,\dots,X_n$ are i.i.d. with density $f$ (ensures we can apply Hoeffding’s inequality).
 
-(3): The kernel $K$ is differentiable and has bounded derivative ($|K'|_{\infty} = \sup_{u\in\mathbb{R}} |K'(u)| < \infty$).
+(3): $K$ is bounded, $| K|_\infty = \sup_{u\in\mathbb{R}} |K(u)| < \infty$.
 
-(4): The kernel density estimator $f$ is bounded (a stronger assumption would be is integrable)
+(4): $K$ is differentiable with bounded derivative, $| K'|_\infty = \sup_{u\in\mathbb{R}} |K'(u)| < \infty$.
 
-(5): As $h \rightarrow 0$, $n h^{2}\to\infty$
+Note: Condition 4 implies the kernel density estimator (and its expectation) is Lipschitz continuous on $[a,b]$. This Lipschitz property enables the reduction from a supremum over a (possibly) infinite set to a maximum over a finite net.
 
-(6): (Perhaps not an assumption, but a given?) We have a compact interval $[a,b]$ (closed and bounded interval)
+Onto the problem: 
 
-Given the setup and results from part a), we know that boundedness gives $|Y_i(x)| \le \frac{|K|_{\infty}}{h}$ for all $x$. 
-
-We then also know that $|K'|_{\infty}<\infty$ (that is both exists and is bounded). Then, by the Mean-Value Theorem:
+Define
 
 $$
-|Y_i(x) - Y_i(x')|
-\le \frac{|K'|_{\infty}}{h^2}\,|x - x'|\,
-\Rightarrow
+Y_i(x) = \frac{1}{h}\,K\left(\frac{x - X_i}{h}\right)
+$$
+
+Then, by the Mean Value Theorem: 
+
+$$ 
+|Y_i(x) - Y_i(x')| \le \frac{|K'|_{\infty}}{h^2}\,|x - x'|
+\;\;\Rightarrow\;\;
 |\hat f_h(x) - \hat f_h(x')|
+= \Bigg|\frac{1}{n}\sum_{i=1}^n\!\big(Y_i(x)-Y_i(x')\big)\Bigg|
 \le \frac{|K'|_{\infty}}{h^2}\,|x - x'|
 $$
 
-Taking expectations, 
+Giving us: 
 
 $$
-|\text{E}\hat f_h(x) - \text{E}\hat f_h(x')| \le \frac{|K'|_{\infty}}{h^2}\,|x - x'|
+\big|\hat f_h(x) - \hat f_h(x')\big| \le \frac{|K'|_{\infty}}{h^2}\,|x - x'|
+$$
+
+Taking expectations then, 
+
+$$ 
+|\text{E}\hat f_h(x) - \text{E}\hat f_h(x')| \le \frac{|K'|_{\infty}}{h^2}\,|x - x'| 
 $$
 
 (Noting the terms on the right-side of the inequality are non-random, i.e., fixed)
 
-We then fix some (small) $\delta>0$, and define a $\delta$-net $N_\delta\subset[a,b]$ by: 
+Fix $\delta > 0$. Construct a $\delta$-net $N_\delta \subset [a,b]$ so that
 
 $$
-|N_\delta|\le \left\lceil\frac{b-a}{\delta}\right\rceil + 1,
+|N_\delta| \le \left\lceil \frac{b-a}{\delta} \right\rceil + 1,
 \qquad
-\forall x\in[a,b]\ \quad \exists x'\in N_\delta \text{ such that } |x-x'|\le \delta
+\forall x \in [a,b],\ \exists x' \in N_\delta:\ |x-x'|\le \delta
 $$
 
-Then for such $x$ and $x'$,
+For any $x \in [a,b]$ and its nearby grid point $x' \in N_\delta$,
 
 $$
 \begin{aligned}
@@ -332,80 +342,70 @@ $$
 &\le \big|\hat f_h(x) - \hat f_h(x')\big|
 + \big|\hat f_h(x') - \text{E}\hat f_h(x')\big|
 + \big|\text{E}\hat f_h(x') - \text{E}\hat f_h(x)\big| \
-\le \frac{2|K'|_{\infty}}{h^2}\,\delta + \big|\hat f_h(x') - \text{E}\hat f_h(x')\big|
+\le \frac{2| K'|_\infty}{h^2}\,\delta
++ \big|\hat f_h(x') - \text{E}\hat f_h(x')\big|
 \end{aligned}
 $$
 
-(The additional terms come from "adding zeros" via $\pm \hat{f}_{h}(x') \pm \text{E}\hat{f}_{h}(x')$, followed by the Triangle Inequality)
+Where the first and last terms are bounded using the Lipschitz condition.
+
+(Note: The additional terms come from "adding zeros" via $\pm \hat{f}_{h}(x') \pm \text{E}\hat{f}_{h}(x')$, followed by the Triangle Inequality)
 
 Choose
 
-$$
-\delta = \frac{\epsilon h^{2}}{4|K'|_{\infty}}
-\quad\Rightarrow\quad
-\frac{2|K'|_{\infty}}{h^{2}}\,\delta = \frac{\epsilon}{2}
+$$ 
+\delta = \frac{\epsilon h^{2}}{4|K'|_{\infty}} \quad\Rightarrow\quad \frac{2|K'|_{\infty}}{h^{2}}\,\delta = \frac{\epsilon}{2} 
 $$
 
-Hence
+Then
 
-$$
-\Big\{ \sup_{x\in[a,b]} \big|\hat f_h(x)-\mathbb E\hat f_h(x)\big|>\epsilon \Big\}
-\subseteq
-\Big\{ \max_{x'\in N_\delta} \big|\hat f_h(x')-\mathbb E\hat f_h(x')\big|>\tfrac{\epsilon}{2} \Big\}
+$$ 
+\Big\{ \sup_{x\in[a,b]} \big|\hat f_h(x)-\text{E}\hat f_h(x)\big|>\epsilon \Big\} \subseteq \Big\{ \max_{x'\in N_\delta} \big|\hat f_h(x')-\text{E}\hat f_h(x')\big|>\tfrac{\epsilon}{2} \Big\} 
 $$
 
-Therefore, by the union bound,
+By the union bound,
 
-$$
-\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x)-\mathbb E\hat f_h(x)\big|>\epsilon \right)
-\le
-|N_\delta|\,
-\max_{x'\in N_\delta} \text{P}\!\left(\big|\hat f_h(x')-\mathbb E\hat f_h(x')\big|>\tfrac{\epsilon}{2}\right).
+$$ 
+\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x)-\text{E}\hat f_h(x)\big|>\epsilon \right) \le |N_\delta|\, \max_{x'\in N_\delta} \text{P}\!\left(\big|\hat f_h(x')-\text{E}\hat f_h(x')\big|>\tfrac{\epsilon}{2}\right)
 $$
 
-Applying results (the bound) from part a), for each fixed $x'$ we have
+From part a), Hoeffding’s inequality gives for each $x'$:
 
 $$
-\text{P}\left( \big|\hat f_h(x') - \text{E}\hat f_h(x')\big| > \tfrac{\epsilon}{2} \right)
-\le
-2\exp\left( - \frac{n h^{2} \epsilon^{2}}{8\,|K|_{\infty}^{2}} \right)
+\text{P}\left(\big|\hat f_h(x') - \text{E}\hat f_h(x')\big| > \tfrac{\epsilon}{2}\right)
+\le 2\exp\left(-\frac{n h^2 \epsilon^2}{8 | K|_\infty^2}\right)
 $$
-
-Then, we have: 
 
 $$
 \text{P}\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \text{E}\hat f_h(x)\big| > \epsilon \right)
+\le \left( \left\lceil \frac{4(b-a)| K'|_\infty}{\epsilon h^2} \right\rceil + 1 \right)
+\cdot 2\exp\left(-\frac{n h^2 \epsilon^2}{8 | K|_\infty^2}\right)
+$$
+
+We then need to determine whether this term is "something small". To that end note that from the bound
+
+$$
+\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \text{E}\hat f_h(x)\big| > \epsilon \right)
 \le
 \left( \left\lceil \frac{4(b-a)\,|K'|_{\infty}}{\epsilon h^{2}} \right\rceil + 1 \right)
-\cdot 2\exp\left( - \frac{n h^{2} \epsilon^{2}}{8\,|K|_{\infty}^{2}} \right)
-$$
-
-We then need to determine whether this term is "something small". 
-
-To that end note that from the bound
-
-$$
-\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \mathbb{E}\hat f_h(x)\big| > \epsilon \right)
-\le
-\left( \left\lceil \frac{4(b-a)\,\|K'\|_{\infty}}{\epsilon h^{2}} \right\rceil + 1 \right)
-\cdot 2\exp\!\left( - \frac{n h^{2} \epsilon^{2}}{8\,\|K\|_{\infty}^{2}} \right)
+\cdot 2\exp\!\left( - \frac{n h^{2} \epsilon^{2}}{8\,|K|_{\infty}^{2}} \right)
 $$
 
 Then, for any fixed $\epsilon>0$,
 
 $$
-\left\lceil \frac{4(b-a)\,\|K'\|_{\infty}}{\epsilon h^{2}} \right\rceil + 1
+\left\lceil \frac{4(b-a)\,|K'|_{\infty}}{\epsilon h^{2}} \right\rceil + 1
 \;\le\;
-\frac{4(b-a)\,\|K'\|_{\infty}}{\epsilon h^{2}} + 1
+\frac{4(b-a)\,|K'|_{\infty}}{\epsilon h^{2}} + 1
 \le \frac{C_1}{\epsilon h^{2}}
 $$
 
-For some constant $C_1=4(b-a)\|K'\|_\infty+1$
+For some constant $C_1=4(b-a)|K'|_\infty+1$
 
-Hence, for $c_1=\frac{1}{8\|K\|_\infty^2}$,
+Hence, for $c_1=\frac{1}{8|K|_\infty^2}$,
 
 $$
-\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \mathbb{E}\hat f_h(x)\big| > \epsilon \right)
+\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \text{E}\hat f_h(x)\big| > \epsilon \right)
 \;\le\;
 \frac{2C_1}{\epsilon h^{2}}\,\exp\!\big(-c_1\,n h^{2}\epsilon^{2}\big)
 $$
@@ -419,7 +419,7 @@ $$
 Such that: 
 
 $$
-\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \mathbb{E}\hat f_h(x)\big| > \epsilon \right)
+\text{P}\!\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \text{E}\hat f_h(x)\big| > \epsilon \right)
 \underset{n h^{2}\to\infty} \to 0 
 $$
 
@@ -440,7 +440,7 @@ $$
 
 ### Answer
 
-For notational convenience, let $\Lambda=\|K'\|_\infty/h^2$. 
+For notational convenience, let $\Lambda=|K'|_\infty/h^2$. 
 
 Then, from part b), for any $\delta>0$ and any $\delta$-net $N_\delta\subset[a,b]$,
 
@@ -456,7 +456,7 @@ Applying Hoeffding's Inequality at each $x'\in N_\delta$ and the union bound, fo
 $$
 \text{P}\Big(\sup_{x\in[a,b]} \big|\hat f_h(x)-\text{E}\hat f_h(x)\big| > t+2\Lambda\delta\Big)
 \le
-2\,|N_\delta|\exp\!\Big(-\tfrac{n h^2 t^2}{8\,\|K\|_{\infty}^2}\Big)
+2\,|N_\delta|\exp\!\Big(-\tfrac{n h^2 t^2}{8\,|K|_{\infty}^2}\Big)
 $$
 
 Let
@@ -464,7 +464,7 @@ Let
 $$
 m_\delta=\Big\lceil\tfrac{b-a}{\delta}\Big\rceil+1,
 \quad \text{and }
-t_\alpha(\delta)=\sqrt{\frac{8\,\|K\|_{\infty}^2}{n\,h^2}\,
+t_\alpha(\delta)=\sqrt{\frac{8\,|K|_{\infty}^2}{n\,h^2}\,
 \log\!\Big(\frac{2\,m_\delta}{\alpha}\Big)}
 $$
 
@@ -478,11 +478,8 @@ $$
 Therefore, we may construct a nonparametric uniform $1 - \alpha$ confidence band for $\text{E}[\hat{f}_h(x)]$ a $(1-\alpha)$ (on a compact interval $[a,b]$) via $(L(x), U(x))$, where: 
 
 $$
-L(x)=\hat f_h(x)-\big(t_\alpha(\delta)+2\Lambda\delta\big)
-$$
-
-$$
+L(x)=\hat f_h(x)-\big(t_\alpha(\delta)+2\Lambda\delta\big), \quad 
 U(x)=\hat f_h(x)+\big(t_\alpha(\delta)+2\Lambda\delta\big)
 $$
 
-(And again, using $\Lambda=\|K'\|_\infty/h^2$ and $t_\alpha(\delta)$ as defined previously.)
+(Using $\Lambda$ and $t_\alpha(\delta)$ as defined previously.)
