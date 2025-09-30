@@ -1,0 +1,113 @@
+---
+title: "NP Report"
+author: "Sam Olson"
+date: "`r format(Sys.Date())`"
+output:
+  beamer_presentation:
+    theme: Madrid
+    colortheme: default
+    fonttheme: professionalfonts
+    slide_level: 1
+    incremental: false     # show bullets all at once
+    keep_tex: true
+bibliography: references.bib   # file must sit next to this .Rmd
+header-includes:
+  - \usepackage{xurl}          % better URL/DOI wrapping
+  - \usepackage{microtype}     % nicer spacing
+  - \setbeamertemplate{bibliography item}[text]  % no bullets on refs
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# General Timeline
+
+* **1897** — Fechner introduces the *method of signs* for succession-dependence.
+* **1938** — Kendall develops the $\tau$ rank correlation coefficient.
+* **1958** — Kruskal broadens Kendall’s ideas into a general nonparametric testing framework.
+* **1958–1990s** — Others (e.g., El-Shaarawi, 1992) apply rank-based methods to time series.
+* **2024** — Shi et al. develop adaptive high-dimensional independence tests using Kendall’s $\tau$.
+* **2025** — Han et al. extend to a broader class of sum-of-powers tests.
+
+# General Summary {.allowframebreaks}
+
+The trajectory from Fechner to modern adaptive tests highlights how a simple sign-based idea grew into a major branch of nonparametric inference.
+
+Fechner’s Kollektivmasslehre (1897) [@Fechner1897] anticipated many of the ideas behind Kendall’s $\tau$. His method of signs looked for succession-dependence in sequences of observations, asking whether runs of increases or decreases occurred more often than chance would predict. Though Fechner restricted his comparisons to adjacent pairs, the spirit was the same: assess concordance and discordance using only the signs of differences, not their magnitudes. He even applied this method to meteorological series and anthropometric data, extending the idea to two dimensions.
+
+Kendall (1938) [@Kendall1938] generalized Fechner’s idea by considering all possible pairs of observations, not just consecutive ones. His $\tau$ statistic became the canonical rank correlation coefficient, widely adopted as a nonparametric alternative to Pearson’s correlation.
+
+Kruskal (1958) [@Kruskal1958] emphasized $\tau$’s place within a broader family of nonparametric statistics for ordinal data, framing it for hypothesis testing. Rank-based measures then spread to time series, enabling tests for persistence/independence in hydrological and environmental data [@ElShaarawi1992; @Hamed2011].
+
+Key point: This lineage leads to independence testing in high dimensions, where Kendall’s $\tau$ supports robust, distribution-free procedures resilient to heavy tails and monotone transformations [@Shi2024; @Han2025].
+
+# Concise Comparison to Kendall’s $\tau$
+
+Fechner (1897): Successive changes in time series; sign-based concordance on adjacent pairs.
+
+Kendall (1938): Concordance/discordance over all pairs; a general rank correlation for unordered data [@Kendall1938].
+
+Key takeaway: Fechner’s succession-based idea becomes Kendall’s general ordinal association measure.
+
+# Motivation and Relevance
+
+Modern work continues to exploit distribution-free, rank-based tests of independence:
+
+Adaptive high-dimensional tests building on Kendall’s $\tau$ [@Shi2024; @Han2025].
+
+Time-series applications echoing Fechner’s focus [@ElShaarawi1992].
+
+Broader treatments of ordinal association and nonparametric effects [@Kruskal1958; @Newson].
+
+Persistence testing with ranks in environmental contexts [@Hamed2011].
+
+# Recent Development: Shi et al. (2024) {.allowframebreaks}
+
+## Problem
+
+$$
+H_0: X_1,\dots,X_d \text{ are mutually independent}
+$$
+
+## Why Kendall’s $\tau$?
+
+* Rank-based; distribution-free; robust to heavy tails.
+
+## Dense vs. Sparse
+
+* **Dense:** many weak deps $\Rightarrow$ sum-type ($L_2$).
+* **Sparse:** few strong deps $\Rightarrow$ max-type ($L_\infty$).
+
+## Method (sketch)
+
+* Build $L_2$ and $L_\infty$ from pairwise $\tau_{k\ell}$.
+* $S_\tau \Rightarrow N(0,1)$; $M_\tau \Rightarrow$ Gumbel.
+* Adaptive p-value:
+
+$$
+C_\tau=\min{(1-\Phi(S_\tau), 1-F_{\mathrm{Gumbel}}(M_\tau))}
+$$
+
+## Theory (high level)
+
+$S_\tau$ and $M_\tau$ asymptotically independent;
+$W=\min{U_1,U_2}$ with $U_i\sim \mathrm{Unif}(0,1)$ so $H(t)=2t-t^2$.
+
+## Empirics / Applications
+
+* **Welding (4 vars, n=40):** rank-based rejects; Pearson fails.
+* **Biochemical (8 vars):** adaptive detects group differences.
+
+# Conclusion
+
+Rank-based adaptive tests are practical and robust; 2025 work generalizes to sum-of-powers [@Han2025].
+
+# Next Steps
+
+* Consulting applications (survey, environmental, biochemical).
+* Reflection: Kendall’s $\tau$ connects classic nonparametrics to modern HD inference.
+
+# References {.allowframebreaks}
+
+\scriptsize
