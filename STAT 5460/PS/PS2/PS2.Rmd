@@ -37,7 +37,7 @@ $$
 \text E[\widehat f(x)]
 &=\text E\left[\frac{1}{n}\sum_{i=1}^n K_h(x-X_i)\right] \\ 
 &= \sum_{i=1}^{n} \frac{1}{n} \text E\left[K_h(x-X_i)\right] \quad\text{Expectation is a linear function}\ \\
-&= \text E\left[K_h(x-X)\right] \quad\text{X's iid, specifically identical}\ \\
+&= \text E\left[K_h(x-X)\right] \quad\text{X's i.i.d., specifically identical}\ \\
 &= \int_{\mathbb R}K_h(x-y)f(y)dy \quad \text{See Note} \\ 
 &= (K_h*f)(x) \quad \text{Convolution definition} \\ 
 \end{aligned}
@@ -66,7 +66,7 @@ To make our lives easier, well maybe not you since you're grading this, define t
 
 Then the kernel density estimator is equivalent to $\hat f(x)=\frac{1}{n} \sum_{i=1}^n K_h(x - X_i)= \frac{1}{n}\sum_{i=1}^n Z_i$. 
 
-Notably, as X's are iid, then the Z's are iid, as defined.
+Notably, as X's are i.i.d., then the Z's are i.i.d., as defined.
 
 Evaluating the (exact) Variance then: 
 
@@ -75,7 +75,7 @@ $$
 \operatorname{Var}(\hat f(x))
 &= \operatorname{Var}\!\left(\tfrac{1}{n}\sum_{i=1}^n Z_i\right) \\
 &= \tfrac{1}{n}\operatorname{Var}(Z_1)
-\quad\text{(sum of the variance of iid R.V.'s)} \\ 
+\quad\text{(sum of the variance of i.i.d. R.V.'s)} \\ 
 &= \tfrac{1}{n}\Big(\text{E}[Z_1^2] - (\text{E}[Z_1])^2\Big) \quad \text{Variance definition/decomposition} \\
 &= \tfrac{1}{n}\Big(\text{E}[K_h^2(x-X_1)] - \left( \text{E}[K_h(x-X_1)]\right)^2\Big) \quad \text{Substituting original definitionb of } Z_i \\
 &= \tfrac{1}{n}\left(\int_{\mathbb R}K_h^2(x-y)\,f(y)\,dy 
@@ -288,15 +288,15 @@ Write down all the assumptions you’re making in the process.
 
 (2): $X_1,\dots,X_n$ are i.i.d. with density $f$ (ensures we can apply Hoeffding’s inequality).
 
-(3): $K$ is bounded, $| K|_\infty = \sup_{u\in\mathbb{R}} |K(u)| < \infty$.
+(3): $K$ is bounded, $|K|_\infty = \sup_{u\in\mathbb{R}} |K(u)| < \infty$.
 
-(4): $K$ is differentiable with bounded derivative, $| K'|_\infty = \sup_{u\in\mathbb{R}} |K'(u)| < \infty$.
+(4): $K$ is Lipshitz continuous (For a somewhat stronger assumption, we could instead say $K$ is differentiable with bounded derivative, $| K'|_\infty = \sup_{u\in\mathbb{R}} |K'(u)| < \infty$).
 
-Note: Condition 4 implies the kernel density estimator (and its expectation) is Lipschitz continuous on $[a,b]$. This Lipschitz property enables the reduction from a supremum over a (possibly) infinite set to a maximum over a finite net.
+Note: The stronger version of Condition 4 implies the kernel density estimator (and its expectation) is Lipschitz continuous on the compact set $[a,b]$. This Lipschitz assumption let us reduce from a supremum over a (possibly) infinite set to a maximum over a finite net.
 
-Onto the problem: 
+Now, onto the problem: 
 
-Define
+Define:
 
 $$
 Y_i(x) = \frac{1}{h}\,K\left(\frac{x - X_i}{h}\right)
