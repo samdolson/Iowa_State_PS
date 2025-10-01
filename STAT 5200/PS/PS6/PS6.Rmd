@@ -40,6 +40,8 @@ On the course web page in the Data module is a file `growthdat.txt` that contain
 
 ```{r, echo = F, warning = F, message = F}
 source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS6/nonlin.txt")
+library(kableExtra)
+library(knitr)
 dat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS6/growthdat.txt", header = TRUE)
 ```
 
@@ -72,9 +74,23 @@ The values used (and how they were determined) are as follows:
 
 * Time of Inflection (T): From visual inspection, the curve rises steeply from t = 10 to t = 20; taking the midpoint of this period as an initial starting point for "inflection" ($T \approx 15$), knowing that the optimization method, particularly a Newton-type optimizer, will more accurately determine the "direction" to proceed for maximization.
 
-* Growth rate (k): A rather tricky determination. To start, the sharpest rise in the data seems to occur around t = 12 to 18. For example, between t=13 ($y \approx 64)$) and t=17 ($y \approx 140$), the increase is about 76 units over 4 time units, or roughly 19 units per unit time (if we were to fit a "linear" trend over this time period). This provides a sense of the “steepness” of the curve. However, in the Gompertz formulation the parameter (k) is not the slope, but instead, is of the form $\frac{kA}{e}$ (Euler's number, not Euler's constant). Using $A \approx 232$ and equating $\frac{kA}{e}$ with the observed slope ($\approx 19$) gives us a "reasonable" starting estimate of $k \approx 0.22$.
+* Growth rate (k): A more involved calculation The steepest rise in the data occurs between t=12 and t=18. Case in point, between t=13 ($y \approx 64$) and t=17 ($y \approx 140$), the increase is about 76 units over 4 time units, or roughly 19 units per time unit.
 
-Thus the starting parameter vector is
+For the Gompertz model, the slope at the inflection point ($t=T$) is obtained by differentiation:
+
+$$
+\left.\frac{d\mu}{dt}\right|_{t=T} = \frac{Ak}{e}
+$$
+
+(Where "e" denotes Euler's number, not Euler's constant)
+
+Equating this theoretical slope with the observed slope ($\approx 19$) and using $A \approx 232$ from prior determination, we obtain the starting value
+
+$$
+k \approx \frac{19e}{232} \approx 0.22
+$$
+
+Taken together, the starting parameter vector is
 
 $$
 \theta^{(0)} = (A=232.42, B=0.95, k=0.22, T=15)
@@ -140,6 +156,14 @@ Compute 95% approximate confidence intervals for the parameters of the expectati
 
 ### Answer
 
+The `nonlin` function returns the parameter estimates ($\hat{\boldsymbol\beta}=(\hat A,\hat B,\hat k,\hat T)$) and an estimated covariance matrix ($\widehat{\mathrm{Var}}(\hat{\boldsymbol\beta})=\mathbf V$)
+
+Then, following the standard convention, the formula for the 95% (Wald-based approximate) confidence intervals for each parameter ($\beta_j\in{A,B,k,T}$) are: 
+
+$$
+\hat\beta_j \ \pm\ z_{0.975},\mathrm{SE}(\hat\beta_j)
+$$
+
 ```{r, echo = F, warning = F, message = F}
 # asymptotic Wald-type
 ests <- out$bs
@@ -160,8 +184,15 @@ ci_tbl <- data.frame(
 )
 
 ci_tbl[] <- lapply(ci_tbl, function(x) if(is.numeric(x)) round(x, 3) else x)
-ci_tbl
+kable(ci_tbl)
 ```
+
+Corresponding to 95% approximate confidence intervals of: 
+
+* (A: $201.296 \pm 1.96(4.974)\ \Rightarrow\ (191.546,\ 211.045)$)
+* (B: $9.763 \pm 1.96(2.809)\ \Rightarrow\ \ \ (4.258,\ \ 15.268)$)
+* (k: $0.354 \pm 1.96(0.032)\ \Rightarrow\ \ (0.290,\ \ \ 0.417)$)
+* (T: $14.257 \pm 1.96(0.195)\ \Rightarrow\ (13.875,\ 14.639)$)
 
 ```{r, echo = F, warning = F, message = F}
 # delta method
@@ -207,7 +238,7 @@ $$
 
 for parameters ($\theta_i, \theta_j \in \{A,B,k,T\}$).
 
-Computing these quantities: 
+Computing these quantities, using the `cov2cor` function from the base `stats` package: 
 
 ```{r, echo = F, warning = F, message = F}
 # start with covariance matrix
@@ -219,7 +250,7 @@ cor_mat <- cov2cor(V)
 # label
 colnames(cor_mat) <- rownames(cor_mat) <- c("A","B","k","T")
 
-round(cor_mat,3)
+kable(round(cor_mat,3))
 ```
 
 \newpage 
