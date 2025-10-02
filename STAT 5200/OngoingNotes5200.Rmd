@@ -796,6 +796,171 @@ $t_{1-\alpha/2; \, n-p}$ is the $1-\alpha/2$ quantile of a $t$-distribution with
 
 **Note:** There is absolutely no justification for using the quantile of a $t$-distribution in these intervals rather than that of a standard normal distribution. These intervals are constructed on the basis of an asymptotic result, but you will unfortunately see such things done in the literature.
 
+## Chapter 7
+
+"In Bayesian parameter estimation, both the prior and posterior distributions represent, not any measurable property of the parameter, but only our own state of knowledge about it."
+
+"If we admit an epistemic concept of probability, we are free to represent our current knowledge or belief about the possible values of $\theta$ as a probability distribution. When we do so before seeing data we will call such a distribution a prior distribution. When we do so after having seen data we obtain a posterior distribution."
+
+I.e., we "assign a distribution to our believe of a non-random parameter"; this is what makes Bayes Bayes. 
+
+The *data model* in Bayesian analysis is the joint distribution for observable
+response variables $Y_1, \ldots, Y_n$, just as in any statistical model. Indeed,
+everything that has been discussed in this book concerning scientific abstraction,
+statistical abstraction, and model formulation applies equally to a Bayesian
+analysis as it does to any other model-based approach. We will assume that
+the joint distribution of response random variables depends on a parameter
+$\theta \in \Theta$, which may be either a scalar or vector-valued, and we will write
+the data model as $f(y|\theta)$. Also, as mentioned in the previous subsection, the data
+model may be interpreted according to relative frequency probability, the distribution
+representing frequencies that might occur in the limit with at least hypothetical
+repeated sampling.
+
+A *prior distribution* is a distribution, usually in the form of a probability density
+function, placed on what we believe about the possible values of the data model
+parameter before or *prior to* observing any data. With $\theta$ denoting the data
+model parameter, the prior may be written as $\pi(\theta)$. The support of this prior
+must be contained in the data model parameter space $\Theta$ and the prior is often
+chosen so that these two sets are identical. If $\theta$ is a vector, the prior distribution
+is a joint distribution. The prior distribution may itself depend on a parameter
+$\lambda$, and priors are frequently written as either $\pi(\theta)$ or $\pi(\theta|\lambda)$.
+This is because if the prior involves a parameter $\lambda$, specific numeric values
+will be chosen for $\lambda$ before the analysis is conducted. The notation $\pi(\theta)$
+makes it clear that the prior does not depend on any additional *unknown* parameters.
+The notation $\pi(\theta|\lambda)$ is sometimes convenient because $\lambda$ may be
+involved in inferential quantities in the analysis. What is important to remember is that,
+if a prior is written as $\pi(\theta|\lambda)$, in conducting an actual analysis specific values
+are chosen for the elements of $\lambda$.
+
+The *posterior distribution* is derived from the data model and the prior,
+and is a distribution for what we believe about the possible values of $\theta$
+after or *posterior* to seeing observed data. Assuming, as is usually the case,
+that the possible values of $\theta$ are continuous in $\Theta$, the posterior distribution
+is constructed as,
+
+$$
+p(\theta|y) \;=\; \frac{m(\theta, y)}{h(y)} \;=\; 
+\frac{f(y|\theta)\,\pi(\theta)}{\int f(y|\theta)\,\pi(\theta)\, d\theta}.
+\tag{7.1}
+$$
+
+The posterior (7.1) is in the form of Bayes theorem which, given what is usually
+called the law of total probability (e.g., DeGroot and Schervish 2002 p. 67),
+follows directly from the definition of conditional probability density functions.
+It should be noted from the outset that the denominator of (7.1) is constant
+for the posterior distribution and thus $p(\theta|y) \propto m(y,\theta)$. This fact
+will often facilitate derivation of the posterior without the need for formal evaluation
+of the integral that leads to $h(y)$.
+
+If $\theta$ is a vector, (7.1) is a joint distribution and as such it determines a set
+of additional posterior distributions that are often used in Bayesian analysis.
+For the purposes of inference we often want to use marginal posteriors such as
+$p(\theta_k|y)$ for the $k^{th}$ element of $\theta$. Also useful will often be conditional
+posteriors $p(\theta_1|\theta_2,y)$ where $\theta_1$ and $\theta_2$ are disjoint subsets
+of $\theta$. In particular, what are called *full conditional* posteriors, which occur if
+$\theta_1$ and $\theta_2$ partition $\theta$. Often, in fact, $\theta_1$ is an individual
+element of $\theta$ and $\theta_2$ are all of the remaining elements. Conditional
+posteriors play a role in certain algorithms used to simulate values from complex
+joint posterior distributions, a future topic.
+
+### Completing The Square
+
+Consider a random variable $X$ that follows a probability distribution,
+
+$$
+f(x|A,B) \propto \exp\!\left[ -\tfrac{1}{2}(Ax^2 - 2Bx) \right].
+$$
+
+Then $X$ has a normal distribution with mean $M$ and variance $V$ where,
+
+$$
+M = \frac{B}{A}, \qquad
+V = \frac{1}{A}.
+$$
+
+### Bayes Confidence Sets 
+
+The Bayesian analog of confidence
+sets or intervals are typically called *credible sets* or *credible intervals*. The basic
+definition of a credible set for $\theta$ is a set $\mathcal{C}$ such that
+
+$$
+1 - \alpha \;\leq\; Pr(\theta \in \mathcal{C} \mid y)
+= \int_{\mathcal{C}} p(\theta \mid y)\, d\theta.
+\tag{7.4}
+$$
+
+If $\theta$ should happen to be discrete the integral in (7.4) is replaced with a
+summation, but this is unusual. Credible intervals for individual components of
+$\theta$ are computed using the appropriate marginal posterior.
+
+To emphasize the distinction between the interpretation of inferential statements
+made on the basis of epistemic probability and on the basis of relative frequency
+probability, consider the statement for a scalar parameter $\theta$,
+
+$$
+Pr(a < \theta < b) = 1 - \alpha.
+\tag{7.5}
+$$
+
+If this probability is interpreted according to a relative frequency concept, the
+quantities $a$ and $b$ must be random variables, such as
+$a = \hat{\theta}(\mathbf{Y}) - z_{1-\alpha/2}\,\mathrm{se}(\hat{\theta}(\mathbf{Y}))$
+and
+$b = \hat{\theta}(\mathbf{Y}) - z_{\alpha/2}\,\mathrm{se}(\hat{\theta}(\mathbf{Y}))$,
+where $z_\alpha$ is the $\alpha$ quantile of a standard normal distribution.
+The interpretation is based on repeated sampling and the limiting relative frequency
+with which the event inside the probability is true. In contrast, if (7.5) is interpreted
+under an epistemic concept of probability then $a$ and $b$ can be constants and the
+meaning of the interval is that it contains $(1-\alpha)100\%$ of our belief about
+where the value of $\theta$ might lie.
+
+### Bayes Hypothesis Testing 
+
+Consider testing a hypothesis about the value of an element of $\theta$,
+$H_0 : \theta_k \in \Theta_0$ versus $H_1 : \theta_k \notin \Theta_0$.
+A Bayesian hypothesis test can be constructed as the ratio of posterior
+probabilities of the two hypotheses,
+
+$$
+B(H_1, H_0) = \frac{Pr(H_1 \mid y)}{Pr(H_0 \mid y)}.
+\tag{7.7}
+$$
+
+---
+
+Note that (7.7) is a special case of a more general quantity known as a
+*Bayes Factor*. Bayes Factors assess the change from prior odds to posterior
+odds of two models. For our purposes here, consider a model to consist of
+a data model, a prior distribution on the data model parameters, and the
+resulting posterior for those parameters. Consider two models $M_1$ and $M_2$,
+say. The posterior odds of model $M_1$ relative to model $M_2$ are,
+
+$$
+\frac{Pr(M_1 \mid y)}{Pr(M_2 \mid y)}
+= \frac{Pr(M_1)}{Pr(M_2)} \frac{Pr(y \mid M_1)}{Pr(y \mid M_2)}
+\tag{7.8}
+$$
+
+$$
+= \frac{Pr(M_1)}{Pr(M_2)} \, BF(M_1, M_2).
+\tag{7.9}
+$$
+
+The quantity $BF(M_1, M_2)$ is called the Bayes Factor in favor of model
+$M_1$ relative to model $M_2$. From (7.8) we can arrive at a number of
+alternative ways to represent a Bayes Factor,
+
+$$
+BF(M_1, M_2) = \frac{Pr(y \mid M_1)}{Pr(y \mid M_2)}
+\tag{7.10}
+$$
+
+$$
+= \frac{Pr(M_1 \mid y)}{Pr(M_2 \mid y)} \bigg/ \frac{Pr(M_1)}{Pr(M_2)}.
+\tag{7.11}
+$$
+
 \newpage 
 
 # Reading Notes 
@@ -1071,3 +1236,41 @@ Summary of Chapter 6:
    is affected by extreme observations. It is well known that, while least squares 
    estimators have a certain amount of robustness, they are extremely sensitive to 
    the effect of extreme and high leverage observations and thus have low resistance.
+
+## Chapter 7
+
+First note that we often talk about *the* Bayesian approach to analysis as if there was one standard conceptual basis that all Bayesian approaches to statistics employ. This is no more true than that there is one standard conceptual basis for all non-Bayesian analysis. 
+
+Jaynes makes it clear that the distinction between Bayesian and what he calls orthodox approaches rests on interpretation of probability, not other areas of controversy.
+
+In the approach to Bayesian analysis presented here, the true state of nature is embodied in a fixed, but unknown parameter value that governs the distribution of observable quantities.
+
+It may seem natural to suppose that the use of Bayes theorem must be what makes a Bayesian analysis Bayesian, but this is no more true than the fallacy that all Bayesians consider parameters to be random. Bayes theorem is a probability result, true for any legitimate concept of probability, and Bayes theorem has many uses other than in a Bayesian analysis.
+
+There are a number of fundamental distributions inherent to a basic Bayesian analysis. The foremost of these are the data model, the prior distribution, and the posterior distribution.
+
+Except in sequential problems or with what are called dynamic models, inference is almost exclusively based on the posterior. 
+
+As mentioned previously it is often convenient to use the fact that for a data model $f(y|\theta)$ and prior $\pi(\theta)$, the posterior is $p(\theta|y) \propto f(y|\theta)\pi(\theta)$ and then simply recognize the right hand side as the kernel of some identifiable distribution.
+
+A classic technique in the derivation of posterior distributions is completing the square in normal distributional forms.
+
+### 7.2.2 Point Estimation
+
+Consider a univariate posterior for an element of $\theta$. A point estimate of
+$\theta_k$ is usually one of the quantities that describe the location of the posterior,
+that is, the mean, median, or mode of $p(\theta_k|y)$. The posterior mode was, at one
+time, the most popular of the three because it can be located without finding
+the denominator of (7.1) which is the normalizing constant of the posterior.
+The posterior mean is probably the most used today, in part because of the
+extensive use of simulation to approximate posterior distributions, a topic that
+will be discussed in greater detail in what follows. The posterior mean or expected
+value can also be justified based on decision-theoretic grounds, if one considers
+squared error loss (e.g., Berger, 1985, p. 161). Moments of posterior distributions,
+such as means, variances, and covariances, are given by the usual definitions, again
+because probability distributions must obey the same mathematical rules regardless
+of the concept of probability they are interpreted under. Rules for expectations,
+variances and quantiles also are the same as for random variables, although we are
+not considering $\theta$ or any of its elements to actually be random. The special
+status of posteriors as being expressions of epistemic probability impact interpretation
+not manipulation.
