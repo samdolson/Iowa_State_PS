@@ -272,6 +272,28 @@ P\left( \big|\hat f_h(x) - \text{E}[\hat f_h(x)]\big| > \epsilon \right)
 2\exp\left( - \frac{n h^2 \epsilon^2}{2|K|_\infty^2} \right)
 $$
 
+Note: If we assume the kernel is a valid density, i.e., non-negative, the answer changes somewhat to: 
+
+$$
+0 \le Y_i \le \frac{|K|_\infty}{h}
+$$
+
+$$
+a = 0,
+\qquad
+b = \frac{|K|_\infty}{h},
+\qquad
+(b-a)^2 = \frac{|K|_\infty^2}{h^2}.
+$$
+
+So
+
+$$
+P\left( \big|\hat f_h(x) - \text{E}[\hat f_h(x)]\big| > \epsilon \right)
+\le
+2\exp\left( - \frac{2 n h^2 \epsilon^2}{|K|_\infty^2} \right)
+$$
+
 ## b) 
 
 Suppose you want to construct a uniform bound over a compact interval $[a, b]$. Show that
@@ -299,6 +321,8 @@ Write down all the assumptions you’re making in the process.
 (4): $K$ is Lipshitz continuous (For a somewhat stronger assumption, we could instead say $K$ is differentiable with bounded derivative, $| K'|_\infty = \sup_{u\in\mathbb{R}} |K'(u)| < \infty$).
 
 Note: The stronger version of Condition 4 implies the kernel density estimator (and its expectation) is Lipschitz continuous on the compact set $[a,b]$. This Lipschitz assumption let us reduce from a supremum over a (possibly) infinite set to a maximum over a finite net.
+
+(5): There is a note at the end of the problem for the additional assumption that K is a valid density, i.e., non-negative. This assumption is not required for the overall proof to work as-is, but is included to show how we may get some "improvement", similar to the ending note in part a). Overall, this assumption is not required and not called upon until after the proof using assumptions 1 through 4. 
 
 Now, onto the problem: 
 
@@ -436,6 +460,32 @@ $$
 \le \text{something small}
 $$
 
+Note: If we assume the kernel is a valid density, i.e., non-negative, the answer changes somewhat to: 
+
+Previously, we had: 
+
+$$
+\text{P}\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \text{E}\hat f_h(x)\big| > \epsilon \right)
+\le \left( \left\lceil \frac{4(b-a)| K'|_\infty}{\epsilon h^2} \right\rceil + 1 \right)
+\cdot 2\exp\left(-\frac{n h^2 \epsilon^2}{8 | K|_\infty^2}\right)
+$$
+
+Assuming K is a valid density then, we have a modified second term on the right-side of the inequality, of the form: 
+
+$$
+\text{P}\left( \sup_{x\in[a,b]} \big|\hat f_h(x) - \text{E}\hat f_h(x)\big| > \epsilon \right)
+\le \left( \left\lceil \frac{4(b-a)| K'|_\infty}{\epsilon h^2} \right\rceil + 1 \right)
+\cdot 2\exp\left(-\frac{n h^2 \epsilon^2}{2 | K|_\infty^2}\right)
+$$
+
+I.e., 
+
+$$
+2\exp\left(-\frac{n h^2 \epsilon^2}{8 | K|_\infty^2}\right) \Rightarrow 2\exp\left(-\frac{n h^2 \epsilon^2}{2 | K|_\infty^2}\right)
+$$
+
+Which is still "something small", and given the negative exponent converges to 0 faster than before when we don't make the assumption K is a valid density. 
+
 ## c) 
 
 From Question b), construct a nonparametric uniform $1 - \alpha$ confidence band for $\text{E}[\hat{f}_h(x)]$, i.e., find $L(x)$ and $U(x)$ such that
@@ -489,3 +539,15 @@ U(x)=\hat f_h(x)+\big(t_\alpha(\delta)+2\Lambda\delta\big)
 $$
 
 (Using $\Lambda$ and $t_\alpha(\delta)$ as defined previously.)
+
+Note: If we assume the kernel is a valid density, i.e., non-negative, the answer changes somewhat to: 
+
+$$
+t_{\alpha, \text{old}}(\delta)=\sqrt{\frac{8\,|K|_{\infty}^2}{n\,h^2}\,
+\log\!\Big(\frac{2\,m_\delta}{\alpha}\Big)}
+\Rightarrow 
+t_{\alpha, \text{new}}(\delta)=\sqrt{\frac{2\,|K|_{\infty}^2}{n\,h^2}\,
+\log\!\Big(\frac{2\,m_\delta}{\alpha}\Big)}
+$$
+
+So, effectively, the form of the lower and upper confidence bounds remain the same, we just change the $t_\alpha(\delta)$ based on the bounds derived in parts a). and b). 
