@@ -96,9 +96,6 @@ $$
 \theta^{(0)} = (A=232.42, B=0.95, k=0.22, T=15)
 $$
 
-
-Actual Computation yields: 
-
 ```{r, echo = F, warning = F, message = F, results = F}
 # expectation 
 gompertz_fun <- function(x, p) {
@@ -132,7 +129,7 @@ out <- nonlin(dat$x, dat$y, start, gompertz_fun, gompertz_der, wts)
 # out$sshat   
 ```
 
-Convergence met with estimates: 
+Actual Computation yields (with convergence met) estimates: 
 
 $\hat A = 201.30$
 $\hat B = 9.76$
@@ -143,9 +140,17 @@ $\hat \sigma^2 = 85.57$
 Plotting the observed vs. estimated values: 
 
 ```{r, echo = F, warning = F, message = F}
-plot(dat$x, dat$y, pch=19, main="Gompertz Growth Fit",
+plot(dat$x, dat$y, pch=1, main="Gompertz Growth Model -- Fitted vs. Observed",
      xlab="Time", ylab="Growth")
-lines(dat$x, out$yhat, col="blue", lwd=2)
+lines(dat$x, out$yhat, col="steelblue", lwd=2)
+
+legend("bottomright",
+       legend = c("Observed", "Fitted"),
+       col    = c("black", "steelblue"),
+       pch    = c(1, NA),
+       lty    = c(NA, 1),
+       lwd    = c(NA, 2),
+       bty    = "n")
 ```
 
 \newpage 
@@ -156,12 +161,12 @@ Compute 95% approximate confidence intervals for the parameters of the expectati
 
 ### Answer
 
-The `nonlin` function returns the parameter estimates ($\hat{\boldsymbol\beta}=(\hat A,\hat B,\hat k,\hat T)$) and an estimated covariance matrix ($\widehat{\mathrm{Var}}(\hat{\boldsymbol\beta})=\mathbf V$)
+The `nonlin` function returns the parameter estimates ($\hat{\boldsymbol\theta}=(\hat A,\hat B,\hat k,\hat T)$) and an estimated covariance matrix ($\widehat{\mathrm{Var}}(\hat{\boldsymbol\theta})=\mathbf V$)
 
 Then, following the standard convention, the formula for the 95% (Wald-based approximate) confidence intervals for each parameter ($\beta_j\in{A,B,k,T}$) are: 
 
 $$
-\hat\beta_j \ \pm\ z_{0.975},\mathrm{SE}(\hat\beta_j)
+\hat\theta_j \ \pm\ z_{0.975},\mathrm{SE}(\hat\theta_j)
 $$
 
 ```{r, echo = F, warning = F, message = F}
@@ -189,10 +194,10 @@ kable(ci_tbl)
 
 Corresponding to 95% approximate confidence intervals of: 
 
-* (A: $201.296 \pm 1.96(4.974)\ \Rightarrow\ (191.546,\ 211.045)$)
-* (B: $9.763 \pm 1.96(2.809)\ \Rightarrow\ \ \ (4.258,\ \ 15.268)$)
-* (k: $0.354 \pm 1.96(0.032)\ \Rightarrow\ \ (0.290,\ \ \ 0.417)$)
-* (T: $14.257 \pm 1.96(0.195)\ \Rightarrow\ (13.875,\ 14.639)$)
+* A: $201.296 \pm 1.96(4.974)\ \Rightarrow\ (191.546,\ 211.045)$
+* B: $9.763 \pm 1.96(2.809)\ \Rightarrow\ \ \ (4.258,\ \ 15.268)$
+* k: $0.354 \pm 1.96(0.032)\ \Rightarrow\ \ (0.290,\ \ \ 0.417)$
+* T: $14.257 \pm 1.96(0.195)\ \Rightarrow\ (13.875,\ 14.639)$
 
 ```{r, echo = F, warning = F, message = F}
 # delta method
@@ -238,7 +243,7 @@ $$
 
 for parameters ($\theta_i, \theta_j \in \{A,B,k,T\}$).
 
-Computing these quantities, using the `cov2cor` function from the base `stats` package: 
+Computing these quantities using the variance covariance matrix calculated in Q2 (and using the `cov2cor` function from the base `stats` package), we have: 
 
 ```{r, echo = F, warning = F, message = F}
 # start with covariance matrix
@@ -252,6 +257,32 @@ colnames(cor_mat) <- rownames(cor_mat) <- c("A","B","k","T")
 
 kable(round(cor_mat,3))
 ```
+
+Giving us the 6 unique pairwise correlations between $\hat{A}, \hat{B}, \hat{k}, \hat{T}$: 
+
+$$
+\text{Corr}(\hat{A}, \hat{B}) = -0.639
+$$
+
+$$
+\text{Corr}(\hat{A}, \hat{k}) = -0.632
+$$
+
+$$
+\text{Corr}(\hat{A}, \hat{T}) = -0.029
+$$
+
+$$
+\text{Corr}(\hat{B}, \hat{k}) = 0.243
+$$
+
+$$
+\text{Corr}(\hat{B}, \hat{T}) = 0.439
+$$
+
+$$
+\text{Corr}(\hat{k}, \hat{T}) = 0.104
+$$
 
 \newpage 
 
@@ -308,9 +339,11 @@ $$
 \hat k_{\text{abs}} \ \pm\ 1.645 \cdot \operatorname{SE}(\hat k_{\text{abs}})
 $$
 
-Computing:
+Computing, we get: $\hat k_{\text{abs}} \approx 27.463$, and $\operatorname{SE}(\hat k_{\text{abs}}) \approx 2.220$. 
 
-```{r, echo = F, warning = F, message = F}
+Taken together, a 90% approximate confidence interval for $k_abs$ then is (23.811, 31.115). 
+
+```{r, eval = F, echo = F, warning = F, message = F}
 # order: A, B, k, T
 Ahat <- out$bs[1]
 Bhat <- out$bs[2]
