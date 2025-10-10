@@ -396,7 +396,7 @@ belief</li>
 <li>Belief is updated or modified in the light of observed information;
 mathematical formalism necessary for logical consistency</li>
 <li><span class="math inline">\(Pr(E | y) =
-\frac{Pr(y|E)Pr(E)}{Pr(y|E)Pr(E) Pr(y|E^{c})Pr(E^{c})}\)</span></li>
+\frac{Pr(y|E)Pr(E)}{Pr(y|E)Pr(E) + Pr(y|E^{c})Pr(E^{c})}\)</span></li>
 </ul>
 <p>Note: (1) through (3) use same notion of “operation”, “sample space”,
 and “events”</p>
@@ -411,7 +411,6 @@ Relative Frequency</p>
 <p>(3): Bayesian Analysis: Construction of data model; makes use of
 epistemic probability in the form of prior and posterior
 distributions</p>
-<div style="page-break-after: always;"></div>
 </div>
 <div id="chapter-2" class="section level2">
 <h2>Chapter 2</h2>
@@ -468,7 +467,7 @@ version.”: <span class="math inline">\(\sigma^2\)</span></p>
 <p>(5): Prediction or Forecasting: These are two different things!</p>
 <p>Prediction: prediction of an unobserved random variable or functional
 of a distribution that is given (conceptualized) existence within the
-spatial and/or teporal extent of a set of data.</p>
+spatial and/or temporal extent of a set of data.</p>
 <p>Forecasting: prediction of random quantities that are given
 (conceptual) existence outside the spatial and/or temporal extent of the
 available data.</p>
@@ -476,15 +475,13 @@ available data.</p>
 <em>verification</em></p>
 <ul>
 <li>Motivation can be provided by elements of the scientific problem,
-physical realities of data collection, definitiion of random variables,
+physical realities of data collection, definition of random variables,
 or exploratory analysis of the data themselves.</li>
 <li>The observational process can motivation assumptions of independence
 (or lack thereof).</li>
 <li>For now we can think of verification as a goodness of fit
 problem.</li>
 </ul>
-<div style="page-break-after: always;"></div>
-<div style="page-break-after: always;"></div>
 </div>
 <div id="chapter-3" class="section level2">
 <h2>Chapter 3</h2>
@@ -834,7 +831,7 @@ M(y),
 E_{\theta_0}[M(y)] &lt; \infty.
 \]</span></p>
 <p>“It should be noted that the regularity conditions just listed are
-typicalbut not unique in developing asymptotic results for likelihood
+typical but not unique in developing asymptotic results for likelihood
 estimation”</p>
 <p>“Also, not all of these conditions are needed for resolution of each
 of the individual issues listed previously.”</p>
@@ -1027,9 +1024,138 @@ likelihood function”</p>
 </div>
 <div id="note-some-terms" class="section level2">
 <h2>Note some terms:</h2>
-<p>Likelihood Equations:</p>
-<p>Score Function:</p>
-<p>Objective Function:</p>
+<div id="likelihood-equations" class="section level3">
+<h3>Likelihood Equations</h3>
+<p><strong>Analytical definition</strong></p>
+<p>For a parametric model with density (or pmf) <span class="math inline">\(f(y \mid \theta)\)</span>, given independent
+observations <span class="math inline">\(Y_1, \dots, Y_n\)</span>:</p>
+<p><span class="math display">\[
+L(\theta) = \prod_{i=1}^n f(y_i \mid \theta),
+\quad
+\ell(\theta) = \log L(\theta) = \sum_{i=1}^n \log f(y_i \mid \theta).
+\]</span></p>
+<p>The <strong>likelihood equations</strong> are:</p>
+<p><span class="math display">\[
+\frac{\partial \ell(\theta)}{\partial \theta} = 0.
+\]</span></p>
+<p><strong>Description</strong></p>
+<ul>
+<li>These equations are solved to obtain the maximum likelihood
+estimator (MLE) <span class="math inline">\(\hat{\theta}\)</span>.<br />
+</li>
+<li>Sometimes solvable in closed form, often require numerical
+methods.<br />
+</li>
+<li>They are the <strong>first-order optimality conditions</strong> for
+MLE.</li>
+</ul>
+</div>
+<div id="score-function" class="section level3">
+<h3>Score Function</h3>
+<p><strong>Analytical definition</strong></p>
+<p><span class="math display">\[
+U(\theta) = \frac{\partial \ell(\theta)}{\partial \theta}.
+\]</span></p>
+<p>For vector parameters, <span class="math inline">\(U(\theta)\)</span>
+is a gradient vector.</p>
+<p><strong>Description</strong></p>
+<ul>
+<li>Measures sensitivity of the log-likelihood to changes in <span class="math inline">\(\theta\)</span>.<br />
+</li>
+<li>At the MLE, <span class="math inline">\(U(\hat{\theta}) =
+0\)</span>.<br />
+</li>
+<li>Its variance is the Fisher information, a key quantity in asymptotic
+inference.</li>
+</ul>
+<p><strong>Distinct role</strong></p>
+<ul>
+<li>The <strong>score function</strong> is the actual derivative being
+set equal to zero in the likelihood equations.<br />
+</li>
+<li>It is the <em>bridge</em> between the log-likelihood and the
+likelihood equations.</li>
+</ul>
+</div>
+<div id="objective-function" class="section level3">
+<h3>Objective Function</h3>
+<p><strong>Analytical definition</strong></p>
+<p>An <strong>objective function</strong> is the function being
+optimized (maximized or minimized).</p>
+<ul>
+<li><p>For MLE:<br />
+<span class="math display">\[
+\text{Objective function} = L(\theta) \quad \text{or equivalently} \quad
+\ell(\theta).
+\]</span></p></li>
+<li><p>For other estimation methods: could be least squares, penalized
+likelihood, Bayesian posterior, etc.</p></li>
+</ul>
+<p><strong>Description</strong></p>
+<ul>
+<li>Determines the estimation method.<br />
+</li>
+<li>For MLE, the objective function is the (log-)likelihood.<br />
+</li>
+<li>In optimization language:
+<ul>
+<li>Objective function = target to maximize.<br />
+</li>
+<li>Likelihood equations = first-order conditions.<br />
+</li>
+<li>Score function = gradient of the objective function.</li>
+</ul></li>
+</ul>
+<p>General Summary Table:</p>
+<table>
+<colgroup>
+<col width="33%" />
+<col width="25%" />
+<col width="19%" />
+<col width="22%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Analytical Form</th>
+<th>Description</th>
+<th>Distinct Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Likelihood Equations</strong></td>
+<td><span class="math inline">\(\frac{\partial \ell(\theta)}{\partial
+\theta} = 0\)</span></td>
+<td>System solved for MLE</td>
+<td>First-order conditions</td>
+</tr>
+<tr class="even">
+<td><strong>Score Function</strong></td>
+<td><span class="math inline">\(U(\theta) = \frac{\partial
+\ell(\theta)}{\partial \theta}\)</span></td>
+<td>Gradient of log-likelihood</td>
+<td>Used in likelihood equations</td>
+</tr>
+<tr class="odd">
+<td><strong>Objective Function</strong></td>
+<td><span class="math inline">\(L(\theta)\)</span> or <span class="math inline">\(\ell(\theta)\)</span></td>
+<td>Function being maximized</td>
+<td>Target of optimization</td>
+</tr>
+</tbody>
+</table>
+<p>Generally:</p>
+<ul>
+<li><strong>Objective function</strong> = what we optimize.<br />
+</li>
+<li><strong>Score function</strong> = derivative of the objective
+function.<br />
+</li>
+<li><strong>Likelihood equations</strong> = set the score function equal
+to zero to solve for the MLE.</li>
+</ul>
+</div>
 </div>
 <div id="chapter-6" class="section level2">
 <h2>Chapter 6</h2>
@@ -1132,7 +1258,257 @@ the quantile of a <span class="math inline">\(t\)</span>-distribution in
 these intervals rather than that of a standard normal distribution.
 These intervals are constructed on the basis of an asymptotic result,
 but you will unfortunately see such things done in the literature.</p>
+</div>
+<div id="chapter-7" class="section level2">
+<h2>Chapter 7</h2>
+<p>“In Bayesian parameter estimation, both the prior and posterior
+distributions represent, not any measurable property of the parameter,
+but only our own state of knowledge about it.”</p>
+<p>“If we admit an epistemic concept of probability, we are free to
+represent our current knowledge or belief about the possible values of
+<span class="math inline">\(\theta\)</span> as a probability
+distribution. When we do so before seeing data we will call such a
+distribution a prior distribution. When we do so after having seen data
+we obtain a posterior distribution.”</p>
+<p>I.e., we “assign a distribution to our believe of a non-random
+parameter”; this is what makes Bayes Bayes.</p>
+<p>The <em>data model</em> in Bayesian analysis is the joint
+distribution for observable response variables <span class="math inline">\(Y_1, \ldots, Y_n\)</span>, just as in any
+statistical model. Indeed, everything that has been discussed in this
+book concerning scientific abstraction, statistical abstraction, and
+model formulation applies equally to a Bayesian analysis as it does to
+any other model-based approach. We will assume that the joint
+distribution of response random variables depends on a parameter <span class="math inline">\(\theta \in \Theta\)</span>, which may be either a
+scalar or vector-valued, and we will write the data model as <span class="math inline">\(f(y|\theta)\)</span>. Also, as mentioned in the
+previous subsection, the data model may be interpreted according to
+relative frequency probability, the distribution representing
+frequencies that might occur in the limit with at least hypothetical
+repeated sampling.</p>
+<p>A <em>prior distribution</em> is a distribution, usually in the form
+of a probability density function, placed on what we believe about the
+possible values of the data model parameter before or <em>prior to</em>
+observing any data. With <span class="math inline">\(\theta\)</span>
+denoting the data model parameter, the prior may be written as <span class="math inline">\(\pi(\theta)\)</span>. The support of this prior
+must be contained in the data model parameter space <span class="math inline">\(\Theta\)</span> and the prior is often chosen so
+that these two sets are identical. If <span class="math inline">\(\theta\)</span> is a vector, the prior
+distribution is a joint distribution. The prior distribution may itself
+depend on a parameter <span class="math inline">\(\lambda\)</span>, and
+priors are frequently written as either <span class="math inline">\(\pi(\theta)\)</span> or <span class="math inline">\(\pi(\theta|\lambda)\)</span>. This is because if
+the prior involves a parameter <span class="math inline">\(\lambda\)</span>, specific numeric values will be
+chosen for <span class="math inline">\(\lambda\)</span> before the
+analysis is conducted. The notation <span class="math inline">\(\pi(\theta)\)</span> makes it clear that the prior
+does not depend on any additional <em>unknown</em> parameters. The
+notation <span class="math inline">\(\pi(\theta|\lambda)\)</span> is
+sometimes convenient because <span class="math inline">\(\lambda\)</span> may be involved in inferential
+quantities in the analysis. What is important to remember is that, if a
+prior is written as <span class="math inline">\(\pi(\theta|\lambda)\)</span>, in conducting an
+actual analysis specific values are chosen for the elements of <span class="math inline">\(\lambda\)</span>.</p>
+<p>The <em>posterior distribution</em> is derived from the data model
+and the prior, and is a distribution for what we believe about the
+possible values of <span class="math inline">\(\theta\)</span> after or
+<em>posterior</em> to seeing observed data. Assuming, as is usually the
+case, that the possible values of <span class="math inline">\(\theta\)</span> are continuous in <span class="math inline">\(\Theta\)</span>, the posterior distribution is
+constructed as,</p>
+<p><span class="math display">\[
+p(\theta|y) \;=\; \frac{m(\theta, y)}{h(y)} \;=\;
+\frac{f(y|\theta)\,\pi(\theta)}{\int f(y|\theta)\,\pi(\theta)\,
+d\theta}.
+\tag{7.1}
+\]</span></p>
+<p>The posterior (7.1) is in the form of Bayes theorem which, given what
+is usually called the law of total probability (e.g., DeGroot and
+Schervish 2002 p. 67), follows directly from the definition of
+conditional probability density functions. It should be noted from the
+outset that the denominator of (7.1) is constant for the posterior
+distribution and thus <span class="math inline">\(p(\theta|y) \propto
+m(y,\theta)\)</span>. This fact will often facilitate derivation of the
+posterior without the need for formal evaluation of the integral that
+leads to <span class="math inline">\(h(y)\)</span>.</p>
+<p>If <span class="math inline">\(\theta\)</span> is a vector, (7.1) is
+a joint distribution and as such it determines a set of additional
+posterior distributions that are often used in Bayesian analysis. For
+the purposes of inference we often want to use marginal posteriors such
+as <span class="math inline">\(p(\theta_k|y)\)</span> for the <span class="math inline">\(k^{th}\)</span> element of <span class="math inline">\(\theta\)</span>. Also useful will often be
+conditional posteriors <span class="math inline">\(p(\theta_1|\theta_2,y)\)</span> where <span class="math inline">\(\theta_1\)</span> and <span class="math inline">\(\theta_2\)</span> are disjoint subsets of <span class="math inline">\(\theta\)</span>. In particular, what are called
+<em>full conditional</em> posteriors, which occur if <span class="math inline">\(\theta_1\)</span> and <span class="math inline">\(\theta_2\)</span> partition <span class="math inline">\(\theta\)</span>. Often, in fact, <span class="math inline">\(\theta_1\)</span> is an individual element of
+<span class="math inline">\(\theta\)</span> and <span class="math inline">\(\theta_2\)</span> are all of the remaining
+elements. Conditional posteriors play a role in certain algorithms used
+to simulate values from complex joint posterior distributions, a future
+topic.</p>
+<div id="completing-the-square" class="section level3">
+<h3>Completing The Square</h3>
+<p>Consider a random variable <span class="math inline">\(X\)</span>
+that follows a probability distribution,</p>
+<p><span class="math display">\[
+f(x|A,B) \propto \exp\!\left[ -\tfrac{1}{2}(Ax^2 - 2Bx) \right].
+\]</span></p>
+<p>Then <span class="math inline">\(X\)</span> has a normal distribution
+with mean <span class="math inline">\(M\)</span> and variance <span class="math inline">\(V\)</span> where,</p>
+<p><span class="math display">\[
+M = \frac{B}{A}, \qquad
+V = \frac{1}{A}.
+\]</span></p>
+<div id="example" class="section level4">
+<h4>Example</h4>
+</div>
+</div>
+<div id="example-7.3" class="section level3">
+<h3>Example 7.3</h3>
+<p>Consider a one-sample normal model in which random variables <span class="math inline">\(Y_1, \ldots, Y_n\)</span> are taken as being
+independent and identically distributed with common probability density
+function, for some <span class="math inline">\(-\infty &lt; \mu &lt;
+\infty\)</span> and known <span class="math inline">\(\sigma^2 &gt;
+0\)</span>,</p>
+<p><span class="math display">\[
+f(y \mid \mu) = \frac{1}{(2\pi\sigma^2)^{1/2}}
+\exp\left[ -\frac{1}{2\sigma^2}(y - \mu)^2 \right],
+\quad -\infty &lt; y &lt; \infty.
+\]</span></p>
+<p>Suppose that <span class="math inline">\(\mu\)</span> has been
+assigned a prior in the form of a normal distribution with expected
+value <span class="math inline">\(-\infty &lt; \lambda &lt;
+\infty\)</span> and known variance <span class="math inline">\(\tau^2
+&gt; 0\)</span>,</p>
+<p><span class="math display">\[
+\pi(\mu) = \frac{1}{(2\pi\tau^2)^{1/2}}
+\exp\left[ -\frac{1}{2\tau^2}(\mu - \lambda)^2 \right],
+\quad -\infty &lt; \mu &lt; \infty.
+\]</span></p>
+<hr />
+<p>The posterior of <span class="math inline">\(\mu\)</span> is
+then,</p>
+<p><span class="math display">\[
+p(\mu \mid y) \propto \pi(\mu) f(y \mid \mu)
+\]</span></p>
+<p><span class="math display">\[
+\propto \exp \left[ -\frac{1}{2\sigma^2}
+\sum_{i=1}^n (y_i - \mu)^2
+- \frac{1}{2\tau^2} (\mu - \lambda)^2 \right]
+\]</span></p>
+<p><span class="math display">\[
+\propto \exp \left[ -\frac{1}{2\sigma^2}
+\left( \sum_{i=1}^n y_i^2 - 2\mu \sum_{i=1}^n y_i + n\mu^2 \right)
+- \frac{1}{2\tau^2}(\mu^2 - 2\mu\lambda + \lambda^2) \right]
+\]</span></p>
+<p><span class="math display">\[
+\propto \exp \left[ -\frac{1}{2}
+\left\{
+\mu^2 \left( \frac{n}{\sigma^2} + \frac{1}{\tau^2} \right)
+- 2\mu \left( \frac{n\bar{y}}{\sigma^2} + \frac{\lambda}{\tau^2} \right)
+\right\} \right],
+\]</span></p>
+<p>which, by the result, corresponds to a normal distribution with
+expected value <span class="math inline">\(M\)</span> and variance <span class="math inline">\(V\)</span>, where</p>
+<p><span class="math display">\[
+M = \frac{n\tau^2 \bar{y} + \sigma^2 \lambda}{n\tau^2 + \sigma^2},
+\qquad
+V = \frac{\sigma^2 \tau^2}{n\tau^2 + \sigma^2}.
+\]</span></p>
+<p>Note that <span class="math inline">\(M\)</span> is in the form of a
+weighted average of the prior mean <span class="math inline">\(\lambda\)</span> and the data model MLE <span class="math inline">\(\bar{y}\)</span>. This weighted average can also
+be written as</p>
+<p><span class="math display">\[
+M =
+\frac{
+\frac{n}{\sigma^2}\bar{y} + \frac{1}{\tau^2}\lambda
+}{
+\frac{n}{\sigma^2} + \frac{1}{\tau^2}
+},
+\]</span></p>
+<p>which shows that the weights are inverse variances of <span class="math inline">\(\bar{y}\)</span> and <span class="math inline">\(\lambda\)</span>.</p>
+</div>
+<div id="bayes-confidence-sets" class="section level3">
+<h3>Bayes Confidence Sets</h3>
+<p>The Bayesian analog of confidence sets or intervals are typically
+called <em>credible sets</em> or <em>credible intervals</em>. The basic
+definition of a credible set for <span class="math inline">\(\theta\)</span> is a set <span class="math inline">\(\mathcal{C}\)</span> such that</p>
+<p><span class="math display">\[
+1 - \alpha \;\leq\; Pr(\theta \in \mathcal{C} \mid y)
+= \int_{\mathcal{C}} p(\theta \mid y)\, d\theta.
+\tag{7.4}
+\]</span></p>
+<p>If <span class="math inline">\(\theta\)</span> should happen to be
+discrete the integral in (7.4) is replaced with a summation, but this is
+unusual. Credible intervals for individual components of <span class="math inline">\(\theta\)</span> are computed using the appropriate
+marginal posterior.</p>
+<p>To emphasize the distinction between the interpretation of
+inferential statements made on the basis of epistemic probability and on
+the basis of relative frequency probability, consider the statement for
+a scalar parameter <span class="math inline">\(\theta\)</span>,</p>
+<p><span class="math display">\[
+Pr(a &lt; \theta &lt; b) = 1 - \alpha.
+\tag{7.5}
+\]</span></p>
+<p>If this probability is interpreted according to a relative frequency
+concept, the quantities <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> must be random variables, such as <span class="math inline">\(a = \hat{\theta}(\mathbf{Y}) -
+z_{1-\alpha/2}\,\mathrm{se}(\hat{\theta}(\mathbf{Y}))\)</span> and <span class="math inline">\(b = \hat{\theta}(\mathbf{Y}) -
+z_{\alpha/2}\,\mathrm{se}(\hat{\theta}(\mathbf{Y}))\)</span>, where
+<span class="math inline">\(z_\alpha\)</span> is the <span class="math inline">\(\alpha\)</span> quantile of a standard normal
+distribution. The interpretation is based on repeated sampling and the
+limiting relative frequency with which the event inside the probability
+is true. In contrast, if (7.5) is interpreted under an epistemic concept
+of probability then <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> can be constants and the meaning of the
+interval is that it contains <span class="math inline">\((1-\alpha)100\%\)</span> of our belief about where
+the value of <span class="math inline">\(\theta\)</span> might lie.</p>
+<div id="hpd" class="section level4">
+<h4>HPD</h4>
+<p>For a given posterior <span class="math inline">\(p(\theta \mid
+y)\)</span> there may be many sets that satisfy the original probability
+statement (7.4). One technique that has been used to help get around
+this difficulty is to define a <em>Highest Posterior Density</em>
+credible set,</p>
+<p><span class="math display">\[
+C^* = \{ \theta : p(\theta \mid y) \ge k(\alpha) \},
+\]</span></p>
+<p>where <span class="math inline">\(k(\alpha)\)</span> is the largest
+constant such that <span class="math inline">\(C^*\)</span> is a
+credible set. What this means is that, for any <span class="math inline">\(\theta^* \in C^*\)</span> and any other <span class="math inline">\(\theta \notin C^*\)</span>,</p>
+<p><span class="math display">\[
+p(\theta^* \mid y) \ge p(\theta \mid y).
+\]</span></p>
+</div>
+</div>
+<div id="bayes-hypothesis-testing" class="section level3">
+<h3>Bayes Hypothesis Testing</h3>
+<p>Consider testing a hypothesis about the value of an element of <span class="math inline">\(\theta\)</span>, <span class="math inline">\(H_0 :
+\theta_k \in \Theta_0\)</span> versus <span class="math inline">\(H_1 :
+\theta_k \notin \Theta_0\)</span>. A Bayesian hypothesis test can be
+constructed as the ratio of posterior probabilities of the two
+hypotheses,</p>
+<p><span class="math display">\[
+B(H_1, H_0) = \frac{Pr(H_1 \mid y)}{Pr(H_0 \mid y)}.
+\tag{7.7}
+\]</span></p>
+<hr />
+<p>Note that (7.7) is a special case of a more general quantity known as
+a <em>Bayes Factor</em>. Bayes Factors assess the change from prior odds
+to posterior odds of two models. For our purposes here, consider a model
+to consist of a data model, a prior distribution on the data model
+parameters, and the resulting posterior for those parameters. Consider
+two models <span class="math inline">\(M_1\)</span> and <span class="math inline">\(M_2\)</span>, say. The posterior odds of model
+<span class="math inline">\(M_1\)</span> relative to model <span class="math inline">\(M_2\)</span> are,</p>
+<p><span class="math display">\[
+\frac{Pr(M_1 \mid y)}{Pr(M_2 \mid y)}
+= \frac{Pr(M_1)}{Pr(M_2)} \frac{Pr(y \mid M_1)}{Pr(y \mid M_2)}
+\tag{7.8}
+\]</span></p>
+<p><span class="math display">\[
+= \frac{Pr(M_1)}{Pr(M_2)} \, BF(M_1, M_2).
+\tag{7.9}
+\]</span></p>
+<p>The quantity <span class="math inline">\(BF(M_1, M_2)\)</span> is
+called the Bayes Factor in favor of model <span class="math inline">\(M_1\)</span> relative to model <span class="math inline">\(M_2\)</span>. From (7.8) we can arrive at a number
+of alternative ways to represent a Bayes Factor,</p>
+<p><span class="math display">\[
+BF(M_1, M_2) = \frac{Pr(y \mid M_1)}{Pr(y \mid M_2)}
+\tag{7.10}
+\]</span></p>
+<p><span class="math display">\[
+= \frac{Pr(M_1 \mid y)}{Pr(M_2 \mid y)} \bigg/ \frac{Pr(M_1)}{Pr(M_2)}.
+\tag{7.11}
+\]</span></p>
 <div style="page-break-after: always;"></div>
+</div>
 </div>
 </div>
 <div id="reading-notes" class="section level1">
@@ -1147,35 +1523,6 @@ do not depend on what exactly one believes it is.”</p>
 <p>Question: For a given type of statistical analysis, is the “type” of
 probability concept you use “locked in place” throughout the
 analysis?</p>
-<ol style="list-style-type: decimal">
-<li>Direct Search Algorithms.</li>
-</ol>
-<p>Direct search algorithms are characterized by requiring computation
-of only the relevant objective function and not any derivatives of that
-function. Thus, direct search algorithms are useful in problems for
-which derivatives of the objective function are difficult to compute, or
-in which we do not need derivatives for the purpose of calculating
-inferential quantities.</p>
-<ol start="2" style="list-style-type: decimal">
-<li>Gradient-Based Algorithms.</li>
-</ol>
-<p>Gradient algorithms provide the same information as direct search
-algorithms along with the value of the gradient, which should be zero at
-the maximum. They are generally more efficient than direct search
-algorithms in terms of the number of function evaluations needed, at the
-cost of requiring computer functions to be written for evaluation of the
-first derivatives of the objective function, and typically need the
-first derivatives to be continuous as well.</p>
-<ol start="3" style="list-style-type: decimal">
-<li>Newton-type Algorithms. Newton-type algorithms make use of
-information provided by not onlythe objective function and gradient, but
-also the second derivatives of the objective function.</li>
-</ol>
-<p>In the case that the objective function is a full log likelihood,
-they provide the benefit of including the observed information matrix as
-part of the output, which can make inference easier if an approach based
-on Wald theory is to be used.</p>
-<div style="page-break-after: always;"></div>
 </div>
 <div id="chapter-2-1" class="section level2">
 <h2>Chapter 2</h2>
@@ -1215,7 +1562,6 @@ values that might be assumed by random variables.”</p>
 <p>“The major impact of generalized linear models was to promote
 consideration of random and systematic model components rather than
 signal plus noise.”</p>
-<div style="page-break-after: always;"></div>
 </div>
 <div id="chapter-3-1" class="section level2">
 <h2>Chapter 3</h2>
@@ -1353,7 +1699,6 @@ those distributions must be functions of the sole parameter.”</p>
 </div>
 <div id="chapter-4-1" class="section level2">
 <h2>Chapter 4</h2>
-<div style="page-break-after: always;"></div>
 </div>
 <div id="chapter-5-1" class="section level2">
 <h2>Chapter 5</h2>
@@ -1468,6 +1813,34 @@ than maximization.”</p>
 interval search algorithms also have application in Bayesian analyses
 for which we need to quickly locate the mode of a (posterior)
 distribution in one dimension”</p>
+<ol style="list-style-type: decimal">
+<li>Direct Search Algorithms.</li>
+</ol>
+<p>Direct search algorithms are characterized by requiring computation
+of only the relevant objective function and not any derivatives of that
+function. Thus, direct search algorithms are useful in problems for
+which derivatives of the objective function are difficult to compute, or
+in which we do not need derivatives for the purpose of calculating
+inferential quantities.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Gradient-Based Algorithms.</li>
+</ol>
+<p>Gradient algorithms provide the same information as direct search
+algorithms along with the value of the gradient, which should be zero at
+the maximum. They are generally more efficient than direct search
+algorithms in terms of the number of function evaluations needed, at the
+cost of requiring computer functions to be written for evaluation of the
+first derivatives of the objective function, and typically need the
+first derivatives to be continuous as well.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Newton-type Algorithms. Newton-type algorithms make use of
+information provided by not onlythe objective function and gradient, but
+also the second derivatives of the objective function.</li>
+</ol>
+<p>In the case that the objective function is a full log likelihood,
+they provide the benefit of including the observed information matrix as
+part of the output, which can make inference easier if an approach based
+on Wald theory is to be used.</p>
 </div>
 <div id="chapter-6-1" class="section level2">
 <h2>Chapter 6</h2>
@@ -1582,6 +1955,60 @@ squares estimators have a certain amount of robustness, they are
 extremely sensitive to the effect of extreme and high leverage
 observations and thus have low resistance.</p></li>
 </ol>
+</div>
+<div id="chapter-7-1" class="section level2">
+<h2>Chapter 7</h2>
+<p>First note that we often talk about <em>the</em> Bayesian approach to
+analysis as if there was one standard conceptual basis that all Bayesian
+approaches to statistics employ. This is no more true than that there is
+one standard conceptual basis for all non-Bayesian analysis.</p>
+<p>Jaynes makes it clear that the distinction between Bayesian and what
+he calls orthodox approaches rests on interpretation of probability, not
+other areas of controversy.</p>
+<p>In the approach to Bayesian analysis presented here, the true state
+of nature is embodied in a fixed, but unknown parameter value that
+governs the distribution of observable quantities.</p>
+<p>It may seem natural to suppose that the use of Bayes theorem must be
+what makes a Bayesian analysis Bayesian, but this is no more true than
+the fallacy that all Bayesians consider parameters to be random. Bayes
+theorem is a probability result, true for any legitimate concept of
+probability, and Bayes theorem has many uses other than in a Bayesian
+analysis.</p>
+<p>There are a number of fundamental distributions inherent to a basic
+Bayesian analysis. The foremost of these are the data model, the prior
+distribution, and the posterior distribution.</p>
+<p>Except in sequential problems or with what are called dynamic models,
+inference is almost exclusively based on the posterior.</p>
+<p>As mentioned previously it is often convenient to use the fact that
+for a data model <span class="math inline">\(f(y|\theta)\)</span> and
+prior <span class="math inline">\(\pi(\theta)\)</span>, the posterior is
+<span class="math inline">\(p(\theta|y) \propto
+f(y|\theta)\pi(\theta)\)</span> and then simply recognize the right hand
+side as the kernel of some identifiable distribution.</p>
+<p>A classic technique in the derivation of posterior distributions is
+completing the square in normal distributional forms.</p>
+<div id="point-estimation" class="section level3">
+<h3>7.2.2 Point Estimation</h3>
+<p>Consider a univariate posterior for an element of <span class="math inline">\(\theta\)</span>. A point estimate of <span class="math inline">\(\theta_k\)</span> is usually one of the quantities
+that describe the location of the posterior, that is, the mean, median,
+or mode of <span class="math inline">\(p(\theta_k|y)\)</span>. The
+posterior mode was, at one time, the most popular of the three because
+it can be located without finding the denominator of (7.1) which is the
+normalizing constant of the posterior. The posterior mean is probably
+the most used today, in part because of the extensive use of simulation
+to approximate posterior distributions, a topic that will be discussed
+in greater detail in what follows. The posterior mean or expected value
+can also be justified based on decision-theoretic grounds, if one
+considers squared error loss (e.g., Berger, 1985, p. 161). Moments of
+posterior distributions, such as means, variances, and covariances, are
+given by the usual definitions, again because probability distributions
+must obey the same mathematical rules regardless of the concept of
+probability they are interpreted under. Rules for expectations,
+variances and quantiles also are the same as for random variables,
+although we are not considering <span class="math inline">\(\theta\)</span> or any of its elements to actually
+be random. The special status of posteriors as being expressions of
+epistemic probability impact interpretation not manipulation.</p>
+</div>
 </div>
 </div>
 

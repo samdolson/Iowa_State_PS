@@ -42,7 +42,7 @@ Four Fundamental Notions of Probability:
   - Any concept of probability that cannot be expressed in terms of physical events can be considered epistemic probability. 
   - Probability $\equiv$ knowledge or belief 
   - Belief is updated or modified in the light of observed information; mathematical formalism necessary for logical consistency 
-  - $Pr(E | y) = \frac{Pr(y|E)Pr(E)}{Pr(y|E)Pr(E) Pr(y|E^{c})Pr(E^{c})}$
+  - $Pr(E | y) = \frac{Pr(y|E)Pr(E)}{Pr(y|E)Pr(E) + Pr(y|E^{c})Pr(E^{c})}$
 
 Note: (1) through (3) use same notion of "operation", "sample space", and "events" 
 
@@ -59,9 +59,6 @@ Approaches to Statistical Analysis:
   (2): Analysis Using Models: Typically uses Hypothetical Limiting Relative Frequency
   
   (3): Bayesian Analysis: Construction of data model; makes use of epistemic probability in the form of prior and posterior distributions
-
-
-\newpage 
 
 ## Chapter 2 
 
@@ -107,20 +104,15 @@ Objectives of Analysis:
   
   (5): Prediction or Forecasting: These are two different things! 
   
-Prediction: prediction of an unobserved random variable or functional of a distribution that is given (conceptualized) existence within the spatial and/or teporal extent of a set of data.
+Prediction: prediction of an unobserved random variable or functional of a distribution that is given (conceptualized) existence within the spatial and/or temporal extent of a set of data.
 
 Forecasting: prediction of random quantities that are given (conceptual) existence outside the spatial and/or temporal extent of the available data. 
 
 Distinguishing between *motivation* and *verification*
 
-  - Motivation can be provided by elements of the scientific problem, physical realities of data collection, definitiion of random variables, or exploratory analysis of the data themselves. 
+  - Motivation can be provided by elements of the scientific problem, physical realities of data collection, definition of random variables, or exploratory analysis of the data themselves. 
   - The observational process can motivation assumptions of independence (or lack thereof). 
   - For now we can think of verification as a goodness of fit problem. 
-
-\newpage 
-
-
-\newpage 
 
 ## Chapter 3 
 
@@ -420,7 +412,7 @@ $$
 E_{\theta_0}[M(y)] < \infty.
 $$
 
-"It should be noted that the regularity conditions just listed are typicalbut not unique in developing asymptotic results for likelihood estimation"
+"It should be noted that the regularity conditions just listed are typical but not unique in developing asymptotic results for likelihood estimation"
 
 "Also, not all of these conditions are needed for resolution of each of the individual issues listed previously." 
 
@@ -878,6 +870,76 @@ M = \frac{B}{A}, \qquad
 V = \frac{1}{A}.
 $$
 
+#### Example 
+
+### Example 7.3
+
+Consider a one-sample normal model in which random variables $Y_1, \ldots, Y_n$ are taken as being independent and identically distributed with common probability density function, for some $-\infty < \mu < \infty$ and known $\sigma^2 > 0$,
+
+$$
+f(y \mid \mu) = \frac{1}{(2\pi\sigma^2)^{1/2}} 
+\exp\left[ -\frac{1}{2\sigma^2}(y - \mu)^2 \right], 
+\quad -\infty < y < \infty.
+$$
+
+Suppose that $\mu$ has been assigned a prior in the form of a normal distribution with expected value $-\infty < \lambda < \infty$ and known variance $\tau^2 > 0$,
+
+$$
+\pi(\mu) = \frac{1}{(2\pi\tau^2)^{1/2}} 
+\exp\left[ -\frac{1}{2\tau^2}(\mu - \lambda)^2 \right], 
+\quad -\infty < \mu < \infty.
+$$
+
+---
+
+The posterior of $\mu$ is then,
+
+$$
+p(\mu \mid y) \propto \pi(\mu) f(y \mid \mu)
+$$
+
+$$
+\propto \exp \left[ -\frac{1}{2\sigma^2} 
+\sum_{i=1}^n (y_i - \mu)^2 
+- \frac{1}{2\tau^2} (\mu - \lambda)^2 \right]
+$$
+
+$$
+\propto \exp \left[ -\frac{1}{2\sigma^2}
+\left( \sum_{i=1}^n y_i^2 - 2\mu \sum_{i=1}^n y_i + n\mu^2 \right)
+- \frac{1}{2\tau^2}(\mu^2 - 2\mu\lambda + \lambda^2) \right]
+$$
+
+$$
+\propto \exp \left[ -\frac{1}{2} 
+\left\{ 
+\mu^2 \left( \frac{n}{\sigma^2} + \frac{1}{\tau^2} \right)
+- 2\mu \left( \frac{n\bar{y}}{\sigma^2} + \frac{\lambda}{\tau^2} \right)
+\right\} \right],
+$$
+
+which, by the result, corresponds to a normal distribution with expected value $M$ and variance $V$, where
+
+$$
+M = \frac{n\tau^2 \bar{y} + \sigma^2 \lambda}{n\tau^2 + \sigma^2},
+\qquad
+V = \frac{\sigma^2 \tau^2}{n\tau^2 + \sigma^2}.
+$$
+
+Note that $M$ is in the form of a weighted average of the prior mean $\lambda$ and the data model MLE $\bar{y}$. This weighted average can also be written as
+
+$$
+M = 
+\frac{
+\frac{n}{\sigma^2}\bar{y} + \frac{1}{\tau^2}\lambda
+}{
+\frac{n}{\sigma^2} + \frac{1}{\tau^2}
+},
+$$
+
+which shows that the weights are inverse variances of $\bar{y}$ and $\lambda$.
+
+
 ### Bayes Confidence Sets 
 
 The Bayesian analog of confidence
@@ -914,6 +976,21 @@ with which the event inside the probability is true. In contrast, if (7.5) is in
 under an epistemic concept of probability then $a$ and $b$ can be constants and the
 meaning of the interval is that it contains $(1-\alpha)100\%$ of our belief about
 where the value of $\theta$ might lie.
+
+#### HPD 
+
+For a given posterior $p(\theta \mid y)$ there may be many sets that satisfy the original probability statement (7.4). One technique that has been used to help get around this difficulty is to define a *Highest Posterior Density* credible set,
+
+$$
+C^* = \{ \theta : p(\theta \mid y) \ge k(\alpha) \},
+$$
+
+where $k(\alpha)$ is the largest constant such that $C^*$ is a credible set. What this means is that, for any $\theta^* \in C^*$ and any other $\theta \notin C^*$,
+
+$$
+p(\theta^* \mid y) \ge p(\theta \mid y).
+$$
+
 
 ### Bayes Hypothesis Testing 
 
@@ -973,22 +1050,6 @@ $$
 
 Question: For a given type of statistical analysis, is the "type" of probability concept you use "locked in place" throughout the analysis? 
 
-1. Direct Search Algorithms.
-
-Direct search algorithms are characterized by requiring computation of only the relevant objective function and not any derivatives of that function. Thus, direct search algorithms are useful in problems for which derivatives of the objective function are difficult to compute, or in which we do not need derivatives for the purpose of calculating inferential quantities.
-
-2. Gradient-Based Algorithms.
-
-Gradient algorithms provide the same information as direct search algorithms along with the value of the gradient, which
-should be zero at the maximum. They are generally more efficient than direct search algorithms in terms of the number of function evaluations needed, at the cost of requiring computer functions to be written for evaluation of the first derivatives of the objective function, and typically need the first derivatives to be continuous as well.
-
-3. Newton-type Algorithms.
-Newton-type algorithms make use of information provided by not onlythe objective function and gradient, but also the second derivatives of the objective function. 
-
-In the case that the objective function is a full log likelihood, they provide the benefit of including the observed information matrix as part of the output, which can make inference easier if an approach based on Wald theory is to be used.
-
-\newpage 
-
 ## Chapter 2 
 
 "A model is a set of invented assumptions regarding invented entities such that, if one treats these invented entities as representations of appropriate elements of the phenomena studied, the consequences of the hypotheses constituting the model are expected to agree with observations." - Neyman, 1957, allegedly 
@@ -1013,8 +1074,6 @@ Question: XU applied to treatments vs. Treatments applied to XU?
 "Distributions within a class share various statistical properties (which properties these are depends on which class)." 
 
 "The major impact of generalized linear models was to promote consideration of random and systematic model components rather than signal plus noise." 
-
-\newpage
 
 ## Chapter 3
 
@@ -1102,8 +1161,6 @@ Formulating a proper model can become much more difficult when this condition do
 
 ## Chapter 4 
 
-\newpage 
-
 ## Chapter 5 
 
 "Recall from Chapter 1 that a statistical model must lead to a joint probability distribution for the entire collection of random variables involved in a problem."
@@ -1154,8 +1211,21 @@ That the MLE is UMVU follows from the fact that the $\{ T_j : j = 1, \ldots, s \
 
 (Equal Interval Search, a type of Direct Search Algorithm) "Equal interval search algorithms also have application in Bayesian analyses for which we need to quickly locate the mode of a (posterior) distribution in one dimension"
 
-## Chapter 6
+1. Direct Search Algorithms.
 
+Direct search algorithms are characterized by requiring computation of only the relevant objective function and not any derivatives of that function. Thus, direct search algorithms are useful in problems for which derivatives of the objective function are difficult to compute, or in which we do not need derivatives for the purpose of calculating inferential quantities.
+
+2. Gradient-Based Algorithms.
+
+Gradient algorithms provide the same information as direct search algorithms along with the value of the gradient, which
+should be zero at the maximum. They are generally more efficient than direct search algorithms in terms of the number of function evaluations needed, at the cost of requiring computer functions to be written for evaluation of the first derivatives of the objective function, and typically need the first derivatives to be continuous as well.
+
+3. Newton-type Algorithms.
+Newton-type algorithms make use of information provided by not onlythe objective function and gradient, but also the second derivatives of the objective function. 
+
+In the case that the objective function is a full log likelihood, they provide the benefit of including the observed information matrix as part of the output, which can make inference easier if an approach based on Wald theory is to be used.
+
+## Chapter 6
 
 "The fundamental domain of application for least squares estimation is linear models with constant variance additive errors, for which least squares estimators typically have optimal small sample properties, at least within a restricted class of estimators. Note that linear models and linear estimators refer to different things, models that are linear functions of additive errors versus estimators that are linear combinations of response variables, although the two often go hand in hand."
 
