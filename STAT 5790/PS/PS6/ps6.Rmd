@@ -103,43 +103,43 @@ Actually, the operation in the previous part is a bit too simplified. To guard a
 
 ```{r}
 # BEHOLD MY FOR LOOP!
-# padFrame <- function(frame) {
-#   padded <- matrix(0, nrow = 74, ncol = 74)
-#   padded[2:73, 2:73] <- frame
-#   return(padded)
-# }
-# 
-# paddedArray <- array(0, dim = c(74, 74, 150))
-# for (k in 1:150) {
-#   paddedArray[,,k] <- padFrame(arrayDatSub[,,k])
-# }
-# 
-# smoothFrame <- function(padFrame) {
-#   smooth <- matrix(0, nrow = 72, ncol = 72)
-#   
-#   for (i in 2:73) {
-#     for (j in 2:73) {
-#       smooth[i-1, j-1] <- mean(c(padFrame[i, j],     # current pixel (i,j)
-#                                  padFrame[i-1, j],   # pixel above (i-1,j)
-#                                  padFrame[i+1, j],   # pixel below (i+1,j)
-#                                  padFrame[i, j-1],   # pixel left (i,j-1)
-#                                  padFrame[i, j+1]))  # pixel right (i,j+1)
-#     }
-#   }
-#   return(smooth)
-# }
-# 
-# smoothArray <- array(0, dim = c(72, 72, 150))
-# for (k in 1:150) {
-#   smoothArray[,,k] <- smoothFrame(paddedArray[,,k])
-# }
-# 
-# maxSmoothed <- apply(X = smoothArray, 
-#                      MARGIN = 3,
-#                      FUN = max)
-# 
-# hottestFrame <- which.max(maxSmoothed)
-# hottestSmoothedVal <- max(maxSmoothed)
+padFrame <- function(frame) {
+  padded <- matrix(0, nrow = 74, ncol = 74)
+  padded[2:73, 2:73] <- frame
+  return(padded)
+}
+
+paddedArray <- array(0, dim = c(74, 74, 150))
+for (k in 1:150) {
+  paddedArray[,,k] <- padFrame(arrayDatSub[,,k])
+}
+
+smoothFrame <- function(padFrame) {
+  smooth <- matrix(0, nrow = 72, ncol = 72)
+
+  for (i in 2:73) {
+    for (j in 2:73) {
+      smooth[i-1, j-1] <- mean(c(padFrame[i, j],     # current pixel (i,j)
+                                 padFrame[i-1, j],   # pixel above (i-1,j)
+                                 padFrame[i+1, j],   # pixel below (i+1,j)
+                                 padFrame[i, j-1],   # pixel left (i,j-1)
+                                 padFrame[i, j+1]))  # pixel right (i,j+1)
+    }
+  }
+  return(smooth)
+}
+
+smoothArray <- array(0, dim = c(72, 72, 150))
+for (k in 1:150) {
+  smoothArray[,,k] <- smoothFrame(paddedArray[,,k])
+}
+
+maxSmoothed <- apply(X = smoothArray,
+                     MARGIN = 3,
+                     FUN = max)
+
+hottestFrame <- which.max(maxSmoothed)
+hottestSmoothedVal <- max(maxSmoothed)
 ```
 
 ```{r}
@@ -178,13 +178,15 @@ maxSmoothed <- apply(X = smoothArray,
                      MARGIN = 3, 
                      FUN = max)
 
-hottestFrame <- which.max(maxSmoothed)
-hottestSmoothedVal <- max(maxSmoothed)
+hottestFrame2 <- which.max(maxSmoothed)
+hottestSmoothedVal2 <- max(maxSmoothed)
 ```
 
 ```{r}
 hottestFrame
+hottestFrame2
 hottestSmoothedVal
+hottestSmoothedVal2
 ```
 
 \newpage
