@@ -5,180 +5,322 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 # The Assignment
 
-Your assignment is to conduct a Bayesian analyis of relative risk for these data. You will do so using both the Multinomial probability model and the Poisson probability model.
+Your assignment is to conduct a Bayesian analysis of relative risk for these data. You will do so using both the Multinomial probability model and the Poisson probability model.
 
-## 1. Derive Posterior Distributions 
+## 1.
 
 Using prior distributions and prior parameter values as given in Section 4 (Bayesian Analysis), derive the joint posterior distributions for $\boldsymbol{\theta} = (\theta_{11}, \theta_{10}, \theta_{01}, \theta_{00})$ in the multinomial model, and $\boldsymbol{\lambda} = (\lambda_{11}, \lambda_{10}, \lambda_{01}, \lambda_{00})$ in the Poisson model.
 
-### Answer 
+### Answer
 
-## Multinomial–Dirichlet model
+#### Multinomial–Dirichlet
 
-The likelihood is multinomial with parameters  
-$\mathbf{y}=(y_{11},y_{10},y_{01},y_{00})$ and probabilities  
-$\boldsymbol{\theta}=(\theta_{11},\theta_{10},\theta_{01},\theta_{00})$:
+Multinomial likelihood (with $N=\sum_{ij} y_{ij}$, $\sum_{ij}\theta_{ij}=1$):
 
 $$
-f(\mathbf{y}\mid\boldsymbol{\theta}) \propto
-\theta_{11}^{y_{11}}\theta_{10}^{y_{10}}\theta_{01}^{y_{01}}\theta_{00}^{y_{00}},
-\quad \sum_{i,j}\theta_{ij}=1.
+L(\boldsymbol{\theta}\mid \mathbf{y})
+=\Pr(\mathbf{Y}=\mathbf{y}\mid \boldsymbol{\theta})
+=\frac{N!}{\prod_{ij} y_{ij}!}\prod_{ij}\theta_{ij}^{,y_{ij}}
 $$
 
-Given a Dirichlet prior  
-$\boldsymbol{\theta}\sim\mathrm{Dirichlet}(\gamma_{11},\gamma_{10},\gamma_{01},\gamma_{00})$
-with  
-$\gamma_{11}=0.10,\ \gamma_{10}=0.75,\ \gamma_{01}=0.10,\ \gamma_{00}=0.75,$
-conjugacy gives the posterior:
+For the priors: 
+
+Dirichlet prior on cell probabilities $\boldsymbol{\theta}$ (with support on a simplex, i.e., $\quad \sum_{i,j}\theta_{ij}=1$):
 
 $$
-\boldsymbol{\theta}\mid\mathbf{y}~\sim~
-\mathrm{Dirichlet}(\gamma_{11}+y_{11},\gamma_{10}+y_{10},
-                  \gamma_{01}+y_{01},\gamma_{00}+y_{00}).
+\boldsymbol{\theta}\sim \text{Dirichlet}(\gamma_{11},\gamma_{10},\gamma_{01},\gamma_{00}),
+\qquad
+p(\boldsymbol{\theta})
+=\frac{1}{B(\boldsymbol{\gamma})}\prod_{ij}\theta_{ij}^{,\gamma_{ij}-1}
 $$
 
-## Poisson–Gamma model
+And
 
-Assume independent $Y_{ij}\sim\mathrm{Poisson}(\lambda_{ij})$
-with priors  
-$\lambda_{ij}\sim\mathrm{Gamma}(\alpha_{ij},\beta_{ij})$
-(shape–rate form):
+$B(\boldsymbol{\gamma})=\dfrac{\prod_{ij}\Gamma(\gamma_{ij})}{\Gamma(\sum_{ij}\gamma_{ij})}$,
 
-$$
-(\alpha_{ij},\beta_{ij})=
-\begin{cases}
-(0.5,5), & ij=11\\
-(3.0,4), & ij=10\\
-(0.5,5), & ij=01\\
-(3.0,4), & ij=00
-\end{cases}
-$$
+As given, $(\gamma_{11},\gamma_{10},\gamma_{01},\gamma_{00})=(0.10,0.75,0.10,0.75)$.
 
-The posterior distributions are
+Taken together, we have the (proportional) posterior derivations
+
+Multinomial–Dirichlet:
 
 $$
-\lambda_{ij}\mid y_{ij}\sim
-\mathrm{Gamma}(\alpha_{ij}+y_{ij},\,\beta_{ij}+1).
+\begin{aligned}
+p(\boldsymbol{\theta}\mid \mathbf{y})
+&\propto L(\boldsymbol{\theta}\mid \mathbf{y}),p(\boldsymbol{\theta})[3pt]
+&\propto
+\Big(\prod_{ij}\theta_{ij}^{y_{ij}}\Big)
+\Big(\prod_{ij}\theta_{ij}^{\gamma_{ij}-1}\Big)[3pt]
+&\propto \prod_{ij}\theta_{ij}^{,{y_{ij}+\gamma_{ij}-1}},
+\quad \text{for }\sum_{ij}\theta_{ij}=1
+\end{aligned}
 $$
 
-## 2. Posterior Expected Values 
+After collecting exponents and normalizing over the simplex (by the Dirichlet Beta function), conjugacy gives
+
+$$
+\boldsymbol{\theta}\mid \mathbf{y}\sim
+\text{Dirichlet}(y_{11}+\gamma_{11},,y_{10}+\gamma_{10},,y_{01}+\gamma_{01},,y_{00}+\gamma_{00})
+$$
+
+#### Poisson–Gamma 
+
+(Independent) Poisson likelihoods:
+
+$$
+Y_{ij}\mid \lambda_{ij}\ \stackrel{\text{ind}}{\sim}\ \text{Poisson}(\lambda_{ij})
+\quad\Rightarrow\quad
+L(\boldsymbol{\lambda}\mid \mathbf{y})
+=\prod_{ij} \frac{e^{-\lambda_{ij}}\lambda_{ij}^{y_{ij}}}{y_{ij}!}
+$$
+
+For the priors: 
+
+Gamma priors (assuming shape–rate parametrization) on Poisson means:
+
+$$
+\lambda_{ij}\sim \text{Gamma}(\alpha_{ij},\beta_{ij}),\qquad
+p(\lambda_{ij})
+= \frac{\beta_{ij}^{\alpha_{ij}}}{\Gamma(\alpha_{ij})},
+\lambda_{ij}^{\alpha_{ij}-1} e^{-\beta_{ij}\lambda_{ij}}
+$$
+
+Given $(\alpha,\beta)_{11,10,01,00}=(0.5,5),,(3,4),,(0.5,5),,(3,4)$.
+
+Taken together, we have the (proportional) posterior derivations
+
+$$
+\begin{aligned}
+p(\lambda_{ij}\mid y_{ij})
+&\propto e^{-\lambda_{ij}}\lambda_{ij}^{y_{ij}}
+\times \lambda_{ij}^{\alpha_{ij}-1} e^{-\beta_{ij}\lambda_{ij}}[3pt]
+&\propto \lambda_{ij}^{\alpha_{ij}+y_{ij}-1}\exp!{-(\beta_{ij}+1)\lambda_{ij}}
+\end{aligned}
+$$
+
+Recognizing this kernel as a Gamma density, conjugacy gives
+
+$$
+\lambda_{ij}\mid y_{ij}\sim \text{Gamma}(\alpha_{ij}+y_{ij},,\beta_{ij}+1)
+$$
+
+\newpage
+
+## 2. 
 
 Using the data of Table 2 give posterior expected values for $\theta$ and $\lambda$, and the cell probabilities that would correspond to these means.
 
-### Answer 
+### Answer
 
-## Multinomial–Dirichlet posterior means
+We have observed counts $y_{11}=15,\ y_{10}=50,\ y_{01}=3,\ y_{00}=84$
 
-Let $G=\sum\gamma_{ij}=1.70$ and $N+G=153.7$.  
-Posterior means:
+So our total N is given by:$N=152$
+
+Let $G=\sum\gamma_{ij}=1.70$, 
+
+Then: $N+G=153.70$
+
+#### Multinomial–Dirichlet
+
+Using properties of known distributions, for Dirichlet:
+
+$E[\theta_{ij}]=\gamma_{ij}/G$
+
+And 
+
+$\mathrm{Var}(\theta_{ij})=\dfrac{\gamma_{ij}(G-\gamma_{ij})}{G^2(G+1)}.$
+  
+So: 
+
+$$
+E[\theta_{ij}\mid y]=\frac{y_{ij}+\gamma_{ij}}{N+G}
+$$
+
+Evaluating,
 
 $$
 \begin{aligned}
-E[\theta_{11}\mid y]&=\frac{15.10}{153.7}=0.0982,\\
-E[\theta_{10}\mid y]&=\frac{50.75}{153.7}=0.3302,\\
-E[\theta_{01}\mid y]&=\frac{3.10}{153.7}=0.0202,\\
-E[\theta_{00}\mid y]&=\frac{84.75}{153.7}=0.5514.
+E[\theta_{11}\mid y]&=\frac{15+0.10}{153.70}=0.0982,\\
+E[\theta_{10}\mid y]&=\frac{50+0.75}{153.70}=0.3302,\\
+E[\theta_{01}\mid y]&=\frac{3+0.10}{153.70}=0.0202,\\
+E[\theta_{00}\mid y]&=\frac{84+0.75}{153.70}=0.5514
 \end{aligned}
 $$
 
-## Poisson–Gamma posterior means
+Note: We don't need to normalize the above, as we have $\sum_{ij}\theta_{ij}= 0.098 + 0.330 + 0.020 + 0.551 = 1$ (well, ok: 0.999 but that's just due to rounding!) 
+
+#### Poisson–Gamma
+
+Again, for a known Gamma distribution (as parametrized):
+
+$E[\lambda_{ij}]=\alpha_{ij}/\beta_{ij}$,
+
+And 
+
+$\mathrm{Var}(\lambda_{ij})=\alpha_{ij}/\beta_{ij}^2.$
+  
+So, we have: 
 
 $$
-E[\lambda_{ij}\mid y]=\frac{\alpha_{ij}+y_{ij}}{\beta_{ij}+1}.
+E[\lambda_{ij}\mid y]=\frac{\alpha_{ij}+y_{ij}}{\beta_{ij}+1}
 $$
+
+So
 
 $$
 \begin{aligned}
-E[\lambda_{11}]&=15.5/6=2.5833,\\
-E[\lambda_{10}]&=53/5=10.6,\\
-E[\lambda_{01}]&=3.5/6=0.5833,\\
-E[\lambda_{00}]&=87/5=17.4.
+E[\lambda_{11}]&=\tfrac{15.5}{6}=2.5833\\
+E[\lambda_{10}]&=\tfrac{53}{5}=10.6\\
+E[\lambda_{01}]&=\tfrac{3.5}{6}=0.5833\\
+E[\lambda_{00}]&=\tfrac{87}{5}=17.4
 \end{aligned}
 $$
 
-Normalize to probabilities:
+To compare on the probability scale, we need to normalize:
 
 $$
-\tilde{\theta}_{ij}=\frac{E[\lambda_{ij}\mid y]}{\sum E[\lambda_{ij}\mid y]}.
+\tilde{\theta}{ij}=\frac{E[\lambda{ij}\mid y]}{\sum_{kl}E[\lambda_{kl}\mid y]}
+=(0.0829,0.3401,0.0187,0.5583)
 $$
 
-$$
-\tilde{\theta}_{11}=0.0829,\quad
-\tilde{\theta}_{10}=0.3401,\quad
-\tilde{\theta}_{01}=0.0187,\quad
-\tilde{\theta}_{00}=0.5583.
-$$
+\newpage
 
-\newpage 
-
-## 3. Evaluate Relative Risk
+## 3. 
 
 Evaluate relative risk RR at the expected values of the posterior distributions you derived in exercise 1 and compare to the observed or sample-based RR based only on the observed cell counts. Briefly explain why this is not the posterior expected value of RR (although we hope it is not far off).
 
-### Answer 
+### Answer
 
-The relative risk is
+The relative risk is generally defined as (Equation 2):
 
 $$
 RR=\frac{\Pr(D\mid R)}{\Pr(D\mid R^c)}
 =\frac{\theta_{11}(\theta_{01}+\theta_{00})}
-       {\theta_{01}(\theta_{11}+\theta_{10})}.
+{\theta_{01}(\theta_{11}+\theta_{10})}
 $$
 
-### Sample estimate (Eq. 2)
+For our sample estimate, we have: 
 
 $$
-\widehat{RR}=
-\frac{15(3+84)}{3(15+50)}
-=\frac{1305}{195}
-=6.69.
+\widehat{RR}
+=\frac{y_{11}(y_{01}+y_{00})}{y_{01}(y_{11}+y_{10})}
+=\frac{15(3+84)}{3(15+50)}\approx 6.69
 $$
 
-### Posterior plug-in values
+Using the posterior "plug-in" values, we have: 
+
+Multinomial–Dirichlet: 
 
 $$
-RR(E[\theta])=6.50,\qquad
-RR(\tilde{\theta})=6.04.
+RR(E[\theta])
+=\frac{0.0982(0.0202+0.5514)}{0.0202(0.0982+0.3302)}\approx 6.50
 $$
 
-### Interpretation
+And 
 
-Because $RR$ is nonlinear in $\boldsymbol{\theta}$,
+Poisson–Gamma: 
+
 $$
-E[RR\mid y]\neq RR(E[\boldsymbol{\theta}\mid y]),
+RR(\tilde{\theta})
+=\frac{0.0829(0.0187+0.5583)}{0.0187(0.0829+0.3401)}\approx 6.04
 $$
-so these plug-in values are not the true posterior means of $RR$,
-though they are typically close.
 
-Under the Dirichlet posterior, the theta values are dependent (they must sum to 1), and RR involves both sums and ratios of these components. Expectations do not commute through such ratios/sums. So, predominantly due to Jensen's, they will not be equal unless they have zero variance. 
+#### Thoughts
 
-## 4. Posterior Distributions of RR
+All three values are close, but not exactly the same. This happens because the "plug-in" value $RR(E[\boldsymbol{\theta}\mid y])$ is not the same as the posterior mean $E[RR\mid y]$. This difference primarily stems from the nonlinearity of the function $RR$, which means Jensen’s inequality applies: Expectations do not generally “pass through” nonlinear transformations such that they ensure equality.
+
+To be specific, the function $g$ for relative risk is given by: 
+
+$$
+g(\boldsymbol{\theta}) = 
+\frac{\theta_{11}(\theta_{01}+\theta_{00})}
+{\theta_{01}(\theta_{11}+\theta_{10})}
+$$
+
+and because $g$ is nonlinear in $\boldsymbol{\theta}$,
+
+$$
+E[g(\boldsymbol{\theta})\mid y] \neq g(E[\boldsymbol{\theta}\mid y])
+$$
+
+Though this might be repetitive of the above, taking an expectation and then applying a nonlinear function (like this ratio for $RR$) does not yield the same result as applying the function first and then averaging. The difference reflects the variability in the posterior distribution of $\boldsymbol{\theta} | \boldsymbol{y}$ (and also I believe the form of the function g). Finally, the observed sample estimate $\widehat{RR}$ also differs slightly because it is based on just the counts, while the Bayesian "plug-in" values incorporate both the data likelihood and prior information.
+
+\newpage 
+
+## 4. 
 
 Find the posterior distributions of RR under both the multinomial and Poisson models. Give summary and 95% credible intervals. Produce some type of a graphical display of the posterior distributions. How do the results compare for the multinomial and Poisson models? How do the results compare to the initial sample version of RR in expression (2)? What would you conclude about the relation between time since vaccination and the chances of getting chickenpox in this population of school children? For example, what is your posterior probability that the risk factor of having more than 5 years since vaccination is positively related to the chance of contracting chickenpox in these students?
 
 ### Answer 
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
-set.seed(1)
-library(gtools)
+For the Multinomial-Dirichlet, we have: 
 
-# Data
-y <- c(15, 50, 3, 84)
-g <- c(0.10, 0.75, 0.10, 0.75)
+$$
+\boldsymbol{\theta}\mid y \sim
+\text{Dirichlet}(y_{11}+\gamma_{11},y_{10}+\gamma_{10},y_{01}+\gamma_{01},y_{00}+\gamma_{00})
+$$
+
+And for the Poisson-Gamma, we have: 
+
+$$
+\lambda_{ij}\mid y \sim
+\text{Gamma}(\alpha_{ij}+y_{ij},,\beta_{ij}+1)
+$$
+
+Which requires normalization via: 
+
+$$
+p_{ij}=\frac{\lambda_{ij}}{\sum_{kl}\lambda_{kl}}
+$$
+
+The form of RR is then given by: 
+
+For the Multinomial-Dirichlet: 
+
+$$
+RR(\boldsymbol{\theta})
+=\frac{\theta_{11}(\theta_{01}+\theta_{00})}
+{\theta_{01}(\theta_{11}+\theta_{10})}
+$$
+
+And for the Poisson-Gamma: 
+
+$$
+RR(\mathbf{p})
+=\frac{p_{11}(p_{01}+p_{00})}
+{p_{01}(p_{11}+p_{10})}
+$$
+
+The procedure then, using the above, is to generate posterior draws for the parameters using `rdirichlet` (for the Multinomial–Dirichlet) and `rgamma` (for the Poisson–Gamma model). For each draw, an RR is computed using the corresponding sampled probabilities (and for each model). The resulting collection of RR values then is used as our "empirical" posterior distribution of RR. It is the distribution of these RR values then that are summarized; particularly, the credible interval is determined by the empirical 2.5% and 97.5% quantiles of the (simulated) RR distribution.
+
+Special thanks to Kaiser for noting that we don't need to do any special (rejection) sampling for this problem. 
+
+\newpage 
+
+```{r, echo = F, message = F, warning = F}
+library(gtools)
+library(knitr)
+library(kableExtra)
+
+# base inputs 
+# Reference: (11,10,01,00)
+y <- c(15, 50,  3, 84)   
+g <- c(0.10,0.75,0.10,0.75)
 a <- c(0.5, 3.0, 0.5, 3.0)
-b <- c(5, 4, 5, 4)
+b <- c(5.0, 4.0, 5.0, 4.0)
 S <- 3e5
 
-# Multinomial–Dirichlet draws
+# Multinomial–Dirichlet
 theta <- rdirichlet(S, g + y)
 RR_dir <- theta[,1]*(theta[,3]+theta[,4]) / (theta[,3]*(theta[,1]+theta[,2]))
 
-# Poisson–Gamma draws
+# Poisson–Gamma 
+# Note: Need to normalize at the end 
 lam <- cbind(
   rgamma(S, a[1]+y[1], b[1]+1),
   rgamma(S, a[2]+y[2], b[2]+1),
@@ -189,96 +331,84 @@ p <- lam / rowSums(lam)
 RR_pois <- p[,1]*(p[,3]+p[,4]) / (p[,3]*(p[,1]+p[,2]))
 ```
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
-library(knitr)
-library(kableExtra)
-
+```{r, echo = F, message = F, warning = F}
 summarize_rr <- function(x) {
   c(
-    Mean       = mean(x),
-    Median     = median(x),
-    SD         = sd(x),
-    `2.5%`     = unname(quantile(x, 0.025)),
-    `97.5%`    = unname(quantile(x, 0.975)),
+    Mean = mean(x),
+    Median = median(x),
+    SD = sd(x),
+    `2.5%` = unname(quantile(x, 0.025)),
+    `97.5%` = unname(quantile(x, 0.975)),
     `Pr(RR>1)` = mean(x > 1),
     `Pr(RR>5)` = mean(x > 5)
   )
 }
 
 tab <- rbind(
-  `Multinomial–Dirichlet` = summarize_rr(RR_dir),
-  `Poisson–Gamma`         = summarize_rr(RR_pois)
+  `Multinomial-Dirichlet` = summarize_rr(RR_dir),
+  `Poisson-Gamma` = summarize_rr(RR_pois)
 )
 
-# Turn into a data.frame and move model names into a column
-tab_df <- as.data.frame(tab)
-tab_df$Model <- rownames(tab_df)
-tab_df <- tab_df[, c("Model", setdiff(colnames(tab_df), "Model"))]
+tab_df <- data.frame(Model = rownames(tab), tab, check.names = FALSE, row.names = NULL)
 
-# --- IMPORTANT: drop rownames so kable doesn't add an extra column ---
-rownames(tab_df) <- NULL
-
-# Build table
+# thank the chat, for this lovely table
 kable(
-  tab_df,
-  format   = if (knitr::is_latex_output()) "latex" else "html",
-  booktabs = TRUE,
-  row.names = FALSE,
-  digits   = c(0, rep(2, ncol(tab_df) - 1)),
-  caption  = "Posterior summaries for RR under two Bayesian models",
-  align    = c("l", rep("r", ncol(tab_df) - 1)),
-  format.args = list(big.mark = ",")
+  tab_df, booktabs = TRUE,
+  digits = c(0, rep(2, ncol(tab_df) - 1)),
+  caption = "Posterior summaries for RR under two Bayesian models",
+  align = c("l", rep("r", ncol(tab_df) - 1))
 ) |>
-  kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
-  column_spec(1, bold = TRUE) |>
-  add_header_above(c(" " = 1, "Posterior Summary" = ncol(tab_df) - 1))
+kable_styling(full_width = FALSE, position = "center",
+latex_options = c("hold_position","striped")) |>
+column_spec(1, bold = TRUE) |>
+add_header_above(c(" " = 1, "Posterior Summary" = ncol(tab_df) - 1))
 ```
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
-# Sample RR line
+```{r, eval = F, echo = F, message = F, warning = F}
+# tried a histogram first
+# I don't like it as much
 RR_hat <- 15*(3+84) / (3*(15+50))
 
 par(mfrow = c(1,2))
-# Define the range you want to cover
-xmax <- ceiling(max(RR_dir, RR_pois))  # round up to next integer
+xmax <- ceiling(max(RR_dir, RR_pois))
 
-# Dirichlet–Multinomial RR histogram with bin width 1
-hist(RR_dir,
-     breaks = seq(0, xmax, by = 1),   # ← each bin is 1 wide
-     freq = FALSE,
-     main = "RR | Multinomial–Dirichlet",
-     xlab = "RR",
-     xlim = c(0, 80))
+hist(RR_dir,  breaks = seq(0, xmax, by = 1), freq = FALSE,
+main = "RR - Multinomial–Dirichlet", xlab = "RR", xlim = c(0, 80))
 abline(v = RR_hat, lty = 2)
 
-# Poisson–Gamma RR histogram with bin width 1
-hist(RR_pois,
-     breaks = seq(0, xmax, by = 1),   # ← each bin is 1 wide
-     freq = FALSE,
-     main = "RR | Poisson–Gamma",
-     xlab = "RR",
-     xlim = c(0, 80))
+hist(RR_pois, breaks = seq(0, xmax, by = 1), freq = FALSE,
+main = "RR - Poisson–Gamma", xlab = "RR", xlim = c(0, 80))
 abline(v = RR_hat, lty = 2)
 ```
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
-breaks <- seq(0, xmax, by = 1)
-
-# Compute density estimates
-d_dir  <- density(RR_dir, from = 0, to = 40)
+```{r, echo = F, message = F, warning = F}
+# plot densities 
+RR_hat <- 15*(3+84) / (3*(15+50))
+d_dir  <- density(RR_dir,  from = 0, to = 40)
 d_pois <- density(RR_pois, from = 0, to = 40)
 
-# Plot both densities overlaid
-plot(d_dir, type = "l", lwd = 2, col = "steelblue",
-     xlim = c(0, 30), ylim = c(0, max(d_dir$y, d_pois$y)),
+col_dir  <- "red"
+col_pois <- "blue"
+col_ref  <- "black"
+
+plot(d_dir, type = "l", lwd = 2, col = col_dir,
+     xlim = c(0, 30),
+     ylim = c(0, max(d_dir$y, d_pois$y)),
      main = "Posterior Distributions of RR",
      xlab = "Relative Risk (RR)")
-lines(d_pois, lwd = 2, col = "firebrick")
-abline(v = RR_hat, lty = 2, col = "black")
+
+lines(d_pois, lwd = 2, col = col_pois)
+abline(v = RR_hat, lty = 2, col = col_ref)
 
 legend("topright",
        legend = c("Multinomial–Dirichlet", "Poisson–Gamma", "Sample RR"),
-       col = c("steelblue", "firebrick", "black"),
-       lwd = c(2, 2, 1), lty = c(1, 1, 2), bty = "n")
+       col    = c(col_dir, col_pois, col_ref),
+       lwd    = c(2, 2, 1),
+       lty    = c(1, 1, 2),
+       bty    = "n")
+
 ```
+
+#### Thoughts 
+
+Both posteriors have high density above 1 (typically concentrated most around 5). And $\Pr(RR>1)\approx 1$ under both models (0.99996 for Dirichlet and 0.99990 for Gamma, just rounded up). The credible intervals are somewhat wide in the right-tail, but both contain and are "close" in center to the observed sample ($\widehat{RR}\approx 6.69$, vertical reference line in the density plot). Also, the "plug-in" summaries ($RR(E[\theta])\approx 6.50$) and ($RR(\tilde{\theta})\approx 6.04$) show mild shrinkage relative to the MLE (observed sample RR). I think we can make the case that there is evidence (via posterior examination) that "Time Since Vaccination > 5 years" is associated with higher chickenpox risk for the population in the study (elementary school students). 
