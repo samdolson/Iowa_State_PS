@@ -25,7 +25,7 @@ Multinomial likelihood (with $N=\sum_{ij} y_{ij}$, $\sum_{ij}\theta_{ij}=1$):
 $$
 L(\boldsymbol{\theta}\mid \mathbf{y})
 =\Pr(\mathbf{Y}=\mathbf{y}\mid \boldsymbol{\theta})
-=\frac{N!}{\prod_{ij} y_{ij}!}\prod_{ij}\theta_{ij}^{,y_{ij}}
+=\frac{N!}{\prod_{ij} y_{ij}!}\prod_{ij}\theta_{ij}^{y_{ij}}
 $$
 
 For the priors: 
@@ -36,7 +36,7 @@ $$
 \boldsymbol{\theta}\sim \text{Dirichlet}(\gamma_{11},\gamma_{10},\gamma_{01},\gamma_{00}),
 \qquad
 p(\boldsymbol{\theta})
-=\frac{1}{B(\boldsymbol{\gamma})}\prod_{ij}\theta_{ij}^{,\gamma_{ij}-1}
+=\frac{1}{B(\boldsymbol{\gamma})}\prod_{ij}\theta_{ij}^{\gamma_{ij}-1}
 $$
 
 And
@@ -52,20 +52,21 @@ Multinomial–Dirichlet:
 $$
 \begin{aligned}
 p(\boldsymbol{\theta}\mid \mathbf{y})
-&\propto L(\boldsymbol{\theta}\mid \mathbf{y}),p(\boldsymbol{\theta})[3pt]
+&\propto L(\boldsymbol{\theta}\mid \mathbf{y}),p(\boldsymbol{\theta}) \\ 
 &\propto
 \Big(\prod_{ij}\theta_{ij}^{y_{ij}}\Big)
-\Big(\prod_{ij}\theta_{ij}^{\gamma_{ij}-1}\Big)[3pt]
-&\propto \prod_{ij}\theta_{ij}^{,{y_{ij}+\gamma_{ij}-1}},
-\quad \text{for }\sum_{ij}\theta_{ij}=1
+\Big(\prod_{ij}\theta_{ij}^{\gamma_{ij}-1}\Big) \\ 
+&\propto \prod_{ij}\theta_{ij}^{\,y_{ij}+\gamma_{ij}-1}
 \end{aligned}
 $$
+
+For $\sum_{ij}\theta_{ij}=1$
 
 After collecting exponents and normalizing over the simplex (by the Dirichlet Beta function), conjugacy gives
 
 $$
 \boldsymbol{\theta}\mid \mathbf{y}\sim
-\text{Dirichlet}(y_{11}+\gamma_{11},,y_{10}+\gamma_{10},,y_{01}+\gamma_{01},,y_{00}+\gamma_{00})
+(y_{11}+\gamma_{11},\,y_{10}+\gamma_{10},\,y_{01}+\gamma_{01},\,y_{00}+\gamma_{00}))
 $$
 
 #### Poisson–Gamma 
@@ -97,8 +98,8 @@ Taken together, we have the (proportional) posterior derivations
 $$
 \begin{aligned}
 p(\lambda_{ij}\mid y_{ij})
-&\propto e^{-\lambda_{ij}}\lambda_{ij}^{y_{ij}}
-\times \lambda_{ij}^{\alpha_{ij}-1} e^{-\beta_{ij}\lambda_{ij}}[3pt]
+&\propto e^{-\lambda_{ij}}\lambda_{ij}^{y_{ij}}                                            
+\times \lambda_{ij}^{\alpha_{ij}-1} e^{-\beta_{ij}\lambda_{ij}} \\                                 
 &\propto \lambda_{ij}^{\alpha_{ij}+y_{ij}-1}\exp!{-(\beta_{ij}+1)\lambda_{ij}}
 \end{aligned}
 $$
@@ -106,7 +107,7 @@ $$
 Recognizing this kernel as a Gamma density, conjugacy gives
 
 $$
-\lambda_{ij}\mid y_{ij}\sim \text{Gamma}(\alpha_{ij}+y_{ij},,\beta_{ij}+1)
+\lambda_{ij}\mid y_{ij}\sim \text{Gamma}(\alpha_{ij}+y_{ij},\beta_{ij}+1)
 $$
 
 \newpage
@@ -184,7 +185,7 @@ $$
 To compare on the probability scale, we need to normalize:
 
 $$
-\tilde{\theta}{ij}=\frac{E[\lambda{ij}\mid y]}{\sum_{kl}E[\lambda_{kl}\mid y]}
+\tilde{\theta}_{ij}=\frac{E[\lambda_{ij}\mid y]}{\sum_{kl}E[\lambda_{kl}\mid y]}
 =(0.0829,0.3401,0.0187,0.5583)
 $$
 
@@ -196,7 +197,7 @@ Evaluate relative risk RR at the expected values of the posterior distributions 
 
 ### Answer
 
-The relative risk is generally defined as (Equation 2):
+The relative risk is defined as in expression (1) of the assignment as: 
 
 $$
 RR=\frac{\Pr(D\mid R)}{\Pr(D\mid R^c)}
@@ -204,7 +205,7 @@ RR=\frac{\Pr(D\mid R)}{\Pr(D\mid R^c)}
 {\theta_{01}(\theta_{11}+\theta_{10})}
 $$
 
-For our sample estimate, we have: 
+With the sample version of RR as defined in expression (2) of the assignment, we have: 
 
 $$
 \widehat{RR}
