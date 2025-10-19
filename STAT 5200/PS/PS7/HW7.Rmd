@@ -251,6 +251,8 @@ $$
 
 Though this might be repetitive of the above, taking an expectation and then applying a nonlinear function (like this ratio for $RR$) does not yield the same result as applying the function first and then averaging. The difference reflects the variability in the posterior distribution of $\boldsymbol{\theta} | \boldsymbol{y}$ (and also I believe the form of the function g). Finally, the observed sample estimate $\widehat{RR}$ also differs slightly because it is based on just the counts, while the Bayesian "plug-in" values incorporate both the data likelihood and prior information.
 
+Note: For the Poisson–Gamma model, one could equivalently parameterize using the counts ($\lambda_{ij}$) rather than the normalized probabilities ($\theta_{ij} = \lambda_{ij} / \lambda_N$), as noted in the assignment. The choice of probabilities over counts was done here for convenience, and not due to to any willful decision. However, either parametrization are functionally identical for the purpose of this problem, as relative risk depends only on ratios that cancel the overall scale of ($\lambda$). That, and: The goal here is to compare results *between* the Poisson–Gamma and Multinomial–Dirichlet (and the sample-based estimates), and not between two equivalent parameterizations of the Poisson–Gamma model. And, as noted in the assignment, these two representations yield *"computationally the same results"*.
+
 \newpage 
 
 ## 4. 
@@ -302,6 +304,8 @@ The procedure then, using the above, is to generate posterior draws for the para
 Special thanks to Kaiser for noting that we don't need to do any special (rejection) sampling for this problem. 
 
 \newpage 
+
+Note: Similar to the note in the preceding problem, we could also generate posterior samples directly from the Poisson–Gamma counts ($\lambda_{ij}$) instead of from the normalized probabilities ($p_{ij} = \lambda_{ij}/\sum_{kl}\lambda_{kl}$). However, and again, both approaches are functionally equivalent for computing relative risk, since the overall scale of $(\lambda$) cancels in the RR ratio. And, again, the purpose here is to compare the posterior behavior of RR across the Multinomial–Dirichlet and Poisson–Gamma formulations, and not to contrast two equivalent ways of sampling *within* the Poisson–Gamma.
 
 ```{r, echo = F, message = F, warning = F}
 library(gtools)
