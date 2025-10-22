@@ -66,7 +66,14 @@ After collecting exponents and normalizing over the simplex (by the Dirichlet Be
 
 $$
 \boldsymbol{\theta}\mid \mathbf{y}\sim
-(y_{11}+\gamma_{11},\,y_{10}+\gamma_{10},\,y_{01}+\gamma_{01},\,y_{00}+\gamma_{00}))
+\text{Dirichlet} (y_{11}+\gamma_{11},\,y_{10}+\gamma_{10},\,y_{01}+\gamma_{01},\,y_{00}+\gamma_{00}))
+$$
+
+Or, explicitly with the given values, the posterior is: 
+
+$$
+\boldsymbol{\theta}\mid \mathbf{y}\sim
+\text{Dirichlet} (15.10, 50.75, 3.10, 84.75)
 $$
 
 #### Poisson–Gamma 
@@ -91,7 +98,7 @@ p(\lambda_{ij})
 \lambda_{ij}^{\alpha_{ij}-1} e^{-\beta_{ij}\lambda_{ij}}
 $$
 
-Given $(\alpha,\beta)_{11,10,01,00}=(0.5,5),,(3,4),,(0.5,5),,(3,4)$.
+Given $(\alpha,\beta)_{11,10,01,00}=(0.5,5),(3,4),(0.5,5),(3,4)$.
 
 Taken together, we have the (proportional) posterior derivations
 
@@ -104,10 +111,28 @@ p(\lambda_{ij}\mid y_{ij})
 \end{aligned}
 $$
 
-Recognizing this kernel as a Gamma density, conjugacy gives
+Recognizing this kernel as a Gamma density, conjugacy gives us posterior(s) of the form: 
 
 $$
 \lambda_{ij}\mid y_{ij}\sim \text{Gamma}(\alpha_{ij}+y_{ij},\beta_{ij}+1)
+$$
+
+Or, explicitly with the given values, the posterior distributions are: 
+
+$$
+\lambda_{11}\mid y_{11}\sim \text{Gamma}(15.5, 6)
+$$
+
+$$
+\lambda_{10}\mid y_{10}\sim \text{Gamma}(53, 5)
+$$
+
+$$
+\lambda_{01}\mid y_{01}\sim \text{Gamma}(3.5, 6)
+$$
+
+$$
+\lambda_{00}\mid y_{00}\sim \text{Gamma}(87, 5)
 $$
 
 \newpage
@@ -189,6 +214,8 @@ $$
 =(0.0829,0.3401,0.0187,0.5583)
 $$
 
+Note: I believe the phrasing of this question is asking for the unnormalized posterior expectations ($E[\lambda_{ij}] = (\alpha_{ij} + y_{ij}) / (\beta_{ij} + 1)$), which were first provided in this section's write up. However, I also provide the normalized quantities $\tilde{\theta}_{ij}$ because I am using those quantities for plug-in RR calculations in Question 3 (and also because it's somewhat unclear which/if both are being explicitly asked for).
+
 \newpage
 
 ## 3. 
@@ -233,12 +260,12 @@ $$
 
 #### Thoughts
 
-All three values are close, but not exactly the same. This happens because the "plug-in" value $RR(E[\boldsymbol{\theta}\mid y])$ is not the same as the posterior mean $E[RR\mid y]$. This difference primarily stems from the nonlinearity of the function $RR$, which means Jensen’s inequality applies: Expectations do not generally “pass through” nonlinear transformations such that they ensure equality.
+All three values are close, but not exactly the same. Although we are using the posterior distributions of the components of $RR$ (the $\theta_{ij}$’s or $\lambda_{ij}$’s), the “plug-in” value $RR$ is not the same as the posterior mean $E[RR\mid y]$, which would require integrating the function $RR = g(\boldsymbol{\theta})$ over its full posterior distribution. This difference primarily stems from the nonlinearity of the function $RR$, which means Jensen’s inequality applies: Expectations do not generally “pass through” nonlinear transformations such that they ensure equality.
 
-To be specific, the function $g$ for relative risk is given by: 
+To be specific, the function $g$ for RR is given by
 
 $$
-g(\boldsymbol{\theta}) = 
+g(\boldsymbol{\theta}) =
 \frac{\theta_{11}(\theta_{01}+\theta_{00})}
 {\theta_{01}(\theta_{11}+\theta_{10})}
 $$
@@ -249,7 +276,7 @@ $$
 E[g(\boldsymbol{\theta})\mid y] \neq g(E[\boldsymbol{\theta}\mid y])
 $$
 
-Though this might be repetitive of the above, taking an expectation and then applying a nonlinear function (like this ratio for $RR$) does not yield the same result as applying the function first and then averaging. The difference reflects the variability in the posterior distribution of $\boldsymbol{\theta} | \boldsymbol{y}$ (and also I believe the form of the function g). Finally, the observed sample estimate $\widehat{RR}$ also differs slightly because it is based on just the counts, while the Bayesian "plug-in" values incorporate both the data likelihood and prior information.
+Though this might be repetitive of the above, taking an expectation and then applying a nonlinear function (like this ratio for $RR$) does not yield the same result as applying the function first and then averaging. The difference reflects the variability in the posterior distribution of $\boldsymbol{\theta}\mid \boldsymbol{y}$ (and also the specific nonlinear form of the function $g$). Finally, the observed sample estimate $\widehat{RR}$ also differs slightly because it is based only on the counts, while the Bayesian “plug-in” values incorporate both the data likelihood and prior information.
 
 Note: For the Poisson–Gamma model, one could equivalently parameterize using the counts ($\lambda_{ij}$) rather than the normalized probabilities ($\theta_{ij} = \lambda_{ij} / \lambda_N$), as noted in the assignment. The choice of probabilities over counts was done here for convenience, and not due to to any willful decision. However, either parametrization are functionally identical for the purpose of this problem, as relative risk depends only on ratios that cancel the overall scale of ($\lambda$). That, and: The goal here is to compare results *between* the Poisson–Gamma and Multinomial–Dirichlet (and the sample-based estimates), and not between two equivalent parameterizations of the Poisson–Gamma model. And, as noted in the assignment, these two representations yield *"computationally the same results"*.
 
@@ -272,7 +299,7 @@ And for the Poisson-Gamma, we have:
 
 $$
 \lambda_{ij}\mid y \sim
-\text{Gamma}(\alpha_{ij}+y_{ij},,\beta_{ij}+1)
+\text{Gamma}(\alpha_{ij}+y_{ij},\beta_{ij}+1)
 $$
 
 Which requires normalization via: 
@@ -364,7 +391,7 @@ kable(
   align = c("l", rep("r", ncol(tab_df) - 1))
 ) |>
 kable_styling(full_width = FALSE, position = "center",
-latex_options = c("hold_position","striped")) |>
+latex_options = c("hold_position")) |> # ,"striped")) |>
 column_spec(1, bold = TRUE) |>
 add_header_above(c(" " = 1, "Posterior Summary" = ncol(tab_df) - 1))
 ```
@@ -416,4 +443,13 @@ legend("topright",
 
 #### Thoughts 
 
-Both posteriors have high density above 1 (typically concentrated most around 5). And $\Pr(RR>1)\approx 1$ under both models (0.99996 for Dirichlet and 0.99990 for Gamma, just rounded up). The credible intervals are somewhat wide in the right-tail, but both contain and are "close" in center to the observed sample ($\widehat{RR}\approx 6.69$, vertical reference line in the density plot). Also, the "plug-in" summaries ($RR(E[\theta])\approx 6.50$) and ($RR(\tilde{\theta})\approx 6.04$) show mild shrinkage relative to the MLE (observed sample RR). I think we can make the case that there is evidence (via posterior examination) that "Time Since Vaccination > 5 years" is associated with higher chickenpox risk for the population in the study (elementary school students). 
+Both posterior distributions of $RR$ place nearly all their (respective) mass(es) above 1 and are centered somewhere in the range of values from 5 to 7. Relative to the sample estimate $\widehat{RR}\approx 6.69$, the plug-in summaries show mild shrinkage (from $RR(E[\theta])\approx 6.50$ to $RR(\tilde{\theta})\approx 6.04$). 
+
+Importantly, the posterior probability that $RR>1$ is effectively 1 under both models:
+
+$$
+\Pr(RR>1\mid \text{Multinomial–Dirichlet})\approx 0.99996,\qquad
+\Pr(RR>1\mid \text{Poisson–Gamma})\approx 0.99990.
+$$
+
+Thus, there is very strong posterior evidence that “> 5 years since vaccination” is associated with a higher probability of contracting/"getting" chickenpox in this student population. The 95% credible intervals are somewhat wide on the upper tail (reflecting uncertainty for large $RR$ values) but largely overlap across the two models and include the sample $\widehat{RR}$, indicating consistent conclusions across the two modeling frameworks (Multinomial-Dirichlet and Poisson-Gamma).
