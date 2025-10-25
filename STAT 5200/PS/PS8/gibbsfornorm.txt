@@ -1,0 +1,53 @@
+gibbsfornorm<-function(dat,start,priorpars,B,M){
+#gibbs for normal data model with normal prior on mu and
+#inverse gamma prior on sig2
+#dat is vector of observed responses
+#start is mu0, sig20
+#priorpars are lam, tau2, alp, bet
+#B is burn-in, M is desired MC sample size,
+#
+cmu<-start[1]; csig2<-start[2]
+lam<-priorpars[1]; tau2<-priorpars[2]
+alp<-priorpars[3]; bet<-priorpars[4]
+mus<-NULL; sig2s<-NULL
+cnt<-0
+repeat{
+ cnt<-cnt+1
+ newmu<-sampmu(dat,lam,tau2,csig2)
+ newsig2<-sampsig2(dat,alp,bet,newmu)
+ if(cnt>B){
+   mus<-c(mus,newmu)
+   sig2s<-c(sig2s,newsig2)}
+ cmu<-newmu; csig2<-newsig2
+ if(cnt==(B+M)) break
+ }
+res<-data.frame(mu=mus,sig2=sig2s)
+return(res)
+}
+#---------------------------------------------------------------
+sampmu<-function(dat,lam,tau2,sig2){
+#sample mu from its conditional posterior given sig2
+#lam is prior mean, tau2 is prior variance
+#
+ybar<-mean(dat)
+n<-length(dat)
+vinv<-(1/tau2)+(n/sig2)
+M<-((1/tau2)*lam+(n/sig2)*ybar)/vinv
+V<-1/vinv
+newmu<-rnorm(1,M,sqrt(V))
+return(newmu)
+}
+#-----------------------------------------------------------------
+sampsig2<-function(dat,alp,bet,mu){
+#sample sig2 from its conditional posterior given mu
+#dat is vector of observed responses
+#alp and bet a prior parameters
+#
+n<-length(dat)
+A<-alp+(n/2)
+B<-bet+0.5*sum((dat-mu)^2)
+tonew<-rgamma(1,A,B)
+newsig2<-1/tonew
+return(newsig2)
+}
+#--------------------------------------------------------------

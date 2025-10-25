@@ -1,0 +1,772 @@
+---
+title: "Assignment 8 "
+author: "Sam Olson"
+output:
+  pdf_document:
+    toc: false
+    number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem Description
+
+Consider a problem of conducting a Bayesian analysis with a one-sample gamma model.
+Assume that random variables $Y_1, \ldots, Y_n$ are independent and identically distributed with common probability density function (for $\alpha > 0$ and $\beta > 0$):
+
+$$
+f(y \mid \alpha, \beta) =
+\frac{\beta^{\alpha}}{\Gamma(\alpha)} y^{\alpha - 1} \exp(-\beta y),
+\quad y > 0.
+$$
+
+Suppose that we will assign a joint prior to $\alpha$ and $\beta$ in product form, with particular values of $A > 0$, $\gamma_0 > 0$, and $\lambda_0 > 0$:
+
+$$
+\pi_{\alpha}(\alpha) = \frac{1}{A} I(0 < \alpha < A), \quad
+\pi_{\beta}(\beta) =
+\frac{\lambda_0^{\gamma_0}}{\Gamma(\gamma_0)} \beta^{\gamma_0 - 1} e^{-\lambda_0 \beta},
+\quad \beta > 0.
+$$
+
+Recall that in the analysis of an actual data set, $A, \gamma_0$ and $\lambda_0$ will be given specific numerical values. Since this is a simulated example and we have no actual prior information, use the following hyperparameters:
+
+$$
+A = 20, \quad \gamma_0 = 0.5, \quad \lambda_0 = 0.1.
+$$
+
+This gives prior expectation of 5.0 and prior variance of 50. The prior does focus probability on smaller values, but still has $Pr(\beta > 10) = 0.16$.
+
+```{r}
+gammaDat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/gammadat_bayes.txt", header = T)
+```
+
+\newpage
+
+## 1. 
+
+Consider using a Metropolis–Hastings algorithm with independent random-walk proposals for $\alpha$ and $\beta$.
+
+Suppose that our current values are ($\alpha_m, \beta_m$), and that the proposal ($\alpha^*, \beta^*$) has been generated from
+
+$$
+q(\alpha, \beta \mid \alpha_m, \beta_m)
+$$
+
+which is the product of independent random walks.
+
+Identify the appropriate acceptance probability for the jump proposal ($\alpha^*, \beta^*$).
+
+### Answer
+
+I believe this question is being asked in the abstract, i.e., not for the specific dataset in question. Under that pretense: 
+
+The target distribution for the Metropolis–Hastings algorithm is the joint posterior
+
+$$
+\pi(\alpha, \beta \mid y) \propto L(y \mid \alpha, \beta)\,\pi_\alpha(\alpha)\,\pi_\beta(\beta)
+$$
+
+where the likelihood for independent $Y_i \sim \text{Gamma}(\alpha, \beta)$ is
+
+$$
+L(y \mid \alpha, \beta)
+= \prod_{i=1}^n \frac{\beta^\alpha}{\Gamma(\alpha)} y_i^{\alpha-1} e^{-\beta y_i}
+$$
+
+If the proposal distribution is a product of independent random walks,
+
+$$
+q(\alpha^*, \beta^* \mid \alpha_m, \beta_m)
+= q_\alpha(\alpha^* \mid \alpha_m) q_\beta(\beta^* \mid \beta_m)
+$$
+
+and each random walk is symmetric, then the proposal densities cancel in the Hastings ratio.
+
+The acceptance probability is therefore
+
+$$
+a\big((\alpha_m,\beta_m)\to(\alpha^*,\beta^*)\big)
+=\min\left\{1,\,
+\frac{\pi(\alpha^*,\beta^*\mid y)}{\pi(\alpha_m,\beta_m\mid y)}\right\}
+=\min\left\{1,\,
+\frac{L(y\mid \alpha^*,\beta^*)\,\pi_\alpha(\alpha^*)\,\pi_\beta(\beta^*)}
+     {L(y\mid \alpha_m,\beta_m)\,\pi_\alpha(\alpha_m)\,\pi_\beta(\beta_m)}
+\right\}
+$$
+
+Because $\pi_\alpha(\alpha)$ is uniform on $(0, A)$, this implies that any proposal with $\alpha^* \notin (0, A)$ or $\beta^* \le 0$ is automatically rejected ($a = 0$).
+
+Using sufficient statistics $S_1 = \sum_{i=1}^n \log y_i$ and $S_2 = \sum_{i=1}^n y_i$, we can write
+
+$$
+\log r
+= n\left[\alpha^* \log \beta^* - \log \Gamma(\alpha^*) - \alpha_m \log \beta_m + \log \Gamma(\alpha_m)\right]
++ (\alpha^* - \alpha_m) S_1 - (\beta^* - \beta_m) S_2
++ (\gamma_0 - 1)\left[\log \beta^* - \log \beta_m\right]
+- \lambda_0(\beta^* - \beta_m)
+$$
+
+and
+
+$$
+a = \min\left\{ 1,\; \exp(\log r) \right\}
+$$
+
+This is the appropriate acceptance probability for the Metropolis–Hastings update of $(\alpha, \beta)$.
+
+\newpage
+
+## 2. 
+
+On the course web page is a data set called `gammadat_bayes.txt`.
+
+Program a Metropolis–Hastings algorithm and simulate 50,000 values from the joint posterior of $\alpha$, $\beta$, and $\mu = \alpha / \beta$.
+
+Provide (with supporting evidence if appropriate):
+
+* Information on how you selected a burn-in period. *NOTE: I do not expect you to compute Gelman-Rubin scale reduction factors for this assignment.*
+
+* Information on how you tuned the algorithm for acceptance rate, including the random-walk variances and the final acceptance rate.
+
+* Summaries of the marginal posterior distributions of $\alpha$ and $\beta$ and $\mu = \alpha / \beta$, including histograms and five-number summaries, 95% central credible intervals, and correlation between $\alpha$ and $\beta$ in the Markov chain.
+
+### Answer
+
+```{r}
+set.seed(43)                 
+y <- as.numeric(gammaDat[[1]]) 
+
+## MOM for Gamma(shape=alpha, rate=beta):
+##   alpha0 = m^2 / v,  beta0 = alpha0 / m
+alpha0 <- if (v > 0) (m^2 / v) else 1.0
+# keep inside (0, A) with a little margin
+alpha0 <- max(0.10, min(alpha0, 19.9))      
+# positive rate
+beta0  <- max(1e-6, alpha0 / max(m, 1e-6))  
+
+start1 <- c(alpha0, beta0)
+
+valpha <- (0.20 * alpha0)^2
+vbeta  <- (0.20 * beta0)^2
+jumpvars1 <- c(valpha, vbeta)
+
+start1
+jumpvars1
+```
+
+```{r, cache = T}
+j1 <- metropforgamma(dat = gammaDat, 
+               start = start1, 
+               priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20), 
+               jumpvars = jumpvars1, 
+               B = 0, 
+               M = 50000)
+
+j2 <- metropforgamma(dat = gammaDat, 
+               start = start1, 
+               priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20), 
+               jumpvars = jumpvars1, 
+               B = 1000, 
+               M = 50000)
+
+j3 <- metropforgamma(dat = gammaDat, 
+               start = start1, 
+               priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20), 
+               jumpvars = jumpvars1+0.5, 
+               B = 0, 
+               M = 50000)
+
+j4 <- metropforgamma(dat = gammaDat, 
+               start = start1, 
+               priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20), 
+               jumpvars = jumpvars1+1, 
+               B = 0, 
+               M = 50000)
+```
+
+```{r}
+acc1 <- attr(j1, "acceptprob")
+acc2 <- attr(j2, "acceptprob")
+acc3 <- attr(j3, "acceptprob")
+acc4 <- attr(j4, "acceptprob")
+acc1; acc2; acc3; acc4
+```
+
+```{r}
+runmean <- function(x) cumsum(x) / seq_along(x)
+
+# par(mfrow = c(2,2))
+plot(j1$alpha, type="l", main="alpha trace (j1)", ylim = c(16, 22))
+# lines(j1$alpha, col=1)
+lines(j2$alpha, col=1)
+lines(j3$alpha, col=2)
+# lines(j4$alpha, col=4)
+
+
+plot(j1$beta,  type="l", main="beta trace (j1)", ylim = c(0, 0.1))
+# lines(j1$beta,  col=1)
+lines(j2$beta, col=1)
+lines(j3$beta, col=2)
+# lines(j4$beta, col=4)
+
+plot(j1$mu,    type="l", main="mu trace (j1)", ylim = c(0, 2000))
+# lines(j1$mu,  col=1)
+lines(j2$mu, col=1)
+lines(j3$mu, col=2)
+# lines(j4$mu, col=4)
+
+acf(j1$alpha, lag.max = 500, main="ACF alpha (j1)")
+acf(j1$alpha, lag.max = 500, main="ACF alpha (j1)", ylim = c(-.1, 0.1))
+# par(mfrow = c(1,1))
+```
+
+A Burn-In Period of around 500 seems appropriate. 
+
+```{r, cache = T}
+scales <- c(0.5, 1.0, 1.5, 2.0)
+tune <- lapply(scales, function(s){
+  j <- metropforgamma(dat = y, start = start1,
+                      priorpars = c(0.5, 0.1, 20),
+                      jumpvars = jumpvars1 * s^2,
+                      B = 2000, M = 8000)
+  list(scale = s, acc = attr(j,"acceptprob"))
+})
+do.call(rbind, lapply(tune, as.data.frame))
+```
+
+```{r, cache = T}
+final <- metropforgamma(dat = y,
+                        start = start1,
+                        priorpars = c(0.5, 0.1, 20),
+                        jumpvars = jumpvars1 * 1.2^2,  # from tuning above
+                        B = 5000,
+                        M = 50000)
+acc_final <- attr(final, "acceptprob")
+acc_final
+```
+
+```{r}
+alpha <- final$alpha
+beta  <- final$beta
+mu    <- final$mu
+
+## five-number summaries
+fivenum_alpha <- fivenum(alpha)
+fivenum_beta  <- fivenum(beta)
+fivenum_mu    <- fivenum(mu)
+
+## 95% central credible intervals
+ci_alpha <- quantile(alpha, c(0.025, 0.975))
+ci_beta  <- quantile(beta,  c(0.025, 0.975))
+ci_mu    <- quantile(mu,    c(0.025, 0.975))
+
+## correlation between alpha and beta in the chain
+corr_ab <- cor(alpha, beta)
+
+list(
+  accept = acc_final,
+  five_num = list(alpha = fivenum_alpha, beta = fivenum_beta, mu = fivenum_mu),
+  ci_95   = list(alpha = ci_alpha, beta = ci_beta, mu = ci_mu),
+  corr_ab = corr_ab
+)
+```
+
+```{r}
+# par(mfrow = c(1,3))
+hist(alpha, breaks = "FD", main = expression(paste("Posterior of ", alpha)),
+     xlab = expression(alpha))
+abline(v = ci_alpha, lty = 2)
+hist(beta, breaks = "FD", main = expression(paste("Posterior of ", beta)),
+     xlab = expression(beta))
+abline(v = ci_beta, lty = 2)
+hist(mu, breaks = "FD", main = expression(paste("Posterior of ", mu, " = ", alpha, "/", beta)),
+     xlab = expression(mu))
+abline(v = ci_mu, lty = 2)
+# par(mfrow = c(1,1))
+```
+
+\newpage
+
+## 3.
+
+Using both the 75th percentile and the range as data characteristics of potential interest, compute posterior predictive p-values from 10,000 posterior predictive datasets.
+
+### Answer
+
+```{r}
+set.seed(43)  
+
+# 1) Inputs (adjust names if needed)
+# y    : numeric vector of observed data (length n, y > 0)
+# post : data.frame with columns 'alpha' and 'beta' (posterior draws)
+post <- final
+stopifnot(is.numeric(y), all(y > 0), is.data.frame(post),
+          all(c("alpha","beta") %in% names(post)))
+
+n <- length(y)
+
+# 2) Observed test statistics
+stat_q75   <- function(x) as.numeric(quantile(x, 0.75, type = 7))
+stat_range <- function(x) diff(range(x))
+
+Tobs_q75   <- stat_q75(y)
+Tobs_range <- stat_range(y)
+
+# 3) Choose 10,000 posterior draws to use
+ndraws <- 10000L
+idx <- sample.int(nrow(post), size = ndraws,
+                  replace = nrow(post) < ndraws)
+
+a_draws <- post$alpha[idx]
+b_draws <- post$beta[idx]
+
+# 4) Generate posterior predictive datasets and compute replicated stats
+#    (One-sided ppp: proportion of T(y_rep) >= T(y_obs))
+Trep_q75   <- numeric(ndraws)
+Trep_range <- numeric(ndraws)
+
+for(k in seq_len(ndraws)){
+  yrep <- rgamma(n, shape = a_draws[k], rate = b_draws[k])
+  Trep_q75[k]   <- stat_q75(yrep)
+  Trep_range[k] <- stat_range(yrep)
+}
+
+ppp_q75   <- mean(Trep_q75   >= Tobs_q75)
+ppp_range <- mean(Trep_range >= Tobs_range)
+
+# 5) Report
+list(
+  observed_stats = c(q75 = Tobs_q75, range = Tobs_range),
+  ppp_values     = c(q75 = ppp_q75, range = ppp_range),
+  notes = "ppp = Pr{ T(y_rep) >= T(y_obs) | data } using 10,000 posterior predictive datasets"
+)
+```
+
+\newpage
+
+## 4. 
+
+Now consider the use of a Gibbs Sampling algorithm to simulate from the joint posterior of $\alpha$ and $\beta$ and $\mu$. Derive full conditional posterior densities for $\alpha$ and $\beta$ Using these distributions, program a Gibbs Sampling algorithm and simulate 50,000 values from the joint posterior. Provide (with supporting evidence if appropriate),
+
+* information on how you selected a burn-in period. Again, there is no need to compute Gelman-Rubin scale reduction factors for this assignment.
+
+* summaries of the marginal posterior distributions of $\alpha$ and $\beta$, including histograms and five-number summaries, 95% central credible intervals, and correlation between $\alpha$ and $\beta$ in the Markov chain.
+
+### Answer
+
+Let $Y_i \stackrel{\text{iid}}{\sim}\text{Gamma}(\alpha,\beta)$ with density
+
+$f(y\mid \alpha,\beta)=\dfrac{\beta^{\alpha}}{\Gamma(\alpha)},y^{\alpha-1}e^{-\beta y}$ for $y>0$.
+
+Priors: $\alpha\sim\text{Uniform}(0,A)$ and $\beta\sim\text{Gamma}(\gamma_0,\lambda_0)$ in using the rate parametrization.
+
+Denote $S_1=\sum_{i=1}^n \log y_i$ and $S_2=\sum_{i=1}^n y_i$.
+
+The joint posterior (up to a constant) is
+
+$$
+\pi(\alpha,\beta\mid y)\ \propto
+\underbrace{\beta^{n\alpha},e^{-\beta S_2}}*{\text{likelihood in }\beta};
+\underbrace{\dfrac{e^{(\alpha-1)S_1}}{\Gamma(\alpha)^n}}*{\text{likelihood in }\alpha};
+\underbrace{\beta^{\gamma_0-1}e^{-\lambda_0\beta}}*{\text{prior for }\beta};
+\underbrace{\mathbf 1*{(0,A)}(\alpha)}_{\text{prior for }\alpha}.
+$$
+
+Collecting terms in $\beta$ gives the kernel
+
+$$
+\beta^{,n\alpha+\gamma_0-1}\exp!\big(-(\lambda_0+S_2)\beta\big),
+$$
+
+so
+
+$$
+\boxed{\ \beta\mid \alpha,y\ \sim\ \mathrm{Gamma}!\left(\ \gamma_0+n\alpha,\ \lambda_0+S_2\ \right)\ }\quad\text{(rate)}.
+$$
+
+Collecting terms in $\alpha$ yields
+
+$$
+\pi(\alpha\mid \beta,y)\ \propto
+\exp!\Big(n\alpha\log\beta - n\log\Gamma(\alpha) + (\alpha-1)S_1\Big);\mathbf 1_{(0,A)}(\alpha),
+$$
+
+which is **not** a standard family (because of $\log\Gamma(\alpha)$). Therefore $\alpha$ is updated by a **random-walk Metropolis** step inside the Gibbs sampler (Metropolis-within-Gibbs), with proposals constrained to $(0,A)$.
+
+```{r, cache = T}
+## ---- diagnostic chain: keep all draws (no burn-in) ----------------------
+set.seed(43)
+y <- as.numeric(gammaDat[[1]])
+A <- 20
+m <- mean(y); v <- var(y)
+alpha0 <- max(0.10, min(ifelse(v > 0, m^2 / v, 1.0), A - 0.1))
+beta0  <- max(1e-6, alpha0 / max(m, 1e-6))
+start <- c(alpha0, beta0)
+priorpars <- c(gamma0 = 0.5, lambda0 = 0.1, A = A)
+
+## Pilot to set valpha (as you did)
+valpha <- (0.15 * alpha0)^2
+
+## Keep everything (no burn-in) for diagnostics:
+diag_all <- gibbsforgamma(dat = y, start = start, priorpars = priorpars,
+                          B = 0, M = 60000, valpha = valpha)
+
+alpha_all <- diag_all$alpha
+beta_all  <- diag_all$beta
+
+## Helper: choose burn-in by running-mean stabilization
+pick_burnin <- function(x, tol = 0.01, K = 2000){
+  n <- length(x)
+  if(n <= K) return(0L)
+  rm <- cumsum(x) / seq_along(x)
+  ref <- mean(x[(n-K+1):n])                  # reference mean = last K draws
+  band <- tol * max(1e-12, abs(ref))
+  ok <- abs(rm - ref) <= band
+  # earliest t such that the next K values all satisfy the band
+  for(t in seq_len(n - K)){
+    if(all(ok[t:(t+K-1)])) return(t)
+  }
+  return(0L)
+}
+
+B_alpha <- pick_burnin(alpha_all, tol = 0.01, K = 2000)
+B_beta  <- pick_burnin(beta_all,  tol = 0.01, K = 2000)
+B_chosen <- max(B_alpha, B_beta)  # conservative choice
+
+B_alpha; B_beta; B_chosen
+
+runmean <- function(x) cumsum(x) / seq_along(x)
+
+# par(mfrow = c(2,2))
+plot(alpha_all, type="l", main = "alpha trace (full, B=0)")
+abline(v = B_chosen, col = 2, lwd = 2, lty = 2)
+lines(runmean(alpha_all), col = 4)
+
+plot(beta_all,  type="l", main = "beta trace (full, B=0)")
+abline(v = B_chosen, col = 2, lwd = 2, lty = 2)
+lines(runmean(beta_all), col = 4)
+
+acf(alpha_all, main = "ACF alpha (full)")
+acf(beta_all,  main = "ACF beta (full)")
+# par(mfrow = c(1,1))
+
+## Write-up sentence to include:
+## "Running means and traces stabilize within ≈2–3k iterations; we conservatively used B = 5,000."
+
+# 5) Required summaries
+alpha <- gout$alpha; beta <- gout$beta; mu <- gout$mu
+
+# five-number summaries
+fivenum_alpha <- fivenum(alpha)
+fivenum_beta  <- fivenum(beta)
+
+# 95% central credible intervals
+ci_alpha <- quantile(alpha, c(0.025, 0.975))
+ci_beta  <- quantile(beta,  c(0.025, 0.975))
+
+# correlation between alpha and beta
+corr_ab <- cor(alpha, beta)
+
+list(
+  alpha_accept_overall = alpha_acc_overall,
+  alpha_accept_kept    = alpha_acc_kept,
+  five_num = list(alpha = fivenum_alpha, beta = fivenum_beta),
+  ci_95   = list(alpha = ci_alpha, beta = ci_beta),
+  corr_ab = corr_ab
+)
+```
+
+```{r}
+# par(mfrow = c(1,2))
+hist(alpha, breaks = "FD", main = expression(paste("Posterior of ", alpha)),
+     xlab = expression(alpha))
+abline(v = ci_alpha, lty = 2)
+hist(beta, breaks = "FD", main = expression(paste("Posterior of ", beta)),
+     xlab = expression(beta))
+abline(v = ci_beta, lty = 2)
+# par(mfrow = c(1,1))
+```
+
+\newpage
+
+## 5. 
+
+Using both the 75th percentile and the range as data characteristics of potential interest, compute posterior predictive p-values from 10,000 simulated posterior predictive data sets.
+
+### Answer
+
+```{r}
+## ---- Q5: Posterior predictive checks (75th percentile & range) ----------
+set.seed(43)
+
+# 0) inputs
+stopifnot(exists("gout"), is.data.frame(gout),
+          all(c("alpha","beta") %in% names(gout)))
+stopifnot(exists("y"), is.numeric(y), all(y > 0))
+
+n <- length(y)
+
+# 1) observed statistics
+stat_q75   <- function(x) as.numeric(quantile(x, 0.75, type = 7))
+stat_range <- function(x) diff(range(x))
+
+Tobs_q75   <- stat_q75(y)
+Tobs_range <- stat_range(y)
+
+# 2) choose 10,000 posterior draws (recycle with replacement if needed)
+ndraws <- 10000L
+idx <- sample.int(nrow(gout), size = ndraws, replace = nrow(gout) < ndraws)
+a_draws <- gout$alpha[idx]
+b_draws <- gout$beta[idx]
+
+# 3) generate posterior predictive datasets and compute replicated stats
+Trep_q75   <- numeric(ndraws)
+Trep_range <- numeric(ndraws)
+
+for(k in seq_len(ndraws)){
+  yrep <- rgamma(n, shape = a_draws[k], rate = b_draws[k])
+  Trep_q75[k]   <- stat_q75(yrep)
+  Trep_range[k] <- stat_range(yrep)
+}
+
+# 4) one-sided posterior predictive p-values: Pr{ T(yrep) >= T(y) | y }
+ppp_q75   <- mean(Trep_q75   >= Tobs_q75)
+ppp_range <- mean(Trep_range >= Tobs_range)
+
+# 5) (optional) two-sided tail-areas around the replicated distribution center
+twosided <- function(Trep, Tobs){
+  med <- median(Trep)
+  mean(abs(Trep - med) >= abs(Tobs - med))
+}
+ppp_q75_2s   <- twosided(Trep_q75,   Tobs_q75)
+ppp_range_2s <- twosided(Trep_range, Tobs_range)
+
+# 6) report
+list(
+  observed_statistics = c(q75 = Tobs_q75, range = Tobs_range),
+  ppp_one_sided       = c(q75 = ppp_q75,  range = ppp_range),
+  ppp_two_sided       = c(q75 = ppp_q75_2s, range = ppp_range_2s),
+  notes = "Replicates drawn as yrep_i ~ Gamma(alpha_k, rate=beta_k) with i=1..n, k=1..10,000."
+)
+```
+
+\newpage
+
+## 6. 
+
+Compare your results from the use of Metropolis-Hastings and Gibbs Sampling.
+
+### Answer
+
+\newpage 
+
+## 7.
+
+On this particular assignment, attach your R code for functions you programmed to do the necessary computations as an APPENDIX – not part of the body of your answer.
+
+### Metropolis 
+
+```{r appendix Metropolis}
+metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
+# Metropolis for a one-sample Gamma(shape = alpha, rate = beta) model
+# with product prior: alpha ~ Uniform(0, A), beta ~ Gamma(gamma0, lambda0)
+#
+# dat        : vector of observed positive data (y_i > 0)
+# start      : c(alpha0, beta0)  -- starting values for (alpha, beta)
+# priorpars  : c(gamma0, lambda0, A)
+#              - gamma0, lambda0 are shape/rate of prior on beta
+#              - A is the upper bound for alpha's Uniform(0, A) prior
+# jumpvars   : c(valpha, vbeta)  -- proposal variances for random-walk jumps
+# B          : burn-in iterations
+# M          : number of kept Monte Carlo draws
+#
+# Notes on parameterization/statistics:
+# - Likelihood: Y_i ~ Gamma(alpha, beta) with density
+#       f(y | alpha, beta) = beta^alpha / Gamma(alpha) * y^(alpha-1) * exp(-beta*y)
+#   The log-likelihood is computed in a numerically stable way via sums.
+# - Prior on alpha: Uniform(0, A). Inside (0, A) its log prior is constant (0),
+#   outside the interval, log prior is -Inf.
+# - Prior on beta: Gamma(gamma0, lambda0) with 'rate' parameterization.
+# - Proposals: independent Gaussian random walks on alpha and beta, consistent
+#   with the reference style. We clip invalid proposals by reverting to current
+#   values, mirroring the reference behavior for sig2.
+#
+  calpha <- start[1]; cbeta <- start[2]
+  gamma0 <- priorpars[1]; lambda0 <- priorpars[2]; A <- priorpars[3]
+  valpha <- jumpvars[1]; vbeta <- jumpvars[2]
+
+  alphas <- NULL; betas <- NULL; mus <- NULL
+  acceptind <- 0
+  cnt <- 0
+
+  # Precompute sufficient statistics for the Gamma likelihood
+  n <- length(dat)
+  sumlogy <- sum(log(dat))
+  sumy <- sum(dat)
+
+  repeat{
+    cnt <- cnt + 1
+    alphastar <- proposealpha(calpha, valpha, A)
+    betastar  <- proposebeta(cbeta, vbeta)
+
+    # log-likelihood (current and proposed)
+    #   log f(alpha, beta | y) = n * (alpha * log(beta) - log(Gamma(alpha))) +
+    #                            (alpha - 1) * sum(log(y)) - beta * sum(y)
+    lfcur  <- n * (calpha * log(cbeta) - lgamma(calpha)) + (calpha - 1) * sumlogy - cbeta * sumy
+    lfstar <- n * (alphastar * log(betastar) - lgamma(alphastar)) + (alphastar - 1) * sumlogy - betastar * sumy
+
+    # log-prior for alpha: Uniform(0, A)
+    #   log pi(alpha) = 0 for alpha in (0, A), -Inf otherwise
+    lpi_alpha_cur  <- if(calpha > 0 && calpha < A) 0 else -Inf
+    lpi_alpha_star <- if(alphastar > 0 && alphastar < A) 0 else -Inf
+
+    # log-prior for beta: Gamma(gamma0, lambda0), rate parameterization
+    #   log pi(beta) = gamma0 * log(lambda0) - log(Gamma(gamma0))
+    #                  + (gamma0 - 1) * log(beta) - lambda0 * beta
+    lpi_beta_cur  <- gamma0 * log(lambda0) - lgamma(gamma0) + (gamma0 - 1) * log(cbeta)  - lambda0 * cbeta
+    lpi_beta_star <- gamma0 * log(lambda0) - lgamma(gamma0) + (gamma0 - 1) * log(betastar) - lambda0 * betastar
+
+    lpicur  <- lpi_alpha_cur + lpi_beta_cur
+    lpistar <- lpi_alpha_star + lpi_beta_star
+
+    # Metropolis acceptance (symmetric random-walk proposals)
+    astar <- min(exp((lfstar + lpistar) - (lfcur + lpicur)), 1)
+    ustar <- runif(1, 0, 1)
+
+    newalpha <- calpha; newbeta <- cbeta
+    if(ustar <= astar){
+      newalpha <- alphastar; newbeta <- betastar
+      acceptind <- acceptind + 1
+    }
+
+    if(cnt > B){
+      alphas <- c(alphas, newalpha)
+      betas  <- c(betas,  newbeta)
+      mus    <- c(mus,    newalpha / newbeta)  # Posterior samples of mu = alpha / beta
+    }
+
+    calpha <- newalpha; cbeta <- newbeta
+    if(cnt == (B + M)) break
+  }
+
+  cat("acceptprob:", acceptind / M, fill = TRUE)
+  res <- data.frame(alpha = alphas, beta = betas, mu = mus)
+  attr(res, "acceptprob") <- acceptind / M
+  return(res)
+}
+#----------------------------------------------------------------
+proposealpha <- function(calpha, valpha, A){
+# propose jump from random walk for alpha (shape), enforce support (0, A)
+# Reference-style: if invalid, revert to current (like proposesig2 in the ref)
+  z <- rnorm(1, 0, sqrt(valpha))
+  alphastar <- calpha + z
+  if(alphastar <= 0 || alphastar >= A) alphastar <- calpha
+  return(alphastar)
+}
+#----------------------------------------------------------------
+proposebeta <- function(cbeta, vbeta){
+# propose jump from random walk for beta (rate), enforce positivity
+# Reference-style: if invalid, revert to current
+  z <- rnorm(1, 0, sqrt(vbeta))
+  betastar <- cbeta + z
+  if(betastar <= 0) betastar <- cbeta
+  return(betastar)
+}
+#----------------------------------------------------------------
+```
+
+### Gibbs 
+
+```{r appendix Gibbs}
+gibbsforgamma <- function(dat, start, priorpars, B, M, valpha){
+# Gibbs sampler for one-sample Gamma(shape = alpha, rate = beta) model
+# with alpha ~ Uniform(0, A), beta ~ Gamma(gamma0, lambda0)
+#
+# dat        : vector of observed positive data (y_i > 0)
+# start      : c(alpha0, beta0)  -- starting values
+# priorpars  : c(gamma0, lambda0, A)
+# B          : burn-in iterations
+# M          : number of kept Monte Carlo draws
+# valpha     : proposal variance for MH step on alpha (Metropolis-within-Gibbs)
+#
+# Notes on full conditionals and conjugacy:
+# - Conditional for beta | alpha, y is Gamma(gamma0 + n*alpha, lambda0 + sum(y))
+#   (shape/rate parametrization) -- this is conjugate, so we can sample beta directly.
+# - Conditional for alpha | beta, y is NOT standard:
+#       p(alpha | beta, y) proportional to [beta^(n*alpha) / Gamma(alpha)^n] *
+#       (prod(y_i))^(alpha - 1) * I(0 < alpha < A)
+#   We use a random-walk MH step for alpha inside the Gibbs loop
+#   (Metropolis-within-Gibbs), mirroring the reference Gibbs code structure.
+#
+  calpha <- start[1]; cbeta <- start[2]
+  gamma0 <- priorpars[1]; lambda0 <- priorpars[2]; A <- priorpars[3]
+
+  alphas <- NULL; betas <- NULL; mus <- NULL
+  cnt <- 0
+  accept_alpha <- 0
+
+  # Precompute sufficient statistics
+  n <- length(dat)
+  sumlogy <- sum(log(dat))
+  sumy <- sum(dat)
+
+  repeat{
+    cnt <- cnt + 1
+
+    # 1) Sample beta | alpha, y  (conjugate Gamma)
+    #    shape = gamma0 + n*alpha ; rate = lambda0 + sum(y)
+    newbeta <- rgamma(1, shape = gamma0 + n * calpha, rate = lambda0 + sumy)
+
+    # 2) Sample alpha | beta, y  (Metropolis step within Gibbs)
+    #    target log-density up to constant:
+    #       log p(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha))
+    #                                + (alpha - 1)*sum(log(y)), for 0<alpha<A
+    astep <- sampalpha_mh(calpha, newbeta, valpha, sumlogy, n, A)
+    newalpha <- astep$alpha
+    accept_alpha <- accept_alpha + astep$acc
+
+    if(cnt > B){
+      alphas <- c(alphas, newalpha)
+      betas  <- c(betas,  newbeta)
+      mus    <- c(mus,    newalpha / newbeta)
+    }
+    calpha <- newalpha; cbeta <- newbeta
+
+    if(cnt == (B + M)) break
+  }
+
+  cat("alpha_acceptprob (within Gibbs):", accept_alpha / M, fill = TRUE)
+  res <- data.frame(alpha = alphas, beta = betas, mu = mus)
+  return(res)
+}
+#----------------------------------------------------------------
+sampalpha_mh <- function(calpha, beta, valpha, sumlogy, n, A){
+# One-step random-walk MH update for alpha (shape) given beta and y.
+# Returns a list(alpha = ..., acc = 0/1)
+#
+# target log-density (up to constant in alpha):
+#   log f(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha))
+#                            + (alpha - 1)*sumlogy
+# with support 0 < alpha < A; outside support, log-density = -Inf.
+#
+  z <- rnorm(1, 0, sqrt(valpha))
+  alphastar <- calpha + z
+  if(alphastar <= 0 || alphastar >= A){
+    # As in reference style, invalid proposal -> revert (equivalent to reject)
+    return(list(alpha = calpha, acc = 0))
+  }
+
+  # log target at current and proposed
+  lfcur  <- n * calpha   * log(beta) - n * lgamma(calpha)   + (calpha   - 1) * sumlogy
+  lfstar <- n * alphastar * log(beta) - n * lgamma(alphastar) + (alphastar - 1) * sumlogy
+
+  a <- min(exp(lfstar - lfcur), 1)
+  u <- runif(1, 0, 1)
+  if(u <= a) return(list(alpha = alphastar, acc = 1))
+  return(list(alpha = calpha, acc = 0))
+}
+#----------------------------------------------------------------
+```

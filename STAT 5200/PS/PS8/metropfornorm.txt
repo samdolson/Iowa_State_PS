@@ -1,0 +1,61 @@
+metropfornorm<-function(dat,start,priorpars,jumpvars,B,M){
+#Metropolis for normal data model with normal prior on mu and
+#inverse gamma prior on sig2
+#dat is vector of observed data
+#start is mu0, sig20
+#priorpars are lam, tau2, alp, bet
+#jumpvars are variances for random walk jump proposals
+#B is burn-in, M is desired MC sample size
+#
+cmu<-start[1]; csig2<-start[2]
+lam<-priorpars[1]; tau2<-priorpars[2]
+alp<-priorpars[3]; bet<-priorpars[4]
+vmu<-jumpvars[1]; vsig2<-jumpvars[2]
+mus<-NULL; sig2s<-NULL
+acceptind<-0
+cnt<-0
+repeat{
+ cnt<-cnt+1
+ mustar<-proposemu(cmu,vmu)
+ sig2star<-proposesig2(csig2,vsig2)
+#cat("sig2star:",sig2star,fill=TRUE)
+ lfcur<-sum(log(dnorm(dat,cmu,sqrt(csig2))))
+ lfstar<-sum(log(dnorm(dat,mustar,sqrt(sig2star))))
+ lpicur<-(-1)*(alp+1)*log(csig2)-(1/(2*tau2))*(cmu-lam)^2 - (bet/csig2)
+ lpistar<-(-1)*(alp+1)*log(sig2star)-(1/(2*tau2))*(mustar-lam)^2 - (bet/sig2star)
+ astar<-min(exp((lfstar+lpistar)-(lfcur+lpicur)),1)
+ ustar<-runif(1,0,1)
+ newmu<-cmu; newsig2<-csig2
+ if(ustar<=astar){newmu<-mustar; newsig2<-sig2star; acceptind<-acceptind+1}
+ if(cnt>B){
+ mus<-c(mus,newmu)
+ sig2s<-c(sig2s,newsig2)}
+ cmu<-newmu; csig2<-newsig2
+ if(cnt==(B+M)) break
+ }
+cat("acceptprob:",acceptind/M,fill=TRUE)
+res<-data.frame(mu=mus,sig2=sig2s)
+return(res)
+}
+#-------------------------------------------------------------
+proposemu<-function(cmu,vmu){
+#propose jump from random walk for mu
+#cmu is current value of mu
+#vmu is proposal variance
+#
+z<-rnorm(1,0,sqrt(vmu))
+mustar<-cmu+z
+return(mustar)
+}
+#---------------------------------------------------------------
+proposesig2<-function(csig2,vsig2){
+#propose jump from random walk for sig2
+#csig2 is current value of sig2
+#vsig2 is proposal variance
+#
+z<-rnorm(1,0,sqrt(vsig2))
+sig2star<-csig2+z
+if(sig2star<=0) sig2star<-csig2
+return(sig2star)
+}
+#---------------------------------------------------------------
