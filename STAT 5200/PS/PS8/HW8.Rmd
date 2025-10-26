@@ -41,6 +41,7 @@ This gives prior expectation of 5.0 and prior variance of 50. The prior does foc
 
 ```{r}
 gammaDat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/gammadat_bayes.txt", header = T)
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/sourceHW.R")
 ```
 
 \newpage
@@ -135,135 +136,94 @@ Provide (with supporting evidence if appropriate):
 
 ### Answer
 
-```{r}
-set.seed(43)                 
-y <- as.numeric(gammaDat[[1]]) 
+```{r, eval = T, echo = F, warning = F, message = F}
+set.seed(43)
+y <- as.numeric(gammaDat$y)
 
-## MOM for Gamma(shape=alpha, rate=beta):
-##   alpha0 = m^2 / v,  beta0 = alpha0 / m
+m <- mean(y); v <- var(y)
 alpha0 <- if (v > 0) (m^2 / v) else 1.0
-# keep inside (0, A) with a little margin
-alpha0 <- max(0.10, min(alpha0, 19.9))      
-# positive rate
-beta0  <- max(1e-6, alpha0 / max(m, 1e-6))  
-
+alpha0 <- max(0.10, min(alpha0, 19.9))
+beta0  <- max(1e-6, alpha0 / max(m, 1e-6))
 start1 <- c(alpha0, beta0)
 
 valpha <- (0.20 * alpha0)^2
 vbeta  <- (0.20 * beta0)^2
 jumpvars1 <- c(valpha, vbeta)
 
-start1
-jumpvars1
-```
+## Pilot / diagnostics with B=0 to *see* transients
+j_diag <- metropforgamma(
+  dat = y,
+  start = start1,
+  priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20),
+  jumpvars = jumpvars1,
+  B = 0,
+  M = 50000
+)
 
-```{r, cache = T}
-j1 <- metropforgamma(dat = gammaDat, 
-               start = start1, 
-               priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20), 
-               jumpvars = jumpvars1, 
-               B = 0, 
-               M = 50000)
-
-j2 <- metropforgamma(dat = gammaDat, 
-               start = start1, 
-               priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20), 
-               jumpvars = jumpvars1, 
-               B = 1000, 
-               M = 50000)
-
-j3 <- metropforgamma(dat = gammaDat, 
-               start = start1, 
-               priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20), 
-               jumpvars = jumpvars1+0.5, 
-               B = 0, 
-               M = 50000)
-
-j4 <- metropforgamma(dat = gammaDat, 
-               start = start1, 
-               priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20), 
-               jumpvars = jumpvars1+1, 
-               B = 0, 
-               M = 50000)
-```
-
-```{r}
-acc1 <- attr(j1, "acceptprob")
-acc2 <- attr(j2, "acceptprob")
-acc3 <- attr(j3, "acceptprob")
-acc4 <- attr(j4, "acceptprob")
-acc1; acc2; acc3; acc4
-```
-
-```{r}
 runmean <- function(x) cumsum(x) / seq_along(x)
 
-# par(mfrow = c(2,2))
-plot(j1$alpha, type="l", main="alpha trace (j1)", ylim = c(16, 22))
-# lines(j1$alpha, col=1)
-lines(j2$alpha, col=1)
-lines(j3$alpha, col=2)
-# lines(j4$alpha, col=4)
+## Visually pick burn-in (no z-scores): set B_line to what you’ll justify in text
+B_line <- 5000L   # <- conservative choice you’ll justify from the plots
 
+par(mfrow = c(2,2))
+plot(j_diag$alpha, type="l", main="alpha trace (B=0)", xlab="iter")
+abline(v = B_line, col=2, lty=2, lwd=2)
+lines(runmean(j_diag$alpha), col=4)
 
-plot(j1$beta,  type="l", main="beta trace (j1)", ylim = c(0, 0.1))
-# lines(j1$beta,  col=1)
-lines(j2$beta, col=1)
-lines(j3$beta, col=2)
-# lines(j4$beta, col=4)
+plot(j_diag$beta,  type="l", main="beta trace (B=0)",  xlab="iter")
+abline(v = B_line, col=2, lty=2, lwd=2)
+lines(runmean(j_diag$beta), col=4)
 
-plot(j1$mu,    type="l", main="mu trace (j1)", ylim = c(0, 2000))
-# lines(j1$mu,  col=1)
-lines(j2$mu, col=1)
-lines(j3$mu, col=2)
-# lines(j4$mu, col=4)
-
-acf(j1$alpha, lag.max = 500, main="ACF alpha (j1)")
-acf(j1$alpha, lag.max = 500, main="ACF alpha (j1)", ylim = c(-.1, 0.1))
-# par(mfrow = c(1,1))
+acf(j_diag$alpha, lag.max = 400, main="ACF alpha (full)")
+acf(j_diag$beta,  lag.max = 400, main="ACF beta (full)")
+par(mfrow = c(1,1))
 ```
 
-A Burn-In Period of around 500 seems appropriate. 
+We start with our initial values given in the problem statement. We run a sampling procedure without any tuning, first to determine a suitable Burn-In period. 
 
-```{r, cache = T}
-scales <- c(0.5, 1.0, 1.5, 2.0)
-tune <- lapply(scales, function(s){
-  j <- metropforgamma(dat = y, start = start1,
-                      priorpars = c(0.5, 0.1, 20),
-                      jumpvars = jumpvars1 * s^2,
-                      B = 2000, M = 8000)
-  list(scale = s, acc = attr(j,"acceptprob"))
-})
-do.call(rbind, lapply(tune, as.data.frame))
+To that end, we use a "running mean" (blue) to get a sense of when variability in the parameter "stabilizes". We see that by iteration 2,000-3,000, the ACFs decay rapidly; to stay on the conservative side, we double this and set that equal to our Burn-In period, settling on a Burn-In period of 5,000. 
+
+We then have some additional tuning. 
+
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
+scales <- c(0.5, 0.8, 1.0, 1.2, 1.5)
+tune_tab <- do.call(rbind, lapply(scales, function(s){
+  j <- metropforgamma(
+    dat = y, start = start1,
+    priorpars = c(0.5, 0.1, 20),
+    jumpvars = jumpvars1 * s^2,
+    B = 2000, M = 8000
+  )
+  data.frame(scale = s,
+             valpha = (jumpvars1[1] * s^2),
+             vbeta  = (jumpvars1[2] * s^2),
+             accept = attr(j, "acceptprob"))
+}))
+tune_tab
 ```
 
-```{r, cache = T}
-final <- metropforgamma(dat = y,
-                        start = start1,
-                        priorpars = c(0.5, 0.1, 20),
-                        jumpvars = jumpvars1 * 1.2^2,  # from tuning above
-                        B = 5000,
-                        M = 50000)
+We "tune" by considering a range of parameter values; this involves tuning the random-walk variances to reach a Metropolis-Hastings acceptance rate somewhere in the range of 20-60%, which is a heuristic noted in Chapter 7 notes on Simulation. Ultimately, we decided on using a "scale" of 1.2, corresponding to `jumpvars = jumpvars * 1.2^2`. 
+
+This then leads us to run the whole simulation procedure again, this time with the suitable Burn-In Period and tuned parameters. 
+
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
+final <- metropforgamma(
+  dat = y,
+  start = start1,
+  priorpars = c(0.5, 0.1, 20),
+  jumpvars = jumpvars1 * 1.2^2,   # from tuning above
+  B = 5000,                       # chosen visually from traces/ACFs
+  M = 50000
+)
 acc_final <- attr(final, "acceptprob")
-acc_final
-```
 
-```{r}
 alpha <- final$alpha
 beta  <- final$beta
 mu    <- final$mu
 
-## five-number summaries
-fivenum_alpha <- fivenum(alpha)
-fivenum_beta  <- fivenum(beta)
-fivenum_mu    <- fivenum(mu)
-
-## 95% central credible intervals
-ci_alpha <- quantile(alpha, c(0.025, 0.975))
-ci_beta  <- quantile(beta,  c(0.025, 0.975))
-ci_mu    <- quantile(mu,    c(0.025, 0.975))
-
-## correlation between alpha and beta in the chain
+fivenum_alpha <- fivenum(alpha);  ci_alpha <- quantile(alpha, c(0.025, 0.975))
+fivenum_beta  <- fivenum(beta);   ci_beta  <- quantile(beta,  c(0.025, 0.975))
+fivenum_mu    <- fivenum(mu);     ci_mu    <- quantile(mu,    c(0.025, 0.975))
 corr_ab <- cor(alpha, beta)
 
 list(
@@ -272,20 +232,12 @@ list(
   ci_95   = list(alpha = ci_alpha, beta = ci_beta, mu = ci_mu),
   corr_ab = corr_ab
 )
-```
 
-```{r}
-# par(mfrow = c(1,3))
-hist(alpha, breaks = "FD", main = expression(paste("Posterior of ", alpha)),
-     xlab = expression(alpha))
-abline(v = ci_alpha, lty = 2)
-hist(beta, breaks = "FD", main = expression(paste("Posterior of ", beta)),
-     xlab = expression(beta))
-abline(v = ci_beta, lty = 2)
-hist(mu, breaks = "FD", main = expression(paste("Posterior of ", mu, " = ", alpha, "/", beta)),
-     xlab = expression(mu))
-abline(v = ci_mu, lty = 2)
-# par(mfrow = c(1,1))
+par(mfrow = c(1,3))
+hist(alpha, breaks="FD", main=expression(paste("Posterior of ", alpha)), xlab=expression(alpha)); abline(v=ci_alpha, lty=2)
+hist(beta,  breaks="FD", main=expression(paste("Posterior of ", beta)),  xlab=expression(beta));  abline(v=ci_beta,  lty=2)
+hist(mu,    breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)), xlab=expression(mu)); abline(v=ci_mu, lty=2)
+par(mfrow = c(1,1))
 ```
 
 \newpage
@@ -296,54 +248,51 @@ Using both the 75th percentile and the range as data characteristics of potentia
 
 ### Answer
 
-```{r}
-set.seed(43)  
+We then do additional posterior predictive checks to validate the results of our simulation. 
 
-# 1) Inputs (adjust names if needed)
-# y    : numeric vector of observed data (length n, y > 0)
-# post : data.frame with columns 'alpha' and 'beta' (posterior draws)
-post <- final
-stopifnot(is.numeric(y), all(y > 0), is.data.frame(post),
-          all(c("alpha","beta") %in% names(post)))
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
+## Posterior predictive p-values (inclusive)
+set.seed(43)
 
+Q1 <- function(z) as.numeric(quantile(z, 0.75))
+Q2 <- function(z) diff(range(z))
+
+Q_obs1 <- Q1(y); Q_obs2 <- Q2(y)
+
+S <- length(alpha)   # kept draws
 n <- length(y)
 
-# 2) Observed test statistics
-stat_q75   <- function(x) as.numeric(quantile(x, 0.75, type = 7))
-stat_range <- function(x) diff(range(x))
+## Preallocate 2 x S (rows = stats, cols = draws)
+yrep_stats <- matrix(NA_real_, nrow = 2, ncol = S)
 
-Tobs_q75   <- stat_q75(y)
-Tobs_range <- stat_range(y)
-
-# 3) Choose 10,000 posterior draws to use
-ndraws <- 10000L
-idx <- sample.int(nrow(post), size = ndraws,
-                  replace = nrow(post) < ndraws)
-
-a_draws <- post$alpha[idx]
-b_draws <- post$beta[idx]
-
-# 4) Generate posterior predictive datasets and compute replicated stats
-#    (One-sided ppp: proportion of T(y_rep) >= T(y_obs))
-Trep_q75   <- numeric(ndraws)
-Trep_range <- numeric(ndraws)
-
-for(k in seq_len(ndraws)){
-  yrep <- rgamma(n, shape = a_draws[k], rate = b_draws[k])
-  Trep_q75[k]   <- stat_q75(yrep)
-  Trep_range[k] <- stat_range(yrep)
+for (s in seq_len(S)) {
+  yrep <- rgamma(n, shape = alpha[s], rate = beta[s])
+  yrep_stats[1, s] <- Q1(yrep)
+  yrep_stats[2, s] <- Q2(yrep)
 }
 
-ppp_q75   <- mean(Trep_q75   >= Tobs_q75)
-ppp_range <- mean(Trep_range >= Tobs_range)
+p_up_Q1  <- mean(yrep_stats[1, ] >= Q_obs1)
+p_low_Q1 <- mean(yrep_stats[1, ] <= Q_obs1)
+p_up_Q2  <- mean(yrep_stats[2, ] >= Q_obs2)
+p_low_Q2 <- mean(yrep_stats[2, ] <= Q_obs2)
 
-# 5) Report
 list(
-  observed_stats = c(q75 = Tobs_q75, range = Tobs_range),
-  ppp_values     = c(q75 = ppp_q75, range = ppp_range),
-  notes = "ppp = Pr{ T(y_rep) >= T(y_obs) | data } using 10,000 posterior predictive datasets"
+  ppp_75th  = c(p_low = p_low_Q1, p_up = p_up_Q1),
+  ppp_range = c(p_low = p_low_Q2, p_up = p_up_Q2)
 )
+
+# yrep_stats <- vapply(
+#   seq_len(S),
+#   function(s) {
+#     yrep <- rgamma(n, shape = alpha[s], rate = beta[s])
+#     c(Q1(yrep), Q2(yrep))
+#   },
+#   FUN.VALUE = numeric(2L)
+# )
+# yrep_stats now has 2 rows (stats) x S columns (draws)
 ```
+
+Generally, we want posterior predictive p-values that are not too large and not too small (so somewhere in the range of 0.2 to 0.7, or so); the values we observe for the statitics of interest seem suitable. 
 
 \newpage
 
@@ -368,126 +317,146 @@ Denote $S_1=\sum_{i=1}^n \log y_i$ and $S_2=\sum_{i=1}^n y_i$.
 The joint posterior (up to a constant) is
 
 $$
-\pi(\alpha,\beta\mid y)\ \propto
-\underbrace{\beta^{n\alpha},e^{-\beta S_2}}*{\text{likelihood in }\beta};
-\underbrace{\dfrac{e^{(\alpha-1)S_1}}{\Gamma(\alpha)^n}}*{\text{likelihood in }\alpha};
-\underbrace{\beta^{\gamma_0-1}e^{-\lambda_0\beta}}*{\text{prior for }\beta};
-\underbrace{\mathbf 1*{(0,A)}(\alpha)}_{\text{prior for }\alpha}.
+\pi(\alpha,\beta \mid y)
+\propto
+\beta^{n\alpha} e^{-\beta S_2}
+\frac{e^{(\alpha-1)S_1}}{[\Gamma(\alpha)]^{n}}
+\beta^{\gamma_0-1} e^{-\lambda_0\beta}
+\mathbb{1}_{(0,A)}(\alpha)
 $$
 
 Collecting terms in $\beta$ gives the kernel
 
 $$
-\beta^{,n\alpha+\gamma_0-1}\exp!\big(-(\lambda_0+S_2)\beta\big),
+\beta^{n\alpha+\gamma_0-1}\exp\big(-(\lambda_0+S_2)\beta\big)
 $$
 
 so
 
 $$
-\boxed{\ \beta\mid \alpha,y\ \sim\ \mathrm{Gamma}!\left(\ \gamma_0+n\alpha,\ \lambda_0+S_2\ \right)\ }\quad\text{(rate)}.
+\beta\mid \alpha,y\ \sim\ \mathrm{Gamma}\left(\ \gamma_0+n\alpha,\ \lambda_0+S_2\ \right)\
 $$
 
 Collecting terms in $\alpha$ yields
 
 $$
 \pi(\alpha\mid \beta,y)\ \propto
-\exp!\Big(n\alpha\log\beta - n\log\Gamma(\alpha) + (\alpha-1)S_1\Big);\mathbf 1_{(0,A)}(\alpha),
+\exp\Big(n\alpha\log\beta - n\log\Gamma(\alpha) + (\alpha-1)S_1\Big)\mathbf 1_{(0,A)}(\alpha)
 $$
 
-which is **not** a standard family (because of $\log\Gamma(\alpha)$). Therefore $\alpha$ is updated by a **random-walk Metropolis** step inside the Gibbs sampler (Metropolis-within-Gibbs), with proposals constrained to $(0,A)$.
+which is not a standard family (because of $\log\Gamma(\alpha)$). Therefore $\alpha$ is updated by a random-walk Metropolis step inside the Gibbs sampler (Metropolis-within-Gibbs), with proposals constrained to $(0,A)$.
 
-```{r, cache = T}
-## ---- diagnostic chain: keep all draws (no burn-in) ----------------------
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
+## ---- Gibbs: diagnostics first (no burn-in) ------------------------------
 set.seed(43)
-y <- as.numeric(gammaDat[[1]])
+
+y <- as.numeric(gammaDat$y)
 A <- 20
 m <- mean(y); v <- var(y)
+
 alpha0 <- max(0.10, min(ifelse(v > 0, m^2 / v, 1.0), A - 0.1))
 beta0  <- max(1e-6, alpha0 / max(m, 1e-6))
-start <- c(alpha0, beta0)
+start  <- c(alpha0, beta0)
 priorpars <- c(gamma0 = 0.5, lambda0 = 0.1, A = A)
 
-## Pilot to set valpha (as you did)
+## Metropolis-within-Gibbs: only alpha uses MH; tune its variance
 valpha <- (0.15 * alpha0)^2
 
-## Keep everything (no burn-in) for diagnostics:
-diag_all <- gibbsforgamma(dat = y, start = start, priorpars = priorpars,
-                          B = 0, M = 60000, valpha = valpha)
+## Keep everything for visual diagnostics
+diag_all <- gibbsforgamma(
+  dat = y, start = start, priorpars = priorpars,
+  B = 0, M = 60000, valpha = valpha
+)
 
 alpha_all <- diag_all$alpha
 beta_all  <- diag_all$beta
-
-## Helper: choose burn-in by running-mean stabilization
-pick_burnin <- function(x, tol = 0.01, K = 2000){
-  n <- length(x)
-  if(n <= K) return(0L)
-  rm <- cumsum(x) / seq_along(x)
-  ref <- mean(x[(n-K+1):n])                  # reference mean = last K draws
-  band <- tol * max(1e-12, abs(ref))
-  ok <- abs(rm - ref) <= band
-  # earliest t such that the next K values all satisfy the band
-  for(t in seq_len(n - K)){
-    if(all(ok[t:(t+K-1)])) return(t)
-  }
-  return(0L)
-}
-
-B_alpha <- pick_burnin(alpha_all, tol = 0.01, K = 2000)
-B_beta  <- pick_burnin(beta_all,  tol = 0.01, K = 2000)
-B_chosen <- max(B_alpha, B_beta)  # conservative choice
-
-B_alpha; B_beta; B_chosen
+mu_all    <- diag_all$mu
 
 runmean <- function(x) cumsum(x) / seq_along(x)
 
-# par(mfrow = c(2,2))
-plot(alpha_all, type="l", main = "alpha trace (full, B=0)")
-abline(v = B_chosen, col = 2, lwd = 2, lty = 2)
-lines(runmean(alpha_all), col = 4)
+## Visually chosen burn-in (set after inspecting plots)
+B_line <- 5000L   # <- state this choice in your text, justified by the plots
 
-plot(beta_all,  type="l", main = "beta trace (full, B=0)")
-abline(v = B_chosen, col = 2, lwd = 2, lty = 2)
-lines(runmean(beta_all), col = 4)
+par(mfrow = c(2,2))
+plot(alpha_all, type="l", main="alpha trace (B=0)", xlab="iter", ylab=expression(alpha))
+abline(v=B_line, col=2, lty=2, lwd=2); lines(runmean(alpha_all), col=4)
 
-acf(alpha_all, main = "ACF alpha (full)")
-acf(beta_all,  main = "ACF beta (full)")
-# par(mfrow = c(1,1))
+plot(beta_all,  type="l", main="beta trace (B=0)",  xlab="iter", ylab=expression(beta))
+abline(v=B_line, col=2, lty=2, lwd=2); lines(runmean(beta_all),  col=4)
 
-## Write-up sentence to include:
-## "Running means and traces stabilize within ≈2–3k iterations; we conservatively used B = 5,000."
+acf(alpha_all, lag.max=400, main="ACF alpha (full)")
+acf(beta_all,  lag.max=400, main="ACF beta (full)")
+par(mfrow = c(1,1))
+```
 
-# 5) Required summaries
-alpha <- gout$alpha; beta <- gout$beta; mu <- gout$mu
+We start with our initial values given in the problem statement. We run a sampling procedure without any tuning, first to determine a suitable Burn-In period. 
 
-# five-number summaries
-fivenum_alpha <- fivenum(alpha)
-fivenum_beta  <- fivenum(beta)
+Similar to Question 2, we use a "running mean" (blue) to get a sense of when variability in the parameter "stabilizes". We see that by iteration 2,000-3,000, the ACFs decay rapidly; to stay on the conservative side, we double this and set that equal to our Burn-In period, settling on a Burn-In period of 5,000. 
 
-# 95% central credible intervals
-ci_alpha <- quantile(alpha, c(0.025, 0.975))
-ci_beta  <- quantile(beta,  c(0.025, 0.975))
+Then, and again, similarly to question 2, we have some additional tuning to do: 
 
-# correlation between alpha and beta
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
+## helper: compute MH acceptance for alpha from the stored chain
+alpha_accept_from_chain <- function(alpha_chain) {
+  if (length(alpha_chain) < 2) return(NA_real_)
+  mean(alpha_chain[-1] != alpha_chain[-length(alpha_chain)])
+}
+
+scales <- c(0.7, 1.0, 1.2, 1.5)
+tune_tab <- do.call(rbind, lapply(scales, function(s){
+  j <- gibbsforgamma(
+    dat = y, start = start, priorpars = priorpars,
+    B = 2000, M = 8000,
+    valpha = valpha * s^2
+  )
+  data.frame(
+    scale   = s,
+    valpha  = valpha * s^2,
+    acc_alpha = if (!is.null(j$alpha_accept_overall))
+                  j$alpha_accept_overall
+                else
+                  alpha_accept_from_chain(j$alpha)
+  )
+}))
+tune_tab
+```
+
+And now with the suitable Burn-In period and tuned parameters, we run our full simulation using the Gibbs method: 
+
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
+## ---- Final production run with tuned valpha and chosen burn-in ---------- 
+final <- gibbsforgamma(
+  dat = y, start = start, priorpars = priorpars,
+  B = B_line, M = 50000,
+  valpha = valpha * 1.2^2   # pick from tune_tab row with good acc (~0.3–0.5)
+)
+acc_alpha_final <- if (!is.null(final$alpha_accept_overall)) final$alpha_accept_overall else NA_real_
+
+alpha <- final$alpha
+beta  <- final$beta
+mu    <- final$mu
+
+## Summaries
+fivenum_alpha <- fivenum(alpha);  ci_alpha <- quantile(alpha, c(0.025, 0.975))
+fivenum_beta  <- fivenum(beta);   ci_beta  <- quantile(beta,  c(0.025, 0.975))
+fivenum_mu    <- fivenum(mu);     ci_mu    <- quantile(mu,    c(0.025, 0.975))
 corr_ab <- cor(alpha, beta)
 
 list(
-  alpha_accept_overall = alpha_acc_overall,
-  alpha_accept_kept    = alpha_acc_kept,
-  five_num = list(alpha = fivenum_alpha, beta = fivenum_beta),
-  ci_95   = list(alpha = ci_alpha, beta = ci_beta),
+  valpha_final = valpha * 1.2^2,
+  alpha_accept_final = acc_alpha_final,
+  five_num = list(alpha = fivenum_alpha, beta = fivenum_beta, mu = fivenum_mu),
+  ci_95   = list(alpha = ci_alpha, beta = ci_beta, mu = ci_mu),
   corr_ab = corr_ab
 )
 ```
 
-```{r}
-# par(mfrow = c(1,2))
-hist(alpha, breaks = "FD", main = expression(paste("Posterior of ", alpha)),
-     xlab = expression(alpha))
-abline(v = ci_alpha, lty = 2)
-hist(beta, breaks = "FD", main = expression(paste("Posterior of ", beta)),
-     xlab = expression(beta))
-abline(v = ci_beta, lty = 2)
-# par(mfrow = c(1,1))
+```{r, eval = T, echo = F, warning = F, message = F}
+par(mfrow = c(1,3))
+hist(alpha, breaks="FD", main=expression(paste("Posterior of ", alpha)), xlab=expression(alpha)); abline(v=ci_alpha, lty=2)
+hist(beta,  breaks="FD", main=expression(paste("Posterior of ", beta)),  xlab=expression(beta));  abline(v=ci_beta,  lty=2)
+hist(mu,    breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)), xlab=expression(mu)); abline(v=ci_mu, lty=2)
+par(mfrow = c(1,1))
 ```
 
 \newpage
@@ -498,11 +467,12 @@ Using both the 75th percentile and the range as data characteristics of potentia
 
 ### Answer
 
-```{r}
+```{r, eval = T, echo = F, warning = F, message = F}
 ## ---- Q5: Posterior predictive checks (75th percentile & range) ----------
 set.seed(43)
 
-# 0) inputs
+gout <- final
+# 0) inputs (post–burn-in Gibbs draws)
 stopifnot(exists("gout"), is.data.frame(gout),
           all(c("alpha","beta") %in% names(gout)))
 stopifnot(exists("y"), is.numeric(y), all(y > 0))
@@ -516,9 +486,10 @@ stat_range <- function(x) diff(range(x))
 Tobs_q75   <- stat_q75(y)
 Tobs_range <- stat_range(y)
 
-# 2) choose 10,000 posterior draws (recycle with replacement if needed)
+# 2) choose posterior draws for PPC
 ndraws <- 10000L
-idx <- sample.int(nrow(gout), size = ndraws, replace = nrow(gout) < ndraws)
+K <- nrow(gout)
+idx <- if (K >= ndraws) sample.int(K, ndraws, replace = FALSE) else sample.int(K, ndraws, replace = TRUE)
 a_draws <- gout$alpha[idx]
 b_draws <- gout$beta[idx]
 
@@ -532,26 +503,31 @@ for(k in seq_len(ndraws)){
   Trep_range[k] <- stat_range(yrep)
 }
 
-# 4) one-sided posterior predictive p-values: Pr{ T(yrep) >= T(y) | y }
-ppp_q75   <- mean(Trep_q75   >= Tobs_q75)
-ppp_range <- mean(Trep_range >= Tobs_range)
+# 4) inclusive one-sided p-values and (optional) report both tails
+p_up_q75   <- mean(Trep_q75   >= Tobs_q75)
+p_low_q75  <- mean(Trep_q75   <= Tobs_q75)
+p_up_range <- mean(Trep_range >= Tobs_range)
+p_low_range<- mean(Trep_range <= Tobs_range)
 
-# 5) (optional) two-sided tail-areas around the replicated distribution center
+# 5) (optional) two-sided tail-area about the replicated median
 twosided <- function(Trep, Tobs){
   med <- median(Trep)
   mean(abs(Trep - med) >= abs(Tobs - med))
 }
-ppp_q75_2s   <- twosided(Trep_q75,   Tobs_q75)
-ppp_range_2s <- twosided(Trep_range, Tobs_range)
+p_2s_q75   <- twosided(Trep_q75,   Tobs_q75)
+p_2s_range <- twosided(Trep_range, Tobs_range)
 
 # 6) report
 list(
   observed_statistics = c(q75 = Tobs_q75, range = Tobs_range),
-  ppp_one_sided       = c(q75 = ppp_q75,  range = ppp_range),
-  ppp_two_sided       = c(q75 = ppp_q75_2s, range = ppp_range_2s),
-  notes = "Replicates drawn as yrep_i ~ Gamma(alpha_k, rate=beta_k) with i=1..n, k=1..10,000."
+  ppp_upper_inclusive = c(q75 = p_up_q75,  range = p_up_range),
+  ppp_lower_inclusive = c(q75 = p_low_q75, range = p_low_range),
+  ppp_two_sided_median = c(q75 = p_2s_q75, range = p_2s_range),
+  notes = "yrep_i ~ Gamma(alpha_k, rate=beta_k) for i=1..n; inclusive tail areas reported."
 )
 ```
+
+Generally, we want posterior predictive p-values that are not too large and not too small (so somewhere in the range of 0.2 to 0.7, or so); the values we observe for the statitics of interest do not seem suitable. Further comparison and analysis is discussed in Question 6. 
 
 \newpage
 
@@ -561,6 +537,8 @@ Compare your results from the use of Metropolis-Hastings and Gibbs Sampling.
 
 ### Answer
 
+
+
 \newpage 
 
 ## 7.
@@ -569,7 +547,7 @@ On this particular assignment, attach your R code for functions you programmed t
 
 ### Metropolis 
 
-```{r appendix Metropolis}
+```{r appendix Metropolis, echo = T, eval = F}
 metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
 # Metropolis for a one-sample Gamma(shape = alpha, rate = beta) model
 # with product prior: alpha ~ Uniform(0, A), beta ~ Gamma(gamma0, lambda0)
@@ -680,7 +658,7 @@ proposebeta <- function(cbeta, vbeta){
 
 ### Gibbs 
 
-```{r appendix Gibbs}
+```{r appendix Gibbs, echo = T, eval = F}
 gibbsforgamma <- function(dat, start, priorpars, B, M, valpha){
 # Gibbs sampler for one-sample Gamma(shape = alpha, rate = beta) model
 # with alpha ~ Uniform(0, A), beta ~ Gamma(gamma0, lambda0)
