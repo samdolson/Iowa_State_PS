@@ -39,9 +39,10 @@ $$
 
 This gives prior expectation of 5.0 and prior variance of 50. The prior does focus probability on smaller values, but still has $Pr(\beta > 10) = 0.16$.
 
-```{r}
+```{r, echo = F, warning = F, message = F}
 gammaDat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/gammadat_bayes.txt", header = T)
 source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/sourceHW.R")
+library(kableExtra)
 ```
 
 \newpage
@@ -64,27 +65,25 @@ Identify the appropriate acceptance probability for the jump proposal ($\alpha^*
 
 I believe this question is being asked in the abstract, i.e., not for the specific dataset in question. Under that pretense: 
 
-The target distribution for the Metropolis–Hastings algorithm is the joint posterior
+The target distribution for the Metropolis–Hastings algorithm is the joint posterior:
 
 $$
 \pi(\alpha, \beta \mid y) \propto L(y \mid \alpha, \beta)\,\pi_\alpha(\alpha)\,\pi_\beta(\beta)
 $$
 
-where the likelihood for independent $Y_i \sim \text{Gamma}(\alpha, \beta)$ is
+where $L$ denotes the likelihood (not log-transformed), and with the likelihood for independent $Y_i \sim \text{Gamma}(\alpha, \beta)$ given by: 
 
 $$
 L(y \mid \alpha, \beta)
 = \prod_{i=1}^n \frac{\beta^\alpha}{\Gamma(\alpha)} y_i^{\alpha-1} e^{-\beta y_i}
 $$
 
-If the proposal distribution is a product of independent random walks,
+If the proposal distribution is a product of independent random walks, then it must satisfy the relation: 
 
 $$
 q(\alpha^*, \beta^* \mid \alpha_m, \beta_m)
 = q_\alpha(\alpha^* \mid \alpha_m) q_\beta(\beta^* \mid \beta_m)
 $$
-
-and each random walk is symmetric, then the proposal densities cancel in the Hastings ratio.
 
 The acceptance probability is therefore
 
@@ -98,9 +97,9 @@ a\big((\alpha_m,\beta_m)\to(\alpha^*,\beta^*)\big)
 \right\}
 $$
 
-Because $\pi_\alpha(\alpha)$ is uniform on $(0, A)$, this implies that any proposal with $\alpha^* \notin (0, A)$ or $\beta^* \le 0$ is automatically rejected ($a = 0$).
+Because $\pi_\alpha(\alpha)$ is uniform on $(0, A)$, this implies that any proposal with $\alpha^* \notin (0, A)$ or $\beta^* \le 0$ is automatically rejected ($a = 0$). However, for our purposes we would want to use the log-likelihoods $\ell$, as it will enforce positive values for $\alpha, \beta$ respectively (and generally seems to "stabilize" the sampling method). 
 
-Using sufficient statistics $S_1 = \sum_{i=1}^n \log y_i$ and $S_2 = \sum_{i=1}^n y_i$, we can write
+Knowing the data model comes from a one-sample Gamma, we know it comes from the exponential dispersion family. This is used primarily to motivate knowing the form of the sufficient statistics, $S_1 = \sum_{i=1}^n \log y_i$ and $S_2 = \sum_{i=1}^n y_i$. With this, we can write: 
 
 $$
 \log r
@@ -110,13 +109,11 @@ $$
 - \lambda_0(\beta^* - \beta_m)
 $$
 
-and
+Such that we have the acceptance probability for the Metropolis–Hastings update of $(\alpha, \beta)$ (exactly) as: 
 
 $$
 a = \min\left\{ 1,\; \exp(\log r) \right\}
 $$
-
-This is the appropriate acceptance probability for the Metropolis–Hastings update of $(\alpha, \beta)$.
 
 \newpage
 
@@ -136,11 +133,31 @@ Provide (with supporting evidence if appropriate):
 
 ### Answer
 
-```{r, eval = T, echo = F, warning = F, message = F}
+To start, while not affecting the priors (in distribution or parameter value), we do want to look at the data to get our "initial" values. 
+
+Based on method of moments estimators, we have: 
+
+$\alpha_0 = \frac{\bar{y}}{s_{y}^2}\,, \beta_0 = \frac{\alpha_0}{\bar{y}}$
+
+Where $\bar{y}$ and $s_{y}^2$ are the sample mean and variance, respectively. 
+
+For both $\alpha_0$ and $\beta_0$, we will "impose" that any estimates or updates retain $\alpha_0, \beta_0 > 0$. 
+
+Additionally, given the hyperparameters to this problem, we also "impose" that $\alpha_0 < 20$. 
+
+We run a sampling procedure without any tuning, first to determine a suitable Burn-In period. 
+
+Note: Throughout the sampling procedure, we simulate $\alpha$ and $\beta$ simultaneously, which is important to keep later estimates of $\mu$ more comparable ("apples-to-apples"). Furthermore, the actual sampling is done using log likelihood, again, for the purpose of stability. 
+
+Our sample values provide a basis for determining our Burn-In Period. We use our Metropolis-Hastings algorithm for a rather large number (50,000) without *any* Burn-In, and then look at both the trace plots and autocorrelation plots (ACFs). With that, we have: 
+
+```{r, include = F, cache = T, eval = T, echo = F, warning = F, message = F}
 set.seed(43)
 y <- as.numeric(gammaDat$y)
 
-m <- mean(y); v <- var(y)
+m <- mean(y)
+v <- var(y)
+
 alpha0 <- if (v > 0) (m^2 / v) else 1.0
 alpha0 <- max(0.10, min(alpha0, 19.9))
 beta0  <- max(1e-6, alpha0 / max(m, 1e-6))
@@ -150,7 +167,6 @@ valpha <- (0.20 * alpha0)^2
 vbeta  <- (0.20 * beta0)^2
 jumpvars1 <- c(valpha, vbeta)
 
-## Pilot / diagnostics with B=0 to *see* transients
 j_diag <- metropforgamma(
   dat = y,
   start = start1,
@@ -159,84 +175,183 @@ j_diag <- metropforgamma(
   B = 0,
   M = 50000
 )
+```
 
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
 runmean <- function(x) cumsum(x) / seq_along(x)
 
-## Visually pick burn-in (no z-scores): set B_line to what you’ll justify in text
-B_line <- 5000L   # <- conservative choice you’ll justify from the plots
+# Burn-In 
+B_line <- 5000L   
 
-par(mfrow = c(2,2))
+par(mfrow = c(1,2))
 plot(j_diag$alpha, type="l", main="alpha trace (B=0)", xlab="iter")
 abline(v = B_line, col=2, lty=2, lwd=2)
+abline(v = B_line*2, col=2, lty=2, lwd=2)
 lines(runmean(j_diag$alpha), col=4)
 
 plot(j_diag$beta,  type="l", main="beta trace (B=0)",  xlab="iter")
 abline(v = B_line, col=2, lty=2, lwd=2)
-lines(runmean(j_diag$beta), col=4)
+abline(v = B_line*2, col=2, lty=2, lwd=2)
 
-acf(j_diag$alpha, lag.max = 400, main="ACF alpha (full)")
-acf(j_diag$beta,  lag.max = 400, main="ACF beta (full)")
+lines(runmean(j_diag$beta), col=4)
+par(mfrow = c(1,2))
+acf(j_diag$alpha, lag.max = 5000, main="ACF alpha (full)")
+acf(j_diag$beta,  lag.max = 5000, main="ACF beta (full)")
 par(mfrow = c(1,1))
 ```
 
-We start with our initial values given in the problem statement. We run a sampling procedure without any tuning, first to determine a suitable Burn-In period. 
+To that end, we use a "running mean" (blue) to get a sense of when variability in the parameter "stabilizes" in the Trace Plot graphs. We see that by iteration 5,000, $\alpha$ and $\beta$ samples tend to stabilize. Additionally, the ACFs decay rapidly (well before the 5,000); to stay on the conservative side, we double this and set that equal to our Burn-In period. 
 
-To that end, we use a "running mean" (blue) to get a sense of when variability in the parameter "stabilizes". We see that by iteration 2,000-3,000, the ACFs decay rapidly; to stay on the conservative side, we double this and set that equal to our Burn-In period, settling on a Burn-In period of 5,000. 
+Ultimately, we settle on a Burn-In period of 10,000. 
 
-We then have some additional tuning. 
+We then have some additional tuning. The general procedure is to "scale" the jump variance by some proportion of the original sample variance. To begin with, we settle on multipling the variance by some proportion, initially around 0.25 to 2, and then after iterating deciding on 0.5, 0.75, 1.0, 1.25, and 1.5. The acceptance probabilities for each of these scales are reported, using the Burn-In of 10,000. 
 
-```{r, cache = T, eval = T, echo = F, warning = F, message = F}
-scales <- c(0.5, 0.8, 1.0, 1.2, 1.5)
+```{r, include = F, cache = T, eval = T, echo = F, warning = F, message = F}
+scales <- c(0.5, 0.75, 1.0, 1.25, 1.5)
 tune_tab <- do.call(rbind, lapply(scales, function(s){
   j <- metropforgamma(
     dat = y, start = start1,
     priorpars = c(0.5, 0.1, 20),
     jumpvars = jumpvars1 * s^2,
-    B = 2000, M = 8000
+    B = 10000, M = 50000
   )
   data.frame(scale = s,
              valpha = (jumpvars1[1] * s^2),
              vbeta  = (jumpvars1[2] * s^2),
              accept = attr(j, "acceptprob"))
 }))
-tune_tab
+
 ```
 
-We "tune" by considering a range of parameter values; this involves tuning the random-walk variances to reach a Metropolis-Hastings acceptance rate somewhere in the range of 20-60%, which is a heuristic noted in Chapter 7 notes on Simulation. Ultimately, we decided on using a "scale" of 1.2, corresponding to `jumpvars = jumpvars * 1.2^2`. 
-
-This then leads us to run the whole simulation procedure again, this time with the suitable Burn-In Period and tuned parameters. 
-
 ```{r, cache = T, eval = T, echo = F, warning = F, message = F}
+kable(round(tune_tab, 4))
+```
+
+Our goal in tuning is to reach a Metropolis-Hastings acceptance rate somewhere in the range of 20-60%, which is a heuristic noted in the Chapter 7 notes on Simulation. Ultimately, we decided on using a "scale" of 1.25, which given the seed and method noted, gives us an acceptance probability around 16.5%. Note: While this is on the lower end, I ultimately wanted to scale the jump variance somewhat higher than the sample to allow for greater exploration of a wider range of possible values for the "jumps".  
+
+This then leads us to run the whole simulation procedure again, now using both the Burn-In period of 5,000 and the tuned parameters. 
+
+```{r, include = F, cache = T, eval = T, echo = F, warning = F, message = F}
 final <- metropforgamma(
   dat = y,
   start = start1,
   priorpars = c(0.5, 0.1, 20),
-  jumpvars = jumpvars1 * 1.2^2,   # from tuning above
-  B = 5000,                       # chosen visually from traces/ACFs
+  # from tuning
+  jumpvars = jumpvars1 * 1.25^2,   
+  B = 10000,                       
   M = 50000
 )
+
+```
+
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
+library(knitr)
+library(kableExtra)
+
 acc_final <- attr(final, "acceptprob")
-
-alpha <- final$alpha
-beta  <- final$beta
-mu    <- final$mu
-
+alpha <- final$alpha; beta <- final$beta; mu <- final$mu
 fivenum_alpha <- fivenum(alpha);  ci_alpha <- quantile(alpha, c(0.025, 0.975))
 fivenum_beta  <- fivenum(beta);   ci_beta  <- quantile(beta,  c(0.025, 0.975))
 fivenum_mu    <- fivenum(mu);     ci_mu    <- quantile(mu,    c(0.025, 0.975))
-corr_ab <- cor(alpha, beta)
+corr_ab <- cor(alpha, beta, use = "complete.obs")
 
-list(
-  accept = acc_final,
-  five_num = list(alpha = fivenum_alpha, beta = fivenum_beta, mu = fivenum_mu),
-  ci_95   = list(alpha = ci_alpha, beta = ci_beta, mu = ci_mu),
-  corr_ab = corr_ab
-)
+alphaMH <- alpha; betaMH <- beta; muMH <- mu
+ci_alphaMH <- ci_alpha; ci_betaMH <- ci_beta; ci_muMH <- ci_mu
 
+# Don't think I need this anymore
+esc <- function(x) gsub("%", "\\\\%", x, fixed = TRUE)
+
+one_method_tbl <- function(vec_list, method = NULL) {
+  out <- do.call(
+    rbind,
+    lapply(vec_list, function(x) {
+      fn <- fivenum(x)
+      ci <- quantile(x, c(0.025, 0.975), names = FALSE)
+      c(Min = fn[1], Q1 = fn[2], Median = fn[3], Q3 = fn[4], Max = fn[5],
+        "CI 2.5" = ci[1], "CI 97.5" = ci[2])
+    })
+  )
+  df <- data.frame(Parameter = names(vec_list), round(out, 4),
+                   row.names = NULL)
+  if (!is.null(method)) df <- cbind(Method = method, df)
+  df
+}
+
+mh_tbl <- one_method_tbl(list(alpha = alphaMH, beta = betaMH, mu = muMH), method = "MH")
+
+if (exists("alphaG") && exists("betaG") && exists("muG")) {
+  gibbs_tbl <- one_method_tbl(list(alpha = alphaG, beta = betaG, mu = muG), method = "Gibbs")
+  param_tbl <- rbind(mh_tbl, gibbs_tbl)
+} else {
+  param_tbl <- mh_tbl
+}
+
+kable(
+  param_tbl, booktabs = TRUE, escape = TRUE,
+  caption = esc("Posterior summaries: five-number statistics and 95 central credible intervals")
+) |>
+  kable_styling(full_width = FALSE, position = "center",
+                latex_options = c("hold_position","striped")) |>
+  column_spec(1, bold = TRUE) |>
+  add_header_above(c(" " = if ("Method" %in% names(param_tbl)) 2 else 1,
+                     "Posterior Summary" = ncol(param_tbl) -
+                       if ("Method" %in% names(param_tbl)) 2 else 1))
+
+
+nm <- names(param_tbl)
+
+ci_low  <- nm[grepl("^CI(\\.| )2\\.5",  nm)]
+ci_high <- nm[grepl("^CI(\\.| )97\\.5", nm)]
+
+cols_ci <- c(if ("Method" %in% nm) "Method", "Parameter", ci_low, ci_high)
+ci_only <- param_tbl[, cols_ci, drop = FALSE]
+
+names(ci_only)[names(ci_only) == ci_low]  <- "Lower 2.5"
+names(ci_only)[names(ci_only) == ci_high] <- "Upper 97.5"
+
+kable(
+  ci_only, booktabs = TRUE, escape = TRUE,
+  caption = esc("95 central credible intervals")
+) |>
+  kable_styling(full_width = FALSE, position = "center",
+                latex_options = c("hold_position","striped")) |>
+  column_spec(1, bold = TRUE)
+
+acc_vec <- as.numeric(acc_final)
+acc_names <- names(acc_final)
+if (is.null(acc_names)) {
+  acc_names <- if (length(acc_vec) == 1) "Overall" else paste0("Component_", seq_along(acc_vec))
+}
+acc_tbl <- data.frame(Component = acc_names,
+                      `Acceptance Rate` = paste0(round(100 * acc_vec, 1), "%"),
+                      row.names = NULL)
+
+kable(
+  acc_tbl, booktabs = TRUE, escape = TRUE,
+  caption = "Acceptance rates"
+) |>
+  kable_styling(full_width = FALSE, position = "center",
+                latex_options = c("hold_position","striped")) |>
+  column_spec(1, bold = TRUE)
+
+corr_mat <- matrix(c(1, corr_ab, corr_ab, 1), nrow = 2,
+                   dimnames = list(c("alpha","beta"), c("alpha","beta")))
+corr_df <- data.frame(Parameter = rownames(corr_mat), round(corr_mat, 4), row.names = NULL)
+
+kable(
+  corr_df, booktabs = TRUE, escape = TRUE,
+  caption = "Correlation matrix for alpha and beta"
+) |>
+  kable_styling(full_width = FALSE, position = "center",
+                latex_options = c("hold_position","striped")) |>
+  column_spec(1, bold = TRUE)
+```
+
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
 par(mfrow = c(1,3))
-hist(alpha, breaks="FD", main=expression(paste("Posterior of ", alpha)), xlab=expression(alpha)); abline(v=ci_alpha, lty=2)
-hist(beta,  breaks="FD", main=expression(paste("Posterior of ", beta)),  xlab=expression(beta));  abline(v=ci_beta,  lty=2)
-hist(mu,    breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)), xlab=expression(mu)); abline(v=ci_mu, lty=2)
+hist(alphaMH, breaks="FD", main=expression(paste("Posterior of ", alpha)), xlab=expression(alpha)); abline(v=ci_alpha, lty=2)
+hist(betaMH,  breaks="FD", main=expression(paste("Posterior of ", beta)),  xlab=expression(beta));  abline(v=ci_beta,  lty=2)
+hist(muMH,    breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)), xlab=expression(mu)); abline(v=ci_mu, lty=2)
 par(mfrow = c(1,1))
 ```
 
@@ -248,10 +363,9 @@ Using both the 75th percentile and the range as data characteristics of potentia
 
 ### Answer
 
-We then do additional posterior predictive checks to validate the results of our simulation. 
+We then do additional posterior predictive checks to validate the results of our simulation. Using the kept MH draws from the prior Question, we simulated 10,000 posterior predictive datasets. 
 
 ```{r, cache = T, eval = T, echo = F, warning = F, message = F}
-## Posterior predictive p-values (inclusive)
 set.seed(43)
 
 Q1 <- function(z) as.numeric(quantile(z, 0.75))
@@ -259,10 +373,9 @@ Q2 <- function(z) diff(range(z))
 
 Q_obs1 <- Q1(y); Q_obs2 <- Q2(y)
 
-S <- length(alpha)   # kept draws
+S <- length(alpha)   
 n <- length(y)
 
-## Preallocate 2 x S (rows = stats, cols = draws)
 yrep_stats <- matrix(NA_real_, nrow = 2, ncol = S)
 
 for (s in seq_len(S)) {
@@ -271,28 +384,29 @@ for (s in seq_len(S)) {
   yrep_stats[2, s] <- Q2(yrep)
 }
 
-p_up_Q1  <- mean(yrep_stats[1, ] >= Q_obs1)
-p_low_Q1 <- mean(yrep_stats[1, ] <= Q_obs1)
-p_up_Q2  <- mean(yrep_stats[2, ] >= Q_obs2)
-p_low_Q2 <- mean(yrep_stats[2, ] <= Q_obs2)
+# upper-tail PPP for 75th percentile
+ppp_Q75   <- mean(yrep_stats[1, ] >= Q_obs1)  
+# upper-tail PPP for range
+ppp_range <- mean(yrep_stats[2, ] >= Q_obs2)  
 
-list(
-  ppp_75th  = c(p_low = p_low_Q1, p_up = p_up_Q1),
-  ppp_range = c(p_low = p_low_Q2, p_up = p_up_Q2)
+library(knitr); library(kableExtra)
+ppp_tbl <- data.frame(
+  Statistic = c("75th percentile", "Range"),
+  Observed  = round(c(Q_obs1, Q_obs2), 4),
+  PPP       = round(c(ppp_Q75, ppp_range), 4),
+  check.names = FALSE
 )
 
-# yrep_stats <- vapply(
-#   seq_len(S),
-#   function(s) {
-#     yrep <- rgamma(n, shape = alpha[s], rate = beta[s])
-#     c(Q1(yrep), Q2(yrep))
-#   },
-#   FUN.VALUE = numeric(2L)
-# )
-# yrep_stats now has 2 rows (stats) x S columns (draws)
+kable(
+  ppp_tbl, booktabs = TRUE,
+  caption = "Posterior predictive p-values (upper tail) from 10,000 replicates"
+) |>
+  kable_styling(full_width = FALSE, position = "center",
+                latex_options = c("hold_position","striped")) |>
+  column_spec(1, bold = TRUE)
 ```
 
-Generally, we want posterior predictive p-values that are not too large and not too small (so somewhere in the range of 0.2 to 0.7, or so); the values we observe for the statitics of interest seem suitable. 
+Generally, we want posterior predictive p-values that are not too large and not too small (so somewhere in the range of 0.2 to 0.7, or so); the values we observe for the statistics of interest seem suitable. 
 
 \newpage
 
@@ -346,8 +460,11 @@ $$
 
 which is not a standard family (because of $\log\Gamma(\alpha)$). Therefore $\alpha$ is updated by a random-walk Metropolis step inside the Gibbs sampler (Metropolis-within-Gibbs), with proposals constrained to $(0,A)$.
 
-```{r, cache = T, eval = T, echo = F, warning = F, message = F}
-## ---- Gibbs: diagnostics first (no burn-in) ------------------------------
+Now, with that proof out the way, we can begin assessing a suitable Burn-In and tuning (which, given the priors, will be done solely on $\alpha$ given conditional conjugacy). 
+
+Similar to the MH method, we start by looking at trace plots and ACF plots with zero burn-in. Again, the fine details of the method are noted in the Appendix, but primarily focus on simulating $\alpha$ and $\beta$ simmultaneously, and working with the log-likelihood. 
+
+```{r, include = F, cache = T, eval = T, echo = F, warning = F, message = F}
 set.seed(43)
 
 y <- as.numeric(gammaDat$y)
@@ -359,54 +476,57 @@ beta0  <- max(1e-6, alpha0 / max(m, 1e-6))
 start  <- c(alpha0, beta0)
 priorpars <- c(gamma0 = 0.5, lambda0 = 0.1, A = A)
 
-## Metropolis-within-Gibbs: only alpha uses MH; tune its variance
+# Metropolis-within-Gibbs
+# only alpha uses MH
 valpha <- (0.15 * alpha0)^2
 
-## Keep everything for visual diagnostics
 diag_all <- gibbsforgamma(
   dat = y, start = start, priorpars = priorpars,
-  B = 0, M = 60000, valpha = valpha
+  B = 0, M = 50000, valpha = valpha
 )
+```
 
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
 alpha_all <- diag_all$alpha
 beta_all  <- diag_all$beta
 mu_all    <- diag_all$mu
 
 runmean <- function(x) cumsum(x) / seq_along(x)
 
-## Visually chosen burn-in (set after inspecting plots)
-B_line <- 5000L   # <- state this choice in your text, justified by the plots
+# Burn-In
+B_line <- 10000L
 
-par(mfrow = c(2,2))
+par(mfrow = c(1,2))
 plot(alpha_all, type="l", main="alpha trace (B=0)", xlab="iter", ylab=expression(alpha))
 abline(v=B_line, col=2, lty=2, lwd=2); lines(runmean(alpha_all), col=4)
+abline(v=B_line*2, col=2, lty=2, lwd=2)
 
 plot(beta_all,  type="l", main="beta trace (B=0)",  xlab="iter", ylab=expression(beta))
 abline(v=B_line, col=2, lty=2, lwd=2); lines(runmean(beta_all),  col=4)
+abline(v=B_line*2, col=2, lty=2, lwd=2)
 
-acf(alpha_all, lag.max=400, main="ACF alpha (full)")
-acf(beta_all,  lag.max=400, main="ACF beta (full)")
+par(mfrow = c(1,2))
+acf(alpha_all, lag.max=10000, main="ACF alpha (full)")
+acf(beta_all,  lag.max=10000, main="ACF beta (full)")
 par(mfrow = c(1,1))
 ```
 
-We start with our initial values given in the problem statement. We run a sampling procedure without any tuning, first to determine a suitable Burn-In period. 
+Similar to Question 2, we use a "running mean" (blue) to get a sense of when variability in the parameter "stabilizes". And again, similar (but different!) to Question 2, by iteration 10,000, the ACFs has decayed rapidly, and the trace plot has generally stabilized; to stay on the conservative side, we double this and set that equal to our Burn-In period, settling on a Burn-In period of 20,000. 
 
-Similar to Question 2, we use a "running mean" (blue) to get a sense of when variability in the parameter "stabilizes". We see that by iteration 2,000-3,000, the ACFs decay rapidly; to stay on the conservative side, we double this and set that equal to our Burn-In period, settling on a Burn-In period of 5,000. 
+For tuning then, we again scale our $\alpha$ variance in increments of 0.25, considering the same range of scales, and targeting an acceptance probability around 20-60%. However, given this is using the Gibbs sampling method, I am cautious about not properly "mixing", so apriori I will prioritize lower acceptance proabilities (we will accept more sampling that don't make a "jump", where by comparisons the MH algorithm will actively discard unsuitable "jump" candidates). 
 
-Then, and again, similarly to question 2, we have some additional tuning to do: 
-
-```{r, cache = T, eval = T, echo = F, warning = F, message = F}
-## helper: compute MH acceptance for alpha from the stored chain
+```{r, include = F, cache = T, eval = T, echo = F, warning = F, message = F}
+# compute MH acceptance for alpha from the stored chain
 alpha_accept_from_chain <- function(alpha_chain) {
   if (length(alpha_chain) < 2) return(NA_real_)
   mean(alpha_chain[-1] != alpha_chain[-length(alpha_chain)])
 }
 
-scales <- c(0.7, 1.0, 1.2, 1.5)
+scales <- c(0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0)
 tune_tab <- do.call(rbind, lapply(scales, function(s){
   j <- gibbsforgamma(
     dat = y, start = start, priorpars = priorpars,
-    B = 2000, M = 8000,
+    B = 20000, M = 50000,
     valpha = valpha * s^2
   )
   data.frame(
@@ -418,44 +538,93 @@ tune_tab <- do.call(rbind, lapply(scales, function(s){
                   alpha_accept_from_chain(j$alpha)
   )
 }))
-tune_tab
 ```
 
-And now with the suitable Burn-In period and tuned parameters, we run our full simulation using the Gibbs method: 
-
 ```{r, cache = T, eval = T, echo = F, warning = F, message = F}
-## ---- Final production run with tuned valpha and chosen burn-in ---------- 
+kable(round(tune_tab, 4))
+```
+
+Given the scaling of 2.0, with acceptance probability around 19.1%, we now have both a suitable Burn-In Period and tuned parameters for our "full simulation" via Gibbs. 
+
+```{r, include = F, cache = T, eval = T, echo = F, warning = F, message = F}
+B_line <- 20000L 
+
 final <- gibbsforgamma(
   dat = y, start = start, priorpars = priorpars,
   B = B_line, M = 50000,
-  valpha = valpha * 1.2^2   # pick from tune_tab row with good acc (~0.3–0.5)
+  # tuning parameter
+  valpha = valpha * 2^2   
 )
+```
+
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
 acc_alpha_final <- if (!is.null(final$alpha_accept_overall)) final$alpha_accept_overall else NA_real_
 
 alpha <- final$alpha
 beta  <- final$beta
-mu    <- final$mu
+mu    <- final$mu 
 
-## Summaries
-fivenum_alpha <- fivenum(alpha);  ci_alpha <- quantile(alpha, c(0.025, 0.975))
-fivenum_beta  <- fivenum(beta);   ci_beta  <- quantile(beta,  c(0.025, 0.975))
-fivenum_mu    <- fivenum(mu);     ci_mu    <- quantile(mu,    c(0.025, 0.975))
-corr_ab <- cor(alpha, beta)
+fivenum_alpha <- fivenum(alpha)
+fivenum_beta  <- fivenum(beta)
+ci_alpha <- quantile(alpha, c(0.025, 0.975), names = FALSE)
+ci_beta  <- quantile(beta,  c(0.025, 0.975), names = FALSE)
 
-list(
-  valpha_final = valpha * 1.2^2,
-  alpha_accept_final = acc_alpha_final,
-  five_num = list(alpha = fivenum_alpha, beta = fivenum_beta, mu = fivenum_mu),
-  ci_95   = list(alpha = ci_alpha, beta = ci_beta, mu = ci_mu),
-  corr_ab = corr_ab
+corr_ab <- cor(alpha, beta, use = "complete.obs")
+
+library(knitr)
+library(kableExtra)
+
+esc <- function(x) gsub("%", "\\%", x, fixed = TRUE)
+
+summ_tbl <- data.frame(
+  Parameter = c("alpha","beta"),
+  Min    = c(fivenum_alpha[1], fivenum_beta[1]),
+  Q1     = c(fivenum_alpha[2], fivenum_beta[2]),
+  Median = c(fivenum_alpha[3], fivenum_beta[3]),
+  Q3     = c(fivenum_alpha[4], fivenum_beta[4]),
+  Max    = c(fivenum_alpha[5], fivenum_beta[5]),
+  `CI 2.5%`  = c(ci_alpha[1], ci_beta[1]),
+  `CI 97.5%` = c(ci_alpha[2], ci_beta[2]),
+  check.names = FALSE
 )
+summ_tbl[,-1] <- lapply(summ_tbl[,-1], function(z) round(as.numeric(z), 4))
+names(summ_tbl) <- esc(names(summ_tbl))
+
+kable(
+  summ_tbl, booktabs = TRUE, escape = TRUE,
+  caption = esc("Posterior summaries for alpha and beta: five-number statistics and 95 central credible intervals")
+) |>
+  kable_styling(full_width = FALSE, position = "center",
+                latex_options = c("hold_position","striped")) |>
+  column_spec(1, bold = TRUE) |>
+  add_header_above(c(" " = 1, "Posterior Summary" = ncol(summ_tbl) - 1))
+
+corr_mat <- matrix(c(1, corr_ab, corr_ab, 1), nrow = 2,
+                   dimnames = list(c("alpha","beta"), c("alpha","beta")))
+corr_df <- data.frame(Parameter = rownames(corr_mat), round(corr_mat, 4), row.names = NULL)
+names(corr_df) <- esc(names(corr_df))
+
+kable(
+  corr_df, booktabs = TRUE, escape = TRUE,
+  caption = "Correlation matrix for alpha and beta (from Markov chain)"
+) |>
+  kable_styling(full_width = FALSE, position = "center",
+                latex_options = c("hold_position","striped")) |>
+  column_spec(1, bold = TRUE)
 ```
 
 ```{r, eval = T, echo = F, warning = F, message = F}
+alphaG <- alpha
+ci_alphaG <- ci_alpha
+betaG <- beta 
+ci_betaG <- ci_beta
+muG <- mu 
+ci_muG <- ci_mu
+
 par(mfrow = c(1,3))
-hist(alpha, breaks="FD", main=expression(paste("Posterior of ", alpha)), xlab=expression(alpha)); abline(v=ci_alpha, lty=2)
-hist(beta,  breaks="FD", main=expression(paste("Posterior of ", beta)),  xlab=expression(beta));  abline(v=ci_beta,  lty=2)
-hist(mu,    breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)), xlab=expression(mu)); abline(v=ci_mu, lty=2)
+hist(alphaG, breaks="FD", main=expression(paste("Posterior of ", alpha)), xlab=expression(alpha)); abline(v=ci_alpha, lty=2)
+hist(betaG,  breaks="FD", main=expression(paste("Posterior of ", beta)),  xlab=expression(beta));  abline(v=ci_beta,  lty=2)
+hist(muG,    breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)), xlab=expression(mu)); abline(v=ci_mu, lty=2)
 par(mfrow = c(1,1))
 ```
 
@@ -467,67 +636,62 @@ Using both the 75th percentile and the range as data characteristics of potentia
 
 ### Answer
 
+We then do additional posterior predictive checks to validate the results of our simulation. Using the Gibbs draws from the prior Question, we simulated 10,000 posterior predictive datasets. 
+
 ```{r, eval = T, echo = F, warning = F, message = F}
-## ---- Q5: Posterior predictive checks (75th percentile & range) ----------
 set.seed(43)
 
 gout <- final
-# 0) inputs (post–burn-in Gibbs draws)
-stopifnot(exists("gout"), is.data.frame(gout),
-          all(c("alpha","beta") %in% names(gout)))
+stopifnot(is.data.frame(gout), all(c("alpha","beta") %in% names(gout)))
 stopifnot(exists("y"), is.numeric(y), all(y > 0))
-
 n <- length(y)
 
-# 1) observed statistics
+# observed
 stat_q75   <- function(x) as.numeric(quantile(x, 0.75, type = 7))
 stat_range <- function(x) diff(range(x))
-
 Tobs_q75   <- stat_q75(y)
 Tobs_range <- stat_range(y)
 
-# 2) choose posterior draws for PPC
+# posterior draws
 ndraws <- 10000L
 K <- nrow(gout)
-idx <- if (K >= ndraws) sample.int(K, ndraws, replace = FALSE) else sample.int(K, ndraws, replace = TRUE)
+idx <- if (K >= ndraws) sample.int(K, ndraws) else sample.int(K, ndraws, replace = TRUE)
 a_draws <- gout$alpha[idx]
 b_draws <- gout$beta[idx]
 
-# 3) generate posterior predictive datasets and compute replicated stats
+# pposterior predictive datasets
 Trep_q75   <- numeric(ndraws)
 Trep_range <- numeric(ndraws)
-
-for(k in seq_len(ndraws)){
+for (k in seq_len(ndraws)) {
   yrep <- rgamma(n, shape = a_draws[k], rate = b_draws[k])
   Trep_q75[k]   <- stat_q75(yrep)
   Trep_range[k] <- stat_range(yrep)
 }
 
-# 4) inclusive one-sided p-values and (optional) report both tails
-p_up_q75   <- mean(Trep_q75   >= Tobs_q75)
-p_low_q75  <- mean(Trep_q75   <= Tobs_q75)
-p_up_range <- mean(Trep_range >= Tobs_range)
-p_low_range<- mean(Trep_range <= Tobs_range)
+ppp_q75   <- mean(Trep_q75   >= Tobs_q75)
+ppp_range <- mean(Trep_range >= Tobs_range)
 
-# 5) (optional) two-sided tail-area about the replicated median
-twosided <- function(Trep, Tobs){
-  med <- median(Trep)
-  mean(abs(Trep - med) >= abs(Tobs - med))
-}
-p_2s_q75   <- twosided(Trep_q75,   Tobs_q75)
-p_2s_range <- twosided(Trep_range, Tobs_range)
+library(knitr)
+library(kableExtra)
 
-# 6) report
-list(
-  observed_statistics = c(q75 = Tobs_q75, range = Tobs_range),
-  ppp_upper_inclusive = c(q75 = p_up_q75,  range = p_up_range),
-  ppp_lower_inclusive = c(q75 = p_low_q75, range = p_low_range),
-  ppp_two_sided_median = c(q75 = p_2s_q75, range = p_2s_range),
-  notes = "yrep_i ~ Gamma(alpha_k, rate=beta_k) for i=1..n; inclusive tail areas reported."
+ppp_tbl <- data.frame(
+  Statistic = c("75th percentile", "Range"),
+  Observed  = round(c(Tobs_q75, Tobs_range), 4),
+  PPP       = round(c(ppp_q75, ppp_range), 4),
+  check.names = FALSE
 )
+
+kable(
+  ppp_tbl, booktabs = TRUE,
+  caption = "Posterior predictive p-values (upper tail) from 10,000 replicated datasets"
+) |>
+  kable_styling(full_width = FALSE, position = "center",
+                latex_options = c("hold_position","striped")) |>
+  column_spec(1, bold = TRUE) |>
+  add_header_above(c(" " = 1, "Posterior Predictive Check" = 2))
 ```
 
-Generally, we want posterior predictive p-values that are not too large and not too small (so somewhere in the range of 0.2 to 0.7, or so); the values we observe for the statitics of interest do not seem suitable. Further comparison and analysis is discussed in Question 6. 
+Generally, we want posterior predictive p-values that are not too large and not too small (so somewhere in the range of 0.2 to 0.7, or so); the values we observe for the statitics of interest seem suitable, though potentially a bit large. Further comparison and analysis is discussed in Question 6. 
 
 \newpage
 
@@ -537,7 +701,94 @@ Compare your results from the use of Metropolis-Hastings and Gibbs Sampling.
 
 ### Answer
 
+```{r, eval = T, echo = F, warning = F, message = F}
+# alpha_range <- range(c(alphaMH, alphaG))
+# beta_range  <- range(c(betaMH, betaG))
+# mu_range    <- range(c(muMH, muG))
+# 
+# alpha_breaks <- hist(c(alphaMH, alphaG), breaks = "FD", plot = FALSE)$breaks
+# beta_breaks  <- hist(c(betaMH, betaG),  breaks = "FD", plot = FALSE)$breaks
+# mu_breaks    <- hist(c(muMH, muG),    breaks = "FD", plot = FALSE)$breaks
+# 
+# alpha_ylim <- range(
+#   hist(alphaMH, breaks = alpha_breaks, plot = FALSE)$counts,
+#   hist(alphaG,  breaks = alpha_breaks, plot = FALSE)$counts
+# )
+# 
+# beta_ylim <- range(
+#   hist(betaMH, breaks = beta_breaks, plot = FALSE)$counts,
+#   hist(betaG,  breaks = beta_breaks, plot = FALSE)$counts
+# )
+# 
+# mu_ylim <- range(
+#   hist(muMH, breaks = mu_breaks, plot = FALSE)$counts,
+#   hist(muG,  breaks = mu_breaks, plot = FALSE)$counts
+# )
+make_breaks <- function(x1, x2, width = 0.1) seq(from = floor(x1), to = ceiling(x2), by = width)
 
+alpha_range <- range(c(alphaMH, alphaG), na.rm = TRUE)
+beta_range  <- range(c(betaMH,  betaG),  na.rm = TRUE)
+mu_range    <- range(c(muMH,    muG),    na.rm = TRUE)
+
+alpha_breaks <- make_breaks(min(alpha_range), max(alpha_range), width = 0.2)
+beta_breaks  <- make_breaks(min(beta_range),  max(beta_range),  width = 0.05)
+mu_breaks    <- make_breaks(min(mu_range),    max(mu_range),    width = 0.1)
+
+alpha_ylim <- c(0, max(
+  hist(alphaMH, breaks = alpha_breaks, plot = FALSE)$counts,
+  hist(alphaG,  breaks = alpha_breaks, plot = FALSE)$counts
+))
+beta_ylim <- c(0, max(
+  hist(betaMH, breaks = beta_breaks, plot = FALSE)$counts,
+  hist(betaG,  breaks = beta_breaks, plot = FALSE)$counts
+))
+mu_ylim <- c(0, max(
+  hist(muMH, breaks = mu_breaks, plot = FALSE)$counts,
+  hist(muG,  breaks = mu_breaks, plot = FALSE)$counts
+))
+```
+
+```{r, eval = T, echo = F, warning = F, message = F}
+par(mfrow = c(1,2))
+
+hist(alphaMH, breaks = alpha_breaks, xlim = alpha_range, ylim = alpha_ylim,
+     main = expression(paste("MH - Posterior of ", alpha)),
+     xlab = expression(alpha))
+abline(v = ci_alphaMH, lty = 2)
+
+hist(alphaG, breaks = alpha_breaks, xlim = alpha_range, ylim = alpha_ylim,
+     main = expression(paste("Gibbs - Posterior of ", alpha)),
+     xlab = expression(alpha))
+abline(v = ci_alphaG, lty = 2)
+```
+
+```{r, eval = T, echo = F, warning = F, message = F}
+par(mfrow = c(1,2))
+
+hist(betaMH, breaks = beta_breaks, xlim = beta_range, ylim = beta_ylim,
+     main = expression(paste("MH - Posterior of ", beta)),
+     xlab = expression(beta))
+abline(v = ci_betaMH, lty = 2)
+
+hist(betaG, breaks = beta_breaks, xlim = beta_range, ylim = beta_ylim,
+     main = expression(paste("Gibbs - Posterior of ", beta)),
+     xlab = expression(beta))
+abline(v = ci_betaG, lty = 2)
+```
+
+```{r, eval = T, echo = F, warning = F, message = F}
+par(mfrow = c(1,2))
+
+hist(muMH, breaks = mu_breaks, xlim = mu_range, ylim = mu_ylim,
+     main = expression(paste("MH - Posterior of ", mu == alpha/beta)),
+     xlab = expression(mu))
+abline(v = ci_muMH, lty = 2)
+
+hist(muG, breaks = mu_breaks, xlim = mu_range, ylim = mu_ylim,
+     main = expression(paste("Gibbs - Posterior of ", mu == alpha/beta)),
+     xlab = expression(mu))
+abline(v = ci_muG, lty = 2)
+```
 
 \newpage 
 
@@ -593,8 +844,10 @@ metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
     # log-likelihood (current and proposed)
     #   log f(alpha, beta | y) = n * (alpha * log(beta) - log(Gamma(alpha))) +
     #                            (alpha - 1) * sum(log(y)) - beta * sum(y)
-    lfcur  <- n * (calpha * log(cbeta) - lgamma(calpha)) + (calpha - 1) * sumlogy - cbeta * sumy
-    lfstar <- n * (alphastar * log(betastar) - lgamma(alphastar)) + (alphastar - 1) * sumlogy - betastar * sumy
+    lfcur  <- n * (calpha * log(cbeta) - lgamma(calpha)) + 
+      (calpha - 1) * sumlogy - cbeta * sumy
+    lfstar <- n * (alphastar * log(betastar) - lgamma(alphastar)) + 
+      (alphastar - 1) * sumlogy - betastar * sumy
 
     # log-prior for alpha: Uniform(0, A)
     #   log pi(alpha) = 0 for alpha in (0, A), -Inf otherwise
@@ -604,8 +857,10 @@ metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
     # log-prior for beta: Gamma(gamma0, lambda0), rate parameterization
     #   log pi(beta) = gamma0 * log(lambda0) - log(Gamma(gamma0))
     #                  + (gamma0 - 1) * log(beta) - lambda0 * beta
-    lpi_beta_cur  <- gamma0 * log(lambda0) - lgamma(gamma0) + (gamma0 - 1) * log(cbeta)  - lambda0 * cbeta
-    lpi_beta_star <- gamma0 * log(lambda0) - lgamma(gamma0) + (gamma0 - 1) * log(betastar) - lambda0 * betastar
+    lpi_beta_cur  <- gamma0 * log(lambda0) - lgamma(gamma0) + 
+      (gamma0 - 1) * log(cbeta)  - lambda0 * cbeta
+    lpi_beta_star <- gamma0 * log(lambda0) - lgamma(gamma0) + 
+      (gamma0 - 1) * log(betastar) - lambda0 * betastar
 
     lpicur  <- lpi_alpha_cur + lpi_beta_cur
     lpistar <- lpi_alpha_star + lpi_beta_star
@@ -623,7 +878,8 @@ metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
     if(cnt > B){
       alphas <- c(alphas, newalpha)
       betas  <- c(betas,  newbeta)
-      mus    <- c(mus,    newalpha / newbeta)  # Posterior samples of mu = alpha / beta
+      # Posterior samples of mu = alpha / beta
+      mus    <- c(mus,    newalpha / newbeta)  
     }
 
     calpha <- newalpha; cbeta <- newbeta
@@ -635,7 +891,7 @@ metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
   attr(res, "acceptprob") <- acceptind / M
   return(res)
 }
-#----------------------------------------------------------------
+
 proposealpha <- function(calpha, valpha, A){
 # propose jump from random walk for alpha (shape), enforce support (0, A)
 # Reference-style: if invalid, revert to current (like proposesig2 in the ref)
@@ -644,7 +900,7 @@ proposealpha <- function(calpha, valpha, A){
   if(alphastar <= 0 || alphastar >= A) alphastar <- calpha
   return(alphastar)
 }
-#----------------------------------------------------------------
+
 proposebeta <- function(cbeta, vbeta){
 # propose jump from random walk for beta (rate), enforce positivity
 # Reference-style: if invalid, revert to current
@@ -653,7 +909,6 @@ proposebeta <- function(cbeta, vbeta){
   if(betastar <= 0) betastar <- cbeta
   return(betastar)
 }
-#----------------------------------------------------------------
 ```
 
 ### Gibbs 
@@ -720,7 +975,7 @@ gibbsforgamma <- function(dat, start, priorpars, B, M, valpha){
   res <- data.frame(alpha = alphas, beta = betas, mu = mus)
   return(res)
 }
-#----------------------------------------------------------------
+
 sampalpha_mh <- function(calpha, beta, valpha, sumlogy, n, A){
 # One-step random-walk MH update for alpha (shape) given beta and y.
 # Returns a list(alpha = ..., acc = 0/1)
@@ -738,13 +993,14 @@ sampalpha_mh <- function(calpha, beta, valpha, sumlogy, n, A){
   }
 
   # log target at current and proposed
-  lfcur  <- n * calpha   * log(beta) - n * lgamma(calpha)   + (calpha   - 1) * sumlogy
-  lfstar <- n * alphastar * log(beta) - n * lgamma(alphastar) + (alphastar - 1) * sumlogy
+  lfcur  <- n * calpha   * log(beta) - n * lgamma(calpha)   + 
+    (calpha   - 1) * sumlogy
+  lfstar <- n * alphastar * log(beta) - n * lgamma(alphastar) + 
+    (alphastar - 1) * sumlogy
 
   a <- min(exp(lfstar - lfcur), 1)
   u <- runif(1, 0, 1)
   if(u <= a) return(list(alpha = alphastar, acc = 1))
   return(list(alpha = calpha, acc = 0))
 }
-#----------------------------------------------------------------
 ```
