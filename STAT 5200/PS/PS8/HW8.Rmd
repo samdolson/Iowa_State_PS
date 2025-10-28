@@ -691,7 +691,7 @@ kable(
   add_header_above(c(" " = 1, "Posterior Predictive Check" = 2))
 ```
 
-Generally, we want posterior predictive p-values that are not too large and not too small (so somewhere in the range of 0.2 to 0.7, or so); the values we observe for the statitics of interest seem suitable, though potentially a bit large. Further comparison and analysis is discussed in Question 6. 
+Generally, we want posterior predictive p-values that are not too large and not too small (so somewhere in the range of 0.2 to 0.7, or so); the values we observe for the statistics of interest seem suitable, though potentially a bit large. Further comparison and analysis is discussed in Question 6. 
 
 \newpage
 
@@ -700,6 +700,36 @@ Generally, we want posterior predictive p-values that are not too large and not 
 Compare your results from the use of Metropolis-Hastings and Gibbs Sampling.
 
 ### Answer
+
+The two sampling approaches—Metropolis–Hastings (MH) and Gibbs with a Metropolis-within-Gibbs update—produce highly consistent posterior inferences for all parameters of interest. Both recover nearly identical posterior locations and spreads for $\alpha$, $\beta$, and the derived parameter $\mu = \alpha/\beta$.
+
+For the MH sampler, the 95% central credible intervals were
+
+$$
+\alpha \in [6.32,\ 13.72],\quad \beta \in [0.578,\ 1.294],\quad \mu \in [9.823,\ 11.788],
+$$
+
+while the Gibbs sampler yielded
+
+$$
+\alpha \in [6.40,\ 13.41],\quad \beta \in [0.587,\ 1.259],\quad \mu \in [9.810,\ 11.792].
+$$
+
+These results indicate essentially identical central tendencies and dispersion, showing that both samplers successfully explored the same posterior region.
+
+The pairwise posterior correlation between $\alpha$ and $\beta$ is also very similar—approximately (0.97) for both methods—which is expected since the parameters are not independent: $\mu$ is well identified even though $\alpha$ and $\beta$ are highly positively associated.
+
+From a qualitative perspective, the MH posterior histograms appear slightly more “jagged,” reflecting that its random-walk updates move both parameters jointly and can yield higher autocorrelation. The Gibbs sampler, which draws $\beta$ directly from its conjugate full conditional and updates $\alpha$ by a univariate Metropolis step, produces smoother histograms and traces due to its more localized updates and higher effective sample size per iteration.
+
+Posterior predictive checks (PPCs) are also consistent across methods. Both yield one-sided posterior predictive p-values between approximately 0.4 and 0.6 for both the 75th percentile and range statistics:
+
+$$
+p_{\text{ppp}}^{(Q_{0.75})} \approx 0.44, \quad p_{\text{ppp}}^{(\text{range})} \approx 0.57
+$$
+
+These are comfortably midrange, indicating that simulated datasets from each posterior reproduce the empirical features of the data without systematic bias (values near 0 or 1 would imply under- or over-dispersion).
+
+In short, both algorithms converge to effectively the same posterior. The MH method shows slightly rougher marginal behavior but comparable central estimates, while the Gibbs sampler—with its conjugate $\beta$-updates and well-tuned step for $\alpha$—achieves smoother mixing and a visually steadier chain. After conservative burn-in and careful tuning in both cases, the two methods give nearly indistinguishable posterior summaries and predictive performance, confirming that each appropriately captures the underlying posterior distribution.
 
 ```{r, eval = T, echo = F, warning = F, message = F}
 # alpha_range <- range(c(alphaMH, alphaG))
