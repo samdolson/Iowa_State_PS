@@ -42,6 +42,7 @@ This gives prior expectation of 5.0 and prior variance of 50. The prior does foc
 ```{r, echo = F, warning = F, message = F}
 gammaDat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/gammadat_bayes.txt", header = T)
 source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/sourceHW.R")
+library(knitr)
 library(kableExtra)
 ```
 
@@ -259,8 +260,8 @@ lines(runmean(j_diag$beta),  col = 4)
 
 ```{r, cache = T, eval = T, echo = F, warning = F, message = F}
 par(mfrow = c(1,2))
-acf(j_diag$alpha, lag.max = 5000, main="ACF alpha (full)")
-acf(j_diag$beta,  lag.max = 5000, main="ACF beta (full)")
+acf(j_diag$alpha, lag.max = 10000, main="ACF alpha (full)")
+acf(j_diag$beta,  lag.max = 10000, main="ACF beta (full)")
 par(mfrow = c(1,1))
 ```
 
@@ -284,7 +285,6 @@ tune_tab <- do.call(rbind, lapply(scales, function(s){
              vbeta  = (jumpvars1[2] * s^2),
              accept = attr(j, "acceptprob"))
 }))
-
 ```
 
 ```{r, cache = T, eval = T, echo = F, warning = F, message = F}
@@ -305,13 +305,9 @@ final <- metropforgamma(
   B = 10000,                       
   M = 50000
 )
-
 ```
 
 ```{r, cache = T, eval = T, echo = F, warning = F, message = F}
-library(knitr)
-library(kableExtra)
-
 acc_final <- attr(final, "acceptprob")
 alpha <- final$alpha; beta <- final$beta; mu <- final$mu
 fivenum_alpha <- fivenum(alpha);  ci_alpha <- quantile(alpha, c(0.025, 0.975))
@@ -453,7 +449,6 @@ ppp_Q75   <- mean(yrep_stats[1, ] >= Q_obs1)
 # upper-tail PPP for range
 ppp_range <- mean(yrep_stats[2, ] >= Q_obs2)  
 
-library(knitr); library(kableExtra)
 ppp_tbl <- data.frame(
   Statistic = c("75th percentile", "Range"),
   Observed  = round(c(Q_obs1, Q_obs2), 4),
@@ -594,8 +589,8 @@ lines(runmean(beta_all),  col=4)
 # lines(runmean(beta_all3),  col=6)
 
 par(mfrow = c(1,2))
-acf(alpha_all, lag.max=10000, main="ACF alpha (full)")
-acf(beta_all,  lag.max=10000, main="ACF beta (full)")
+acf(alpha_all, lag.max=20000, main="ACF alpha (full)")
+acf(beta_all,  lag.max=20000, main="ACF beta (full)")
 par(mfrow = c(1,1))
 ```
 
@@ -658,9 +653,6 @@ ci_alpha <- quantile(alpha, c(0.025, 0.975), names = FALSE)
 ci_beta  <- quantile(beta,  c(0.025, 0.975), names = FALSE)
 
 corr_ab <- cor(alpha, beta, use = "complete.obs")
-
-library(knitr)
-library(kableExtra)
 
 esc <- function(x) gsub("%", "\\%", x, fixed = TRUE)
 
@@ -758,9 +750,6 @@ for (k in seq_len(ndraws)) {
 
 ppp_q75   <- mean(Trep_q75   >= Tobs_q75)
 ppp_range <- mean(Trep_range >= Tobs_range)
-
-library(knitr)
-library(kableExtra)
 
 ppp_tbl <- data.frame(
   Statistic = c("75th percentile", "Range"),
@@ -914,237 +903,6 @@ abline(v = ci_muG, lty = 2)
 
 On this particular assignment, attach your R code for functions you programmed to do the necessary computations as an APPENDIX – not part of the body of your answer.
 
-### Metropolis 
+### Answer 
 
-```{r appendix Metropolis, echo = T, eval = F}
-metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
-# Metropolis for a one-sample Gamma(shape = alpha, rate = beta) model
-# with joint prior being the product of marginals 
-# alpha ~ Uniform(0, A)
-# beta ~ Gamma(gamma0, lambda0)
-#
-# Inputs: 
-# dat : vector of observed positive data (y_i > 0)
-# start : starting values for (alpha, beta) c(alpha0, beta0)
-# priorpars: prior parameters c(gamma0, lambda0, A)
-#   gamma0, lambda0 are shape/rate of prior on beta
-#   A is the upper bound for alpha's Uniform(0, A) prior
-# jumpvars : proposal variances for random-walk jumps c(valpha, vbeta)
-# B : burn-in iterations
-# M : number of kept draws
-#
-# Additional Notes
-# Likelihood: Y_i ~ Gamma(alpha, beta)
-#   f(y | alpha, beta) = beta^alpha / Gamma(alpha) * y^(alpha-1) * exp(-beta*y)
-# Prior on alpha: Uniform(0, A) 
-# Prior on beta: Gamma(gamma0, lambda0) also using 'rate' parameterization
-# Proposals: independent Gaussian random walks on alpha and beta, consistent
-#   Adjust invalid proposals (negative parameter values) by reverting to current values
-#   I.e., use same method as the Normal example from Kaiser for sig2
-
-# Starting inputs 
-calpha <- start[1]
-cbeta <- start[2]
-gamma0 <- priorpars[1]
-lambda0 <- priorpars[2]
-A <- priorpars[3]
-valpha <- jumpvars[1]
-vbeta <- jumpvars[2]
-
-# Initialize 
-alphas <- NULL
-betas <- NULL
-mus <- NULL
-
-acceptind <- 0
-cnt <- 0
-
-# Calculate sufficient statistics for the Gamma likelihood
-# Based on initial data input 
-n <- length(dat)
-sumlogy <- sum(log(dat))
-sumy <- sum(dat)
-
-repeat{
-  cnt <- cnt + 1
-  alphastar <- proposealpha(calpha, valpha, A)
-  betastar <- proposebeta(cbeta, vbeta)
-  
-  # log-likelihood 
-  # log f(alpha, beta | y) = n * (alpha * log(beta) - log(Gamma(alpha))) + (alpha - 1) * sum(log(y)) - beta * sum(y)
-  lfcur <- n * (calpha * log(cbeta) - lgamma(calpha)) + 
-    (calpha - 1) * sumlogy - cbeta * sumy
-  lfstar <- n * (alphastar * log(betastar) - lgamma(alphastar)) + 
-    (alphastar - 1) * sumlogy - betastar * sumy
-  
-  # log-prior for alpha: Uniform(0, A)
-  #   log pi(alpha) = 0 for alpha in (0, A), -Inf otherwise
-  lpi_alpha_cur <- if(calpha > 0 && calpha < A) 0 else -Inf
-  lpi_alpha_star <- if(alphastar > 0 && alphastar < A) 0 else -Inf
-  
-  # log-prior for beta: Gamma(gamma0, lambda0), rate parameterization
-  # log pi(beta) = gamma0 * log(lambda0) - log(Gamma(gamma0)) + (gamma0 - 1) * log(beta) - lambda0 * beta
-  lpi_beta_cur <- gamma0 * log(lambda0) - lgamma(gamma0) + 
-    (gamma0 - 1) * log(cbeta)  - lambda0 * cbeta
-  lpi_beta_star <- gamma0 * log(lambda0) - lgamma(gamma0) + 
-    (gamma0 - 1) * log(betastar) - lambda0 * betastar
-
-  lpicur  <- lpi_alpha_cur + lpi_beta_cur
-  lpistar <- lpi_alpha_star + lpi_beta_star
-  
-  # Metropolis acceptance calculations
-  astar <- min(exp((lfstar + lpistar) - (lfcur + lpicur)), 1)
-  ustar <- runif(1, 0, 1)
-
-  newalpha <- calpha; newbeta <- cbeta
-  if(ustar <= astar){
-    # update
-    newalpha <- alphastar
-    newbeta <- betastar
-    acceptind <- acceptind + 1
-  }
-
-  if(cnt > B){
-    alphas <- c(alphas, newalpha)
-    betas <- c(betas, newbeta)
-    # Posterior samples of mu 
-    # Generate mu based on the new alpha AND beta
-    mus <- c(mus, newalpha / newbeta)  
-  }
-
-  calpha <- newalpha
-  cbeta <- newbeta
-  if(cnt == (B + M)) break
-}
-
-cat("acceptprob:", acceptind / M, fill = TRUE)
-res <- data.frame(alpha = alphas, beta = betas, mu = mus)
-attr(res, "acceptprob") <- acceptind / M
-return(res)
-}
-
-proposealpha <- function(calpha, valpha, A){
-  # propose jump from random walk for alpha (shape)
-  # enforce support (0, A)
-  # if invalid, revert to current
-  z <- rnorm(1, 0, sqrt(valpha))
-  alphastar <- calpha + z
-  if(alphastar <= 0 || alphastar >= A) alphastar <- calpha
-  return(alphastar)
-}
-
-proposebeta <- function(cbeta, vbeta){
-  # propose jump from random walk for beta (rate)
-  # enforce positivity
-  # if invalid, revert to current
-  z <- rnorm(1, 0, sqrt(vbeta))
-  betastar <- cbeta + z
-  if(betastar <= 0) betastar <- cbeta
-  return(betastar)
-}
-```
-
-### Gibbs 
-
-```{r appendix Gibbs, echo = T, eval = F}
-gibbsforgamma <- function(dat, start, priorpars, B, M, valpha){
-# Gibbs sampler for one-sample Gamma(shape = alpha, rate = beta) model
-# with alpha ~ Uniform(0, A)
-# beta ~ Gamma(gamma0, lambda0)
-# Inputs: Very similar in structure to MH method 
-# dat : vector of observed positive data (y_i > 0)
-# start : c(alpha0, beta0)
-# priorpars : c(gamma0, lambda0, A)
-# B : burn-in 
-# M : number of kept draws
-# valpha : proposal variance for MH step on alpha (b/c Metropolis-within-Gibbs)
-#
-# Notes on full conditionals and conjugacy:
-# Conditional for beta | alpha, y is Gamma(gamma0 + n*alpha, lambda0 + sum(y))
-#   (shape/rate parametrization) this is conjugate, so we can sample beta directly
-# Conditional for alpha | beta, y is NOT standard:
-#       p(alpha | beta, y) proportional to [beta^(n*alpha) / Gamma(alpha)^n] *
-#       (prod(y_i))^(alpha - 1) * I(0 < alpha < A)
-# Use a random-walk MH step for alpha inside the Gibbs loop
-#   (Metropolis-within-Gibbs)
-#   mirroring the reference Gibbs code structure
-
-# Starting inputs 
-calpha <- start[1]
-cbeta <- start[2]
-gamma0 <- priorpars[1]
-lambda0 <- priorpars[2]
-A <- priorpars[3]
-
-# Initialize 
-alphas <- NULL
-betas <- NULL
-mus <- NULL
-
-cnt <- 0
-accept_alpha <- 0
-
-# Same sufficient statistics as before
-n <- length(dat)
-sumlogy <- sum(log(dat))
-sumy <- sum(dat)
-
-repeat{
-    cnt <- cnt + 1
-
-    # 1. Sample beta | alpha, y  (conjugate Gamma)
-    # where 
-    # shape = gamma0 + n*alpha
-    # rate = lambda0 + sum(y)
-    newbeta <- rgamma(1, shape = gamma0 + n * calpha, rate = lambda0 + sumy)
-
-    # 2. Sample alpha | beta, y  (Metropolis within Gibbs)
-    # target log-density up to constant:
-    # log p(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha)) + (alpha - 1)*sum(log(y))
-    # for 0<alpha<A
-    astep <- sampalpha_mh(calpha, newbeta, valpha, sumlogy, n, A)
-    newalpha <- astep$alpha
-    accept_alpha <- accept_alpha + astep$acc
-
-    if(cnt > B){
-      alphas <- c(alphas, newalpha)
-      betas  <- c(betas,  newbeta)
-      mus    <- c(mus,    newalpha / newbeta)
-    }
-    calpha <- newalpha; cbeta <- newbeta
-
-    if(cnt == (B + M)) break
-  }
-
-  cat("alpha_acceptprob (within Gibbs):", accept_alpha / M, fill = TRUE)
-  res <- data.frame(alpha = alphas, beta = betas, mu = mus)
-  return(res)
-}
-
-sampalpha_mh <- function(calpha, beta, valpha, sumlogy, n, A){
-# One-step random-walk MH update for alpha (shape) given beta and y.
-# Returns a list(alpha = ..., acc = 0/1)
-  
-# target log-density (up to constant in alpha):
-# log f(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha)) + (alpha - 1)*sumlogy
-# with support 0 < alpha < A
-  z <- rnorm(1, 0, sqrt(valpha))
-  alphastar <- calpha + z
-  if(alphastar <= 0 || alphastar >= A){
-    # If proposal is invalid
-    # revert to prior value
-    return(list(alpha = calpha, acc = 0))
-  }
-
-  # log target at current and proposed
-  lfcur <- n * calpha   * log(beta) - n * lgamma(calpha)   + 
-    (calpha   - 1) * sumlogy
-  lfstar <- n * alphastar * log(beta) - n * lgamma(alphastar) + 
-    (alphastar - 1) * sumlogy
-
-  a <- min(exp(lfstar - lfcur), 1)
-  u <- runif(1, 0, 1)
-  if(u <= a) return(list(alpha = alphastar, acc = 1))
-  return(list(alpha = calpha, acc = 0))
-}
-```
+R Code attached separately. Note: R code functions are shown in the attached, and then their respective call(s) are noted. 
