@@ -147,7 +147,9 @@ Additionally, given the hyperparameters to this problem, we also "impose" that $
 
 We run a sampling procedure without any tuning, first to determine a suitable Burn-In period. 
 
-Note: Throughout the sampling procedure, we simulate $\alpha$ and $\beta$ simultaneously, which is important to keep later estimates of $\mu$ more comparable ("apples-to-apples"). Furthermore, the actual sampling is done using log likelihood, again, for the purpose of stability. 
+Note: Throughout the sampling procedure, we simulate $\alpha$ and $\beta$ simultaneously, which is important to keep later estimates of $\mu$ more comparable ("apples-to-apples"). Furthermore, the actual sampling is done using log likelihood, again, for the purpose of stability. However, we built-in a check for "invalid" parameter proposals (negative-valued); during the procedure, after identifying a "candidate", if the proposed parameter is negative-valued, it is "reverted" to the prior value. This ensures appropriateness of the method. 
+
+We also consider a handful of starting values for $\alpha, \beta$ to ensure the trace plots achieve stability around the same number of iterations. 
 
 Our sample values provide a basis for determining our Burn-In Period. We use our Metropolis-Hastings algorithm for a rather large number (50,000) without *any* Burn-In, and then look at both the trace plots and autocorrelation plots (ACFs). With that, we have: 
 
@@ -175,6 +177,24 @@ j_diag <- metropforgamma(
   B = 0,
   M = 50000
 )
+
+j_diag2 <- metropforgamma(
+  dat = y,
+  start = start1*1.5,
+  priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20),
+  jumpvars = jumpvars1,
+  B = 0,
+  M = 50000
+)
+
+j_diag3 <- metropforgamma(
+  dat = y,
+  start = start1*0.5,
+  priorpars = c(gamma0 = 0.5, lambda0 = 0.1, A = 20),
+  jumpvars = jumpvars1,
+  B = 0,
+  M = 50000
+)
 ```
 
 ```{r, cache = T, eval = T, echo = F, warning = F, message = F}
@@ -185,15 +205,59 @@ B_line <- 5000L
 
 par(mfrow = c(1,2))
 plot(j_diag$alpha, type="l", main="alpha trace (B=0)", xlab="iter")
+# lines(j_diag2$alpha, col = "grey50")
+# lines(j_diag3$alpha, col = "steelblue4")
 abline(v = B_line, col=2, lty=2, lwd=2)
 abline(v = B_line*2, col=2, lty=2, lwd=2)
-lines(runmean(j_diag$alpha), col=4)
+lines(runmean(j_diag$alpha), col = 4)
+# lines(runmean(j_diag2$alpha), col = 5)
+# lines(runmean(j_diag3$alpha), col = 6)
 
+# plot(j_diag$alpha, type="l", col="#1B9E77",  # teal green
+#      main="alpha trace (B=0)", xlab="iter",
+#      ylim = range(c(j_diag$alpha, j_diag2$alpha, j_diag3$alpha)))
+# lines(j_diag2$alpha, col="#D95F02")  # orange
+# lines(j_diag3$alpha, col="#7570B3")  # purple
+# 
+# abline(v = B_line, col="#E7298A", lty=2, lwd=2)   # magenta for vertical markers
+# abline(v = B_line*2, col="#E7298A", lty=2, lwd=2)
+# 
+# lines(runmean(j_diag$alpha), col="#005A46", lwd=2)   # darker teal
+# lines(runmean(j_diag2$alpha), col="#A34900", lwd=2)  # darker orange
+# lines(runmean(j_diag3$alpha), col="#4B3B8F", lwd=2)  # darker purple
+
+# legend("topright",
+#        legend = c("j_diag", "j_diag2", "j_diag3"),
+#        col = c("#1B9E77", "#D95F02", "#7570B3"),
+#        lty = 1, lwd = 2, bty = "n")
+# 
 plot(j_diag$beta,  type="l", main="beta trace (B=0)",  xlab="iter")
 abline(v = B_line, col=2, lty=2, lwd=2)
 abline(v = B_line*2, col=2, lty=2, lwd=2)
+lines(runmean(j_diag$beta),  col = 4)
+# lines(runmean(j_diag2$beta), col = 5)
+# lines(runmean(j_diag3$beta), col = 6)
 
-lines(runmean(j_diag$beta), col=4)
+# plot(j_diag$beta, type = "l", col = "#1B9E77", 
+#      main = "beta trace (B=0)", xlab = "iter",
+#      ylim = range(c(j_diag$beta, j_diag2$beta, j_diag3$beta)))
+# lines(j_diag2$beta, col = "#D95F02")
+# lines(j_diag3$beta, col = "#7570B3")
+# 
+# abline(v = B_line,  col = "#E7298A", lty = 2, lwd = 2)
+# abline(v = B_line*2, col = "#E7298A", lty = 2, lwd = 2)
+# 
+# lines(runmean(j_diag$beta),  col = "#005A46", lwd = 2)
+# lines(runmean(j_diag2$beta), col = "#A34900", lwd = 2)
+# lines(runmean(j_diag3$beta), col = "#4B3B8F", lwd = 2)
+# 
+# legend("topright",
+#        legend = c("j_diag", "j_diag2", "j_diag3"),
+#        col = c("#1B9E77", "#D95F02", "#7570B3"),
+#        lty = 1, lwd = 2, bty = "n")
+```
+
+```{r, cache = T, eval = T, echo = F, warning = F, message = F}
 par(mfrow = c(1,2))
 acf(j_diag$alpha, lag.max = 5000, main="ACF alpha (full)")
 acf(j_diag$beta,  lag.max = 5000, main="ACF beta (full)")
@@ -484,12 +548,30 @@ diag_all <- gibbsforgamma(
   dat = y, start = start, priorpars = priorpars,
   B = 0, M = 50000, valpha = valpha
 )
+
+diag_all2 <- gibbsforgamma(
+  dat = y, start = start*1.5, priorpars = priorpars,
+  B = 0, M = 50000, valpha = valpha
+)
+
+diag_all3 <- gibbsforgamma(
+  dat = y, start = start*0.5, priorpars = priorpars,
+  B = 0, M = 50000, valpha = valpha
+)
 ```
 
 ```{r, cache = T, eval = T, echo = F, warning = F, message = F}
 alpha_all <- diag_all$alpha
 beta_all  <- diag_all$beta
 mu_all    <- diag_all$mu
+
+alpha_all2 <- diag_all2$alpha
+beta_all2  <- diag_all2$beta
+mu_all2    <- diag_all2$mu
+
+alpha_all3 <- diag_all3$alpha
+beta_all3  <- diag_all3$beta
+mu_all3    <- diag_all3$mu
 
 runmean <- function(x) cumsum(x) / seq_along(x)
 
@@ -498,12 +580,18 @@ B_line <- 10000L
 
 par(mfrow = c(1,2))
 plot(alpha_all, type="l", main="alpha trace (B=0)", xlab="iter", ylab=expression(alpha))
-abline(v=B_line, col=2, lty=2, lwd=2); lines(runmean(alpha_all), col=4)
+abline(v=B_line, col=2, lty=2, lwd=2)
 abline(v=B_line*2, col=2, lty=2, lwd=2)
+lines(runmean(alpha_all), col=4)
+# lines(runmean(alpha_all2), col=5)
+# lines(runmean(alpha_all2), col=6)
 
 plot(beta_all,  type="l", main="beta trace (B=0)",  xlab="iter", ylab=expression(beta))
-abline(v=B_line, col=2, lty=2, lwd=2); lines(runmean(beta_all),  col=4)
+abline(v=B_line, col=2, lty=2, lwd=2)
 abline(v=B_line*2, col=2, lty=2, lwd=2)
+lines(runmean(beta_all),  col=4)
+# lines(runmean(beta_all2),  col=5)
+# lines(runmean(beta_all3),  col=6)
 
 par(mfrow = c(1,2))
 acf(alpha_all, lag.max=10000, main="ACF alpha (full)")
@@ -831,100 +919,114 @@ On this particular assignment, attach your R code for functions you programmed t
 ```{r appendix Metropolis, echo = T, eval = F}
 metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
 # Metropolis for a one-sample Gamma(shape = alpha, rate = beta) model
-# with product prior: alpha ~ Uniform(0, A), beta ~ Gamma(gamma0, lambda0)
+# with joint prior being the product of marginals 
+# alpha ~ Uniform(0, A)
+# beta ~ Gamma(gamma0, lambda0)
 #
-# dat        : vector of observed positive data (y_i > 0)
-# start      : c(alpha0, beta0)  -- starting values for (alpha, beta)
-# priorpars  : c(gamma0, lambda0, A)
-#              - gamma0, lambda0 are shape/rate of prior on beta
-#              - A is the upper bound for alpha's Uniform(0, A) prior
-# jumpvars   : c(valpha, vbeta)  -- proposal variances for random-walk jumps
-# B          : burn-in iterations
-# M          : number of kept Monte Carlo draws
+# Inputs: 
+# dat : vector of observed positive data (y_i > 0)
+# start : starting values for (alpha, beta) c(alpha0, beta0)
+# priorpars: prior parameters c(gamma0, lambda0, A)
+#   gamma0, lambda0 are shape/rate of prior on beta
+#   A is the upper bound for alpha's Uniform(0, A) prior
+# jumpvars : proposal variances for random-walk jumps c(valpha, vbeta)
+# B : burn-in iterations
+# M : number of kept draws
 #
-# Notes on parameterization/statistics:
-# - Likelihood: Y_i ~ Gamma(alpha, beta) with density
-#       f(y | alpha, beta) = beta^alpha / Gamma(alpha) * y^(alpha-1) * exp(-beta*y)
-#   The log-likelihood is computed in a numerically stable way via sums.
-# - Prior on alpha: Uniform(0, A). Inside (0, A) its log prior is constant (0),
-#   outside the interval, log prior is -Inf.
-# - Prior on beta: Gamma(gamma0, lambda0) with 'rate' parameterization.
-# - Proposals: independent Gaussian random walks on alpha and beta, consistent
-#   with the reference style. We clip invalid proposals by reverting to current
-#   values, mirroring the reference behavior for sig2.
-#
-  calpha <- start[1]; cbeta <- start[2]
-  gamma0 <- priorpars[1]; lambda0 <- priorpars[2]; A <- priorpars[3]
-  valpha <- jumpvars[1]; vbeta <- jumpvars[2]
+# Additional Notes
+# Likelihood: Y_i ~ Gamma(alpha, beta)
+#   f(y | alpha, beta) = beta^alpha / Gamma(alpha) * y^(alpha-1) * exp(-beta*y)
+# Prior on alpha: Uniform(0, A) 
+# Prior on beta: Gamma(gamma0, lambda0) also using 'rate' parameterization
+# Proposals: independent Gaussian random walks on alpha and beta, consistent
+#   Adjust invalid proposals (negative parameter values) by reverting to current values
+#   I.e., use same method as the Normal example from Kaiser for sig2
 
-  alphas <- NULL; betas <- NULL; mus <- NULL
-  acceptind <- 0
-  cnt <- 0
+# Starting inputs 
+calpha <- start[1]
+cbeta <- start[2]
+gamma0 <- priorpars[1]
+lambda0 <- priorpars[2]
+A <- priorpars[3]
+valpha <- jumpvars[1]
+vbeta <- jumpvars[2]
 
-  # Precompute sufficient statistics for the Gamma likelihood
-  n <- length(dat)
-  sumlogy <- sum(log(dat))
-  sumy <- sum(dat)
+# Initialize 
+alphas <- NULL
+betas <- NULL
+mus <- NULL
 
-  repeat{
-    cnt <- cnt + 1
-    alphastar <- proposealpha(calpha, valpha, A)
-    betastar  <- proposebeta(cbeta, vbeta)
+acceptind <- 0
+cnt <- 0
 
-    # log-likelihood (current and proposed)
-    #   log f(alpha, beta | y) = n * (alpha * log(beta) - log(Gamma(alpha))) +
-    #                            (alpha - 1) * sum(log(y)) - beta * sum(y)
-    lfcur  <- n * (calpha * log(cbeta) - lgamma(calpha)) + 
-      (calpha - 1) * sumlogy - cbeta * sumy
-    lfstar <- n * (alphastar * log(betastar) - lgamma(alphastar)) + 
-      (alphastar - 1) * sumlogy - betastar * sumy
+# Calculate sufficient statistics for the Gamma likelihood
+# Based on initial data input 
+n <- length(dat)
+sumlogy <- sum(log(dat))
+sumy <- sum(dat)
 
-    # log-prior for alpha: Uniform(0, A)
-    #   log pi(alpha) = 0 for alpha in (0, A), -Inf otherwise
-    lpi_alpha_cur  <- if(calpha > 0 && calpha < A) 0 else -Inf
-    lpi_alpha_star <- if(alphastar > 0 && alphastar < A) 0 else -Inf
+repeat{
+  cnt <- cnt + 1
+  alphastar <- proposealpha(calpha, valpha, A)
+  betastar <- proposebeta(cbeta, vbeta)
+  
+  # log-likelihood 
+  # log f(alpha, beta | y) = n * (alpha * log(beta) - log(Gamma(alpha))) + (alpha - 1) * sum(log(y)) - beta * sum(y)
+  lfcur <- n * (calpha * log(cbeta) - lgamma(calpha)) + 
+    (calpha - 1) * sumlogy - cbeta * sumy
+  lfstar <- n * (alphastar * log(betastar) - lgamma(alphastar)) + 
+    (alphastar - 1) * sumlogy - betastar * sumy
+  
+  # log-prior for alpha: Uniform(0, A)
+  #   log pi(alpha) = 0 for alpha in (0, A), -Inf otherwise
+  lpi_alpha_cur <- if(calpha > 0 && calpha < A) 0 else -Inf
+  lpi_alpha_star <- if(alphastar > 0 && alphastar < A) 0 else -Inf
+  
+  # log-prior for beta: Gamma(gamma0, lambda0), rate parameterization
+  # log pi(beta) = gamma0 * log(lambda0) - log(Gamma(gamma0)) + (gamma0 - 1) * log(beta) - lambda0 * beta
+  lpi_beta_cur <- gamma0 * log(lambda0) - lgamma(gamma0) + 
+    (gamma0 - 1) * log(cbeta)  - lambda0 * cbeta
+  lpi_beta_star <- gamma0 * log(lambda0) - lgamma(gamma0) + 
+    (gamma0 - 1) * log(betastar) - lambda0 * betastar
 
-    # log-prior for beta: Gamma(gamma0, lambda0), rate parameterization
-    #   log pi(beta) = gamma0 * log(lambda0) - log(Gamma(gamma0))
-    #                  + (gamma0 - 1) * log(beta) - lambda0 * beta
-    lpi_beta_cur  <- gamma0 * log(lambda0) - lgamma(gamma0) + 
-      (gamma0 - 1) * log(cbeta)  - lambda0 * cbeta
-    lpi_beta_star <- gamma0 * log(lambda0) - lgamma(gamma0) + 
-      (gamma0 - 1) * log(betastar) - lambda0 * betastar
+  lpicur  <- lpi_alpha_cur + lpi_beta_cur
+  lpistar <- lpi_alpha_star + lpi_beta_star
+  
+  # Metropolis acceptance calculations
+  astar <- min(exp((lfstar + lpistar) - (lfcur + lpicur)), 1)
+  ustar <- runif(1, 0, 1)
 
-    lpicur  <- lpi_alpha_cur + lpi_beta_cur
-    lpistar <- lpi_alpha_star + lpi_beta_star
-
-    # Metropolis acceptance (symmetric random-walk proposals)
-    astar <- min(exp((lfstar + lpistar) - (lfcur + lpicur)), 1)
-    ustar <- runif(1, 0, 1)
-
-    newalpha <- calpha; newbeta <- cbeta
-    if(ustar <= astar){
-      newalpha <- alphastar; newbeta <- betastar
-      acceptind <- acceptind + 1
-    }
-
-    if(cnt > B){
-      alphas <- c(alphas, newalpha)
-      betas  <- c(betas,  newbeta)
-      # Posterior samples of mu = alpha / beta
-      mus    <- c(mus,    newalpha / newbeta)  
-    }
-
-    calpha <- newalpha; cbeta <- newbeta
-    if(cnt == (B + M)) break
+  newalpha <- calpha; newbeta <- cbeta
+  if(ustar <= astar){
+    # update
+    newalpha <- alphastar
+    newbeta <- betastar
+    acceptind <- acceptind + 1
   }
 
-  cat("acceptprob:", acceptind / M, fill = TRUE)
-  res <- data.frame(alpha = alphas, beta = betas, mu = mus)
-  attr(res, "acceptprob") <- acceptind / M
-  return(res)
+  if(cnt > B){
+    alphas <- c(alphas, newalpha)
+    betas <- c(betas, newbeta)
+    # Posterior samples of mu 
+    # Generate mu based on the new alpha AND beta
+    mus <- c(mus, newalpha / newbeta)  
+  }
+
+  calpha <- newalpha
+  cbeta <- newbeta
+  if(cnt == (B + M)) break
+}
+
+cat("acceptprob:", acceptind / M, fill = TRUE)
+res <- data.frame(alpha = alphas, beta = betas, mu = mus)
+attr(res, "acceptprob") <- acceptind / M
+return(res)
 }
 
 proposealpha <- function(calpha, valpha, A){
-# propose jump from random walk for alpha (shape), enforce support (0, A)
-# Reference-style: if invalid, revert to current (like proposesig2 in the ref)
+  # propose jump from random walk for alpha (shape)
+  # enforce support (0, A)
+  # if invalid, revert to current
   z <- rnorm(1, 0, sqrt(valpha))
   alphastar <- calpha + z
   if(alphastar <= 0 || alphastar >= A) alphastar <- calpha
@@ -932,8 +1034,9 @@ proposealpha <- function(calpha, valpha, A){
 }
 
 proposebeta <- function(cbeta, vbeta){
-# propose jump from random walk for beta (rate), enforce positivity
-# Reference-style: if invalid, revert to current
+  # propose jump from random walk for beta (rate)
+  # enforce positivity
+  # if invalid, revert to current
   z <- rnorm(1, 0, sqrt(vbeta))
   betastar <- cbeta + z
   if(betastar <= 0) betastar <- cbeta
@@ -946,47 +1049,59 @@ proposebeta <- function(cbeta, vbeta){
 ```{r appendix Gibbs, echo = T, eval = F}
 gibbsforgamma <- function(dat, start, priorpars, B, M, valpha){
 # Gibbs sampler for one-sample Gamma(shape = alpha, rate = beta) model
-# with alpha ~ Uniform(0, A), beta ~ Gamma(gamma0, lambda0)
-#
-# dat        : vector of observed positive data (y_i > 0)
-# start      : c(alpha0, beta0)  -- starting values
-# priorpars  : c(gamma0, lambda0, A)
-# B          : burn-in iterations
-# M          : number of kept Monte Carlo draws
-# valpha     : proposal variance for MH step on alpha (Metropolis-within-Gibbs)
+# with alpha ~ Uniform(0, A)
+# beta ~ Gamma(gamma0, lambda0)
+# Inputs: Very similar in structure to MH method 
+# dat : vector of observed positive data (y_i > 0)
+# start : c(alpha0, beta0)
+# priorpars : c(gamma0, lambda0, A)
+# B : burn-in 
+# M : number of kept draws
+# valpha : proposal variance for MH step on alpha (b/c Metropolis-within-Gibbs)
 #
 # Notes on full conditionals and conjugacy:
-# - Conditional for beta | alpha, y is Gamma(gamma0 + n*alpha, lambda0 + sum(y))
-#   (shape/rate parametrization) -- this is conjugate, so we can sample beta directly.
-# - Conditional for alpha | beta, y is NOT standard:
+# Conditional for beta | alpha, y is Gamma(gamma0 + n*alpha, lambda0 + sum(y))
+#   (shape/rate parametrization) this is conjugate, so we can sample beta directly
+# Conditional for alpha | beta, y is NOT standard:
 #       p(alpha | beta, y) proportional to [beta^(n*alpha) / Gamma(alpha)^n] *
 #       (prod(y_i))^(alpha - 1) * I(0 < alpha < A)
-#   We use a random-walk MH step for alpha inside the Gibbs loop
-#   (Metropolis-within-Gibbs), mirroring the reference Gibbs code structure.
-#
-  calpha <- start[1]; cbeta <- start[2]
-  gamma0 <- priorpars[1]; lambda0 <- priorpars[2]; A <- priorpars[3]
+# Use a random-walk MH step for alpha inside the Gibbs loop
+#   (Metropolis-within-Gibbs)
+#   mirroring the reference Gibbs code structure
 
-  alphas <- NULL; betas <- NULL; mus <- NULL
-  cnt <- 0
-  accept_alpha <- 0
+# Starting inputs 
+calpha <- start[1]
+cbeta <- start[2]
+gamma0 <- priorpars[1]
+lambda0 <- priorpars[2]
+A <- priorpars[3]
 
-  # Precompute sufficient statistics
-  n <- length(dat)
-  sumlogy <- sum(log(dat))
-  sumy <- sum(dat)
+# Initialize 
+alphas <- NULL
+betas <- NULL
+mus <- NULL
 
-  repeat{
+cnt <- 0
+accept_alpha <- 0
+
+# Same sufficient statistics as before
+n <- length(dat)
+sumlogy <- sum(log(dat))
+sumy <- sum(dat)
+
+repeat{
     cnt <- cnt + 1
 
-    # 1) Sample beta | alpha, y  (conjugate Gamma)
-    #    shape = gamma0 + n*alpha ; rate = lambda0 + sum(y)
+    # 1. Sample beta | alpha, y  (conjugate Gamma)
+    # where 
+    # shape = gamma0 + n*alpha
+    # rate = lambda0 + sum(y)
     newbeta <- rgamma(1, shape = gamma0 + n * calpha, rate = lambda0 + sumy)
 
-    # 2) Sample alpha | beta, y  (Metropolis step within Gibbs)
-    #    target log-density up to constant:
-    #       log p(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha))
-    #                                + (alpha - 1)*sum(log(y)), for 0<alpha<A
+    # 2. Sample alpha | beta, y  (Metropolis within Gibbs)
+    # target log-density up to constant:
+    # log p(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha)) + (alpha - 1)*sum(log(y))
+    # for 0<alpha<A
     astep <- sampalpha_mh(calpha, newbeta, valpha, sumlogy, n, A)
     newalpha <- astep$alpha
     accept_alpha <- accept_alpha + astep$acc
@@ -1009,21 +1124,20 @@ gibbsforgamma <- function(dat, start, priorpars, B, M, valpha){
 sampalpha_mh <- function(calpha, beta, valpha, sumlogy, n, A){
 # One-step random-walk MH update for alpha (shape) given beta and y.
 # Returns a list(alpha = ..., acc = 0/1)
-#
+  
 # target log-density (up to constant in alpha):
-#   log f(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha))
-#                            + (alpha - 1)*sumlogy
-# with support 0 < alpha < A; outside support, log-density = -Inf.
-#
+# log f(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha)) + (alpha - 1)*sumlogy
+# with support 0 < alpha < A
   z <- rnorm(1, 0, sqrt(valpha))
   alphastar <- calpha + z
   if(alphastar <= 0 || alphastar >= A){
-    # As in reference style, invalid proposal -> revert (equivalent to reject)
+    # If proposal is invalid
+    # revert to prior value
     return(list(alpha = calpha, acc = 0))
   }
 
   # log target at current and proposed
-  lfcur  <- n * calpha   * log(beta) - n * lgamma(calpha)   + 
+  lfcur <- n * calpha   * log(beta) - n * lgamma(calpha)   + 
     (calpha   - 1) * sumlogy
   lfstar <- n * alphastar * log(beta) - n * lgamma(alphastar) + 
     (alphastar - 1) * sumlogy
