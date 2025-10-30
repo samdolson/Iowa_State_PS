@@ -76,6 +76,13 @@
 }{% if KOMA class
   \KOMAoptions{parskip=half}}
 \makeatother
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+\usepackage{caption}
+% Make caption package work with longtable
+\makeatletter
+\def\fnum@table{\tablename~\thetable}
+\makeatother
 % definitions for citeproc citations
 \NewDocumentCommand\citeproctext{}{}
 \NewDocumentCommand\citeproc{mm}{%
@@ -140,21 +147,21 @@ dimensions}
   Testing the mutual independence for high-dimensional data.
 \item
   Known that \(L_2\)-type statistics have lower power under sparse
-  alternatives and \(L_\infty\)-type statistics have lower power under
-  dense alternatives in high dimensions.
+  alternatives in high dimensions
 \item
-  With this in mind, develop an adaptive test based on Kendall's
-  \(\tau\) to compromise both situations of the alternative, which can
-  automatically be adapted to the underlying data.
+  Also known that \(L_\infty\)-type statistics have lower power under
+  dense alternatives in high dimensions
 \item
-  Establish the asymptotic joint distribution of \(L_2\)-type and
-  \(L_\infty\)-type statistics based on Kendall's \(\tau\) under mild
-  assumptions and the asymptotic null distribution of the proposed
-  statistic.
+  Goal: Develop an adaptive test based on Kendall's \(\tau\) to work
+  well in both situations
 \item
-  Apply simulation to assess how well the test does compared to other
-  testing methods, results that indicate the adaptive test performs well
-  in either dense or sparse cases.
+  In developing an adaptive test, determine necessary assumptions and
+  the asymptotic null distribution of the proposed statistic
+\item
+  Assess how well the test does compared to other testing methods
+\item
+  Results indicate the adaptive test performs well in either dense or
+  sparse cases
 \end{itemize}
 \end{frame}
 
@@ -167,12 +174,16 @@ dimensions}
 \begin{itemize}
 \tightlist
 \item
-  Where concordant: Text
+  Note: Any pair of observations \((x_i, y_i)\) and \((x_j, y_j)\),
+  where i \textless{} j, are said to be \emph{concordant} if the sort
+  order of \((x_i, x_j)\) and \((y_i, y_j)\) agrees
 \item
-  And where discordant: Text
+  That is, if either both \(x_i > x_j\) and \(y_i > y_j\) holds or both
+  \(x_i < x_j\) and \(y_i < y_j\); otherwise they are said to be
+  \emph{discordant}.
 \item
-  There are other types of Kendall's \(\tau\), e.g., \(\tau-a\),
-  \(\tau-b\), \(\tau-c\)
+  There are other types of Kendall's \(\tau\), e.g., \(\tau_a\),
+  \(\tau_b\), and \(\tau_c\)
 \end{itemize}
 \end{frame}
 
@@ -181,57 +192,59 @@ dimensions}
 \begin{itemize}
 \tightlist
 \item
-  \textbf{1897} --- Fechner introduces the \emph{method of signs} for
-  succession-dependence.
+  \textbf{1897} --- (Fechner 1897) introduces the \emph{method of signs}
+  for succession-dependence.
 \item
-  \textbf{1938} --- Kendall develops the \(\tau\) rank correlation
-  coefficient.
+  \textbf{1938} --- (Kendall 1938) develops the \(\tau\) rank
+  correlation coefficient.
 \item
-  \textbf{1958} --- Kruskal broadens Kendall's ideas into a general
-  nonparametric testing framework.
+  \textbf{1958} --- (Kruskal 1958) broadens Kendall's ideas into a
+  general nonparametric testing framework.
 \item
-  \textbf{1958--1990s} --- Others (e.g., El-Shaarawi, 1992) apply
-  rank-based methods to time series.
+  \textbf{1958--1990s} --- Others apply rank-based methods to time
+  series (El-Shaarawi and Niculescu 1992; Hamed 2011).
 \item
-  \textbf{2024} --- Shi et al.~develop adaptive high-dimensional
-  independence tests using Kendall's \(\tau\).
+  \textbf{2024} --- (Shi et al. 2024), the focus of this presentation,
+  develop adaptive high-dimensional independence tests using Kendall's
+  \(\tau\).
 \item
-  \textbf{2025} --- Han et al.~extend to a broader class of
+  \textbf{2025} --- (Han, Ma, and Xie 2025) extend to a broader class of
   sum-of-powers tests.
 \end{itemize}
 \end{frame}
 
-\begin{frame}[allowframebreaks]{General Summary}
-\phantomsection\label{general-summary}
-In \emph{Kollektivmasslehre} (Fechner 1897) created a ``precursor'' to
-Kendall's \(\tau\). His method of signs looked for
-consecutive-dependence in sequences of observations: Assess concordance
-and discordance using only the signs of differences, not their
-magnitudes.
+\begin{frame}{In Detail: Shi et al.~(2024): Problem Statement}
+\phantomsection\label{in-detail-shi-et-al.-2024-problem-statement}
+\[
+H_0: X_1, \dots, X_d \text{ are mutually independent}
+\]
 
-Kendall (Kendall 1938) generalized Fechner's idea by considering all
-possible pairs of observations, not just consecutive ones. His \(\tau\)
-statistic became the canonical rank correlation coefficient, widely
-adopted as a nonparametric alternative to Pearson's correlation.
+Testing full independence in \textbf{high dimensions} (\(d \gg n\)),
+where both \emph{dense} and \emph{sparse} alternatives may occur.
+\end{frame}
 
-Kruskal (Kruskal 1958) emphasized \(\tau\)'s place within a broader
-family of nonparametric statistics for ordinal data, within the
-framework of formal hypothesis testing.
-
-Rank-based measures then spread to time series, enabling tests for
-persistence/independence in various settings (El-Shaarawi and Niculescu
-1992; Hamed 2011).
-
-And now, we apply these methods (use Kendall's \(\tau\)) for the
-purposes of robust, distribution-free procedures, assessing both how and
-under what circumstances these tests of independence may be applied
-(e.g., whether the type of data or problem would lend itself to such an
-application) (Shi et al. 2024; Han, Ma, and Xie 2025).
+\begin{frame}{Why Kendall's \(\tau\)?}
+\phantomsection\label{why-kendalls-tau}
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Rank-based}, \textbf{distribution-free}, and robust to
+  \textbf{heavy tails}.\\
+\item
+  Works even when moments (e.g., variances) are infinite.\\
+\item
+  Avoids dependence on the data-generation process---no parametric
+  assumptions.\\
+\item
+  Each \(\tau_{k\ell}\) measures pairwise monotonic dependence between
+  \(X_k, X_\ell\).
+\end{itemize}
 \end{frame}
 
 \begin{frame}{How Is This Non-Parametric?}
 \phantomsection\label{how-is-this-non-parametric}
 \begin{itemize}
+\tightlist
 \item
   We make no distributional assumptions of the variables (covariates or
   otherwise) we wish to test for independence.
@@ -241,108 +254,253 @@ application) (Shi et al. 2024; Han, Ma, and Xie 2025).
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Why This, and Why Now?}
-\phantomsection\label{why-this-and-why-now}
-Modern work continues to exploit distribution-free, rank-based tests of
-independence:
-
-Adaptive high-dimensional tests building on Kendall's \(\tau\) (Shi et
-al. 2024; Han, Ma, and Xie 2025).
-
-Time-series applications echoing Fechner's focus (El-Shaarawi and
-Niculescu 1992).
-
-Broader treatments of ordinal association and nonparametric effects
-(Kruskal 1958; Newson, n.d.).
-
-Persistence testing with ranks in environmental contexts (Hamed 2011).
+\begin{frame}{Dense vs.~Sparse Settings}
+\phantomsection\label{dense-vs.-sparse-settings}
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Setting & Dependence Structure & Suitable Statistic \\
+\midrule\noalign{}
+\endhead
+\textbf{Dense} & Many weak correlations & \(L_2\)-type (sum-type) \\
+\textbf{Sparse} & Few strong correlations & \(L_\infty\)-type
+(max-type) \\
+\bottomrule\noalign{}
+\end{longtable}
 \end{frame}
 
-\begin{frame}[allowframebreaks]{In Detail: Shi et al.~(2024)}
-\phantomsection\label{in-detail-shi-et-al.-2024}
-\begin{block}{Problem}
-\phantomsection\label{problem}
-\[
-H_0: X_1,\dots,X_d \text{ are mutually independent}
-\]
-\end{block}
+\begin{frame}[allowframebreaks]{Method (Overview)}
+\phantomsection\label{method-overview}
+\begin{enumerate}
+\tightlist
+\item
+  Compute pairwise Kendall's taus \(\tau_{k\ell}\).\\
+\item
+  Construct two base statistics:
+\end{enumerate}
 
-\begin{block}{Why Kendall's \(\tau\)?}
-\phantomsection\label{why-kendalls-tau}
 \begin{itemize}
 \tightlist
 \item
-  Rank-based; distribution-free; robust to heavy tails.
-\end{itemize}
-\end{block}
-
-\begin{block}{Dense vs.~Sparse}
-\phantomsection\label{dense-vs.-sparse}
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Dense:} many weak deps \(\Rightarrow\) sum-type (\(L_2\)).
-\item
-  \textbf{Sparse:} few strong deps \(\Rightarrow\) max-type
-  (\(L_\infty\)).
-\end{itemize}
-\end{block}
-
-\begin{block}{Method (sketch)}
-\phantomsection\label{method-sketch}
-\begin{itemize}
-\tightlist
-\item
-  Build \(L_2\) and \(L_\infty\) from pairwise \(\tau_{k\ell}\).
-\item
-  \(S_\tau \Rightarrow N(0,1)\); \(M_\tau \Rightarrow\) Gumbel.
-\item
-  Adaptive p-value:
+  \(S_\tau\) (\(L_2\)-type):
 \end{itemize}
 
 \[
-C_\tau=\min{(1-\Phi(S_\tau), 1-F_{\mathrm{Gumbel}}(M_\tau))}
+S_\tau = \omega_2^{-1/2}\!\left(\sum_{k>\ell}\tau_{k\ell}^2 - \tfrac{d(d-1)}{2}\omega_1\right)
+\Rightarrow S_\tau \overset{d}{\to} N(0,1)
 \]
-\end{block}
 
-\begin{block}{Theory (high level)}
-\phantomsection\label{theory-high-level}
-\(S_\tau\) and \(M_\tau\) asymptotically independent;
-\(W=\min{U_1,U_2}\) with \(U_i\sim \mathrm{Unif}(0,1)\) so
-\(H(t)=2t-t^2\).
-\end{block}
+\begin{itemize}
+\tightlist
+\item
+  \(M_\tau\) (\(L_\infty\)-type):
+\end{itemize}
+
+\[
+M_\tau = \omega_1^{-1}\max_{k<\ell}\tau_{k\ell}^2 - 4\ln d + \ln\ln d
+\Rightarrow M_\tau \overset{d}{\to} \text{Gumbel}
+\]
+
+Where \(\omega_1, \omega_2\) are constants reflecting the variance
+structure of pairwise Kendall's \(\tau\)'s under independence.
+
+\begin{enumerate}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Combine the two via the \emph{minimum p-value approach} (an ``adaptive
+  test''):
+\end{enumerate}
+
+\[
+C_\tau = \min\{1 - \Phi(S_\tau),\, 1 - F_{\mathrm{Gumbel}}(M_\tau)\}
+\]
+
+What is an Adaptive Test?
+
+\begin{itemize}
+\tightlist
+\item
+  A single procedure that \textbf{automatically adapts} to the
+  dependence pattern.\\
+\item
+  If data are \textbf{dense}, \(S_\tau\) dominates; if \textbf{sparse},
+  \(M_\tau\) dominates.\\
+\item
+  \(C_\tau\) effectively selects the stronger signal through
+  \(p\text{-value} = \min(p_{S_\tau}, p_{M_\tau})\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Theoretical Results I}
+\phantomsection\label{theoretical-results-i}
+With all the following base assumptions:
+
+\begin{itemize}
+\tightlist
+\item
+  Finite 8th moment (for asymptotic normality of \(\tau\) to hold)
+\item
+  Dependence boundedness conditions (\(\alpha\)-mixing type)
+\item
+  \(\frac{d}{n} \rightarrow \infty\) allowed
+\end{itemize}
+
+Then, \textbf{Under} \(H_0\):
+
+\begin{itemize}
+\tightlist
+\item
+  \(S_\tau\) and \(M_\tau\) are \textbf{asymptotically independent} ---
+  key innovation.
+\item
+  Therefore,
+\end{itemize}
+
+\[
+(S_\tau, M_\tau) \xrightarrow{d} (Z_1, Z_2)
+\quad \text{with } Z_1\sim N(0,1),\; Z_2\sim \text{Gumbel}.
+\]
+\end{frame}
+
+\begin{frame}{Theoretical Results II}
+\phantomsection\label{theoretical-results-ii}
+\begin{itemize}
+\tightlist
+\item
+  Consequently,
+\end{itemize}
+
+\[
+C_\tau = \min\{1 - \Phi(Z_1),\, 1 - F(Z_2)\} \xrightarrow{d} W=\min(U_1,U_2),
+\]
+
+where \(U_1,U_2\sim \text{Uniform}(0,1)\).
+
+\[
+\Rightarrow H(t) = 2t - t^2,\quad t\in[0,1].
+\]
+
+\textbf{Decision rule:}\\
+Reject \(H_0\) if \(C_\tau < 1 - \sqrt{1 - \alpha}\).
+\end{frame}
+
+\begin{frame}{Practical Implementation}
+\phantomsection\label{practical-implementation}
+\begin{itemize}
+\tightlist
+\item
+  Two variants:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(TC_\tau\): uses theoretical (asymptotic) critical values.\\
+  \item
+    \(MC_\tau\): uses Monte Carlo--simulated critical values
+    (finite-sample accurate).\\
+  \end{itemize}
+\item
+  Distribution-free; efficient table lookup possible for \((n,d)\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Key Properties of the Adaptive Test}
+\phantomsection\label{key-properties-of-the-adaptive-test}
+\begin{itemize}
+\tightlist
+\item
+  Joint Asymptotic independence of \(S_{\tau}, M_{\tau}\) allows for an
+  adaptive combination (hence the valid statistical test of
+  independence)
+\item
+  \textbf{Distribution-free:} No parametric or moment assumptions.\\
+\item
+  \textbf{Robust:} Handles heavy-tailed or non-Gaussian data.\\
+\item
+  \textbf{Adaptive:} Unified test for both dense and sparse
+  dependence.\\
+\item
+  \textbf{Asymptotic theory:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(S_\tau \to N(0,1)\)\\
+  \item
+    \(M_\tau \to \text{Gumbel}\)\\
+  \item
+    \(S_\tau, M_\tau\) independent\\
+  \item
+    \(C_\tau \to W\) with \(H(t) = 2t - t^2\)
+  \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Results I}
 \phantomsection\label{results-i}
 Under various settings, we compare the following methods:
 
-\(S_r\): Text
-
-\(TS_{\tau}\): Text
-
-\(MS_{\tau}\): Text
-
-\(M_{r}\): Text
-
-\(TM{\tau}\): Text
-
-\(MM_{\tau}\): Text
-
-\(TC{\tau}\): Text
-
-\(MC{\tau}\): Text
-
-\(PE{r}\): Text
-
-\(U_{\min}\): Text
+\begin{itemize}
+\item
+  \(S_r\): Pearson--correlation \(L_2\)-type test; best for \emph{dense
+  dependence}.
+\item
+  \(TS_{\tau}\): Kendall's tau \(L_2\)-type test using \emph{asymptotic}
+  critical values.
+\item
+  \(MS_{\tau}\): Same as \(TS_{\tau}\) but with \emph{Monte Carlo}
+  critical values.
+\item
+  \(M_r\): Pearson--correlation \(L_{\infty}\)-type test; best for
+  \emph{sparse dependence}.
+\item
+  \(TM_{\tau}\): Kendall's tau \(L_{\infty}\)-type test using
+  \emph{asymptotic} Gumbel limits.
+\item
+  \(MM_{\tau}\): Same as \(TM_{\tau}\) but with \emph{Monte Carlo}
+  critical values.
+\item
+  \(TC_{\tau}\): \emph{Adaptive} Kendall's tau test combining
+  \(S_{\tau}\) and \(M_{\tau}\) (asymptotic).
+\item
+  \(MC_{\tau}\): \emph{Adaptive} Kendall's tau test combining
+  \(S_{\tau}\) and \(M_{\tau}\) (Monte Carlo).
+\item
+  \(PE_r\): \emph{Power-enhanced} Pearson test improving \(S_r\) under
+  sparse cases.
+\item
+  \(U_{\min}\): \emph{Adaptive U-statistic} test combining multiple
+  orders via minimum p-value.
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Results II}
 \phantomsection\label{results-ii}
+There are a number of tables for the various conditions the author's
+tested the statistical tests. The main focus is on the \emph{Size} and
+\emph{Power} (mainly the latter) of the statistical tests.
+
+Overall:
+
+\begin{itemize}
+\tightlist
+\item
+  While one particular non-adaptive test may do best under a particular
+  setting (dense/sparse),
+\item
+  Both implementations of the adaptive test proposed does as good (is
+  roughly as powerful) as the ``best'' method, but for \textbf{both}
+  settings
+\item
+  Highlighted portions of the tables that follow are the adaptive tests
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Results III}
+\phantomsection\label{results-iii}
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\linewidth,height=0.77\textheight]{Figures/Table1} 
+{\centering \includegraphics[width=0.8\linewidth,height=0.77\textheight]{Figures/Table1H} 
 
 }
 
@@ -350,11 +508,11 @@ Under various settings, we compare the following methods:
 \end{figure}
 \end{frame}
 
-\begin{frame}{Results III}
-\phantomsection\label{results-iii}
+\begin{frame}{Results IV}
+\phantomsection\label{results-iv}
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\linewidth]{Figures/Table2} 
+{\centering \includegraphics[width=0.8\linewidth]{Figures/Table2H} 
 
 }
 
@@ -362,11 +520,11 @@ Under various settings, we compare the following methods:
 \end{figure}
 \end{frame}
 
-\begin{frame}{Results IV}
-\phantomsection\label{results-iv}
+\begin{frame}{Results V}
+\phantomsection\label{results-v}
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\linewidth]{Figures/Table3} 
+{\centering \includegraphics[width=0.8\linewidth]{Figures/Table3H} 
 
 }
 
@@ -374,11 +532,11 @@ Under various settings, we compare the following methods:
 \end{figure}
 \end{frame}
 
-\begin{frame}{Results V}
-\phantomsection\label{results-v}
+\begin{frame}{Results VI}
+\phantomsection\label{results-vi}
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\linewidth,height=0.77\textheight]{Figures/Table4} 
+{\centering \includegraphics[width=0.8\linewidth,height=0.77\textheight]{Figures/Table4H} 
 
 }
 
@@ -386,44 +544,65 @@ Under various settings, we compare the following methods:
 \end{figure}
 \end{frame}
 
-\begin{frame}{Results VI}
-\phantomsection\label{results-vi}
+\begin{frame}{Results VII}
+\phantomsection\label{results-vii}
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\linewidth]{Figures/Table5} 
+{\centering \includegraphics[width=0.8\linewidth]{Figures/Table5H} 
 
 }
 
 \caption{Empirical powers under various strengths of dependence in sparse cases.}\label{fig:Table 5}
 \end{figure}
+\end{frame}
 
-\begin{block}{Empirics / Applications}
-\phantomsection\label{empirics-applications}
+\begin{frame}{Applications}
+\phantomsection\label{applications}
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Welding (4 vars, n=40):} rank-based rejects; Pearson fails.
+  The paper also applies the method to two ``real-world'' examples:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Welding (4 vars, n=40):} rank-based rejects null hypothesis;
+    Pearson fails to reject.
+  \item
+    \textbf{Biochemical (8 vars, n=12):} adaptive detects group
+    differences.
+  \end{itemize}
 \item
-  \textbf{Biochemical (8 vars):} adaptive detects group differences.
+  I also implemented the method myself (and validated against the
+  author's own method)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Applied (mainly for fun) to a Consulting Case
+  \item
+    Apriori believed the covariate to be independent, and they were (at
+    least according to the adaptive test)!
+  \end{itemize}
 \end{itemize}
-\end{block}
 \end{frame}
 
 \begin{frame}{Conclusion}
 \phantomsection\label{conclusion}
-Rank-based adaptive tests are practical and robust; 2025 work
-generalizes to sum-of-powers (Han, Ma, and Xie 2025).
-\end{frame}
-
-\begin{frame}{Next Steps}
-\phantomsection\label{next-steps}
 \begin{itemize}
 \tightlist
 \item
-  Consulting applications (survey, environmental, biochemical).
+  Kendall's \(\tau\) connects classic nonparametric tests to modern
+  high-dimension inference.
 \item
-  Reflection: Kendall's \(\tau\) connects classic nonparametric tests to
-  modern high-dimension inference.
+  Rank-based adaptive tests are practical and robust; 2025 work
+  generalizes to sum-of-powers (Han, Ma, and Xie 2025).
+\item
+  We should consider this test when we know we have high-dimensional
+  data, but don't know whether it is dense or sparse.
+\item
+  Allows us to test for independence beyond the typical ``data
+  collection assessment'' and ``variable relations graphs''
 \end{itemize}
 \end{frame}
 
@@ -464,11 +643,6 @@ Kendall, M. G. 1938. {``A New Measure of Rank Correlation.''}
 Kruskal, William H. 1958. {``Ordinal Measures of Association.''}
 \emph{Journal of the American Statistical Association} 53 (284):
 814--61. \url{https://doi.org/10.1080/01621459.1958.10501481}.
-
-\bibitem[\citeproctext]{ref-Newson}
-Newson, Roger. n.d. {``Parameters Behind {`Nonparametric'} Statistics:
-Kendall's Tau, Somers' d and Median Differences.''} Working paper,
-King's College London.
 
 \bibitem[\citeproctext]{ref-Shi2024}
 Shi, Xiangyu, Yuanyuan Jiang, Jiang Du, and Zhuqing Miao. 2024. {``An

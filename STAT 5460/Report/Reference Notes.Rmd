@@ -1,0 +1,111 @@
+---
+title: "Reference Notes"
+output: html_document
+date: "2025-10-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here is what each method represents in **Shi et al. (2024), “An adaptive test based on Kendall’s tau for independence in high dimensions”**:
+
+---
+
+### ( S_r )
+
+**Pearson L₂-type test** proposed by **Schott (2005)**.
+It is based on the **sum of squared off-diagonal entries** of the sample correlation matrix (i.e., a quadratic form in Pearson correlations). It performs well for **dense alternatives** where many weak dependencies exist.
+
+---
+
+### ( TS_{\tau} )
+
+**Asymptotic version** of the **Kendall’s tau–based L₂-type statistic** ( S_{\tau} ).
+Critical values are obtained from the **asymptotic normal distribution** rather than Monte Carlo. It tests complete independence using
+[
+S_{\tau} = \omega_2^{-1/2}\left( \sum_{k=2}^d \sum_{\ell=1}^{k-1} \tau_{k\ell}^2 - \tfrac{d(d-1)}{2}\omega_1 \right),
+]
+and is suitable for **dense dependence**.
+
+---
+
+### ( MS_{\tau} )
+
+**Monte Carlo version** of the same statistic ( S_{\tau} ).
+Critical values are determined empirically by Monte Carlo simulation rather than asymptotic theory. Otherwise identical to ( TS_{\tau} ).
+
+---
+
+### ( M_r )
+
+**Pearson L∞-type test** proposed by **Cai and Jiang (2011)**.
+It is based on the **maximum absolute off-diagonal correlation** in the sample correlation matrix. It is powerful for **sparse alternatives** where only a few strong dependencies exist.
+
+---
+
+### ( TM_{\tau} )
+
+**Asymptotic version** of the **Kendall’s tau–based L∞-type statistic** ( M_{\tau} ):
+[
+M_{\tau} = \omega_1^{-1} \max_{k < \ell} \tau_{k\ell}^2 - 4\ln d + \ln\ln d,
+]
+whose null distribution follows a **Gumbel** form asymptotically. Suitable for **sparse alternatives**.
+
+---
+
+### ( MM_{\tau} )
+
+**Monte Carlo version** of ( M_{\tau} ).
+Critical values are obtained by simulation rather than relying on the slow-converging Gumbel approximation. Also a **Kendall’s tau–based L∞-type** statistic.
+
+---
+
+### ( TC_{\tau} )
+
+**Asymptotic adaptive test** combining both ( S_{\tau} ) and ( M_{\tau} ) via
+[
+C_{\tau} = \min{1 - F(M_{\tau}), 1 - \Phi(S_{\tau})},
+]
+where ( F ) and ( \Phi ) are the CDFs of the Gumbel and normal distributions, respectively.
+This version uses **theoretical asymptotic critical values**.
+
+---
+
+### ( MC_{\tau} )
+
+**Monte Carlo adaptive test** version of ( C_{\tau} ).
+Same form as ( C_{\tau} ) but with **simulation-based critical values**. This is the authors’ **proposed adaptive test**, automatically adjusting to **dense or sparse** dependency structures.
+
+---
+
+### ( PE_r )
+
+**Power-enhanced Pearson test** from **Fan, Liao, and Yao (2015)**.
+It augments the Pearson-based ( S_r ) statistic with a **power-enhancement component**, improving performance under sparse alternatives through a screening procedure.
+
+---
+
+### ( U_{\min} )
+
+**Adaptive U-statistic–based test** from **He, Xu, Wu, and Pan (2021)**.
+It combines p-values from multiple U-statistics of different orders via a **minimum combination rule**, analogous to ( C_{\tau} ) but based on general U-statistics rather than Kendall’s tau. Performs adaptively across sparse and dense regimes, but requires finite high-order moments.
+
+---
+
+In summary:
+
+| Symbol        | Type             | Based on             | Critical Values | Best for | Reference          |
+| :------------ | :--------------- | :------------------- | :-------------- | :------- | :----------------- |
+| ( S_r )       | L₂-type          | Pearson              | Asymptotic      | Dense    | Schott (2005)      |
+| ( TS_{\tau} ) | L₂-type          | Kendall’s tau        | Asymptotic      | Dense    | Mao (2018)         |
+| ( MS_{\tau} ) | L₂-type          | Kendall’s tau        | Monte Carlo     | Dense    | Mao (2018)         |
+| ( M_r )       | L∞-type          | Pearson              | Asymptotic      | Sparse   | Cai & Jiang (2011) |
+| ( TM_{\tau} ) | L∞-type          | Kendall’s tau        | Asymptotic      | Sparse   | Han et al. (2017)  |
+| ( MM_{\tau} ) | L∞-type          | Kendall’s tau        | Monte Carlo     | Sparse   | Han et al. (2017)  |
+| ( TC_{\tau} ) | Adaptive         | Kendall’s tau        | Asymptotic      | Both     | Shi et al. (2024)  |
+| ( MC_{\tau} ) | Adaptive         | Kendall’s tau        | Monte Carlo     | Both     | Shi et al. (2024)  |
+| ( PE_r )      | Enhanced L₂-type | Pearson              | Asymptotic      | Sparse   | Fan et al. (2015)  |
+| ( U_{\min} )  | Adaptive         | General U-statistics | Asymptotic      | Both     | He et al. (2021)   |
+
+---
