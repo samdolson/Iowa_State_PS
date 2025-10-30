@@ -1,3 +1,12 @@
+# Note:
+# The following functions were written to perform the primary computations used in this assignment
+# Posterior predictive p-values and credible intervals are computed within the body of the analysis 
+# (I didn't take a purely functional approach) 
+# 
+# To (attempt to) ease your grading, you can keyterm search the following for those calculations/methods 
+# 5-number Summaries, Credible Interval Calculations: "fivenum", "ci_alpha", "ci_beta", etc. 
+# Predictive p-values: "ppp", "yrep_stats" 
+
 library(knitr)
 library(kableExtra)
 
@@ -258,7 +267,7 @@ Q2 <- function(z) diff(range(z))
 
 # For Gibbs Tuning 
 alpha_accept_from_chain <- function(alpha_chain) {
-  if (length(alpha_chain) < 2) return(NA_real_)
+  if (length(alpha_chain) < 2) return(NA)
   mean(alpha_chain[-1] != alpha_chain[-length(alpha_chain)])
 }
 
@@ -267,7 +276,8 @@ make_breaks <- function(x1, x2, width = 0.1) seq(from = floor(x1), to = ceiling(
 
 # Actual Run of Code 
 # If you're just interested in functions, you can stop here 
-gammaDat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/gammadat_bayes.txt", header = T)
+# gammaDat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/gammadat_bayes.txt", header = T)
+gammaDat <- read.table(".../gammadat_bayes.txt", header = T)
 set.seed(43)
 y <- as.numeric(gammaDat$y)
 m <- mean(y)
@@ -283,6 +293,7 @@ valpha <- (0.20 * alpha0)^2
 vbeta <- (0.20 * beta0)^2
 jumpvars1 <- c(valpha, vbeta)
 
+set.seed(43)
 j_diag <- metropforgamma(
   dat = y,
   start = start1,
@@ -310,6 +321,7 @@ acf(j_diag$alpha, lag.max = 5000, main="ACF alpha (full)")
 acf(j_diag$beta,  lag.max = 5000, main="ACF beta (full)")
 
 scales <- c(0.5, 0.75, 1.0, 1.25, 1.5)
+set.seed(43)
 tune_tab <- do.call(rbind, lapply(scales, function(s){
   j <- metropforgamma(
     dat = y, start = start1,
@@ -324,6 +336,7 @@ tune_tab <- do.call(rbind, lapply(scales, function(s){
 }))
 
 # Final MH 
+set.seed(43)
 final <- metropforgamma(
   dat = y,
   start = start1,
@@ -368,7 +381,7 @@ kable(
   caption = esc("Posterior summaries: five-number statistics and 95 central credible intervals")
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE) |>
   add_header_above(c(" " = if ("Method" %in% names(param_tbl)) 2 else 1,
                      "Posterior Summary" = ncol(param_tbl) -
@@ -390,7 +403,7 @@ kable(
   caption = esc("95 central credible intervals")
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
 
 acc_vec <- as.numeric(acc_final)
@@ -407,7 +420,7 @@ kable(
   caption = "Acceptance rates"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
 
 corr_mat <- matrix(c(1, corr_ab, corr_ab, 1), nrow = 2,
@@ -419,29 +432,37 @@ kable(
   caption = "Correlation matrix for alpha and beta"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
 
 par(mfrow = c(1,3))
 hist(alphaMH, breaks="FD", main=expression(paste("Posterior of ", alpha)), xlab=expression(alpha))
 abline(v=ci_alpha, lty=2)
-hist(betaMH,  breaks="FD", main=expression(paste("Posterior of ", beta)),  xlab=expression(beta))
+hist(betaMH, breaks="FD", main=expression(paste("Posterior of ", beta)),  xlab=expression(beta))
 abline(v=ci_beta,  lty=2)
-hist(muMH,    breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)), xlab=expression(mu))
+hist(muMH, breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)), xlab=expression(mu))
 abline(v=ci_mu, lty=2)
 
+# Quartile obs
 Q_obs1 <- Q1(y)
+# Range obs
 Q_obs2 <- Q2(y)
 
-S <- length(alpha)   
+# 10,000 draws 
+ndraws <- 10000L
 n <- length(y)
 
-yrep_stats <- matrix(NA_real_, nrow = 2, ncol = S)
+set.seed(43)
+# randomly take the 10,000
+idx <- sample(seq_along(alpha), ndraws)
 
-for (s in seq_len(S)) {
-  yrep <- rgamma(n, shape = alpha[s], rate = beta[s])
-  yrep_stats[1, s] <- Q1(yrep)
-  yrep_stats[2, s] <- Q2(yrep)
+yrep_stats <- matrix(NA, nrow = 2, ncol = ndraws)
+
+# for each of the 10,000, create datasets of size 50
+for (s in seq_len(ndraws)) {
+  yrep <- rgamma(n, shape = alpha[idx[s]], rate = beta[idx[s]])
+  yrep_stats[1, s] <- Q1(yrep)  
+  yrep_stats[2, s] <- Q2(yrep)  
 }
 
 # upper-tail for 75th percentile
@@ -458,10 +479,10 @@ ppp_tbl <- data.frame(
 
 kable(
   ppp_tbl, booktabs = TRUE,
-  caption = "Posterior predictive p-values (upper tail) from 10,000 replicates"
+  caption = "Posterior predictive p-values (upper) 10,000 datasets"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
 
 # Gibbs
@@ -475,6 +496,7 @@ priorpars <- c(gamma0 = 0.5, lambda0 = 0.1, A = A)
 # only alpha uses MH
 valpha <- (0.15 * alpha0)^2
 
+set.seed(43)
 diag_all <- gibbsforgamma(
   dat = y, start = start, priorpars = priorpars,
   B = 0, M = 50000, valpha = valpha
@@ -502,6 +524,7 @@ acf(alpha_all, lag.max=10000, main="ACF alpha (full)")
 acf(beta_all,  lag.max=10000, main="ACF beta (full)")
 
 scales <- c(0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0)
+set.seed(43)
 tune_tab <- do.call(rbind, lapply(scales, function(s){
   j <- gibbsforgamma(
     dat = y, start = start, priorpars = priorpars,
@@ -521,6 +544,7 @@ tune_tab <- do.call(rbind, lapply(scales, function(s){
 # Final Gibbs 
 B_line <- 20000L 
 
+set.seed(43)
 final <- gibbsforgamma(
   dat = y, start = start, priorpars = priorpars,
   B = B_line, M = 50000,
@@ -529,7 +553,7 @@ final <- gibbsforgamma(
 )
 
 # Visuals and analysis for Gibbs 
-acc_alpha_final <- if (!is.null(final$alpha_accept_overall)) final$alpha_accept_overall else NA_real_
+acc_alpha_final <- if (!is.null(final$alpha_accept_overall)) final$alpha_accept_overall else NA
 
 alpha <- final$alpha
 beta <- final$beta
@@ -539,6 +563,7 @@ fivenum_alpha <- fivenum(alpha)
 fivenum_beta <- fivenum(beta)
 ci_alpha <- quantile(alpha, c(0.025, 0.975), names = FALSE)
 ci_beta <- quantile(beta,  c(0.025, 0.975), names = FALSE)
+ci_mu <- quantile(mu, c(0.025, 0.975), names = FALSE) 
 
 corr_ab <- cor(alpha, beta, use = "complete.obs")
 
@@ -560,7 +585,7 @@ kable(
   caption = esc("Posterior summaries for alpha and beta: five-number statistics and 95 central credible intervals")
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE) |>
   add_header_above(c(" " = 1, "Posterior Summary" = ncol(summ_tbl) - 1))
 
@@ -573,7 +598,7 @@ kable(
   caption = "Correlation matrix for alpha and beta (from Markov chain)"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
 
 alphaG <- alpha
@@ -592,8 +617,6 @@ hist(muG,    breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)
 abline(v=ci_mu, lty=2)
 
 gout <- final
-stopifnot(is.data.frame(gout), all(c("alpha","beta") %in% names(gout)))
-stopifnot(exists("y"), is.numeric(y), all(y > 0))
 n <- length(y)
 
 # observed
@@ -607,7 +630,7 @@ idx <- if (K >= ndraws) sample.int(K, ndraws) else sample.int(K, ndraws, replace
 a_draws <- gout$alpha[idx]
 b_draws <- gout$beta[idx]
 
-# pposterior predictive datasets
+# posterior predictive datasets
 Trep_q75 <- numeric(ndraws)
 Trep_range <- numeric(ndraws)
 for (k in seq_len(ndraws)) {
@@ -628,10 +651,10 @@ ppp_tbl <- data.frame(
 
 kable(
   ppp_tbl, booktabs = TRUE,
-  caption = "Posterior predictive p-values (upper tail) from 10,000 replicated datasets"
+  caption = "Posterior predictive p-values (upper) 10,000 datasets"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE) |>
   add_header_above(c(" " = 1, "Posterior Predictive Check" = 2))
 

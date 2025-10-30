@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Problem Description
 
 Consider a problem of conducting a Bayesian analysis with a one-sample gamma model.
+
 Assume that random variables $Y_1, \ldots, Y_n$ are independent and identically distributed with common probability density function (for $\alpha > 0$ and $\beta > 0$):
 
 $$
@@ -79,14 +80,26 @@ L(y \mid \alpha, \beta)
 = \prod_{i=1}^n \frac{\beta^\alpha}{\Gamma(\alpha)} y_i^{\alpha-1} e^{-\beta y_i}
 $$
 
-If the proposal distribution is a product of independent random walks, then it must satisfy the relation: 
+Suppose the proposal distribution is a product of independent symmetric random walks, such that: 
 
 $$
 q(\alpha^*, \beta^* \mid \alpha_m, \beta_m)
 = q_\alpha(\alpha^* \mid \alpha_m) q_\beta(\beta^* \mid \beta_m)
 $$
 
-The acceptance probability is therefore
+Because each random-walk is symmetric, the proposal satisfies: 
+
+$$
+q(\alpha^{*}, \beta^{*} | \alpha_m, \beta_m) = q_{\alpha}(\alpha^{*} | \alpha_m) q_{\beta}(\beta^{*} | \beta_m)
+$$
+
+And the ratio:
+
+$$
+\frac{q(\alpha_m,\beta_m \mid \alpha^*,\beta^*)}{q(\alpha^*,\beta^* \mid \alpha_m,\beta_m)} = 1
+$$
+
+Consequently, the Hastings term"cancels and the acceptance probability depends only on the posterior ratio, specifically:
 
 $$
 a\big((\alpha_m,\beta_m)\to(\alpha^*,\beta^*)\big)
@@ -98,7 +111,7 @@ a\big((\alpha_m,\beta_m)\to(\alpha^*,\beta^*)\big)
 \right\}
 $$
 
-Because $\pi_\alpha(\alpha)$ is uniform on $(0, A)$, this implies that any proposal with $\alpha^* \notin (0, A)$ or $\beta^* \le 0$ is automatically rejected ($a = 0$). However, for our purposes we would want to use the log-likelihoods $\ell$, as it will enforce positive values for $\alpha, \beta$ respectively (and generally seems to "stabilize" the sampling method). 
+Because $\pi_\alpha(\alpha)$ is uniform on $(0, A)$, this implies that any proposal with $\alpha^* \notin (0, A)$ or $\beta^* \le 0$ is automatically rejected ($a = 0$). 
 
 Knowing the data model comes from a one-sample Gamma, we know it comes from the exponential dispersion family. This is used primarily to motivate knowing the form of the sufficient statistics, $S_1 = \sum_{i=1}^n \log y_i$ and $S_2 = \sum_{i=1}^n y_i$. With this, we can write: 
 
@@ -110,11 +123,13 @@ $$
 - \lambda_0(\beta^* - \beta_m)
 $$
 
-Such that we have the acceptance probability for the Metropolis–Hastings update of $(\alpha, \beta)$ (exactly) as: 
+Such that we have the acceptance probability for the Metropolis–Hastings update of $(\alpha, \beta)$ (exact) as: 
 
 $$
 a = \min\left\{ 1,\; \exp(\log r) \right\}
 $$
+
+for a joint update of ($\alpha, \beta$) under independent symmetric random-walk proposals.
 
 \newpage
 
@@ -269,6 +284,8 @@ To that end, we use a "running mean" (blue) to get a sense of when variability i
 
 Ultimately, we settle on a Burn-In period of 10,000. 
 
+Note: Although the ACF plot displays values that remain slightly outside the “white-noise” bounds around the proposed Burn-In period, the autocorrelation clearly decays toward zero and alternates in sign, indicating that dependence weakens over time. Therefore, it is still reasonable to suppose the proposed Burn-In period is appropriate.
+
 We then have some additional tuning. The general procedure is to "scale" the jump variance by some proportion of the original sample variance. To begin with, we settle on multipling the variance by some proportion, initially around 0.25 to 2, and then after iterating deciding on 0.5, 0.75, 1.0, 1.25, and 1.5. The acceptance probabilities for each of these scales are reported, using the Burn-In of 10,000. 
 
 ```{r, include = F, cache = T, eval = T, echo = F, warning = F, message = F}
@@ -351,7 +368,7 @@ kable(
   caption = esc("Posterior summaries: five-number statistics and 95 central credible intervals")
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE) |>
   add_header_above(c(" " = if ("Method" %in% names(param_tbl)) 2 else 1,
                      "Posterior Summary" = ncol(param_tbl) -
@@ -374,7 +391,7 @@ kable(
   caption = esc("95 central credible intervals")
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
 
 acc_vec <- as.numeric(acc_final)
@@ -391,7 +408,7 @@ kable(
   caption = "Acceptance rates"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
 
 corr_mat <- matrix(c(1, corr_ab, corr_ab, 1), nrow = 2,
@@ -403,7 +420,7 @@ kable(
   caption = "Correlation matrix for alpha and beta"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
 ```
 
@@ -431,17 +448,39 @@ set.seed(43)
 Q1 <- function(z) as.numeric(quantile(z, 0.75))
 Q2 <- function(z) diff(range(z))
 
-Q_obs1 <- Q1(y); Q_obs2 <- Q2(y)
+# Q_obs1 <- Q1(y); Q_obs2 <- Q2(y)
+# 
+# S <- length(alpha)   
+# n <- length(y)
+# 
+# yrep_stats <- matrix(NA_real_, nrow = 2, ncol = S)
+# 
+# for (s in seq_len(S)) {
+#   yrep <- rgamma(n, shape = alpha[s], rate = beta[s])
+#   yrep_stats[1, s] <- Q1(yrep)
+#   yrep_stats[2, s] <- Q2(yrep)
+# }
 
-S <- length(alpha)   
+# Quartile obs
+Q_obs1 <- Q1(y)
+# Range obs
+Q_obs2 <- Q2(y)
+
+# 10,000 draws 
+ndraws <- 10000L
 n <- length(y)
 
-yrep_stats <- matrix(NA_real_, nrow = 2, ncol = S)
+set.seed(43)
+# randomly take the 10,000
+idx <- sample(seq_along(alpha), ndraws)
 
-for (s in seq_len(S)) {
-  yrep <- rgamma(n, shape = alpha[s], rate = beta[s])
-  yrep_stats[1, s] <- Q1(yrep)
-  yrep_stats[2, s] <- Q2(yrep)
+yrep_stats <- matrix(NA, nrow = 2, ncol = ndraws)
+
+# for each of the 10,000, create datasets of size 50
+for (s in seq_len(ndraws)) {
+  yrep <- rgamma(n, shape = alpha[idx[s]], rate = beta[idx[s]])
+  yrep_stats[1, s] <- Q1(yrep)  
+  yrep_stats[2, s] <- Q2(yrep)  
 }
 
 # upper-tail PPP for 75th percentile
@@ -458,10 +497,10 @@ ppp_tbl <- data.frame(
 
 kable(
   ppp_tbl, booktabs = TRUE,
-  caption = "Posterior predictive p-values (upper tail) from 10,000 replicates"
+  caption = "Posterior predictive p-values (upper) 10,000 datasets"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
 ```
 
@@ -481,9 +520,13 @@ Now consider the use of a Gibbs Sampling algorithm to simulate from the joint po
 
 Let $Y_i \stackrel{\text{iid}}{\sim}\text{Gamma}(\alpha,\beta)$ with density
 
-$f(y\mid \alpha,\beta)=\dfrac{\beta^{\alpha}}{\Gamma(\alpha)},y^{\alpha-1}e^{-\beta y}$ for $y>0$.
+$$
+f(y\mid \alpha,\beta)=\dfrac{\beta^{\alpha}}{\Gamma(\alpha)}\,y^{\alpha-1}e^{-\beta y}
+$$ 
 
-Priors: $\alpha\sim\text{Uniform}(0,A)$ and $\beta\sim\text{Gamma}(\gamma_0,\lambda_0)$ in using the rate parametrization.
+for $y>0$
+
+Priors specified as $\alpha\sim\text{Uniform}(0,A)$ and $\beta\sim\text{Gamma}(\gamma_0,\lambda_0)$ using the rate parametrization.
 
 Denote $S_1=\sum_{i=1}^n \log y_i$ and $S_2=\sum_{i=1}^n y_i$.
 
@@ -498,7 +541,7 @@ $$
 \mathbb{1}_{(0,A)}(\alpha)
 $$
 
-Collecting terms in $\beta$ gives the kernel
+Collecting all terms in $\beta$ from the joint posterior gives the kernel for the conditional posterior:
 
 $$
 \beta^{n\alpha+\gamma_0-1}\exp\big(-(\lambda_0+S_2)\beta\big)
@@ -517,11 +560,13 @@ $$
 \exp\Big(n\alpha\log\beta - n\log\Gamma(\alpha) + (\alpha-1)S_1\Big)\mathbf 1_{(0,A)}(\alpha)
 $$
 
-which is not a standard family (because of $\log\Gamma(\alpha)$). Therefore $\alpha$ is updated by a random-walk Metropolis step inside the Gibbs sampler (Metropolis-within-Gibbs), with proposals constrained to $(0,A)$.
+Where $S_1$ and $S_2$ are the sufficient statistics for the Gamma family, which simplifies the expression of the conditional posteriors.
 
-Now, with that proof out the way, we can begin assessing a suitable Burn-In and tuning (which, given the priors, will be done solely on $\alpha$ given conditional conjugacy). 
+Note: The conditional posterior for $\alpha$ does not belong to any standard family due to the presence of the $\log\Gamma(\alpha)$ term. Consequently, $\alpha$ must be updated using a random-walk Metropolis step within the Gibbs sampler (i.e., a Metropolis-within-Gibbs update), with proposals restricted to $(0, A)$.
 
-Similar to the MH method, we start by looking at trace plots and ACF plots with zero burn-in. Again, the fine details of the method are noted in the Appendix, but primarily focus on simulating $\alpha$ and $\beta$ simmultaneously, and working with the log-likelihood. 
+With the full conditionals derived, we now proceed to simulation. As in Question 2, we assess an appropriate Burn-In period and tuning strategy. However, unlike in Question 2, since $\beta$ is conditionally conjugate, tuning is required only for the Metropolis step on $\alpha$.
+
+Convergence diagnostics such as trace plots and autocorrelation functions are examined using zero Burn-In initially. The method primarily focuses on jointly simulating $(\alpha, \beta)$ and employs the log-likelihood for improved numerical stability, again, similar to Question 2.
 
 ```{r, include = F, cache = T, eval = T, echo = F, warning = F, message = F}
 set.seed(43)
@@ -595,6 +640,8 @@ par(mfrow = c(1,1))
 ```
 
 Similar to Question 2, we use a "running mean" (blue) to get a sense of when variability in the parameter "stabilizes". And again, similar (but different!) to Question 2, by iteration 10,000, the ACFs has decayed rapidly, and the trace plot has generally stabilized; to stay on the conservative side, we double this and set that equal to our Burn-In period, settling on a Burn-In period of 20,000. 
+
+Note: Similar to Question 2, although the ACF plot displays values that remain slightly outside the “white-noise” bounds around the proposed Burn-In period, the autocorrelation clearly decays toward zero and alternates in sign, indicating that dependence weakens over time. Therefore, it is still reasonable to suppose the proposed Burn-In period is appropriate.
 
 For tuning then, we again scale our $\alpha$ variance in increments of 0.25, considering the same range of scales, and targeting an acceptance probability around 20-60%. However, given this is using the Gibbs sampling method, I am cautious about not properly "mixing", so apriori I will prioritize lower acceptance proabilities (we will accept more sampling that don't make a "jump", where by comparisons the MH algorithm will actively discard unsuitable "jump" candidates). 
 
@@ -675,7 +722,7 @@ kable(
   caption = esc("Posterior summaries for alpha and beta: five-number statistics and 95 central credible intervals")
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE) |>
   add_header_above(c(" " = 1, "Posterior Summary" = ncol(summ_tbl) - 1))
 
@@ -689,7 +736,7 @@ kable(
   caption = "Correlation matrix for alpha and beta (from Markov chain)"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
 ```
 
@@ -760,10 +807,10 @@ ppp_tbl <- data.frame(
 
 kable(
   ppp_tbl, booktabs = TRUE,
-  caption = "Posterior predictive p-values (upper tail) from 10,000 replicated datasets"
+  caption = "Posterior predictive p-values (upper) 10,000 datasets"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position","striped")) |>
+                latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE) |>
   add_header_above(c(" " = 1, "Posterior Predictive Check" = 2))
 ```
@@ -778,35 +825,33 @@ Compare your results from the use of Metropolis-Hastings and Gibbs Sampling.
 
 ### Answer
 
-The two sampling approaches—Metropolis–Hastings (MH) and Gibbs with a Metropolis-within-Gibbs update—produce highly consistent posterior inferences for all parameters of interest. Both recover nearly identical posterior locations and spreads for $\alpha$, $\beta$, and the derived parameter $\mu = \alpha/\beta$.
+The two sampling approaches, Metropolis–Hastings (MH) and Gibbs (Metropolis-within-Gibbs), produce highly consistent (across methods and against the observed sample) posterior inferences for all parameters of interest, $\alpha, \beta$, and $\mu$. Both have nearly identical posterior locations and spreads for $\alpha$, $\beta$, and the derived parameter $\mu = \alpha/\beta$.
 
-For the MH sampler, the 95% central credible intervals were
+Specifically: For the MH method, the 95% central credible intervals were:
 
 $$
 \alpha \in [6.32,\ 13.72],\quad \beta \in [0.578,\ 1.294],\quad \mu \in [9.823,\ 11.788],
 $$
 
-while the Gibbs sampler yielded
+While the Gibbs method had:
 
 $$
 \alpha \in [6.40,\ 13.41],\quad \beta \in [0.587,\ 1.259],\quad \mu \in [9.810,\ 11.792].
 $$
 
-These results indicate essentially identical central tendencies and dispersion, showing that both samplers successfully explored the same posterior region.
+The pairwise posterior correlation between $\alpha$ and $\beta$ is also very similar, and strongly positive, at approximately 0.97 for both methods. This is a rather unsurprising result, and while we did not take advantage of this correlation, we perhaps could adapt our sampling methods to be more efficient by incorporating this relationship. 
 
-The pairwise posterior correlation between $\alpha$ and $\beta$ is also very similar—approximately (0.97) for both methods—which is expected since the parameters are not independent: $\mu$ is well identified even though $\alpha$ and $\beta$ are highly positively associated.
+From a more descriptive perspective, the MH posterior histograms appear slightly more “jagged,” reflecting that its random-walk updates move both parameters jointly (possibly yielding higher autocorrelation). By comparison the Gibbs method, which draws $\beta$ directly from its conjugate full conditional and updates $\alpha$ by a Metropolis step, produces smoother histograms and traces.
 
-From a qualitative perspective, the MH posterior histograms appear slightly more “jagged,” reflecting that its random-walk updates move both parameters jointly and can yield higher autocorrelation. The Gibbs sampler, which draws $\beta$ directly from its conjugate full conditional and updates $\alpha$ by a univariate Metropolis step, produces smoother histograms and traces due to its more localized updates and higher effective sample size per iteration.
-
-Posterior predictive checks (PPCs) are also consistent across methods. Both yield one-sided posterior predictive p-values between approximately 0.4 and 0.6 for both the 75th percentile and range statistics:
+Posterior predictive checks are also consistent across methods. Both yield one-sided posterior predictive p-values between approximately 0.4 and 0.6 for both the 75th percentile and range statistics, with:
 
 $$
-p_{\text{ppp}}^{(Q_{0.75})} \approx 0.44, \quad p_{\text{ppp}}^{(\text{range})} \approx 0.57
+p_{\text{ppp}}^{(Q_{0.75})} \approx 0.43 \text{ or } 0.44, \quad p_{\text{ppp}}^{(\text{range})} \approx 0.57
 $$
 
-These are comfortably midrange, indicating that simulated datasets from each posterior reproduce the empirical features of the data without systematic bias (values near 0 or 1 would imply under- or over-dispersion).
+Since the ideal results are posterior predictive p-values around 0.4 to 0.6 (since these are not interpreted like traditional p-values), our results indicate that the simulations provide an adequate job at simulating these statistics of interest (statistics which are notably **not** the sufficient statistics). Another way to say this is: The simulated datasets from each posterior reproduce the empirical features of the data without obvious systematic bias.
 
-In short, both algorithms converge to effectively the same posterior. The MH method shows slightly rougher marginal behavior but comparable central estimates, while the Gibbs sampler—with its conjugate $\beta$-updates and well-tuned step for $\alpha$—achieves smoother mixing and a visually steadier chain. After conservative burn-in and careful tuning in both cases, the two methods give nearly indistinguishable posterior summaries and predictive performance, confirming that each appropriately captures the underlying posterior distribution.
+Though unfortunately there are not contextual details to draw upon in concluding, there are a few remarks to summarize. To start, both algorithms appear to converge to very similar (if not the same) posterior distributions for $\alpha, \beta$, and $\mu$. In comparing the two methods, the MH method shows slightly rougher marginal behavior but comparable central estimates, while the Gibbs method achieves smoother mixing. In both cases, we do an adequate job of simulating the original data, such that, after identifying and applying an appropriate Burn-In and tuning, the two methods give nearly indistinguishable posterior summaries and predictive performance.
 
 ```{r, eval = T, echo = F, warning = F, message = F}
 # alpha_range <- range(c(alphaMH, alphaG))
