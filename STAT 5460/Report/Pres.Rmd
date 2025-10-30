@@ -24,7 +24,25 @@ library(tidyverse)
 library(readr)
 ```
 
-# General Timeline
+# Synopsis of Paper 
+
+* Testing the mutual independence for high-dimensional data.
+* Known that $L_2$-type statistics have lower power under sparse alternatives and $L_\infty$-type statistics have lower power under dense alternatives in high dimensions. 
+* With this in mind, develop an adaptive test based on Kendall’s $\tau$ to compromise both situations of the alternative, which can automatically be adapted to the underlying data. 
+* Establish the asymptotic joint distribution of $L_2$-type and $L_\infty$-type statistics based on Kendall’s $\tau$ under mild assumptions and the asymptotic null distribution of the proposed statistic. 
+* Apply simulation to assess how well the test does compared to other testing methods, results that indicate the adaptive test performs well in either dense or sparse cases. 
+
+# What is Kendall's $\tau$
+
+$$
+\tau = \frac{(\text{Count of concordant pairs}) - (\text{Count of discordant pairs})}{(\text{Number of pairs})}
+$$
+
+* Where concordant: Text
+* And where discordant: Text
+* There are other types of Kendall's $\tau$, e.g., $\tau-a$, $\tau-b$, $\tau-c$ 
+
+# How Does This Fit Into a Broader Narrative? 
 
 * **1897** — Fechner introduces the *method of signs* for succession-dependence.
 * **1938** — Kendall develops the $\tau$ rank correlation coefficient.
@@ -35,25 +53,23 @@ library(readr)
 
 # General Summary {.allowframebreaks}
 
-The trajectory from Fechner to modern adaptive tests highlights how a simple sign-based idea grew into a major branch of nonparametric inference.
+In *Kollektivmasslehre* [@Fechner1897] created a "precursor" to Kendall’s $\tau$. His method of signs looked for consecutive-dependence in sequences of observations: Assess concordance and discordance using only the signs of differences, not their magnitudes.
 
-Fechner’s Kollektivmasslehre (1897) [@Fechner1897] anticipated many of the ideas behind Kendall’s $\tau$. His method of signs looked for succession-dependence in sequences of observations, asking whether runs of increases or decreases occurred more often than chance would predict. Though Fechner restricted his comparisons to adjacent pairs, the spirit was the same: assess concordance and discordance using only the signs of differences, not their magnitudes. He even applied this method to meteorological series and anthropometric data, extending the idea to two dimensions.
+Kendall [@Kendall1938] generalized Fechner’s idea by considering all possible pairs of observations, not just consecutive ones. His $\tau$ statistic became the canonical rank correlation coefficient, widely adopted as a nonparametric alternative to Pearson’s correlation.
 
-Kendall (1938) [@Kendall1938] generalized Fechner’s idea by considering all possible pairs of observations, not just consecutive ones. His $\tau$ statistic became the canonical rank correlation coefficient, widely adopted as a nonparametric alternative to Pearson’s correlation.
+Kruskal [@Kruskal1958] emphasized $\tau$’s place within a broader family of nonparametric statistics for ordinal data, within the framework of formal hypothesis testing. 
 
-Kruskal (1958) [@Kruskal1958] emphasized $\tau$’s place within a broader family of nonparametric statistics for ordinal data, framing it for hypothesis testing. Rank-based measures then spread to time series, enabling tests for persistence/independence in hydrological and environmental data [@ElShaarawi1992; @Hamed2011].
+Rank-based measures then spread to time series, enabling tests for persistence/independence in various settings [@ElShaarawi1992; @Hamed2011].
 
-Key point: This lineage leads to independence testing in high dimensions, where Kendall’s $\tau$ supports robust, distribution-free procedures resilient to heavy tails and monotone transformations [@Shi2024; @Han2025].
+And now, we apply these methods (use Kendall’s $\tau$) for the purposes of robust, distribution-free procedures, assessing both how and under what circumstances these tests of independence may be applied (e.g., whether the type of data or problem would lend itself to such an application) [@Shi2024; @Han2025].
 
-# Concise Comparison to Kendall’s $\tau$
+# How Is This Non-Parametric? 
 
-Fechner (1897): Successive changes in time series; sign-based concordance on adjacent pairs.
+* We make no distributional assumptions of the variables (covariates or otherwise) we wish to test for independence. 
 
-Kendall (1938): Concordance/discordance over all pairs; a general rank correlation for unordered data [@Kendall1938].
+* Doesn't mean the statistic (Kendall $\tau$) is distribution-free though! Just the inputs going into it! 
 
-Key takeaway: Fechner’s succession-based idea becomes Kendall’s general ordinal association measure.
-
-# Motivation and Relevance
+# Why This, and Why Now? 
 
 Modern work continues to exploit distribution-free, rank-based tests of independence:
 
@@ -65,7 +81,7 @@ Broader treatments of ordinal association and nonparametric effects [@Kruskal195
 
 Persistence testing with ranks in environmental contexts [@Hamed2011].
 
-# Recent Development: Shi et al. (2024) {.allowframebreaks}
+# In Detail: Shi et al. (2024) {.allowframebreaks}
 
 ## Problem
 
@@ -99,29 +115,53 @@ $W=\min{U_1,U_2}$ with $U_i\sim \mathrm{Unif}(0,1)$ so $H(t)=2t-t^2$.
 
 # Results I 
 
+Under various settings, we compare the following methods: 
+
+$S_r$: Text
+
+$TS_{\tau}$: Text
+
+$MS_{\tau}$:  Text
+
+$M_{r}$: Text
+
+$TM{\tau}$: Text
+
+$MM_{\tau}$: Text
+
+$TC{\tau}$: Text
+
+$MC{\tau}$: Text
+
+$PE{r}$: Text
+
+$U_{\min}$: Text
+
+# Results II
+
 ```{r Table 1, echo=FALSE, fig.align="center", out.height="77%", out.width="80%", fig.cap="Empirical sizes of tests"}
 knitr::include_graphics("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5460/Report/Figures/Table1.png")
 ```
 
-# Results II
+# Results III
 
 ```{r Table 2, echo=FALSE, fig.align="center", out.width="80%", fig.cap="Empirical powers of tests in dense cases."}
 knitr::include_graphics("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5460/Report/Figures/Table2.png")
 ```
 
-# Results III
+# Results IV
 
 ```{r Table 3, echo=FALSE, fig.align="center", out.width="80%", fig.cap="Empirical powers of tests in sparse cases."}
 knitr::include_graphics("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5460/Report/Figures/Table3.png")
 ```
 
-# Results IV 
+# Results V 
 
 ```{r Table 4, echo=FALSE, fig.align="center", out.height="77%", out.width="80%", fig.cap="Empirical powers under various strengths of dependence in dense cases."}
 knitr::include_graphics("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5460/Report/Figures/Table4.png")
 ```
 
-# Results V
+# Results VI
 
 ```{r Table 5, echo=FALSE, fig.align="center", out.width="80%", fig.cap="Empirical powers under various strengths of dependence in sparse cases."}
 knitr::include_graphics("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5460/Report/Figures/Table5.png")
@@ -139,7 +179,7 @@ Rank-based adaptive tests are practical and robust; 2025 work generalizes to sum
 # Next Steps
 
 * Consulting applications (survey, environmental, biochemical).
-* Reflection: Kendall’s $\tau$ connects classic nonparametrics to modern HD inference.
+* Reflection: Kendall’s $\tau$ connects classic nonparametric tests to modern high-dimension inference.
 
 # References {.allowframebreaks}
 

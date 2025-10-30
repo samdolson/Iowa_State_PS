@@ -132,8 +132,52 @@ dimensions}
 \begin{document}
 \frame{\titlepage}
 
-\begin{frame}{General Timeline}
-\phantomsection\label{general-timeline}
+\begin{frame}{Synopsis of Paper}
+\phantomsection\label{synopsis-of-paper}
+\begin{itemize}
+\tightlist
+\item
+  Testing the mutual independence for high-dimensional data.
+\item
+  Known that \(L_2\)-type statistics have lower power under sparse
+  alternatives and \(L_\infty\)-type statistics have lower power under
+  dense alternatives in high dimensions.
+\item
+  With this in mind, develop an adaptive test based on Kendall's
+  \(\tau\) to compromise both situations of the alternative, which can
+  automatically be adapted to the underlying data.
+\item
+  Establish the asymptotic joint distribution of \(L_2\)-type and
+  \(L_\infty\)-type statistics based on Kendall's \(\tau\) under mild
+  assumptions and the asymptotic null distribution of the proposed
+  statistic.
+\item
+  Apply simulation to assess how well the test does compared to other
+  testing methods, results that indicate the adaptive test performs well
+  in either dense or sparse cases.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{What is Kendall's \(\tau\)}
+\phantomsection\label{what-is-kendalls-tau}
+\[
+\tau = \frac{(\text{Count of concordant pairs}) - (\text{Count of discordant pairs})}{(\text{Number of pairs})}
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  Where concordant: Text
+\item
+  And where discordant: Text
+\item
+  There are other types of Kendall's \(\tau\), e.g., \(\tau-a\),
+  \(\tau-b\), \(\tau-c\)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{How Does This Fit Into a Broader Narrative?}
+\phantomsection\label{how-does-this-fit-into-a-broader-narrative}
 \begin{itemize}
 \tightlist
 \item
@@ -159,51 +203,46 @@ dimensions}
 
 \begin{frame}[allowframebreaks]{General Summary}
 \phantomsection\label{general-summary}
-The trajectory from Fechner to modern adaptive tests highlights how a
-simple sign-based idea grew into a major branch of nonparametric
-inference.
+In \emph{Kollektivmasslehre} (Fechner 1897) created a ``precursor'' to
+Kendall's \(\tau\). His method of signs looked for
+consecutive-dependence in sequences of observations: Assess concordance
+and discordance using only the signs of differences, not their
+magnitudes.
 
-Fechner's Kollektivmasslehre (1897) (Fechner 1897) anticipated many of
-the ideas behind Kendall's \(\tau\). His method of signs looked for
-succession-dependence in sequences of observations, asking whether runs
-of increases or decreases occurred more often than chance would predict.
-Though Fechner restricted his comparisons to adjacent pairs, the spirit
-was the same: assess concordance and discordance using only the signs of
-differences, not their magnitudes. He even applied this method to
-meteorological series and anthropometric data, extending the idea to two
-dimensions.
+Kendall (Kendall 1938) generalized Fechner's idea by considering all
+possible pairs of observations, not just consecutive ones. His \(\tau\)
+statistic became the canonical rank correlation coefficient, widely
+adopted as a nonparametric alternative to Pearson's correlation.
 
-Kendall (1938) (Kendall 1938) generalized Fechner's idea by considering
-all possible pairs of observations, not just consecutive ones. His
-\(\tau\) statistic became the canonical rank correlation coefficient,
-widely adopted as a nonparametric alternative to Pearson's correlation.
+Kruskal (Kruskal 1958) emphasized \(\tau\)'s place within a broader
+family of nonparametric statistics for ordinal data, within the
+framework of formal hypothesis testing.
 
-Kruskal (1958) (Kruskal 1958) emphasized \(\tau\)'s place within a
-broader family of nonparametric statistics for ordinal data, framing it
-for hypothesis testing. Rank-based measures then spread to time series,
-enabling tests for persistence/independence in hydrological and
-environmental data (El-Shaarawi and Niculescu 1992; Hamed 2011).
+Rank-based measures then spread to time series, enabling tests for
+persistence/independence in various settings (El-Shaarawi and Niculescu
+1992; Hamed 2011).
 
-Key point: This lineage leads to independence testing in high
-dimensions, where Kendall's \(\tau\) supports robust, distribution-free
-procedures resilient to heavy tails and monotone transformations (Shi et
-al. 2024; Han, Ma, and Xie 2025).
+And now, we apply these methods (use Kendall's \(\tau\)) for the
+purposes of robust, distribution-free procedures, assessing both how and
+under what circumstances these tests of independence may be applied
+(e.g., whether the type of data or problem would lend itself to such an
+application) (Shi et al. 2024; Han, Ma, and Xie 2025).
 \end{frame}
 
-\begin{frame}{Concise Comparison to Kendall's \(\tau\)}
-\phantomsection\label{concise-comparison-to-kendalls-tau}
-Fechner (1897): Successive changes in time series; sign-based
-concordance on adjacent pairs.
-
-Kendall (1938): Concordance/discordance over all pairs; a general rank
-correlation for unordered data (Kendall 1938).
-
-Key takeaway: Fechner's succession-based idea becomes Kendall's general
-ordinal association measure.
+\begin{frame}{How Is This Non-Parametric?}
+\phantomsection\label{how-is-this-non-parametric}
+\begin{itemize}
+\item
+  We make no distributional assumptions of the variables (covariates or
+  otherwise) we wish to test for independence.
+\item
+  Doesn't mean the statistic (Kendall \(\tau\)) is distribution-free
+  though! Just the inputs going into it!
+\end{itemize}
 \end{frame}
 
-\begin{frame}{Motivation and Relevance}
-\phantomsection\label{motivation-and-relevance}
+\begin{frame}{Why This, and Why Now?}
+\phantomsection\label{why-this-and-why-now}
 Modern work continues to exploit distribution-free, rank-based tests of
 independence:
 
@@ -219,8 +258,8 @@ Broader treatments of ordinal association and nonparametric effects
 Persistence testing with ranks in environmental contexts (Hamed 2011).
 \end{frame}
 
-\begin{frame}[allowframebreaks]{Recent Development: Shi et al.~(2024)}
-\phantomsection\label{recent-development-shi-et-al.-2024}
+\begin{frame}[allowframebreaks]{In Detail: Shi et al.~(2024)}
+\phantomsection\label{in-detail-shi-et-al.-2024}
 \begin{block}{Problem}
 \phantomsection\label{problem}
 \[
@@ -276,6 +315,31 @@ C_\tau=\min{(1-\Phi(S_\tau), 1-F_{\mathrm{Gumbel}}(M_\tau))}
 
 \begin{frame}{Results I}
 \phantomsection\label{results-i}
+Under various settings, we compare the following methods:
+
+\(S_r\): Text
+
+\(TS_{\tau}\): Text
+
+\(MS_{\tau}\): Text
+
+\(M_{r}\): Text
+
+\(TM{\tau}\): Text
+
+\(MM_{\tau}\): Text
+
+\(TC{\tau}\): Text
+
+\(MC{\tau}\): Text
+
+\(PE{r}\): Text
+
+\(U_{\min}\): Text
+\end{frame}
+
+\begin{frame}{Results II}
+\phantomsection\label{results-ii}
 \begin{figure}
 
 {\centering \includegraphics[width=0.8\linewidth,height=0.77\textheight]{Figures/Table1} 
@@ -286,8 +350,8 @@ C_\tau=\min{(1-\Phi(S_\tau), 1-F_{\mathrm{Gumbel}}(M_\tau))}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Results II}
-\phantomsection\label{results-ii}
+\begin{frame}{Results III}
+\phantomsection\label{results-iii}
 \begin{figure}
 
 {\centering \includegraphics[width=0.8\linewidth]{Figures/Table2} 
@@ -298,8 +362,8 @@ C_\tau=\min{(1-\Phi(S_\tau), 1-F_{\mathrm{Gumbel}}(M_\tau))}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Results III}
-\phantomsection\label{results-iii}
+\begin{frame}{Results IV}
+\phantomsection\label{results-iv}
 \begin{figure}
 
 {\centering \includegraphics[width=0.8\linewidth]{Figures/Table3} 
@@ -310,8 +374,8 @@ C_\tau=\min{(1-\Phi(S_\tau), 1-F_{\mathrm{Gumbel}}(M_\tau))}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Results IV}
-\phantomsection\label{results-iv}
+\begin{frame}{Results V}
+\phantomsection\label{results-v}
 \begin{figure}
 
 {\centering \includegraphics[width=0.8\linewidth,height=0.77\textheight]{Figures/Table4} 
@@ -322,8 +386,8 @@ C_\tau=\min{(1-\Phi(S_\tau), 1-F_{\mathrm{Gumbel}}(M_\tau))}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Results V}
-\phantomsection\label{results-v}
+\begin{frame}{Results VI}
+\phantomsection\label{results-vi}
 \begin{figure}
 
 {\centering \includegraphics[width=0.8\linewidth]{Figures/Table5} 
@@ -358,8 +422,8 @@ generalizes to sum-of-powers (Han, Ma, and Xie 2025).
 \item
   Consulting applications (survey, environmental, biochemical).
 \item
-  Reflection: Kendall's \(\tau\) connects classic nonparametrics to
-  modern HD inference.
+  Reflection: Kendall's \(\tau\) connects classic nonparametric tests to
+  modern high-dimension inference.
 \end{itemize}
 \end{frame}
 
