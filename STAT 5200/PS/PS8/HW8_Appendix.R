@@ -12,7 +12,7 @@ library(kableExtra)
 
 metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
   # Metropolis for a one-sample Gamma(shape = alpha, rate = beta) model
-  # with joint prior being the product of marginals 
+  #   with joint prior = product of marginals 
   # alpha ~ Uniform(0, A)
   # beta ~ Gamma(gamma0, lambda0)
   #
@@ -26,7 +26,7 @@ metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
   # B : burn-in iterations
   # M : number of kept draws
   #
-  # Additional Notes
+  # Additional Notes:
   # Likelihood: Y_i ~ Gamma(alpha, beta)
   #   f(y | alpha, beta) = beta^alpha / Gamma(alpha) * y^(alpha-1) * exp(-beta*y)
   # Prior on alpha: Uniform(0, A) 
@@ -119,7 +119,7 @@ metropforgamma <- function(dat, start, priorpars, jumpvars, B, M){
 
 proposealpha <- function(calpha, valpha, A){
   # propose jump from random walk for alpha (shape)
-  # enforce support (0, A)
+  # check support in (0, A)
   # if invalid, revert to current
   z <- rnorm(1, 0, sqrt(valpha))
   alphastar <- calpha + z
@@ -129,7 +129,7 @@ proposealpha <- function(calpha, valpha, A){
 
 proposebeta <- function(cbeta, vbeta){
   # propose jump from random walk for beta (rate)
-  # enforce positivity
+  # check positivity
   # if invalid, revert to current
   z <- rnorm(1, 0, sqrt(vbeta))
   betastar <- cbeta + z
@@ -139,25 +139,25 @@ proposebeta <- function(cbeta, vbeta){
 
 gibbsforgamma <- function(dat, start, priorpars, B, M, valpha){
   # Gibbs sampler for one-sample Gamma(shape = alpha, rate = beta) model
-  # with alpha ~ Uniform(0, A)
-  # beta ~ Gamma(gamma0, lambda0)
-  # Inputs: Very similar in structure to MH method 
+  #   with alpha ~ Uniform(0, A)
+  #   beta ~ Gamma(gamma0, lambda0)
+  # 
+  # Inputs: 
+  #   (similar to MH method)
   # dat : vector of observed positive data (y_i > 0)
   # start : c(alpha0, beta0)
   # priorpars : c(gamma0, lambda0, A)
   # B : burn-in 
   # M : number of kept draws
-  # valpha : proposal variance for MH step on alpha (b/c Metropolis-within-Gibbs)
+  # valpha : proposal variance for MH step on alpha (bc Metropolis-within-Gibbs)
   #
   # Notes on full conditionals and conjugacy:
   # Conditional for beta | alpha, y is Gamma(gamma0 + n*alpha, lambda0 + sum(y))
   #   (shape/rate parametrization) this is conjugate, so we can sample beta directly
-  # Conditional for alpha | beta, y is NOT standard:
+  # Conditional for alpha | beta, y (the tricky part):
   #       p(alpha | beta, y) proportional to [beta^(n*alpha) / Gamma(alpha)^n] *
   #       (prod(y_i))^(alpha - 1) * I(0 < alpha < A)
-  # Use a random-walk MH step for alpha inside the Gibbs loop
-  #   (Metropolis-within-Gibbs)
-  #   mirroring the reference Gibbs code structure
+  # Use a random-walk MH for alpha inside the Gibbs
   
   # Starting inputs 
   calpha <- start[1]
@@ -183,15 +183,15 @@ gibbsforgamma <- function(dat, start, priorpars, B, M, valpha){
     cnt <- cnt + 1
     
     # 1. Sample beta | alpha, y  (conjugate Gamma)
-    # where 
-    # shape = gamma0 + n*alpha
-    # rate = lambda0 + sum(y)
+    #   where 
+    #   shape = gamma0 + n*alpha
+    #   rate = lambda0 + sum(y)
     newbeta <- rgamma(1, shape = gamma0 + n * calpha, rate = lambda0 + sumy)
     
     # 2. Sample alpha | beta, y  (Metropolis within Gibbs)
-    # target log-density up to constant:
-    # log p(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha)) + (alpha - 1)*sum(log(y))
-    # for 0<alpha<A
+    #   target log-density up to constant:
+    #   log p(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha)) + (alpha - 1)*sum(log(y))
+    #   for 0<alpha<A
     astep <- sampalpha_mh(calpha, newbeta, valpha, sumlogy, n, A)
     newalpha <- astep$alpha
     accept_alpha <- accept_alpha + astep$acc
@@ -213,12 +213,11 @@ gibbsforgamma <- function(dat, start, priorpars, B, M, valpha){
 }
 
 sampalpha_mh <- function(calpha, beta, valpha, sumlogy, n, A){
-  # One-step random-walk MH update for alpha (shape) given beta and y.
-  # Returns a list(alpha = ..., acc = 0/1)
-  
+  # MH for alpha given beta and y.
+  # 
   # target log-density (up to constant in alpha):
-  # log f(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha)) + (alpha - 1)*sumlogy
-  # with support 0 < alpha < A
+  #   log f(alpha | beta, y) = n*alpha*log(beta) - n*log(Gamma(alpha)) + (alpha - 1)*sumlogy
+  #   with support 0 < alpha < A
   z <- rnorm(1, 0, sqrt(valpha))
   alphastar <- calpha + z
   if(alphastar <= 0 || alphastar >= A){
@@ -261,7 +260,8 @@ one_method_tbl <- function(vec_list, method = NULL) {
   df
 }
 
-# Posterior Predictive p-values
+# Posterior Predictive p-value statistics 
+#   these can include NA handling, but non-issue for this problem
 Q1 <- function(z) as.numeric(quantile(z, 0.75))
 Q2 <- function(z) diff(range(z))
 
@@ -275,7 +275,7 @@ alpha_accept_from_chain <- function(alpha_chain) {
 make_breaks <- function(x1, x2, width = 0.1) seq(from = floor(x1), to = ceiling(x2), by = width)
 
 # Actual Run of Code 
-# If you're just interested in functions, you can stop here 
+# If you're just interested in functions, you can stop here, well, kinda 
 # gammaDat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/gammadat_bayes.txt", header = T)
 gammaDat <- read.table(".../gammadat_bayes.txt", header = T)
 set.seed(43)
@@ -458,7 +458,7 @@ idx <- sample(seq_along(alpha), ndraws)
 
 yrep_stats <- matrix(NA, nrow = 2, ncol = ndraws)
 
-# for each of the 10,000, create datasets of size 50
+# for each of the 10,000, create datasets of original size of obs (50)
 for (s in seq_len(ndraws)) {
   yrep <- rgamma(n, shape = alpha[idx[s]], rate = beta[idx[s]])
   yrep_stats[1, s] <- Q1(yrep)  
@@ -567,6 +567,8 @@ ci_mu <- quantile(mu, c(0.025, 0.975), names = FALSE)
 
 corr_ab <- cor(alpha, beta, use = "complete.obs")
 
+# "Credible Interval" 
+#   Is based on empirical distribution of the parameter(s)
 summ_tbl <- data.frame(
   Parameter = c("alpha","beta"),
   Min = c(fivenum_alpha[1], fivenum_beta[1]),
@@ -619,6 +621,8 @@ abline(v=ci_mu, lty=2)
 gout <- final
 n <- length(y)
 
+# Posterior Predictive Stuff 
+#   Should be closely mirrored when done for Gibbs (though, maybe slightly different)
 # observed
 Tobs_q75 <- Q1(y)
 Tobs_range <- Q2(y)
