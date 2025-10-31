@@ -277,6 +277,8 @@ make_breaks <- function(x1, x2, width = 0.1) seq(from = floor(x1), to = ceiling(
 # Actual Run of Code 
 # If you're just interested in functions, you can stop here, well, kinda 
 # gammaDat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS8/gammadat_bayes.txt", header = T)
+# Note: I did some adjusting to the tables/graphics last minute, so the "kable" calls later for Question 4 will not match exactly with what is seen in the final output
+# My apologies for this error. 
 gammaDat <- read.table(".../gammadat_bayes.txt", header = T)
 set.seed(43)
 y <- as.numeric(gammaDat$y)
@@ -398,13 +400,14 @@ ci_only <- param_tbl[, cols_ci, drop = FALSE]
 names(ci_only)[names(ci_only) == ci_low] <- "Lower 2.5"
 names(ci_only)[names(ci_only) == ci_high] <- "Upper 97.5"
 
-kable(
-  ci_only, booktabs = TRUE, escape = TRUE,
-  caption = esc("95 central credible intervals")
-) |>
-  kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position")) |>
-  column_spec(1, bold = TRUE)
+# Realized there was duplicate information, sorry! 
+# kable(
+#   ci_only, booktabs = TRUE, escape = TRUE,
+#   caption = esc("95 central credible intervals")
+# ) |>
+#   kable_styling(full_width = FALSE, position = "center",
+#                 latex_options = c("hold_position")) |>
+#   column_spec(1, bold = TRUE)
 
 acc_vec <- as.numeric(acc_final)
 acc_names <- names(acc_final)
@@ -561,6 +564,7 @@ mu <- final$mu
 
 fivenum_alpha <- fivenum(alpha)
 fivenum_beta <- fivenum(beta)
+fivenum_mu <- fivenum(mu)
 ci_alpha <- quantile(alpha, c(0.025, 0.975), names = FALSE)
 ci_beta <- quantile(beta,  c(0.025, 0.975), names = FALSE)
 ci_mu <- quantile(mu, c(0.025, 0.975), names = FALSE) 
@@ -570,7 +574,7 @@ corr_ab <- cor(alpha, beta, use = "complete.obs")
 # "Credible Interval" 
 #   Is based on empirical distribution of the parameter(s)
 summ_tbl <- data.frame(
-  Parameter = c("alpha","beta"),
+  Parameter = c("alpha","beta", "mu"),
   Min = c(fivenum_alpha[1], fivenum_beta[1]),
   Q1 = c(fivenum_alpha[2], fivenum_beta[2]),
   Median = c(fivenum_alpha[3], fivenum_beta[3]),

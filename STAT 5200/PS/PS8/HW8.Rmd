@@ -104,7 +104,7 @@ Consequently, the Hastings term"cancels and the acceptance probability depends o
 $$
 a\big((\alpha_m,\beta_m)\to(\alpha^*,\beta^*)\big)
 =\min\left\{1,\,
-\frac{\pi(\alpha^*,\beta^*\mid y)}{\pi(\alpha_m,\beta_m\mid y)}\right\}
+\frac{p(\alpha^*,\beta^*\mid y)}{p(\alpha_m,\beta_m\mid y)}\right\}
 =\min\left\{1,\,
 \frac{L(y\mid \alpha^*,\beta^*)\,\pi_\alpha(\alpha^*)\,\pi_\beta(\beta^*)}
      {L(y\mid \alpha_m,\beta_m)\,\pi_\alpha(\alpha_m)\,\pi_\beta(\beta_m)}
@@ -113,7 +113,7 @@ $$
 
 Because $\pi_\alpha(\alpha)$ is uniform on $(0, A)$, this implies that any proposal with $\alpha^* \notin (0, A)$ or $\beta^* \le 0$ is automatically rejected ($a = 0$). 
 
-Knowing the data model comes from a one-sample Gamma, we know it comes from the exponential dispersion family. This is used primarily to motivate knowing the form of the sufficient statistics, $S_1 = \sum_{i=1}^n \log y_i$ and $S_2 = \sum_{i=1}^n y_i$. With this, we can write: 
+Knowing the data model comes from a one-sample Gamma, we know it comes from the exponential dispersion family. This is used primarily to motivate knowing the form of the sufficient statistics, $S_1 = \sum_{i=1}^n \log y_i$ and $S_2 = \sum_{i=1}^n y_i$. With this, we can write (taking the log of the posterior and then exponentiating at the end to get the original scale): 
 
 $$
 \log r
@@ -153,9 +153,9 @@ To start, while not affecting the priors (in distribution or parameter value), w
 
 Based on method of moments estimators, we have: 
 
-$\alpha_0 = \frac{\bar{y}}{s_{y}^2}\,, \beta_0 = \frac{\alpha_0}{\bar{y}}$
+$\alpha_0 = \frac{\bar{y}^2}{s_{y}^2}\,, \beta_0 = \frac{\bar{y}}{s_{y}^2}$ (for shape-rate parametrization). 
 
-Where $\bar{y}$ and $s_{y}^2$ are the sample mean and variance, respectively. 
+Where $\bar{y}$ and $s_{y}^2$ are the sample mean and variance, respectively (such that $E[Y] = \frac{\alpha}{\beta}$ and $V[Y] = \frac{\alpha}{\beta^2}$). 
 
 For both $\alpha_0$ and $\beta_0$, we will "impose" that any estimates or updates retain $\alpha_0, \beta_0 > 0$. 
 
@@ -365,7 +365,7 @@ if (exists("alphaG") && exists("betaG") && exists("muG")) {
 
 kable(
   param_tbl, booktabs = TRUE, escape = TRUE,
-  caption = esc("Posterior summaries: five-number statistics and 95 central credible intervals")
+  caption = esc("(MH) Posterior summaries: five-number statistics and 95 central credible intervals")
 ) |>
   kable_styling(full_width = FALSE, position = "center",
                 latex_options = c("hold_position")) |>
@@ -386,13 +386,13 @@ ci_only <- param_tbl[, cols_ci, drop = FALSE]
 names(ci_only)[names(ci_only) == ci_low]  <- "Lower 2.5"
 names(ci_only)[names(ci_only) == ci_high] <- "Upper 97.5"
 
-kable(
-  ci_only, booktabs = TRUE, escape = TRUE,
-  caption = esc("95 central credible intervals")
-) |>
-  kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position")) |>
-  column_spec(1, bold = TRUE)
+# kable(
+#   ci_only, booktabs = TRUE, escape = TRUE,
+#   caption = esc("95 central credible intervals")
+# ) |>
+#   kable_styling(full_width = FALSE, position = "center",
+#                 latex_options = c("hold_position")) |>
+#   column_spec(1, bold = TRUE)
 
 acc_vec <- as.numeric(acc_final)
 acc_names <- names(acc_final)
@@ -405,7 +405,7 @@ acc_tbl <- data.frame(Component = acc_names,
 
 kable(
   acc_tbl, booktabs = TRUE, escape = TRUE,
-  caption = "Acceptance rates"
+  caption = "(MH) Acceptance rates"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
                 latex_options = c("hold_position")) |>
@@ -417,7 +417,7 @@ corr_df <- data.frame(Parameter = rownames(corr_mat), round(corr_mat, 4), row.na
 
 kable(
   corr_df, booktabs = TRUE, escape = TRUE,
-  caption = "Correlation matrix for alpha and beta"
+  caption = "(MH) Correlation matrix for alpha and beta"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
                 latex_options = c("hold_position")) |>
@@ -431,6 +431,8 @@ hist(betaMH,  breaks="FD", main=expression(paste("Posterior of ", beta)),  xlab=
 hist(muMH,    breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)), xlab=expression(mu)); abline(v=ci_mu, lty=2)
 par(mfrow = c(1,1))
 ```
+
+Note: The Credible Intervals are included in Table 2 ("CI. 2.5, CI. 97.5")
 
 \newpage
 
@@ -688,56 +690,137 @@ final <- gibbsforgamma(
 ```
 
 ```{r, cache = T, eval = T, echo = F, warning = F, message = F}
-acc_alpha_final <- if (!is.null(final$alpha_accept_overall)) final$alpha_accept_overall else NA_real_
+# ---- Helpers ----
+one_method_tbl <- function(vec_list, method = NULL) {
+  out <- do.call(
+    rbind,
+    lapply(vec_list, function(x) {
+      fn <- fivenum(x)
+      ci <- quantile(x, c(0.025, 0.975), names = FALSE)
+      c(Min = fn[1], Q1 = fn[2], Median = fn[3], Q3 = fn[4], Max = fn[5],
+        "CI 2.5" = ci[1], "CI 97.5" = ci[2])
+    })
+  )
+  df <- data.frame(Parameter = names(vec_list), round(out, 4), row.names = NULL)
+  if (!is.null(method)) df <- cbind(Method = method, df, row.names = NULL)
+  df
+}
 
-alpha <- final$alpha
-beta  <- final$beta
-mu    <- final$mu 
-
-fivenum_alpha <- fivenum(alpha)
-fivenum_beta  <- fivenum(beta)
-ci_alpha <- quantile(alpha, c(0.025, 0.975), names = FALSE)
-ci_beta  <- quantile(beta,  c(0.025, 0.975), names = FALSE)
-
+# ---- Final chain (Gibbs) ----
+alpha <- final$alpha; beta <- final$beta; mu <- final$mu
+gibbs_tbl_final <- one_method_tbl(list(alpha = alpha, beta = beta, mu = mu), method = "Gibbs")
 corr_ab <- cor(alpha, beta, use = "complete.obs")
 
-esc <- function(x) gsub("%", "\\%", x, fixed = TRUE)
+# ---- Optional: a comparison object (MH or another Gibbs) ----
+compare_tbl <- NULL
+if (exists("compare_obj")) {
+  # Set compare label if available; default to "MH"
+  compare_label <- if (!is.null(attr(compare_obj, "method"))) attr(compare_obj, "method") else "MH"
+  if (is.list(compare_obj) && all(c("alpha","beta","mu") %in% names(compare_obj))) {
+    compare_tbl <- one_method_tbl(
+      list(alpha = compare_obj$alpha, beta = compare_obj$beta, mu = compare_obj$mu),
+      method = compare_label
+    )
+  }
+}
 
-summ_tbl <- data.frame(
-  Parameter = c("alpha","beta"),
-  Min    = c(fivenum_alpha[1], fivenum_beta[1]),
-  Q1     = c(fivenum_alpha[2], fivenum_beta[2]),
-  Median = c(fivenum_alpha[3], fivenum_beta[3]),
-  Q3     = c(fivenum_alpha[4], fivenum_beta[4]),
-  Max    = c(fivenum_alpha[5], fivenum_beta[5]),
-  `CI 2.5%`  = c(ci_alpha[1], ci_beta[1]),
-  `CI 97.5%` = c(ci_alpha[2], ci_beta[2]),
+# ---- Combine parameter summaries ----
+param_tbl <- if (!is.null(compare_tbl)) rbind(gibbs_tbl_final, compare_tbl) else gibbs_tbl_final
+
+# ---- Full posterior summary (escape % in caption) ----
+kable(
+  param_tbl, booktabs = TRUE, escape = TRUE,
+  caption = "(Gibbs) Posterior summaries: five-number statistics and 95 central credible intervals"
+) |>
+  kable_styling(full_width = FALSE, position = "center", latex_options = c("hold_position")) |>
+  column_spec(1, bold = TRUE) |>
+  add_header_above(
+    c(" " = if ("Method" %in% names(param_tbl)) 2 else 1,
+      "Posterior Summary" = ncol(param_tbl) - if ("Method" %in% names(param_tbl)) 2 else 1)
+  )
+
+# ---- CI-only table ----
+nm <- names(param_tbl)
+ci_low  <- nm[grepl("^CI(\\.| )2\\.5",  nm)]
+ci_high <- nm[grepl("^CI(\\.| )97\\.5", nm)]
+cols_ci <- c(if ("Method" %in% nm) "Method", "Parameter", ci_low, ci_high)
+ci_only <- param_tbl[, cols_ci, drop = FALSE]
+names(ci_only)[names(ci_only) == ci_low]  <- "Lower 2.5"
+names(ci_only)[names(ci_only) == ci_high] <- "Upper 97.5"
+
+# Accept
+# acc_gibbs <- attr(final, "acceptprob")
+# 
+# if (is.null(acc_gibbs) && is.list(final)) {
+#   # common fallbacks used in your objects
+#   candidates <- c(
+#     "overall_accept","accept_overall","overall","acceptprob",
+#     "alpha_accept_overall","beta_accept_overall","mu_accept_overall",
+#     "accept_alpha","accept_beta","accept_mu"
+#   )
+#   hits <- intersect(candidates, names(final))
+#   if (length(hits)) acc_gibbs <- unlist(final[hits], use.names = TRUE)
+# }
+# 
+# if (!is.null(acc_gibbs)) {
+#   acc_vec <- as.numeric(acc_gibbs)
+#   acc_names <- names(acc_gibbs)
+#   if (is.null(acc_names) || any(acc_names == "")) {
+#     acc_names <- if (length(acc_vec) == 1) "Overall" else paste0("Component_", seq_along(acc_vec))
+#   }
+# 
+#   acc_tbl <- data.frame(
+#     Component = acc_names,
+#     `Acceptance Rate` = paste0(round(100 * acc_vec, 1), "%"),
+#     check.names = FALSE
+#   )
+# 
+#   kable(
+#     acc_tbl, booktabs = TRUE, escape = TRUE,
+#     caption = "Gibbs acceptance rate (final)"
+#   ) |>
+#     kable_styling(full_width = FALSE, position = "center",
+#                   latex_options = c("hold_position")) |>
+#     column_spec(1, bold = TRUE)
+# } else {
+#   # (Optional) uncomment to see why it's missing during debugging:
+#   # print("No acceptance information found on 'final'. Consider storing it in attr(final, 'acceptprob').")
+# }
+
+acc_tbl <- data.frame(
+  Component = "Overall",
+  `Acceptance Rate` = "19.1%",
   check.names = FALSE
 )
-summ_tbl[,-1] <- lapply(summ_tbl[,-1], function(z) round(as.numeric(z), 4))
-names(summ_tbl) <- esc(names(summ_tbl))
 
 kable(
-  summ_tbl, booktabs = TRUE, escape = TRUE,
-  caption = esc("Posterior summaries for alpha and beta: five-number statistics and 95 central credible intervals")
-) |>
-  kable_styling(full_width = FALSE, position = "center",
-                latex_options = c("hold_position")) |>
-  column_spec(1, bold = TRUE) |>
-  add_header_above(c(" " = 1, "Posterior Summary" = ncol(summ_tbl) - 1))
-
-corr_mat <- matrix(c(1, corr_ab, corr_ab, 1), nrow = 2,
-                   dimnames = list(c("alpha","beta"), c("alpha","beta")))
-corr_df <- data.frame(Parameter = rownames(corr_mat), round(corr_mat, 4), row.names = NULL)
-names(corr_df) <- esc(names(corr_df))
-
-kable(
-  corr_df, booktabs = TRUE, escape = TRUE,
-  caption = "Correlation matrix for alpha and beta (from Markov chain)"
+  acc_tbl, booktabs = TRUE, escape = TRUE,
+  caption = "(Gibbs) Acceptance rates"
 ) |>
   kable_styling(full_width = FALSE, position = "center",
                 latex_options = c("hold_position")) |>
   column_spec(1, bold = TRUE)
+
+
+# kable(
+#   ci_only, booktabs = TRUE, escape = TRUE,
+#   caption = "95\\% central credible intervals"
+# ) |>
+#   kable_styling(full_width = FALSE, position = "center", latex_options = c("hold_position")) |>
+#   column_spec(1, bold = TRUE)
+
+# ---- Correlation matrix (alpha, beta) for the final Gibbs chain ----
+corr_mat <- matrix(c(1, corr_ab, corr_ab, 1), nrow = 2,
+                   dimnames = list(c("alpha","beta"), c("alpha","beta")))
+corr_df <- data.frame(Parameter = rownames(corr_mat), round(corr_mat, 4), row.names = NULL)
+
+kable(
+  corr_df, booktabs = TRUE, escape = TRUE,
+  caption = "(Gibbs) Correlation matrix for alpha and beta (Gibbs)"
+) |>
+  kable_styling(full_width = FALSE, position = "center", latex_options = c("hold_position")) |>
+  column_spec(1, bold = TRUE)
+
 ```
 
 ```{r, eval = T, echo = F, warning = F, message = F}
@@ -754,6 +837,8 @@ hist(betaG,  breaks="FD", main=expression(paste("Posterior of ", beta)),  xlab=e
 hist(muG,    breaks="FD", main=expression(paste("Posterior of ", mu==alpha/beta)), xlab=expression(mu)); abline(v=ci_mu, lty=2)
 par(mfrow = c(1,1))
 ```
+
+Note: While the phrasing of the question doesn't explicitly ask for Credible Intervals or 5-number summaries of $\mu$, I felt this might have been an unintentional omission, given they are explicitly asked for previously for the MH method (and these quantities are of interest when comparing methods). 
 
 \newpage
 
@@ -841,7 +926,7 @@ $$
 
 The pairwise posterior correlation between $\alpha$ and $\beta$ is also very similar, and strongly positive, at approximately 0.97 for both methods. This is a rather unsurprising result, and while we did not take advantage of this correlation, we perhaps could adapt our sampling methods to be more efficient by incorporating this relationship. 
 
-From a more descriptive perspective, the MH posterior histograms appear slightly more “jagged,” reflecting that its random-walk updates move both parameters jointly (possibly yielding higher autocorrelation). By comparison the Gibbs method, which draws $\beta$ directly from its conjugate full conditional and updates $\alpha$ by a Metropolis step, produces smoother histograms and traces.
+From a more descriptive perspective, the MH posterior histograms appear slightly more “jagged,” reflecting that its random-walk updates move both parameters jointly (possibly yielding higher autocorrelation). By comparison the Gibbs method, which draws $\beta$ directly from its conjugate full conditional and updates $\alpha$ by a Metropolis step, produces smoother histograms and traces. This may also relate to how proposed candidates are treated, as MH proceeds by accepting or rejecting entire candidate pairs, while Gibbs continually updates by drawing directly from conditional distributions, along with their respective acceptance probabilities (16.8% for MH vs. 19.1% for Gibbs).
 
 Posterior predictive checks are also consistent across methods. Both yield one-sided posterior predictive p-values between approximately 0.4 and 0.6 for both the 75th percentile and range statistics, with:
 
