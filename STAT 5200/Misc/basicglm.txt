@@ -1,0 +1,371 @@
+basic.glm<-function(xmat,y,link,random,startb=0,ns=1,ews=0,pwr=0,outfile=NULL)
+{
+	op <- options(digits = 7)
+	on.exit(options(op))
+  xmat<-as.matrix(xmat)
+  model.info(xmat,link,random,ews)
+# replace 0s and 1s with near 0s and near 1s for
+# binary and binomial random components
+ if(random==1 | random==2 | random==3){ 
+  y[y==0]<-0.00001
+  y[y==1]<-1-0.00001
+  }
+  if(length(ews)==1) ews <- rep(1, length(y))
+  if(length(ns)==1) ns<-rep(1,length(y))
+  if(startb[1]==0) etahat <- starting(y, xmat, link,pwr)
+  if(startb[1]!=0) etahat<-xmat%*%startb
+  xmat<-as.matrix(xmat)
+  y<-as.vector(y)
+  estinf <- Fishscorglm(etahat, xmat, y, ns, ews,link, random,pwr)
+  etahat <- estinf$etahat
+  xtw <- estinf$xtw
+  hat<-estinf$hat
+  b <- estinf$b
+  outs<-dev.info(b,etahat,xmat,y,ns,link,random,xtw,hat,pwr)
+  printres(b,outs)
+  if(length(outfile)>0) writeres(b, outs,outfile)
+  res<-list(estb=b,ests=outs[[2]],vals=outs[[1]],invinf=outs[[3]])
+  return(res)
+}
+
+#--------------------------------------------------------------
+Fishscorglm<-
+function(etahat, x, y, n,ews,link,random,pwr)
+{
+  repeat {
+	oeh <- etahat
+	linkstuff <- link.info(etahat,link,pwr)
+	muhat <- linkstuff$mh
+	ranstuff <- random.info(muhat, y, n,random)
+	w <-1/((linkstuff$dedm^2)*(ranstuff$b2p*ranstuff$a))
+	w <- w * ews
+	dimx <- dim(x)
+	mw <- matrix(w, dimx[2], dimx[1], byrow = T)
+	xtw <- t(x) * mw
+	z <- etahat + (y - muhat) * linkstuff[, 2]
+	yz <- xtw %*% z
+	xz <- xtw %*% x
+	b <- solve(xz) %*% yz
+#	cat("New Estimates: ", b, fill = T)
+	etahat <- x %*% as.matrix(b)
+	if(link == 7)
+	etahat <- -1 * abs(etahat)
+	if(1e-08 > (sum((etahat - oeh)^2) * 0.5))
+			break
+	}
+  xtw2 <- t(x) * (mw^0.5)
+  hat <- t(xtw2) %*% solve((xtw %*% x)) %*% xtw2
+  result <- list(b=b, etahat=etahat, xtw=xtw, hat=hat)
+  return(result)
+}
+#-----------------------------------------------------------------
+random.info<-function(muhat, y, n, pick)
+{
+	if(pick == 1) {
+		j <- length(y)
+		theta <- log(muhat)
+		a <- rep(1, j)
+		b <- exp(theta)
+		b2p <- b
+		ytheta <- log(y)
+		bytheta <- exp(ytheta)
+	}
+	else if(pick == 2) {
+		j <- length(y)
+		theta <- log(muhat) - log(1 - muhat)
+		a <- n
+		b <- log(exp(theta) + 1)
+		et <- exp(-1 * theta)
+		b2p <- (et/(et + 1)^2)
+		ytheta <- log(y) - log(1 - y)
+		bytheta <- log(exp(ytheta) + 1)
+	}
+	else if(pick == 3) {
+		j <- length(y)
+		theta <- log(muhat) - log(1 - muhat)
+		a <- rep(1,j)
+		b <- log(exp(theta) + 1)
+		et <- exp(-1 * theta)
+		b2p <- (et/(et + 1)^2)
+		ytheta <- log(y) - log(1 - y)
+		bytheta <- -1 * log(1 - y)
+	}
+	else if(pick == 4) {
+		j <- length(y)
+		theta <- muhat
+		a <- rep(1, j)
+		b <- 0.5 * (theta^2)
+		b2p <- 1
+		ytheta <- y
+		bytheta <- 0.5 * (y^2)
+	}
+	else if(pick == 5) {
+		j <- length(y)
+		theta <- -1/muhat
+		a <- rep(1, j)
+		b <-  - log( - theta)
+		b2p <- 1/(theta^2)
+		ytheta <- -1/y
+		bytheta <- log(y)
+	}
+	else if(pick == 6) {
+		j <- length(y)
+		theta <- -1/(2 * muhat^2)
+		a <- rep(1, j)
+		b <-  - (-2 * theta)^0.5
+		b2p <- (-2 * theta)^-1.5
+		ytheta <- -1/(2 * y^2)
+		bytheta <-  - (1/y)
+	}
+	else stop("Random Component Chosen is not Available")
+  res<-data.frame(a=a,b=b,b2p=b2p,theta=theta,
+                ytheta=ytheta,bytheta=bytheta)
+  return(res)
+}
+#------------------------------------------------------------------
+link.info<-function(etahat,pick,pwr)
+{   N<-length(etahat)
+	if(pick == 1) {
+		mh <- etahat
+		dedm <- rep(1, N)
+	}
+	else if(pick == 2) {
+		mh <- exp(etahat)
+		dedm <- 1/mh
+	}
+	else if(pick == 3) {
+		mh <- 1/(1 + exp(-1 * etahat))
+		dedm <- 1/(mh * (1 - mh))
+	}
+	else if(pick == 4) {
+		mh <- exp(-1 * exp(-1 * etahat))
+		dedm <- -1/(mh * log(mh))
+	}
+	else if(pick == 5) {
+		eprt <- exp(exp(etahat))
+		mh <- (eprt - 1)/eprt
+		dedm <- 1/((1 - mh) * (1-(log(1 - mh))))
+	}
+	else if(pick == 6) {
+		mh <- 1/etahat
+		dedm <- -1/mh^2
+	}
+	else if(pick == 7) {
+#		mh <- (-1/(2 * etahat))^0.5
+                mh<-1/sqrt(etahat)
+#		dedm <- (1/(mh^3))
+                dedm<--1/(mh^3)
+	}
+        else if(pick == 8){
+                mh<-etahat^(1/pwr)
+                dedm<-pwr*mh^(pwr-1)
+        }
+	else stop("Link Function Chosen Is Not Available")
+	res <- data.frame(mh=mh,dedm=dedm)
+	return(res)
+}
+
+#------------------------------------------------------------------
+dev.info<-function(b, etahat, x, y, n, link, random, xtw, hat,pwr)
+{
+  N<-length(y)
+  p<-dim(x)[2]
+  final.link <- link.info(etahat,link,pwr)
+  fmuhat <- final.link$mh
+  final.random <- random.info(fmuhat, y, n,random)
+  a<-final.random$a
+#cat("a:",a,fill=T)
+  theta<-final.random$theta
+#cat("theta: ",theta,fill=T)
+  bt<-final.random$b
+#cat("bt: ",bt,fill=T)
+  ty<-final.random$ytheta
+  bty<-final.random$bytheta
+  Vmu<-final.random$b2p
+  rawres <- y - fmuhat
+  negres <- rawres < 0
+  posres <- rawres > 0
+  resign <- (-1 * negres) + posres
+  hhs <- diag(hat)
+  phi<-1
+  if(random>3){
+  phi <- (1/(N-p)) * sum((rawres^2)/Vmu)
+  phi<-1/phi
+	}
+  loglik.reduced <- a*phi*((y * theta) - bt)
+#cat("check:",sum(y)*theta[1]-sum(bt),fill=T)
+#cat("ll: ",sum(loglik.reduced),fill=T)
+	cc <- cyphi(y, n, phi, random)
+	loglik.full <- a*phi*(y * ty - bty)
+	loglik.reduced <- sum(loglik.reduced) + sum(cc)
+	loglik.full <- sum(loglik.full) + sum(cc)
+	deviances <- glm.deviance(fmuhat, y, n, random)
+	udev <- sum(deviances)
+        sdev<-phi*udev
+	devres <- resign * ((phi*deviances)^0.5)
+	stdevres <- devres/((1 - hhs)^0.5)
+	pearsonres <- rawres/((Vmu/(a*phi))^0.5)
+	pcs <- sum(pearsonres^2)
+	invinf <- as.matrix((1/phi) * solve(xtw %*% x))
+        res1<-data.frame(y=y,muhat=fmuhat,rawres=rawres,devres=devres,
+                         stdevres=stdevres,pearsonres=pearsonres)
+        res2<-data.frame(phi=phi,loglik.sat=loglik.full,
+                 loglik.fitted=loglik.reduced,udev=udev,
+                 sdev=sdev,pcs=pcs)
+        res<-list(res1,res2,invinf)
+	return(res)
+}
+
+#------------------------------------------------------------------
+glm.deviance<-function(muhat, y, n, pick)
+{
+	ly <- log(y)
+	lm <- log(muhat)
+	l1y <- log(1 - y)
+	l1m <- log(1 - muhat)
+	if(pick == 1) {
+		d <- 2 * (y * (ly - lm) - y + muhat)
+	}
+	else if(pick == 2) {
+		d <- 2 * n * (y * (ly - lm) + (1 - y) * (l1y - l1m))
+	}
+	else if(pick == 3) {
+		d <- 2 * (y * (ly - lm) + (1 - y) * (l1y - l1m))
+	}
+	else if(pick == 4) {
+		d <- (y - muhat)^2
+	}
+	else if(pick == 5) {
+		d <- (-2) * ((ly - lm) + (1 - (y/muhat)))
+	}
+	else if(pick == 6) {
+		d <- ((y - muhat)^2)/(y * muhat^2)
+	}
+	else stop("Deviance not available for random component chosen")
+	return(d)
+}
+
+#--------------------------------------------------------------------
+cyphi<-function(y, n, phi, pick)
+{
+	if((pick == 1) | (pick == 2) | (pick == 3))
+		cc <- 0
+	else if(pick == 4) {
+		cc <- phi*(-y^2/2)+ 0.5*log(2*pi*(1/phi))
+	}
+	else if(pick == 5) {
+		cc <- phi * log(phi * y) - log(gamma(phi))
+	}
+	else if(pick == 6) {
+		cc <- 0.5 * log(phi) - (phi/(2 * y))
+	}
+	return(cc)
+}
+#---------------------------------------------------------------------
+printres<-function(b,vals){
+  cat("ESTIMATION RESULTS: ",fill=T)
+  cat(" ",fill=T)
+  cat("Coefficient Estimates: ",b,fill=T)
+  cat("Inverse Information: ",fill=T)
+  print(vals[[3]])
+  cat("Estimated Phi: ",vals[[2]]$phi,fill=T)
+  cat("Unscaled Deviance: ",vals[[2]]$udev,fill=T)
+  cat("Scaled Deviance: ",vals[[2]]$sdev,fill=T)
+  cat("Saturated Model Log Likelihood: ",vals[[2]]$loglik.sat,fill=T)
+  cat("Fitted Model Log Likelihood: ",vals[[2]]$loglik.fitted,fill=T)
+}
+#----------------------------------------------------------------------
+simbasicglm<-function(b,xmat,phi,link,random,ns=1,pwr=0){
+  N<-dim(xmat)[1]
+  etas<-xmat%*%b
+  mus<-link.info(etas,link,pwr)$mh
+  if(random==1) y<-rpois(N,mus)
+  if(random==2) y<-rbinom(N,ns,mus)
+  if(random==3) y<-rbinom(N,rep(1,N),mus)
+  if(random==4) y<-rnorm(N,mus,sqrt(1/phi))
+  if(random==5) y<-rgamma(N,phi,(phi/mus))
+  res<-y
+  return(res)
+}
+#--------------------------------------------------------------------------
+model.info<-function(xmat,link,random,ews){
+  cat("MODEL DEFINITION:",fill=T)
+  if(random==1) cat("Random Component: Poisson",fill=T)
+  if(random==2) cat("Random Component: Binomial",fill=T)
+  if(random==3) cat("Random Component: Binary",fill=T)
+  if(random==4) cat("Random Component: Normal",fill=T)
+  if(random==5) cat("Random Component: Gamma",fill=T)
+  if(random==6) cat("Random Component: Inverse Gaussian",fill=T)
+  cat(" ",fill=T)
+  if(link==1) cat("Link Function: Identity",fill=T)
+  if(link==2) cat("Link Function: Log",fill=T)
+  if(link==3) cat("Link Function: Logit",fill=T)
+  if(link==4) cat("Link Function: Log-Log",fill=T)
+  if(link==5) cat("Link Function: Complimentary Log-Log",fill=T)
+  if(link==6) cat("Link Function: Inverse",fill=T)
+  if(link==7) cat("Link Function: Inverse Square",fill=T)
+  if(link==8) cat("Link Function: Power", fill=T)
+  cat(" ",fill=T)
+  cat("Number of Covariates (including intercept): ",dim(xmat)[2],fill=T)
+  cat("Number of Observations: ",dim(xmat)[1],fill=T)
+  if(length(ews)>1) cat("External Weights are Being Supplied")
+  cat(" ",fill=T)
+  cat(" ",fill=T)
+}
+#-------------------------------------------------------------------------
+starting<-function(y, x, link,pwr){
+	if(link == 1)
+		r <- y
+	else if(link == 2)
+		r <- log(y)
+	else if(link == 3)
+#		r <- log(y) - log(1 - y)
+                r<-y
+	else if(link == 4)
+		r <- -1*log(-1*log(y)) 
+	else if(link == 5)
+		r <- log(1-(log(1 - y)))
+	else if(link == 6)
+		r <- 1/y
+	else if(link == 7)
+		r <- -1/(2 * y^2)
+        else if(link==8) r<-y^(0.5*pwr)
+	else stop("You have not picked a valid link function")
+        bs<-solve(t(x)%*%x)%*%t(x)%*%r
+	eh <- x %*%bs
+	if(link == 7)
+		eh <- -1 * abs(eh)
+	return(eh)
+}
+#----------------------------------------------------------------------------
+writeres<-function(b, outs,filename){
+  indres<-outs[[1]]; vals<-outs[[2]]; invinf<-outs[[3]]
+  write("ESTIMATION RESULTS: ",file=filename)
+  cat(" ",file=filename,append=T,fill=T)
+  write("Coefficient Estimates: ",file=filename,append=T)
+  write(b,file=filename,append=T)
+  cat(" ",file=filename,append=T,fill=T)
+  write("Inverse Information: ",file=filename,append=T)
+  write(invinf,file=filename,append=T)
+  cat(" ",file=filename,append=T,fill=T)
+  write("Estimated Phi:",file=filename,append=T) 
+  write(vals$phi,file=filename,append=T)
+  cat(" ",file=filename,append=T,fill=T)
+  write("Unscaled Deviance:",file=filename,append=T)
+  write(vals$udev,file=filename,append=T)
+  cat(" ",file=filename,append=T,fill=T)
+  write("Scaled Deviance:",file=filename,append=T)
+  write(vals$sdev,file=filename,append=T)
+  cat(" ",file=filename,append=T,fill=T)
+  write("Saturated Model Log Likelihood:",file=filename,append=T)
+  write(vals$loglik.sat,file=filename,append=T)
+  cat(" ",file=filename,append=T,fill=T)
+  write("Fitted Model Log Likelihood:",file=filename,append=T)
+  write(vals$loglik.fitted,file=filename,append=T)
+  cat(" ",file=filename,append=T,fill=T)
+  cat(" ",file=filename,append=T,fill=T)
+#  j<-format(outs[[1]],digits=3)
+ write.table(format(indres),row.names=F,quote=F,file=filename,append=T)
+
+}
+  
