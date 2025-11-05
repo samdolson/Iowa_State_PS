@@ -19,7 +19,7 @@ The glaucous gull (Larus hyperboreus) is a top predator of the Arctic ecosystem 
 
 In a study of pollutants in this species of gull (Erikstad, et al. 2013) glaucous gulls were captured in traps at Bjornoya (Bear Island) in the Barnets Sea (Norwegian Arctic). A number of quantities were measured, including blood concentrations of p,p’-dichlorodiphenyldichloroethylene (DDE) and oxychlordane (OXY), both measured as nanograms per gram wet weight. Oxychlordane is believed to be the most toxic of the organochlorines measured in the study and has been reported as related to both mortality and reproductive failure in glaucous gulls. On the other hand, DDE is believed to be readily bioaccumulated and may be present in greater concentrations than other organochorine pesticides. Also recorded was body mass (weight) which might serve as a proxy for age or roughly exposure. Although this may be a rather indirect indicator, the idea is that older gulls or gulls that are heavier have not been deprived of food and thus may have eaten more contaminated food (other birds or the eggs of other birds). Since depuration of both DDE and OXY (elimination from the body) are much slower than accumulation, heavier gulls may have higher body burdens of these compounds than lighter gulls.
 
-In this assignment we will be interested in developing a regression model to relate OXY (as response variables) to body mass (as a covariate). The data are available on the course web page in the Data module in a file named gullsdata.txt. The columns in of this file are “ring”, which is an individual identifier for a sampled gull (they put numbered bands or rings on the legs of gulls that have been captured and that have provided data), “bm” which is body mass (g), “hcb” which is hex- achlorobenzene (ng/g wet wt.), “oxy” which is oxychlordane (ng/g wet wt.), and “dde” (ng/g/ wet weight). As already noted we will deal with the variables oxy and bm.
+In this assignment we will be interested in developing a regression model to relate OXY (as response variables) to body mass (as a covariate). The data are available on the course web page in the Data module in a file named gullsdata.txt. The columns in of this file are “ring”, which is an individual identifier for a sampled gull (they put numbered bands or rings on the legs of gulls that have been captured and that have provided data), “bm” which is body mass (g), “hcb” which is hexachlorobenzene (ng/g wet wt.), “oxy” which is oxychlordane (ng/g wet wt.), and “dde” (ng/g/ wet weight). As already noted we will deal with the variables oxy and bm.
 
 ```{r, echo = F, message = F, warning = F}
 dat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS9/gullsdata.txt", header = T)
@@ -38,19 +38,27 @@ Define random variables and covariates appropriate to develop a regression model
 
 ## Answer 
 
-Oxy is a random variable, and the covariate is body mass. 
+Oxy is a random variable, and the covariate is body mass. Oxy is a positive valued quantity, with minimum 1.27 and maximum 121.67, with units "ng/g wet wt."; furthermore, we have 109 observations in the dataset.
 
-Oxy is a positive valued quantity, with minimum 1.27 and maximum 121.67, with units "ng/g wet wt."; furthermore, we have 109 observations in the dataset. 
+Given this information, we define 109 random variables as $\{ Y_i: i = 1, 2, ..., 109\}$, and let $Y_i$ denote a random variable for Oxy (ng/g wet wt.) for the $i$-th glaucous gull. Further, let $x_i=(1,\ \text{bm}_i)^\top$ with $\text{bm}_i$ denote the body mass covariate for the $i$-th glaucous gull. Because Oxy is strictly positive, we can take the support $Y_i\in(0,\infty)$.
 
-Given this information, we define 109 random variables as $Y_i$, $i = 1, 2, ..., 109$, where $Y_i$ denotes the ng/g wet (net?) weight of Oxy concentrade for the $i$-th glaucous gull. Furthermore, $\forall i, Y_i \in \mathbb{R}$. We may be more specific about restricting the domain of the random variable(s), e.g., to the positive real-line, but this step is not strictly necessary at this time. 
+Using the GLM structure for the regression model:
 
-Now, regarding the random component: 
+$$
+\eta_i = x_i^\top\beta, \quad g(\mu_i)=\eta_i
+\Rightarrow
+g\big(E[Y_i]\big)=x_i^\top\beta
+$$
+
+With $Y_i$ from an exponential-dispersion family (random component), $\eta_i$ the linear predictor, and $g(\cdot)$ the link (systematic component).  
+
+Now, regarding (potential) random component(s): 
 
 ```{r, echo = F, message = F, warning = F}
 plot(dat$bm, dat$oxy, xlab = "Body Mass", ylab = "Oxy", main = "Scatterplot of OXY (y) and BM (x)")
 ```
 
-From the scatterplot, we have some sense that variability increases for larger values of Body Mass; the initial thought being this *could* rule out a Normal random component which assumes a constant variance function. We will need to dig deeper in Question 2 however, as it is perhaps not as obvious whether a Gamma or an Inverse Gaussian is a better random component candidate (the remaining possible random components, given the response random variable is continuous and not discrete, which rules out Poisson, Binary, and Binomial random components).  
+From the scatterplot, we have some sense that variability increases for larger values of Body Mass; the initial thought being this *could* rule out a Normal random component which assumes a constant variance function. We will need to dig deeper in Question 2 however, as it is perhaps not as obvious whether a Gamma or an Inverse Gaussian is a better random component candidate (the remaining possible random components, given the response random variable is continuous and not discrete, which rules out Poisson, Binary, and Binomial random components). There is also evidence of right-skewness in Oxy. 
 
 \newpage
 
@@ -64,12 +72,6 @@ NOTE: It may very well be the case that there are two potential random component
 We'll first consider a Box-Cox Plot to evaluate the relationship between log(mean(Oxy)) and log(sd(Oxy)). We will start with an arbitrary binning into 11 bins, roughly 10 obs per bin, and also evaluate whether the results differ when considering other binning procedures
 
 ```{r boxcox_side_by_side, echo=FALSE, message=FALSE, warning=FALSE, fig.show='hold', fig.align='center', fig.pos='H', results='asis'}
-# (optional) ensure these are loaded here if not already
-
-# library(knitr); library(kableExtra)
-
-# helper: equal-count bins, plot log(sd) vs log(mean), return lm fit
-
 bc_plot <- function(y, nbins, main) {
 q <- quantile(y, probs = seq(0, 1, length.out = nbins + 1), na.rm = TRUE)
 cuts <- cut(y, breaks = q, include.lowest = TRUE)
@@ -83,21 +85,16 @@ abline(fit, col = "red", lwd = 2)
 invisible(fit)
 }
 
-# ---- single plot for 11 bins ----
-
 nb <- 11
 op <- par(mfrow = c(1, 1), mar = c(4, 4, 2, 1))
 fit11 <- bc_plot(dat$oxy, nbins = nb, main = sprintf("Equal-counts bins (%d)", nb))
 par(op)
 
-# keep the plot above the table in LaTeX
-
 knitr::asis_output("\\FloatBarrier")
 
-# ---- single summary table for 11 bins ----
-
 summ_tbl <- function(fit, nbins) {
-s  <- summary(fit); ct <- coef(s)
+s <- summary(fit)
+ct <- coef(s)
 data.frame(
 Bins      = nbins,
 Term      = rownames(ct),
@@ -124,12 +121,10 @@ knitr::asis_output("\\justifying")
 
 With $V(Y) \propto \mu^{\theta}$, and for $\theta = 2 * \text{Slope} = 1.98 \rightarrow V(Y) \propto \mu^{2}$. 
 
-Now we have some evidence now to support a Gamma random component for $\mu^2$. As an extra validation though, let's consider another binning to ensure this isn't an artefact of our binning method for the Box-Cox. 
+Now we have some evidence now to support a Gamma random component for $\mu^2$. As an extra validation though, let's consider some of binning(s) to ensure this isn't an artefact of our particular binning method used for previous Box-Cox plot. 
 
 ```{r, echo = F, message = F, warning = F}
-# helper: make equal-count bins, plot log(sd) vs log(mean), return lm fit
 bc_plot <- function(y, nbins, main) {
-  # equal-count (quantile) cut points
   q <- quantile(y, probs = seq(0, 1, length.out = nbins + 1), na.rm = TRUE)
   cuts <- cut(y, breaks = q, include.lowest = TRUE)
   m <- tapply(y, cuts, mean, na.rm = TRUE)
@@ -142,15 +137,13 @@ bc_plot <- function(y, nbins, main) {
   invisible(fit)
 }
 
-# lay out plots: first (5 bins) | second (17 bins)
 op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
-fit5  <- bc_plot(dat$oxy, nbins = 5,  main = "Equal-counts bins (5)")
+fit5 <- bc_plot(dat$oxy, nbins = 5,  main = "Equal-counts bins (5)")
 fit17 <- bc_plot(dat$oxy, nbins = 17, main = "Equal-counts bins (17)")
 par(op)
 
-# tidy regression summaries (no broom needed)
 summ_tbl <- function(fit, nbins) {
-  s  <- summary(fit)
+  s <- summary(fit)
   ct <- coef(s)
   data.frame(
     Bins      = nbins,
@@ -175,7 +168,39 @@ kbl(tab, booktabs = TRUE,
 knitr::asis_output("\\justifying")
 ```
 
-We can still reasonably justify the Gamma random component, but to safeguard against being wrong we'll still consider the possibility of an inverse Gaussian, as we do still have visual evidence to support variance being related to the expectations. 
+```{r, eval = F, echo = F, message = F, warning = F}
+bc_plot_equal <- function(y, nbins, main) {
+  # equal-width break points
+  q <- seq(from = min(y, na.rm = TRUE),
+           to   = max(y, na.rm = TRUE),
+           length.out = nbins + 1)
+
+  cuts <- cut(y, breaks = q, include.lowest = TRUE)
+  m <- tapply(y, cuts, mean, na.rm = TRUE)
+  s <- tapply(y, cuts,  sd,   na.rm = TRUE)
+
+  plot(x = log(m), y = log(s),
+       xlab = "log(mean OXY)", ylab = "log(sd OXY)", main = main)
+  fit <- lm(log(s) ~ log(m))
+  abline(fit, col = "red", lwd = 2)
+  invisible(fit)
+}
+
+op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+fit5  <- bc_plot_equal(dat$oxy, nbins = 6,  main = "Equal-width bins (6)")
+fit17 <- bc_plot_equal(dat$oxy, nbins = 11, main = "Equal-width bins (11)")
+par(op)
+
+tab <- rbind(summ_tbl(fit5, 5), summ_tbl(fit17, 17))
+
+kbl(tab, booktabs = TRUE,
+    caption = "Linear regressions for Box–Cox mean–sd plots (log(sd) ~ log(mean))") %>%
+  kable_styling(full_width = FALSE, position = "center")
+
+knitr::asis_output("\\justifying")
+```
+
+We can still reasonably justify the Gamma random component, but to safeguard against being wrong we'll still consider the possibility of an inverse Gaussian, as we do still have visual evidence to support variance being related to the expectation. 
 
 \newpage 
 
@@ -214,53 +239,48 @@ Fit models with up to two different random components, but using a log link func
 
 ## Answer 
 
-Note: The modelling was done using Kaiser's `basic.glm` function, such that deviance residuals were easier to extract than using the typical `glm` function (with it's wonky Fisher-iteration residuals, or whatever they are.)
+Note: The modelling was done using Kaiser's `basic.glm` function, such that deviance residuals were easier to extract than using the typical `glm` function (with it's wonky Fisher-iteration residuals, or whatever they are.) Also, after confirming with Kaiser, the below intervals are 95% intervals (they just need to be specified by the user in this homework, allegedly). 
 
 ```{r, echo = F, message = F, warning = F, results='asis'}
-# ---- Setup ----
-X <- cbind(1, dat$bm)  # design matrix: intercept + body mass
+X <- cbind(1, dat$bm) 
 Y <- dat$oxy
 
-# function to suppress basic.glm printing but keep returned object intact
-
 quiet_glm <- function(...) {
-out <- NULL
-suppressWarnings(suppressMessages(
-out <- invisible(capture.output(
-mod <- basic.glm(...)
-))
-))
-mod
+  out <- NULL
+  suppressWarnings(suppressMessages(
+  out <- invisible(capture.output(
+  mod <- basic.glm(...)
+  ))
+  ))
+  mod
 }
 
-# ---- Fit models silently ----
-
 mod_gamma_log <- quiet_glm(
-xmat   = X,
-y      = Y,
-link   = 2,   # log link
-random = 5    # Gamma random component
+  xmat   = X,
+  y      = Y,
+  link   = 2,   
+  random = 5    
 )
 
 mod_ig_log <- quiet_glm(
-xmat   = X,
-y      = Y,
-link   = 2,   # log link
-random = 6    # Inverse Gaussian random component
+  xmat   = X,
+  y      = Y,
+  link   = 2,   
+  random = 6    
 )
 
-# ---- Extract summary info ----
-# ---- Extract summary info with BOTH deviances ----
 combine_glm_results <- function(mod, model_name) {
   beta_hat <- mod$estb[, 1]
-  se_hat   <- sqrt(diag(mod$invinf))
-  z        <- 1.96
-  LCL      <- beta_hat - z * se_hat
-  UCL      <- beta_hat + z * se_hat
+  se_hat <- sqrt(diag(mod$invinf))
+  z <- 1.96
+  LCL <- beta_hat - z * se_hat
+  UCL <- beta_hat + z * se_hat
 
-  phi      <- mod$ests$phi
-  udev     <- mod$ests$udev                  # unscaled deviance
-  sdev     <- udev / phi                     # scaled deviance
+  phi <- mod$ests$phi
+  # unscaled deviance
+  udev <- mod$ests$udev                  
+  # scaled deviance
+  sdev <- udev / phi                     
 
   data.frame(
     Term        = c("Intercept", "Body Mass"),
@@ -305,20 +325,16 @@ The estimates of $\phi$ will be quite different between your two models but this
 ## Answer
 
 ```{r, echo = F, message = F, warning = F}
-# pick some covariate values
 bm_vals <- quantile(dat$bm, probs = c(0, 0.25, 0.5, 0.75, 1))
 
-# compute fitted means for each model
 mu_gamma <- exp(cbind(1, bm_vals) %*% mod_gamma_log$estb)
-mu_ig    <- exp(cbind(1, bm_vals) %*% mod_ig_log$estb)
+mu_ig <- exp(cbind(1, bm_vals) %*% mod_ig_log$estb)
 
-# extract phi values
 phi_gamma <- mod_gamma_log$ests$phi
-phi_ig    <- mod_ig_log$ests$phi
+phi_ig <- mod_ig_log$ests$phi
 
-# compute implied variances
 var_gamma <- phi_gamma * (mu_gamma^2)
-var_ig    <- phi_ig * (mu_ig^3)
+var_ig <- phi_ig * (mu_ig^3)
 
 kable(
   data.frame(
@@ -351,9 +367,6 @@ plot(gamma_fit, gamma_res,
      main = "Gamma: residuals vs fitted")
 abline(h = 0, col = "red", lwd = 2)
 
-
-# --- Inverse Gaussian model residual plot ---
-
 ig_res <- mod_ig_log$vals$stdevres
 ig_fit <- mod_ig_log$vals$muhat
 
@@ -376,9 +389,10 @@ Pick one of your two models, compute Wald theory intervals for the regression pa
 ```{r, echo = F, message = F, warning = F}
 beta_hat <- mod_gamma_log$estb[,1]
 vcov_mat <- mod_gamma_log$invinf
-se_hat   <- sqrt(diag(vcov_mat))
+se_hat <- sqrt(diag(vcov_mat))
 
-z90 <- qnorm(0.95)   # 90% two-sided CI => 1 - 0.10/2 = 0.95
+# 90% CI
+z90 <- qnorm(0.95)   
 
 wald_lo <- beta_hat - z90 * se_hat
 wald_hi <- beta_hat + z90 * se_hat
@@ -395,24 +409,18 @@ wald_table <- data.frame(
 
 kable(wald_table, caption = "Wald 90% Confidence Intervals (Gamma model)")
 
-# create grid over covariate
 x_grid <- seq(min(dat$bm), max(dat$bm), length.out = 200)
 X_grid <- cbind(1, x_grid)
 
-# fitted linear predictor
 eta_hat <- X_grid %*% beta_hat
-
-# standard error of eta(x)
 se_eta <- sqrt(rowSums((X_grid %*% vcov_mat) * X_grid))
 
-# 90% pointwise band
 eta_lo <- eta_hat - z90 * se_eta
 eta_hi <- eta_hat + z90 * se_eta
 
-# convert back to mean scale
 mu_hat <- exp(eta_hat)
-mu_lo  <- exp(eta_lo)
-mu_hi  <- exp(eta_hi)
+mu_lo <- exp(eta_lo)
+mu_hi <- exp(eta_hi)
 
 gamma_band <- data.frame(
   bm = x_grid,
@@ -432,13 +440,3 @@ legend("topleft",
        legend = c("Fitted mean", "90% band"),
        col = c("black", "red"), lty = c(1, 2), bty = "n")
 ```
-
-The Wald 90% confidence intervals for the regression parameters indicate that the slope parameter is significantly positive, even at the 10% level, implying that Oxy concentration increases with increasing body mass. This is consistent with the bioaccumulation hypothesis described in Erikstad et al. (2013), where heavier (and likely older) gulls tend to accumulate higher organochlorine burdens.
-
-The pointwise 90% confidence band around the fitted regression curve reflects the multiplicative uncertainty structure of the Gamma log-link GLM: the band is narrow for smaller fitted means and widens at larger body mass values, as expected under the variance function
-
-$$
-\mathrm{Var}(Y_i \mid \mu_i) = \phi,\mu_i^2.
-$$
-
-The data fall mostly within the interval, with no systematic departures, providing additional support for the Gamma specification over the inverse Gaussian alternative.
