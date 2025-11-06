@@ -15,11 +15,11 @@ header-includes:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The glaucous gull (Larus hyperboreus) is a top predator of the Arctic ecosystem with a diet consisting of marine invertebrates, other seabirds, and the eggs of other seabirds. The number of nesting pairs of glaucous gulls in a particular study plot at Bjornoya (Bear Island) in the Norwegian Arctic has decreased from around 150-160 in 1987 to 20-30 in 2010 with a similar decrease in total nesting pairs in the larger population. Concern has focused on the presence of organochlorine pollutants, and in particular organochlorine pesticides. Organochlorines are known to affect reproductive success in birds (recall American Eagles and DDT) by thinning eggshells, and may affect survival of adult glaucous gulls because they eat the eggs of other species, thus resulting in the potential to accumulate dangerous levels of these pollutants.
+<!-- The glaucous gull (Larus hyperboreus) is a top predator of the Arctic ecosystem with a diet consisting of marine invertebrates, other seabirds, and the eggs of other seabirds. The number of nesting pairs of glaucous gulls in a particular study plot at Bjornoya (Bear Island) in the Norwegian Arctic has decreased from around 150-160 in 1987 to 20-30 in 2010 with a similar decrease in total nesting pairs in the larger population. Concern has focused on the presence of organochlorine pollutants, and in particular organochlorine pesticides. Organochlorines are known to affect reproductive success in birds (recall American Eagles and DDT) by thinning eggshells, and may affect survival of adult glaucous gulls because they eat the eggs of other species, thus resulting in the potential to accumulate dangerous levels of these pollutants. -->
 
-In a study of pollutants in this species of gull (Erikstad, et al. 2013) glaucous gulls were captured in traps at Bjornoya (Bear Island) in the Barnets Sea (Norwegian Arctic). A number of quantities were measured, including blood concentrations of p,p’-dichlorodiphenyldichloroethylene (DDE) and oxychlordane (OXY), both measured as nanograms per gram wet weight. Oxychlordane is believed to be the most toxic of the organochlorines measured in the study and has been reported as related to both mortality and reproductive failure in glaucous gulls. On the other hand, DDE is believed to be readily bioaccumulated and may be present in greater concentrations than other organochorine pesticides. Also recorded was body mass (weight) which might serve as a proxy for age or roughly exposure. Although this may be a rather indirect indicator, the idea is that older gulls or gulls that are heavier have not been deprived of food and thus may have eaten more contaminated food (other birds or the eggs of other birds). Since depuration of both DDE and OXY (elimination from the body) are much slower than accumulation, heavier gulls may have higher body burdens of these compounds than lighter gulls.
+<!-- In a study of pollutants in this species of gull (Erikstad, et al. 2013) glaucous gulls were captured in traps at Bjornoya (Bear Island) in the Barnets Sea (Norwegian Arctic). A number of quantities were measured, including blood concentrations of p,p’-dichlorodiphenyldichloroethylene (DDE) and oxychlordane (OXY), both measured as nanograms per gram wet weight. Oxychlordane is believed to be the most toxic of the organochlorines measured in the study and has been reported as related to both mortality and reproductive failure in glaucous gulls. On the other hand, DDE is believed to be readily bioaccumulated and may be present in greater concentrations than other organochorine pesticides. Also recorded was body mass (weight) which might serve as a proxy for age or roughly exposure. Although this may be a rather indirect indicator, the idea is that older gulls or gulls that are heavier have not been deprived of food and thus may have eaten more contaminated food (other birds or the eggs of other birds). Since depuration of both DDE and OXY (elimination from the body) are much slower than accumulation, heavier gulls may have higher body burdens of these compounds than lighter gulls. -->
 
-In this assignment we will be interested in developing a regression model to relate OXY (as response variables) to body mass (as a covariate). The data are available on the course web page in the Data module in a file named gullsdata.txt. The columns in of this file are “ring”, which is an individual identifier for a sampled gull (they put numbered bands or rings on the legs of gulls that have been captured and that have provided data), “bm” which is body mass (g), “hcb” which is hexachlorobenzene (ng/g wet wt.), “oxy” which is oxychlordane (ng/g wet wt.), and “dde” (ng/g/ wet weight). As already noted we will deal with the variables oxy and bm.
+<!-- In this assignment we will be interested in developing a regression model to relate OXY (as response variables) to body mass (as a covariate). The data are available on the course web page in the Data module in a file named gullsdata.txt. The columns in of this file are “ring”, which is an individual identifier for a sampled gull (they put numbered bands or rings on the legs of gulls that have been captured and that have provided data), “bm” which is body mass (g), “hcb” which is hexachlorobenzene (ng/g wet wt.), “oxy” which is oxychlordane (ng/g wet wt.), and “dde” (ng/g/ wet weight). As already noted we will deal with the variables oxy and bm. -->
 
 ```{r, echo = F, message = F, warning = F}
 dat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/PS/PS9/gullsdata.txt", header = T)
@@ -31,7 +31,7 @@ library(tidyverse)
 library(patchwork)
 ```
 
-\newpage 
+<!-- \newpage  -->
 
 # 1. 
 Define random variables and covariates appropriate to develop a regression model to relate OXY to bm. Examine the scatterplot of OXY on bm. Comment on features of these data based on visual examination of the scatterplot. In particular, identify any characteristics that should be accommodated by a random component for this problem.
@@ -219,18 +219,30 @@ To consider appropriate link functions, we're looking for a transformation $T$, 
 Generally, we're looking for a linear relationship between X and Y when doing this transformation, for the purpose of identifying an appropriate link. 
 
 ```{r, echo = F, message = F, warning = F}
+# par(mfrow = c(1, 3))
+# plot(x = dat$bm, dat$oxy, xlab = "X", ylab = "oxy", main = "Identity")
+# plot(x = sqrt(dat$bm), dat$oxy, xlab = "Sqrt X", ylab = "oxy", main = "Sqrt")
+# plot(x = dat$bm^2, dat$oxy, xlab = "Square X", ylab = "oxy", main = "Square")
+# 
+# par(mfrow = c(1, 2))
+# plot(x = log(dat$bm), dat$oxy, xlab = "Log X", ylab = "oxy", main = "Log")
+# plot(x = 1/dat$bm, dat$oxy, xlab = "1/X", ylab = "oxy", main = "Inverse")
+# par(mfrow = c(1, 1))
+```
+
+```{r, echo = F, message = F, warning = F}
 par(mfrow = c(1, 3))
 plot(x = dat$bm, dat$oxy, xlab = "X", ylab = "oxy", main = "Identity")
-plot(x = sqrt(dat$bm), dat$oxy, xlab = "Sqrt X", ylab = "oxy", main = "Sqrt")
-plot(x = dat$bm^2, dat$oxy, xlab = "Square X", ylab = "oxy", main = "Square")
+plot(x = dat$bm, sqrt(dat$oxy), xlab = "X", ylab = "Sqrt oxy", main = "Sqrt")
+plot(x = dat$bm, dat$oxy^2, xlab = "X", ylab = "Square oxy", main = "Square")
 
 par(mfrow = c(1, 2))
-plot(x = log(dat$bm), dat$oxy, xlab = "Log X", ylab = "oxy", main = "Log")
-plot(x = 1/dat$bm, dat$oxy, xlab = "1/X", ylab = "oxy", main = "Inverse")
+plot(x = dat$bm, log(dat$oxy), xlab = "X", ylab = "Log oxy", main = "Log")
+plot(x = dat$bm, 1/dat$oxy, xlab = "X", ylab = "1/oxy", main = "Inverse")
 par(mfrow = c(1, 1))
 ```
 
-None of these transformations look especially great in terms of linear fit, though interpretation of the plots needs to account for the expected increase in variance as a function of the expectation. That being said, the log link doesn't seem especially bad (perhaps a 'least worst' among the transformations considered).  
+None of these transformations look especially great in terms of linear fit, though, that being said, the log link doesn't seem especially bad (perhaps a 'least worst' among the transformations considered).  
 
 \newpage 
 
@@ -278,9 +290,10 @@ combine_glm_results <- function(mod, model_name) {
 
   phi <- mod$ests$phi
   # unscaled deviance
-  udev <- mod$ests$udev                  
+  udev <- mod$ests$udev     
+  sdev <- mod$ests$sdev
   # scaled deviance
-  sdev <- udev / phi                     
+  # sdev <- udev / phi                     
 
   data.frame(
     Term        = c("Intercept", "Body Mass"),
