@@ -1,0 +1,234 @@
+---
+title: "Review 9"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# General Summary 
+
+### **9.1 Signal Plus Noise**
+
+* Fundamental structure:
+  \(Y_i = \eta_i + \varepsilon_i\)
+  where \(\eta_i\) = systematic signal and \(\varepsilon_i\) = random noise.
+* Noise assumed independent with mean 0 and variance \(\sigma^2\).
+* Provides the conceptual base for regression‐type models.
+
+---
+
+### **9.2 Constant Variance Models**
+
+* The simplest additive error model assumes \(\operatorname{Var}(Y_i)=\sigma^2\).
+* Basis for ordinary least squares (OLS).
+* Diagnostic residual plots should show no trend in spread versus fitted values.
+* Violations motivate weighted least squares or transformations.
+
+---
+
+### **9.3 Linear and Nonlinear Models**
+
+* **Linear models:** \(\eta_i = x_i^\top\beta\).
+* **Nonlinear models:** \(\eta_i = f(x_i, \beta)\) for a known functional form.
+* Estimation via least squares or likelihood.
+* Key distinction: nonlinear in parameters, not necessarily in predictors.
+
+---
+
+### **9.4 Known Variance Parameters**
+
+* Weighted least squares (WLS) when variances known:
+  minimize \(\sum w_i(Y_i - \eta_i)^2\) with \(w_i = 1/\sigma_i^2\).
+* Two cases:
+
+  1. Known weights from measurement process.
+  2. Weights as known functions of the mean (e.g., variance ∝ mean²).
+* Produces BLUE estimates under Gaussian assumptions.
+
+---
+
+### **9.4.3 Aside on Transformations**
+
+* Transformation aims to stabilize variance and linearize relationships.
+* Box–Cox diagnostic: plot \(\log(sd)\) vs \(\log(\bar{y})\); slope \(b \approx 1\) suggests variance ∝ mean².
+* Variance-stabilizing power ≈ \(1 - b\).
+
+  * Example: slope 1.14 → power ≈ −0.14 → reciprocal square-root transform.
+* Common powers: log, sqrt, reciprocal sqrt, reciprocal.
+
+---
+
+### **9.5 Unknown Variance Parameters**
+
+* Variance modeled as \(\operatorname{Var}(Y_i)=\sigma^2\mu_i^{2\theta}\).
+* \(\theta=0\): constant variance; \(\theta=1\): variance ∝ mean².
+* Estimate \(\theta\) by pseudo-likelihood or regression of \(|residuals|\) on fitted means.
+* Leads to generalized least squares (GLS) formulations.
+
+---
+
+### **9.6 Transform-Both-Sides Models**
+
+* Transformation applied to both response and mean:
+  \(g(Y_i) = g(\eta_i) + \tilde{\varepsilon}_i\).
+* Preserves additive error structure after transforming scale.
+* Example: log–log Walleye length–weight model → stabilizes variance and linearizes power law.
+* Often interpreted as variance-stabilizing plus functional simplification.
+
+---
+
+**Summary theme:**
+Sections 9.1–9.6 build from basic additive error structure to variance modeling and transformations for heteroscedastic data, linking classical least-squares methods to more flexible mean–variance relationships.
+
+---
+
+# Possible Quiz
+
+### **1. Structure of Additive Error Models**
+
+**Q:** What is the basic form of an additive error model and what do its components represent?  
+**A:**
+\[
+Y_i = \eta_i + \varepsilon_i
+\]
+where \(\eta_i\) is the systematic “signal” (often a mean or regression function) and \(\varepsilon_i\) is random “noise” with \(E(\varepsilon_i)=0\) and \(\operatorname{Var}(\varepsilon_i)=\sigma^2\).
+
+---
+
+### **2. Constant-Variance Model**
+
+**Q:** Under what assumption does the ordinary least squares (OLS) method yield best linear unbiased estimates (BLUE)?  
+**A:** When \(\varepsilon_i\) are independent, have mean 0, and constant variance \(\sigma^2\) (homoscedasticity).
+
+---
+
+### **3. Residual Plots and Diagnostics**
+
+**Q:** In a constant-variance model, what would you look for in a residual-versus-fitted plot to detect heteroscedasticity?  
+**A:** A “fan-shaped” pattern or increasing spread of residuals with fitted values suggests non-constant variance.
+
+---
+
+### **4. Linear vs Nonlinear Models**
+
+**Q:** What distinguishes a linear from a nonlinear model in this context?  
+**A:** Linear models are linear in parameters (\(\eta_i=x_i^\top\beta\)), whereas nonlinear models (\(\eta_i=f(x_i,\beta)\)) are nonlinear in the parameters, even if the predictor \(x_i\) enters simply.
+
+---
+
+### **5. Weighted Least Squares (Known Variances)**
+
+**Q:** When the variance of each observation is known to be \(\sigma_i^2\), what method gives efficient estimates of \(\beta\)?  
+**A:** Weighted least squares with weights \(w_i=1/\sigma_i^2\).
+
+---
+
+### **6. Weights as Functions of Means**
+
+**Q:** Suppose \(\operatorname{Var}(Y_i)\propto\mu_i^2\).  What weighting scheme is appropriate for WLS?  
+**A:** Use weights \(w_i = 1/\mu_i^2\) (or equivalently \(w_i\propto1/\hat{\mu}_i^2\)).
+
+---
+
+### **7. Variance Model with Unknown Parameter θ**
+
+**Q:** In the model \(\operatorname{Var}(Y_i)=\sigma^2\mu_i^{2\theta}\), interpret the values \(\theta=0\) and \(\theta=1\).  
+**A:**
+
+* \(\theta=0\): constant variance (homoscedastic).  
+* \(\theta=1\): variance proportional to the square of the mean (heteroscedastic).
+
+---
+
+### **8. Box–Cox Plot Interpretation**
+
+**Q:** A Box–Cox plot of log(sd) vs log(mean) has slope \(b\).  What approximate transformation stabilizes the variance?  
+**A:** Use power \(\lambda\approx1-b\).  
+Example: \(b=1.14 \Rightarrow \lambda\approx−0.14 \approx −\tfrac12\) ⇒ reciprocal-square-root transform.
+
+---
+
+### **9. Reciprocal-Square-Root Example**
+
+**Q:** Why did the flight-time example use a reciprocal-square-root rather than a square transformation?  
+**A:** Because variance increased with mean (\(b>1\)); a **negative** power compresses larger values and stabilizes variance, while positive powers would amplify it.
+
+---
+
+### **10. Transform-Both-Sides Model**
+
+**Q:** Why must the transformation in a transform-both-sides model be applied to both the response and the systematic component?  
+**A:** To preserve the additive error structure on the transformed scale:  
+\(g(Y_i)=g(\eta_i)+\varepsilon_i\).  
+Transforming only \(Y_i\) would mis-align the model scales.
+
+---
+
+### **11. Log–Log Example (Walleye Data)**
+
+**Q:** What does applying the log transform to both weight and length accomplish in the walleye example?  
+**A:** It linearizes the power-law relationship \(W=aL^b\) and stabilizes variance, allowing additive Gaussian errors on the log scale.
+
+---
+
+### **12. Interpreting Transformations**
+
+**Q:** How can you distinguish between a variance-stabilizing and a scientific (mechanistic) transformation?  
+**A:** Variance-stabilizing transforms correct distributional properties; mechanistic transforms (e.g., log–log) express hypothesized functional relations.  Sometimes a single transform serves both purposes.
+
+---
+
+### **13. Pseudo-Likelihood Estimation of θ**
+
+**Q:** How can θ in \(\operatorname{Var}(Y_i)=\sigma^2\mu_i^{2\theta}\) be estimated without full likelihood computation?  
+**A:** Regress \(\log(\text{sample variance})\) or \(\log(|\text{residual}|)\) on \(\log(\hat{\mu}_i)\) to estimate the slope = 2θ.
+
+---
+
+### **14. Scientific Meaning of “Signal + Noise”**
+
+**Q:** In what sense does the additive model \(Y=\text{signal}+\text{noise}\) represent statistical abstraction?  
+**A:** It isolates the systematic (explainable) component from inherent random variability, providing a mathematical analog to “mechanism + uncertainty.”
+
+---
+
+### **15. Transformation Diagnostics**
+
+**Q:** What diagnostic features in residuals would suggest the need for a transformation?  
+**A:** Non-constant spread, curved patterns, or residuals whose variance grows with fitted means.
+
+---
+
+### **16. Constant vs Power-of-Mean Variance**
+
+**Q:** If residuals have variance increasing roughly with the square of the mean, what model or transform might you choose?  
+**A:** Either model the variance as \(\mu_i^{2}\) (\(\theta = 1\)) via GLS or apply a reciprocal or log transformation.
+
+---
+
+### **17. Model Objective**
+
+**Q:** What is the goal of transformations in additive-error modeling?  
+**A:** Achieve approximately constant variance and a model that fits with simple additive Gaussian noise on the transformed scale.
+
+---
+
+### **18. Linearization of Relationships**
+
+**Q:** Why might we prefer a transformation that also “straightens” the mean function?  
+**A:** Because linearization simplifies interpretation, estimation, and inference using least-squares theory.
+
+---
+
+### **19. Diagnostic Interpretation**
+
+**Q:** What does a slope ≈ 0.5 in a log(sd)–log(mean) plot suggest?  
+**A:** Variance increases roughly with the mean; a square-root transformation (\(\lambda=1-b\approx0.5\)) could stabilize variance.
+
+---
+
+### **20. Connection to Weighted LS**
+
+**Q:** How are weighted least-squares and variance-stabilizing transformations related?  
+**A:** Both adjust for non-constant variance—WLS does so by explicit weighting; transformations do so by rescaling the response.
