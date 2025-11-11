@@ -27,13 +27,15 @@ in terms of the equivalent kernel $K^{\star}_{\nu,p}$ (see p. 60 Eq. (4.29) in t
 
 ## Answer
 
-Let ${(X_i, Y_i)}_{i=1}^n$ with
+Let $(X_1, Y_1), \cdots (X_n, Y_n)$ be an independent identically distributed sample from $(X,Y)$, with the typical model of the form: 
 
 $$
-Y_i = m(X_i) + \sigma(X_i)e_i,\qquad \mathbb{E}[e_i]=0,\quad \mathrm{Var}(e_i)=1.
+Y_i = m(X_i) + \sigma(X_i)e_i,\qquad \mathbb{E}[e_i]=0,\quad \mathrm{Var}(e_i)=1
 $$
 
-The order-$p$ local polynomial at $x_0$ minimizes
+and $X$ and $e$ are independent. Also, for my own sanity, note: $\mathbb{X} = (X_1, \cdots, X_n)$. 
+
+The order-$p$ local polynomial at $x_0$ minimizes the objective function of the form (and assuming that the (p+1)th derivative of the regression function $m$ at point $x_0$ exists):
 
 $$
 \sum_{i=1}^n\left( Y_i-\sum_{j=0}^p \beta_j (X_i-x_0)^j \right)^2 K_h(X_i-x_0)
@@ -47,13 +49,13 @@ let $W=\mathrm{diag}\!\{K_h(X_i-x_0)\}$, and define
 
 $$
 S_n=X^\top W X,\qquad
-\hat\beta=(X^\top W X)^{-1}X^\top W Y = S_n^{-1}X^\top W Y.
+\hat\beta=(X^\top W X)^{-1}X^\top W Y = S_n^{-1}X^\top W Y
 $$
 
-The estimator of $m^{(\nu)}(x_0)$ is
+We then turn back to our objective function (an estimator of $m^{(\nu)}(x_0)$): 
 
 $$
-\sum_{i=1}^n\left(Y_i-\sum_{j=0}^p \beta_j (X_i-x_0)^j\right)^2 K_h(X_i-x_0)
+\hat{m}^{(\nu)}(x_0) = \sum_{i=1}^n\left(Y_i-\sum_{j=0}^p \beta_j (X_i-x_0)^j\right)^2 K_h(X_i-x_0)
 $$
 
 where $\varepsilon_{\nu+1}$ is the $(\nu+1)$st canonical basis vector.
@@ -80,7 +82,9 @@ $$
 \mathrm{bias}[\hat\beta\mid \mathbb{X}]=S_n^{-1}X^\top W r
 $$
 
-Let $S_{n,j}=\sum_{i=1}^n (X_i-x_0)^j K_h(X_i-x_0)$ and $c_n=(S_{n,p+1},\ldots,S_{n,2p+1})^\top$. Using the remainder,
+Let $S_{n,j}=\sum_{i=1}^n (X_i-x_0)^j K_h(X_i-x_0)$ and $c_n=(S_{n,p+1},\ldots,S_{n,2p+1})^\top$. 
+
+Using the remainder,
 
 $$
 X^\top W r=\beta_{p+1}\,c_n+o_p\big((nh^{p+1},\ldots,nh^{2p+1})^\top\Big),
@@ -107,7 +111,7 @@ S_n\approx n f_X(x_0)\,H\mathbf{S}H,\qquad
 c_n\approx n f_X(x_0)\, H\mathbf{c}_p\, h^{p+1}
 $$
 
-Substitute into (A):
+Substitute into the prior equation to get:
 
 $$
 \mathrm{bias}[\hat\beta\mid \mathbb{X}]=H^{-1}\mathbf{S}^{-1}\mathbf{c}_p\,\beta_{p+1}\,h^{p+1}\,[1+o_p(1)]
@@ -124,7 +128,7 @@ $$
 \end{aligned}
 $$
 
-For $p-\nu$ odd, the leading term does not cancel, so
+For $p-\nu$ odd, the leading term $\mathbf{c}_p$ does not cancel, so we're left with: 
 
 $$
 \mathrm{bias}[\hat m_\nu(x_0)\mid \mathbb{X}]
@@ -133,11 +137,10 @@ $$
 + o_p\left(\frac{1}{n h^{1+2\nu}}\right)
 $$
 
-Define
+Define the equivalent kernel functions: 
 
 $$
-K^{\star}_{\nu,p}(t)=\varepsilon_{\nu+1}^\top \mathbf{S}^{-1}v_p(t)K(t),\qquad
-v_p(t)=(1,t,\ldots,t^p)^\top
+K^{\star}_{\nu,p}(t)=\varepsilon_{\nu+1}^\top \mathbf{S}^{-1}\left( 1, t, \cdots, t^{p} \right) ^{\top}K(t)
 $$
 
 Then (random design with density $f_X$),
@@ -147,7 +150,7 @@ $$
 K^{\star}_{\nu,p}\left(\frac{X_i-x_0}{h}\right)Y_i\,[1+o_p(1)]
 $$
 
-Moment conditions:
+This kernel satisfies the moment conditions:
 
 $$
 \int u^q K^{\star}_{\nu,p}(u),du=\delta_{\nu q} \qquad 0\le \nu,q\le p
@@ -157,23 +160,12 @@ Therefore,
 
 $$
 \mathrm{bias}[\hat m_\nu(x_0)\mid \mathbb{X}]
-=\left(\int t^{p+1}K^{\star}_{\nu,p}(t),dt\right)
-\frac{\nu!}{(p+1)!},m^{(p+1)}(x_0),h^{p+1-\nu}
-+o_p!\big(h^{p+1-\nu}\big),\qquad (p-\nu\ \text{odd})
-$$
-
-**Final (matrix and kernel forms):**
-
-$$
-\begin{aligned}
-\mathrm{bias}[\hat m_\nu(x_0)\mid \mathbb{X}]
-&=\Big(\varepsilon_{\nu+1}^\top \mathbf{S}^{-1}\mathbf{c}_p\Big)\,
-\frac{\nu!}{(p+1)!}\,m^{(p+1)}(x_0)\,h^{p+1-\nu} \\ 
-&=\left(\int t^{p+1}K^{\star}_{\nu,p}(t)\,dt\right)
+=\left(\int t^{p+1}K^{\star}_{\nu,p}(t)\,dt\right)
 \frac{\nu!}{(p+1)!}\,m^{(p+1)}(x_0)\,h^{p+1-\nu}
 +o_p\big(h^{p+1-\nu}\big)
-\end{aligned}
 $$
+
+For $p-\nu$ odd. 
 
 \newpage
 
@@ -190,21 +182,7 @@ in terms of the equivalent kernel $K^{\star}_{\nu,p}$ (see p. 60 Eq. (4.30) in t
 
 ## Answer
 
-Let $\{(X_i, Y_i)\}_{i=1}^n$ with
-
-$$
-Y_i = m(X_i) + \sigma(X_i)e_i, \qquad 
-\mathbb{E}[e_i]=0, \quad \mathrm{Var}(e_i)=1.
-$$
-
-For the order-$p$ local polynomial at $x_0$, define
-
-$$
-S_n = X^\top W X, \qquad 
-\hat{\beta} = (X^\top W X)^{-1} X^\top W Y = S_n^{-1} X^\top W Y
-$$
-
-and
+Under the same setup and assumptions of Question 1, we have: 
 
 $$
 \hat{m}_\nu(x_0) = \nu!\,\varepsilon_{\nu+1}^\top \hat{\beta}
@@ -257,7 +235,7 @@ $$
 S_n^{-1} \approx \frac{1}{n f_X(x_0)} H^{-1}\mathbf{S}^{-1}H^{-1}
 $$
 
-Substitute into (2):
+Substitute into the previous equation to get:
 
 $$
 \begin{aligned}
@@ -280,12 +258,10 @@ $$
 + o_p\left(\frac{1}{n h^{1+2\nu}}\right)
 $$
 
-Define the equivalent kernel
+Define the equivalent kernel functions as before: 
 
 $$
-K^{\star}_{\nu,p}(t)
-= \varepsilon_{\nu+1}^\top \mathbf{S}^{-1} v_p(t) K(t),
-\qquad v_p(t) = (1,t,\ldots,t^p)^\top
+K^{\star}_{\nu,p}(t)=\varepsilon_{\nu+1}^\top \mathbf{S}^{-1}\left( 1, t, \cdots, t^{p} \right) ^{\top}K(t)
 $$
 
 Then, under random design with density $f_X$,
@@ -314,11 +290,7 @@ $$
 \mathbf{S}^{\star} = \mathbf{S}^{(2)}
 $$
 
----
-
-**Supporting theorems:**  
-*Theorem 4.1* (WLS representation and variance);  
-*Eqs. (4.27)–(4.30)*, especially *Eq. (4.30)* for the variance in equivalent-kernel form.
+Note: This result also relies upon WLS representation and variance in addition to the results noted in the book.   
 
 \newpage
 
@@ -358,13 +330,13 @@ $$
 \int u^q K^{\star}_{\nu,p}(u)\,du
 =
 \varepsilon_{\nu+1}^\top \mathbf{S}^{-1}
-\left(\int v_p(u),u^q K(u),du\right)
+\left(\int v_p(u)\,u^q K(u)\,du\right)
 $$
 
 Define the vector
 
 $$
-s_q = \int v_p(u),u^q K(u),du
+s_q = \int v_p(u)\,u^q K(u)\,du
 =
 \begin{pmatrix}
 \mu_q \ \mu_{q+1} \ \vdots \ \mu_{q+p}
@@ -372,6 +344,7 @@ s_q = \int v_p(u),u^q K(u),du
 $$
 
 Observe that $s_q$ is exactly the $(q+1)$-st column of $\mathbf{S}$:
+
 for $j=0,\ldots,p$,
 
 $$
@@ -431,7 +404,7 @@ Then, the order-$p$ local polynomial estimator of the $\nu$th derivative at $x_0
 
 $$
 \hat{m}*\nu(x_0)
-= = \sum_{i=1}^n W^{n}_{\nu}\left( \frac{X_i - x_0}{h} \right) Y_i
+= \sum_{i=1}^n W^{n}_{\nu}\left( \frac{X_i - x_0}{h} \right) Y_i
 $$
 
 where the **weights** are defined (for $0 \le \nu \le p$) as
@@ -468,7 +441,7 @@ Note that
 $$
 \sum_{i=1}^{n} x_i (X_i - x_0)^q K_h(X_i - x_0)
 = \sum_{i=1}^{n} x_i x_i^\top K_h(X_i - x_0)\, \varepsilon_{q+1}
-= S_n, \varepsilon_{q+1}
+= S_n\, \varepsilon_{q+1}
 $$
 
 Substituting this identity back gives
@@ -476,8 +449,8 @@ Substituting this identity back gives
 $$
 \begin{aligned}
 \sum_{i=1}^{n} (X_i - x_0)^q\, W^{n}_{\nu}\left( \frac{X_i - x_0}{h} \right)
-&= \varepsilon_{\nu+1}^\top S_n^{-1} (S_n \varepsilon_{q+1}) 
-&= \varepsilon_{\nu+1}^\top \varepsilon_{q+1} 
+&= \varepsilon_{\nu+1}^\top S_n^{-1} (S_n \varepsilon_{q+1}) \\
+&= \varepsilon_{\nu+1}^\top \varepsilon_{q+1} \\
 &= \delta_{\nu,q}
 \end{aligned}
 $$
@@ -485,7 +458,7 @@ $$
 $$
 \sum_{i=1}^{n} (X_i - x_0)^q\,
 W^{n}_{\nu}\left( \frac{X_i - x_0}{h} \right)
-= \delta_{\nu,q}, \qquad 0 \le \nu, q \le p
+= \delta_{\nu,q} \qquad 0 \le \nu, q \le p
 $$
 
 This **discrete moment condition** shows that the local polynomial regression weights exactly reproduce monomials up to degree $p$.
