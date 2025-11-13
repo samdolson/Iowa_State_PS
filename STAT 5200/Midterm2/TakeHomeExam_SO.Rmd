@@ -19,11 +19,163 @@ plot(y = lakesDat$chl, x = lakesDat$tn)
 hist(lakesDat$chl)
 ```
 
+```{r}
+# Box Cox 
+# log(lakesDat$chl)
+
+bc_plot <- function(y, nbins, main) {
+  q <- quantile(y, probs = seq(0, 1, length.out = nbins + 1), na.rm = TRUE)
+  cuts <- cut(y, breaks = q, include.lowest = TRUE)
+  m <- tapply(y, cuts, mean, na.rm = TRUE)
+  s <- tapply(y, cuts,  sd,   na.rm = TRUE)
+
+  plot(x = log(m), y = log(s),
+       xlab = "log(mean CHL)", ylab = "log(sd CHL)", main = main)
+  fit <- lm(log(s) ~ log(m))
+  abline(fit, col = "red", lwd = 2)
+  invisible(fit)
+}
+
+op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+fit5 <- bc_plot(lakesDat$chl, nbins = 9,  main = "Equal-counts bins (9)")
+fit17 <- bc_plot(lakesDat$chl, nbins = 18, main = "Equal-counts bins (18)")
+par(op)
+
+bc_plot_equal <- function(y, nbins, main) {
+  # equal-width break points
+  q <- seq(from = min(y, na.rm = TRUE),
+           to   = max(y, na.rm = TRUE),
+           length.out = nbins + 1)
+
+  cuts <- cut(y, breaks = q, include.lowest = TRUE)
+  m <- tapply(y, cuts, mean, na.rm = TRUE)
+  s <- tapply(y, cuts,  sd,   na.rm = TRUE)
+
+  plot(x = log(m), y = log(s),
+       xlab = "log(mean CHL)", ylab = "log(sd CHL)", main = main)
+  fit <- lm(log(s) ~ log(m))
+  abline(fit, col = "red", lwd = 2)
+  invisible(fit)
+}
+
+op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+fit5  <- bc_plot_equal(lakesDat$chl, nbins = 9,  main = "Equal-width bins (9))")
+fit17 <- bc_plot_equal(lakesDat$chl, nbins = 18, main = "Equal-width bins (18)")
+par(op)
+```
+
+Box Cox aren't great, perhaps indicating some other random component if we decide to use a generalized linear model. 
+
+```{r}
+plot(y = log(lakesDat$chl), x = log(lakesDat$tn), main = "Transform Both Sides (Log)")
+plot(y = sqrt(lakesDat$chl), x = sqrt(lakesDat$tn), main = "Transform Both Sides (Sqrt)")
+```
+
 # Q2: SECCHI & CHL (Plains vs. Ozarks)
 
 ```{r}
 plot(x = lakesDat$chl, y = lakesDat$secchi)
 hist(lakesDat$secchi)
+```
+
+```{r}
+# Box Cox 
+# log(lakesDat$chl)
+
+bc_plot <- function(y, nbins, main) {
+  q <- quantile(y, probs = seq(0, 1, length.out = nbins + 1), na.rm = TRUE)
+  cuts <- cut(y, breaks = q, include.lowest = TRUE)
+  m <- tapply(y, cuts, mean, na.rm = TRUE)
+  s <- tapply(y, cuts,  sd,   na.rm = TRUE)
+
+  plot(x = log(m), y = log(s),
+       xlab = "log(mean SECCHI)", ylab = "log(sd SECCHI)", main = main)
+  fit <- lm(log(s) ~ log(m))
+  abline(fit, col = "red", lwd = 2)
+  invisible(fit)
+}
+
+op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+fit5 <- bc_plot(lakesDat$secchi, nbins = 9,  main = "Equal-counts bins (9)")
+fit17 <- bc_plot(lakesDat$secchi, nbins = 18, main = "Equal-counts bins (18)")
+par(op)
+
+bc_plot_equal <- function(y, nbins, main) {
+  # equal-width break points
+  q <- seq(from = min(y, na.rm = TRUE),
+           to   = max(y, na.rm = TRUE),
+           length.out = nbins + 1)
+
+  cuts <- cut(y, breaks = q, include.lowest = TRUE)
+  m <- tapply(y, cuts, mean, na.rm = TRUE)
+  s <- tapply(y, cuts,  sd,   na.rm = TRUE)
+
+  plot(x = log(m), y = log(s),
+       xlab = "log(mean SECCHI)", ylab = "log(sd SECCHI)", main = main)
+  fit <- lm(log(s) ~ log(m))
+  abline(fit, col = "red", lwd = 2)
+  invisible(fit)
+}
+
+op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+fit5  <- bc_plot_equal(lakesDat$secchi, nbins = 9,  main = "Equal-width bins (9))")
+fit17 <- bc_plot_equal(lakesDat$secchi, nbins = 18, main = "Equal-width bins (18)")
+par(op)
+```
+
+```{r}
+plot(y = log(lakesDat$secchi), x = log(lakesDat$chl), main = "Transform Both Sides (Log)")
+plot(y = sqrt(lakesDat$secchi), x = sqrt(lakesDat$chl), main = "Transform Both Sides (Sqrt)")
+```
+
+Volume of a cone:
+
+$$
+V = \pi r^2 \frac{h}{3}
+$$
+
+$h$ would be the Secchi "depth", so we could have instead: 
+
+$$
+h = \frac{3V}{r^2}
+$$
+
+and $CHL$ is technically a volumetric measure $\mu g / L$
+
+depth is in meters, with a "standard" disc with radius of 30 cm (12 inches)
+
+```{r}
+chl2 <- (lakesDat$chl)^2
+fit1 <- lm(formula = secchi ~ chl, data = lakesDat)
+fit2 <- lm(formula = secchi ~ chl + chl2, data = lakesDat)
+
+stud_resid <- rstudent(fit1)
+plot(fit1$fitted.values, stud_resid,
+     xlab = "Fitted Values", ylab = "Studentized Residuals",
+     main = "Studentized Residuals vs Fitted")
+abline(h = 0, col = "black")
+
+plot(x = lakesDat$chl, y = lakesDat$secchi)
+abline(fit1, col = "red")
+
+stud_resid <- rstudent(fit2)
+plot(fit2$fitted.values, stud_resid,
+     xlab = "Fitted Values", ylab = "Studentized Residuals",
+     main = "Studentized Residuals vs Fitted")
+abline(h = 0, col = "black")
+
+plot(x = lakesDat$chl, y = lakesDat$secchi)
+abline(fit2, col = "red")
+```
+
+Or with a cylinder: 
+
+$$
+V = \pi r^2 h \Rightarrow h = \frac{V}{\pi r^2}
+$$
+
+```{r}
+
 ```
 
 # Q3: LRT SECCHI & CHL (Plains vs. Ozarks) 
