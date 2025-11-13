@@ -9,7 +9,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r, message=F, warning=F, echo=F}
+library(knitr)
+library(kableExtra)
 lakesDat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/Midterm2/takehomedata_2025.txt", header = T)
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/Misc/basicglm.txt")
 ```
 
 # Q1: CHL & TN (Plains vs. Ozarks)
@@ -37,9 +40,36 @@ bc_plot <- function(y, nbins, main) {
 }
 
 op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
-fit5 <- bc_plot(lakesDat$chl, nbins = 9,  main = "Equal-counts bins (9)")
-fit17 <- bc_plot(lakesDat$chl, nbins = 18, main = "Equal-counts bins (18)")
+fit4 <- bc_plot(lakesDat$chl, nbins = 4,  main = "Equal-counts bins (4)")
+fit8 <- bc_plot(lakesDat$chl, nbins = 8, main = "Equal-counts bins (8)")
+fit12 <- bc_plot(lakesDat$chl, nbins = 12,  main = "Equal-counts bins (12)")
+fit16 <- bc_plot(lakesDat$chl, nbins = 16, main = "Equal-counts bins (16)")
+fit20 <- bc_plot(lakesDat$chl, nbins = 20,  main = "Equal-counts bins (20)")
+fit24 <- bc_plot(lakesDat$chl, nbins = 24, main = "Equal-counts bins (24)")
 par(op)
+
+summ_tbl <- function(fit, nbins) {
+  s <- summary(fit)
+  ct <- coef(s)
+  data.frame(
+    Bins      = nbins,
+    Term      = rownames(ct),
+    Estimate  = round(ct[, 1], 4),
+    SE        = round(ct[, 2], 4),
+    t_value   = round(ct[, 3], 2),
+    p_value   = formatC(ct[, 4], format = "e", digits = 2),
+    R2        = round(s$r.squared, 3),
+    Adj_R2    = round(s$adj.r.squared, 3),
+    N         = s$df[1] + s$df[2] + 1,
+    check.names = FALSE
+  )
+}
+
+tab <- rbind(summ_tbl(fit4, 4), summ_tbl(fit8, 8), summ_tbl(fit12, 12), summ_tbl(fit16, 16), summ_tbl(fit20, 20), summ_tbl(fit24, 24))
+
+kbl(tab, booktabs = TRUE,
+    caption = "Linear regressions for Box–Cox mean–sd plots (log(sd) ~ log(mean))") |>
+  kable_styling(full_width = FALSE, position = "center")
 
 bc_plot_equal <- function(y, nbins, main) {
   # equal-width break points
@@ -59,9 +89,18 @@ bc_plot_equal <- function(y, nbins, main) {
 }
 
 op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
-fit5  <- bc_plot_equal(lakesDat$chl, nbins = 9,  main = "Equal-width bins (9))")
-fit17 <- bc_plot_equal(lakesDat$chl, nbins = 18, main = "Equal-width bins (18)")
+fit4 <- bc_plot_equal(lakesDat$chl, nbins = 4,  main = "Equal-counts bins (4)")
+fit8 <- bc_plot_equal(lakesDat$chl, nbins = 8, main = "Equal-counts bins (8)")
+fit12 <- bc_plot_equal(lakesDat$chl, nbins = 12,  main = "Equal-counts bins (12)")
+fit16 <- bc_plot_equal(lakesDat$chl, nbins = 16, main = "Equal-counts bins (16)")
+fit20 <- bc_plot_equal(lakesDat$chl, nbins = 20,  main = "Equal-counts bins (20)")
+fit24 <- bc_plot_equal(lakesDat$chl, nbins = 24, main = "Equal-counts bins (24)")
 par(op)
+
+tab <- rbind(summ_tbl(fit4, 4), summ_tbl(fit8, 8), summ_tbl(fit12, 12), summ_tbl(fit16, 16), summ_tbl(fit20, 20), summ_tbl(fit24, 24))
+kbl(tab, booktabs = TRUE,
+    caption = "Linear regressions for Box–Cox mean–sd plots (log(sd) ~ log(mean))") |>
+  kable_styling(full_width = FALSE, position = "center")
 ```
 
 Box Cox aren't great, perhaps indicating some other random component if we decide to use a generalized linear model. 
@@ -69,6 +108,258 @@ Box Cox aren't great, perhaps indicating some other random component if we decid
 ```{r}
 plot(y = log(lakesDat$chl), x = log(lakesDat$tn), main = "Transform Both Sides (Log)")
 plot(y = sqrt(lakesDat$chl), x = sqrt(lakesDat$tn), main = "Transform Both Sides (Sqrt)")
+```
+
+```{r}
+plot(y = log(lakesDat$chl), x = lakesDat$tn, main = "Transform Response Log")
+plot(y = 1/(lakesDat$chl), x = lakesDat$tn, main = "Transform Response Inverse")
+plot(y = sqrt(lakesDat$chl), x = lakesDat$tn, main = "Transform Response Sqrt")
+plot(y = (lakesDat$chl)^(2/3), x = lakesDat$tn, main = "Transform Response 2/3rd root")
+plot(y = (lakesDat$chl)^(1/3), x = lakesDat$tn, main = "Transform Response 1/3rd root")
+plot(y = (lakesDat$chl), x = lakesDat$tn, main = "Transform Response Identity")
+```
+
+GLM: try gamma and normal random components ($\theta = 1, 2$)
+
+With sqrt-link (appears to be ok at linearizing)
+
+8 power link
+
+```{r}
+X <- cbind(1, lakesDat$tn) 
+Y <- lakesDat$chl
+
+mod_normal_sqrt <- basic.glm(
+  xmat   = X,
+  y      = Y,
+  link   = 8,   
+  random = 4, 
+  pwr = 1/2
+)
+
+mod_normal_13 <- basic.glm(
+  xmat   = X,
+  y      = Y,
+  link   = 8,   
+  random = 4, 
+  pwr = 1/3
+)
+
+mod_gamma_sqrt <- basic.glm(
+  xmat   = X,
+  y      = Y,
+  link   = 8,   
+  random = 5, 
+  pwr = 1/2
+)
+
+mod_gamma_13 <- basic.glm(
+  xmat   = X,
+  y      = Y,
+  link   = 8,   
+  random = 5, 
+  pwr = 1/3
+)
+
+combine_glm_results <- function(mod, model_name) {
+  beta_hat <- mod$estb[, 1]
+  se_hat <- sqrt(diag(mod$invinf))
+  z <- 1.96
+  LCL <- beta_hat - z * se_hat
+  UCL <- beta_hat + z * se_hat
+
+  phi <- mod$ests$phi
+  # unscaled deviance
+  udev <- mod$ests$udev     
+  sdev <- mod$ests$sdev
+  # scaled deviance
+  # sdev <- udev / phi                     
+
+  data.frame(
+    Term        = c("Intercept", "Body Mass"),
+    Estimate    = beta_hat,
+    SE          = se_hat,
+    Phi         = phi,
+    UnscaledDev = udev,
+    ScaledDev   = sdev,
+    LogLik      = mod$ests$loglik.fitted,
+    LCL         = LCL,
+    UCL         = UCL,
+    Model       = model_name,
+    check.names = FALSE
+  )
+}
+
+tab_combined <- rbind(
+  combine_glm_results(mod_normal_sqrt, "Normal (sqrt link)"),
+  combine_glm_results(mod_normal_13, "Normal 1/3rd link"),
+  combine_glm_results(mod_gamma_sqrt,    "Gamma (sqrt link)"), 
+  combine_glm_results(mod_gamma_13, "Gamma 1/3rd link")
+)
+
+kableExtra::kbl(
+  tab_combined,
+  digits = 4,
+  align  = "lrrrrrrrrl",
+  row.names = FALSE,
+  caption = "Model comparison with Wald 95\\% CIs and both unscaled and scaled deviances"
+) |>
+  kableExtra::kable_styling(
+    full_width = FALSE,
+    position   = "center",
+    latex_options = c("hold_position", "scale_down")
+  )
+```
+
+```{r}
+# beta_hat <- mod_gamma_sqrt$estb[,1]
+# vcov_mat <- mod_gamma_sqrt$invinf
+# se_hat <- sqrt(diag(vcov_mat))
+
+beta_hat <- mod_gamma_13$estb[,1]
+vcov_mat <- mod_gamma_13$invinf
+se_hat <- sqrt(diag(vcov_mat))
+
+
+# 90% CI
+z90 <- qnorm(0.95)   
+
+wald_lo <- beta_hat - z90 * se_hat
+wald_hi <- beta_hat + z90 * se_hat
+
+param_labels <- c("$\\beta_0$ (Intercept)", "$\\beta_1$ (Body Mass)")
+
+wald_table <- data.frame(
+  Parameter = param_labels,
+  Estimate  = formatC(beta_hat,  format = "f", digits = 3),
+  SE        = formatC(se_hat,    format = "f", digits = 4),
+  LCL       = formatC(wald_lo,   format = "f", digits = 3),
+  UCL       = formatC(wald_hi,   format = "f", digits = 3)
+)
+
+kable(wald_table, caption = "Wald 90% Confidence Intervals (Gamma model)")
+
+x_grid <- seq(min(lakesDat$tn), max(lakesDat$tn), length.out = 200)
+X_grid <- cbind(1, x_grid)
+
+eta_hat <- X_grid %*% beta_hat
+se_eta <- sqrt(rowSums((X_grid %*% vcov_mat) * X_grid))
+
+eta_lo <- eta_hat - z90 * se_eta
+eta_hi <- eta_hat + z90 * se_eta
+
+mu_hat <- exp(eta_hat)
+mu_lo <- exp(eta_lo)
+mu_hi <- exp(eta_hi)
+
+gamma_band <- data.frame(
+  bm = x_grid,
+  fit = mu_hat,
+  lower = mu_lo,
+  upper = mu_hi
+)
+
+plot(lakesDat$tn, lakesDat$chl, col = "black",
+     xlab = "TN", ylab = "CHL", main = "Gamma model with 90% CI band")
+
+lines(x_grid, mu_hat, lwd = 2, col = "black")
+lines(x_grid, mu_lo,  lwd = 1, col = "red", lty = 2)
+lines(x_grid, mu_hi,  lwd = 1, col = "red", lty = 2)
+
+legend("topleft",
+       legend = c("Fitted mean", "90% band"),
+       col = c("black", "red"), lty = c(1, 2), bty = "n")
+```
+
+
+```{r}
+lakesDat$phi <- 1 / lakesDat$tn
+fit_phi <- lm(chl ~ phi, data = lakesDat)
+
+summary(fit_phi)
+
+stud_resid <- rstudent(fit_phi)
+plot(fitted(fit_phi), stud_resid,
+     xlab = "Fitted values", ylab = "Studentized residuals",
+     main = "Studentized residuals vs Fitted (CHL ~ 1/TN)")
+abline(h = 0)
+
+plot(lakesDat$tn, lakesDat$chl,
+     xlab = "TN", ylab = "CHL")
+
+tn.grid <- seq(min(lakesDat$tn), max(lakesDat$tn), length.out = 200)
+pred <- predict(fit_phi,
+                newdata = data.frame(phi = 1 / tn.grid))
+
+lines(tn.grid, pred, col = "red", lwd = 2)
+```
+
+```{r}
+lakesDat$phi <- 1 / lakesDat$tn
+fit_phi <- lm(chl ~ phi, data = lakesDat)
+
+mu_hat <- fitted(fit_phi)   # estimated means
+e_hat  <- resid(fit_phi)    # ordinary residuals
+
+aux <- lm(log(e_hat^2) ~ log(mu_hat))
+coef(aux)
+delta_hat <- 0.5 * coef(aux)[2]   # slope approx 2delta  ->  delta = slope / 2
+delta_hat
+```
+
+```{r}
+delta_hat1 <- 0.25 
+delta_hat2 <- 0.5
+w <- 1 / (mu_hat^(2 * delta_hat1))
+
+fit_phi_pom <- lm(chl ~ phi, data = lakesDat, weights = w)
+
+summary(fit_phi_pom)
+
+stud_resid2 <- rstudent(fit_phi_pom)
+plot(fitted(fit_phi_pom), stud_resid2,
+     xlab = "Fitted values",
+     ylab = "Studentized residuals",
+     main = "Studentized residuals vs Fitted (power-of-mean)")
+abline(h = 0)
+
+plot(lakesDat$tn, lakesDat$chl,
+     xlab = "TN", ylab = "CHL")
+
+tn.grid <- seq(min(lakesDat$tn), max(lakesDat$tn), length.out = 200)
+pred <- predict(fit_phi_pom,
+                newdata = data.frame(phi = 1 / tn.grid))
+
+lines(tn.grid, pred, col = "red", lwd = 2)
+```
+
+```{r}
+# delta_hat1 <- 0.25 
+delta_hat2 <- 0.50
+# w <- 1 / (mu_hat^(2 * delta_hat2))
+eps <- 1e-6
+w <- 1 / ((abs(mu_hat) + eps)^(2 * delta_hat2))
+
+# ISSUE NEGATIVE WEIGHTS
+fit_phi_pom <- lm(chl ~ phi, data = lakesDat, weights = w)
+
+summary(fit_phi_pom)
+
+stud_resid2 <- rstudent(fit_phi_pom)
+plot(fitted(fit_phi_pom), stud_resid2,
+     xlab = "Fitted values",
+     ylab = "Studentized residuals",
+     main = "Studentized residuals vs Fitted (power-of-mean)")
+abline(h = 0)
+
+plot(lakesDat$tn, lakesDat$chl,
+     xlab = "TN", ylab = "CHL")
+
+tn.grid <- seq(min(lakesDat$tn), max(lakesDat$tn), length.out = 200)
+pred <- predict(fit_phi_pom,
+                newdata = data.frame(phi = 1 / tn.grid))
+
+lines(tn.grid, pred, col = "red", lwd = 2)
 ```
 
 # Q2: SECCHI & CHL (Plains vs. Ozarks)
@@ -145,27 +436,133 @@ and $CHL$ is technically a volumetric measure $\mu g / L$
 depth is in meters, with a "standard" disc with radius of 30 cm (12 inches)
 
 ```{r}
-chl2 <- (lakesDat$chl)^2
-fit1 <- lm(formula = secchi ~ chl, data = lakesDat)
-fit2 <- lm(formula = secchi ~ chl + chl2, data = lakesDat)
+# library(mgcv)
+lakesDat$phi <- 1 / lakesDat$chl
+fit_phi <- lm(secchi ~ phi, data = lakesDat)
 
-stud_resid <- rstudent(fit1)
-plot(fit1$fitted.values, stud_resid,
-     xlab = "Fitted Values", ylab = "Studentized Residuals",
-     main = "Studentized Residuals vs Fitted")
-abline(h = 0, col = "black")
+summary(fit_phi)
 
-plot(x = lakesDat$chl, y = lakesDat$secchi)
-abline(fit1, col = "red")
+stud_resid <- rstudent(fit_phi)
+plot(fitted(fit_phi), stud_resid,
+     xlab = "Fitted values", ylab = "Studentized residuals",
+     main = "Studentized residuals vs Fitted (Secchi ~ 1/CHL)")
+abline(h = 0)
 
-stud_resid <- rstudent(fit2)
-plot(fit2$fitted.values, stud_resid,
-     xlab = "Fitted Values", ylab = "Studentized Residuals",
-     main = "Studentized Residuals vs Fitted")
-abline(h = 0, col = "black")
+plot(lakesDat$chl, lakesDat$secchi,
+     xlab = "CHL", ylab = "Secchi depth")
 
-plot(x = lakesDat$chl, y = lakesDat$secchi)
-abline(fit2, col = "red")
+chl.grid <- seq(min(lakesDat$chl), max(lakesDat$chl), length.out = 200)
+pred <- predict(fit_phi,
+                newdata = data.frame(phi = 1 / chl.grid))
+
+lines(chl.grid, pred, col = "red", lwd = 2)
+
+# fit1 <- lm(formula = secchi ~ chl, data = lakesDat)
+# fit2 <- lm(formula = secchi ~ chl + chl2, data = lakesDat)
+
+# stud_resid <- rstudent(fit1)
+# plot(fit1$fitted.values, stud_resid,
+#      xlab = "Fitted Values", ylab = "Studentized Residuals",
+#      main = "Studentized Residuals vs Fitted")
+# abline(h = 0, col = "black")
+# 
+# plot(x = lakesDat$chl, y = lakesDat$secchi)
+# abline(fit1, col = "red")
+
+# stud_resid <- rstudent(fit2)
+# plot(fit2$fitted.values, stud_resid,
+#      xlab = "Fitted Values", ylab = "Studentized Residuals",
+#      main = "Studentized Residuals vs Fitted")
+# abline(h = 0, col = "black")
+# 
+# plot(x = lakesDat$chl, y = lakesDat$secchi)
+# abline(fit2, col = "red")
+```
+
+```{r}
+lakesDat$phi <- 1 / lakesDat$chl
+lakesDat$secchi_cr <- lakesDat$secchi^(1/3)
+lakesDat$phi_cr    <- lakesDat$phi^(1/3)
+
+fit_phi <- lm(secchi_cr ~ phi_cr, data = lakesDat)
+summary(fit_phi)
+
+stud_resid <- rstudent(fit_phi)
+plot(fitted(fit_phi), stud_resid,
+     xlab = "Fitted values", ylab = "Studentized residuals",
+     main = "Studentized residuals vs Fitted (Secchi ~ 1/CHL)")
+abline(h = 0)
+
+plot(lakesDat$chl, lakesDat$secchi,
+     xlab = "CHL", ylab = "Secchi depth")
+
+chl.grid <- seq(min(lakesDat$chl), max(lakesDat$chl), length.out = 200)
+pred <- predict(fit_phi,
+                newdata = data.frame(phi_cr = 1 / chl.grid))
+
+lines(chl.grid, pred, col = "red", lwd = 2)
+```
+
+```{r}
+lakesDat$phi <- 1 / lakesDat$chl
+fit_phi <- lm(secchi ~ phi, data = lakesDat)
+
+mu_hat <- fitted(fit_phi)   # estimated means
+e_hat  <- resid(fit_phi)    # ordinary residuals
+
+aux <- lm(log(e_hat^2) ~ log(mu_hat))
+coef(aux)
+delta_hat <- 0.5 * coef(aux)[2]   # slope approx 2delta  ->  delta = slope / 2
+delta_hat
+```
+
+```{r}
+delta_hat1 <- 0.5 
+delta_hat2 <- 0.75
+w <- 1 / (mu_hat^(2 * delta_hat1))
+
+fit_phi_pom <- lm(secchi ~ phi, data = lakesDat, weights = w)
+
+summary(fit_phi_pom)
+
+stud_resid2 <- rstudent(fit_phi_pom)
+plot(fitted(fit_phi_pom), stud_resid2,
+     xlab = "Fitted values",
+     ylab = "Studentized residuals",
+     main = "Studentized residuals vs Fitted (power-of-mean)")
+abline(h = 0)
+
+plot(lakesDat$chl, lakesDat$secchi,
+     xlab = "CHL", ylab = "Secchi depth")
+
+chl.grid <- seq(min(lakesDat$chl), max(lakesDat$chl), length.out = 200)
+pred <- predict(fit_phi_pom,
+                newdata = data.frame(phi = 1 / chl.grid))
+
+lines(chl.grid, pred, col = "red", lwd = 2)
+
+# delta 2
+w <- 1 / (mu_hat^(2 * delta_hat2))
+
+fit_phi_pom <- lm(secchi ~ phi, data = lakesDat, weights = w)
+
+summary(fit_phi_pom)
+
+stud_resid2 <- rstudent(fit_phi_pom)
+plot(fitted(fit_phi_pom), stud_resid2,
+     xlab = "Fitted values",
+     ylab = "Studentized residuals",
+     main = "Studentized residuals vs Fitted (power-of-mean)")
+abline(h = 0)
+
+plot(lakesDat$chl, lakesDat$secchi,
+     xlab = "CHL", ylab = "Secchi depth")
+
+chl.grid <- seq(min(lakesDat$chl), max(lakesDat$chl), length.out = 200)
+pred <- predict(fit_phi_pom,
+                newdata = data.frame(phi = 1 / chl.grid))
+
+lines(chl.grid, pred, col = "red", lwd = 2)
 ```
 
 Or with a cylinder: 

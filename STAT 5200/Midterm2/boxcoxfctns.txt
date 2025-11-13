@@ -1,0 +1,80 @@
+boxcox1<-function(dat,nbins){
+#compute box-cox for data in dat should have names $x and $y
+#nbins is number of bins to use
+#this version divides responses into bins with equal numbers of
+#values in each bin
+#
+xs<-dat$x
+ys<-dat$y
+ords<-order(xs)
+xvals<-xs[ords]
+yvals<-ys[ords]
+N<-length(yvals)
+binn<-floor(N/nbins)
+mns<-NULL
+vrs<-NULL
+ns<-NULL
+lowxs<-NULL
+highxs<-NULL
+bins<-NULL
+cnt<-0
+repeat{
+ cnt<-cnt+1
+ smallind<-(cnt-1)*binn+1
+ largeind<-cnt*binn
+ lowx<-xs[smallind]
+ highx<-xs[largeind]
+ tys<-yvals[smallind:largeind]
+ tmn<-mean(tys)
+ tv<-var(tys)
+ mns<-c(mns,tmn)
+ vrs<-c(vrs,tv)
+ bins<-c(bins,cnt)
+ ns<-c(ns,length(tys))
+ lowxs<-c(lowxs,lowx)
+ highxs<-c(highxs,highx)
+ if(cnt==nbins) break
+ }
+res<-data.frame(bin=bins,lowx=lowxs,highx=highxs,n=ns,m=mns,v=vrs)
+return(res)
+}
+#----------------------------------------------------------
+boxcox2<-function(dat,nbins){
+#compute box-cox for data set dat with names $x and $y
+#nbins is number of bins to use
+#this version divides covariate range into bins of equal length
+#with varying number of response values in each bin
+#
+xs<-dat$x
+ys<-dat$y
+ords<-order(xs)
+xvals<-xs[ords]
+yvals<-ys[ords]
+xrange<-max(xvals)-min(xvals)
+#cat("xrange:",xrange,fill=TRUE)
+binlength<-(xrange/nbins)
+#cat("binlength",binlength,fill=TRUE)
+mns<-NULL
+vrs<-NULL
+ns<-NULL
+lowxs<-NULL
+highxs<-NULL
+cnt<-0
+ repeat{
+ cnt<-cnt+1
+ lowx<-min(xvals)+(cnt-1)*binlength
+ highx<-min(xvals)+cnt*binlength
+ tys<-yvals[(lowx<=xvals)&(xvals<highx)]
+ tmn<-mean(tys)
+ tv<-var(tys)
+ mns<-c(mns,tmn)
+ vrs<-c(vrs,tv)
+ ns<-c(ns,length(tys))
+ lowxs<-c(lowxs,lowx)
+ highxs<-c(highxs,highx)
+ if(cnt==nbins) break
+ }
+res<-data.frame(lowx=lowxs,highx=highxs,n=ns,m=mns,v=vrs)
+return(res)
+}
+#------------------------------------------------------------------------
