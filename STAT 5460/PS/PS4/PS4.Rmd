@@ -27,13 +27,13 @@ in terms of the equivalent kernel $K^{\star}_{\nu,p}$ (see p. 60 Eq. (4.29) in t
 
 ## Answer
 
-Let $(X_1, Y_1), \cdots (X_n, Y_n)$ be an independent identically distributed sample from $(X,Y)$, with the typical model of the form: 
+Let $(X_1, Y_1), \cdots (X_n, Y_n)$ be an i.i.d. sample from $(X,Y)$, with the typical model of the form: 
 
 $$
 Y_i = m(X_i) + \sigma(X_i)e_i,\qquad \mathbb{E}[e_i]=0,\quad \mathrm{Var}(e_i)=1
 $$
 
-and $X$ and $e$ are independent. Also, for my own sanity, note: $\mathbb{X} = (X_1, \cdots, X_n)$. 
+Where $X$ and $e$ are independent. Also, for my own sanity, note: $\mathbb{X} = (X_1, \cdots, X_n)$. 
 
 The order-$p$ local polynomial estimator at $x_0$ minimizes: 
 
@@ -43,7 +43,7 @@ $$
 K_h(u)=\frac{1}{h}K(u/h)
 $$
 
-Let $\mathbf{X}$ be the $n \times (p+1)$ design matrix with $(j+1)$ column $(X_i-x_0)^j$.
+Let $\mathbf{X}$ be the $n \times (p+1)$ design matrix whose $(j+1)$-st (-th?) column has entries $(X_i-x_0)^j, i = 1, \cdots, n \text{ and } j = 1, \cdots p$.
 
 Further, let $W = \mathrm{diag}\{K_h(X_i-x_0)\}$, and define:
 
@@ -116,12 +116,14 @@ S = (\mu_{j+\ell})_{0\le j,\ell\le p}
 \qquad \text{and } c_p = (\mu_{p+1},\ldots,\mu_{2p+1})^\top
 $$
 
-Note: There are two different moment vectors in this derivation: $c_n = (S_{n,p+1},\ldots,S_{n,2p+1})^\top$ and $c_p = (\mu_{p+1},\ldots,\mu_{2p+1})^\top$. The text does also uses both, but only explicitly defines $c_n$. Further, $c_n$ denotes the sample vector of weighted empirical moments while $c_p$ is the population moment vector appearing in the asymptotic bias formula.
+Note: There are two different moment vectors in this derivation: $c_n = (S_{n,p+1},\ldots,S_{n,2p+1})^\top$ and $c_p = (\mu_{p+1},\ldots,\mu_{2p+1})^\top$. 
+
+The text also uses both quantities, but only explicitly defines $c_n$. Further, $c_n$ denotes the sample vector of weighted empirical moments while $c_p$ is the population moment vector appearing in the asymptotic bias formula.
 
 Continuing on, for continuous $f_X$ at $x_0$, 
 
 $$ 
-S_n \approx n f_X(x_0)\, H S H, \qquad c_n \approx n f_X(x_0)\, H c_p\, h^{p+1}
+S_n \approx n f_X(x_0)\, H S H, \qquad c_n \approx n f_X(x_0)\, H c_p\, h^{p+1} \tag{4.19}
 $$ 
 
 Taken together: 
@@ -173,7 +175,7 @@ $$
 + o_p(h^{p+1-\nu})
 $$ 
 
-for $p-\nu$ odd.
+for $p-\nu$ odd (matching the equation given in $4.29$).
 
 \newpage
 
@@ -230,8 +232,6 @@ $$
 H=\mathrm{diag}(1,h,\ldots,h^p), \qquad \mu_j=\int u^jK(u)\,du, \qquad \text{and } \nu_j = \mu_j^{(2)}=\int u^jK(u)^2\,du
 $$
 
-Note: For what follows, I use $\nu_j$ in lieu of $\mu^{(2)}$ for notational convenience.
-
 And define:
 
 $$
@@ -245,12 +245,14 @@ $$
 \end{pmatrix} \tag{4.20} 
 $$
 
+Note: For what follows, I use $\nu_j$ in lieu of $\mu^{(2)}$ for notational convenience.
+
 With $f_X$ continuous at $x_0$:
 
 $$
 S_n \approx n f_X(x_0) \, H\mathbf{S}H,
 \qquad
-\mathbf{X}^\top \mathbf{W}^2 \mathbf{X} \approx \frac{n f_X(x_0)}{h}\, H\mathbf{S}^{\star}H
+\mathbf{X}^\top \mathbf{W}^2 \mathbf{X} \approx \frac{n f_X(x_0)}{h}\, H\mathbf{S}^{\star}H \tag{Also 4.20}
 $$
 
 Hence
@@ -302,15 +304,27 @@ $$
 [1+o_p(1)]
 $$
 
-Using $\mathrm{Var}(Y_i\mid\mathbb{X})\approx\sigma^2(x_0)$ and assumption of independence (specifically independence of errors conditional on $\mathbb{X}$),
+Using the following: 
+
+$$
+\mathrm{Var}(Y_i\mid\mathbb{X})\approx\sigma^2(x_0),
+$$ 
+
+$$
+\varepsilon_{\nu + 1}^\top S^{-1}S^{\star} S^{-1} \varepsilon_{\nu +1} = \int [ K_{\nu, p}^{\star}(t) ] ^2 dt, 
+$$
+
+And, under the assumption of independence (specifically independence of errors conditional on $\mathbb{X}$), we then have: 
 
 $$
 \mathrm{Var}[\hat{m}_\nu(x_0)\mid\mathbb{X}]
 =
 \frac{\nu!^2\sigma^2(x_0)}{n h^{1+2\nu} f_X(x_0)}
 \int [K_{\nu,p}^\star(t)]^2\,dt
-+ o_p\left(\frac{1}{n h^{1+2\nu}}\right) \tag{as in 4.30}
++ o_p\left(\frac{1}{n h^{1+2\nu}}\right)
 $$
+
+Matching the equation given in $4.30$. 
 
 \newpage
 
@@ -339,10 +353,10 @@ Where we follow the typical convention: $\mu_r = \int u^r K(u)\,du$.
 As defined, the equivalent kernel is of the form: 
 
 $$
-K^{\star}_{\nu,p}(u) = \varepsilon_{\nu+1}^\top \mathbf{S}^{-1} v_p(u)\,K(u) \tag{4.27, but using u instead of t}
+K^{\star}_{\nu,p}(u) = \varepsilon_{\nu+1}^\top \mathbf{S}^{-1} v_p(u)\,K(u) \tag{As in Eq. 4.27, but using u instead of t}
 $$
 
-Where $\varepsilon_{\nu+1}$ denotes the $(\nu+1)$-st canonical basis vector in $\mathbb{R}^{p+1}$.
+where $\varepsilon_{\nu+1}$ denotes the $(\nu+1)$-st canonical basis vector in $\mathbb{R}^{p+1}$.
 
 For $0 \le q \le p$, the $q$-th moment of $K^{\star}_{\nu,p}$ is:
 
@@ -486,10 +500,19 @@ $$
 \end{aligned}
 $$
 
-Where, notationally: 
+Where, notationally (equivalent to the setup): 
 
-$$ 
-x_i = \begin{pmatrix} 1 & (X_i - x_0) & \cdots & (X_i - x_0)^p \end{pmatrix}^\top, \qquad X = \begin{pmatrix} x_1^\top \ \vdots \ x_n^\top \end{pmatrix} 
+$$
+x_i = \begin{pmatrix}
+1 & (X_i - x_0) & \cdots & (X_i - x_0)^p
+\end{pmatrix}^\top,
+\qquad
+\mathbf{X} =
+\begin{pmatrix}
+x_1^\top \\
+\vdots \\
+x_n^\top \\ 
+\end{pmatrix}
 $$
 
 And where: 
