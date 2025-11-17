@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r, message=F, warning=F, echo=F}
 library(knitr)
 library(kableExtra)
+library(dplyr)
 lakesDat <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/Midterm2/takehomedata_2025.txt", header = T)
 source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/Misc/basicglm.txt")
 source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/Misc/newtraph.txt")
@@ -21,10 +22,17 @@ source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5200/Midterm2/boxcoxf
 
 ## Overall Distribution & Approach
 
-```{r, message=F, warning=F, echo=F}
+```{r, message=F, warning=F, echo=F, fig.height = 10, fig.width = 10}
+layout(matrix(c(1, 1,
+                2, 3),
+              nrow = 2, byrow = TRUE))
+
+par(mar = c(4, 4, 3, 1),
+    oma = c(0, 0, 0, 0),
+    xaxs = "i", yaxs = "i")
+
 plot(y = lakesDat$chl, x = lakesDat$tn, xlab = "TN", ylab = "CHL", main = "Overall Scatterplot CHL(y) to TN(x)")
 
-par(mfrow = c(1, 2))
 # plot(y = lakesDat$chl, x = lakesDat$tn, col = as.factor(lakesDat$region),
 #      xlab = "TN", ylab = "CHL", main = "Overall Scatterplot CHL(y) to TN(x)")
 xlim <- range(lakesDat$tn,  na.rm = TRUE)
@@ -173,7 +181,7 @@ Based on the initial examination, we begin by considering suitable generalized l
 
 With suitable random component(s) identified, the next step is to identify a suitable systematic link function for modeling the mean relationship between TN and CHL.
 
-```{r, message=F, warning=F, echo=F}
+```{r, message=F, warning=F, echo=F, fig.height = 10, fig.width = 10}
 op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
 
 plot(y = log(lakesDat$chl), x = lakesDat$tn, xlab = "TN", ylab ="log(CHL)", main = "Transform Response Log")
@@ -381,14 +389,14 @@ par(mfrow = c(2, 2),
     oma = c(0, 0, 0, 0),
     xaxs = "i", yaxs = "i")
 
-plot(mu_g, res_g_p,
-     xlab = "Fitted (Gamma)", ylab = "Pearson residual",
-     main = "Gamma: Pearson Residuals")
+plot(mu_g, res_g_dev,
+     xlab = "Fitted (Gamma)", ylab = "Deviance residual",
+     main = "Gamma: Deviance Residuals")
 abline(h = 0, lty = 2)
 
-plot(mu_ig, res_ig_p,
-     xlab = "Fitted (InvGaussian)", ylab = "Pearson residual",
-     main = "InvGaussian: Pearson Residuals")
+plot(mu_ig, res_ig_dev,
+     xlab = "Fitted (InvGaussian)", ylab = "Deviance residual",
+     main = "InvGaussian: Deviance Residuals")
 abline(h = 0, lty = 2)
 
 # par(mfrow = c(1, 1))
@@ -425,6 +433,63 @@ With this preferred generalized linear model identified, we next examine a range
 ## Additive Error Models
 
 ### Transform Both Sides
+
+```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
+## Fit basic OLS model: CHL ~ TN
+fit_ols <- lm(chl ~ tn, data = lakesDat)
+
+## Layout: 2 small on top, 1 big on bottom
+layout(matrix(c(1, 2,
+                3, 3), nrow = 2, byrow = TRUE))
+
+par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0))
+
+## -------- 1. Residuals vs Fitted (OLS) --------
+plot(fitted(fit_ols), rstudent(fit_ols),
+     xlab = "Fitted CHL",
+     ylab = "Studentized residuals",
+     main = "OLS: Residuals vs Fitted",
+     pch  = 1, col = "black")
+abline(h = 0, lty = 2)
+
+## -------- 2. Observed vs Fitted CHL --------
+plot(fitted(fit_ols), lakesDat$chl,
+     xlab = "Fitted CHL",
+     ylab = "Observed CHL",
+     main = "Observed vs Fitted (OLS)",
+     pch  = 1, col = "black")
+abline(0, 1, lty = 2)  # 45-degree line
+
+## -------- 3. TN vs CHL with fitted line (big bottom plot) --------
+tn_grid <- seq(min(lakesDat$tn, na.rm = TRUE),
+               max(lakesDat$tn, na.rm = TRUE),
+               length.out = 200)
+
+pred_ols <- predict(fit_ols,
+                    newdata = data.frame(tn = tn_grid),
+                    type = "response")
+
+plot(lakesDat$tn, lakesDat$chl,
+     pch = 1, col = "black",
+     xlab = "TN", ylab = "CHL",
+     main = "OLS Model: Observed vs Fitted")
+
+lines(tn_grid, pred_ols,
+      lwd = 3, col = "blue")
+
+legend("topleft",
+       legend = c("Observed CHL", "Fitted (OLS)"),
+       col    = c("black", "blue"),
+       pch    = c(1, NA),
+       lty    = c(NA, 1),
+       lwd    = c(NA, 3),
+       bty    = "n")
+
+## Reset layout
+layout(1)
+```
+
+We start with a typical OLS univariate regression. While the fit seems fairly adequate (roughly linear), the studentized pearson residuals indicate possible heteroscedasticity. Because of this, we are potentially motivated to consider a transform both sides additive error model. To identify an appropriate transformation to stabilize variance, we test a number of options.  
 
 ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
 par(mfrow = c(3, 1),
@@ -497,9 +562,13 @@ legend("topleft",
 layout(1)
 ```
 
-The cube-root transformation provides a reasonably linear and variance-stabilizing relationship for the transform-both-sides additive error model, consistent with our earlier findings that cube-root linearization is effective for the GLM as well. Although this approach requires back-transforming predictions to the original CHL scale, it still yields an adequate description of the TN–CHL relationship. However, only means back-transform cleanly; quantities such as variances or percentiles do not, due to issues such as Jensen’s inequality, so inference for non-mean quantities is more complicated under a TBS approach.
+The cube-root transformation provides a reasonable variance-stabilizing effect for the transform-both-sides additive error model, consistent with our earlier findings that cube-root linearization is effective for the GLM as well. Although this approach requires back-transforming predictions to the original CHL scale, it still yields an adequate description of the TN–CHL relationship. However, only means back-transform cleanly; quantities such as variances or percentiles do not, due to issues such as Jensen’s inequality, so inference for non-mean quantities is more complicated under a TBS approach.
+
+Note: While only three transformations are given above, a number of other options were considered. 
 
 ### Power of the Mean
+
+While a linear fit appears to do a half decent job at explaining the relationship between CHL and TN, we may think that the relationship is inherently non-linear. Combine this with the prior observation(s) in the GLM section, and we are motivated to believe that variance could be related to the mean, such that a power of the mean model is at least reasonable to consider in the model formulation step. 
 
 ```{r power-setup1, message=FALSE, warning=FALSE, echo=FALSE}
 base_fit <- lm(chl ~ tn, data = lakesDat)
@@ -1087,7 +1156,7 @@ par(mar = c(4, 4, 3, 1),
 plot(lakesDat$chl, lakesDat$secchi,
      xlab = "CHL", ylab = "Secchi",
      main = "Overall Scatterplot Secchi(y) to CHL(x)",
-     pch = 19, col = "black",
+     pch = 1, col = "black",
      xlim = xlim, ylim = ylim)
 
 ############################
@@ -1112,7 +1181,6 @@ with(subset(lakesDat, region == "ozarks"),
 
 ## Reset layout
 layout(1)
-
 ```
 
 ```{r, message=F, warning=F, echo=F}
@@ -1408,14 +1476,14 @@ par(mfrow = c(2, 2),
     oma = c(0, 0, 0, 0),
     xaxs = "i", yaxs = "i")
 
-plot(mu_g, res_g_p,
-     xlab = "Fitted (Gamma)", ylab = "Pearson residual",
-     main = "Gamma: Pearson Residuals")
+plot(mu_g, res_g_dev,
+     xlab = "Fitted (Gamma)", ylab = "Deviance residual",
+     main = "Gamma: Deviance Residuals")
 abline(h = 0, lty = 2)
 
-plot(mu_ig, res_ig_p,
-     xlab = "Fitted (InvGaussian)", ylab = "Pearson residual",
-     main = "InvGaussian: Pearson Residuals")
+plot(mu_ig, res_ig_dev,
+     xlab = "Fitted (InvGaussian)", ylab = "Deviance residual",
+     main = "InvGaussian: Deviance Residuals")
 abline(h = 0, lty = 2)
 
 # par(mfrow = c(1, 1))
@@ -1445,13 +1513,70 @@ par(mfrow = c(1, 1))
 # par(mfrow = c(1, 1))
 ```
 
-It is difficult to distinguish between the Gamma and Inverse Gaussian models using the fitted–versus–observed scatterplots alone, as both produce very similar mean curves. One might argue that the Inverse Gaussian captures the increasing variability at lower CHL values (CHL < 10) slightly more closely, though at the expense of having a worse fit for these values (the mean curve misses nearly all observations in this range. Combine this with the residual plots, which indicate the Inverse Gaussian deviance residuals exhibit possibly greater heteroskedasticity in addition to lacking symmetry, and the choice of a Gamma generalized linear model with an inverse link seems most appropriate. 
+It is difficult to distinguish between the Gamma and Inverse Gaussian models using the fitted–versus–observed scatterplots alone, as both produce very similar mean curves. One might argue that the Inverse Gaussian captures the increasing variability at lower CHL values (CHL < 10) slightly more closely, though at the expense of having a worse fit for these values (the mean curve misses nearly all observations in this range. Combine this with the residual plots, which indicate the Inverse Gaussian deviance residuals exhibit possibly greater heteroscedasticity in addition to lacking symmetry, and the choice of a Gamma generalized linear model with an inverse link seems most appropriate. 
 
 With this preferred generalized linear model identified, we next examine a range of additive error models for completeness. By evaluating these alternatives alongside the GLM, we select a single most appropriate model to use for the subsequent region-specific comparisons.
 
 ## Additive Error Models 
 
 ### Transform Both Sides 
+
+```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
+## Fit basic OLS model: Secchi ~ CHL
+fit_ols_secchi <- lm(secchi ~ chl, data = lakesDat)
+
+## Layout: 2 small on top, 1 big on bottom
+layout(matrix(c(1, 2,
+                3, 3), nrow = 2, byrow = TRUE))
+
+par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0))
+
+## -------- 1. Residuals vs Fitted (OLS) --------
+plot(fitted(fit_ols_secchi), rstudent(fit_ols_secchi),
+     xlab = "Fitted Secchi",
+     ylab = "Studentized residuals",
+     main = "OLS: Residuals vs Fitted (Secchi ~ CHL)",
+     pch  = 1, col = "black")
+abline(h = 0, lty = 2)
+
+## -------- 2. Observed vs Fitted Secchi --------
+plot(fitted(fit_ols_secchi), lakesDat$secchi,
+     xlab = "Fitted Secchi",
+     ylab = "Observed Secchi",
+     main = "Observed vs Fitted (OLS)",
+     pch  = 1, col = "black")
+abline(0, 1, lty = 2)  # 45-degree line
+
+## -------- 3. CHL vs Secchi with fitted line (big bottom plot) --------
+chl_grid <- seq(min(lakesDat$chl, na.rm = TRUE),
+                max(lakesDat$chl, na.rm = TRUE),
+                length.out = 200)
+
+pred_ols_secchi <- predict(fit_ols_secchi,
+                           newdata = data.frame(chl = chl_grid),
+                           type = "response")
+
+plot(lakesDat$chl, lakesDat$secchi,
+     pch = 1, col = "black",
+     xlab = "CHL", ylab = "Secchi",
+     main = "OLS Model: Observed vs Fitted")
+
+lines(chl_grid, pred_ols_secchi,
+      lwd = 3, col = "blue")
+
+legend("topright",
+       legend = c("Observed Secchi", "Fitted (OLS)"),
+       col    = c("black", "blue"),
+       pch    = c(1, NA),
+       lty    = c(NA, 1),
+       lwd    = c(NA, 3),
+       bty    = "n")
+
+## Reset layout
+layout(1)
+```
+
+Though we eventually want to adopt a more fitting curve, a key consideration of the above linear fit is the clear heteroscedasticity in the model. This motivates a potential transformat both sides model. 
 
 ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
 par(mfrow = c(3, 1),
@@ -1613,9 +1738,9 @@ bty    = "n")
 layout(1)
 ```
 
-We considered several possible linearizing and variance–stabilizing transformations for a transform-both-sides (TBS) additive error model. Among these, the inverse and cube-root transformations appeared most promising based on their scatterplots and visual linearization.
+We considered several possible variance–stabilizing transformations for a transform-both-sides (TBS) additive error model. Among these, the inverse and cube-root transformations appeared most promising based on their scatterplots.
 
-The fitted TBS models and their diagnostic plots (shown above) make clear, however, that a TBS approach is not adequate for this application. Even with the best-performing transformation, the fitted curve fails to capture the observed curvature in the Secchi–CHL relationship, and the residual plots exhibit pronounced patterns and heteroskedasticity.
+The fitted TBS models and their diagnostic plots (shown above) make clear, however, that a TBS approach is not adequate for this application. Even with the best-performing transformation, the fitted curve fails to capture the observed curvature in the Secchi–CHL relationship, and the residual plots exhibit pronounced patterns and heteroscedasticity.
 
 That said, the cube-root transformation performs noticeably better than the inverse transformation: it avoids the explosive behavior near low Secchi values and provides somewhat improved variance stabilization. Nonetheless, appreciable funneling remains in the residuals, particularly at the lower end of CHL, and the overall fit is still inferior to the GLM approaches. Consequently, the TBS additive error model is not competitive as an overall model for Secchi depth.
 
@@ -2601,17 +2726,19 @@ $$
 \end{aligned}
 $$
 
-Likelihood ratio test
-
-With MLEs $\hat\theta_0$ and $\hat\theta_1$,
+Likelihood ratio test then is of the form: 
 
 $$
-\Lambda = 2\bigl[\ell_1(\hat\theta_1) - \ell_0(\hat\theta_0)\bigr]
+-2\{\ell_1(\hat\theta_0)-\ell_0(\hat\theta_1)\} \leq \chi^2_{2, 1 - \alpha}
 $$
 
-which is compared to $\chi^2_2$ because the full model has 5 parameters and the reduced has 3.
+since the full model has 5 parameters and the reduced model has 3.
 
-Implementing: 
+For: 
+
+* $H_0$: reduced model is true (no region difference) 
+
+* $H_1$: full model is true (regions differ)
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 dat <- list(
@@ -2721,38 +2848,55 @@ pval <- pchisq(Lambda, df = df, lower.tail = FALSE)
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-cat("Convergence of Reduced fit (0 is converged):", fit_red$convergence, "\n")
-cat("Convergence of Full fit (0 is converged):", fit_full$convergence, "\n")
+# cat("Convergence of Reduced fit (0 is converged):", fit_red$convergence, "\n")
+# cat("Convergence of Full fit (0 is converged):", fit_full$convergence, "\n")
+# cat("ll_red_hat =", ll_red_hat, "\n")
+# cat("ll_full_hat =", ll_full_hat, "\n")
+# cat("Lambda_raw =", Lambda_raw, "\n")
+# cat("p-value of LRT is:", pval, "\n")
+results_table <- tibble(
+  Quantity = c(
+    "Convergence (Reduced)",
+    "Convergence (Full)",
+    "LogLik (Reduced MLE)",
+    "LogLik (Full MLE)",
+    "Lambda (raw)",
+    "LRT p-value"
+  ),
+  Value = c(
+    as.character(as.integer(fit_red$convergence)),   # no decimals
+    as.character(as.integer(fit_full$convergence)),  # no decimals
+    format(round(ll_red_hat, 2), nsmall = 2),        # 2 decimals
+    format(round(ll_full_hat, 2), nsmall = 2),       # 2 decimals
+    format(round(Lambda_raw, 5), nsmall = 5),        # 5 decimals
+    format(round(pval, 3), nsmall = 3)               # 3 decimals
+  )
+)
 
-cat("ll_red_hat =", ll_red_hat, "\n")
-cat("ll_full_hat =", ll_full_hat, "\n")
-cat("Lambda_raw =", Lambda_raw, "\n")
-
-cat("p-value of LRT is:", pval, "\n")
+kbl(results_table,
+    caption = "Model Fit, Log-Likelihoods, and LRT Results") |>
+  kable_styling(full_width = FALSE, position = "center")
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # 1. Loglik of reduced at its own parameters
-ll_red_at_red <- loglik_reduced(x0_red, dat)
-
-# 2. Loglik of full at "nested" parameters (force Plains and Ozarks to share)
-par_full_nested <- c(
-  x0_red[1],  # betaP0 = beta0
-  x0_red[2],  # betaP1 = beta1
-  x0_red[1],  # betaO0 = beta0
-  x0_red[2],  # betaO1 = beta1
-  x0_red[3]   # logalpha (same)
-)
-ll_full_at_nested <- loglik_full(par_full_nested, dat)
-
-c(ll_red_at_red  = ll_red_at_red,
-  ll_full_nested = ll_full_at_nested)
+# ll_red_at_red <- loglik_reduced(x0_red, dat)
+# 
+# # 2. Loglik of full at "nested" parameters (force Plains and Ozarks to share)
+# par_full_nested <- c(
+#   x0_red[1],  # betaP0 = beta0
+#   x0_red[2],  # betaP1 = beta1
+#   x0_red[1],  # betaO0 = beta0
+#   x0_red[2],  # betaO1 = beta1
+#   x0_red[3]   # logalpha (same)
+# )
+# ll_full_at_nested <- loglik_full(par_full_nested, dat)
+# c(ll_red_at_red  = ll_red_at_red,
+#   ll_full_nested = ll_full_at_nested)
 ```
 
-$H_0$: reduced model is true (no region difference) 
+In short, 
 
-$H_1$: full model is true (regions differ)
+* Definitive Question: Do the regions differ in the relation between Chlorophyll and Secchi depth?
 
-Definitive Question: Do the regions differ in the relation between Chlorophyll and Secchi depth?
-
-Definitive Answer: No! 
+* Definitive Answer: No! 
