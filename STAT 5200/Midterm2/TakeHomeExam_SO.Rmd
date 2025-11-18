@@ -56,17 +56,16 @@ with(subset(lakesDat, region == "ozarks"),
 par(mfrow = c(1, 1))
 ```
 
-```{r, message=F, warning=F, echo=F}
-hist(lakesDat$chl, freq = T, xlab = "CHL", main = "Marginal Distribution of CHL")
-```
+<!-- # ```{r, message=F, warning=F, echo=F} -->
+<!-- # hist(lakesDat$chl, freq = T, xlab = "CHL", main = "Marginal Distribution of CHL") -->
 
-The distribution of CHL is right-skewed, which is consistent with ecological expectations for nutrient–algal processes. There is a clear positive, potentially nonlinear relationship between TN and CHL, with variance increasing at larger TN values. Scatterplots stratified by region show the same general patterns (positive trend, possible nonlinearity, increasing variance), though the ranges for the Plains and Ozarks differ while still overlapping.
+CHL is right-skewed and increases with TN, with variance also rising at higher TN values. The regional scatterplots (Plains vs. Ozarks) show the same qualitative pattern but suggest possible differences in the strength of the TN–CHL relationship.
 
-Because chlorophyll–TN dynamics arise from the same underlying biological mechanism across all Missouri reservoirs, we first identify a global mean–variance model for CHL as a function of TN. This provides the shared functional form of the TN–CHL relationship that applies across regions.
+Let $Y_i$ denote CHL for lake $i$ ($i=1,\dots,134$), with corresponding TN value $x_i$. Each lake appears once, so the observations may be treated as independent. Specifying a conditional model for $Y_i \mid x_i$ yields a joint distribution for the full collection ${Y_i}$.
 
-After identifying this overall model, we fit the same model structure separately to the Plains and Ozarks. Differences between the region-specific fits—such as changes in intercept, slope, curvature, or dispersion—then reflect true regional differences in the strength or level of the TN–CHL relationship rather than differences introduced by choosing different model families or transformations.
+Assuming a common underlying biological mechanism across Missouri reservoirs, we first fit an overall TN–CHL model to determine an appropriate mean–variance structure and link function. We then apply this same model structure separately to the Plains and Ozarks so that any differences in fitted curves or parameters reflect genuine regional differences rather than artifacts of using different model families.
 
-This approach ensures that regional comparisons reflect actual ecological differences, avoids artifacts from inconsistent modeling, and allows direct comparison of parameters, confidence bands, and derived quantities such as $\Pr(Y > Z \mid x)$.
+This framework supports meaningful comparison of regression functions, confidence bands, and derived quantities such as $\Pr(Y > Z \mid x)$.
 
 ## Generalized Linear Models
 
@@ -177,25 +176,25 @@ bc_table <- do.call(rbind, lapply(nbins_vec, extract_slope_theta))
 kable(bc_table)
 ```
 
-Based on the initial examination, we begin by considering suitable generalized linear models. Using the provided `boxcoxfctns` functions, I computed Box–Cox mean–variance slopes to identify an appropriate random component. The slopes were consistently between 1.6 and 2.1 across binning schemes, equally-spaced or equal-counts, indicating a variance pattern approximately proportional to $\mu^{2}$ to $\mu^{3}$, suggesting that either a Gamma or Inverse Gaussian random component is appropriate for the overall model.
+To select an appropriate GLM family, I used the `boxcoxfctns` routines to estimate Box–Cox mean–variance slopes. Across all binning schemes, the slopes lay between 1.6 and 2.1, indicating that $\operatorname{Var}(Y\mid x)$ grows roughly like $\mu^{2}$–$\mu^{3}$. This variance pattern is consistent with Gamma or Inverse Gaussian random components, so these families are the natural GLM candidates.
 
-With suitable random component(s) identified, the next step is to identify a suitable systematic link function for modeling the mean relationship between TN and CHL.
+With the random component identified, the next step is to determine a suitable link function for modeling the TN–CHL mean relationship.
 
-```{r, message=F, warning=F, echo=F, fig.height = 10, fig.width = 10}
+```{r, message=F, warning=F, echo=F, fig.height = 8, fig.width = 8}
 op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
 
-plot(y = log(lakesDat$chl), x = lakesDat$tn, xlab = "TN", ylab ="log(CHL)", main = "Transform Response Log")
-plot(y = 1/(lakesDat$chl), x = lakesDat$tn, xlab = "TN", ylab ="1/CHL",  main = "Transform Response Inverse")
+# plot(y = log(lakesDat$chl), x = lakesDat$tn, xlab = "TN", ylab ="log(CHL)", main = "Transform Response Log")
+# plot(y = 1/(lakesDat$chl), x = lakesDat$tn, xlab = "TN", ylab ="1/CHL",  main = "Transform Response Inverse")
 plot(y = sqrt(lakesDat$chl), x = lakesDat$tn, xlab = "TN", ylab ="sqrt(CHL)",  main = "Transform Response Sqrt")
-plot(y = (lakesDat$chl)^(2/3), x = lakesDat$tn, xlab = "TN", ylab ="CHL^2/3",  main = "Transform Response 2/3rd root")
+# plot(y = (lakesDat$chl)^(2/3), x = lakesDat$tn, xlab = "TN", ylab ="CHL^2/3",  main = "Transform Response 2/3rd root")
 plot(y = (lakesDat$chl)^(1/3), x = lakesDat$tn, xlab = "TN", ylab ="CHL^1/3",  main = "Transform Response 1/3rd root")
-plot(y = (lakesDat$chl), x = lakesDat$tn, xlab = "TN", ylab ="CHL",  main = "Transform Response Identity")
+# plot(y = (lakesDat$chl), x = lakesDat$tn, xlab = "TN", ylab ="CHL",  main = "Transform Response Identity")
 op <- par(mfrow = c(1, 1), mar = c(4, 4, 2, 1))
 ```
 
-When identifying a suitable link function, the objective is to find a transformation of the mean that approximately linearizes the relationship between CHL and TN. Exploratory plots indicate that a cube‐root transformation provides a reasonably linear trend, with the square‐root transformation also performing adequately. Importantly, these transformations are used only to guide link selection; they do not imply transforming the CHL values themselves for the GLM.
+To select a link function, I examined transformations of CHL that approximately linearize its relationship with TN. Exploratory plots showed that the cube-root transformation yielded the most linear trend, with the square-root transformation performing reasonably well. These transformations were used only to guide link choice—not to transform the response in the GLM itself.
 
-Taken toghether with the random component selection done previously, in total: We are motivated to use Gamma and Inverse Gaussian random components ($\theta = 2, 3$), paired with power links corresponding to cube-root and square-root transformations. We then fit these models and compare.
+Combined with the earlier variance diagnostics, this motivated fitting Gamma and Inverse Gaussian GLMs paired with power links corresponding to the cube-root and square-root transformations.
 
 ```{r, include=F, message=F, warning=F, echo=F}
 X <- cbind(1, lakesDat$tn)
@@ -283,9 +282,17 @@ kableExtra::kbl(
   )
 ```
 
-Within a given generalized linear model family (i.e., with the random component held fixed), the scaled deviance provides a suitable likelihood-based criterion for comparing link functions. Using this measure, the cube-root power link consistently produced lower unscaled and scaled deviances than the square-root link within both the Inverse Gaussian and Gamma families. This motivates focusing on the Gamma and Inverse Gaussian models fitted with the cube-root link, and then comparing their fitted values and curve shapes to determine which provides the better overall fit. We do not compare the Gamma and Inverse Gaussian models directly using deviances, because the two random components correspond to non-nested models, making LRT-based comparisons inappropriate.
+Within each GLM family, the scaled deviance provides an appropriate criterion for comparing link functions. The cube-root power link consistently produced lower deviances than the square-root link in both the Gamma and Inverse Gaussian families, so attention is restricted to the cube-root versions of these two models. The Gamma and IG models themselves are not compared by deviance, as they are non-nested.
 
-```{r, message=F, warning=F, echo=F, fig.height=6, fig.width=10}
+```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
+layout(matrix(c(1, 2,
+                3, 4),
+              nrow = 2, byrow = TRUE))
+
+par(mar = c(4, 4, 3, 1),
+    oma = c(0, 0, 0, 0),
+    xaxs = "i", yaxs = "i")
+
 ## ----- Setup ----- ##
 x_grid <- seq(min(lakesDat$tn), max(lakesDat$tn), length.out = 200)
 X_grid <- cbind(1, x_grid)
@@ -334,10 +341,10 @@ mu_hi2  <- exp(eta_hi2)
 ##  TWO SIDE-BY-SIDE PLOTS
 ## =========================
 
-par(mfrow = c(1, 2),
-    oma = c(0,0,0,0),
-    mar = c(4,4,2,1),
-    xaxs="i", yaxs="i")
+# par(mfrow = c(1, 2),
+#     oma = c(0,0,0,0),
+#     mar = c(4,4,2,1),
+#     xaxs="i", yaxs="i")
 
 ## ----- Left panel: Gamma ----- ##
 plot(lakesDat$tn, lakesDat$chl, col = "black",
@@ -368,10 +375,6 @@ legend("topleft",
        col = c("blue", "blue"),
        lty = c(1, 3), lwd = c(2, 1), bty = "n")
 
-par(mfrow = c(1, 1))   # reset
-```
-
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
 # GAMMA
 mu_g       <- mod_gamma_13$vals$muhat
 res_g_p    <- mod_gamma_13$vals$pearsonres
@@ -384,20 +387,20 @@ res_ig_p   <- mod_invgauss_13$vals$pearsonres
 res_ig_dev <- mod_invgauss_13$vals$devres
 res_ig_std <- mod_invgauss_13$vals$stdevres
 
-par(mfrow = c(2, 2),
-    mar = c(4, 4, 3, 1),
-    oma = c(0, 0, 0, 0),
-    xaxs = "i", yaxs = "i")
+# par(mfrow = c(2, 2),
+#     mar = c(4, 4, 3, 1),
+#     oma = c(0, 0, 0, 0),
+#     xaxs = "i", yaxs = "i")
 
-plot(mu_g, res_g_dev,
-     xlab = "Fitted (Gamma)", ylab = "Deviance residual",
-     main = "Gamma: Deviance Residuals")
-abline(h = 0, lty = 2)
-
-plot(mu_ig, res_ig_dev,
-     xlab = "Fitted (InvGaussian)", ylab = "Deviance residual",
-     main = "InvGaussian: Deviance Residuals")
-abline(h = 0, lty = 2)
+# plot(mu_g, res_g_dev,
+#      xlab = "Fitted (Gamma)", ylab = "Deviance residual",
+#      main = "Gamma: Deviance Residuals")
+# abline(h = 0, lty = 2)
+# 
+# plot(mu_ig, res_ig_dev,
+#      xlab = "Fitted (InvGaussian)", ylab = "Deviance residual",
+#      main = "InvGaussian: Deviance Residuals")
+# abline(h = 0, lty = 2)
 
 # par(mfrow = c(1, 1))
 
@@ -426,242 +429,225 @@ par(mfrow = c(1, 1))
 # par(mfrow = c(1, 1))
 ```
 
-It is difficult to distinguish between the Gamma and Inverse Gaussian models using the fitted–versus–observed scatterplots alone, as both produce very similar mean curves. One might argue that the Inverse Gaussian captures the increasing variability at higher TN values (TN > 1) slightly more closely, but this visual difference is subtle. Therefore, it is more appropriate to rely on residual diagnostics to compare the models directly. Based on these diagnostics, the Gamma model ultimately provides the better overall fit.
+The Gamma and Inverse Gaussian models yield nearly identical fitted curves, so scatterplots alone cannot distinguish them. Residual diagnostics provide clearer evidence: the Gamma model exhibits more stable variance and better-behaved deviance residuals, whereas the IG model shows mild heteroscedasticity. Thus, the Gamma GLM is selected as the preferred model.
 
-With this preferred generalized linear model identified, we next examine a range of additive error models for completeness. By evaluating these alternatives alongside the GLM, we select a single most appropriate model to use for the subsequent region-specific comparisons.
+With the GLM choice established, I briefly examine additive error models for completeness before selecting a final model for the region-specific comparisons.
 
-## Additive Error Models
+## Other Models Considered -- Additive Error Models
 
 ### Transform Both Sides
 
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
-## Fit basic OLS model: CHL ~ TN
-fit_ols <- lm(chl ~ tn, data = lakesDat)
+<!-- # ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10} -->
+<!-- # ## Fit basic OLS model: CHL ~ TN -->
+<!-- # fit_ols <- lm(chl ~ tn, data = lakesDat) -->
+<!-- #  -->
+<!-- # ## Layout: 2 small on top, 1 big on bottom -->
+<!-- # layout(matrix(c(1, 2, -->
+<!-- #                 3, 3), nrow = 2, byrow = TRUE)) -->
+<!-- #  -->
+<!-- # par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0)) -->
+<!-- #  -->
+<!-- # ## -------- 1. Residuals vs Fitted (OLS) -------- -->
+<!-- # plot(fitted(fit_ols), rstudent(fit_ols), -->
+<!-- #      xlab = "Fitted CHL", -->
+<!-- #      ylab = "Studentized residuals", -->
+<!-- #      main = "OLS: Residuals vs Fitted", -->
+<!-- #      pch  = 1, col = "black") -->
+<!-- # abline(h = 0, lty = 2) -->
+<!-- #  -->
+<!-- # ## -------- 2. Observed vs Fitted CHL -------- -->
+<!-- # plot(fitted(fit_ols), lakesDat$chl, -->
+<!-- #      xlab = "Fitted CHL", -->
+<!-- #      ylab = "Observed CHL", -->
+<!-- #      main = "Observed vs Fitted (OLS)", -->
+<!-- #      pch  = 1, col = "black") -->
+<!-- # abline(0, 1, lty = 2)  # 45-degree line -->
+<!-- #  -->
+<!-- # ## -------- 3. TN vs CHL with fitted line (big bottom plot) -------- -->
+<!-- # tn_grid <- seq(min(lakesDat$tn, na.rm = TRUE), -->
+<!-- #                max(lakesDat$tn, na.rm = TRUE), -->
+<!-- #                length.out = 200) -->
+<!-- #  -->
+<!-- # pred_ols <- predict(fit_ols, -->
+<!-- #                     newdata = data.frame(tn = tn_grid), -->
+<!-- #                     type = "response") -->
+<!-- #  -->
+<!-- # plot(lakesDat$tn, lakesDat$chl, -->
+<!-- #      pch = 1, col = "black", -->
+<!-- #      xlab = "TN", ylab = "CHL", -->
+<!-- #      main = "OLS Model: Observed vs Fitted") -->
+<!-- #  -->
+<!-- # lines(tn_grid, pred_ols, -->
+<!-- #       lwd = 3, col = "blue") -->
+<!-- #  -->
+<!-- # legend("topleft", -->
+<!-- #        legend = c("Observed CHL", "Fitted (OLS)"), -->
+<!-- #        col    = c("black", "blue"), -->
+<!-- #        pch    = c(1, NA), -->
+<!-- #        lty    = c(NA, 1), -->
+<!-- #        lwd    = c(NA, 3), -->
+<!-- #        bty    = "n") -->
+<!-- #  -->
+<!-- # ## Reset layout -->
+<!-- # layout(1) -->
+<!-- # ``` -->
 
-## Layout: 2 small on top, 1 big on bottom
-layout(matrix(c(1, 2,
-                3, 3), nrow = 2, byrow = TRUE))
+<!-- # ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10} -->
+<!-- # par(mfrow = c(3, 1), -->
+<!-- #     mar = c(4, 4, 3, 1), -->
+<!-- #     oma = c(0, 0, 0, 0), -->
+<!-- #     xaxs = "i", yaxs = "i") -->
+<!-- #  -->
+<!-- # plot(y = log(lakesDat$chl), x = log(lakesDat$tn), ylab = "log(CHL)", xlab = "log(TN)", main = "Transform Both Sides (Log)") -->
+<!-- # plot(y = sqrt(lakesDat$chl), x = sqrt(lakesDat$tn), ylab = "sqrt(CHL)", xlab = "sqrt(TN)", main = "Transform Both Sides (Sqrt)") -->
+<!-- # plot(y = (lakesDat$chl^(1/3)), x = (lakesDat$tn^(1/3)), ylab = "CHL^1/3", xlab = "TN^1/3", main = "Transform Both Sides (Cube Root)") -->
+<!-- # par(mfrow = c(1, 1)) -->
+<!-- # ``` -->
 
-par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0))
+<!-- # ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10} -->
+<!-- # ## Fit TBS cube-root model -->
+<!-- # fit_tbs_cr <- lm(I(chl^(1/3)) ~ I(tn^(1/3)), data = lakesDat) -->
+<!-- #  -->
+<!-- # ## Layout: 2 small on top, 1 big on bottom -->
+<!-- # layout(matrix(c(1, 2, -->
+<!-- #                 3, 3), nrow = 2, byrow = TRUE)) -->
+<!-- #  -->
+<!-- # par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0)) -->
+<!-- #  -->
+<!-- # ## -------- 1. Residuals vs Fitted (cube-root scale) -------- -->
+<!-- # plot(fitted(fit_tbs_cr), rstudent(fit_tbs_cr), -->
+<!-- #      xlab = "Fitted (cube-root scale)", -->
+<!-- #      ylab = "Studentized residuals", -->
+<!-- #      main = "TBS (cube root): Residuals vs Fitted", -->
+<!-- #      pch  = 1, col = "black") -->
+<!-- # abline(h = 0, lty = 2) -->
+<!-- #  -->
+<!-- # ## -------- 2. Observed vs Fitted CHL -------- -->
+<!-- # fitted_chl <- fitted(fit_tbs_cr)^3 -->
+<!-- #  -->
+<!-- # plot(fitted_chl, lakesDat$chl, -->
+<!-- #      xlab = "Fitted CHL", -->
+<!-- #      ylab = "Observed CHL", -->
+<!-- #      main = "Observed vs Fitted (TBS cube root)", -->
+<!-- #      pch  = 1, col = "black") -->
+<!-- # abline(0, 1, lty = 2)  # 45-degree line -->
+<!-- #  -->
+<!-- # ## -------- 3. TN vs CHL with fitted curve (big bottom plot) -------- -->
+<!-- # tn_grid <- seq(min(lakesDat$tn, na.rm = TRUE), -->
+<!-- #                max(lakesDat$tn, na.rm = TRUE), -->
+<!-- #                length.out = 200) -->
+<!-- #  -->
+<!-- # pred_cr <- predict(fit_tbs_cr, -->
+<!-- #                    newdata = data.frame(tn = tn_grid), -->
+<!-- #                    type = "response") -->
+<!-- #  -->
+<!-- # pred_cr_chl <- pred_cr^3 -->
+<!-- #  -->
+<!-- # plot(lakesDat$tn, lakesDat$chl, -->
+<!-- #      pch = 1, col = "black",         # open circles here -->
+<!-- #      xlab = "TN", ylab = "CHL", -->
+<!-- #      main = "TBS Cube-Root Model: Observed vs Fitted") -->
+<!-- #  -->
+<!-- # lines(tn_grid, pred_cr_chl, -->
+<!-- #       lwd = 3, col = "blue") -->
+<!-- #  -->
+<!-- # legend("topleft", -->
+<!-- #        legend = c("Observed CHL", "Fitted (TBS cube-root)"), -->
+<!-- #        col    = c("black", "blue"), -->
+<!-- #        pch    = c(1, NA), -->
+<!-- #        lty    = c(NA, 1), -->
+<!-- #        lwd    = c(NA, 3), -->
+<!-- #        bty    = "n") -->
+<!-- #  -->
+<!-- # ## Reset layout -->
+<!-- # layout(1) -->
+<!-- # ``` -->
 
-## -------- 1. Residuals vs Fitted (OLS) --------
-plot(fitted(fit_ols), rstudent(fit_ols),
-     xlab = "Fitted CHL",
-     ylab = "Studentized residuals",
-     main = "OLS: Residuals vs Fitted",
-     pch  = 1, col = "black")
-abline(h = 0, lty = 2)
+A simple OLS fit shows a roughly linear TN–CHL trend but clear heteroscedasticity in the studentized residuals, motivating consideration of transform-both-sides (TBS) additive error models. Several variance-stabilizing transformations were examined; the cube-root transformation performed best and produced a reasonable linearization of the relationship.
 
-## -------- 2. Observed vs Fitted CHL --------
-plot(fitted(fit_ols), lakesDat$chl,
-     xlab = "Fitted CHL",
-     ylab = "Observed CHL",
-     main = "Observed vs Fitted (OLS)",
-     pch  = 1, col = "black")
-abline(0, 1, lty = 2)  # 45-degree line
-
-## -------- 3. TN vs CHL with fitted line (big bottom plot) --------
-tn_grid <- seq(min(lakesDat$tn, na.rm = TRUE),
-               max(lakesDat$tn, na.rm = TRUE),
-               length.out = 200)
-
-pred_ols <- predict(fit_ols,
-                    newdata = data.frame(tn = tn_grid),
-                    type = "response")
-
-plot(lakesDat$tn, lakesDat$chl,
-     pch = 1, col = "black",
-     xlab = "TN", ylab = "CHL",
-     main = "OLS Model: Observed vs Fitted")
-
-lines(tn_grid, pred_ols,
-      lwd = 3, col = "blue")
-
-legend("topleft",
-       legend = c("Observed CHL", "Fitted (OLS)"),
-       col    = c("black", "blue"),
-       pch    = c(1, NA),
-       lty    = c(NA, 1),
-       lwd    = c(NA, 3),
-       bty    = "n")
-
-## Reset layout
-layout(1)
-```
-
-We start with a typical OLS univariate regression. While the fit seems fairly adequate (roughly linear), the studentized pearson residuals indicate possible heteroscedasticity. Because of this, we are potentially motivated to consider a transform both sides additive error model. To identify an appropriate transformation to stabilize variance, we test a number of options.  
-
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
-par(mfrow = c(3, 1),
-    mar = c(4, 4, 3, 1),
-    oma = c(0, 0, 0, 0),
-    xaxs = "i", yaxs = "i")
-
-plot(y = log(lakesDat$chl), x = log(lakesDat$tn), ylab = "log(CHL)", xlab = "log(TN)", main = "Transform Both Sides (Log)")
-plot(y = sqrt(lakesDat$chl), x = sqrt(lakesDat$tn), ylab = "sqrt(CHL)", xlab = "sqrt(TN)", main = "Transform Both Sides (Sqrt)")
-plot(y = (lakesDat$chl^(1/3)), x = (lakesDat$tn^(1/3)), ylab = "CHL^1/3", xlab = "TN^1/3", main = "Transform Both Sides (Cube Root)")
-par(mfrow = c(1, 1))
-```
-
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
-## Fit TBS cube-root model
-fit_tbs_cr <- lm(I(chl^(1/3)) ~ I(tn^(1/3)), data = lakesDat)
-
-## Layout: 2 small on top, 1 big on bottom
-layout(matrix(c(1, 2,
-                3, 3), nrow = 2, byrow = TRUE))
-
-par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0))
-
-## -------- 1. Residuals vs Fitted (cube-root scale) --------
-plot(fitted(fit_tbs_cr), rstudent(fit_tbs_cr),
-     xlab = "Fitted (cube-root scale)",
-     ylab = "Studentized residuals",
-     main = "TBS (cube root): Residuals vs Fitted",
-     pch  = 1, col = "black")
-abline(h = 0, lty = 2)
-
-## -------- 2. Observed vs Fitted CHL --------
-fitted_chl <- fitted(fit_tbs_cr)^3
-
-plot(fitted_chl, lakesDat$chl,
-     xlab = "Fitted CHL",
-     ylab = "Observed CHL",
-     main = "Observed vs Fitted (TBS cube root)",
-     pch  = 1, col = "black")
-abline(0, 1, lty = 2)  # 45-degree line
-
-## -------- 3. TN vs CHL with fitted curve (big bottom plot) --------
-tn_grid <- seq(min(lakesDat$tn, na.rm = TRUE),
-               max(lakesDat$tn, na.rm = TRUE),
-               length.out = 200)
-
-pred_cr <- predict(fit_tbs_cr,
-                   newdata = data.frame(tn = tn_grid),
-                   type = "response")
-
-pred_cr_chl <- pred_cr^3
-
-plot(lakesDat$tn, lakesDat$chl,
-     pch = 1, col = "black",         # open circles here
-     xlab = "TN", ylab = "CHL",
-     main = "TBS Cube-Root Model: Observed vs Fitted")
-
-lines(tn_grid, pred_cr_chl,
-      lwd = 3, col = "blue")
-
-legend("topleft",
-       legend = c("Observed CHL", "Fitted (TBS cube-root)"),
-       col    = c("black", "blue"),
-       pch    = c(1, NA),
-       lty    = c(NA, 1),
-       lwd    = c(NA, 3),
-       bty    = "n")
-
-## Reset layout
-layout(1)
-```
-
-The cube-root transformation provides a reasonable variance-stabilizing effect for the transform-both-sides additive error model, consistent with our earlier findings that cube-root linearization is effective for the GLM as well. Although this approach requires back-transforming predictions to the original CHL scale, it still yields an adequate description of the TN–CHL relationship. However, only means back-transform cleanly; quantities such as variances or percentiles do not, due to issues such as Jensen’s inequality, so inference for non-mean quantities is more complicated under a TBS approach.
-
-Note: While only three transformations are given above, a number of other options were considered. 
+However, TBS models require back-transformation, and only the mean back-transforms cleanly—variance and quantile inference become distorted. Combined with the remaining heteroscedasticity in the residuals, the TBS approach is not competitive with the GLM.
 
 ### Power of the Mean
 
-While a linear fit appears to do a half decent job at explaining the relationship between CHL and TN, we may think that the relationship is inherently non-linear. Combine this with the prior observation(s) in the GLM section, and we are motivated to believe that variance could be related to the mean, such that a power of the mean model is at least reasonable to consider in the model formulation step. 
+<!-- # ```{r power-setup1, message=FALSE, warning=FALSE, echo=FALSE} -->
+<!-- # base_fit <- lm(chl ~ tn, data = lakesDat) -->
+<!-- # mu0      <- pmax(fitted(base_fit), 0.01)  # ensure positivity -->
+<!-- #  -->
+<!-- # fit_power_model <- function(delta) { -->
+<!-- #   w   <- 1 / (mu0^(2 * delta)) -->
+<!-- #   fit <- lm(chl ~ tn, data = lakesDat, weights = w) -->
+<!-- #   list(delta = delta, fit = fit) -->
+<!-- # } -->
+<!-- #  -->
+<!-- # deltas <- c(1/4, 1/3, 1/2, 1) -->
+<!-- # fits   <- lapply(deltas, fit_power_model) -->
+<!-- # names(fits) <- paste0("delta_", deltas) -->
+<!-- # ``` -->
 
-```{r power-setup1, message=FALSE, warning=FALSE, echo=FALSE}
-base_fit <- lm(chl ~ tn, data = lakesDat)
-mu0      <- pmax(fitted(base_fit), 0.01)  # ensure positivity
+<!-- # ```{r power-residuals2, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8} -->
+<!-- # par(mfrow = c(2, 2), -->
+<!-- #     mar   = c(4, 4, 3, 1), -->
+<!-- #     oma   = c(0, 0, 0, 0)) -->
+<!-- #  -->
+<!-- # for (obj in fits) { -->
+<!-- #   fit   <- obj$fit -->
+<!-- #   delta <- obj$delta -->
+<!-- #  -->
+<!-- #   plot(fitted(fit), rstudent(fit), -->
+<!-- #        pch  = 1, col = "black", -->
+<!-- #        xlab = "Fitted", -->
+<!-- #        ylab = "Studentized residual", -->
+<!-- #        main = paste("Residuals vs Fitted\n(delta =", delta, ")")) -->
+<!-- #   abline(h = 0, lty = 2) -->
+<!-- # } -->
+<!-- #  -->
+<!-- # par(mfrow = c(1, 1)) -->
+<!-- # ``` -->
 
-fit_power_model <- function(delta) {
-  w   <- 1 / (mu0^(2 * delta))
-  fit <- lm(chl ~ tn, data = lakesDat, weights = w)
-  list(delta = delta, fit = fit)
-}
+<!-- # ```{r power-fitted-curves1, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8} -->
+<!-- # tn_grid <- seq(min(lakesDat$tn, na.rm = TRUE), -->
+<!-- #                max(lakesDat$tn, na.rm = TRUE), -->
+<!-- #                length.out = 300) -->
+<!-- # X_grid  <- cbind(1, tn_grid) -->
+<!-- # -->
+<!-- # predict_curve <- function(obj) { -->
+<!-- #   fit   <- obj$fit -->
+<!-- #   delta <- obj$delta -->
+<!-- #   mu_hat <- as.vector(X_grid %*% coef(fit)) -->
+<!-- #   list(delta = delta, tn = tn_grid, mu = mu_hat) -->
+<!-- # } -->
+<!-- # -->
+<!-- # curves <- lapply(fits, predict_curve) -->
+<!-- # -->
+<!-- # par(mfrow = c(2, 2), -->
+<!-- #     mar   = c(4, 4, 3, 1), -->
+<!-- #     oma   = c(0, 0, 0, 0)) -->
+<!-- # -->
+<!-- # for (crv in curves) { -->
+<!-- #   plot(lakesDat$tn, lakesDat$chl, -->
+<!-- #        pch = 1, col = "black", -->
+<!-- #        xlab = "TN", ylab = "CHL", -->
+<!-- #        main = paste("Fitted Mean Curve\n(delta =", crv$delta, ")")) -->
+<!-- # -->
+<!-- #   lines(crv$tn, crv$mu, lwd = 3, col = "blue") -->
+<!-- # } -->
+<!-- # -->
+<!-- # par(mfrow = c(1, 1)) -->
+<!-- # ``` -->
 
-deltas <- c(1/4, 1/3, 1/2, 1)
-fits   <- lapply(deltas, fit_power_model)
-names(fits) <- paste0("delta_", deltas)
-```
+Given the apparent nonlinearity and mean–variance relationship in the data, I also considered power-of-the-mean (POM) additive error models. Several values of the variance-stabilizing power $\delta$ were tested, including models that allowed the mean curve itself to be nonlinear. Although $\delta = 0.5$ performed best—consistent with the Box–Cox slopes—its residuals still showed heteroscedasticity, and small fitted means made the weighting scheme unstable for larger $\delta$.
 
-```{r power-residuals2, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8}
-par(mfrow = c(2, 2),
-    mar   = c(4, 4, 3, 1),
-    oma   = c(0, 0, 0, 0))
-
-for (obj in fits) {
-  fit   <- obj$fit
-  delta <- obj$delta
-
-  plot(fitted(fit), rstudent(fit),
-       pch  = 1, col = "black",
-       xlab = "Fitted",
-       ylab = "Studentized residual",
-       main = paste("Residuals vs Fitted\n(delta =", delta, ")"))
-  abline(h = 0, lty = 2)
-}
-
-par(mfrow = c(1, 1))
-```
-
-\newpage
-
-```{r power-fitted-curves1, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8}
-tn_grid <- seq(min(lakesDat$tn, na.rm = TRUE),
-               max(lakesDat$tn, na.rm = TRUE),
-               length.out = 300)
-X_grid  <- cbind(1, tn_grid)
-
-predict_curve <- function(obj) {
-  fit   <- obj$fit
-  delta <- obj$delta
-  mu_hat <- as.vector(X_grid %*% coef(fit))
-  list(delta = delta, tn = tn_grid, mu = mu_hat)
-}
-
-curves <- lapply(fits, predict_curve)
-
-par(mfrow = c(2, 2),
-    mar   = c(4, 4, 3, 1),
-    oma   = c(0, 0, 0, 0))
-
-for (crv in curves) {
-  plot(lakesDat$tn, lakesDat$chl,
-       pch = 1, col = "black",
-       xlab = "TN", ylab = "CHL",
-       main = paste("Fitted Mean Curve\n(delta =", crv$delta, ")"))
-
-  lines(crv$tn, crv$mu, lwd = 3, col = "blue")
-}
-
-par(mfrow = c(1, 1))
-```
-
-The power-of-the-mean additive error model was evaluated using $\delta$ = 0.25, 1/3, 0.5, and 1. Based on the Box–Cox mean–variance slopes ($\approx$ 1.6–2.1), $\delta = 0.5$ was theoretically preferred, and indeed this value produced the most stable and uniform residuals. Smaller values of $\delta$ (0.25 and 1/3) left noticeable heteroscedasticity, while $\delta$ = 1 created numerical problems due to extremely small fitted means, resulting in zero or near-zero weights.
-
-Although the $\delta$ = 0.5 fit was the best within the additive family, variance stabilization remained incomplete, and the fitted curves tended to under-represent the higher CHL values at moderate TN levels. In contrast, the Gamma GLM produced cleaner residual patterns, a coherent mean–variance structure, and avoided the numerical instability seen in the weighted additive models.
-
-For these reasons, the additive Power of the Mean model seemed unfavorable.
+Overall, even the best POM fits failed to achieve satisfactory variance stabilization and tended to misrepresent higher CHL values. In contrast, the Gamma GLM provided cleaner residuals and a coherent mean–variance structure, so the POM family was not retained as a candidate model.
 
 ## Comparing Different Models
 
-Adequate models considered were:
+The two GLM candidates were the Gamma and Inverse Gaussian models with cube-root links. Both produced nearly identical mean curves, but the Gamma model showed slightly better residual behavior. The additive models (TBS and POM) were not retained: TBS requires back-transformation and still showed heteroscedasticity, while POM models exhibited numerical instability and incomplete variance stabilization.
 
-* Gamma GLM with cube-root power link
-* Inverse Gaussian GLM with cube-root power link
-* Transform-both-sides additive error model with cube-root transformation
-* Power-of-the-mean additive error model with $\delta = 0.5$
-
-Among these, I ultimately selected the Gamma GLM with the cube-root link as the working model. The power-of-the-mean additive model showed only partial variance stabilization and exhibited numerical instability from very small fitted-mean values, making it less reliable. The Inverse Gaussian GLM produced a fitted curve nearly identical to the Gamma model but had slightly less favorable residual diagnostics. The transform-both-sides cube-root model also provided a reasonable fit and captured the general trend well; however, inference under TBS requires back-transformation to the original CHL scale and becomes more complicated for quantities other than the mean (e.g., variances, quantiles, etc.), limiting its practicality for the comparisons that follow.
-
-In contrast, the Gamma GLM with cube-root link aligns closely with the Box–Cox variance diagnostics, yields well-behaved residuals, and provides a coherent and interpretable mean–variance structure without the back-transformation complications of TBS. It therefore offers the most appropriate balance of fit quality, interpretability, and inferential coherence. I carry this model forward for the region-specific comparisons between the Plains and Ozarks.
+Overall, the Gamma GLM with a cube-root link best matched the Box–Cox variance diagnostics, produced well-behaved residuals, and offered the most coherent and interpretable mean–variance structure. I therefore use this model for the region-specific comparisons.
 
 ## Extending to regions
 
 ### Comparing Two Regions
-
-Now, using the preferred model as justified above (the generalized linear model), we'll individually calculate and plot the respective fit and confidence intervals for the two regions.
 
 ```{r, include=F, message=F, warning=F, echo=F}
 ## Helper: fit optimized GLM by region
@@ -706,7 +692,7 @@ coef_tab <- rbind(
 )
 ```
 
-```{r, message=F, warning=F, echo=F, fig.height=6, fig.width=10}
+```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
 ## ----- Coefficient table (unchanged) ----- ##
 kableExtra::kbl(
   coef_tab,
@@ -788,7 +774,15 @@ par(mfrow = c(1, 2),
 z95 <- qnorm(0.975)
 ```
 
-```{r overlay-plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.height=6, fig.width=8}
+```{r overlay-plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=10}
+layout(matrix(c(1, 1,
+                2, 3),
+              nrow = 2, byrow = TRUE))
+
+par(mar = c(4, 4, 3, 1),
+    oma = c(0, 0, 0, 0),
+    xaxs = "i", yaxs = "i")
+
 ## ---- GLOBAL SCALES WITH PADDING ---- ##
 x_range_raw <- range(lakesDat$tn,  na.rm = TRUE)
 y_range_raw <- range(lakesDat$chl, na.rm = TRUE)
@@ -849,9 +843,9 @@ mu_lo_o <- exp(eta_lo_o)
 mu_hi_o <- exp(eta_hi_o)
 
 ## ---- NEW PLOT PANEL ---- ##
-par(mfrow = c(1,1),
-    mar = c(4,4,2,1),
-    xaxs = "i", yaxs = "i")
+# par(mfrow = c(1,1),
+#     mar = c(4,4,2,1),
+#     xaxs = "i", yaxs = "i")
 
 plot(lakesDat$tn, lakesDat$chl,
      xlab = "TN", ylab = "CHL",
@@ -877,13 +871,11 @@ legend("topleft",
        lty    = c(1, 3, 1, 3),
        lwd    = c(2, 1, 2, 1),
        bty    = "n")
-```
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=10}
-par(mfrow = c(2, 1),
-    mar = c(4, 4, 3, 1),
-    oma = c(0, 0, 0, 0),
-    xaxs = "i", yaxs = "i")
+# 
+# par(mfrow = c(2, 1),
+#     mar = c(4, 4, 3, 1),
+#     oma = c(0, 0, 0, 0),
+#     xaxs = "i", yaxs = "i")
 
 ## Plains
 plot(mod_gamma_13_plains$vals$muhat,
@@ -904,7 +896,9 @@ plot(mod_gamma_13_ozark$vals$muhat,
 abline(h = 0, lty = 2)
 
 par(mfrow = c(1, 1))
+```
 
+```{r deviance regions, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8}
 kable(data.frame(
   Region = c("Plains", "Ozarks"),
   Scaled_Deviance = c(mod_gamma_13_plains$ests$sdev,
@@ -913,86 +907,74 @@ kable(data.frame(
 )
 ```
 
-Using the selected Gamma GLM with cube-root link, I fit separate models for the Plains and Ozarks. Figure X displays the fitted mean curves with pointwise 95% confidence bands, and Tables 2–3 summarize the region-specific coefficients and predicted CHL values at TN = 0.4, 0.6, 0.8, and 1.0.
+Using the selected Gamma GLM with a cube-root link, I fit the model separately to the Plains and Ozarks. The fitted curves and pointwise 95% confidence bands (Figure X) show substantial overlap at lower TN values ($\approx$ 0.4–0.6), with very similar predicted means. At higher TN ($\approx$ 0.8–1.0), the Ozarks curve becomes noticeably steeper, and the bands begin to separate, indicating higher CHL in the Ozarks at the upper end of the TN range.
 
-At lower TN values (approximately 0.4–0.6), the fitted curves and their 95% bands overlap substantially, and the predicted means are very similar across regions. However, as TN increases toward the upper end of the Ozarks range (TN $\approx$ 0.8–1.0), the Ozarks curve becomes noticeably steeper and the bands begin to separate. At TN $=1.0$, the pointwise 95% intervals only barely overlap, suggesting higher CHL in the Ozarks at that TN value, but with modest statistical separation given the limited covariate overlap and sample size.
+The coefficient estimates reflect this pattern: the Ozarks model has a larger slope and a slightly smaller intercept, though the 95% Wald intervals overlap for both parameters. Taken together—steeper slope, upward divergence of fitted curves, and higher predicted CHL near TN = 1.0—the results suggest a stronger TN–CHL response in the Ozarks, even if parameter-wise evidence is not conclusive.
 
-The coefficient estimates in Table 2 show a larger slope for the Ozarks and a slightly lower intercept relative to the Plains. The corresponding 95% Wald intervals overlap for both parameters, so parameter-wise evidence for differences is suggestive rather than conclusive. Nonetheless, the joint pattern—steeper Ozarks slope, divergence of fitted curves at moderate TN, and consistently higher Ozarks predictions at TN values near 1.0—indicates a somewhat stronger TN–CHL response in the Ozarks.
+Model diagnostics support using the same GLM form in both regions. Residual-versus-fitted plots show no systematic patterns, standardized deviance residuals are well-behaved, and the scaled deviances are similar relative to sample size. Thus, regional differences can be interpreted as biological rather than artifacts of model fit.
 
-Basic model assessment supports use of the Gamma GLM for both regions. Residual-versus-fitted plots show no strong systematic patterns for either region, and the standardized deviance residuals remain centered around zero with reasonably constant spread. The scaled deviances (Plains: 79.6; Ozarks: 54.3) are similar in magnitude relative to sample size, indicating that the Gamma mean–variance structure is adequate for each regional model. These diagnostics suggest that the same model form is appropriate in both groups, which is a prerequisite for comparing the fitted regression functions.
-
-Because a full-versus-reduced likelihood ratio test is reserved for Part III of the exam and is not required here, conclusions in Part I rely on comparisons of fitted curves, confidence bands, and parameter intervals rather than a formal LRT. Based on these comparisons, the two regions appear to share the same general functional relationship between TN and CHL, but with evidence of a stronger response in the Ozarks at higher TN levels. This conclusion is tempered by the limited TN range observed for the Ozarks and the substantial band overlap at lower TN values, but overall the fitted curves and coefficient patterns suggest meaningful regional differences in the magnitude—though not the form—of the TN–CHL relationship.
+Overall, both regions share the same functional TN–CHL form, but the Ozarks appear to exhibit a stronger response at higher TN levels.
 
 ### Probability Assessments
 
-For a fixed TN value $x_i$, let $Y_i$ denote the Plains CHL response and $Z_i$ the Ozarks CHL response. From the region–specific Gamma GLMs with cube–root link, the conditional means are
+For a fixed TN value $x_i$, let $Y_i$ denote the Plains CHL response and $Z_i$ the Ozarks CHL response. From the region-specific Gamma GLMs with cube-root link,
 
 $$
-\mu_P(x_i) = E(Y_i \mid x_i),
-\qquad
+\mu_P(x_i) = E(Y_i \mid x_i), \qquad
 \mu_O(x_i) = E(Z_i \mid x_i),
 $$
 
-and the Gamma variance functions are:
+with variance functions
 
 $$
-\operatorname{Var}(Y_i \mid x_i) = \phi_P \,\mu_P(x_i)^2,
-\qquad
-\operatorname{Var}(Z_i \mid x_i) = \phi_O \,\mu_O(x_i)^2,
+\operatorname{Var}(Y_i \mid x_i) = \phi_P \mu_P(x_i)^2, \qquad
+\operatorname{Var}(Z_i \mid x_i) = \phi_O \mu_O(x_i)^2,
 $$
 
 where $\phi_P$ and $\phi_O$ are the dispersion parameters for the Plains and Ozarks models.
-
-The quantity of interest is
-
-$$
-\Pr(Y_i > Z_i \mid x_i)
-$$
-
-Using a plug–in Normal approximation to the Gamma distribution, we write
-
+The target quantity is
 
 $$
-Y_i \mid x_i \approx N\big(\mu_P(x_i), \phi_P \mu_P(x_i)^2\big),
-\qquad
+\Pr(Y_i > Z_i \mid x_i).
+$$
+
+Using a plug-in Normal approximation to the Gamma distribution,
+
+$$
+Y_i \mid x_i \approx N\big(\mu_P(x_i), \phi_P \mu_P(x_i)^2\big), \qquad
 Z_i \mid x_i \approx N\big(\mu_O(x_i), \phi_O \mu_O(x_i)^2\big),
 $$
 
-and assume $Y_i$ and $Z_i$ are conditionally independent given $x_i$.
-
-Define the difference:
+and assuming conditional independence of $Y_i$ and $Z_i$ given $x_i$, define
 
 $$
-D_i = Y_i - Z_i
+D_i = Y_i - Z_i.
 $$
 
 Then
 
 $$
-E(D_i \mid x_i)
-= \mu_P(x_i) - \mu_O(x_i)
+E(D_i \mid x_i) = \mu_P(x_i) - \mu_O(x_i),
 $$
-
-And, noting conditional independence assumption:
+and
 
 $$
 \operatorname{Var}(D_i \mid x_i)
-= \operatorname{Var}(Y_i \mid x_i)
-+ \operatorname{Var}(Z_i \mid x_i)
-= \phi_P \mu_P(x_i)^2 + \phi_O \mu_O(x_i)^2
+= \operatorname{Var}(Y_i \mid x_i) + \operatorname{Var}(Z_i \mid x_i)
+= \phi_P \mu_P(x_i)^2 + \phi_O \mu_O(x_i)^2.
 $$
 
-So:
+Hence
 
 $$
 D_i \mid x_i \approx
 N\Big(
-\mu_P(x_i) - \mu_O(x_i),
+\mu_P(x_i) - \mu_O(x_i),\,
 \phi_P \mu_P(x_i)^2 + \phi_O \mu_O(x_i)^2
-\Big)
+\Big),
 $$
 
-Therefore,
+so that
 
 $$
 \Pr(Y_i > Z_i \mid x_i)
@@ -1001,12 +983,12 @@ $$
 \Phi\left(
 \frac{\mu_P(x_i) - \mu_O(x_i)}
 {\sqrt{\phi_P \mu_P(x_i)^2 + \phi_O \mu_O(x_i)^2}}
-\right)
+\right),
 $$
 
 where $\Phi$ is the standard Normal CDF.
 
-Under the cube–root power link used in `basic.glm` (with `pwr = 1/3`), the linear predictor is
+Under the cube-root power link used in `basic.glm` (with `pwr = 1/3`),
 
 $$
 \eta(x) = \mu(x)^{1/3}, \qquad \eta(x) = x^\top \hat{\beta},
@@ -1015,21 +997,19 @@ $$
 so the fitted mean at covariate value $x$ is
 
 $$
-\hat{\mu}(x) = \big(x^\top \hat{\beta}\big)^{1/\frac{1}{3}}
-= \big(x^\top \hat{\beta}\big)^3
+\hat{\mu}(x)
+= \big(x^\top \hat{\beta}\big)^{1/(1/3)}
+= \big(x^\top \hat{\beta}\big)^3.
 $$
 
 For each region and each TN value $x_i$,
 
 $$
-\hat{\mu}_P(x_i) = \big((1, x_i)^\top \hat{\beta}_P\big)^3,
-\qquad
+\hat{\mu}_P(x_i) = \big((1, x_i)^\top \hat{\beta}_P\big)^3, \qquad
 \hat{\mu}_O(x_i) = \big((1, x_i)^\top \hat{\beta}_O\big)^3,
 $$
 
-with corresponding dispersion estimates $\hat{\phi}_P$ and $\hat{\phi}_O$.
-
-The plug–in estimator of the desired probability is then:
+with corresponding dispersion estimates $\hat{\phi}_P$ and $\hat{\phi}_O$. The plug-in estimator of the desired probability is then
 
 $$
 \widehat{\Pr}(Y_i > Z_i \mid x_i)
@@ -1037,11 +1017,9 @@ $$
 \Phi\left(
 \frac{\hat{\mu}_P(x_i) - \hat{\mu}_O(x_i)}
 {\sqrt{\hat{\phi}_P \hat{\mu}_P(x_i)^2
-      + \hat{\phi}_O \hat{\mu}_O(x_i)^2}}
++ \hat{\phi}_O \hat{\mu}_O(x_i)^2}}
 \right)
 $$
-
-Implementing this:
 
 ```{r}
 # Models fitted already
@@ -1110,29 +1088,21 @@ So, as TN concentration increases, the probability that Plains CHL exceeds Ozark
 
 ### Relation Between CHL and TN within Regions
 
-Across both regions, chlorophyll exhibits the same basic pattern with respect to total nitrogen: CHL increases as TN increases, with variance rising alongside the mean. The Gamma GLM with a cube-root link provides an adequate and coherent description of this mean–variance relationship in both regions, with well-behaved residuals and no indication that different model forms are required. Thus, the two regions appear to follow the same underlying functional relationship between TN and CHL.
+In both regions, CHL increases with TN and the variance rises with the mean. The Gamma GLM with a cube-root link adequately captures this mean–variance relationship, with well-behaved residuals and no indication that different model forms are needed. Thus, the TN–CHL relationship has the same functional form in the Plains and Ozarks.
 
-When fitted separately, however, the region-specific models show meaningful differences in magnitude of the TN response. At lower TN values (approximately 0.4–0.6), the fitted curves and their 95% confidence bands overlap substantially, and the predicted means are nearly identical across regions. As TN increases toward the upper end of the Ozarks data range (0.8–1.0), the Ozarks curve becomes noticeably steeper. Predicted CHL diverges upward in the Ozarks, and the confidence bands begin to separate, with only slight overlap at TN = 1.0.
+Fitting the model separately by region shows differences in magnitude. For TN $\approx$ 0.4–0.6, fitted curves and 95% bands nearly coincide, and predicted CHL is similar across regions. As TN increases toward 0.8–1.0, the Ozarks curve steepens, predicted CHL in the Ozarks diverges upward, and the bands separate, indicating a stronger TN response in the Ozarks at higher TN.
 
-Coefficient estimates reinforce this pattern: both regions have positive slopes, but the Ozarks slope is larger, indicating a stronger increase in CHL per unit increase in TN. Although the 95% Wald intervals overlap and do not independently confirm a difference, the joint behavior of the fitted curves, slope estimates, and widening separation at higher TN values together suggest that the Ozarks exhibit a stronger TN–CHL response.
+The coefficient estimates are consistent with this picture: both slopes are positive, but the Ozarks slope is larger. Although the 95% Wald intervals overlap and do not provide definitive parameter-wise separation, the combined evidence from curves, bands, and slopes suggests a stronger TN–CHL response in the Ozarks.
 
-Finally, the probability assessment provides an interpretable summary: for moderate TN values (0.4–0.7), the Plains and Ozarks have nearly equal probability of producing higher CHL. But as TN approaches 1.0, the probability that Plains CHL exceeds Ozarks CHL drops below 0.5, consistent with a steeper Ozarks response.
+The probability assessment summarizes this difference: for moderate TN (0.4–0.7), $\Pr(\text{Plains CHL} > \text{Ozarks CHL} \mid \text{TN}) \approx 0.5$, but as TN approaches 1.0 this probability falls below 0.5, indicating that Ozarks CHL is more likely to exceed Plains CHL at higher TN.
 
-In summary:
-
-* The form of the TN–CHL relationship is the same in both regions.
-* The magnitude of the response differs: CHL rises more sharply with TN in the Ozarks, particularly at higher TN values.
-* The evidence is suggestive but not definitive due to overlapping bands at low TN and limited high-TN data in the Ozarks.
-
-Overall, the two regions share a common biological relationship between TN and CHL, but the Ozarks appear to show a somewhat stronger response to increasing TN, especially towards the upper end of the observed TN range.
+Overall, the regions share the same basic TN–CHL form, but the Ozarks show a stronger response to increasing TN, especially near the upper end of the observed TN range.
 
 \newpage
 
 # Q2: SECCHI & CHL (Plains vs. Ozarks)
 
 ## Overall Distribution & Approach
-
-We'll again start as in Part I, looking at the scatterplot of Secchi and CHL, in addition to the marginal distribution of Secchi. 
 
 ```{r, message=F, warning=F, echo=F, fig.height = 10, fig.width = 10}
 ## Shared limits so all three panels use the same box
@@ -1183,21 +1153,19 @@ with(subset(lakesDat, region == "ozarks"),
 layout(1)
 ```
 
-```{r, message=F, warning=F, echo=F}
-hist(lakesDat$secchi, freq = T, xlab = "CHL", main = "Marginal Distribution of Secchi")
-```
+<!-- # ```{r, message=F, warning=F, echo=F} -->
+<!-- # hist(lakesDat$secchi, freq = T, xlab = "CHL", main = "Marginal Distribution of Secchi") -->
+<!-- # ``` -->
 
-Henceforth, I'll remove the references to "As in Part I", for the sake of brevity. That being said: 
+We begin by examining the scatterplot of Secchi depth versus CHL and the marginal distribution of Secchi. Secchi depth is right-skewed, consistent with ecological expectations, and shows a clear negative, potentially nonlinear relationship with CHL, with variance decreasing at larger CHL values. Stratifying by region (Plains vs. Ozarks) reveals the same basic pattern—negative trend, possible curvature, and decreasing variance—while still leaving open the possibility that the CHL–Secchi relationship differs in magnitude between regions.
 
-The distribution of Secchi Depth is right-skewed, consistent with ecological theory and historical empirical results. There is a clear negative, potentially nonlinear relationship between CHL and Secchi, with possible decreasing variance for larger CHL values. Scatterplots stratified by region show the same general patterns (negative trend, possible nonlinearity, decreasing variance), though the ranges for the Plains and Ozarks differ in distribution while still overlapping in terms of CHL range.
+Let $Y_i$ denote the Secchi depth for lake $i$ ($i = 1,\dots,134$), with corresponding CHL value $x_i$. Because each lake appears only once, it is reasonable to treat observations as independent. Specifying a conditional model for $Y_i \mid x_i$ induces a joint distribution for the full collection ${Y_i}$.
 
-After identifying an appropriate overall model, we fit the same model structure separately to the Plains and Ozarks. Differences between the region-specific fits—such as changes in intercept, slope, curvature, or dispersion—then reflect true regional differences in the strength or level of the CHL–Secchi relationship rather than differences introduced by choosing different model families or transformations.
+The modeling strategy mirrors Part I: we first identify an appropriate overall model for Secchi as a function of CHL, then fit the same model structure separately to the Plains and Ozarks. Under this approach, any differences in intercept, slope, curvature, or dispersion reflect genuine regional differences in the CHL–Secchi relationship rather than artifacts of using different model families or transformations. This ensures that regional comparisons are ecologically interpretable and supports direct comparison of parameters, confidence bands, and other quantities of interest.
 
-This approach ensures that regional comparisons reflect actual ecological differences, avoids artifacts from inconsistent modeling, and allows direct comparison of parameters, confidence bands, and other quantities of interest to assess the possibility of regional differences.
+Henceforth, for brevity, I omit explicit “as in Part I” references, though the underlying modeling logic is the same.
 
 ## Generalized Linear Model
-
-We'll start by assessing potential generalized linear models that adequately describe the relationship between Secchi and CHL. 
 
 ```{r, message=F, warning=F, echo=F}
 bc1 <- boxcox1(list(x = lakesDat$chl, y = lakesDat$secchi), nbins = 12)
@@ -1226,20 +1194,20 @@ bc_table <- do.call(rbind, lapply(nbins_vec, extract_slope_theta))
 kable(bc_table)
 ```
 
-Based on the initial examination, we begin by considering suitable generalized linear models. Using the provided `boxcoxfctns` functions, I computed Box–Cox mean–variance slopes to identify an appropriate random component. The slopes were consistently between 1.6 and 2.1 across binning schemes, equally-spaced or equal-counts, indicating a variance pattern approximately proportional to $\mu^{2}$ to $\mu^{3}$, suggesting that either a Gamma or Inverse Gaussian random component is appropriate for the overall model.
+We begin by considering generalized linear models for Secchi as a function of CHL. Using the `boxcoxfctns` routines, I estimated Box–Cox mean–variance slopes; across both equal-count and equal-width binning schemes, the slopes ranged from 1.6 to 2.1. This indicates that $\operatorname{Var}(Y \mid x)$ grows roughly like $\mu^{2}$–$\mu^{3}$, which is consistent with Gamma or Inverse Gaussian random components.
 
-With suitable random component(s) identified, the next step is to identify a suitable systematic link function for modeling the mean relationship between CHL and Secchi.
+With the random component thus narrowed to Gamma or IG, the next step is to select an appropriate link function for modeling the CHL–Secchi mean relationship.
 
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
+```{r, message=F, warning=F, echo=F, fig.height=8, fig.width=8}
 op <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
 
-plot(y = log(lakesDat$secchi), x = lakesDat$chl, xlab = "CHL", ylab ="log(Secchi)", main = "Transform Response Log")
-plot(y = -log(-log(lakesDat$secchi)), x = lakesDat$chl, xlab = "CHL", ylab ="log(Secchi)", main = "Transform Response Log-Log")
-plot(y = log(-log(1-lakesDat$secchi)), x = lakesDat$chl, xlab = "CHL", ylab ="log(Secchi)", main = "Transform Response Complementary Log-Log")
+# plot(y = log(lakesDat$secchi), x = lakesDat$chl, xlab = "CHL", ylab ="log(Secchi)", main = "Transform Response Log")
+# plot(y = -log(-log(lakesDat$secchi)), x = lakesDat$chl, xlab = "CHL", ylab ="log(Secchi)", main = "Transform Response Log-Log")
+# plot(y = log(-log(1-lakesDat$secchi)), x = lakesDat$chl, xlab = "CHL", ylab ="log(Secchi)", main = "Transform Response Complementary Log-Log")
 
 plot(y = 1/(lakesDat$secchi), x = lakesDat$chl, xlab = "CHL", ylab ="1/Secchi",  main = "Transform Response Inverse")
 plot(y = 1/(lakesDat$secchi^2), x = lakesDat$chl, xlab = "CHL", ylab ="1/Secchi^2",  main = "Transform Response Squared Inverse")
-plot(y = 1/sqrt(lakesDat$secchi), x = lakesDat$chl, xlab = "CHL", ylab ="1/sqrt(Secchi)",  main = "Transform Response Sqrt Inverse")
+# plot(y = 1/sqrt(lakesDat$secchi), x = lakesDat$chl, xlab = "CHL", ylab ="1/sqrt(Secchi)",  main = "Transform Response Sqrt Inverse")
 
 # plot(y = sqrt(lakesDat$secchi), x = lakesDat$chl, xlab = "CHL", ylab ="sqrt(Secchi)",  main = "Transform Response Sqrt")
 # plot(y = (lakesDat$secchi)^(2/3), x = lakesDat$chl, xlab = "CHL", ylab ="Secchi^2/3",  main = "Transform Response 2/3rd root")
@@ -1248,11 +1216,9 @@ plot(y = 1/sqrt(lakesDat$secchi), x = lakesDat$chl, xlab = "CHL", ylab ="1/sqrt(
 op <- par(mfrow = c(1, 1), mar = c(4, 4, 2, 1))
 ```
 
-When identifying a suitable link function, the objective is to find a transformation of the mean that approximately linearizes the relationship between Secchi and CHL. More importantly however, we need a link function that is monotonically decreasing, since such an interpretation aligns both with theory and the expected relationship shown in the data. 
+To identify a suitable link function, we seek a transformation of the mean that both linearizes the Secchi–CHL relationship and preserves the expected monotone decreasing pattern (higher CHL → lower Secchi). Exploratory transformation plots indicate that an inverse transformation of the mean yields an approximately linear trend, with the square-inverse transformation performing similarly well. These transformations are used only to guide link selection; they do *not* imply transforming Secchi directly.
 
-The exploratory plots indicate that an inverse transformation provides a reasonably linear trend, with the square‐inverse transformation also performing adequately. Importantly, these transformations are used only to guide link selection; they do not imply transforming the Secchi values themselves for the GLM.
-
-Taken together with the random component selection done previously, in total: We are motivated to use Gamma and Inverse Gaussian random components ($\theta = 2, 3$), paired with inverse and square inverse links. We then fit these models and compare.
+Combined with the earlier mean–variance assessment, this motivates fitting Gamma and Inverse Gaussian GLMs ($\theta = 2, 3$) paired with inverse and square-inverse links. These candidate models are then compared.
 
 ```{r, include=F, message=F, warning=F, echo=F}
 X <- cbind(1, lakesDat$chl)
@@ -1363,11 +1329,24 @@ kableExtra::kbl(
   )
 ```
 
-We attempted to fit an inverse Gaussian GLM with the canonical inverse-squared link. Using reasonable starting values from a corresponding `glm()` fit and enforcing positive initial linear predictors, the `basic.glm` routine still failed to converge due to numerical instabilities (iterations producing invalid $\eta$-values). We therefore selected a Gamma and Inverse Gaussiam GLMs with inverse link, which converged and provided an adequate fit by residual diagnostics.
+I attempted to fit several GLMs, including the Inverse Gaussian model with its canonical inverse-squared link. Even after generating reasonable starting values from a preliminary `glm()` fit and restricting initial linear predictors to be positive, the `basic.glm` routine failed to converge because iterations quickly produced invalid $\eta$ values. Due to this numerical instability, only a subset of models could be reliably fitted.
 
-We then look at the fitted curve on the scatterplot in addition to the deviance residuals to compare the two different models.
+The Gamma GLM with inverse link and the Inverse Gaussian GLM with inverse link both converged cleanly and exhibited stable behavior. These models were therefore carried forward for comparison. I evaluate them using fitted-curve overlays on the scatterplot and by examining their deviance residuals.
 
-```{r, message=F, warning=F, echo=F, fig.height=6, fig.width=10}
+```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
+layout(matrix(c(1, 2,
+                3, 4),
+              nrow = 2, byrow = TRUE))
+
+par(mar = c(4, 4, 3, 1),
+    oma = c(0, 0, 0, 0),
+    xaxs = "i", yaxs = "i")
+
+## ----- Setup ----- ##
+x_grid <- seq(min(lakesDat$tn), max(lakesDat$tn), length.out = 200)
+X_grid <- cbind(1, x_grid)
+z90 <- qnorm(0.95)
+
 ## ----- Setup ----- ##
 x_grid <- seq(min(lakesDat$chl), max(lakesDat$chl), length.out = 200)
 X_grid <- cbind(1, x_grid)
@@ -1415,10 +1394,10 @@ mu_hi_ig <- 1 / eta_lo_ig
 ##  TWO SIDE-BY-SIDE PLOTS
 ## =========================
 
-par(mfrow = c(1, 2),
-    oma  = c(0, 0, 0, 0),
-    mar  = c(4, 4, 2, 1),
-    xaxs = "i", yaxs = "i")
+# par(mfrow = c(1, 2),
+#     oma  = c(0, 0, 0, 0),
+#     mar  = c(4, 4, 2, 1),
+#     xaxs = "i", yaxs = "i")
 
 ## ----- Left panel: Gamma ----- ##
 plot(lakesDat$chl, lakesDat$secchi,
@@ -1454,11 +1433,6 @@ legend("topleft",
        lwd    = c(2, 1),
        bty    = "n")
 
-par(mfrow = c(1, 1))
-
-```
-
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
 # GAMMA
 mu_g       <- mod_gamma_inv$vals$muhat
 res_g_p    <- mod_gamma_inv$vals$pearsonres
@@ -1470,21 +1444,21 @@ mu_ig      <- mod_invgauss_inv$vals$muhat
 res_ig_p   <- mod_invgauss_inv$vals$pearsonres
 res_ig_dev <- mod_invgauss_inv$vals$devres
 res_ig_std <- mod_invgauss_inv$vals$stdevres
+# 
+# par(mfrow = c(2, 2),
+#     mar = c(4, 4, 3, 1),
+#     oma = c(0, 0, 0, 0),
+#     xaxs = "i", yaxs = "i")
 
-par(mfrow = c(2, 2),
-    mar = c(4, 4, 3, 1),
-    oma = c(0, 0, 0, 0),
-    xaxs = "i", yaxs = "i")
-
-plot(mu_g, res_g_dev,
-     xlab = "Fitted (Gamma)", ylab = "Deviance residual",
-     main = "Gamma: Deviance Residuals")
-abline(h = 0, lty = 2)
-
-plot(mu_ig, res_ig_dev,
-     xlab = "Fitted (InvGaussian)", ylab = "Deviance residual",
-     main = "InvGaussian: Deviance Residuals")
-abline(h = 0, lty = 2)
+# plot(mu_g, res_g_dev,
+#      xlab = "Fitted (Gamma)", ylab = "Deviance residual",
+#      main = "Gamma: Deviance Residuals")
+# abline(h = 0, lty = 2)
+# 
+# plot(mu_ig, res_ig_dev,
+#      xlab = "Fitted (InvGaussian)", ylab = "Deviance residual",
+#      main = "InvGaussian: Deviance Residuals")
+# abline(h = 0, lty = 2)
 
 # par(mfrow = c(1, 1))
 
@@ -1513,665 +1487,610 @@ par(mfrow = c(1, 1))
 # par(mfrow = c(1, 1))
 ```
 
-It is difficult to distinguish between the Gamma and Inverse Gaussian models using the fitted–versus–observed scatterplots alone, as both produce very similar mean curves. One might argue that the Inverse Gaussian captures the increasing variability at lower CHL values (CHL < 10) slightly more closely, though at the expense of having a worse fit for these values (the mean curve misses nearly all observations in this range. Combine this with the residual plots, which indicate the Inverse Gaussian deviance residuals exhibit possibly greater heteroscedasticity in addition to lacking symmetry, and the choice of a Gamma generalized linear model with an inverse link seems most appropriate. 
 
-With this preferred generalized linear model identified, we next examine a range of additive error models for completeness. By evaluating these alternatives alongside the GLM, we select a single most appropriate model to use for the subsequent region-specific comparisons.
+The fitted curves from the Gamma and Inverse Gaussian GLMs are visually similar, and the scatterplot alone does not clearly favor one model. Although the Inverse Gaussian model appears to reflect the increased variability at low CHL values (CHL < 10), its fitted mean curve misses most observations in this range, indicating a poorer fit to the central trend.
 
-## Additive Error Models 
+Residual diagnostics provide stronger separation. The Inverse Gaussian deviance residuals show more pronounced heteroscedasticity and noticeably weaker symmetry compared to the Gamma model. In contrast, the Gamma GLM with an inverse link produces well-centered, more homogeneous residuals. These patterns persist when using studentized residuals, which ultimately drove the model choice.
+
+On this basis, the Gamma GLM with inverse link is selected as the preferred model. With this GLM established, I next assess several additive error models for completeness before identifying a single working model for the region-specific comparisons.
+
+## Other Models Considered -- Additive Error Models
 
 ### Transform Both Sides 
 
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
-## Fit basic OLS model: Secchi ~ CHL
-fit_ols_secchi <- lm(secchi ~ chl, data = lakesDat)
+<!-- # ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10} -->
+<!-- # ## Fit basic OLS model: Secchi ~ CHL -->
+<!-- # fit_ols_secchi <- lm(secchi ~ chl, data = lakesDat) -->
+<!-- #  -->
+<!-- # ## Layout: 2 small on top, 1 big on bottom -->
+<!-- # layout(matrix(c(1, 2, -->
+<!-- #                 3, 3), nrow = 2, byrow = TRUE)) -->
+<!-- #  -->
+<!-- # par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0)) -->
+<!-- #  -->
+<!-- # ## -------- 1. Residuals vs Fitted (OLS) -------- -->
+<!-- # plot(fitted(fit_ols_secchi), rstudent(fit_ols_secchi), -->
+<!-- #      xlab = "Fitted Secchi", -->
+<!-- #      ylab = "Studentized residuals", -->
+<!-- #      main = "OLS: Residuals vs Fitted (Secchi ~ CHL)", -->
+<!-- #      pch  = 1, col = "black") -->
+<!-- # abline(h = 0, lty = 2) -->
+<!-- #  -->
+<!-- # ## -------- 2. Observed vs Fitted Secchi -------- -->
+<!-- # plot(fitted(fit_ols_secchi), lakesDat$secchi, -->
+<!-- #      xlab = "Fitted Secchi", -->
+<!-- #      ylab = "Observed Secchi", -->
+<!-- #      main = "Observed vs Fitted (OLS)", -->
+<!-- #      pch  = 1, col = "black") -->
+<!-- # abline(0, 1, lty = 2)  # 45-degree line -->
+<!-- #  -->
+<!-- # ## -------- 3. CHL vs Secchi with fitted line (big bottom plot) -------- -->
+<!-- # chl_grid <- seq(min(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 max(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 length.out = 200) -->
+<!-- #  -->
+<!-- # pred_ols_secchi <- predict(fit_ols_secchi, -->
+<!-- #                            newdata = data.frame(chl = chl_grid), -->
+<!-- #                            type = "response") -->
+<!-- #  -->
+<!-- # plot(lakesDat$chl, lakesDat$secchi, -->
+<!-- #      pch = 1, col = "black", -->
+<!-- #      xlab = "CHL", ylab = "Secchi", -->
+<!-- #      main = "OLS Model: Observed vs Fitted") -->
+<!-- #  -->
+<!-- # lines(chl_grid, pred_ols_secchi, -->
+<!-- #       lwd = 3, col = "blue") -->
+<!-- #  -->
+<!-- # legend("topright", -->
+<!-- #        legend = c("Observed Secchi", "Fitted (OLS)"), -->
+<!-- #        col    = c("black", "blue"), -->
+<!-- #        pch    = c(1, NA), -->
+<!-- #        lty    = c(NA, 1), -->
+<!-- #        lwd    = c(NA, 3), -->
+<!-- #        bty    = "n") -->
+<!-- #  -->
+<!-- # ## Reset layout -->
+<!-- # layout(1) -->
+<!-- # ``` -->
 
-## Layout: 2 small on top, 1 big on bottom
-layout(matrix(c(1, 2,
-                3, 3), nrow = 2, byrow = TRUE))
+<!-- # ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10} -->
+<!-- # par(mfrow = c(3, 1), -->
+<!-- #     mar = c(4, 4, 3, 1), -->
+<!-- #     oma = c(0, 0, 0, 0), -->
+<!-- #     xaxs = "i", yaxs = "i") -->
+<!-- #  -->
+<!-- # plot(y = log(lakesDat$secchi), x = log(lakesDat$chl), ylab = "log(secchi)", xlab = "log(chl)", main = "Transform Both Sides (Log)") -->
+<!-- # plot(y = sqrt(lakesDat$secchi), x = sqrt(lakesDat$chl), ylab = "sqrt(secchi)", xlab = "sqrt(chl)", main = "Transform Both Sides (Sqrt)") -->
+<!-- # plot(y = (lakesDat$secchi^(1/3)), x = sqrt(lakesDat$chl), ylab = "secchi^1/3", xlab = "chl^1/3", main = "Transform Both Sides (Cube Root)") -->
+<!-- #  -->
+<!-- # par(mfrow = c(1, 1)) -->
+<!-- # ``` -->
 
-par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0))
+<!-- # ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10} -->
+<!-- # par(mfrow = c(3, 1), -->
+<!-- #     mar = c(4, 4, 3, 1), -->
+<!-- #     oma = c(0, 0, 0, 0), -->
+<!-- #     xaxs = "i", yaxs = "i") -->
+<!-- #  -->
+<!-- # plot(y = 1/(lakesDat$secchi), x = 1/(lakesDat$chl), ylab = "1/(secchi)", xlab = "1/(chl)", main = "Transform Both Sides (Inverse)") -->
+<!-- # plot(y = 1/sqrt(lakesDat$secchi), x = 1/sqrt(lakesDat$chl), ylab = "sqrt(secchi)", xlab = "sqrt(chl)", main = "Transform Both Sides (Inverse Sqrt.)") -->
+<!-- # plot(y = 1/(lakesDat$secchi^(2)), x = 1/(lakesDat$chl^(2)), ylab = "secchi^1/3", xlab = "chl^1/3", main = "Transform Both Sides (Inverse Sq.)") -->
+<!-- # par(mfrow = c(1, 1)) -->
+<!-- # ``` -->
 
-## -------- 1. Residuals vs Fitted (OLS) --------
-plot(fitted(fit_ols_secchi), rstudent(fit_ols_secchi),
-     xlab = "Fitted Secchi",
-     ylab = "Studentized residuals",
-     main = "OLS: Residuals vs Fitted (Secchi ~ CHL)",
-     pch  = 1, col = "black")
-abline(h = 0, lty = 2)
+<!-- # ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10} -->
+<!-- # ## Fit TBS inverse model: 1/secchi ~ 1/chl -->
+<!-- # fit_tbs_inv <- lm(I(1/secchi) ~ I(1/chl), data = lakesDat) -->
+<!-- #  -->
+<!-- # ## Layout: 2 small on top, 1 big on bottom -->
+<!-- # layout(matrix(c(1, 2, -->
+<!-- #                 3, 3), nrow = 2, byrow = TRUE)) -->
+<!-- #  -->
+<!-- # par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0)) -->
+<!-- #  -->
+<!-- # ## -------- 1. Residuals vs Fitted (inverse scale) -------- -->
+<!-- # plot(fitted(fit_tbs_inv), rstudent(fit_tbs_inv), -->
+<!-- #      xlab = "Fitted (1 / Secchi scale)", -->
+<!-- #      ylab = "Studentized residuals", -->
+<!-- #      main = "TBS (inverse): Residuals vs Fitted", -->
+<!-- #      pch  = 1, col = "black") -->
+<!-- # abline(h = 0, lty = 2) -->
+<!-- #  -->
+<!-- # ## -------- 2. Observed vs Fitted Secchi -------- -->
+<!-- # ## Back-transform: if z = 1/secchi, then secchi = 1/z -->
+<!-- # fitted_secchi <- 1 / fitted(fit_tbs_inv) -->
+<!-- #  -->
+<!-- # plot(fitted_secchi, lakesDat$secchi, -->
+<!-- #      xlab = "Fitted Secchi", -->
+<!-- #      ylab = "Observed Secchi", -->
+<!-- #      main = "Observed vs Fitted (TBS inverse)", -->
+<!-- #      pch  = 1, col = "black") -->
+<!-- # abline(0, 1, lty = 2)  # 45-degree line -->
+<!-- #  -->
+<!-- # ## -------- 3. CHL vs Secchi with fitted curve (big bottom plot) -------- -->
+<!-- # chl_grid <- seq(min(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 max(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 length.out = 200) -->
+<!-- #  -->
+<!-- # ## Need to pass 'chl' since model has I(1/chl) -->
+<!-- # pred_inv <- predict(fit_tbs_inv, -->
+<!-- #                     newdata = data.frame(chl = chl_grid), -->
+<!-- #                     type = "response") -->
+<!-- #  -->
+<!-- # ## Back-transform to Secchi -->
+<!-- # pred_inv_secchi <- 1 / pred_inv -->
+<!-- #  -->
+<!-- # plot(lakesDat$chl, lakesDat$secchi, -->
+<!-- #      pch = 1, col = "black", -->
+<!-- #      xlab = "CHL", ylab = "Secchi", -->
+<!-- #      main = "TBS Inverse Model: Observed vs Fitted") -->
+<!-- #  -->
+<!-- # lines(chl_grid, pred_inv_secchi, -->
+<!-- #       lwd = 3, col = "blue") -->
+<!-- #  -->
+<!-- # legend("topleft", -->
+<!-- #        legend = c("Observed Secchi", "Fitted (TBS inverse)"), -->
+<!-- #        col    = c("black", "blue"), -->
+<!-- #        pch    = c(1, NA), -->
+<!-- #        lty    = c(NA, 1), -->
+<!-- #        lwd    = c(NA, 3), -->
+<!-- #        bty    = "n") -->
+<!-- #  -->
+<!-- # ## Reset layout -->
+<!-- # layout(1) -->
+<!-- # ``` -->
 
-## -------- 2. Observed vs Fitted Secchi --------
-plot(fitted(fit_ols_secchi), lakesDat$secchi,
-     xlab = "Fitted Secchi",
-     ylab = "Observed Secchi",
-     main = "Observed vs Fitted (OLS)",
-     pch  = 1, col = "black")
-abline(0, 1, lty = 2)  # 45-degree line
+<!-- # ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10} -->
+<!-- # ## Fit TBS cube-root model: secchi^(1/3) ~ chl^(1/3) -->
+<!-- #  -->
+<!-- # fit_tbs_cr <- lm(I(secchi^(1/3)) ~ I(chl^(1/3)), data = lakesDat) -->
+<!-- #  -->
+<!-- # ## Layout: 2 small on top, 1 big on bottom -->
+<!-- #  -->
+<!-- # layout(matrix(c(1, 2, -->
+<!-- # 3, 3), nrow = 2, byrow = TRUE)) -->
+<!-- #  -->
+<!-- # par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0)) -->
+<!-- #  -->
+<!-- # ## -------- 1. Residuals vs Fitted (cube-root scale) -------- -->
+<!-- #  -->
+<!-- # plot(fitted(fit_tbs_cr), rstudent(fit_tbs_cr), -->
+<!-- # xlab = "Fitted (cube-root Secchi scale)", -->
+<!-- # ylab = "Studentized residuals", -->
+<!-- # main = "TBS (cube root): Residuals vs Fitted", -->
+<!-- # pch  = 1, col = "black") -->
+<!-- # abline(h = 0, lty = 2) -->
+<!-- #  -->
+<!-- # ## -------- 2. Observed vs Fitted Secchi -------- -->
+<!-- #  -->
+<!-- # ## Back-transform: if z = secchi^(1/3), then secchi = z^3 -->
+<!-- #  -->
+<!-- # fitted_secchi <- fitted(fit_tbs_cr)^3 -->
+<!-- #  -->
+<!-- # plot(fitted_secchi, lakesDat$secchi, -->
+<!-- # xlab = "Fitted Secchi", -->
+<!-- # ylab = "Observed Secchi", -->
+<!-- # main = "Observed vs Fitted (TBS cube root)", -->
+<!-- # pch  = 1, col = "black") -->
+<!-- # abline(0, 1, lty = 2)  # 45-degree line -->
+<!-- #  -->
+<!-- # ## -------- 3. CHL vs Secchi with fitted curve (big bottom plot) -------- -->
+<!-- #  -->
+<!-- # chl_grid <- seq(min(lakesDat$chl, na.rm = TRUE), -->
+<!-- # max(lakesDat$chl, na.rm = TRUE), -->
+<!-- # length.out = 200) -->
+<!-- #  -->
+<!-- # ## Need to pass 'chl' since model has I(chl^(1/3)) -->
+<!-- #  -->
+<!-- # pred_cr <- predict(fit_tbs_cr, -->
+<!-- # newdata = data.frame(chl = chl_grid), -->
+<!-- # type = "response") -->
+<!-- #  -->
+<!-- # ## Back-transform to Secchi -->
+<!-- #  -->
+<!-- # pred_cr_secchi <- pred_cr^3 -->
+<!-- #  -->
+<!-- # plot(lakesDat$chl, lakesDat$secchi, -->
+<!-- # pch = 1, col = "black", -->
+<!-- # xlab = "CHL", ylab = "Secchi", -->
+<!-- # main = "TBS Cube-Root Model: Observed vs Fitted") -->
+<!-- #  -->
+<!-- # lines(chl_grid, pred_cr_secchi, -->
+<!-- # lwd = 3, col = "blue") -->
+<!-- #  -->
+<!-- # legend("topleft", -->
+<!-- # legend = c("Observed Secchi", "Fitted (TBS cube root)"), -->
+<!-- # col    = c("black", "blue"), -->
+<!-- # pch    = c(1, NA), -->
+<!-- # lty    = c(NA, 1), -->
+<!-- # lwd    = c(NA, 3), -->
+<!-- # bty    = "n") -->
+<!-- #  -->
+<!-- # ## Reset layout -->
+<!-- #  -->
+<!-- # layout(1) -->
+<!-- # ``` -->
 
-## -------- 3. CHL vs Secchi with fitted line (big bottom plot) --------
-chl_grid <- seq(min(lakesDat$chl, na.rm = TRUE),
-                max(lakesDat$chl, na.rm = TRUE),
-                length.out = 200)
+We begin by fitting a simple linear regression of Secchi on CHL. Although the linear trend is directionally correct, the studentized residuals show strong heteroscedasticity, motivating consideration of a transform-both-sides (TBS) additive error model.
 
-pred_ols_secchi <- predict(fit_ols_secchi,
-                           newdata = data.frame(chl = chl_grid),
-                           type = "response")
+Several variance–stabilizing transformations were evaluated, with the inverse and cube-root transformations appearing most promising based on exploratory plots. The purpose of these transformations is not to model Secchi on a transformed scale per se, but to obtain an additive-error model with approximately constant variance.
 
-plot(lakesDat$chl, lakesDat$secchi,
-     pch = 1, col = "black",
-     xlab = "CHL", ylab = "Secchi",
-     main = "OLS Model: Observed vs Fitted")
+The resulting TBS fits, however, indicate that this approach is not suitable for the Secchi–CHL relationship. Even under the best-performing transformations, the fitted curves fail to capture the clear curvature in the data, and the residuals retain noticeable patterns and heteroscedasticity. The cube-root transformation performs better than the inverse transformation—avoiding instability near very small Secchi values and offering some variance stabilization—but substantial funneling remains, especially at low CHL.
 
-lines(chl_grid, pred_ols_secchi,
-      lwd = 3, col = "blue")
-
-legend("topright",
-       legend = c("Observed Secchi", "Fitted (OLS)"),
-       col    = c("black", "blue"),
-       pch    = c(1, NA),
-       lty    = c(NA, 1),
-       lwd    = c(NA, 3),
-       bty    = "n")
-
-## Reset layout
-layout(1)
-```
-
-Though we eventually want to adopt a more fitting curve, a key consideration of the above linear fit is the clear heteroscedasticity in the model. This motivates a potential transformat both sides model. 
-
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
-par(mfrow = c(3, 1),
-    mar = c(4, 4, 3, 1),
-    oma = c(0, 0, 0, 0),
-    xaxs = "i", yaxs = "i")
-
-plot(y = log(lakesDat$secchi), x = log(lakesDat$chl), ylab = "log(secchi)", xlab = "log(chl)", main = "Transform Both Sides (Log)")
-plot(y = sqrt(lakesDat$secchi), x = sqrt(lakesDat$chl), ylab = "sqrt(secchi)", xlab = "sqrt(chl)", main = "Transform Both Sides (Sqrt)")
-plot(y = (lakesDat$secchi^(1/3)), x = sqrt(lakesDat$chl), ylab = "secchi^1/3", xlab = "chl^1/3", main = "Transform Both Sides (Cube Root)")
-
-par(mfrow = c(1, 1))
-```
-
-\newpage
-
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
-par(mfrow = c(3, 1),
-    mar = c(4, 4, 3, 1),
-    oma = c(0, 0, 0, 0),
-    xaxs = "i", yaxs = "i")
-
-plot(y = 1/(lakesDat$secchi), x = 1/(lakesDat$chl), ylab = "1/(secchi)", xlab = "1/(chl)", main = "Transform Both Sides (Inverse)")
-plot(y = 1/sqrt(lakesDat$secchi), x = 1/sqrt(lakesDat$chl), ylab = "sqrt(secchi)", xlab = "sqrt(chl)", main = "Transform Both Sides (Inverse Sqrt.)")
-plot(y = 1/(lakesDat$secchi^(2)), x = 1/(lakesDat$chl^(2)), ylab = "secchi^1/3", xlab = "chl^1/3", main = "Transform Both Sides (Inverse Sq.)")
-par(mfrow = c(1, 1))
-```
-
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
-## Fit TBS inverse model: 1/secchi ~ 1/chl
-fit_tbs_inv <- lm(I(1/secchi) ~ I(1/chl), data = lakesDat)
-
-## Layout: 2 small on top, 1 big on bottom
-layout(matrix(c(1, 2,
-                3, 3), nrow = 2, byrow = TRUE))
-
-par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0))
-
-## -------- 1. Residuals vs Fitted (inverse scale) --------
-plot(fitted(fit_tbs_inv), rstudent(fit_tbs_inv),
-     xlab = "Fitted (1 / Secchi scale)",
-     ylab = "Studentized residuals",
-     main = "TBS (inverse): Residuals vs Fitted",
-     pch  = 1, col = "black")
-abline(h = 0, lty = 2)
-
-## -------- 2. Observed vs Fitted Secchi --------
-## Back-transform: if z = 1/secchi, then secchi = 1/z
-fitted_secchi <- 1 / fitted(fit_tbs_inv)
-
-plot(fitted_secchi, lakesDat$secchi,
-     xlab = "Fitted Secchi",
-     ylab = "Observed Secchi",
-     main = "Observed vs Fitted (TBS inverse)",
-     pch  = 1, col = "black")
-abline(0, 1, lty = 2)  # 45-degree line
-
-## -------- 3. CHL vs Secchi with fitted curve (big bottom plot) --------
-chl_grid <- seq(min(lakesDat$chl, na.rm = TRUE),
-                max(lakesDat$chl, na.rm = TRUE),
-                length.out = 200)
-
-## Need to pass 'chl' since model has I(1/chl)
-pred_inv <- predict(fit_tbs_inv,
-                    newdata = data.frame(chl = chl_grid),
-                    type = "response")
-
-## Back-transform to Secchi
-pred_inv_secchi <- 1 / pred_inv
-
-plot(lakesDat$chl, lakesDat$secchi,
-     pch = 1, col = "black",
-     xlab = "CHL", ylab = "Secchi",
-     main = "TBS Inverse Model: Observed vs Fitted")
-
-lines(chl_grid, pred_inv_secchi,
-      lwd = 3, col = "blue")
-
-legend("topleft",
-       legend = c("Observed Secchi", "Fitted (TBS inverse)"),
-       col    = c("black", "blue"),
-       pch    = c(1, NA),
-       lty    = c(NA, 1),
-       lwd    = c(NA, 3),
-       bty    = "n")
-
-## Reset layout
-layout(1)
-```
-
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
-## Fit TBS cube-root model: secchi^(1/3) ~ chl^(1/3)
-
-fit_tbs_cr <- lm(I(secchi^(1/3)) ~ I(chl^(1/3)), data = lakesDat)
-
-## Layout: 2 small on top, 1 big on bottom
-
-layout(matrix(c(1, 2,
-3, 3), nrow = 2, byrow = TRUE))
-
-par(mar = c(4, 4, 3, 1), oma = c(0, 0, 0, 0))
-
-## -------- 1. Residuals vs Fitted (cube-root scale) --------
-
-plot(fitted(fit_tbs_cr), rstudent(fit_tbs_cr),
-xlab = "Fitted (cube-root Secchi scale)",
-ylab = "Studentized residuals",
-main = "TBS (cube root): Residuals vs Fitted",
-pch  = 1, col = "black")
-abline(h = 0, lty = 2)
-
-## -------- 2. Observed vs Fitted Secchi --------
-
-## Back-transform: if z = secchi^(1/3), then secchi = z^3
-
-fitted_secchi <- fitted(fit_tbs_cr)^3
-
-plot(fitted_secchi, lakesDat$secchi,
-xlab = "Fitted Secchi",
-ylab = "Observed Secchi",
-main = "Observed vs Fitted (TBS cube root)",
-pch  = 1, col = "black")
-abline(0, 1, lty = 2)  # 45-degree line
-
-## -------- 3. CHL vs Secchi with fitted curve (big bottom plot) --------
-
-chl_grid <- seq(min(lakesDat$chl, na.rm = TRUE),
-max(lakesDat$chl, na.rm = TRUE),
-length.out = 200)
-
-## Need to pass 'chl' since model has I(chl^(1/3))
-
-pred_cr <- predict(fit_tbs_cr,
-newdata = data.frame(chl = chl_grid),
-type = "response")
-
-## Back-transform to Secchi
-
-pred_cr_secchi <- pred_cr^3
-
-plot(lakesDat$chl, lakesDat$secchi,
-pch = 1, col = "black",
-xlab = "CHL", ylab = "Secchi",
-main = "TBS Cube-Root Model: Observed vs Fitted")
-
-lines(chl_grid, pred_cr_secchi,
-lwd = 3, col = "blue")
-
-legend("topleft",
-legend = c("Observed Secchi", "Fitted (TBS cube root)"),
-col    = c("black", "blue"),
-pch    = c(1, NA),
-lty    = c(NA, 1),
-lwd    = c(NA, 3),
-bty    = "n")
-
-## Reset layout
-
-layout(1)
-```
-
-We considered several possible variance–stabilizing transformations for a transform-both-sides (TBS) additive error model. Among these, the inverse and cube-root transformations appeared most promising based on their scatterplots.
-
-The fitted TBS models and their diagnostic plots (shown above) make clear, however, that a TBS approach is not adequate for this application. Even with the best-performing transformation, the fitted curve fails to capture the observed curvature in the Secchi–CHL relationship, and the residual plots exhibit pronounced patterns and heteroscedasticity.
-
-That said, the cube-root transformation performs noticeably better than the inverse transformation: it avoids the explosive behavior near low Secchi values and provides somewhat improved variance stabilization. Nonetheless, appreciable funneling remains in the residuals, particularly at the lower end of CHL, and the overall fit is still inferior to the GLM approaches. Consequently, the TBS additive error model is not competitive as an overall model for Secchi depth.
+Overall, the TBS additive error models provide a poorer fit than the GLMs and do not adequately account for the nonlinear mean–variance structure. For this reason, they are not competitive as working models, though they offer some guidance for selecting transformations within power-of-the-mean models considered next.
 
 ### Power of the Mean 
 
-```{r, message=F, warning=F, echo=F}
-## Single Box–Cox plot (equal-count bins, k = 12)
-bc1 <- boxcox1(list(x = lakesDat$chl, y = lakesDat$secchi), nbins = 12)
-bc2 <- boxcox2(list(x = lakesDat$chl, y = lakesDat$secchi), nbins = 12)
+<!-- # ```{r, message=F, warning=F, echo=F} -->
+<!-- # ## Single Box–Cox plot (equal-count bins, k = 12) -->
+<!-- # bc1 <- boxcox1(list(x = lakesDat$chl, y = lakesDat$secchi), nbins = 12) -->
+<!-- # bc2 <- boxcox2(list(x = lakesDat$chl, y = lakesDat$secchi), nbins = 12) -->
+<!-- #  -->
+<!-- # plot(log(bc1$m), log(bc1$v), -->
+<!-- #      main = "Box-Cox, 12 Equal-Count Bins", -->
+<!-- #      xlab = "log(Mean)", ylab = "log(Sd)") -->
+<!-- #  -->
+<!-- # fit_bc1 <- lm(log(v) ~ log(m), data = bc1) -->
+<!-- # abline(fit_bc1, col = "red", lwd = 2) -->
+<!-- #  -->
+<!-- # delta_hat_12 <- coef(fit_bc1)[["log(m)"]]   # this is deltâ for k = 12 -->
+<!-- #  -->
+<!-- #  -->
+<!-- # ## Table of deltâ for multiple nbins, equal-count vs equal-spaced -->
+<!-- # nbins_vec <- c(6, 10, 12, 14, 16, 18, 22) -->
+<!-- #  -->
+<!-- # extract_delta <- function(k) { -->
+<!-- #   # equal-count bins -->
+<!-- #   bc_count  <- boxcox1(list(x = lakesDat$chl, y = lakesDat$secchi), nbins = k) -->
+<!-- #   # equal-spaced bins -->
+<!-- #   bc_spaced <- boxcox2(list(x = lakesDat$chl, y = lakesDat$secchi), nbins = k) -->
+<!-- #  -->
+<!-- #   delta_count  <- coef(lm(log(v) ~ log(m), data = bc_count))[["log(m)"]] -->
+<!-- #   delta_spaced <- coef(lm(log(v) ~ log(m), data = bc_spaced))[["log(m)"]] -->
+<!-- #  -->
+<!-- #   data.frame( -->
+<!-- #     nbins        = k, -->
+<!-- #     `Equal-Count delta`  = round(delta_count,  3), -->
+<!-- #     `Equal-Spaced delta` = round(delta_spaced, 3) -->
+<!-- #   ) -->
+<!-- # } -->
+<!-- #  -->
+<!-- # bc_delta_table <- do.call(rbind, lapply(nbins_vec, extract_delta)) -->
+<!-- #  -->
+<!-- # kable(bc_delta_table, -->
+<!-- #       caption = "Estimated delta (power of the mean) from Box-Cox SD–Mean plots") -->
+<!-- # ``` -->
 
-plot(log(bc1$m), log(bc1$v),
-     main = "Box-Cox, 12 Equal-Count Bins",
-     xlab = "log(Mean)", ylab = "log(Sd)")
+<!-- # ```{r power-setup2, message=FALSE, warning=FALSE, echo=FALSE} -->
+<!-- # ## Base fit to get mu0 for the power-of-the-mean variance model -->
+<!-- # base_fit_secchi <- lm(secchi ~ chl, data = lakesDat) -->
+<!-- # mu0_secchi      <- pmax(fitted(base_fit_secchi), 0.01)  # ensure positivity -->
+<!-- #  -->
+<!-- # fit_power_model_secchi <- function(delta) { -->
+<!-- #   ## Var(Y | X) ∝ mu^(2 * delta), weights = 1 / mu^(2 * delta) -->
+<!-- #   w   <- 1 / (mu0_secchi^(2 * delta)) -->
+<!-- #   fit <- lm(secchi ~ chl, data = lakesDat, weights = w) -->
+<!-- #   list(delta = delta, fit = fit) -->
+<!-- # } -->
+<!-- #  -->
+<!-- # ## Use larger deltas: 1.5, 2, 2.5, 3 -->
+<!-- # deltas_secchi <- c(1.5, 2, 2.5, 3) -->
+<!-- # secchi_fits   <- lapply(deltas_secchi, fit_power_model_secchi) -->
+<!-- # names(secchi_fits) <- paste0("delta_", deltas_secchi) -->
+<!-- # ``` -->
 
-fit_bc1 <- lm(log(v) ~ log(m), data = bc1)
-abline(fit_bc1, col = "red", lwd = 2)
+<!-- # ```{r power-residuals3, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8} -->
+<!-- # par(mfrow = c(2, 2), -->
+<!-- #     mar   = c(4, 4, 3, 1), -->
+<!-- #     oma   = c(0, 0, 0, 0)) -->
+<!-- #  -->
+<!-- # for (obj in secchi_fits) { -->
+<!-- #   fit   <- obj$fit -->
+<!-- #   delta <- obj$delta -->
+<!-- #  -->
+<!-- #   plot(fitted(fit), rstudent(fit), -->
+<!-- #        pch  = 1, col = "black", -->
+<!-- #        xlab = "Fitted Secchi", -->
+<!-- #        ylab = "Studentized residual", -->
+<!-- #        main = paste("Residuals vs Fitted\n(delta =", delta, ")")) -->
+<!-- #   abline(h = 0, lty = 2) -->
+<!-- # } -->
+<!-- #  -->
+<!-- # par(mfrow = c(1, 1)) -->
+<!-- # ``` -->
 
-delta_hat_12 <- coef(fit_bc1)[["log(m)"]]   # this is deltâ for k = 12
+<!-- # ```{r power-fitted-curves2, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8} -->
+<!-- # chl_grid <- seq(min(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 max(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 length.out = 300) -->
+<!-- # X_grid_secchi <- cbind(1, chl_grid) -->
+<!-- #  -->
+<!-- # predict_curve_secchi <- function(obj) { -->
+<!-- #   fit    <- obj$fit -->
+<!-- #   delta  <- obj$delta -->
+<!-- #   mu_hat <- as.vector(X_grid_secchi %*% coef(fit))  # fitted mean secchi -->
+<!-- #   list(delta = delta, chl = chl_grid, mu = mu_hat) -->
+<!-- # } -->
+<!-- #  -->
+<!-- # secchi_curves <- lapply(secchi_fits, predict_curve_secchi) -->
+<!-- #  -->
+<!-- # par(mfrow = c(2, 2), -->
+<!-- #     mar   = c(4, 4, 3, 1), -->
+<!-- #     oma   = c(0, 0, 0, 0)) -->
+<!-- #  -->
+<!-- # for (crv in secchi_curves) { -->
+<!-- #   plot(lakesDat$chl, lakesDat$secchi, -->
+<!-- #        pch = 1, col = "black", -->
+<!-- #        xlab = "CHL", ylab = "Secchi", -->
+<!-- #        main = paste("Fitted Mean Curve\n(delta =", crv$delta, ")")) -->
+<!-- #  -->
+<!-- #   lines(crv$chl, crv$mu, lwd = 3, col = "blue") -->
+<!-- # } -->
+<!-- #  -->
+<!-- # par(mfrow = c(1, 1)) -->
+<!-- # ``` -->
 
-
-## Table of deltâ for multiple nbins, equal-count vs equal-spaced
-nbins_vec <- c(6, 10, 12, 14, 16, 18, 22)
-
-extract_delta <- function(k) {
-  # equal-count bins
-  bc_count  <- boxcox1(list(x = lakesDat$chl, y = lakesDat$secchi), nbins = k)
-  # equal-spaced bins
-  bc_spaced <- boxcox2(list(x = lakesDat$chl, y = lakesDat$secchi), nbins = k)
-
-  delta_count  <- coef(lm(log(v) ~ log(m), data = bc_count))[["log(m)"]]
-  delta_spaced <- coef(lm(log(v) ~ log(m), data = bc_spaced))[["log(m)"]]
-
-  data.frame(
-    nbins        = k,
-    `Equal-Count delta`  = round(delta_count,  3),
-    `Equal-Spaced delta` = round(delta_spaced, 3)
-  )
-}
-
-bc_delta_table <- do.call(rbind, lapply(nbins_vec, extract_delta))
-
-kable(bc_delta_table,
-      caption = "Estimated delta (power of the mean) from Box-Cox SD–Mean plots")
-```
-
-```{r power-setup2, message=FALSE, warning=FALSE, echo=FALSE}
-## Base fit to get mu0 for the power-of-the-mean variance model
-base_fit_secchi <- lm(secchi ~ chl, data = lakesDat)
-mu0_secchi      <- pmax(fitted(base_fit_secchi), 0.01)  # ensure positivity
-
-fit_power_model_secchi <- function(delta) {
-  ## Var(Y | X) ∝ mu^(2 * delta), weights = 1 / mu^(2 * delta)
-  w   <- 1 / (mu0_secchi^(2 * delta))
-  fit <- lm(secchi ~ chl, data = lakesDat, weights = w)
-  list(delta = delta, fit = fit)
-}
-
-## Use larger deltas: 1.5, 2, 2.5, 3
-deltas_secchi <- c(1.5, 2, 2.5, 3)
-secchi_fits   <- lapply(deltas_secchi, fit_power_model_secchi)
-names(secchi_fits) <- paste0("delta_", deltas_secchi)
-```
-
-```{r power-residuals3, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8}
-par(mfrow = c(2, 2),
-    mar   = c(4, 4, 3, 1),
-    oma   = c(0, 0, 0, 0))
-
-for (obj in secchi_fits) {
-  fit   <- obj$fit
-  delta <- obj$delta
-
-  plot(fitted(fit), rstudent(fit),
-       pch  = 1, col = "black",
-       xlab = "Fitted Secchi",
-       ylab = "Studentized residual",
-       main = paste("Residuals vs Fitted\n(delta =", delta, ")"))
-  abline(h = 0, lty = 2)
-}
-
-par(mfrow = c(1, 1))
-```
-
-\newpage
-
-```{r power-fitted-curves2, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8}
-chl_grid <- seq(min(lakesDat$chl, na.rm = TRUE),
-                max(lakesDat$chl, na.rm = TRUE),
-                length.out = 300)
-X_grid_secchi <- cbind(1, chl_grid)
-
-predict_curve_secchi <- function(obj) {
-  fit    <- obj$fit
-  delta  <- obj$delta
-  mu_hat <- as.vector(X_grid_secchi %*% coef(fit))  # fitted mean secchi
-  list(delta = delta, chl = chl_grid, mu = mu_hat)
-}
-
-secchi_curves <- lapply(secchi_fits, predict_curve_secchi)
-
-par(mfrow = c(2, 2),
-    mar   = c(4, 4, 3, 1),
-    oma   = c(0, 0, 0, 0))
-
-for (crv in secchi_curves) {
-  plot(lakesDat$chl, lakesDat$secchi,
-       pch = 1, col = "black",
-       xlab = "CHL", ylab = "Secchi",
-       main = paste("Fitted Mean Curve\n(delta =", crv$delta, ")"))
-
-  lines(crv$chl, crv$mu, lwd = 3, col = "blue")
-}
-
-par(mfrow = c(1, 1))
-```
-
-We next consider power-of-the-mean (PoM) additive error models as an alternative to the GLM framework. Recall that the Box–Cox mean–standard-deviation plots for Secchi versus CHL suggested a variance relationship of approximately
+We next consider power-of-the-mean (POM) additive error models as an alternative to the GLM. The Box–Cox mean–standard-deviation patterns for Secchi versus CHL suggested
 
 $$
-\operatorname{Var}(Y \mid x) \propto \mu(x)^{\theta}
+\operatorname{Var}(Y\mid x)\propto \mu(x)^{\theta},
+\qquad
+\theta\approx 1.5\text{–}3,
 $$
 
-with $\theta$ in the range 1.5–3. This motivates exploring PoM models with variance weights of the form
+which motivates variance weights of the form
 
 $$
-w_i \propto \mu(x_i)^{-2\delta},
+w_i\propto \mu(x_i)^{-2\delta},
 $$
 
-where the power $\delta$ is chosen to counteract the apparent growth in variance with the mean. Based on the Box–Cox summaries, we examine PoM models for
+where larger values of $\delta$ attempt stronger variance stabilization. Based on the Box–Cox summaries, we examined POM models with
 
 $$
-\delta = 1.5, 2, 2.5, \text{and } 3,
+\delta = 1.5, 2, 2.5, 3.
 $$
 
-corresponding to increasingly aggressive variance stabilization.
+Across these specifications, the fitted curves and diagnostics revealed serious deficiencies. For many choices of $\delta$, the fitted Secchi–CHL curve becomes nearly flat—or even slightly increasing—across much of the CHL range, with an abrupt “upturn’’ only for CHL > 40. This behavior contradicts the strongly decreasing relationship evident in the raw data and in the GLM fits.
 
-However, the fitted curves and residual diagnostics for these PoM models reveal substantial problems. For several choices of $\delta$, the fitted Secchi–CHL relationship becomes biologically and statistically implausible: the fitted curve is essentially flat or even slightly increasing over much of the CHL range, with a pronounced and unrealistic “upturn” only appearing for CHL values above about 40. This behavior contradicts the clearly decreasing pattern seen in the raw data and in the GLM fits.
+Residual diagnostics reinforce this conclusion: even after weighting by $\mu(x)^{-2\delta}$, substantial heteroscedasticity and structure remain. Large residuals persist at both low and moderate CHL, and the spread does not stabilize across fitted means, indicating that the assumed PoM variance form does not capture the true mean–variance relationship.
 
-The residual plots tell a similar story. Even after weighting by $\mu(x)^{-2\delta}$, the residuals exhibit strong heteroskedasticity and systematic patterns across CHL, indicating that the assumed PoM variance structure does not adequately capture the true mean–variance relationship. In particular, large residuals persist at both low and moderate CHL values, and the spread of residuals does not appear stable across the range of fitted means.
+Thus, although the Box–Cox diagnostics initially suggested exploring PoM additive models, the resulting fits are not adequate. They fail to reproduce the observed curvature and do not resolve the heteroscedasticity present in the linear and TBS fits. The Gamma GLM with inverse link remains far superior.
 
-Taken together, these issues suggest that, although the Box–Cox diagnostics motivated exploring PoM models, the resulting fits are not adequate descriptions of the Secchi–CHL relationship. The power-of-the-mean additive error models considered here fail to reconcile the observed curvature and variance pattern, and are therefore not competitive with the Gamma GLM with inverse link as candidates for the overall model.
-
-These PoM models, however, were all specified directly in terms of CHL as the predictor. Given that Secchi depth is itself a measure of light penetration through the water column, it may be more natural to re-express the model in terms of a volumetric or “optical” argument that directly links depth to the amount of material (CHL) per unit volume.  This motivates a further exploration based on a simple disk–volume construction.
+Notably, the PoM models above were all formulated directly with CHL as the predictor. Because Secchi depth reflects light penetration through a water column, it may be more natural to re-express the model in terms of a simple geometric argument linking depth to the amount of material per unit volume. This motivates the "cylinder" formulation considered next.
 
 ### A Possibly Better Approach? Disk & Volume 
 
-The initial motivation for a different additive formulation comes from a simple geometric argument relating Secchi depth to the volume of water above the disk. Suppose the visible water column above the Secchi disk can be idealized as a cone with radius $r$ and height $h$, where $h$ is the Secchi depth. 
-
-The volume of this cone is
+The motivation for an additive model based on $1/\mathrm{CHL}$ follows from a simple geometric argument. If the visible water column above the Secchi disk is approximated as a **cylinder** of radius $r$ and height $h$ (the Secchi depth), then its volume is
 
 $$
-V = \pi r^2 \frac{h}{3}.
-$$
-
-Solving for depth gives
-
-$$
-h = \frac{3V}{\pi r^2}.
-$$
-
-Chlorophyll concentration, $\text{CHL}$, is measured as mass per unit volume (e.g., $\mu g/L$). If we think of $V$ as the volume of water above the disk, then the total amount of chlorophyll in that column is proportional to $\text{CHL} \times V$. Under a highly simplified view where “visibility” is determined by a roughly fixed amount of material above the disk (i.e., a fixed effective mass of chlorophyll obscuring the disk), we would have
-
-$$
-\text{CHL} \times V \approx \text{constant},
-$$
-
-so that $V \propto 1/\text{CHL}$. 
-
-Substituting back into the expression for $h$ yields
-
-$$
-h \propto \frac{V}{r^2} \propto \frac{1}{\text{CHL}},
-$$
-
-suggesting that Secchi depth should be approximately inversely related to CHL.
-
-This heuristic argument supports modeling Secchi depth as a decreasing function of $1/\text{CHL}$ rather than CHL itself. 
-
-In the additive error framework, this leads us to consider models of the form
-
-$$
-\text{Secchi}_i = \beta_0 + \beta_1 \frac{1}{\text{CHL}_i} + \varepsilon_i,
-$$
-
-and, in the transform-both-sides setting,
-
-$$
-\text{Secchi}_i^{1/3} = \gamma_0 + \gamma_1 \left(\frac{1}{\text{CHL}_i}\right)^{1/3} + e_i,
-$$
-
-which retain the decreasing relationship, avoid explosive behavior at low Secchi depths, and align with the reciprocal structure suggested by the disk–volume mechanism.
-
-In practice, these reciprocal and transform-both-sides models produce smoother fitted curves than the earlier PoM fits and offer some improvement in variance stabilization on the transformed scale. However, their residual diagnostics are still not as clean as those of the Gamma GLM with inverse link, so we treat them as useful supporting models rather than as the primary overall model for Secchi depth.
-
-```{r power-setup3, message=FALSE, warning=FALSE, echo=FALSE}
-## Base fit to get mu0 for the power-of-the-mean variance model
-base_fit_secchi <- lm(secchi ~ I(1/chl), data = lakesDat)
-mu0_secchi      <- pmax(fitted(base_fit_secchi), 0.01)  # ensure positivity
-
-fit_power_model_secchi <- function(delta) {
-  ## Var(Y | X) ∝ mu^(2 * delta), weights = 1 / mu^(2 * delta)
-  w   <- 1 / (mu0_secchi^(2 * delta))
-  fit <- lm(secchi ~ chl, data = lakesDat, weights = w)
-  list(delta = delta, fit = fit)
-}
-
-## Use larger deltas: 1.5, 2, 2.5, 3
-deltas_secchi <- c(1.5, 2, 2.5, 3)
-secchi_fits   <- lapply(deltas_secchi, fit_power_model_secchi)
-names(secchi_fits) <- paste0("delta_", deltas_secchi)
-```
-
-```{r power-residuals1, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8}
-par(mfrow = c(2, 2),
-    mar   = c(4, 4, 3, 1),
-    oma   = c(0, 0, 0, 0))
-
-for (obj in secchi_fits) {
-  fit   <- obj$fit
-  delta <- obj$delta
-
-  plot(fitted(fit), rstudent(fit),
-       pch  = 1, col = "black",
-       xlab = "Fitted Secchi",
-       ylab = "Studentized residual",
-       main = paste("Residuals vs Fitted\n(delta =", delta, ")"))
-  abline(h = 0, lty = 2)
-}
-
-par(mfrow = c(1, 1))
-```
-
-\newpage
-
-```{r power-fitted-curves3, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8}
-chl_grid <- seq(min(lakesDat$chl, na.rm = TRUE),
-                max(lakesDat$chl, na.rm = TRUE),
-                length.out = 300)
-X_grid_secchi <- cbind(1, chl_grid)
-
-predict_curve_secchi <- function(obj) {
-  fit    <- obj$fit
-  delta  <- obj$delta
-  mu_hat <- as.vector(X_grid_secchi %*% coef(fit))  # fitted mean secchi
-  list(delta = delta, chl = chl_grid, mu = mu_hat)
-}
-
-secchi_curves <- lapply(secchi_fits, predict_curve_secchi)
-
-par(mfrow = c(2, 2),
-    mar   = c(4, 4, 3, 1),
-    oma   = c(0, 0, 0, 0))
-
-for (crv in secchi_curves) {
-  plot(lakesDat$chl, lakesDat$secchi,
-       pch = 1, col = "black",
-       xlab = "CHL", ylab = "Secchi",
-       main = paste("Fitted Mean Curve\n(delta =", crv$delta, ")"))
-
-  lines(crv$chl, crv$mu, lwd = 3, col = "blue")
-}
-
-par(mfrow = c(1, 1))
-```
-
-The development of this model parallels the geometric reasoning used in earlier examples, such as:
-
-* the tree-trunk cylinder model, where diameter and height jointly determine volume; and
-* the walleye cuboid example, where body depth and length jointly determine weight.
-
-In both cases, the response variable is interpreted as a geometric function of the underlying physical structure, and a seemingly nonlinear biological curve becomes linear after expressing the response against an appropriate geometric predictor.
-
-Here, we apply the same logic to Secchi depth. If the visible water column above the disk is idealized as a cone (as argued in the previous section), then Secchi depth is inversely related to the amount of material (i.e., chlorophyll) in the water column. This motivates an additive model built on $1/\mathrm{CHL}$ rather than $\mathrm{CHL}$ itself, just as the tree-diameter and fish-body-depth examples motivated transforming their predictors before fitting.
-
-We have: 
-
-$$
-x = \mathrm{CHL}, \qquad
-\phi = \frac{1}{x}, \qquad
-Y = \mathrm{Secchi\ depth}.
-$$
-
-We fit an additive linear model in the transformed predictor
-
-$$
-Y = \beta_0 + \beta_1,\phi + \varepsilon,
+V = \pi r^{2} h,
 \qquad
-\mathbb{E}[\varepsilon \mid \phi] = 0.
+h = \frac{V}{\pi r^{2}}.
 $$
 
-so that
+Chlorophyll concentration (CHL) is measured as mass per unit volume. If visibility is lost once a roughly fixed mass of chlorophyll is present above the disk, then
 
 $$
-\mathbb{E}[Y \mid \phi] = \beta_0 + \beta_1,\phi.
+\mathrm{CHL} \times V \approx \text{constant},
+\qquad
+V \propto \frac{1}{\mathrm{CHL}},
 $$
 
-This is directly analogous to the straight-line model in the tree-diameter or walleye-body-depth examples, except the biologically meaningful predictor is now $1/\mathrm{CHL}$.
-
-Now we express the mean as a function of CHL
+and therefore
 
 $$
-m(x)
-= \mathbb{E}[Y \mid x]
-= \beta_0 + \frac{\beta_1}{x},
+h \propto \frac{1}{\mathrm{CHL}}.
 $$
 
-a reciprocal curve that is steep when CHL is low and gradually flattens, just like the concave-down fish-weight and tree-volume curves in the earlier examples.
-
-To stabilize variance, we also apply the same cube-root transform-both-sides logic used in the walleye example, where weight was linearized after transforming both sides.
-
-Let
+This suggests a reciprocal relationship between Secchi depth and CHL, motivating an additive model in the transformed predictor $\phi = 1/\mathrm{CHL}$:
 
 $$
-Z = Y^{1/3}, \qquad
-\psi = \phi^{1/3} = x^{-1/3}.
+Y_i = \beta_0 + \beta_1 \phi_i + \varepsilon_i,
+\qquad
+\mathbb{E}[\varepsilon_i \mid \phi_i] = 0.
 $$
 
-Fit
+Expressed in the original CHL scale,
 
 $$
-Z = \alpha_0 + \alpha_1,\psi + \eta,
+m(x) = \mathbb{E}[Y \mid x] = \beta_0 + \frac{\beta_1}{x},
+$$
+
+a reciprocal curve that is steep for low CHL and gradually flattens as CHL increases. This parallels the geometric reasoning in the textbook *tree-trunk* and *walleye* examples, where physical arguments yield linearity after transforming the predictor.
+
+Residual diagnostics for this reciprocal model still show heteroscedasticity. Following the cube-root approach used in the fish-weight example, we apply a transform-both-sides model:
+
+$$
+Z = Y^{1/3},
+\qquad
+\psi = \phi^{1/3} = x^{-1/3},
+$$
+
+and fit
+
+$$
+Z = \alpha_0 + \alpha_1 \psi + \eta,
 \qquad
 \mathbb{E}[\eta \mid \psi] = 0.
 $$
 
-Then
+Back-transforming yields the approximate mean function
 
 $$
-\mathbb{E}[Z \mid x]
-= \alpha_0 + \alpha_1 x^{-1/3}
-\quad \Longrightarrow \quad
-\mathbb{E}[Y \mid x]
-\approx
-\left(\alpha_0 + \alpha_1 x^{-1/3}\right)^3.
+m(x) \approx \big(\alpha_0 + \alpha_1 x^{-1/3}\big)^3,
 $$
 
-This reproduces the same modeling pattern as the cube-root fish-weight example: a straight line on the transformed scale becomes a smooth, strictly decreasing nonlinear curve on the original scale.
+a smooth, strictly decreasing curve analogous to the cube-root linearization in the fish-weight model.
 
-```{r secchi-phi-basic, message=FALSE, warning=FALSE, echo=FALSE, fig.height = 10, fig.width = 10}
-par(mfrow = c(2, 1),
-    mar = c(4, 4, 3, 1),
-    oma = c(0, 0, 0, 0),
-    xaxs = "i", yaxs = "i")
-## Define phi = 1 / CHL
-lakesDat$phi <- 1 / lakesDat$chl
+<!-- # ```{r secchi-phi-basic, message=FALSE, warning=FALSE, echo=FALSE, fig.height = 10, fig.width = 10} -->
+<!-- # par(mfrow = c(2, 1), -->
+<!-- #     mar = c(4, 4, 3, 1), -->
+<!-- #     oma = c(0, 0, 0, 0), -->
+<!-- #     xaxs = "i", yaxs = "i") -->
+<!-- # ## Define phi = 1 / CHL -->
+<!-- # lakesDat$phi <- 1 / lakesDat$chl -->
+<!-- #  -->
+<!-- # ## Fit additive model on transformed predictor (no summary printed) -->
+<!-- # fit_phi <- lm(secchi ~ phi, data = lakesDat) -->
+<!-- #  -->
+<!-- # ############################################################ -->
+<!-- # ## --- 1. FITTED CURVE (FIRST) ------------------------------ -->
+<!-- # ############################################################ -->
+<!-- #  -->
+<!-- # plot(lakesDat$chl, lakesDat$secchi, -->
+<!-- #      xlab = "CHL", ylab = "Secchi depth", -->
+<!-- #      main = "Fitted Curve (Secchi ~ 1/CHL)") -->
+<!-- #  -->
+<!-- # chl.grid <- seq(min(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 max(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 length.out = 200) -->
+<!-- #  -->
+<!-- # pred_sec <- predict(fit_phi, -->
+<!-- #                     newdata = data.frame(phi = 1 / chl.grid)) -->
+<!-- #  -->
+<!-- # lines(chl.grid, pred_sec, col = "red", lwd = 2) -->
+<!-- #  -->
+<!-- # ############################################################ -->
+<!-- # ## --- 2. RESIDUALS VS FITTED (SECOND) ---------------------- -->
+<!-- # ############################################################ -->
+<!-- #  -->
+<!-- # stud_resid <- rstudent(fit_phi) -->
+<!-- #  -->
+<!-- # plot(fitted(fit_phi), stud_resid, -->
+<!-- #      xlab = "Fitted values", -->
+<!-- #      ylab = "Studentized residuals", -->
+<!-- #      main = "Studentized residuals vs Fitted\n(Secchi ~ 1/CHL)") -->
+<!-- #  -->
+<!-- # abline(h = 0, lty = 2) -->
+<!-- #  -->
+<!-- # ``` -->
 
-## Fit additive model on transformed predictor (no summary printed)
-fit_phi <- lm(secchi ~ phi, data = lakesDat)
+<!-- # ```{r secchi-phi-cuberoot, message=FALSE, warning=FALSE, echo=FALSE, fig.height = 10, fig.width = 10} -->
+<!-- # par(mfrow = c(2, 1), -->
+<!-- #     mar = c(4, 4, 3, 1), -->
+<!-- #     oma = c(0, 0, 0, 0), -->
+<!-- #     xaxs = "i", yaxs = "i") -->
+<!-- #  -->
+<!-- # ## Transform both response and predictor -->
+<!-- # lakesDat$phi       <- 1 / lakesDat$chl -->
+<!-- # lakesDat$secchi_cr <- lakesDat$secchi^(1/3) -->
+<!-- # lakesDat$phi_cr    <- lakesDat$phi^(1/3) -->
+<!-- #  -->
+<!-- # fit_phi_cr <- lm(secchi_cr ~ phi_cr, data = lakesDat) -->
+<!-- #  -->
+<!-- # ############################################################ -->
+<!-- # ## --- 1. FITTED CURVE ON TOP ------------------------------ -->
+<!-- # ############################################################ -->
+<!-- #  -->
+<!-- # plot(lakesDat$chl, lakesDat$secchi, -->
+<!-- #      xlab = "CHL", ylab = "Secchi depth", -->
+<!-- #      main = "Fitted Curve: Secchi^(1/3) ~ (1/CHL)^(1/3)") -->
+<!-- #  -->
+<!-- # chl.grid <- seq(min(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 max(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 length.out = 200) -->
+<!-- #  -->
+<!-- # phi_cr_grid <- (1 / chl.grid)^(1/3) -->
+<!-- #  -->
+<!-- # pred_cr <- predict(fit_phi_cr, -->
+<!-- #                    newdata = data.frame(phi_cr = phi_cr_grid)) -->
+<!-- #  -->
+<!-- # pred_secchi <- pred_cr^3   # back-transform -->
+<!-- #  -->
+<!-- # lines(chl.grid, pred_secchi, col = "red", lwd = 2) -->
+<!-- #  -->
+<!-- # ############################################################ -->
+<!-- # ## --- 2. RESIDUALS ON BOTTOM ------------------------------ -->
+<!-- # ############################################################ -->
+<!-- #  -->
+<!-- # stud_resid <- rstudent(fit_phi_cr) -->
+<!-- #  -->
+<!-- # plot(fitted(fit_phi_cr), stud_resid, -->
+<!-- #      xlab = "Fitted values (cube-root scale)", -->
+<!-- #      ylab = "Studentized residuals", -->
+<!-- #      main = "Studentized residuals vs Fitted\n(Secchi^(1/3) ~ (1/CHL)^(1/3))") -->
+<!-- #  -->
+<!-- # abline(h = 0, lty = 2) -->
+<!-- #  -->
+<!-- # ``` -->
 
-############################################################
-## --- 1. FITTED CURVE (FIRST) ------------------------------
-############################################################
+<!-- # ```{r secchi-phi-pom, message=FALSE, warning=FALSE, echo=FALSE} -->
+<!-- # ## Base additive model on phi = 1/CHL -->
+<!-- # lakesDat$phi <- 1 / lakesDat$chl -->
+<!-- # fit_phi <- lm(secchi ~ phi, data = lakesDat) -->
+<!-- #  -->
+<!-- # mu_hat <- fitted(fit_phi)   # estimated mean secchi -->
+<!-- # e_hat  <- resid(fit_phi)    # residuals -->
+<!-- #  -->
+<!-- # ## Auxiliary regression to estimate delta -->
+<!-- # aux <- lm(log(e_hat^2) ~ log(mu_hat)) -->
+<!-- # # coef(aux) -->
+<!-- # delta_hat <- 0.5 * coef(aux)[2]   # slope $\approx$ 2*delta => delta = slope/2 -->
+<!-- # # delta_hat -->
+<!-- #  -->
+<!-- # delta_hat1 <- 0.5 -->
+<!-- # delta_hat2 <- 0.75 -->
+<!-- #  -->
+<!-- # par(mfrow = c(2, 2), -->
+<!-- #     mar = c(4, 4, 3, 1), -->
+<!-- #     oma = c(0, 0, 0, 0), -->
+<!-- #     xaxs = "i", yaxs = "i") -->
+<!-- #  -->
+<!-- # ############################################################ -->
+<!-- # ## --- 1. FITTED (delta = 0.5) ----------------------------- -->
+<!-- # ############################################################ -->
+<!-- #  -->
+<!-- # w1 <- 1 / (mu_hat^(2 * delta_hat1)) -->
+<!-- # fit_phi_pom1 <- lm(secchi ~ phi, data = lakesDat, weights = w1) -->
+<!-- #  -->
+<!-- # plot(lakesDat$chl, lakesDat$secchi, -->
+<!-- #      xlab = "CHL", ylab = "Secchi depth", -->
+<!-- #      main = "Fitted Curve (delta = 0.5)") -->
+<!-- # chl.grid <- seq(min(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 max(lakesDat$chl, na.rm = TRUE), -->
+<!-- #                 length.out = 200) -->
+<!-- # pred1 <- predict(fit_phi_pom1, -->
+<!-- #                  newdata = data.frame(phi = 1 / chl.grid)) -->
+<!-- # lines(chl.grid, pred1, col = "red", lwd = 2) -->
+<!-- #  -->
+<!-- # ############################################################ -->
+<!-- # ## --- 2. FITTED (delta = 0.75) ---------------------------- -->
+<!-- # ############################################################ -->
+<!-- #  -->
+<!-- # w2 <- 1 / (mu_hat^(2 * delta_hat2)) -->
+<!-- # fit_phi_pom2 <- lm(secchi ~ phi, data = lakesDat, weights = w2) -->
+<!-- #  -->
+<!-- # plot(lakesDat$chl, lakesDat$secchi, -->
+<!-- #      xlab = "CHL", ylab = "Secchi depth", -->
+<!-- #      main = "Fitted Curve (delta = 0.75)") -->
+<!-- # pred2 <- predict(fit_phi_pom2, -->
+<!-- #                  newdata = data.frame(phi = 1 / chl.grid)) -->
+<!-- # lines(chl.grid, pred2, col = "red", lwd = 2) -->
+<!-- #  -->
+<!-- # ############################################################ -->
+<!-- # ## --- 3. RESIDUALS (delta = 0.5) -------------------------- -->
+<!-- # ############################################################ -->
+<!-- #  -->
+<!-- # stud_resid1 <- rstudent(fit_phi_pom1) -->
+<!-- # plot(fitted(fit_phi_pom1), stud_resid1, -->
+<!-- #      xlab = "Fitted values", -->
+<!-- #      ylab = "Studentized residuals", -->
+<!-- #      main = "Residuals vs Fitted (delta = 0.5)") -->
+<!-- # abline(h = 0, lty = 2) -->
+<!-- #  -->
+<!-- # ############################################################ -->
+<!-- # ## --- 4. RESIDUALS (delta = 0.75) ------------------------- -->
+<!-- # ############################################################ -->
+<!-- #  -->
+<!-- # stud_resid2 <- rstudent(fit_phi_pom2) -->
+<!-- # plot(fitted(fit_phi_pom2), stud_resid2, -->
+<!-- #      xlab = "Fitted values", -->
+<!-- #      ylab = "Studentized residuals", -->
+<!-- #      main = "Residuals vs Fitted (delta = 0.75)") -->
+<!-- # abline(h = 0, lty = 2) -->
+<!-- # ``` -->
 
-plot(lakesDat$chl, lakesDat$secchi,
-     xlab = "CHL", ylab = "Secchi depth",
-     main = "Fitted Curve (Secchi ~ 1/CHL)")
-
-chl.grid <- seq(min(lakesDat$chl, na.rm = TRUE),
-                max(lakesDat$chl, na.rm = TRUE),
-                length.out = 200)
-
-pred_sec <- predict(fit_phi,
-                    newdata = data.frame(phi = 1 / chl.grid))
-
-lines(chl.grid, pred_sec, col = "red", lwd = 2)
-
-############################################################
-## --- 2. RESIDUALS VS FITTED (SECOND) ----------------------
-############################################################
-
-stud_resid <- rstudent(fit_phi)
-
-plot(fitted(fit_phi), stud_resid,
-     xlab = "Fitted values",
-     ylab = "Studentized residuals",
-     main = "Studentized residuals vs Fitted\n(Secchi ~ 1/CHL)")
-
-abline(h = 0, lty = 2)
-
-```
-
-```{r secchi-phi-cuberoot, message=FALSE, warning=FALSE, echo=FALSE, fig.height = 10, fig.width = 10}
-par(mfrow = c(2, 1),
-    mar = c(4, 4, 3, 1),
-    oma = c(0, 0, 0, 0),
-    xaxs = "i", yaxs = "i")
-
-## Transform both response and predictor
-lakesDat$phi       <- 1 / lakesDat$chl
-lakesDat$secchi_cr <- lakesDat$secchi^(1/3)
-lakesDat$phi_cr    <- lakesDat$phi^(1/3)
-
-fit_phi_cr <- lm(secchi_cr ~ phi_cr, data = lakesDat)
-
-############################################################
-## --- 1. FITTED CURVE ON TOP ------------------------------
-############################################################
-
-plot(lakesDat$chl, lakesDat$secchi,
-     xlab = "CHL", ylab = "Secchi depth",
-     main = "Fitted Curve: Secchi^(1/3) ~ (1/CHL)^(1/3)")
-
-chl.grid <- seq(min(lakesDat$chl, na.rm = TRUE),
-                max(lakesDat$chl, na.rm = TRUE),
-                length.out = 200)
-
-phi_cr_grid <- (1 / chl.grid)^(1/3)
-
-pred_cr <- predict(fit_phi_cr,
-                   newdata = data.frame(phi_cr = phi_cr_grid))
-
-pred_secchi <- pred_cr^3   # back-transform
-
-lines(chl.grid, pred_secchi, col = "red", lwd = 2)
-
-############################################################
-## --- 2. RESIDUALS ON BOTTOM ------------------------------
-############################################################
-
-stud_resid <- rstudent(fit_phi_cr)
-
-plot(fitted(fit_phi_cr), stud_resid,
-     xlab = "Fitted values (cube-root scale)",
-     ylab = "Studentized residuals",
-     main = "Studentized residuals vs Fitted\n(Secchi^(1/3) ~ (1/CHL)^(1/3))")
-
-abline(h = 0, lty = 2)
-
-```
-
-```{r secchi-phi-pom, message=FALSE, warning=FALSE, echo=FALSE}
+```{r secchi-phi-pom-delta75, include = F, message=FALSE, warning=FALSE, echo=FALSE, fig.height=10, fig.width=10}
 ## Base additive model on phi = 1/CHL
 lakesDat$phi <- 1 / lakesDat$chl
 fit_phi <- lm(secchi ~ phi, data = lakesDat)
@@ -2182,85 +2101,66 @@ e_hat  <- resid(fit_phi)    # residuals
 ## Auxiliary regression to estimate delta
 aux <- lm(log(e_hat^2) ~ log(mu_hat))
 # coef(aux)
-delta_hat <- 0.5 * coef(aux)[2]   # slope ≈ 2*delta => delta = slope/2
-# delta_hat
-```
+delta_hat <- 0.5 * coef(aux)[2]   # slope $\approx$ 2*delta => delta = slope/2
+delta_hat <- 0.75
 
-```{r secchi-phi-pom-fits, message=FALSE, warning=FALSE, echo=FALSE, fig.height=10, fig.width=10}
-delta_hat1 <- 0.5
-delta_hat2 <- 0.75
-
-par(mfrow = c(2, 2),
+par(mfrow = c(2, 1),
     mar = c(4, 4, 3, 1),
     oma = c(0, 0, 0, 0),
     xaxs = "i", yaxs = "i")
 
 ############################################################
-## --- 1. FITTED (delta = 0.5) -----------------------------
+## --- 1. FITTED (delta = 0.75) ----------------------------
 ############################################################
 
-w1 <- 1 / (mu_hat^(2 * delta_hat1))
-fit_phi_pom1 <- lm(secchi ~ phi, data = lakesDat, weights = w1)
-
-plot(lakesDat$chl, lakesDat$secchi,
-     xlab = "CHL", ylab = "Secchi depth",
-     main = "Fitted Curve (delta = 0.5)")
-chl.grid <- seq(min(lakesDat$chl, na.rm = TRUE),
-                max(lakesDat$chl, na.rm = TRUE),
-                length.out = 200)
-pred1 <- predict(fit_phi_pom1,
-                 newdata = data.frame(phi = 1 / chl.grid))
-lines(chl.grid, pred1, col = "red", lwd = 2)
-
-############################################################
-## --- 2. FITTED (delta = 0.75) ----------------------------
-############################################################
-
-w2 <- 1 / (mu_hat^(2 * delta_hat2))
-fit_phi_pom2 <- lm(secchi ~ phi, data = lakesDat, weights = w2)
+w <- 1 / (mu_hat^(2 * delta_hat))
+fit_phi_pom <- lm(secchi ~ phi, data = lakesDat, weights = w)
 
 plot(lakesDat$chl, lakesDat$secchi,
      xlab = "CHL", ylab = "Secchi depth",
      main = "Fitted Curve (delta = 0.75)")
-pred2 <- predict(fit_phi_pom2,
-                 newdata = data.frame(phi = 1 / chl.grid))
-lines(chl.grid, pred2, col = "red", lwd = 2)
+
+chl.grid <- seq(min(lakesDat$chl, na.rm = TRUE),
+                max(lakesDat$chl, na.rm = TRUE),
+                length.out = 200)
+
+pred <- predict(fit_phi_pom,
+                newdata = data.frame(phi = 1 / chl.grid))
+
+lines(chl.grid, pred, col = "red", lwd = 2)
 
 ############################################################
-## --- 3. RESIDUALS (delta = 0.5) --------------------------
+## --- 2. RESIDUALS (delta = 0.75) -------------------------
 ############################################################
 
-stud_resid1 <- rstudent(fit_phi_pom1)
-plot(fitted(fit_phi_pom1), stud_resid1,
-     xlab = "Fitted values",
-     ylab = "Studentized residuals",
-     main = "Residuals vs Fitted (delta = 0.5)")
-abline(h = 0, lty = 2)
+stud_resid <- rstudent(fit_phi_pom)
 
-############################################################
-## --- 4. RESIDUALS (delta = 0.75) -------------------------
-############################################################
-
-stud_resid2 <- rstudent(fit_phi_pom2)
-plot(fitted(fit_phi_pom2), stud_resid2,
+plot(fitted(fit_phi_pom), stud_resid,
      xlab = "Fitted values",
      ylab = "Studentized residuals",
      main = "Residuals vs Fitted (delta = 0.75)")
 abline(h = 0, lty = 2)
 ```
 
-Although the simple reciprocal additive model and its cube-root transform-both-sides version both capture the basic decreasing shape, neither achieves satisfactory variance stabilization on its own. The Power-of-the-Mean extensions with $\delta = 0.5$ and $\delta = 0.75$ provide the best performance among the additive models we explored, offering partial variance stabilization and smooth reciprocal curves. However, even these PoM-weighted fits retain visible structure in the residuals and do not match the quality of the Gamma GLM with inverse link. As a result, the only additive models that might reasonably be considered “adequate” are the reciprocal TBS model and the reciprocal PoM models with $\delta = 0.5$ or $\delta = 0.75$, but they remain secondary to—rather than competitors with—the Gamma GLM selected as the overall model.
+Although both the reciprocal additive model and its cube-root transform-both-sides (TBS) version capture the general decreasing trend, neither provides satisfactory variance stabilization. The power-of-the-mean (PoM) extensions with $\delta = 0.5$ and $\delta = 0.75$ perform the best among the additive models considered, producing smoother reciprocal curves and partially stabilizing the variance. However, even these weighted fits retain visible structure in the residuals and fall short of the diagnostic quality achieved by the Gamma GLM with inverse link.
 
-Between the two power-of-mean specifications considered, $\delta = 0.75$ produced a marginally better high-end (large CHL) fit: the tail of the fitted curve adhered more closely to the empirical Secchi pattern than the $\delta = 0.5$ model.
+Consequently, the only additive models that might be viewed as “adequate” are the reciprocal TBS model and the PoM models with $\delta = 0.5$ or $\delta = 0.75$, but these remain supportive rather than competitive alternatives. They help confirm the reciprocal relationship suggested by the geometric argument, but they do not match the interpretability, stability, or overall fit of the selected Gamma GLM.
+
+Between the two PoM specifications, $\delta = 0.75$ provided slightly better performance at high CHL values: the fitted curve tracked the observed decline in Secchi depth more closely in the upper tail than the corresponding $\delta = 0.5$ model.
+
+*Note:* The “best” additive model is not presented in full here, but its fitted curve and representative residual diagnostics appear in the figures that follow.
 
 ## Comparing Models 
 
-Adequate models considered were:
-
-* Gamma GLM with inverse link
-* Power-of-the-mean additive error model with $\delta = 0.75$ with cube root variance stabilizing transformation (TBS)
-
 ```{r secchi-phi-pom-fits2, message=FALSE, warning=FALSE, echo=FALSE, fig.height=10, fig.width=10}
+layout(matrix(c(1, 1,
+                2, 3),
+              nrow = 2, byrow = TRUE))
+
+par(mar = c(4, 4, 3, 1),
+    oma = c(0, 0, 0, 0),
+    xaxs = "i", yaxs = "i")
+
 ## ============================================
 ## Precompute prediction grid
 ## ============================================
@@ -2274,7 +2174,10 @@ z975 <- qnorm(0.975)  # for 95% CI
 ## ============================================
 ## 1. POM delta = 0.75: fitted curve + 95% CI
 ## ============================================
-
+delta_hat2 <- 0.75
+w2 <- 1 / (mu_hat^(2 * delta_hat2))
+fit_phi_pom2 <- lm(secchi ~ phi, data = lakesDat, weights = w2)
+  
 pom075_pred <- predict(
   fit_phi_pom2,
   newdata = data.frame(phi = 1 / chl.grid),
@@ -2343,24 +2246,111 @@ legend("topright",
        lty    = c(1, 1, 3, 2),
        lwd    = c(2, 3, 1, 1),
        bty    = "n")
+
+
+## ============================================
+## Precompute prediction grid
+## ============================================
+chl.grid <- seq(min(lakesDat$chl, na.rm = TRUE),
+                max(lakesDat$chl, na.rm = TRUE),
+                length.out = 400)
+
+z975 <- qnorm(0.975)  # for 95% CI
+
+
+## ============================================
+## 1. POM delta = 0.75: fitted curve + 95% CI
+## ============================================
+delta_hat2 <- 0.75
+w2 <- 1 / (mu_hat^(2 * delta_hat2))
+fit_phi_pom2 <- lm(secchi ~ phi, data = lakesDat, weights = w2)
+  
+pom075_pred <- predict(
+  fit_phi_pom2,
+  newdata = data.frame(phi = 1 / chl.grid),
+  se.fit  = TRUE
+)
+
+fit_pom075 <- pom075_pred$fit
+se_pom075  <- pom075_pred$se.fit
+
+lo_pom075 <- fit_pom075 - z975 * se_pom075
+hi_pom075 <- fit_pom075 + z975 * se_pom075
+
+
+## ============================================
+## 2. Gamma GLM (inverse link): fitted curve + 95% CI
+##      mu(x) = 1 / eta,   eta = X * beta
+## ============================================
+
+X_grid <- cbind(1, chl.grid)
+
+beta_g <- mod_gamma_inv$estb[, 1]
+V_g    <- mod_gamma_inv$invinf
+
+eta_g    <- as.vector(X_grid %*% beta_g)
+se_eta_g <- sqrt(rowSums((X_grid %*% V_g) * X_grid))
+
+eta_lo_g <- eta_g - z975 * se_eta_g
+eta_hi_g <- eta_g + z975 * se_eta_g
+
+## inverse link: mu = 1 / eta  (monotone decreasing)
+mu_g    <- 1 / eta_g
+mu_lo_g <- 1 / eta_hi_g   # swap hi/lo on eta
+mu_hi_g <- 1 / eta_lo_g
+
+## ============================================
+## PANEL 2 (bottom-left): GLM studentized deviance residuals
+## ============================================
+# GAMMA
+mu_g       <- mod_gamma_inv$vals$muhat
+res_g_p    <- mod_gamma_inv$vals$pearsonres
+res_g_dev  <- mod_gamma_inv$vals$devres
+res_g_std  <- mod_gamma_inv$vals$stdevres
+
+stud_dev_g <- res_g_std
+
+plot(mod_gamma_inv$vals$muhat, stud_dev_g,
+     xlab = "Fitted values (Gamma GLM)",
+     ylab = "Studentized deviance residuals",
+     main = "Gamma GLM: deviance residuals")
+abline(h = 0, lty = 2)
+
+## ============================================
+## PANEL 3 (bottom-right): 2/3-root |studentized residuals|
+##      for PoM additive error model (delta = 0.75)
+## ============================================
+
+stud_pom <- rstudent(fit_phi_pom2)
+trans_pom <- abs(stud_pom)^(2/3)
+
+plot(fitted(fit_phi_pom2), trans_pom,
+     xlab = "Fitted values (PoM, delta = 0.75)",
+     ylab = expression("|studentized residual|^{2/3}"),
+     main = "PoM (delta = 0.75): 2/3-root |stud. residuals|")
 ```
 
-Overall, the Gamma GLM provides the best combination of fit quality, stability, and interpretability, and is therefore the preferred model. The rationale is as follows: Although both the Gamma GLM (inverse link) and the PoM–TBS model with $\delta = 0.75$ produce broadly similar fitted curves, several features favor the Gamma GLM:
+The two models that performed adequately were the Gamma GLM with an inverse link and the power-of-the-mean additive model with $\delta = 0.75$ combined with a cube-root TBS transformation. Although both produce broadly similar decreasing curves, the Gamma GLM remains the preferred model.
 
-1. **Correct mean–variance structure.**
-   The Gamma model naturally encodes $\operatorname{Var}(Y\mid x)=\phi,\mu(x)^2$, which matches the heteroscedasticity in Secchi depth.
-   The PoM–TBS model imposes a variance structure through estimated weights and is more sensitive to instability in $\hat\mu$.
+First, the Gamma GLM naturally encodes the variance structure
+$$\operatorname{Var}(Y\mid x)=\phi,\mu(x)^2,$$
+which closely matches the heteroscedasticity observed in Secchi depth. The PoM–TBS model, by contrast, imposes variance stabilization through estimated weights, making it more sensitive to instability in the fitted means and more prone to irregularities at the extremes of CHL.
 
-2. **More stable fitted curve and bands.**
-   The Gamma GLM yields a smooth monotone decreasing curve with tight, regular confidence intervals.
-   The PoM curve flattens at high CHL and its CI flares at both ends because of back-transformation and weight sensitivity.
+Second, the fitted curve and confidence intervals from the Gamma GLM are smoother and more stable across the entire CHL range. The PoM–TBS curve tends to flatten at higher CHL values, and its confidence bands widen noticeably at both ends due to back-transformation and weight variability.
 
-3. **Better residual behavior.**
-   Earlier diagnostics showed the Gamma GLM’s deviance residuals were well-behaved, while the PoM model retained curvature and uneven spread.
+Residual diagnostics also favor the Gamma GLM: the deviance and studentized residuals are centered, approximately symmetric, and exhibit no major patterns. The PoM–TBS model retains curvature and uneven spread, indicating that its variance adjustments remain incomplete.
 
-4. **Simpler interpretation.**
-   The GLM mean $\mu(x)=1/(\beta_0+\beta_1 x)$ is biologically interpretable and does not require back-transformation.
-   The PoM–TBS model requires transforming both sides and back-transforming the mean $(\alpha_0+\alpha_1 x^{-1/3})^3$, making inference more cumbersome.
+Finally, the Gamma GLM is simpler to interpret. The mean function
+
+$$\mu(x)=\frac{1}{\beta_0+\beta_1 x}$$
+
+is directly interpretable on the original scale. The PoM–TBS model requires transforming both sides and then back-transforming
+
+$$m(x)\approx(\alpha_0+\alpha_1 x^{-1/3})^3,$$
+
+which complicates inference, especially for quantities beyond the mean.
+
+Taken together, these considerations make the Gamma GLM with inverse link the most coherent and reliable modeling choice for the region-specific comparisons that follow.
 
 ## Applying to Regions 
 
@@ -2406,7 +2396,7 @@ coef_tab <- rbind(
 )
 ```
 
-```{r, message=F, warning=F, echo=F, fig.height=6, fig.width=10}
+```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
 ## ----- Coefficient table ----- ##
 kableExtra::kbl(
   coef_tab,
@@ -2490,7 +2480,15 @@ par(mfrow = c(1, 2),
 z95 <- qnorm(0.975)
 ```
 
-```{r overlay-plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.height=6, fig.width=8}
+```{r overlay-plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=10}
+layout(matrix(c(1, 1,
+                2, 3),
+              nrow = 2, byrow = TRUE))
+
+par(mar = c(4, 4, 3, 1),
+    oma = c(0, 0, 0, 0),
+    xaxs = "i", yaxs = "i")
+
 ## ---- GLOBAL SCALES WITH PADDING (CHL, Secchi) ---- ##
 x_range_raw <- range(lakesDat$chl,    na.rm = TRUE)
 y_range_raw <- range(lakesDat$secchi, na.rm = TRUE)
@@ -2552,9 +2550,9 @@ mu_lo_o <- 1 / eta_hi_o
 mu_hi_o <- 1 / eta_lo_o
 
 ## ---- PLOT PANEL ---- ##
-par(mfrow = c(1,1),
-    mar = c(4,4,2,1),
-    xaxs = "i", yaxs = "i")
+# par(mfrow = c(1,1),
+#     mar = c(4,4,2,1),
+#     xaxs = "i", yaxs = "i")
 
 plot(lakesDat$chl, lakesDat$secchi,
      xlab = "CHL",
@@ -2582,13 +2580,10 @@ legend("topleft",
        lwd    = c(2, 1, 2, 1),
        bty    = "n")
 
-```
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=10}
-par(mfrow = c(2, 1),
-    mar = c(4, 4, 3, 1),
-    oma = c(0, 0, 0, 0),
-    xaxs = "i", yaxs = "i")
+# par(mfrow = c(2, 1),
+#     mar = c(4, 4, 3, 1),
+#     oma = c(0, 0, 0, 0),
+#     xaxs = "i", yaxs = "i")
 
 ## Plains
 plot(mod_gamma_inv_plains$vals$muhat,
@@ -2608,8 +2603,10 @@ plot(mod_gamma_inv_ozark$vals$muhat,
      pch = 1)
 abline(h = 0, lty = 2)
 
-par(mfrow = c(1, 1))
+# par(mfrow = c(1, 1))
+```
 
+```{r overlay-plot4, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=8}
 kable(
   data.frame(
     Region          = c("Plains", "Ozarks"),
@@ -2622,45 +2619,48 @@ kable(
 
 ## Interpreting the Model & Results  
 
-Across both regions, Secchi depth shows the same basic negative and nonlinear relationship with chlorophyll. Secchi decreases as CHL increases, and the Gamma GLM with an inverse link provides a clear and biologically reasonable description of this pattern. When the model is fit separately to the Plains and the Ozarks using the same structure, the shape of the Secchi to CHL curve is the same in both regions. This indicates that the underlying process linking light attenuation to chlorophyll concentration is shared across Missouri lakes.
+Across both regions, Secchi depth exhibits the same basic negative and nonlinear relationship with chlorophyll: Secchi decreases as CHL increases, and the Gamma GLM with inverse link provides a coherent and biologically reasonable description of this pattern. When the model is fit separately to the Plains and the Ozarks using the same structure, the *shape* of the Secchi–CHL curve is essentially identical across regions, indicating that the underlying light–attenuation mechanism operates similarly throughout Missouri lakes.
 
-However, the strength of the relationship differs in a meaningful way. The fitted curves show a clear vertical separation between the two regions. For any fixed CHL value, the Plains consistently have higher Secchi depth than the Ozarks. This difference appears even at low CHL values, where Secchi in the Plains is roughly 1.7 to 2.5 meters compared to about 1.3 to 2.0 meters in the Ozarks. The separation grows as CHL increases. By CHL values around 20 to 30, the regional curves are clearly distinct, and their 95 percent confidence bands show little overlap.
+The *magnitude* of the response, however, differs in a consistent way. For any fixed CHL value, the Plains exhibit higher Secchi depth than the Ozarks. This vertical separation appears even at low CHL values (Plains Secchi roughly 1.7–2.5 m vs. 1.3–2.0 m in the Ozarks) and becomes more pronounced as CHL increases. By CHL values near 20–30, the fitted curves are clearly distinct and their 95% confidence bands show minimal overlap.
 
-The coefficient estimates reinforce this pattern. The Plains and Ozarks have almost identical slopes on the inverse link scale, which means the rate at which Secchi decreases with CHL is similar. But the Ozarks have a smaller fitted intercept, which corresponds to lower overall Secchi depth across the entire CHL range. This suggests that Ozark lakes experience stronger light attenuation for the same amount of chlorophyll.
+The coefficient estimates reflect the same pattern. The two regions have nearly identical slopes on the inverse–link scale, implying similar rates at which Secchi declines with CHL. The intercepts differ, however: the Ozarks have a smaller fitted intercept, translating to uniformly lower Secchi depth across the entire CHL range. This suggests greater light attenuation in Ozark lakes for the same chlorophyll concentration.
 
-Residual diagnostics show that the model fits both regions well and does not point to different functional forms or variance patterns. This means the observed separation reflects true regional differences rather than modeling issues.
+Residual diagnostics indicate that the Gamma GLM fits both regions well, with no evidence of differing functional forms or dispersion patterns. Thus, the observed separation in Secchi depth represents a genuine regional difference rather than a modeling artifact.
 
-In summary, the two regions share the same basic biological relationship between Secchi depth and chlorophyll, but differ in overall clarity. Ozark lakes have consistently lower Secchi depth than Plains lakes for the same CHL values.
+In summary, the Plains and Ozarks share the same functional Secchi–CHL relationship, but differ in overall water clarity: Ozark lakes exhibit consistently lower Secchi depth than Plains lakes at matched CHL levels.
 
 \newpage
 
 # Q3: LRT SECCHI & CHL (Plains vs. Ozarks)
 
-Let $Y_{gi}$ denote Secchi depth for observation $i$ in region $g \in {P,O}$ (Plains, Ozarks), with covariate $x_{gi} = \text{CHL}$.
-Assume a Gamma model with common shape $\alpha>0$ and mean $\mu_{gi}>0$:
+Let $Y_{gi}$ denote Secchi depth for observation $i$ in region $g \in \{P,O\}$ (Plains, Ozarks), with covariate $x_{gi} = \mathrm{CHL}$.
+
+Assume a Gamma model with common shape $\alpha > 0$ and mean $\mu_{gi} > 0$:
 
 $$
-Y_{gi} \mid x_{gi} \sim \text{Gamma}(\alpha,\mu_{gi}).
+Y_{gi} \mid x_{gi} \sim \mathrm{Gamma}(\alpha,\mu_{gi}).
 $$
 
-The density (shape/mean form) is
+The density (shape–mean form) is
 
 $$
 f(y_{gi}\mid \mu_{gi},\alpha)
 = \frac{1}{\Gamma(\alpha)}
-\left(\frac{\alpha}{\mu_{gi}}\right)^{\alpha}
+\left( \frac{\alpha}{\mu_{gi}} \right)^{\alpha}
 y_{gi}^{\alpha-1}
-\exp\left(-\frac{\alpha y_{gi}}{\mu_{gi}}\right),
+\exp\!\left(-\frac{\alpha y_{gi}}{\mu_{gi}}\right),
 \qquad y_{gi}>0.
 $$
 
 The GLM uses the inverse link
 
 $$
-g(\mu)=\frac{1}{\mu}, \qquad \eta_{gi}=\frac{1}{\mu_{gi}}.
+g(\mu)=\frac{1}{\mu},
+\qquad
+\eta_{gi}=\frac{1}{\mu_{gi}}.
 $$
 
-Reduced model (common regression)
+Reduced model:
 
 $$
 \eta_{gi}=\beta_0+\beta_1 x_{gi},
@@ -2683,30 +2683,32 @@ $$
 \Big].
 $$
 
-Full model (region-specific regressions)
+Full model:
 
 $$
-\eta_{Pi}=\beta_{P0}+\beta_{P1}x_{Pi}, \qquad
+\eta_{Pi}=\beta_{P0}+\beta_{P1}x_{Pi},
+\qquad
 \eta_{Oi}=\beta_{O0}+\beta_{O1}x_{Oi},
 $$
-
 $$
-\mu_{Pi}=\frac{1}{\beta_{P0}+\beta_{P1}x_{Pi}}, \qquad
+\mu_{Pi}=\frac{1}{\beta_{P0}+\beta_{P1}x_{Pi}},
+\qquad
 \mu_{Oi}=\frac{1}{\beta_{O0}+\beta_{O1}x_{Oi}}.
 $$
 
-Parameters:
+The parameter vector is
 
 $$
-\theta_1=(\beta_{P0},\beta_{P1},\beta_{O0},\beta_{O1},\alpha).
+\theta_1 = (\beta_{P0},\beta_{P1},\beta_{O0},\beta_{O1},\alpha).
 $$
 
 The full log–likelihood is
 
 $$
 \begin{aligned}
-\ell_1 =
-&\sum_{i=1}^{n_P}
+\ell_1(\theta_1)
+=&
+\sum_{i=1}^{n_P}
 \Big[
 (\alpha-1)\log y_{Pi}
 -\alpha y_{Pi}(\beta_{P0}+\beta_{P1}x_{Pi})
@@ -2714,7 +2716,7 @@ $$
 +\alpha\log\alpha
 -\log\Gamma(\alpha)
 \Big] \\
-&\quad +
+&+
 \sum_{i=1}^{n_O}
 \Big[
 (\alpha-1)\log y_{Oi}
@@ -2726,19 +2728,38 @@ $$
 \end{aligned}
 $$
 
-Likelihood ratio test then is of the form: 
+The LRT compares
 
 $$
--2\{\ell_1(\hat\theta_0)-\ell_0(\hat\theta_1)\} \leq \chi^2_{2, 1 - \alpha}
+H_0: \text{reduced model (no regional difference)}
+\qquad\text{vs.}\qquad
+H_1: \text{full model (regions differ)}.
 $$
 
-since the full model has 5 parameters and the reduced model has 3.
+Let $\hat\theta_0=(\hat\beta_0,\hat\beta_1,\hat\alpha)$ be the MLE under $H_0$ and $\hat\theta_1$ the MLE under $H_1$. The likelihood ratio statistic is
 
-For: 
+$$
+\Lambda
+=
+-2\big[
+\ell_0(\hat\theta_0) - \ell_1(\hat\theta_1)
+\big]
+$$
 
-* $H_0$: reduced model is true (no region difference) 
+Under $H_0$,
 
-* $H_1$: full model is true (regions differ)
+$$
+\Lambda \overset{approx}{\sim} \chi^2_2,
+$$
+
+because the full model has $5$ parameters and the reduced has $3$.
+
+
+We reject $H_0$ when
+
+$$
+\Lambda > \chi^2_{2,\,1-\alpha}
+$$
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 dat <- list(
@@ -2894,6 +2915,12 @@ kbl(results_table,
 # c(ll_red_at_red  = ll_red_at_red,
 #   ll_full_nested = ll_full_at_nested)
 ```
+
+Under regularity conditions: 
+
+* $H_0$: reduced model is true (no region difference) 
+
+* $H_1$: full model is true (regions differ)
 
 In short, 
 
