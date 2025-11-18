@@ -1,6 +1,6 @@
 ---
-title: "An adaptive test based on Kendall's tau for
-independence in high dimensions"
+title: "An adaptive test based on Kendall's $\\tau$"
+subtitle: "for independence in high dimensions"
 author: "Sam Olson"
 date: ""
 output:
@@ -26,30 +26,31 @@ library(readr)
 
 # Synopsis of Paper
 
--   Testing the mutual independence for high-dimensional data.
--   Known that $L_2$-type statistics have lower power under sparse alternatives in high dimensions
--   Also known that $L_\infty$-type statistics have lower power under dense alternatives in high dimensions
--   Goal: Develop an adaptive test based on Kendall’s $\tau$ to work well in both situations
--   In developing an adaptive test, determine necessary assumptions and the asymptotic null distribution of the proposed statistic
--   Assess how well the test does compared to other testing methods
--   Results indicate the adaptive test performs well in either dense or sparse cases
+- Testing the mutual independence for high-dimensional data
+- Known that $L_2$-type statistics have lower power under sparse cases
+- Known that $L_\infty$-type statistics have lower power under dense cases
+- **Goal:** Develop an adaptive test based on Kendall’s $\tau$ to work well in both situations
+- Determine necessary assumptions and the asymptotic null distribution of the proposed statistic
+- Assess how well the test does compared to other testing methods
+- Results indicate the adaptive test performs well in either dense or sparse cases
 
-# What is Kendall's $\tau$
+# What is Kendall's $\tau$? 
 
 $$
 \tau = \frac{(\text{Count of concordant pairs}) - (\text{Count of discordant pairs})}{(\text{Number of pairs})}
 $$
 
--   Note: Any pair of observations $(x_i, y_i)$ and $(x_j, y_j)$, where i \< j, are said to be *concordant* if the sort order of $(x_i, x_j)$ and $(y_i, y_j)$ agrees
+-   Any pair of observations $(x_i, y_i)$ and $(x_j, y_j)$, where $i < j$, are said to be *concordant* if the sort order of $(x_i, x_j)$ and $(y_i, y_j)$ agrees.
 -   That is, if either both $x_i > x_j$ and $y_i > y_j$ holds or both $x_i < x_j$ and $y_i < y_j$; otherwise they are said to be *discordant*.
--   There are other types of Kendall's $\tau$, e.g., $\tau_a$, $\tau_b$, and $\tau_c$
+-   There are other types of Kendall's $\tau$, e.g., $\tau_a$, $\tau_b$, and $\tau_c$.
 
-# How Does This Fit Into a Broader Narrative?
+# History of Kendall's $\tau$ and related concepts 
 
 -   **1897** — [@Fechner1897] introduces the *method of signs* for succession-dependence.
 -   **1938** — [@Kendall1938] develops the $\tau$ rank correlation coefficient.
--   **1958** — [@Kruskal1958] broadens Kendall’s ideas into a general nonparametric testing framework.
--   **1958–1990s** — Others apply rank-based methods to time series [@ElShaarawi1992; @Hamed2011].
+-   **1958** — [@Kruskal1958] generalizes Kendall’s ideas into a general nonparametric testing framework.
+-   **1958–1990s** — Applied to time series settings for tests of serial dependence. [@ElShaarawi1992; @Hamed2011].
+-   **2020-2024** — Kendall's $\tau$ was used for "match rate analysis" to determine whether two separate processes replicate "close enough" healthcare metrics (my personal experience). 
 -   **2024** — [@Shi2024], the focus of this presentation, develop adaptive high-dimensional independence tests using Kendall’s $\tau$.
 -   **2025** — [@Han2025] extend to a broader class of sum-of-powers tests.
 
@@ -89,13 +90,13 @@ Testing full independence in **high dimensions** ($d \gg n$), where both *dense*
 
 -   **Rank-based**, **distribution-free**, and robust to **heavy tails**.\
 -   Works even when moments (e.g., variances) are infinite.\
--   Avoids dependence on the data-generation process—no parametric assumptions.\
+-   Avoids dependence on the data-generation process (no parametric assumptions!)\
 -   Each $\tau_{k\ell}$ measures pairwise monotonic dependence between $X_k, X_\ell$.
 
-# How Is This Non-Parametric?
+<!-- # How Is This Non-Parametric? -->
 
--   We make no distributional assumptions of the variables (covariates or otherwise) we wish to test for independence.
--   Doesn't mean the statistic (Kendall $\tau$) is distribution-free though! Just the inputs going into it!
+<!-- -   We make no distributional assumptions of the variables (covariates or otherwise) we wish to test for independence. -->
+<!-- -   Doesn't mean the statistic (Kendall $\tau$) is distribution-free though! Just the inputs going into it! -->
 
 # Dense vs. Sparse Settings
 
@@ -123,7 +124,7 @@ M_\tau = \omega_1^{-1}\max_{k<\ell}\tau_{k\ell}^2 - 4\ln d + \ln\ln d
 \Rightarrow M_\tau \overset{d}{\to} \text{Gumbel}
 $$
 
-Where $\omega_1, \omega_2$ are constants reflecting the variance structure of pairwise Kendall's $\tau$'s under independence.
+Where $\omega_1, \omega_2$ are constants reflecting the variance structure of pairwise Kendall's $\tau$'s under independence ($H_0$).
 
 3.  Combine the two via the *minimum p-value approach* (an "adaptive test"):
 
