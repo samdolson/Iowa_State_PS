@@ -49,7 +49,7 @@ with(subset(lakesDat, region == "plains"),
 with(subset(lakesDat, region == "ozarks"),
      plot(tn, chl,
           xlab = "TN", ylab = "CHL",
-          main = "Ozark",
+          main = "Ozarks",
           col = "#D55E00", pch = 19,
           xlim = xlim, ylim = ylim))
 
@@ -59,13 +59,13 @@ par(mfrow = c(1, 1))
 <!-- # ```{r, message=F, warning=F, echo=F} -->
 <!-- # hist(lakesDat$chl, freq = T, xlab = "CHL", main = "Marginal Distribution of CHL") -->
 
-CHL is right-skewed and increases with TN, with variance also rising at higher TN values. The regional scatterplots (Plains vs. Ozarks) show the same qualitative pattern but suggest possible differences in the strength of the TN–CHL relationship.
+CHL is right-skewed and increases with TN, with variance also rising at higher TN values. The regional scatterplots (Plains vs. Ozarks) show the same general pattern but suggest possible differences in the strength of the TN–CHL relationship.
 
-Let $Y_i$ denote CHL for lake $i$ ($i=1,\dots,134$), with corresponding TN value $x_i$. Each lake appears once, so the observations may be treated as independent. Specifying a conditional model for $Y_i \mid x_i$ yields a joint distribution for the full collection ${Y_i}$.
+Let $Y_i$ de a random variable denoting CHL for lake $i$ ($i=1,\cdots,134$), and also denote the corresponding covariate TN value $x_i$. Each lake appears once, judging by the column `lake` in the dataset, so observations may be treated as independent.
 
-Assuming a common underlying biological mechanism across Missouri reservoirs, we first fit an overall TN–CHL model to determine an appropriate mean–variance structure and link function. We then apply this same model structure separately to the Plains and Ozarks so that any differences in fitted curves or parameters reflect genuine regional differences rather than artifacts of using different model families.
+Assuming a common underlying biological mechanism across Missouri reservoirs, which seems generally reasonable, we first fit an overall TN–CHL model to determine an appropriate mean–variance structure (in addition to potential link functions). Once a suitable overall model is identified, we then apply this same model structure separately to the Plains and Ozarks so that any differences in fitted curves or parameters may be assessed as indications of regional differences rather than artifacts of using different model families (a risk we would run if we instead assessed model fit by region).
 
-This framework supports meaningful comparison of regression functions, confidence bands, and derived quantities such as $\Pr(Y > Z \mid x)$.
+We then proceed with potential candidate models, starting with GLMs. 
 
 ## Generalized Linear Models
 
@@ -176,7 +176,7 @@ bc_table <- do.call(rbind, lapply(nbins_vec, extract_slope_theta))
 kable(bc_table)
 ```
 
-To select an appropriate GLM family, I used the `boxcoxfctns` routines to estimate Box–Cox mean–variance slopes. Across all binning schemes, the slopes lay between 1.6 and 2.1, indicating that $\operatorname{Var}(Y\mid x)$ grows roughly like $\mu^{2}$–$\mu^{3}$. This variance pattern is consistent with Gamma or Inverse Gaussian random components, so these families are the natural GLM candidates.
+To select an appropriate GLM family, I used `boxcoxfctns` to estimate Box–Cox log(mean)–log(variance) relationships across various specifications. Across all binning schemes, the slopes lay between 1.6 and 2.1, indicating that $\operatorname{Var}(CHL)$ increases roughly by a factor of $\mu^{2}$ to $\mu^{3}$. Such variance patterns are consistent with Gamma or Inverse Gaussian random components, and as such were considered candidate random components.
 
 With the random component identified, the next step is to determine a suitable link function for modeling the TN–CHL mean relationship.
 
@@ -192,9 +192,9 @@ plot(y = (lakesDat$chl)^(1/3), x = lakesDat$tn, xlab = "TN", ylab ="CHL^1/3",  m
 op <- par(mfrow = c(1, 1), mar = c(4, 4, 2, 1))
 ```
 
-To select a link function, I examined transformations of CHL that approximately linearize its relationship with TN. Exploratory plots showed that the cube-root transformation yielded the most linear trend, with the square-root transformation performing reasonably well. These transformations were used only to guide link choice—not to transform the response in the GLM itself.
+To select a link function, I examined transformations of CHL that approximately linearize its relationship with TN. Exploratory plots showed that the cube-root transformation yielded the most linear trend, with the square-root transformation performing reasonably well (these two being shown, though multiple link functions were considered, including link functions not available in the `basic.glm` function). Notably, these transformations were used only to guide link choice and under no circumstances used to motivate a transformation of the response in the GLM itself.
 
-Combined with the earlier variance diagnostics, this motivated fitting Gamma and Inverse Gaussian GLMs paired with power links corresponding to the cube-root and square-root transformations.
+Taken together, this motivated fitting Gamma and Inverse Gaussian GLMs paired with power links corresponding to the cube-root and square-root transformations.
 
 ```{r, include=F, message=F, warning=F, echo=F}
 X <- cbind(1, lakesDat$tn)
@@ -282,7 +282,7 @@ kableExtra::kbl(
   )
 ```
 
-Within each GLM family, the scaled deviance provides an appropriate criterion for comparing link functions. The cube-root power link consistently produced lower deviances than the square-root link in both the Gamma and Inverse Gaussian families, so attention is restricted to the cube-root versions of these two models. The Gamma and IG models themselves are not compared by deviance, as they are non-nested.
+Within each GLM family, the scaled deviance provides an appropriate criterion for comparing link functions. The cube-root power link consistently produced lower deviances (raw and scaled) than the square-root link within both the Gamma and Inverse Gaussian families; so the cube-root versions of these two models were treated as viable candidates in toto. However, the Gamma and IG models themselves are not compared by deviance, as they are not nested and thus do not allow LRT-like comparisons.
 
 ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
 layout(matrix(c(1, 2,
@@ -429,9 +429,9 @@ par(mfrow = c(1, 1))
 # par(mfrow = c(1, 1))
 ```
 
-The Gamma and Inverse Gaussian models yield nearly identical fitted curves, so scatterplots alone cannot distinguish them. Residual diagnostics provide clearer evidence: the Gamma model exhibits more stable variance and better-behaved deviance residuals, whereas the IG model shows mild heteroscedasticity. Thus, the Gamma GLM is selected as the preferred model.
+To compare the Gamma and Inverse Gaussian models, we then turn to a general assessment of deviance spread and fitted curves. Oddly, both yield nearly identical fitted curves, so scatterplots alone cannot distinguish them. Residual diagnostics provide clearer evidence: The Gamma model exhibits more stable variance and better-behaved deviance residuals, whereas the IG model shows mild heteroscedasticity. Thus, the Gamma GLM is selected as the preferred model, despite evidence that there may be some outliers in both.
 
-With the GLM choice established, I briefly examine additive error models for completeness before selecting a final model for the region-specific comparisons.
+With the GLM choice established, additive error models are then considered for completeness before selecting a final model for the region-specific comparisons.
 
 ## Other Models Considered -- Additive Error Models
 
@@ -563,9 +563,9 @@ With the GLM choice established, I briefly examine additive error models for com
 <!-- # layout(1) -->
 <!-- # ``` -->
 
-A simple OLS fit shows a roughly linear TN–CHL trend but clear heteroscedasticity in the studentized residuals, motivating consideration of transform-both-sides (TBS) additive error models. Several variance-stabilizing transformations were examined; the cube-root transformation performed best and produced a reasonable linearization of the relationship.
+A simple OLS fit shows a roughly linear TN–CHL trend but clear heteroscedasticity in the studentized residuals, motivating consideration of transform-both-sides (TBS) additive error models for the purposes of variance stabilization. Several variance-stabilizing transformations were examined, and ultimately the cube-root transformation performed best and produced a reasonable linearization of the relationship.
 
-However, TBS models require back-transformation, and only the mean back-transforms cleanly—variance and quantile inference become distorted. Combined with the remaining heteroscedasticity in the residuals, the TBS approach is not competitive with the GLM.
+However, TBS models have some drawbacks, the least of which being that inference requires back-transformation, and only the mean back-transforms cleanly. As we are interested in other quantities for assessing differences between regions (such as confidence intervals and differences), we start to envision quite a few potential drawbacks to a linear fit TBS. Combined with the remaining heteroscedasticity in the residuals, the TBS approach is not as appealing as the GLMs considered.
 
 ### Power of the Mean
 
@@ -635,15 +635,13 @@ However, TBS models require back-transformation, and only the mean back-transfor
 <!-- # par(mfrow = c(1, 1)) -->
 <!-- # ``` -->
 
-Given the apparent nonlinearity and mean–variance relationship in the data, I also considered power-of-the-mean (POM) additive error models. Several values of the variance-stabilizing power $\delta$ were tested, including models that allowed the mean curve itself to be nonlinear. Although $\delta = 0.5$ performed best—consistent with the Box–Cox slopes—its residuals still showed heteroscedasticity, and small fitted means made the weighting scheme unstable for larger $\delta$.
+Given the apparent nonlinearity and mean–variance relationship in the data, power-of-the-mean (POM) additive error models were also considered. Several values of the variance-stabilizing power $\theta$ were tested, including models that allowed the mean curve itself to be nonlinear. Although $\theta = 0.5$ performed best, in terms of consistentcy with the Box–Cox plots, its studentized (absolute and squared) residuals still indicated heteroscedasticity, and small fitted means made the weighting scheme unstable for larger $\theta$.
 
-Overall, even the best POM fits failed to achieve satisfactory variance stabilization and tended to misrepresent higher CHL values. In contrast, the Gamma GLM provided cleaner residuals and a coherent mean–variance structure, so the POM family was not retained as a candidate model.
+Overall, even the best POM combined with TBS that was considered for modelling the CHL-TN relationship failed to produce generally satisfactory variance stabilization while also failing to predict higher observed CHL values to boot. So neither the POM, TBS, nor their combination was ultimately retained as a candidate model.
 
 ## Comparing Different Models
 
-The two GLM candidates were the Gamma and Inverse Gaussian models with cube-root links. Both produced nearly identical mean curves, but the Gamma model showed slightly better residual behavior. The additive models (TBS and POM) were not retained: TBS requires back-transformation and still showed heteroscedasticity, while POM models exhibited numerical instability and incomplete variance stabilization.
-
-Overall, the Gamma GLM with a cube-root link best matched the Box–Cox variance diagnostics, produced well-behaved residuals, and offered the most coherent and interpretable mean–variance structure. I therefore use this model for the region-specific comparisons.
+Overall, the Gamma GLM with a cube-root link best matched the Box–Cox variance diagnostics, produced well-behaved residuals, and offered the most coherent and interpretable mean–variance structure. For such reasons, the Gamma GLM with cube-root link was used for region-specific comparisons.
 
 ## Extending to regions
 
@@ -881,7 +879,7 @@ legend("topleft",
 plot(mod_gamma_13_plains$vals$muhat,
      mod_gamma_13_plains$vals$stdevres,
      xlab = "Fitted (Plains)",
-     ylab = "Standardized deviance residual",
+     ylab = "Studentized deviance residual",
      main = "Residuals vs Fitted: Plains",
      pch = 1)
 abline(h = 0, lty = 2)
@@ -890,7 +888,7 @@ abline(h = 0, lty = 2)
 plot(mod_gamma_13_ozark$vals$muhat,
      mod_gamma_13_ozark$vals$stdevres,
      xlab = "Fitted (Ozarks)",
-     ylab = "Standardized deviance residual",
+     ylab = "Studentized deviance residual",
      main = "Residuals vs Fitted: Ozarks",
      pch = 1)
 abline(h = 0, lty = 2)
@@ -907,17 +905,17 @@ kable(data.frame(
 )
 ```
 
-Using the selected Gamma GLM with a cube-root link, I fit the model separately to the Plains and Ozarks. The fitted curves and pointwise 95% confidence bands (Figure X) show substantial overlap at lower TN values ($\approx$ 0.4–0.6), with very similar predicted means. At higher TN ($\approx$ 0.8–1.0), the Ozarks curve becomes noticeably steeper, and the bands begin to separate, indicating higher CHL in the Ozarks at the upper end of the TN range.
+Using the selected Gamma GLM with a cube-root link, models were separately fit to the Plains and Ozarks regions. The fitted curves and pointwise 95% confidence bands show a fair amount of overlap at lower TN values ($\approx$ 0.4–0.6), with very similar predicted means. At higher TN ($\approx$ 0.8–1.0), the Ozarks curve becomes noticeably steeper, and the bands begin to separate, indicating higher CHL in the Ozarks at the upper end of the TN range.
 
-The coefficient estimates reflect this pattern: the Ozarks model has a larger slope and a slightly smaller intercept, though the 95% Wald intervals overlap for both parameters. Taken together—steeper slope, upward divergence of fitted curves, and higher predicted CHL near TN = 1.0—the results suggest a stronger TN–CHL response in the Ozarks, even if parameter-wise evidence is not conclusive.
+The coefficient estimates reflect this pattern: The Ozarks model has a larger slope and a slightly smaller intercept, though the 95% Wald intervals overlap for both parameters. Model diagnostics support using the same GLM form in both regions. Studentized deviance plots show no systematic patterns and are generally well-behaved, albeit with some potential outlying points. In part due to not considering likelihoods at this stage of the exam, it bears noting the potential shortfall of Wald intervals, both in terms of sample size per region (53 in Ozarks, 81 in Plains), as well as possible issues with the presumed asymptotic normality of the estimator, even though there are no clear issues present (such as parameter intervals containing values outside the parameter space). 
 
-Model diagnostics support using the same GLM form in both regions. Residual-versus-fitted plots show no systematic patterns, standardized deviance residuals are well-behaved, and the scaled deviances are similar relative to sample size. Thus, regional differences can be interpreted as biological rather than artifacts of model fit.
-
-Overall, both regions share the same functional TN–CHL form, but the Ozarks appear to exhibit a stronger response at higher TN levels.
+So overall, both regions share the same functional TN–CHL form, but the Ozarks appear to exhibit a stronger response at higher TN levels.
 
 ### Probability Assessments
 
-For a fixed TN value $x_i$, let $Y_i$ denote the Plains CHL response and $Z_i$ the Ozarks CHL response. From the region-specific Gamma GLMs with cube-root link,
+For a fixed TN value $x_i$, let $Y_i$ denote the Plains CHL response and $Z_i$ the Ozarks CHL response. 
+
+From the region-specific Gamma GLMs with cube-root link: 
 
 $$
 \mu_P(x_i) = E(Y_i \mid x_i), \qquad
@@ -932,11 +930,14 @@ $$
 $$
 
 where $\phi_P$ and $\phi_O$ are the dispersion parameters for the Plains and Ozarks models.
-The target quantity is
+
+The target quantity is:
 
 $$
-\Pr(Y_i > Z_i \mid x_i).
+\Pr(Y_i > Z_i \mid x_i)
 $$
+
+Note: Although the data model is Gamma, the quantity $\Pr(Y_i > Z_i)$ depends on the distribution of a difference of two independent Gamma variables, which has no closed form; thus the plug-in Normal approximation below is used for tractability.
 
 Using a plug-in Normal approximation to the Gamma distribution,
 
@@ -945,10 +946,10 @@ Y_i \mid x_i \approx N\big(\mu_P(x_i), \phi_P \mu_P(x_i)^2\big), \qquad
 Z_i \mid x_i \approx N\big(\mu_O(x_i), \phi_O \mu_O(x_i)^2\big),
 $$
 
-and assuming conditional independence of $Y_i$ and $Z_i$ given $x_i$, define
+and assuming conditional independence of $Y_i$ and $Z_i$ given $x_i$, a reasonable assumption given the setup, define: 
 
 $$
-D_i = Y_i - Z_i.
+D_i = Y_i - Z_i
 $$
 
 Then
@@ -961,10 +962,10 @@ and
 $$
 \operatorname{Var}(D_i \mid x_i)
 = \operatorname{Var}(Y_i \mid x_i) + \operatorname{Var}(Z_i \mid x_i)
-= \phi_P \mu_P(x_i)^2 + \phi_O \mu_O(x_i)^2.
+= \phi_P \mu_P(x_i)^2 + \phi_O \mu_O(x_i)^2
 $$
 
-Hence
+Such that 
 
 $$
 D_i \mid x_i \approx
@@ -999,7 +1000,7 @@ so the fitted mean at covariate value $x$ is
 $$
 \hat{\mu}(x)
 = \big(x^\top \hat{\beta}\big)^{1/(1/3)}
-= \big(x^\top \hat{\beta}\big)^3.
+= \big(x^\top \hat{\beta}\big)^3
 $$
 
 For each region and each TN value $x_i$,
@@ -1021,51 +1022,53 @@ $$
 \right)
 $$
 
+Note: The calculations that follow rely on the asymptotic Normal approximation to the Gamma GLM means and variances. Whether this approximation is appropriate for the sample sizes in each region should be considered.
+
 ```{r}
 # Models fitted already
 # mod_gamma_13_plains
 # mod_gamma_13_ozark
 
-# Helper: get fitted mean mu(x) from a basic.glm
+# extract mean mu from basic.glm
 predict_mu_power <- function(mod, x, pwr = 1/3) {
-  # regression coefficients (column of estb)
+  # regression coefficients 
   beta_hat <- mod$estb[, 1]
-  # design matrix: intercept + TN
+  # design matrix
   X <- cbind(1, x)
   eta <- as.vector(X %*% beta_hat)
-  # because eta = mu^pwr
+  # eta = mu^pwr
   mu <- eta^(1 / pwr)
   mu
 }
 
-# Compute plug-in Pr(Y > Z | x) via Normal approximation
+# plug-in estimate
 prob_YgtZ_normal <- function(x, mod_P, mod_O, pwr = 1/3) {
-  # Plains mean and dispersion
+  # plains mean and dispersion
   mu_P <- predict_mu_power(mod_P, x, pwr = pwr)
   phi_P <- mod_P$ests$phi
-  # Ozarks mean and dispersion
+  # ozarks mean and dispersion
   mu_O <- predict_mu_power(mod_O, x, pwr = pwr)
   phi_O <- mod_O$ests$phi
-  # Mean and variance of the difference D = Y - Z
+  # difference calculations
   mean_D <- mu_P - mu_O
   var_D <- phi_P * mu_P^2 + phi_O * mu_O^2
   sd_D <- sqrt(var_D)
-  # Probability that D > 0
+  # probability 
   pnorm(mean_D / sd_D)
 }
 
-# Point estimate at x = 0.70
+# estimate x = 0.70
 prob_0.70 <- prob_YgtZ_normal(0.70,
                               mod_gamma_13_plains,
                               mod_gamma_13_ozark)
-cat("Estimated probability is:", prob_0.70, "\n")
+cat("Estimated probability is:", round(prob_0.70, 3), "\n")
 ```
 
-Our estimate is then: $\Pr(Y_i > Z_i \mid x_i = 0.70) = 0.46815$.
+Our estimate is: $\Pr(Y_i > Z_i \mid x_i = 0.70) = 0.46815$.
 
 Now, the sequence of values $x_i \in \{0.4, 0.41, 0.42, \cdots, 1.0 \}$ is given by:
 
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Grid x_i in {0.40, 0.41, ..., 1.00}
 x_grid    <- seq(0.40, 1.00, by = 0.01)
 prob_grid <- sapply(x_grid, prob_YgtZ_normal,
@@ -1077,9 +1080,9 @@ prob_grid <- sapply(x_grid, prob_YgtZ_normal,
 # estimated probabilities on y-axis
 plot(x_grid, prob_grid, type = "l",
      ylim = c(0.44, 0.51),
-     xlab = "TN concentration",
+     xlab = "TN",
      ylab = "Estimated Pr(Plains CHL > Ozarks CHL | TN)",
-     main = "Probability that Plains CHL exceeds Ozarks CHL")
+     main = "Pr(Plains CHL > Ozarks CHL)")
 # reference line at 0.5
 abline(h = 0.5, lty = 2)
 ```
@@ -1090,11 +1093,11 @@ So, as TN concentration increases, the probability that Plains CHL exceeds Ozark
 
 In both regions, CHL increases with TN and the variance rises with the mean. The Gamma GLM with a cube-root link adequately captures this mean–variance relationship, with well-behaved residuals and no indication that different model forms are needed. Thus, the TN–CHL relationship has the same functional form in the Plains and Ozarks.
 
-Fitting the model separately by region shows differences in magnitude. For TN $\approx$ 0.4–0.6, fitted curves and 95% bands nearly coincide, and predicted CHL is similar across regions. As TN increases toward 0.8–1.0, the Ozarks curve steepens, predicted CHL in the Ozarks diverges upward, and the bands separate, indicating a stronger TN response in the Ozarks at higher TN.
+Fitting the model separately by region shows differences in magnitude. For TN $\approx$ 0.4–0.6, fitted curves and 95% bands nearly coincide, and predicted CHL is similar across regions. As TN increases toward 0.8–1.0, the Ozarks curve steepens and predicted CHL values in the Ozarks diverges upward; this also coincides with the confidence bands separating, and generally indicates a stronger TN response in the Ozarks at higher TN.
 
-The coefficient estimates are consistent with this picture: both slopes are positive, but the Ozarks slope is larger. Although the 95% Wald intervals overlap and do not provide definitive parameter-wise separation, the combined evidence from curves, bands, and slopes suggests a stronger TN–CHL response in the Ozarks.
+The coefficient estimates are consistent with this picture: both slopes are positive, with the Ozarks slope being larger. Although the 95% Wald intervals overlap and do not provide definitive parameter-wise separation, the combined evidence from curves, bands, and slopes suggests a stronger TN–CHL response in the Ozarks.
 
-The probability assessment summarizes this difference: for moderate TN (0.4–0.7), $\Pr(\text{Plains CHL} > \text{Ozarks CHL} \mid \text{TN}) \approx 0.5$, but as TN approaches 1.0 this probability falls below 0.5, indicating that Ozarks CHL is more likely to exceed Plains CHL at higher TN.
+The probability assessment summarizes this difference: For moderate TN (0.4–0.7), $\Pr(\text{Plains CHL} > \text{Ozarks CHL} \mid \text{TN}) \approx 0.5$, but as TN approaches 1.0 this probability falls below 0.5, indicating that Ozarks CHL is more likely to exceed Plains CHL at higher TN.
 
 Overall, the regions share the same basic TN–CHL form, but the Ozarks show a stronger response to increasing TN, especially near the upper end of the observed TN range.
 
@@ -1157,11 +1160,11 @@ layout(1)
 <!-- # hist(lakesDat$secchi, freq = T, xlab = "CHL", main = "Marginal Distribution of Secchi") -->
 <!-- # ``` -->
 
-We begin by examining the scatterplot of Secchi depth versus CHL and the marginal distribution of Secchi. Secchi depth is right-skewed, consistent with ecological expectations, and shows a clear negative, potentially nonlinear relationship with CHL, with variance decreasing at larger CHL values. Stratifying by region (Plains vs. Ozarks) reveals the same basic pattern—negative trend, possible curvature, and decreasing variance—while still leaving open the possibility that the CHL–Secchi relationship differs in magnitude between regions.
+We start by examining the scatterplot of Secchi depth versus CHL and also examine the scatterplot by region. Secchi depth is right-skewed, consistent with ecological expectations, and shows a clear negative, potentially nonlinear relationship with CHL, with variance possibly decreasing at larger CHL values. By region, the same basic pattern is also shown, while still suggesting possible differences in the strength of the CHL-Secchi relationship
 
-Let $Y_i$ denote the Secchi depth for lake $i$ ($i = 1,\dots,134$), with corresponding CHL value $x_i$. Because each lake appears only once, it is reasonable to treat observations as independent. Specifying a conditional model for $Y_i \mid x_i$ induces a joint distribution for the full collection ${Y_i}$.
+Let the random variable $Y_i$ denote the Secchi depth for lake $i$ ($i = 1,\cdots,134$), with corresponding CHL covariate value $x_i$. Because each lake appears only once, it is reasonable to treat observations as independent.
 
-The modeling strategy mirrors Part I: we first identify an appropriate overall model for Secchi as a function of CHL, then fit the same model structure separately to the Plains and Ozarks. Under this approach, any differences in intercept, slope, curvature, or dispersion reflect genuine regional differences in the CHL–Secchi relationship rather than artifacts of using different model families or transformations. This ensures that regional comparisons are ecologically interpretable and supports direct comparison of parameters, confidence bands, and other quantities of interest.
+Generally, the modeling strategy mirrors Part I: We first identify an appropriate overall model for Secchi as a function of CHL, then fit the same model structure separately to the Plains and Ozarks. Under this approach then, differences in intercept, slope, curvature, or dispersion may be interpreted as potential regional differences in the CHL–Secchi relationship rather than artifacts of using different model families or transformations. 
 
 Henceforth, for brevity, I omit explicit “as in Part I” references, though the underlying modeling logic is the same.
 
@@ -1194,7 +1197,7 @@ bc_table <- do.call(rbind, lapply(nbins_vec, extract_slope_theta))
 kable(bc_table)
 ```
 
-We begin by considering generalized linear models for Secchi as a function of CHL. Using the `boxcoxfctns` routines, I estimated Box–Cox mean–variance slopes; across both equal-count and equal-width binning schemes, the slopes ranged from 1.6 to 2.1. This indicates that $\operatorname{Var}(Y \mid x)$ grows roughly like $\mu^{2}$–$\mu^{3}$, which is consistent with Gamma or Inverse Gaussian random components.
+We first consider GLMs, and begin by identifying a suitable random component. Using `boxcoxfctns`, Box–Cox plots and slopes were calculated; across both equal-count and equal-width binning schemes, and across variable number of bins, the slopes ranged from 1.6 to 2.1. This indicates that $\operatorname{Var}(Secchi)$ grows roughly like $\mu^{2}$–$\mu^{3}$, which is consistent with Gamma or Inverse Gaussian random components.
 
 With the random component thus narrowed to Gamma or IG, the next step is to select an appropriate link function for modeling the CHL–Secchi mean relationship.
 
@@ -1216,7 +1219,7 @@ plot(y = 1/(lakesDat$secchi^2), x = lakesDat$chl, xlab = "CHL", ylab ="1/Secchi^
 op <- par(mfrow = c(1, 1), mar = c(4, 4, 2, 1))
 ```
 
-To identify a suitable link function, we seek a transformation of the mean that both linearizes the Secchi–CHL relationship and preserves the expected monotone decreasing pattern (higher CHL → lower Secchi). Exploratory transformation plots indicate that an inverse transformation of the mean yields an approximately linear trend, with the square-inverse transformation performing similarly well. These transformations are used only to guide link selection; they do *not* imply transforming Secchi directly.
+To identify a suitable link function, we seek a transformation of the mean that both linearizes the Secchi–CHL relationship and preserves the expected monotonically decreasing pattern. Exploratory transformation plots indicate that an inverse transformation of the mean yields an approximately linear trend, with the square-inverse transformation performing similarly well. Importantly, these transformations are used only to guide link selection, and under no circumstance should they been seen as justification for transforming the random variable for Secchi directly.
 
 Combined with the earlier mean–variance assessment, this motivates fitting Gamma and Inverse Gaussian GLMs ($\theta = 2, 3$) paired with inverse and square-inverse links. These candidate models are then compared.
 
@@ -1329,9 +1332,9 @@ kableExtra::kbl(
   )
 ```
 
-I attempted to fit several GLMs, including the Inverse Gaussian model with its canonical inverse-squared link. Even after generating reasonable starting values from a preliminary `glm()` fit and restricting initial linear predictors to be positive, the `basic.glm` routine failed to converge because iterations quickly produced invalid $\eta$ values. Due to this numerical instability, only a subset of models could be reliably fitted.
+Several GLMs were considered, including the Inverse Gaussian model with its canonical inverse-squared link. Even after generating reasonable starting values from a preliminary `glm()` fit and restricting initial linear predictors to be positive, the `basic.glm` routine failed to converge because iterations quickly produced invalid $\eta$ values. Due to this numerical instability, only a subset of models could be reliably fitted.
 
-The Gamma GLM with inverse link and the Inverse Gaussian GLM with inverse link both converged cleanly and exhibited stable behavior. These models were therefore carried forward for comparison. I evaluate them using fitted-curve overlays on the scatterplot and by examining their deviance residuals.
+The Gamma GLM with inverse link and the Inverse Gaussian GLM with inverse link both converged and exhibited stable behavior. These models were therefore carried forward for comparison and then evaluated them using fitted-curve overlays on the scatterplot of the observed in addition to deviance residual analysis. 
 
 ```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
 layout(matrix(c(1, 2,
@@ -1487,12 +1490,11 @@ par(mfrow = c(1, 1))
 # par(mfrow = c(1, 1))
 ```
 
-
 The fitted curves from the Gamma and Inverse Gaussian GLMs are visually similar, and the scatterplot alone does not clearly favor one model. Although the Inverse Gaussian model appears to reflect the increased variability at low CHL values (CHL < 10), its fitted mean curve misses most observations in this range, indicating a poorer fit to the central trend.
 
-Residual diagnostics provide stronger separation. The Inverse Gaussian deviance residuals show more pronounced heteroscedasticity and noticeably weaker symmetry compared to the Gamma model. In contrast, the Gamma GLM with an inverse link produces well-centered, more homogeneous residuals. These patterns persist when using studentized residuals, which ultimately drove the model choice.
+Deviance residual diagnostics provide more discerning evidence to compare the two models. The Inverse Gaussian deviance residuals show more pronounced heteroscedasticity and noticeable asymmetry compared to the Gamma model. In contrast, the Gamma GLM with an inverse link produces fairly symmetric and homoscedastic deviance residuals. These patterns persist when using studentized residuals, which ultimately drove the model choice, though there are some potential outliers in both model fits.
 
-On this basis, the Gamma GLM with inverse link is selected as the preferred model. With this GLM established, I next assess several additive error models for completeness before identifying a single working model for the region-specific comparisons.
+On this basis, the Gamma GLM with inverse link is selected as the preferred model. With this GLM established, several additive error models were then assessed for completeness before identifying a single working model for the region-specific comparisons.
 
 ## Other Models Considered -- Additive Error Models
 
@@ -1711,13 +1713,13 @@ On this basis, the Gamma GLM with inverse link is selected as the preferred mode
 <!-- # layout(1) -->
 <!-- # ``` -->
 
-We begin by fitting a simple linear regression of Secchi on CHL. Although the linear trend is directionally correct, the studentized residuals show strong heteroscedasticity, motivating consideration of a transform-both-sides (TBS) additive error model.
+We begin by fitting a simple linear regression of Secchi on CHL. Although the linear trend is directionally fitting, the studentized residuals show strong heteroscedasticity, motivating consideration of a transform-both-sides (TBS) additive error model.
 
 Several variance–stabilizing transformations were evaluated, with the inverse and cube-root transformations appearing most promising based on exploratory plots. The purpose of these transformations is not to model Secchi on a transformed scale per se, but to obtain an additive-error model with approximately constant variance.
 
-The resulting TBS fits, however, indicate that this approach is not suitable for the Secchi–CHL relationship. Even under the best-performing transformations, the fitted curves fail to capture the clear curvature in the data, and the residuals retain noticeable patterns and heteroscedasticity. The cube-root transformation performs better than the inverse transformation—avoiding instability near very small Secchi values and offering some variance stabilization—but substantial funneling remains, especially at low CHL.
+The resulting TBS fits, however, indicate that this approach is not suitable for the Secchi–CHL relationship. Even under the best-performing transformations, the fitted curves fail to capture the clear curvature in the data, and the studentized residuals retain noticeable patterns and heteroscedasticity. The cube-root transformation performs better than the inverse transformation while avoiding instability near very small Secchi values, though substantial funnel patterns remain.
 
-Overall, the TBS additive error models provide a poorer fit than the GLMs and do not adequately account for the nonlinear mean–variance structure. For this reason, they are not competitive as working models, though they offer some guidance for selecting transformations within power-of-the-mean models considered next.
+Overall, the TBS additive error models provide a poorer fit than the GLMs and do not adequately account for the nonlinear mean–variance structure. For this reason, they are not competitive as working models, though they offer some guidance for selecting transformations within POM models considered next.
 
 ### Power of the Mean 
 
@@ -1830,7 +1832,7 @@ Overall, the TBS additive error models provide a poorer fit than the GLMs and do
 <!-- # par(mfrow = c(1, 1)) -->
 <!-- # ``` -->
 
-We next consider power-of-the-mean (POM) additive error models as an alternative to the GLM. The Box–Cox mean–standard-deviation patterns for Secchi versus CHL suggested
+We next consider POM additive error models as an alternative to the GLM. The Box–Cox mean–standard-deviation patterns for Secchi versus CHL suggested
 
 $$
 \operatorname{Var}(Y\mid x)\propto \mu(x)^{\theta},
@@ -1841,45 +1843,41 @@ $$
 which motivates variance weights of the form
 
 $$
-w_i\propto \mu(x_i)^{-2\delta},
+w_i\propto \mu(x_i)^{-\theta},
 $$
 
-where larger values of $\delta$ attempt stronger variance stabilization. Based on the Box–Cox summaries, we examined POM models with
+Based on the Box–Cox summaries, we examined POM models with
 
 $$
-\delta = 1.5, 2, 2.5, 3.
+\theta = 1.5, 2, 2.5, 3
 $$
 
-Across these specifications, the fitted curves and diagnostics revealed serious deficiencies. For many choices of $\delta$, the fitted Secchi–CHL curve becomes nearly flat—or even slightly increasing—across much of the CHL range, with an abrupt “upturn’’ only for CHL > 40. This behavior contradicts the strongly decreasing relationship evident in the raw data and in the GLM fits.
+Across these specifications, the fitted curves and diagnostics revealed serious issues. For many choices of $\theta$, the fitted Secchi–CHL curve becomes nearly flat—or even slightly increasing—across much of the CHL range, with an abrupt “upturn" for CHL > 40. This behavior contradicts the strongly decreasing relationship evident in the raw data and in the GLM fits.
 
-Residual diagnostics reinforce this conclusion: even after weighting by $\mu(x)^{-2\delta}$, substantial heteroscedasticity and structure remain. Large residuals persist at both low and moderate CHL, and the spread does not stabilize across fitted means, indicating that the assumed PoM variance form does not capture the true mean–variance relationship.
+Residual diagnostics reinforce this conclusion: Even after weighting by $\mu(x)^{-\theta}$, substantial heteroscedasticity remains. Large residuals (absolute and squared) persist at both low and moderate CHL, and the spread does not stabilize across fitted means, indicating that the assumed POM variance form does not capture the true mean–variance relationship.
 
-Thus, although the Box–Cox diagnostics initially suggested exploring PoM additive models, the resulting fits are not adequate. They fail to reproduce the observed curvature and do not resolve the heteroscedasticity present in the linear and TBS fits. The Gamma GLM with inverse link remains far superior.
-
-Notably, the PoM models above were all formulated directly with CHL as the predictor. Because Secchi depth reflects light penetration through a water column, it may be more natural to re-express the model in terms of a simple geometric argument linking depth to the amount of material per unit volume. This motivates the "cylinder" formulation considered next.
+Notably, the POM models above were all formulated directly with CHL as the predictor. Because Secchi depth reflects light penetration through a water column, it may be more fitting to express the model in terms of a simple geometric argument linking depth to the amount of material per unit volume. This motivates the "cylinder" formulation considered next.
 
 ### A Possibly Better Approach? Disk & Volume 
 
-The motivation for an additive model based on $1/\mathrm{CHL}$ follows from a simple geometric argument. If the visible water column above the Secchi disk is approximated as a **cylinder** of radius $r$ and height $h$ (the Secchi depth), then its volume is
+The motivation for an additive model based on $1/\mathrm{CHL}$ follows from a simple geometric argument. If the visible water column above the Secchi disk is approximated as a cylinder of radius $r$ and height $h$ (the Secchi depth), then its volume is given by: 
 
 $$
 V = \pi r^{2} h,
 \qquad
-h = \frac{V}{\pi r^{2}}.
+h = \frac{V}{\pi r^{2}}
 $$
 
-Chlorophyll concentration (CHL) is measured as mass per unit volume. If visibility is lost once a roughly fixed mass of chlorophyll is present above the disk, then
+Chlorophyll concentration (CHL) is measured as mass per unit volume. If visibility is lost once a roughly fixed mass of chlorophyll is present above the disk, then: 
 
 $$
-\mathrm{CHL} \times V \approx \text{constant},
-\qquad
-V \propto \frac{1}{\mathrm{CHL}},
+V \propto \frac{1}{\mathrm{CHL}}
 $$
 
-and therefore
+and
 
 $$
-h \propto \frac{1}{\mathrm{CHL}}.
+h \propto \frac{1}{\mathrm{CHL}}
 $$
 
 This suggests a reciprocal relationship between Secchi depth and CHL, motivating an additive model in the transformed predictor $\phi = 1/\mathrm{CHL}$:
@@ -1887,18 +1885,16 @@ This suggests a reciprocal relationship between Secchi depth and CHL, motivating
 $$
 Y_i = \beta_0 + \beta_1 \phi_i + \varepsilon_i,
 \qquad
-\mathbb{E}[\varepsilon_i \mid \phi_i] = 0.
+E[\varepsilon_i \mid \phi_i] = 0
 $$
 
-Expressed in the original CHL scale,
+Expressed in the original CHL scale, the regression function is then: 
 
 $$
-m(x) = \mathbb{E}[Y \mid x] = \beta_0 + \frac{\beta_1}{x},
+m(x) = E[Y \mid x] = \beta_0 + \frac{\beta_1}{x},
 $$
 
-a reciprocal curve that is steep for low CHL and gradually flattens as CHL increases. This parallels the geometric reasoning in the textbook *tree-trunk* and *walleye* examples, where physical arguments yield linearity after transforming the predictor.
-
-Residual diagnostics for this reciprocal model still show heteroscedasticity. Following the cube-root approach used in the fish-weight example, we apply a transform-both-sides model:
+After initial fit, the residual diagnostics (absolute and squared) for this model still show heteroscedasticity. Following the cube-root approach used in the fish-weight (walleye) example, we apply a transform-both-sides model where:
 
 $$
 Z = Y^{1/3},
@@ -1911,16 +1907,16 @@ and fit
 $$
 Z = \alpha_0 + \alpha_1 \psi + \eta,
 \qquad
-\mathbb{E}[\eta \mid \psi] = 0.
+E[\eta \mid \psi] = 0
 $$
 
 Back-transforming yields the approximate mean function
 
 $$
-m(x) \approx \big(\alpha_0 + \alpha_1 x^{-1/3}\big)^3,
+m(x) \approx \big(\alpha_0 + \alpha_1 x^{-1/3}\big)^3
 $$
 
-a smooth, strictly decreasing curve analogous to the cube-root linearization in the fish-weight model.
+which happens to be a smooth, strictly decreasing curve analogous to the cube-root linearization in the fish-weight model.
 
 <!-- # ```{r secchi-phi-basic, message=FALSE, warning=FALSE, echo=FALSE, fig.height = 10, fig.width = 10} -->
 <!-- # par(mfrow = c(2, 1), -->
@@ -2142,13 +2138,11 @@ plot(fitted(fit_phi_pom), stud_resid,
 abline(h = 0, lty = 2)
 ```
 
-Although both the reciprocal additive model and its cube-root transform-both-sides (TBS) version capture the general decreasing trend, neither provides satisfactory variance stabilization. The power-of-the-mean (PoM) extensions with $\delta = 0.5$ and $\delta = 0.75$ perform the best among the additive models considered, producing smoother reciprocal curves and partially stabilizing the variance. However, even these weighted fits retain visible structure in the residuals and fall short of the diagnostic quality achieved by the Gamma GLM with inverse link.
+Although both the reciprocal additive model and its cube-root TBS version capture the general decreasing trend, neither provides satisfactory variance stabilization. The POM extensions with $\delta = 0.5$ and $\delta = 0.75$ perform the best among the additive models considered, producing smoother curves and while doing a better job at stabilizing the variance. However, even these weighted fits retain visible structure in the residuals (absolute, squared, and now absolute $\frac{2}{3}$-root studentized) and fall short of the diagnostic quality achieved by the Gamma GLM with inverse link.
 
-Consequently, the only additive models that might be viewed as “adequate” are the reciprocal TBS model and the PoM models with $\delta = 0.5$ or $\delta = 0.75$, but these remain supportive rather than competitive alternatives. They help confirm the reciprocal relationship suggested by the geometric argument, but they do not match the interpretability, stability, or overall fit of the selected Gamma GLM.
+Between the two POM specifications, $\delta = 0.75$ provided slightly better performance at high CHL values: The fitted curve tracked the observed decline in Secchi depth more closely in the upper tail than the corresponding $\delta = 0.5$ model.
 
-Between the two PoM specifications, $\delta = 0.75$ provided slightly better performance at high CHL values: the fitted curve tracked the observed decline in Secchi depth more closely in the upper tail than the corresponding $\delta = 0.5$ model.
-
-*Note:* The “best” additive model is not presented in full here, but its fitted curve and representative residual diagnostics appear in the figures that follow.
+Note: The “best” additive model is not presented in full here, but its fitted curve and representative residual diagnostics appear in the figures that follow.
 
 ## Comparing Models 
 
@@ -2330,27 +2324,13 @@ plot(fitted(fit_phi_pom2), trans_pom,
      main = "PoM (delta = 0.75): 2/3-root |stud. residuals|")
 ```
 
-The two models that performed adequately were the Gamma GLM with an inverse link and the power-of-the-mean additive model with $\delta = 0.75$ combined with a cube-root TBS transformation. Although both produce broadly similar decreasing curves, the Gamma GLM remains the preferred model.
+The two models that performed adequately were the Gamma GLM with an inverse link and the POM additive model with $\delta = 0.75$ combined with a cube-root TBS transformation. Although both produce broadly similar decreasing curves, the Gamma GLM remains the preferred model.
 
-First, the Gamma GLM naturally encodes the variance structure
-$$\operatorname{Var}(Y\mid x)=\phi,\mu(x)^2,$$
-which closely matches the heteroscedasticity observed in Secchi depth. The PoM–TBS model, by contrast, imposes variance stabilization through estimated weights, making it more sensitive to instability in the fitted means and more prone to irregularities at the extremes of CHL.
+First, the Gamma GLM better models the observed variance structure. The POM–TBS model, by contrast, imposes variance stabilization through estimated weights, making it more sensitive in the fitted means and more prone to irregularities at the extremes of CHL. Second, the fitted curve and confidence intervals from the Gamma GLM are smoother and more stable across the entire CHL range. The POM–TBS curve tends to flatten at higher CHL values, and its confidence bands widen noticeably at both ends due to back-transformation and weight variability.
 
-Second, the fitted curve and confidence intervals from the Gamma GLM are smoother and more stable across the entire CHL range. The PoM–TBS curve tends to flatten at higher CHL values, and its confidence bands widen noticeably at both ends due to back-transformation and weight variability.
+A more solid nail in the coffin though is comparing respective residuals. The residual diagnostics generally favor the Gamma GLM: The deviance and studentized deviance residuals are more approximately symmetric and exhibit no major patterns, while the POM–TBS model retains curvature and uneven spread, indicating that its variance adjustments remain incomplete.
 
-Residual diagnostics also favor the Gamma GLM: the deviance and studentized residuals are centered, approximately symmetric, and exhibit no major patterns. The PoM–TBS model retains curvature and uneven spread, indicating that its variance adjustments remain incomplete.
-
-Finally, the Gamma GLM is simpler to interpret. The mean function
-
-$$\mu(x)=\frac{1}{\beta_0+\beta_1 x}$$
-
-is directly interpretable on the original scale. The PoM–TBS model requires transforming both sides and then back-transforming
-
-$$m(x)\approx(\alpha_0+\alpha_1 x^{-1/3})^3,$$
-
-which complicates inference, especially for quantities beyond the mean.
-
-Taken together, these considerations make the Gamma GLM with inverse link the most coherent and reliable modeling choice for the region-specific comparisons that follow.
+Taken together, these considerations make the Gamma GLM with inverse link the preferred modeling choice for the region-specific comparisons that follow.
 
 ## Applying to Regions 
 
@@ -2619,87 +2599,93 @@ kable(
 
 ## Interpreting the Model & Results  
 
-Across both regions, Secchi depth exhibits the same basic negative and nonlinear relationship with chlorophyll: Secchi decreases as CHL increases, and the Gamma GLM with inverse link provides a coherent and biologically reasonable description of this pattern. When the model is fit separately to the Plains and the Ozarks using the same structure, the *shape* of the Secchi–CHL curve is essentially identical across regions, indicating that the underlying light–attenuation mechanism operates similarly throughout Missouri lakes.
+Across both regions, Secchi depth shows the expected negative and nonlinear association with chlorophyll: Water clarity declines as CHL increases, and the Gamma GLM with an inverse link plausibly models the observed data. When the model is fit separately to the Plains and Ozarks using the same structure, the shapes of the fitted Secchi–CHL curves are nearly identical, indicating that the underlying ecological mechanism appears consistent across Missouri lakes in both regions.
 
-The *magnitude* of the response, however, differs in a consistent way. For any fixed CHL value, the Plains exhibit higher Secchi depth than the Ozarks. This vertical separation appears even at low CHL values (Plains Secchi roughly 1.7–2.5 m vs. 1.3–2.0 m in the Ozarks) and becomes more pronounced as CHL increases. By CHL values near 20–30, the fitted curves are clearly distinct and their 95% confidence bands show minimal overlap.
+The magnitude of the response differs, however. For any fixed CHL value, Secchi depth is higher in the Ozarks than in the Plains. This vertical offset is evident even at low CHL (Ozarks roughly 2.9–3.2m vs. 1.7–2.5m in the Plains) and becomes more pronounced as CHL increases. By CHL values around 20–30, the two fitted curves are visibly distinct, with minimal overlap in their confidence bands.
 
-The coefficient estimates reflect the same pattern. The two regions have nearly identical slopes on the inverse–link scale, implying similar rates at which Secchi declines with CHL. The intercepts differ, however: the Ozarks have a smaller fitted intercept, translating to uniformly lower Secchi depth across the entire CHL range. This suggests greater light attenuation in Ozark lakes for the same chlorophyll concentration.
+The coefficient estimates reinforce this interpretation. The regions have virtually identical slopes on the inverse–link scale, implying similar rates at which Secchi declines with CHL, though the intercepts differ. The Ozarks exhibit a larger fitted intercept, indicating that, for a given chlorophyll concentration, Ozark lakes tend to have higher water clarity than Plains lakes.
 
-Residual diagnostics indicate that the Gamma GLM fits both regions well, with no evidence of differing functional forms or dispersion patterns. Thus, the observed separation in Secchi depth represents a genuine regional difference rather than a modeling artifact.
+Residual diagnostics further support these conclusions. Both regional fits display well-behaved studentized deviance residuals under the Gamma GLM, with no evidence of region-specific misspecification, differing functional forms, or dispersion anomalies. Thus, the observed separation reflects a genuine regional difference rather than a modeling artifact.
 
-In summary, the Plains and Ozarks share the same functional Secchi–CHL relationship, but differ in overall water clarity: Ozark lakes exhibit consistently lower Secchi depth than Plains lakes at matched CHL levels.
+Overall, there is evidence to support that the Plains and Ozarks share the same functional Secchi–CHL relationship but differ in overall water clarity: Ozark lakes exhibit consistently higher Secchi depth than Plains lakes at matched CHL values.
 
 \newpage
 
 # Q3: LRT SECCHI & CHL (Plains vs. Ozarks)
 
-Let $Y_{gi}$ denote Secchi depth for observation $i$ in region $g \in \{P,O\}$ (Plains, Ozarks), with covariate $x_{gi} = \mathrm{CHL}$.
+Let $Y_{ij}$ denote Secchi depth for observation $i$ in region $j \in \{P,O\}$ (Plains, Ozarks), with covariate $x_{ij} = \mathrm{CHL}$.
 
-Assume a Gamma model with common shape $\alpha > 0$ and mean $\mu_{gi} > 0$:
+Assume a Gamma model with common shape $\alpha > 0$ and mean $\mu_{ij} > 0$:
 
 $$
-Y_{gi} \mid x_{gi} \sim \mathrm{Gamma}(\alpha,\mu_{gi}).
+Y_{ij} \mid x_{ij} \sim \mathrm{Gamma}(\alpha,\mu_{ij})
 $$
 
 The density (shape–mean form) is
 
 $$
-f(y_{gi}\mid \mu_{gi},\alpha)
+f(y_{ij}\mid \mu_{ij},\alpha)
 = \frac{1}{\Gamma(\alpha)}
-\left( \frac{\alpha}{\mu_{gi}} \right)^{\alpha}
-y_{gi}^{\alpha-1}
-\exp\!\left(-\frac{\alpha y_{gi}}{\mu_{gi}}\right),
-\qquad y_{gi}>0.
+\left( \frac{\alpha}{\mu_{ij}} \right)^{\alpha}
+y_{ij}^{\alpha-1}
+\exp\!\left(-\frac{\alpha y_{ij}}{\mu_{ij}}\right),
+\qquad y_{ij}>0
 $$
 
-The GLM uses the inverse link
+The GLM chosen uses the inverse link
 
 $$
 g(\mu)=\frac{1}{\mu},
 \qquad
-\eta_{gi}=\frac{1}{\mu_{gi}}.
+\eta_{ij}=\frac{1}{\mu_{ij}}
 $$
 
-Reduced model:
+The Reduced model is given by:
 
 $$
-\eta_{gi}=\beta_0+\beta_1 x_{gi},
+\eta_{ij}=\beta_0+\beta_1 x_{ij},
 \qquad
-\mu_{gi}=\frac{1}{\beta_0+\beta_1 x_{gi}}.
-$$
-
-The reduced log–likelihood is
-
-$$
-\ell_0(\beta_0,\beta_1,\alpha)
-=
-\sum_{g,i}
-\Big[
-(\alpha-1)\log y_{gi}
--\alpha y_{gi}(\beta_0+\beta_1 x_{gi})
-+\alpha\log(\beta_0+\beta_1 x_{gi})
-+\alpha\log\alpha
--\log\Gamma(\alpha)
-\Big].
-$$
-
-Full model:
-
-$$
-\eta_{Pi}=\beta_{P0}+\beta_{P1}x_{Pi},
-\qquad
-\eta_{Oi}=\beta_{O0}+\beta_{O1}x_{Oi},
-$$
-$$
-\mu_{Pi}=\frac{1}{\beta_{P0}+\beta_{P1}x_{Pi}},
-\qquad
-\mu_{Oi}=\frac{1}{\beta_{O0}+\beta_{O1}x_{Oi}}.
+\mu_{ij}=\frac{1}{\beta_0+\beta_1 x_{ij}}
 $$
 
 The parameter vector is
 
 $$
-\theta_1 = (\beta_{P0},\beta_{P1},\beta_{O0},\beta_{O1},\alpha).
+\theta_0 = (\beta_{0},\beta_{1}, \alpha)
+$$
+
+With reduced log–likelihood
+
+$$
+\ell_0(\beta_0,\beta_1,\alpha)
+=
+\sum_{i, j}
+\Big[
+(\alpha-1)\log y_{ij}
+-\alpha y_{ij}(\beta_0+\beta_1 x_{ij})
++\alpha\log(\beta_0+\beta_1 x_{ij})
++\alpha\log\alpha
+-\log\Gamma(\alpha)
+\Big]
+$$
+
+The Full model is given by:
+
+$$
+\eta_{iP}=\beta_{0P}+\beta_{1P}x_{iP},
+\qquad
+\eta_{iO}=\beta_{0O}+\beta_{1O}x_{iO}, \tag{Regretting the subscripts right about now.}
+$$
+$$
+\mu_{iP}=\frac{1}{\beta_{0P}+\beta_{1P}x_{iP}},
+\qquad
+\mu_{iO}=\frac{1}{\beta_{0O}+\beta_{1O}x_{iO}}
+$$
+
+The parameter vector is
+
+$$
+\theta_1 = (\beta_{0P},\beta_{1P},\beta_{0O},\beta_{1O},\alpha)
 $$
 
 The full log–likelihood is
@@ -2710,37 +2696,33 @@ $$
 =&
 \sum_{i=1}^{n_P}
 \Big[
-(\alpha-1)\log y_{Pi}
--\alpha y_{Pi}(\beta_{P0}+\beta_{P1}x_{Pi})
-+\alpha\log(\beta_{P0}+\beta_{P1}x_{Pi})
+(\alpha-1)\log y_{iP}
+-\alpha y_{iP}(\beta_{0P}+\beta_{1P}x_{iP})
++\alpha\log(\beta_{0P}+\beta_{1P}x_{iP})
 +\alpha\log\alpha
 -\log\Gamma(\alpha)
 \Big] \\
 &+
 \sum_{i=1}^{n_O}
 \Big[
-(\alpha-1)\log y_{Oi}
--\alpha y_{Oi}(\beta_{O0}+\beta_{O1}x_{Oi})
-+\alpha\log(\beta_{O0}+\beta_{O1}x_{Oi})
+(\alpha-1)\log y_{iO}
+-\alpha y_{iO}(\beta_{0O}+\beta_{1O}x_{iO})
++\alpha\log(\beta_{0O}+\beta_{1O}x_{iO})
 +\alpha\log\alpha
 -\log\Gamma(\alpha)
 \Big]
 \end{aligned}
 $$
 
-The LRT compares
+The LRT compares (under regularity conditions): 
+
+* $H_0$: reduced model is true (no region difference) 
+
+* $H_1$: full model is true (regions differ)
+
+Let $\hat\theta_0$ be the MLE under $H_0$ and $\hat\theta_1$ the MLE under $H_1$. The likelihood ratio statistic is of the form: 
 
 $$
-H_0: \text{reduced model (no regional difference)}
-\qquad\text{vs.}\qquad
-H_1: \text{full model (regions differ)}.
-$$
-
-Let $\hat\theta_0=(\hat\beta_0,\hat\beta_1,\hat\alpha)$ be the MLE under $H_0$ and $\hat\theta_1$ the MLE under $H_1$. The likelihood ratio statistic is
-
-$$
-\Lambda
-=
 -2\big[
 \ell_0(\hat\theta_0) - \ell_1(\hat\theta_1)
 \big]
@@ -2749,16 +2731,19 @@ $$
 Under $H_0$,
 
 $$
-\Lambda \overset{approx}{\sim} \chi^2_2,
+-2\big[
+\ell_0(\hat\theta_0) - \ell_1(\hat\theta_1)
+\big] \overset{a}{\sim} \chi^2_2
 $$
 
-because the full model has $5$ parameters and the reduced has $3$.
+With degrees of freedom of the $\chi^2$ given by the difference in parameters between full and reduced ($5 - 3 = 2$). 
 
-
-We reject $H_0$ when
+We reject $H_0$ at the $\alpha$ level when
 
 $$
-\Lambda > \chi^2_{2,\,1-\alpha}
+-2\big[
+\ell_0(\hat\theta_0) - \ell_1(\hat\theta_1)
+\big] > \chi^2_{2,\,1-\alpha}
 $$
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -2895,7 +2880,7 @@ results_table <- tibble(
 )
 
 kbl(results_table,
-    caption = "Model Fit, Log-Likelihoods, and LRT Results") |>
+    caption = "Model Fit, Log-Likelihoods, and LRT Results, Convergence using `optim`") |>
   kable_styling(full_width = FALSE, position = "center")
 ```
 
@@ -2915,12 +2900,6 @@ kbl(results_table,
 # c(ll_red_at_red  = ll_red_at_red,
 #   ll_full_nested = ll_full_at_nested)
 ```
-
-Under regularity conditions: 
-
-* $H_0$: reduced model is true (no region difference) 
-
-* $H_1$: full model is true (regions differ)
 
 In short, 
 
