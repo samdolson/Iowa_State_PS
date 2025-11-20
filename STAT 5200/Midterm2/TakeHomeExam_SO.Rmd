@@ -563,9 +563,9 @@ With the GLM choice established, additive error models are then considered for c
 <!-- # layout(1) -->
 <!-- # ``` -->
 
-A simple OLS fit shows a roughly linear TN–CHL trend but clear heteroscedasticity in the studentized residuals, motivating consideration of transform-both-sides (TBS) additive error models for the purposes of variance stabilization. Several variance-stabilizing transformations were examined, and ultimately the cube-root transformation performed best and produced a reasonable linearization of the relationship.
+A simple OLS fit shows a roughly linear TN–CHL trend but clear heteroscedasticity in the studentized residuals, motivating consideration of transform-both-sides (TBS) additive error models for the purposes of variance stabilization. Several variance-stabilizing transformations were considered, and ultimately the cube-root transformation performed best while maintaining a reasonable linearization of the relationship.
 
-However, TBS models have some drawbacks, the least of which being that inference requires back-transformation, and only the mean back-transforms cleanly. As we are interested in other quantities for assessing differences between regions (such as confidence intervals and differences), we start to envision quite a few potential drawbacks to a linear fit TBS. Combined with the remaining heteroscedasticity in the residuals, the TBS approach is not as appealing as the GLMs considered.
+However, TBS models have some drawbacks, the least of which being that inference requires back-transformation, and only the estimates of the mean back-transforms cleanly. As we are interested in other quantities for assessing differences between regions (such as confidence intervals and differences), we start to envision quite a few appreciable drawbacks to a linear fit TBS. Combined with the remaining heteroscedasticity in the studentized residuals, and the TBS approach is not as appealing as the GLMs considered thus far.
 
 ### Power of the Mean
 
@@ -635,7 +635,7 @@ However, TBS models have some drawbacks, the least of which being that inference
 <!-- # par(mfrow = c(1, 1)) -->
 <!-- # ``` -->
 
-Given the apparent nonlinearity and mean–variance relationship in the data, power-of-the-mean (POM) additive error models were also considered. Several values of the variance-stabilizing power $\theta$ were tested, including models that allowed the mean curve itself to be nonlinear. Although $\theta = 0.5$ performed best, in terms of consistentcy with the Box–Cox plots, its studentized (absolute and squared) residuals still indicated heteroscedasticity, and small fitted means made the weighting scheme unstable for larger $\theta$.
+Given the apparent nonlinearity and mean–variance relationship in the data, power-of-the-mean (POM) additive error models were also considered. Several values of the variance-stabilizing power $\theta$ were tested, including models that allowed the mean curve itself to be nonlinear. Although $\theta = 0.5$ performed best in terms of consistency with the Box–Cox plots and visually when plotted against the observed data, its studentized (absolute and squared) residuals still indicated heteroscedasticity, and small fitted means made the weighting scheme unstable for larger $\theta$.
 
 Overall, even the best POM combined with TBS that was considered for modelling the CHL-TN relationship failed to produce generally satisfactory variance stabilization while also failing to predict higher observed CHL values to boot. So neither the POM, TBS, nor their combination was ultimately retained as a candidate model.
 
@@ -1713,11 +1713,11 @@ On this basis, the Gamma GLM with inverse link is selected as the preferred mode
 <!-- # layout(1) -->
 <!-- # ``` -->
 
-We begin by fitting a simple linear regression of Secchi on CHL. Although the linear trend is directionally fitting, the studentized residuals show strong heteroscedasticity, motivating consideration of a transform-both-sides (TBS) additive error model.
+We begin by fitting a simple linear regression of Secchi on CHL. Although the linear trend is directionally fitting, the studentized residuals show heteroscedasticity, motivating consideration (but not necessarily adoption) of a TBS additive error model.
 
 Several variance–stabilizing transformations were evaluated, with the inverse and cube-root transformations appearing most promising based on exploratory plots. The purpose of these transformations is not to model Secchi on a transformed scale per se, but to obtain an additive-error model with approximately constant variance.
 
-The resulting TBS fits, however, indicate that this approach is not suitable for the Secchi–CHL relationship. Even under the best-performing transformations, the fitted curves fail to capture the clear curvature in the data, and the studentized residuals retain noticeable patterns and heteroscedasticity. The cube-root transformation performs better than the inverse transformation while avoiding instability near very small Secchi values, though substantial funnel patterns remain.
+The resulting TBS fits, however, indicate that this approach is not suitable for the Secchi–CHL relationship. Even under the best-performing transformations, the fitted curves fail to capture the pattern in the data, and the studentized residuals retain noticeable patterns and heteroscedasticity. Also, the cube-root transformation performs better than the inverse transformation while avoiding instability near very small Secchi values, though substantial funnel patterns remain.
 
 Overall, the TBS additive error models provide a poorer fit than the GLMs and do not adequately account for the nonlinear mean–variance structure. For this reason, they are not competitive as working models, though they offer some guidance for selecting transformations within POM models considered next.
 
