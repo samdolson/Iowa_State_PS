@@ -132,7 +132,7 @@
   pdfcreator={LaTeX via pandoc}}
 
 \title{An adaptive test based on Kendall's \(\tau\)}
-\subtitle{for independence in high dimensions}
+\subtitle{for independence in high dimensions (Shi et al. 2024)}
 \author{Sam Olson}
 \date{}
 
@@ -144,7 +144,8 @@
 \begin{itemize}
 \tightlist
 \item
-  Testing the mutual independence for high-dimensional data
+  Testing complete (mutual) independence in high-dimensional data
+  (\(d \gg n\))
 \item
   Known that \(L_2\)-type statistics have lower power under sparse cases
 \item
@@ -186,6 +187,25 @@
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Kendall's \(\tau\) in (Shi et al. 2024)}
+\phantomsection\label{kendalls-tau-in-shi2024}
+In the paper, Kendall's \(\tau\) between \(X_k\) and \(X_\ell\) is
+defined as
+
+\[
+\tau_{k\ell}
+  = \frac{2}{n(n-1)}
+    \sum_{i=2}^n \sum_{j=1}^{i-1}
+    \operatorname{sign}(R_{ki}-R_{kj})\,
+    \operatorname{sign}(R_{\ell i}-R_{\ell j}),
+\]
+
+where \(R_{ki}\) and \(R_{\ell i}\) are the ranks of \(X_k\) and
+\(X_\ell\).
+
+This is equivalent to the definition given on the prior slide.
+\end{frame}
+
 \begin{frame}{History of Kendall's \(\tau\) and related concepts}
 \phantomsection\label{history-of-kendalls-tau-and-related-concepts}
 \begin{itemize}
@@ -203,13 +223,13 @@
   \textbf{1958--1990s} --- Applied to time series settings for tests of
   serial dependence. (El-Shaarawi and Niculescu 1992; Hamed 2011).
 \item
-  \textbf{2020-2024} --- Kendall's \(\tau\) was used for ``match rate
-  analysis'' to determine whether two separate processes replicate
-  ``close enough'' healthcare metrics (my personal experience).
+  \textbf{2020-2024} --- Used to determine whether two separate
+  processes replicate metrics (application in healthcare ``match rate''
+  analysis; personal experience).
 \item
-  \textbf{2024} --- (Shi et al. 2024), the focus of this presentation,
-  develop adaptive high-dimensional independence tests using Kendall's
-  \(\tau\).
+  \textbf{2024} --- (Shi et al. 2024), \textbf{the focus of this
+  presentation}, develop adaptive high-dimensional independence tests
+  using Kendall's \(\tau\).
 \item
   \textbf{2025} --- (Han, Ma, and Xie 2025) extend to a broader class of
   sum-of-powers tests.
@@ -218,6 +238,9 @@
 
 \begin{frame}{In Detail: Shi et al.~(2024): Problem Statement}
 \phantomsection\label{in-detail-shi-et-al.-2024-problem-statement}
+Let \(X = (X_1, \ldots, X_d)\) be a continuous random vector, with
+i.i.d. observations \(x_i\).
+
 \[
 H_0: X_1, \dots, X_d \text{ are mutually independent}
 \]
@@ -231,16 +254,17 @@ where both \emph{dense} and \emph{sparse} alternatives may occur.
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Rank-based}, \textbf{distribution-free}, and robust to
-  \textbf{heavy tails}.\\
+  Rank-based, distribution-free, and robust to heavy tails.\\
+\item
+  Each \(\tau_{k\ell}\) measures pairwise monotonic dependence between
+  \(X_k, X_\ell\).
 \item
   Works even when moments (e.g., variances) are infinite.\\
 \item
   Avoids dependence on the data-generation process (no parametric
   assumptions!)\\
 \item
-  Each \(\tau_{k\ell}\) measures pairwise monotonic dependence between
-  \(X_k, X_\ell\).
+  Only requires continuous marginals to avoid ties.
 \end{itemize}
 \end{frame}
 
@@ -258,8 +282,8 @@ Setting & Dependence Structure & Suitable Statistic \\
 \end{longtable}
 \end{frame}
 
-\begin{frame}[allowframebreaks]{Method (Overview)}
-\phantomsection\label{method-overview}
+\begin{frame}{Method (Overview) I}
+\phantomsection\label{method-overview-i}
 \begin{enumerate}
 \tightlist
 \item
@@ -275,10 +299,14 @@ Setting & Dependence Structure & Suitable Statistic \\
 \end{itemize}
 
 \[
-S_\tau = \omega_2^{-1/2}\!\left(\sum_{k>\ell}\tau_{k\ell}^2 - \tfrac{d(d-1)}{2}\omega_1\right)
-\Rightarrow S_\tau \overset{d}{\to} N(0,1)
+S_\tau = \omega_2^{-1/2}\left(\sum_{k>\ell}\tau_{k\ell}^2 - \frac{d(d-1)}{2}\,\omega_1\right),
+\qquad
+S_\tau \xrightarrow{d} N(0,1).
 \]
+\end{frame}
 
+\begin{frame}{Method (Overview) II}
+\phantomsection\label{method-overview-ii}
 \begin{itemize}
 \tightlist
 \item
@@ -286,13 +314,28 @@ S_\tau = \omega_2^{-1/2}\!\left(\sum_{k>\ell}\tau_{k\ell}^2 - \tfrac{d(d-1)}{2}\
 \end{itemize}
 
 \[
-M_\tau = \omega_1^{-1}\max_{k<\ell}\tau_{k\ell}^2 - 4\ln d + \ln\ln d
-\Rightarrow M_\tau \overset{d}{\to} \text{Gumbel}
+M_{\tau}
+= \omega_1^{-1}\!\left( \max_{k < \ell} \tau_{k\ell}^2 \right)
+\;-\; 4 \ln d \;+\; \ln \ln d, 
+\qquad
+M_\tau \xrightarrow{d} \text{Gumbel}.
 \]
 
-Where \(\omega_1, \omega_2\) are constants reflecting the variance
-structure of pairwise Kendall's \(\tau\)'s under independence (\(H_0\)).
+where \(\omega_1, \omega_2\) are constants reflecting the variance
+structure of pairwise Kendall's \(\tau\) under independence (\(H_0\)),
+specifically:
 
+\[
+\omega_1 = \frac{2(2n+5)}{9n(n-1)}, \qquad
+\omega_2 = \frac{4d(d-1)(n-2)(100n^3 + 492n^2 + 731n + 279)}{2025\,n^3(n-1)^3}
+\]
+
+Note: The use of ``ln ln'' is correct, both in the original paper and
+the paper it cites.
+\end{frame}
+
+\begin{frame}{Method (Overview) III}
+\phantomsection\label{method-overview-iii}
 \begin{enumerate}
 \setcounter{enumi}{2}
 \tightlist
@@ -302,19 +345,24 @@ structure of pairwise Kendall's \(\tau\)'s under independence (\(H_0\)).
 \end{enumerate}
 
 \[
-C_\tau = \min\{1 - \Phi(S_\tau),\, 1 - F_{\mathrm{Gumbel}}(M_\tau)\}
+C_\tau = \min\{1 - F(M_\tau),\, 1 - \Phi(S_\tau)\},
 \]
 
+where \(\Phi\) is the standard normal CDF and \(F\) is the Gumbel CDF.
+\end{frame}
+
+\begin{frame}{A Quick Aside}
+\phantomsection\label{a-quick-aside}
 What is an Adaptive Test?
 
 \begin{itemize}
 \tightlist
 \item
-  A single procedure that \textbf{automatically adapts} to the
-  dependence pattern.\\
+  A single procedure that automatically adapts to the dependence
+  pattern.\\
 \item
-  If data are \textbf{dense}, \(S_\tau\) dominates; if \textbf{sparse},
-  \(M_\tau\) dominates.\\
+  If data are dense, \(S_\tau\) dominates; if sparse, \(M_\tau\)
+  dominates.\\
 \item
   \(C_\tau\) effectively selects the stronger signal through
   \(p\text{-value} = \min(p_{S_\tau}, p_{M_\tau})\).
@@ -323,25 +371,24 @@ What is an Adaptive Test?
 
 \begin{frame}{Theoretical Results I}
 \phantomsection\label{theoretical-results-i}
-With all the following base assumptions:
+With the following base assumptions:
 
 \begin{itemize}
 \tightlist
 \item
-  Finite 8th moment (for asymptotic normality of \(\tau\) to hold)
+  \(X = (X_1,\dots,X_d)\) has continuous marginals.
 \item
-  Dependence boundedness conditions (\(\alpha\)-mixing type)
+  Observations \(x_{\cdot,i}\) are i.i.d.
 \item
-  \(\frac{d}{n} \rightarrow \infty\) allowed
+  \(\ln d = o(n^{1/3})\) as \(n \to \infty\).
 \end{itemize}
 
-Then, \textbf{Under} \(H_0\):
+Then, under \(H_0\):
 
 \begin{itemize}
 \tightlist
 \item
-  \(S_\tau\) and \(M_\tau\) are \textbf{asymptotically independent} ---
-  key innovation.
+  \(S_\tau\) and \(M_\tau\) are \textbf{asymptotically independent}
 \item
   Therefore,
 \end{itemize}
@@ -354,24 +401,27 @@ Then, \textbf{Under} \(H_0\):
 
 \begin{frame}{Theoretical Results II}
 \phantomsection\label{theoretical-results-ii}
-\begin{itemize}
-\tightlist
-\item
-  Consequently,
-\end{itemize}
+Consequently, under \(H_0\):
 
 \[
-C_\tau = \min\{1 - \Phi(Z_1),\, 1 - F(Z_2)\} \xrightarrow{d} W=\min(U_1,U_2),
+C_\tau=\min\{1-\Phi(S_\tau),\,1-F(M_\tau)\}
+\, \xrightarrow{d} \, 
+W=\min(U_1,U_2)
 \]
 
-where \(U_1,U_2\sim \text{Uniform}(0,1)\).
+where \(U_1,U_2\sim\text{Unif}(0,1)\)
+
+The limiting CDF of \(W\) is
 
 \[
-\Rightarrow H(t) = 2t - t^2,\quad t\in[0,1].
+H(t)=\Pr(W\le t)=2t - t^2,\qquad t\in[0,1]
 \]
 
-\textbf{Decision rule:}\\
-Reject \(H_0\) if \(C_\tau < 1 - \sqrt{1 - \alpha}\).
+\textbf{Decision rule:} Reject \(H_0\) if
+
+\[
+C_\tau < 1-\sqrt{\,1-\alpha\,}
+\]
 \end{frame}
 
 \begin{frame}{Practical Implementation}
@@ -384,9 +434,9 @@ Reject \(H_0\) if \(C_\tau < 1 - \sqrt{1 - \alpha}\).
   \begin{itemize}
   \tightlist
   \item
-    \(TC_\tau\): uses theoretical (asymptotic) critical values.\\
+    \(TC_\tau\): Uses theoretical (asymptotic) critical values.\\
   \item
-    \(MC_\tau\): uses Monte Carlo--simulated critical values
+    \(MC_\tau\): Uses Monte Carlo--simulated critical values
     (finite-sample accurate).\\
   \end{itemize}
 \item
@@ -399,18 +449,13 @@ Reject \(H_0\) if \(C_\tau < 1 - \sqrt{1 - \alpha}\).
 \begin{itemize}
 \tightlist
 \item
+  Adaptive: Unified test for both dense and sparse dependence.\\
+\item
   Joint Asymptotic independence of \(S_{\tau}, M_{\tau}\) allows for an
   adaptive combination (hence the valid statistical test of
   independence)
 \item
-  \textbf{Distribution-free:} No parametric or moment assumptions.\\
-\item
-  \textbf{Robust:} Handles heavy-tailed or non-Gaussian data.\\
-\item
-  \textbf{Adaptive:} Unified test for both dense and sparse
-  dependence.\\
-\item
-  \textbf{Asymptotic theory:}
+  Asymptotic theory:
 
   \begin{itemize}
   \tightlist
@@ -466,9 +511,9 @@ Under various settings, we compare the following methods:
 
 \begin{frame}{Results II}
 \phantomsection\label{results-ii}
-There are a number of tables for the various conditions the author's
-tested the statistical tests. The main focus is on the \emph{Size} and
-\emph{Power} (mainly the latter) of the statistical tests.
+There are a number of tables for the various conditions the authors
+evaluated the statistical tests. The main focus is on the \emph{Size}
+and \emph{Power} (mainly the latter) of the statistical tests.
 
 Overall:
 
@@ -478,9 +523,9 @@ Overall:
   While one particular non-adaptive test may do best under a particular
   setting (dense/sparse),
 \item
-  Both implementations of the adaptive test proposed does as good (is
-  roughly as powerful) as the ``best'' method, but for \textbf{both}
-  settings
+  Both implementations of the adaptive test perform about as well as the
+  ``best'' method in each scenario, but across \textbf{both} dense and
+  sparse settings.
 \item
   Highlighted portions of the tables that follow are the adaptive tests
 \end{itemize}
@@ -494,7 +539,7 @@ Overall:
 
 }
 
-\caption{Empirical sizes of tests}\label{fig:Table 1}
+\caption{Empirical sizes of tests (small is good)}\label{fig:Table 1}
 \end{figure}
 \end{frame}
 
@@ -556,22 +601,22 @@ Overall:
   \begin{itemize}
   \tightlist
   \item
-    \textbf{Welding (4 vars, n=40):} rank-based rejects null hypothesis;
+    \textbf{Welding (4 vars, n=40):} Rank-based rejects null hypothesis;
     Pearson fails to reject.
   \item
-    \textbf{Biochemical (8 vars, n=12):} adaptive detects group
+    \textbf{Biochemical (8 vars, n=12):} Adaptive test detects group
     differences.
   \end{itemize}
 \item
-  I also implemented the method myself (and validated against the
-  author's own method)
+  I also implemented the method myself (and validated it against the
+  authors' implementation).
 
   \begin{itemize}
   \tightlist
   \item
     Applied (mainly for fun) to a Consulting Case
   \item
-    Apriori believed the covariate to be independent, and they were (at
+    A priori believed the covariate to be independent, and they were (at
     least according to the adaptive test)!
   \end{itemize}
 \end{itemize}

@@ -563,9 +563,11 @@ With the GLM choice established, additive error models are then considered for c
 <!-- # layout(1) -->
 <!-- # ``` -->
 
-A simple OLS fit shows a roughly linear TN–CHL trend but clear heteroscedasticity in the studentized residuals, motivating consideration of transform both sides (TBS) additive error models for the purposes of variance stabilization. Several variance-stabilizing transformations were considered, and ultimately the cube-root transformation performed best while maintaining a reasonable linearization of the relationship.
+A simple OLS fit suggests a roughly linear TN–CHL relationship, but the studentized residuals exhibit clear heteroscedasticity. This motivates considering transform both sides (TBS) additive-error models, whose primary use would be to stabilize the variance. Several variance-stabilizing transformations were evaluated, with the cube-root transformation providing the best balance between stabilizing the variance and maintaining approximate linearity.
 
-However, TBS models have some drawbacks, the least of which being that inference requires back-transformation, and only the estimates of the mean back-transforms cleanly. As we are interested in other quantities for assessing differences between regions (such as confidence intervals and differences), we start to envision quite a few appreciable drawbacks to a linear fit TBS. Combined with the remaining heteroscedasticity in the studentized residuals, and the TBS approach is not as appealing as the GLMs considered thus far.
+However, TBS models introduce some drawbacks. Because inference must be back-transformed to the original scale, certain quantities of interest such as confidence intervals, differences between regions, and predictive intervals do not back-transform in a straightforward way. Nonlinear back-transformation interacts with uncertainty (via Jensen’s inequality), so intervals on the original scale require additional correction or simulation. This is to say, the TBS framework becomes substantially more cumbersome and should certainly justify its use by adding some benefit over the GLMs considered thus far.
+
+However, because the transformed-scale residuals (again, studentized) still showed heteroscedasticity, the benefits of the TBS linear approach are limited. In contrast, the GLMs considered earlier directly model the nonconstant variance structure through an appropriate mean–variance relationship and avoid back-transformation issues. Therefore, the GLM formulations remain the more appealing modeling strategy.
 
 ### Power of the Mean
 
@@ -690,7 +692,7 @@ coef_tab <- rbind(
 )
 ```
 
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
+```{r, message=F, warning=F, echo=F, fig.height=8, fig.width=8}
 ## ----- Coefficient table (unchanged) ----- ##
 kableExtra::kbl(
   coef_tab,
@@ -772,7 +774,7 @@ par(mfrow = c(1, 2),
 z95 <- qnorm(0.975)
 ```
 
-```{r overlay-plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=10}
+```{r overlay-plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=12}
 layout(matrix(c(1, 1,
                 2, 3),
               nrow = 2, byrow = TRUE))
@@ -794,8 +796,8 @@ y_range <- c(y_range_raw[1] - pad_y,
              y_range_raw[2] + pad_y)
 
 ## Colors for curves
-col_plains <- "black"
-col_ozark  <- "blue"
+col_plains <- "#0072B2"
+col_ozark  <- "#D55E00"
 
 ## z for 95% CI
 z95 <- qnorm(0.975)
@@ -1081,8 +1083,8 @@ prob_grid <- sapply(x_grid, prob_YgtZ_normal,
 plot(x_grid, prob_grid, type = "l",
      ylim = c(0.44, 0.51),
      xlab = "TN",
-     ylab = "Estimated Pr(Plains CHL > Ozarks CHL | TN)",
-     main = "Pr(Plains CHL > Ozarks CHL)")
+     ylab = "Estimated Pr",
+     main = "Pr(Plains CHL > Ozarks CHL | TN))")
 # reference line at 0.5
 abline(h = 0.5, lty = 2)
 ```
@@ -2140,9 +2142,11 @@ plot(fitted(fit_phi_pom), stud_resid,
 abline(h = 0, lty = 2)
 ```
 
-Although both the reciprocal additive model "as-is" and its extension via the cube-root TBS capture the general decreasing trend, neither provides satisfactory variance stabilization. Further, the POM extensions with $\delta = 0.5$ and $\delta = 0.75$ perform the best among the additive models considered, producing smoother curves while doing a better job at stabilizing the variance. However, even these weighted fits retain visible structure in the residuals (absolute, squared, and now absolute $\frac{2}{3}$-root studentized) and fall short of the diagnostic quality achieved by the Gamma GLM with inverse link.
+Although both the reciprocal additive model ($\phi = 1/\mathrm{CHL}$) and its cube-root TBS extension capture the overall decreasing Secchi–CHL trend, neither achieves satisfactory variance stabilization. Extending these models using the POM framework with powers $\theta = 0.5$ and $\theta = 0.75$ improves the fitted curve somewhat, in that their weighted fits yield smoother curves and better behavior at higher CHL values than the unweighted additive alternatives.
 
-Between the two POM specifications, $\delta = 0.75$ provided slightly better performance at high CHL values: The fitted curve tracked the observed decline in Secchi depth more closely in the upper tail than the corresponding $\delta = 0.5$ model.
+However, even these "improved" POM models show patterns and heteroscedasticity in their residuals (absolute, squared, or $\frac{2}{3}$-root absolute studentized residuals), indicating that variance stabilization remains incomplete. Between the two, the $\theta = 0.75$ model performs slightly better in the upper tail, where the fitted decline in Secchi depth more closely tracks the observed data. Still, the residual diagnostics for both POM models fall short of our desires, especially when compared against the Gamma GLM with an inverse link.
+
+Accordingly, while the $\theta = 0.75$ POM model performs better than the other additive-error candidates, its remaining heteroscedasticity and lack of fit to the observed Secchi–CHL relationship limits its usefulness. The POM–TBS model is therefore retained only for comparison, with the Gamma GLM adopted as the primary model for the region-specific analyses.
 
 Note: The “best” additive model is not presented in full here, but its fitted curve and representative residual diagnostics appear in the figures that follow.
 
@@ -2210,16 +2214,16 @@ mu_hi_g <- 1 / eta_lo_g
 
 
 ## ============================================
-## PLOT: Gamma vs PoM delta = 0.75 with 95% CIs
+## PLOT: Gamma vs POM delta = 0.75 with 95% CIs
 ## ============================================
 
 plot(lakesDat$chl, lakesDat$secchi,
      pch = 1, col = "grey40",
      xlab = "CHL",
      ylab = "Secchi depth",
-     main = "Gamma GLM vs PoM (delta = 0.75)")
+     main = "Gamma GLM vs POM (delta = 0.75)")
 
-## --- PoM delta = 0.75 ---
+## --- POM delta = 0.75 ---
 lines(chl.grid, fit_pom075,
       col = "blue", lwd = 2)
 lines(chl.grid, lo_pom075,
@@ -2236,8 +2240,8 @@ lines(chl.grid, mu_hi_g,
       col = "black", lwd = 1, lty = 2)
 
 legend("topright",
-       legend = c("PoM delta = 0.75 (mean)", "Gamma GLM (mean)",
-                  "PoM 95% CI", "Gamma 95% CI"),
+       legend = c("POM delta = 0.75 (mean)", "Gamma GLM (mean)",
+                  "POM 95% CI", "Gamma 95% CI"),
        col    = c("blue", "black", "blue", "black"),
        lty    = c(1, 1, 3, 2),
        lwd    = c(2, 3, 1, 1),
@@ -2314,16 +2318,16 @@ abline(h = 0, lty = 2)
 
 ## ============================================
 ## PANEL 3 (bottom-right): 2/3-root |studentized residuals|
-##      for PoM additive error model (delta = 0.75)
+##      for POM additive error model (delta = 0.75)
 ## ============================================
 
 stud_pom <- rstudent(fit_phi_pom2)
 trans_pom <- abs(stud_pom)^(2/3)
 
 plot(fitted(fit_phi_pom2), trans_pom,
-     xlab = "Fitted values (PoM, delta = 0.75)",
+     xlab = "Fitted values (POM, delta = 0.75)",
      ylab = expression("|studentized residual|^{2/3}"),
-     main = "PoM (delta = 0.75): 2/3-root |stud. residuals|")
+     main = "POM (delta = 0.75): 2/3-root |stud. residuals|")
 ```
 
 The two models that performed adequately were the Gamma GLM with an inverse link and the POM additive model with $\delta = 0.75$ combined with a cube-root TBS transformation. Although both produce broadly similar decreasing curves, the Gamma GLM remains the preferred model.
@@ -2378,7 +2382,7 @@ coef_tab <- rbind(
 )
 ```
 
-```{r, message=F, warning=F, echo=F, fig.height=10, fig.width=10}
+```{r, message=F, warning=F, echo=F, fig.height=8, fig.width=8}
 ## ----- Coefficient table ----- ##
 kableExtra::kbl(
   coef_tab,
@@ -2462,7 +2466,7 @@ par(mfrow = c(1, 2),
 z95 <- qnorm(0.975)
 ```
 
-```{r overlay-plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, fig.width=10}
+```{r overlay-plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.width=12}
 layout(matrix(c(1, 1,
                 2, 3),
               nrow = 2, byrow = TRUE))
@@ -2484,8 +2488,8 @@ y_range <- c(y_range_raw[1] - pad_y,
              y_range_raw[2] + pad_y)
 
 ## Colors for curves
-col_plains <- "black"
-col_ozark  <- "blue"
+col_plains <- "#0072B2"
+col_ozark  <- "#D55E00"
 
 ## z for 95% CI
 z95 <- qnorm(0.975)

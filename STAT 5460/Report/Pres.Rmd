@@ -1,6 +1,6 @@
 ---
 title: "An adaptive test based on Kendall's $\\tau$"
-subtitle: "for independence in high dimensions"
+subtitle: "for independence in high dimensions [@Shi2024]"
 author: "Sam Olson"
 date: ""
 output:
@@ -26,7 +26,7 @@ library(readr)
 
 # Synopsis of Paper
 
-- Testing the mutual independence for high-dimensional data
+- Testing complete (mutual) independence in high-dimensional data ($d \gg n$)
 - Known that $L_2$-type statistics have lower power under sparse cases
 - Known that $L_\infty$-type statistics have lower power under dense cases
 - **Goal:** Develop an adaptive test based on Kendall’s $\tau$ to work well in both situations
@@ -44,14 +44,30 @@ $$
 -   That is, if either both $x_i > x_j$ and $y_i > y_j$ holds or both $x_i < x_j$ and $y_i < y_j$; otherwise they are said to be *discordant*.
 -   There are other types of Kendall's $\tau$, e.g., $\tau_a$, $\tau_b$, and $\tau_c$.
 
+# Kendall's $\tau$ in [@Shi2024]
+
+In the paper, Kendall’s $\tau$ between $X_k$ and $X_\ell$ is defined as
+
+$$
+\tau_{k\ell}
+  = \frac{2}{n(n-1)}
+    \sum_{i=2}^n \sum_{j=1}^{i-1}
+    \operatorname{sign}(R_{ki}-R_{kj})\,
+    \operatorname{sign}(R_{\ell i}-R_{\ell j}),
+$$
+
+where $R_{ki}$ and $R_{\ell i}$ are the ranks of $X_k$ and $X_\ell$. 
+
+This is equivalent to the definition given on the prior slide. 
+
 # History of Kendall's $\tau$ and related concepts 
 
 -   **1897** — [@Fechner1897] introduces the *method of signs* for succession-dependence.
 -   **1938** — [@Kendall1938] develops the $\tau$ rank correlation coefficient.
 -   **1958** — [@Kruskal1958] generalizes Kendall’s ideas into a general nonparametric testing framework.
 -   **1958–1990s** — Applied to time series settings for tests of serial dependence. [@ElShaarawi1992; @Hamed2011].
--   **2020-2024** — Kendall's $\tau$ was used for "match rate analysis" to determine whether two separate processes replicate "close enough" healthcare metrics (my personal experience). 
--   **2024** — [@Shi2024], the focus of this presentation, develop adaptive high-dimensional independence tests using Kendall’s $\tau$.
+-   **2020-2024** — Used to determine whether two separate processes replicate metrics (application in healthcare “match rate” analysis; personal experience). 
+-   **2024** — [@Shi2024], **the focus of this presentation**, develop adaptive high-dimensional independence tests using Kendall’s $\tau$.
 -   **2025** — [@Han2025] extend to a broader class of sum-of-powers tests.
 
 <!-- # General Summary {.allowframebreaks} -->
@@ -80,6 +96,8 @@ $$
 
 # In Detail: Shi et al. (2024): Problem Statement
 
+Let $X = (X_1, \ldots, X_d)$ be a continuous random vector, with i.i.d. observations $x_i$. 
+
 $$
 H_0: X_1, \dots, X_d \text{ are mutually independent}
 $$
@@ -88,10 +106,11 @@ Testing full independence in **high dimensions** ($d \gg n$), where both *dense*
 
 # Why Kendall’s $\tau$?
 
--   **Rank-based**, **distribution-free**, and robust to **heavy tails**.\
+-   Rank-based, distribution-free, and robust to heavy tails.\
+-   Each $\tau_{k\ell}$ measures pairwise monotonic dependence between $X_k, X_\ell$.
 -   Works even when moments (e.g., variances) are infinite.\
 -   Avoids dependence on the data-generation process (no parametric assumptions!)\
--   Each $\tau_{k\ell}$ measures pairwise monotonic dependence between $X_k, X_\ell$.
+-   Only requires continuous marginals to avoid ties.
 
 <!-- # How Is This Non-Parametric? -->
 
@@ -105,7 +124,7 @@ Testing full independence in **high dimensions** ($d \gg n$), where both *dense*
 | **Dense**  | Many weak correlations  | $L_2$-type (sum-type)      |
 | **Sparse** | Few strong correlations | $L_\infty$-type (max-type) |
 
-# Method (Overview) {.allowframebreaks}
+# Method (Overview) I
 
 1.  Compute pairwise Kendall’s taus $\tau_{k\ell}$.\
 2.  Construct two base statistics:
@@ -113,42 +132,61 @@ Testing full independence in **high dimensions** ($d \gg n$), where both *dense*
 -   $S_\tau$ ($L_2$-type):
 
 $$
-S_\tau = \omega_2^{-1/2}\!\left(\sum_{k>\ell}\tau_{k\ell}^2 - \tfrac{d(d-1)}{2}\omega_1\right)
-\Rightarrow S_\tau \overset{d}{\to} N(0,1)
+S_\tau = \omega_2^{-1/2}\left(\sum_{k>\ell}\tau_{k\ell}^2 - \frac{d(d-1)}{2}\,\omega_1\right),
+\qquad
+S_\tau \xrightarrow{d} N(0,1).
 $$
+
+# Method (Overview) II
 
 -   $M_\tau$ ($L_\infty$-type):
 
 $$
-M_\tau = \omega_1^{-1}\max_{k<\ell}\tau_{k\ell}^2 - 4\ln d + \ln\ln d
-\Rightarrow M_\tau \overset{d}{\to} \text{Gumbel}
+M_{\tau}
+= \omega_1^{-1}\!\left( \max_{k < \ell} \tau_{k\ell}^2 \right)
+\;-\; 4 \ln d \;+\; \ln \ln d, 
+\qquad
+M_\tau \xrightarrow{d} \text{Gumbel}.
 $$
 
-Where $\omega_1, \omega_2$ are constants reflecting the variance structure of pairwise Kendall's $\tau$'s under independence ($H_0$).
+where $\omega_1, \omega_2$ are constants reflecting the variance structure of pairwise Kendall's $\tau$ under independence ($H_0$), specifically: 
+
+$$
+\omega_1 = \frac{2(2n+5)}{9n(n-1)}, \qquad
+\omega_2 = \frac{4d(d-1)(n-2)(100n^3 + 492n^2 + 731n + 279)}{2025\,n^3(n-1)^3}
+$$
+
+Note: The use of "ln ln" is correct, both in the original paper and the paper it cites.
+
+# Method (Overview) III
 
 3.  Combine the two via the *minimum p-value approach* (an "adaptive test"):
 
 $$
-C_\tau = \min\{1 - \Phi(S_\tau),\, 1 - F_{\mathrm{Gumbel}}(M_\tau)\}
+C_\tau = \min\{1 - F(M_\tau),\, 1 - \Phi(S_\tau)\},
 $$
+
+where $\Phi$ is the standard normal CDF and $F$ is the Gumbel CDF.
+
+# A Quick Aside
 
 What is an Adaptive Test?
 
--   A single procedure that **automatically adapts** to the dependence pattern.\
--   If data are **dense**, $S_\tau$ dominates; if **sparse**, $M_\tau$ dominates.\
+-   A single procedure that automatically adapts to the dependence pattern.\
+-   If data are dense, $S_\tau$ dominates; if sparse, $M_\tau$ dominates.\
 -   $C_\tau$ effectively selects the stronger signal through $p\text{-value} = \min(p_{S_\tau}, p_{M_\tau})$.
 
 # Theoretical Results I
 
-With all the following base assumptions:
+With the following base assumptions:
 
--   Finite 8th moment (for asymptotic normality of $\tau$ to hold)
--   Dependence boundedness conditions ($\alpha$-mixing type)
--   $\frac{d}{n} \rightarrow \infty$ allowed
+-   $X = (X_1,\dots,X_d)$ has continuous marginals.
+-   Observations $x_{\cdot,i}$ are i.i.d.
+-   $\ln d = o(n^{1/3})$ as $n \to \infty$.
 
-Then, **Under** $H_0$:
+Then, under $H_0$:
 
--   $S_\tau$ and $M_\tau$ are **asymptotically independent** — key innovation.
+-   $S_\tau$ and $M_\tau$ are **asymptotically independent**
 -   Therefore,
 
 $$
@@ -158,35 +196,40 @@ $$
 
 # Theoretical Results II
 
--   Consequently,
+Consequently, under $H_0$:
 
 $$
-C_\tau = \min\{1 - \Phi(Z_1),\, 1 - F(Z_2)\} \xrightarrow{d} W=\min(U_1,U_2),
+C_\tau=\min\{1-\Phi(S_\tau),\,1-F(M_\tau)\}
+\, \xrightarrow{d} \, 
+W=\min(U_1,U_2)
 $$
 
-where $U_1,U_2\sim \text{Uniform}(0,1)$.
+where $U_1,U_2\sim\text{Unif}(0,1)$
+
+The limiting CDF of $W$ is
 
 $$
-\Rightarrow H(t) = 2t - t^2,\quad t\in[0,1].
+H(t)=\Pr(W\le t)=2t - t^2,\qquad t\in[0,1]
 $$
 
-**Decision rule:**\
-Reject $H_0$ if $C_\tau < 1 - \sqrt{1 - \alpha}$.
+**Decision rule:** Reject $H_0$ if
+
+$$
+C_\tau < 1-\sqrt{\,1-\alpha\,}
+$$
 
 # Practical Implementation
 
 -   Two variants:
-    -   $TC_\tau$: uses theoretical (asymptotic) critical values.\
-    -   $MC_\tau$: uses Monte Carlo–simulated critical values (finite-sample accurate).\
+    -   $TC_\tau$: Uses theoretical (asymptotic) critical values.\
+    -   $MC_\tau$: Uses Monte Carlo–simulated critical values (finite-sample accurate).\
 -   Distribution-free; efficient table lookup possible for $(n,d)$.
 
 # Key Properties of the Adaptive Test
 
+-   Adaptive: Unified test for both dense and sparse dependence.\
 -   Joint Asymptotic independence of $S_{\tau}, M_{\tau}$ allows for an adaptive combination (hence the valid statistical test of independence)
--   **Distribution-free:** No parametric or moment assumptions.\
--   **Robust:** Handles heavy-tailed or non-Gaussian data.\
--   **Adaptive:** Unified test for both dense and sparse dependence.\
--   **Asymptotic theory:**
+-   Asymptotic theory:
     -   $S_\tau \to N(0,1)$\
     -   $M_\tau \to \text{Gumbel}$\
     -   $S_\tau, M_\tau$ independent\
@@ -218,17 +261,17 @@ Under various settings, we compare the following methods:
 
 # Results II
 
-There are a number of tables for the various conditions the author's tested the statistical tests. The main focus is on the *Size* and *Power* (mainly the latter) of the statistical tests.
+There are a number of tables for the various conditions the authors evaluated the statistical tests. The main focus is on the *Size* and *Power* (mainly the latter) of the statistical tests.
 
 Overall:
 
 -   While one particular non-adaptive test may do best under a particular setting (dense/sparse),
--   Both implementations of the adaptive test proposed does as good (is roughly as powerful) as the "best" method, but for **both** settings
+-   Both implementations of the adaptive test perform about as well as the "best" method in each scenario, but across **both** dense and sparse settings.
 -   Highlighted portions of the tables that follow are the adaptive tests
 
 # Results III
 
-```{r Table 1, echo=FALSE, fig.align="center", out.height="77%", out.width="80%", fig.cap="Empirical sizes of tests"}
+```{r Table 1, echo=FALSE, fig.align="center", out.height="77%", out.width="80%", fig.cap="Empirical sizes of tests (small is good)"}
 knitr::include_graphics("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5460/Report/Figures/Table1H.png")
 ```
 
@@ -259,11 +302,11 @@ knitr::include_graphics("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT 5460
 # Applications
 
 -   The paper also applies the method to two "real-world" examples:
-    -   **Welding (4 vars, n=40):** rank-based rejects null hypothesis; Pearson fails to reject.
-    -   **Biochemical (8 vars, n=12):** adaptive detects group differences.
--   I also implemented the method myself (and validated against the author's own method)
+    -   **Welding (4 vars, n=40):** Rank-based rejects null hypothesis; Pearson fails to reject.
+    -   **Biochemical (8 vars, n=12):** Adaptive test detects group differences.
+-   I also implemented the method myself (and validated it against the authors’ implementation).
     -   Applied (mainly for fun) to a Consulting Case
-    -   Apriori believed the covariate to be independent, and they were (at least according to the adaptive test)!
+    -   A priori believed the covariate to be independent, and they were (at least according to the adaptive test)!
 
 # Conclusion
 
