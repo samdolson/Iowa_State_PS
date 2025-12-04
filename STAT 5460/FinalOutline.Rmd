@@ -130,6 +130,74 @@ These rules and examples are what you will want to *say out loud* in the oral ex
 
 \newpage 
 
+# Chapter 0.5 
+
+```{r, warning = F, message = F, echo = F}
+rates <- data.frame(
+  Estimator = c(
+    "Parametric MLE",
+    "Histogram (1D)",
+    "KDE (1D)",
+    "NW / Local Linear Regression (1D)",
+    "Multivariate KDE / LPR (d-dim)",
+    "Deconvolution (Ordinary Smooth)",
+    "Deconvolution (Supersmooth)"
+  ),
+  Bias = c(
+    "$O(n^{-1})$",
+    "$O(h)$",
+    "$O(h^2)$",
+    "$O(h^2)$",
+    "$O(h^2)$",
+    "$O(h^2)$",
+    "$O(h^2)$"
+  ),
+  Variance = c(
+    "$O(n^{-1})$",
+    "$O((nh)^{-1})$",
+    "$O((nh)^{-1})$",
+    "$O((nh)^{-1})$",
+    "$O((n h^d)^{-1})$",
+    "$\\text{inflated by }\\lvert\\Psi_e(t)\\rvert^{-2}$",
+    "$\\exp(c / h^{\\beta})$"
+  ),
+  Optimal_Bandwidth = c(
+    "None",
+    "$h \\asymp n^{-1/3}$",
+    "$h \\asymp n^{-1/5}$",
+    "$h \\asymp n^{-1/5}$",
+    "$h \\asymp n^{-1/(4+d)}$",
+    "Slower than $n^{-1/5}$",
+    "$h \\asymp (\\log n)^{-1/\\beta}$"
+  ),
+  Optimal_Rate = c(
+    "$n^{-1}$",
+    "$n^{-2/3}$",
+    "$n^{-4/5}$",
+    "$n^{-4/5}$",
+    "$n^{-4/(4+d)}$",
+    "$n^{-a},\\ a<4/5$",
+    "$(\\log n)^{-a}$"
+  )
+)
+
+colnames(rates) <- c(
+  "Estimator",
+  "Bias",
+  "Variance",
+  "Optimal bandwidth",
+  "Optimal rate"
+)
+
+knitr::kable(
+  rates,
+  escape = FALSE,
+  caption = "Summary of Rates of Convergence for Common Estimators (Optimal Rate is MSE/MISE)"
+)
+```
+
+\newpage 
+
 # Chapter 1 
 
 ## 1. The Nonparametric Regression Problem
