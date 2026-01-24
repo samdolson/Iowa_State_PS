@@ -25,10 +25,23 @@ The coverage rates of concern are called Monte Carlo Approximations, and hence m
 
 ## Answer 
 
-The Monte Carlo approximation is constructed using model $M_1$ as defined by
+As given, a Monte Carlo approximation to an expectation is given by
 
 $$
-M_1 :\quad
+E_M\{ g(X) \}
+=
+\frac{1}{M}
+\sum_{m=1}^{M}
+g(X_m^*),
+\tag{1}
+$$
+
+where $X_1^*,\ldots,X_M^*$ are independent draws from the distribution of a random vector $X$, denoted by $f$.
+
+Consider model $M_1$ as defined in (11.13),
+
+$$
+M_1:\quad
 Y_{1,i} \stackrel{iid}{\sim} N(\mu_1,\sigma_1^2), \qquad
 Y_{2,i} \stackrel{iid}{\sim} N(\mu_2,\sigma_2^2),
 \tag{11.13}
@@ -36,17 +49,43 @@ $$
 
 with the two samples independent.
 
-A single Monte Carlo draw consists of the full dataset
+We seek the Monte Carlo approximation to the coverage probability of the approximate confidence interval for $\mu_1-\mu_2$ under this model.
+
+To that end, a single Monte Carlo draw consists of the full dataset
 
 $$
 X
 =
-\bigl(Y_{1,1},\ldots,Y_{1,n_1},\,Y_{2,1},\ldots,Y_{2,n_2}\bigr),
+\bigl(Y_{1,1},\ldots,Y_{1,n_1},\,Y_{2,1},\ldots,Y_{2,n_2}\bigr).
 $$
 
-generated according to the joint distribution implied by $M_1$. Denote this joint distribution of $X$ by $f$.
+Under model $M_1$, the joint distribution of $X$ has density $f$ given by
 
-The approximate confidence interval is based on expression (11.14),
+$$
+\begin{aligned}
+f(x)
+&=
+\prod_{i=1}^{n_1}
+\phi(y_{1,i};\mu_1,\sigma_1^2)
+\prod_{i=1}^{n_2}
+\phi(y_{2,i};\mu_2,\sigma_2^2) \\[6pt]
+&=
+\prod_{i=1}^{n_1}
+\frac{1}{\sqrt{2\pi\sigma_1^2}}
+\exp\!\left\{
+-\frac{(y_{1,i}-\mu_1)^2}{2\sigma_1^2}
+\right\}
+\prod_{i=1}^{n_2}
+\frac{1}{\sqrt{2\pi\sigma_2^2}}
+\exp\!\left\{
+-\frac{(y_{2,i}-\mu_2)^2}{2\sigma_2^2}
+\right\},
+\end{aligned}
+$$
+
+where $\phi(\cdot;\mu,\sigma^2)$ denotes the $N(\mu,\sigma^2)$ density. 
+
+The approximate confidence interval for $\mu_1-\mu_2$ is given by
 
 $$
 \bar Y_1 - \bar Y_2
@@ -54,19 +93,8 @@ $$
 z_{1-\alpha/2}
 \left[
 \frac{S_1^2}{n_1}+\frac{S_2^2}{n_2}
-\right]^{1/2},
-\tag{11.14}
-$$
-
-which is equivalent to the pair of inequalities
-
-$$
-\bigl|\bar Y_1 - \bar Y_2 - (\mu_1-\mu_2)\bigr|
-\le
-z_{1-\alpha/2}
-\left[
-\frac{S_1^2}{n_1}+\frac{S_2^2}{n_2}
 \right]^{1/2}.
+\tag{11.14}
 $$
 
 Define the function
@@ -84,31 +112,27 @@ z_{1-\alpha/2}
 \right\},
 $$
 
-which is the indicator that the approximate confidence interval in (11.14), computed from the dataset $X$, contains the true parameter value $\mu_1-\mu_2$. In particular, for the $m$th Monte Carlo replicate,
-$$
-g(X_m^*) = \mathbf{1}\!\left\{
-\mu_1-\mu_2 \in CI(X_m^*)
-\right\}.
-$$
+where $\mathbf{1}\{\cdot\}$ denotes the indicator function. Note: $g(X)\in\{0,1\}$ is a Bernoulli random variable under $f$.
 
-Under model $M_1$, the exact coverage probability of the interval (11.14) is
+Under the data-generating distribution $f$, the exact coverage probability of the interval is
 
 $$
-P_f\{\mu_1-\mu_2 \text{ is covered}\}
+E_f[g(X)]
 =
-E_f[g(X)].
+P_f\{\mu_1-\mu_2 \text{ is covered by the interval}\}.
 $$
 
-Let $X_1^*,\ldots,X_M^* \stackrel{iid}{\sim} f$ be Monte Carlo samples generated from $M_1$. The Monte Carlo approximation to this coverage probability is
+Let $X_1^*,\ldots,X_M^* \stackrel{iid}{\sim} f$ be independent Monte Carlo samples generated under model $M_1$. The Monte Carlo approximation to the coverage probability is
 
 $$
-E_M\{g(X)\}
+E_M\{ g(X) \}
 =
-\frac{1}{M}\sum_{m=1}^M g(X_m^*),
+\frac{1}{M}
+\sum_{m=1}^{M}
+g(X_m^*),
 $$
 
-which is precisely the form of $(1)$ as given.
-
+which is precisely of the form given in $(1)$.
 
 \newpage
 
@@ -146,7 +170,7 @@ $$
 
 ## Answer 
 
-We want to verify that the confidence interval endpoints in (11.25),
+We seek to verify that the confidence interval endpoints in (11.25),
 
 $$
 L=\hat\theta_M-\tau_M^{-1}q_{M,\,1-\alpha/2},
@@ -157,7 +181,7 @@ $$
 
 form a $(1-\alpha)100\%$ confidence interval for $\theta$ in the subsampling framework.
 
-Using Hint (b), we begin with what is desired: find $L$ and $U$ such that
+Using Hint (b), begin with what is desired: find $L$ and $U$ such that
 
 $$
 \Pr(\theta < L)=\alpha/2,
@@ -165,16 +189,18 @@ $$
 \Pr(\theta > U)=\alpha/2.
 $$
 
-Equivalently,
+These equal-tail conditions motivate the construction of a confidence interval with approximate central coverage. 
+
+In particular, if we choose $L$ and $U$ so that each tail probability is approximately $\alpha/2$, then 
 
 $$
-\Pr(L \le \theta \le U)=1-\alpha.
+\Pr(L \le \theta \le U) \approx 1 - \alpha.
 $$
 
 Define the centered-and-scaled statistic
 
 $$
-T_M=\tau_M(\hat\theta_M-\theta).
+T_M=\tau_M(\hat\theta_M-\theta)
 $$
 
 We now make explicit use of (11.24). The subsampling empirical distribution function is
@@ -187,32 +213,35 @@ I\!\left\{\tau_b(\hat\theta_{b,j}-\hat\theta_M)\le y\right\},
 \tag{11.24}
 $$
 
-i.e., $L_{M,b}(y)$ is the empirical CDF of the subsampling values
+where $L_{M,b}(y)$ is the empirical CDF of the subsampling values
 
 $$
 \left\{\tau_b(\hat\theta_{b,j}-\hat\theta_M): j=1,\ldots,M-b+1\right\}.
 $$
 
-Let $q_{M,\nu}$ denote the $\nu$th quantile of this empirical distribution, meaning
+Then, let $q_{M,\nu}$ denote the $\nu$th sample quantile of the empirical distribution $L_{M,b}$, defined as
 
 $$
-L_{M,b}(q_{M,\nu})=\nu
-\qquad\text{(equivalently, $q_{M,\nu}$ is the $\nu$th sample quantile of the above set).}
+q_{M,\nu}
+=
+\inf\left\{y : L_{M,b}(y) \ge \nu \right\}.
 $$
 
-Using Hint (a), we take as given that the distribution function of $T_M=\tau_M(\hat\theta_M-\theta)$ is approximated by $L_{M,b}(y)$. Therefore the central $(1-\alpha)$ probability region for $T_M$ is approximated by the corresponding central region under $L_{M,b}$, namely
+Using Hint (a), we take as given that the distribution function of $T_M=\tau_M(\hat\theta_M-\theta)$ is approximated by $L_{M,b}(y)$, i.e., the difference between the sampling distribution of $\tau_M(\hat{\theta}_M - \theta)$ and the empirical distribution is negligible. 
+
+Therefore the central $(1-\alpha)$ probability region for $T_M$ is approximated by the corresponding central region under $L_{M,b}$, 
 
 $$
 \Pr\!\left(q_{M,\alpha/2}\le T_M \le q_{M,1-\alpha/2}\right)\approx 1-\alpha.
 $$
 
-Substituting $T_M=\tau_M(\hat\theta_M-\theta)$ gives
+Substitution of $T_M=\tau_M(\hat\theta_M-\theta)$ then gives
 
 $$
 \Pr\!\left(q_{M,\alpha/2}\le \tau_M(\hat\theta_M-\theta) \le q_{M,1-\alpha/2}\right)\approx 1-\alpha.
 $$
 
-Assuming $\tau_M>0$, the inequality
+Assuming $\tau_M>0$ (to avoid division by zero), the inequality
 
 $$
 q_{M,\alpha/2}\le \tau_M(\hat\theta_M-\theta) \le q_{M,1-\alpha/2}
@@ -221,33 +250,17 @@ $$
 is equivalent to
 
 $$
-\hat\theta_M-\theta \le \tau_M^{-1}q_{M,1-\alpha/2}
-\qquad\text{and}\qquad
-\hat\theta_M-\theta \ge \tau_M^{-1}q_{M,\alpha/2}.
+\tau_M^{-1}q_{M,\alpha/2} \le \hat\theta_M-\theta \le \tau_M^{-1}q_{M,1-\alpha/2}
 $$
 
-Rearranging for $\theta$ yields
-
-$$
-\theta \ge \hat\theta_M-\tau_M^{-1}q_{M,1-\alpha/2}
-\qquad\text{and}\qquad
-\theta \le \hat\theta_M-\tau_M^{-1}q_{M,\alpha/2}.
-$$
-
-Thus the event
-
-$$
-q_{M,\alpha/2}\le \tau_M(\hat\theta_M-\theta) \le q_{M,1-\alpha/2}
-$$
-
-is equivalent to
+which is equivalent to
 
 $$
 \hat\theta_M-\tau_M^{-1}q_{M,1-\alpha/2}
 \le
 \theta
 \le
-\hat\theta_M-\tau_M^{-1}q_{M,\alpha/2}.
+\hat\theta_M-\tau_M^{-1}q_{M,\alpha/2}
 $$
 
 Therefore, defining
@@ -266,28 +279,66 @@ $$
 
 which verifies the endpoints given in (11.25).
 
-Finally, we connect directly back to Hint (b). Because $q_{M,\alpha/2}$ and $q_{M,1-\alpha/2}$ are the $\alpha/2$ and $1-\alpha/2$ quantiles of $L_{M,b}$, and Hint (a) says $L_{M,b}$ approximates the distribution of $T_M$, we have the tail approximations
+Finally, we connect directly back to Hint (b).
+
+Because $q_{M,\alpha/2}$ and $q_{M,1-\alpha/2}$ are the $\alpha/2$ and $1-\alpha/2$ quantiles of the empirical distribution $L_{M,b}$, and Hint (a) states that $L_{M,b}$ approximates the distribution of
 
 $$
-\Pr(T_M \le q_{M,\alpha/2})\approx \alpha/2,
+T_M = \tau_M(\hat\theta_M - \theta),
+$$
+
+we have the approximate tail probabilities
+
+$$
+\Pr(T_M \le q_{M,\alpha/2}) \approx \alpha/2,
 \qquad
-\Pr(T_M \ge q_{M,1-\alpha/2})\approx \alpha/2.
+\Pr(T_M \ge q_{M,1-\alpha/2}) \approx \alpha/2.
 $$
 
-The inequality $T_M \le q_{M,\alpha/2}$ is $\tau_M(\hat\theta_M-\theta)\le q_{M,\alpha/2}$, which is equivalent (since $\tau_M>0$) to $\theta \ge \hat\theta_M-\tau_M^{-1}q_{M,\alpha/2}=U$, hence
+Since $\tau_M > 0$, the inequality
 
 $$
-\Pr(\theta > U)\approx \alpha/2.
+T_M \le q_{M,\alpha/2}
 $$
 
-Similarly, $T_M \ge q_{M,1-\alpha/2}$ is equivalent to $\theta \le \hat\theta_M-\tau_M^{-1}q_{M,1-\alpha/2}=L$, hence
+is equivalent to
 
 $$
-\Pr(\theta < L)\approx \alpha/2.
+\tau_M(\hat\theta_M - \theta) \le q_{M,\alpha/2}
+\quad \Longleftrightarrow \quad
+\theta \ge \hat\theta_M - \tau_M^{-1} q_{M,\alpha/2} = U,
 $$
 
-This matches the target tail conditions from Hint (b) and confirms 
+which implies
 
-$$ 
-L=\hat\theta_M-\tau_M^{-1}q_{M,\,1-\alpha/2}, \qquad U=\hat\theta_M-\tau_M^{-1}q_{M,\,\alpha/2}, \tag{11.25} 
+$$
+\Pr(\theta \ge U) \approx \alpha/2.
+$$
+
+Similarly,
+
+$$
+T_M \ge q_{M,1-\alpha/2}
+$$
+
+is equivalent to
+
+$$
+\tau_M(\hat\theta_M - \theta) \ge q_{M,1-\alpha/2}
+\quad \Longleftrightarrow \quad
+\theta \le \hat\theta_M - \tau_M^{-1} q_{M,1-\alpha/2} = L,
+$$
+
+which implies
+
+$$
+\Pr(\theta \le L) \approx \alpha/2.
+$$
+
+Assuming boundary probabilities are negligible, these conditions match the target equal-tail requirements from Hint (b) and confirm that the subsampling confidence interval is given by
+
+$$
+L=\hat\theta_M-\tau_M^{-1}q_{M,\,1-\alpha/2},
+\qquad
+U=\hat\theta_M-\tau_M^{-1}q_{M,\,\alpha/2}. \tag{11.25}
 $$
