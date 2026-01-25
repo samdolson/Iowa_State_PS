@@ -65,27 +65,25 @@ $$
 \begin{aligned}
 f(x)
 &=
-\prod_{i=1}^{n_1}
-\phi(y_{1,i};\mu_1,\sigma_1^2)
-\prod_{i=1}^{n_2}
-\phi(y_{2,i};\mu_2,\sigma_2^2) \\[6pt]
+\prod_{i=1}^{n_1}\phi(y_{1,i};\mu_1,\sigma_1^2)\,
+\prod_{i=1}^{n_2}\phi(y_{2,i};\mu_2,\sigma_2^2) \\[6pt]
+&= 
+\prod_{i=1}^{n_1} \frac{1}{\sqrt{2\pi\sigma_1^2}} \exp\!\left\{ -\frac{(y_{1,i}-\mu_1)^2}{2\sigma_1^2} \right\} 
+\prod_{i=1}^{n_2} \frac{1}{\sqrt{2\pi\sigma_2^2}} \exp\!\left\{ -\frac{(y_{2,i}-\mu_2)^2}{2\sigma_2^2} \right\} \\[6pt]
 &=
-\prod_{i=1}^{n_1}
-\frac{1}{\sqrt{2\pi\sigma_1^2}}
-\exp\!\left\{
--\frac{(y_{1,i}-\mu_1)^2}{2\sigma_1^2}
-\right\}
-\prod_{i=1}^{n_2}
-\frac{1}{\sqrt{2\pi\sigma_2^2}}
-\exp\!\left\{
--\frac{(y_{2,i}-\mu_2)^2}{2\sigma_2^2}
-\right\},
+(2\pi)^{-(n_1+n_2)/2}
+(\sigma_1^2)^{-n_1/2}
+(\sigma_2^2)^{-n_2/2}
+\exp\left(
+-\frac{1}{2\sigma_1^2}\sum_{i=1}^{n_1}(y_{1,i}-\mu_1)^2
+-\frac{1}{2\sigma_2^2}\sum_{i=1}^{n_2}(y_{2,i}-\mu_2)^2
+\right), 
 \end{aligned}
 $$
 
 where $\phi(\cdot;\mu,\sigma^2)$ denotes the $N(\mu,\sigma^2)$ density. 
 
-The approximate confidence interval for $\mu_1-\mu_2$ is given by
+The approximate confidence interval for $\mu_1-\mu_2$ is
 
 $$
 \bar Y_1 - \bar Y_2
@@ -97,7 +95,16 @@ z_{1-\alpha/2}
 \tag{11.14}
 $$
 
-Define the function
+Under model $M_1$, $\bar Y_1$ and $\bar Y_2$ are independent normal random variables, and hence $\bar Y_1-\bar Y_2$ is normally distributed. The interval (11.14) is an approximate confidence interval, justified by the asymptotic normality of the centered studentized statistic
+
+$$
+\frac{(\bar Y_1-\bar Y_2)-(\mu_1-\mu_2)}
+{\left(\dfrac{S_1^2}{n_1}+\dfrac{S_2^2}{n_2}\right)^{1/2}},
+$$
+
+which is asymptotically standard normal.
+
+Given this, define the function
 
 $$
 g(X)
@@ -112,9 +119,9 @@ z_{1-\alpha/2}
 \right\},
 $$
 
-where $\mathbf{1}\{\cdot\}$ denotes the indicator function. Note: $g(X)\in\{0,1\}$ is a Bernoulli random variable under $f$.
+where $\mathbf{1}\{\cdot\}$ denotes the indicator function. Thus $g(X)\in\{0,1\}$ indicates whether the approximate confidence interval covers the true parameter value $\mu_1-\mu_2$.
 
-Under the data-generating distribution $f$, the exact coverage probability of the interval is
+The exact coverage probability of the interval under model $M_1$ is
 
 $$
 E_f[g(X)]
@@ -122,17 +129,15 @@ E_f[g(X)]
 P_f\{\mu_1-\mu_2 \text{ is covered by the interval}\}.
 $$
 
-Let $X_1^*,\ldots,X_M^* \stackrel{iid}{\sim} f$ be independent Monte Carlo samples generated under model $M_1$. The Monte Carlo approximation to the coverage probability is
+Let $X_1^*,\ldots,X_M^* \stackrel{iid}{\sim} f$ be independent Monte Carlo samples generated under model $M_1$. The Monte Carlo approximation to this coverage probability is the sample average
 
 $$
-E_M\{ g(X) \}
-=
-\frac{1}{M}
+E_M\{ g(X) \} = \frac{1}{M}
 \sum_{m=1}^{M}
-g(X_m^*),
+g(X_m^*), 
 $$
 
-which is precisely of the form given in $(1)$.
+matching the form given in $(1)$.
 
 \newpage
 
@@ -213,7 +218,7 @@ I\!\left\{\tau_b(\hat\theta_{b,j}-\hat\theta_M)\le y\right\},
 \tag{11.24}
 $$
 
-where $L_{M,b}(y)$ is the empirical CDF of the subsampling values
+for a chain of length M, block length b, and $k = M - b + 1$. Further, note: $I(A)$ is the identity function that assumes a value of 1 if A is true, and 0 otherwise, and $L_{M,b}(y)$ is the empirical CDF of the subsampling values
 
 $$
 \left\{\tau_b(\hat\theta_{b,j}-\hat\theta_M): j=1,\ldots,M-b+1\right\}.
@@ -224,7 +229,7 @@ Then, let $q_{M,\nu}$ denote the $\nu$th sample quantile of the empirical distri
 $$
 q_{M,\nu}
 =
-\inf\left\{y : L_{M,b}(y) \ge \nu \right\}.
+\min\left\{y : L_{M,b}(y) \ge \nu \right\}.
 $$
 
 Using Hint (a), we take as given that the distribution function of $T_M=\tau_M(\hat\theta_M-\theta)$ is approximated by $L_{M,b}(y)$, i.e., the difference between the sampling distribution of $\tau_M(\hat{\theta}_M - \theta)$ and the empirical distribution is negligible. 
@@ -335,7 +340,7 @@ $$
 \Pr(\theta \le L) \approx \alpha/2.
 $$
 
-Assuming boundary probabilities are negligible, these conditions match the target equal-tail requirements from Hint (b) and confirm that the subsampling confidence interval is given by
+These conditions match the target equal-tail requirements from Hint (b) and confirm that the subsampling confidence interval is given by
 
 $$
 L=\hat\theta_M-\tau_M^{-1}q_{M,\,1-\alpha/2},
