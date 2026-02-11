@@ -40,41 +40,34 @@ knitr::include_graphics("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010
 dat <- read.table("LMBdat_for601.txt", header = TRUE)
 m1 <- read.table("LMBMCMC1.txt", header = TRUE)
 m2 <- as.matrix(read.table("LMBMCMC2.txt", header = TRUE))
-# Extra Checks 
+# Objects for later
 n_lakes <- 75
-stopifnot(all(c("lknum","len","wt") %in% names(dat)))
 lake_levels <- sort(unique(dat$lknum))
-# stopifnot(length(lake_levels) == n_lakes)
-# dat$lake_id <- match(dat$lknum, lake_levels)
-# stopifnot(all(dat$lake_id %in% 1:n_lakes))
-
-# Posterior draws from MCMC2 
-beta_draws <- m2[, 1:n_lakes, drop = FALSE]
-sig2_draws <- m2[, (n_lakes + 1):(2*n_lakes), drop = FALSE]
-alpha_draws <- m2[, 2*n_lakes + 1]
-
-# Constant for Q1
+S <- nrow(m2)
+# Q1: length value
 x0 <- 15
-# And Q2
+# Q2: weight value
 w0 <- 1.83
 
-# Use all draws
-S <- nrow(m2)
-beta_s <- beta_draws
-sig2_s <- sig2_draws
-alpha_s <- alpha_draws
+# Posterior draws (Source: LMBMCMC2.txt) 
+beta_s <- m2[, 1:n_lakes, drop = FALSE]
+sig2_s <- m2[, (n_lakes + 1):(2*n_lakes), drop = FALSE]
+alpha_s <- m2[, 2*n_lakes + 1]
 
-## =========================
-## Q1: Posterior of mean weight at length 15, by lake
-## =========================
-## mu15[s,i] = beta_i[s] * 15^(alpha[s])
+################################################
+# Q1: Posterior mean weight | length 15, by lake
+################################################
+# Note: From background/model setup
+# mu[i] = beta_i * x_i^alpha
+# mu15[s,i] = beta_i[s] * 15^(alpha[s])
 mu15 <- beta_s * (x0 ^ alpha_s)   
 
 # posterior mean
 mu15_mean <- colMeans(mu15)
-# 90% credible interval for the posterior mean weight
-mu15_ci90 <- t(apply(mu15, 2, quantile, probs = c(0.05, 0.95)))
+# 90% credible interval for posterior mean
+mu15_ci90 <- t(apply(X = mu15, MARGIN = 2, FUN = quantile, probs = c(0.05, 0.95)))
 
+# organize statistics 
 q1_tbl <- data.frame(
   lake_id = 1:n_lakes,
   lknum = lake_levels,
@@ -83,28 +76,34 @@ q1_tbl <- data.frame(
   hi90 = mu15_ci90[, 2]
 )
 
-# order small to large (also re-index lakes)
+# order small to large
+# this also re-indexes the lakes
 q1_tbl_ord <- q1_tbl[order(q1_tbl$post_mean_mu15), ]
 q1_tbl_ord$rank <- seq_len(nrow(q1_tbl_ord))
 
-# actual plot
+# plot
 par(mar = c(4, 6, 2, 2))
 plot(x = q1_tbl_ord$post_mean_mu15, 
      y = q1_tbl_ord$rank,
      xlab = expression(paste("Posterior mean of  E[weight | length = ", 15, "]")),
      ylab = "Re-indexed lakes",
      pch = 19)
-segments(x0 = q1_tbl_ord$lo90, y0 = q1_tbl_ord$rank,
-         x1 = q1_tbl_ord$hi90, y1 = q1_tbl_ord$rank)
+segments(x0 = q1_tbl_ord$lo90, 
+         y0 = q1_tbl_ord$rank,
+         x1 = q1_tbl_ord$hi90, 
+         y1 = q1_tbl_ord$rank)
 
-## =========================
-## Q2: Posterior mean of P(weight(15) > 1.83), by lake
-## =========================
-## Under theta = 1 and Normal errors: sd = sqrt(sig2_i) * mu15
+################################################
+# Q2: Posterior mean > 1.83 | length 15, by lake
+################################################
+# Note: Based on model formulation
+# Under theta = 1
+# We have normally distributed errors with sd = sqrt(sig2_i) * mu15
 sd15 <- sqrt(sig2_s) * mu15
+# standardize 
 z <- (w0 - mu15) / sd15
 p_exceed_draws <- 1 - pnorm(z)
-
+# aggregate by lake
 p_exceed_mean <- colMeans(p_exceed_draws)
 
 q2_tbl <- data.frame(
@@ -113,14 +112,16 @@ q2_tbl <- data.frame(
   post_mean_prob_exceed = p_exceed_mean
 )
 
-# order and plot
+# order small to large (again)
+# this also re-indexes the lakes (again)
 q2_tbl_ord <- q2_tbl[order(q2_tbl$post_mean_prob_exceed), ]
 q2_tbl_ord$rank <- seq_len(nrow(q2_tbl_ord))
 
+# plot
 par(mar = c(4, 6, 2, 2))
 plot(x = q2_tbl_ord$post_mean_prob_exceed, 
      y = q2_tbl_ord$rank,
-     xlab = expression(paste("Posterior mean of  P(weight > ", 1.83, " | length = 15)")), 
+     xlab = expression(paste("Posterior mean of  Pr(weight > ", 1.83, " | length = 15)")), 
      ylab = "Re-indexed lakes",
      pch = 19)
 ```
