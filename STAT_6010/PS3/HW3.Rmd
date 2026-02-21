@@ -1,0 +1,141 @@
+---
+title: "Actual HW3"
+output: pdf_document
+author: "Sam Olson"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Q1 
+
+Using the mixture model (1) and (2) fit the data in Data Set 1 and Data Set 2 separately using maximum likelihood. Produce approximate 95% confidence intervals for the modes of the distributions – these are the value of the parameter $\xi$ in (2). Conduct any additional analysis needed to construct a likelihood ratio test of a reduced model in which the parameters $\xi$ and $\theta$ are identical for both data sets against a full model in which those parameters differ between the two heights. Graph the extreme value density or densities for whichever model (full or reduced) you select.
+
+Data model:
+
+$$
+f(y \mid \mu_i)
+=
+\frac{1}{(2\pi)^{1/2}}
+\exp\left[
+-\frac{1}{2}(y - \mu_i)^2
+\right]. \tag{1}
+$$
+
+Mixing distribution:
+
+$$
+g(\mu \mid \xi, \theta)
+=
+\frac{1}{\theta}
+\exp\left(
+-\frac{\mu - \xi}{\theta}
+\right)
+\exp\left[
+-\exp\left(
+-\frac{\mu - \xi}{\theta}
+\right)
+\right],
+\qquad \theta > 0. \tag{2}
+$$
+
+## A: 
+
+\newpage
+
+# Q2 
+
+In (2), $E(\mu) \approx \xi + 0.577\theta$, where $0.577$ is Euler’s constant (don’t confuse with Euler’s number). Using this expression, produce maximum likelihood estimate or estimates and 95% confidence interval or confidence intervals for the expected true maximum wind speed from your final model. Note that this will also be the expected observed maximum wind speed.
+
+## A: 
+
+\newpage
+
+# Q3
+
+Find a maximum likelihood estimate or estimates (depending on your final model) of the median daily maximum wind speed or speeds. Compute the associated 95% approximate confidence interval or intervals.
+
+## A: 
+
+\newpage
+
+# Q4 
+
+Find a maximum likelihood estimate or estimates (depending on your final model) for the probability that true daily maximum wind speed is between $4$ and $17$ m/s. Compute 95% approximate confidence intervals for the estimate or estimates.
+
+\newpage
+
+# Q5 
+
+What would you conclude about the question of whether there is or is not a benefit to placing turbine hubs at either $50$ or $80$ m in height?
+
+## A: 
+
+\newpage
+
+# Q6 
+
+As an exercise in learning about statistical procedures, your friend would like to see a Monte Carlo approximation to the expected true wind speed for the two heights separately. Produce such approximations along with 95% Monte Carlo intervals. Your friend understands intuitively that these approximations and the maximum likelihood estimates of Question 2 should have the same or nearly the same values, but marvels at the fact that the intervals associated with these approximations are so much more narrow than those computed using the asymptotic theory of likelihood estimation in Question 2. Explain why this is the case and what it means.
+
+## A: 
+
+### Concise 
+
+The Monte Carlo (MC) intervals are much narrower because they measure only simulation (numerical) error conditional on the estimated parameters $(\hat{\xi}, \hat{\theta})$, whereas the asymptotic confidence intervals in Question 2 account for statistical uncertainty in the joint estimation of $(\xi, \theta)$ from finite data.
+
+### More Details
+
+### Concise 
+
+The Monte Carlo (MC) intervals are much narrower because they measure only simulation (numerical) error conditional on the estimated parameters $(\hat{\xi}, \hat{\theta})$, whereas the asymptotic confidence intervals in Question 2 account for statistical uncertainty in the joint estimation of $(\xi, \theta)$ from finite data.
+
+### More Details
+
+For each height, we simulated
+
+$$
+\mu^{(1)}, \ldots, \mu^{(M)} \sim \text{EV}(\hat{\xi}, \hat{\theta})
+$$
+
+and estimated the expected true wind speed by
+
+$$
+\widehat{E}_{MC}(\mu)
+=
+\bar{\mu}_M
+=
+\frac{1}{M}\sum_{m=1}^{M} \mu^{(m)}.
+$$
+
+By the Central Limit Theorem for simulation,
+
+$$
+\bar{\mu}_M
+\approx
+\mathcal{N}\!\left(
+E(\mu),
+\frac{\operatorname{Var}(\mu)}{M}
+\right),
+$$
+
+so an approximate 95\% Monte Carlo interval is
+
+$$
+\bar{\mu}_M
+\pm
+1.96 \frac{s_M}{\sqrt{M}}.
+$$
+
+The crucial point is that this interval treats $(\hat{\xi}, \hat{\theta})$ as fixed and quantifies only Monte Carlo approximation error, which decreases at rate $1/\sqrt{M}$ and can be made arbitrarily small by increasing $M$.
+
+In contrast, the confidence interval in Question 2 is based on asymptotic likelihood theory for
+
+$$
+E(\mu) = \xi + \gamma \theta,
+\qquad \gamma \approx 0.577,
+$$
+
+and reflects uncertainty in estimating $(\xi, \theta)$ from $n=50$ observations. That parameter uncertainty propagates into uncertainty about $E(\mu)$.
+
+Thus, the Monte Carlo intervals are narrow because they measure numerical precision, not inferential uncertainty. The wider intervals from Question 2 are the appropriate measures of statistical uncertainty about the expected wind speed. To obtain a simulation-based interval comparable to Question 2, one would need to incorporate parameter uncertainty (e.g., via a parametric bootstrap), rather than conditioning on fixed MLEs.
