@@ -42,6 +42,272 @@ $$
 
 ## A: 
 
+```{r, message = F, warning = F}
+library(tidyverse)
+# 50m
+m50 <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat1.txt", header = T)
+# 80m
+m80 <-  read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat2.txt", header = T)
+```
+
+```{r}
+# -----------------------------
+# Setup
+# -----------------------------
+y50 <- as.numeric(m50$y)
+y80 <- as.numeric(m80$y)
+
+# -----------------------------
+# Model pieces
+# f(y|mu) = N(mu, 1)
+# g(mu|xi,theta) = right-skew Gumbel density
+# m(y|xi,theta) = int f(y|mu) g(mu|xi,theta) dmu
+# -----------------------------
+
+f_y_given_mu <- function(y, mu) dnorm(y, mean = mu, sd = 1)
+
+g_mu <- function(mu, xi, theta) {
+  z <- (mu - xi) / theta
+  (1/theta) * exp(-z) * exp(-exp(-z))
+}
+
+m_y <- function(y, xi, theta, L = 1000) {
+  integrand <- function(mu) f_y_given_mu(y, mu) * g_mu(mu, xi, theta)
+  val <- integrate(integrand, lower = -L, upper = L,
+                   rel.tol = 1e-10, abs.tol = 0)$value
+  pmax(val, .Machine$double.xmin)
+}
+
+log_m_vec <- function(y, xi, theta, L = 1000) {
+  vapply(y, function(yy) log(m_y(yy, xi, theta, L = L)), numeric(1))
+}
+```
+
+```{r}
+# -----------------------------
+# One-sample MLE (xi, theta)
+# Use par = (xi, logtheta) so theta>0 automatically
+# -----------------------------
+# ---- EV-aware starting values (moment-matching) ----
+ev_start <- function(y) {
+  gamma <- 0.5772156649015329
+  v <- var(y)
+  theta0 <- sqrt(pmax((v - 1) * 6 / pi^2, 1e-6))  # from Var(y)=pi^2/6*theta^2 + 1
+  xi0 <- mean(y) - gamma * theta0                 # from E(y)=xi + gamma*theta
+  c(xi0, log(theta0))
+}
+
+# ---- stable marginal density via z = (mu - xi)/theta ----
+m_y_stable <- function(y, xi, theta, zL = -10, zU = 30) {
+
+  integrand <- function(z) {
+    # log integrand = log N(y | xi+theta z, 1) - z - exp(-z)
+    log_int <- dnorm(y, mean = xi + theta * z, sd = 1, log = TRUE) - z - exp(-z)
+    exp(log_int)
+  }
+
+  val <- integrate(integrand, lower = zL, upper = zU,
+                   rel.tol = 1e-8, abs.tol = 0, subdivisions = 5000)$value
+  pmax(val, .Machine$double.xmin)
+}
+
+log_m_vec_stable <- function(y, xi, theta, zL = -500, zU = 500) {
+  vapply(y, function(yy) log(m_y_stable(yy, xi, theta, zL, zU)), numeric(1))
+}
+
+nll_one <- function(par, y, zL = -500, zU = 500) {
+  xi <- par[1]
+  theta <- exp(par[2])
+  -sum(log_m_vec_stable(y, xi, theta, zL = zL, zU = zU))
+}
+
+fit_one <- function(y, zL = -500, zU = 500) {
+  start <- ev_start(y)
+
+  opt <- optim(start, nll_one, y = y, zL = zL, zU = zU,
+               method = "BFGS", hessian = TRUE,
+               control = list(maxit = 2000))
+
+  xi_hat <- opt$par[1]
+  theta_hat <- exp(opt$par[2])
+
+  V <- solve(opt$hessian)         # var on (xi, logtheta)
+  se_xi <- sqrt(V[1, 1])
+
+  list(
+    xi_hat = xi_hat,
+    theta_hat = theta_hat,
+    logLik = -opt$value,
+    se_xi = se_xi,
+    ci_xi_wald = c(xi_hat - 1.96 * se_xi, xi_hat + 1.96 * se_xi),
+    opt = opt, V = V,
+    start = start,
+    z_bounds = c(zL, zU)
+  )
+}
+```
+
+```{r}
+fit50 <- fit_one(y50)
+fit50
+fit50$ci_xi_wald
+```
+
+```{r}
+fit80 <- fit_one(y80, zL = -400, zU = 400)
+fit80
+fit80$ci_xi_wald
+```
+
+```{r}
+# -----------------------------
+# Profile-LR CI for xi (matches the "bisection/implicit function" hints)
+# CI solves: 2(ell_hat - ell_prof(xi)) = qchisq(.95, df=1)
+# -----------------------------
+profile_logLik_xi <- function(xi_fixed, y, logtheta_center, zL = -10, zU = 30) {
+  obj <- function(logtheta) nll_one(c(xi_fixed, logtheta), y = y, zL = zL, zU = zU)
+
+  # constrain theta to a reasonable band around theta_hat
+  # factor 20 band: [theta_hat/20, theta_hat*20]
+  opt <- optimize(obj, interval = c(logtheta_center - log(20), logtheta_center + log(20)))
+
+  list(logLik = -opt$objective, logtheta_hat = opt$minimum)
+}
+
+ci_xi_profile <- function(y, xi_hat, theta_hat, logLik_hat,
+                          zL = -10, zU = 30, alpha = 0.05) {
+
+  cutoff <- qchisq(1 - alpha, df = 1)
+
+  target <- function(xi) {
+    ell_prof <- profile_logLik_xi(xi_fixed = xi, y = y,
+                                  logtheta_center = log(theta_hat),
+                                  zL = zL, zU = zU)$logLik
+    2 * (logLik_hat - ell_prof) - cutoff
+  }
+
+  # bracket around xi_hat and expand until crossing
+  step0 <- max(0.25, 0.5 * theta_hat)
+
+  left <- xi_hat - step0
+  step <- step0
+  for (k in 1:80) {
+    if (is.finite(target(left)) && target(left) > 0) { left <- left - step; step <- step * 1.2 } else break
+  }
+
+  right <- xi_hat + step0
+  step <- step0
+  for (k in 1:80) {
+    if (is.finite(target(right)) && target(right) > 0) { right <- right + step; step <- step * 1.2 } else break
+  }
+
+  lower <- uniroot(target, interval = c(left, xi_hat))$root
+  upper <- uniroot(target, interval = c(xi_hat, right))$root
+  c(lower, upper)
+}
+```
+
+```{r, eval = F}
+ci50_prof <- ci_xi_profile(y50, fit50$xi_hat, fit50$theta_hat, fit50$logLik, zL=-10, zU=10)
+ci80_prof <- ci_xi_profile(y80, fit80$xi_hat, fit80$theta_hat, fit80$logLik, zL=-10, zU=10)
+
+ci50_prof
+ci80_prof
+```
+
+```{r}
+# -----------------------------
+# Two-sample models for LRT
+# Full: (xi50,theta50) and (xi80,theta80)
+# Reduced: common (xi,theta)
+# -----------------------------
+nll_full <- function(par, y50, y80, zL = -100, zU = 100) {
+  xi1 <- par[1]; th1 <- exp(par[2])
+  xi2 <- par[3]; th2 <- exp(par[4])
+
+  -sum(log_m_vec_stable(y50, xi1, th1, zL = zL, zU = zU)) -
+   sum(log_m_vec_stable(y80, xi2, th2, zL = zL, zU = zU))
+}
+
+nll_reduced <- function(par, y50, y80, zL = -100, zU = 100) {
+  xi <- par[1]; th <- exp(par[2])
+
+  -sum(log_m_vec_stable(y50, xi, th, zL = zL, zU = zU)) -
+   sum(log_m_vec_stable(y80, xi, th, zL = zL, zU = zU))
+}
+
+fit_full <- function(y50, y80, zL = -100, zU = 100) {
+  start <- c(fit50$xi_hat, log(fit50$theta_hat),
+             fit80$xi_hat, log(fit80$theta_hat))
+
+  opt <- optim(start, nll_full, y50 = y50, y80 = y80, zL = zL, zU = zU,
+               method = "BFGS", hessian = TRUE,
+               control = list(maxit = 2000))
+
+  list(
+    xi50_hat = opt$par[1], th50_hat = exp(opt$par[2]),
+    xi80_hat = opt$par[3], th80_hat = exp(opt$par[4]),
+    logLik = -opt$value,
+    opt = opt
+  )
+}
+
+# EV-aware start for reduced model (optional but recommended)
+ev_start <- function(y) {
+  gamma <- 0.5772156649015329
+  v <- var(y)
+  theta0 <- sqrt(pmax((v - 1) * 6 / pi^2, 1e-6))
+  xi0 <- mean(y) - gamma * theta0
+  c(xi0, log(theta0))
+}
+
+fit_reduced <- function(y50, y80, zL = -100, zU = 100) {
+  yall <- c(y50, y80)
+  start <- ev_start(yall)   # better than median/sd for this model
+
+  opt <- optim(start, nll_reduced, y50 = y50, y80 = y80, zL = zL, zU = zU,
+               method = "BFGS", hessian = TRUE,
+               control = list(maxit = 2000))
+
+  list(
+    xi_hat = opt$par[1], th_hat = exp(opt$par[2]),
+    logLik = -opt$value,
+    opt = opt
+  )
+}
+```
+
+```{r}
+full <- fit_full(y50, y80, zL = -100, zU = 100)
+red  <- fit_reduced(y50, y80, zL = -100, zU = 100)
+
+LR   <- 2 * (full$logLik - red$logLik)
+pval <- 1 - pchisq(LR, df = 2)
+
+c(LR = LR, df = 2, p_value = pval)
+```
+
+```{r}
+# Overlay EV mixing densities (full model)
+mu_grid <- seq(
+  min(full$xi50_hat - 6*full$th50_hat, full$xi80_hat - 6*full$th80_hat),
+  max(full$xi50_hat + 10*full$th50_hat, full$xi80_hat + 10*full$th80_hat),
+  length.out = 800
+)
+
+plot(mu_grid, g_mu(mu_grid, full$xi50_hat, full$th50_hat),
+     type = "l", lwd = 2,
+     xlab = expression(mu), ylab = "density",
+     main = "EV mixing densities g(mu|xi,theta) — Full model")
+
+lines(mu_grid, g_mu(mu_grid, full$xi80_hat, full$th80_hat),
+      lwd = 2, lty = 2)
+
+legend("topright",
+       legend = c("50m", "80m"),
+       lwd = 2, lty = c(1, 2), bty = "n")
+```
+
 \newpage
 
 # Q2 
@@ -49,6 +315,30 @@ $$
 In (2), $E(\mu) \approx \xi + 0.577\theta$, where $0.577$ is Euler’s constant (don’t confuse with Euler’s number). Using this expression, produce maximum likelihood estimate or estimates and 95% confidence interval or confidence intervals for the expected true maximum wind speed from your final model. Note that this will also be the expected observed maximum wind speed.
 
 ## A: 
+
+```{r}
+gamma <- 0.5772156649015329
+
+wald_ci_mean_mu <- function(fit) {
+  xi_hat <- fit$xi_hat
+  th_hat <- fit$theta_hat
+  V      <- fit$V   # cov matrix of (xi, logtheta)
+
+  eta_hat <- xi_hat + gamma * th_hat
+
+  grad <- c(1, gamma * th_hat)          # d eta / d (xi, logtheta)
+  se   <- sqrt(drop(t(grad) %*% V %*% grad))
+
+  ci <- eta_hat + c(-1, 1) * qnorm(0.975) * se
+  list(eta_hat = eta_hat, se = se, ci95 = ci)
+}
+
+ci50_eta_wald <- wald_ci_mean_mu(fit50)
+ci80_eta_wald <- wald_ci_mean_mu(fit80)
+
+ci50_eta_wald
+ci80_eta_wald
+```
 
 \newpage
 
@@ -58,11 +348,74 @@ Find a maximum likelihood estimate or estimates (depending on your final model) 
 
 ## A: 
 
+```{r}
+# ---------- FY(y | xi, theta) ----------
+FY_stable <- function(y, xi, theta, zL = -10, zU = 30) {
+  integrand <- function(z) {
+    # weight = exp(-z - exp(-z))
+    # inside = Phi(y - (xi + theta z))
+    pnorm(y - (xi + theta * z)) * exp(-z - exp(-z))
+  }
+  val <- integrate(integrand, lower = zL, upper = zU,
+                   rel.tol = 1e-8, abs.tol = 0, subdivisions = 5000)$value
+  # numerical safety:
+  pmin(pmax(val, 0), 1)
+}
+
+# ---------- median of Y given (xi, theta) ----------
+median_y <- function(xi, theta, zL = -10, zU = 30) {
+  f <- function(y) FY_stable(y, xi, theta, zL, zU) - 0.5
+
+  # bracket around mean-ish scale; this is usually safe for wind speeds
+  y0 <- xi + 0.5772156649015329 * theta  # uses Q2's mean approx as a center
+  lo <- y0 - 10 * theta - 5
+  hi <- y0 + 10 * theta + 5
+
+  # expand if needed
+  for (k in 1:60) {
+    if (f(lo) > 0) lo <- lo - (2 + theta) else break
+  }
+  for (k in 1:60) {
+    if (f(hi) < 0) hi <- hi + (2 + theta) else break
+  }
+
+  uniroot(f, interval = c(lo, hi))$root
+}
+
+# plug-in MLE medians
+med50_hat <- median_y(fit50$xi_hat, fit50$theta_hat, zL = -100, zU = 100)
+med80_hat <- median_y(fit80$xi_hat, fit80$theta_hat, zL = -100, zU = 100)
+
+med50_hat
+med80_hat
+```
+
 \newpage
 
 # Q4 
 
 Find a maximum likelihood estimate or estimates (depending on your final model) for the probability that true daily maximum wind speed is between $4$ and $17$ m/s. Compute 95% approximate confidence intervals for the estimate or estimates.
+
+## A 
+
+```{r}
+# EV (right-skew Gumbel) CDF for mu
+G_mu <- function(u, xi, theta) {
+  exp( -exp( -(u - xi)/theta ) )
+}
+
+p_between_mu <- function(fit, a = 4, b = 17) {
+  xi <- fit$xi_hat
+  th <- fit$theta_hat
+  G_mu(b, xi, th) - G_mu(a, xi, th)
+}
+
+p50_hat <- p_between_mu(fit50, 4, 17)
+p80_hat <- p_between_mu(fit80, 4, 17)
+
+p50_hat
+p80_hat
+```
 
 \newpage
 
@@ -72,6 +425,12 @@ What would you conclude about the question of whether there is or is not a benef
 
 ## A: 
 
+In Q1, the likelihood ratio test provided evidence that the wind speed distributions at 50m and 80m differ, leading us to select the full model with separate parameter estimates for each height. The estimated parameters imply systematically different wind speed behavior across heights.
+
+In particular, the estimated probability that true daily maximum wind speed lies in the operationally relevant range of 4–17 m/s is larger at 80m than at 50m. The corresponding confidence intervals indicate that this difference is not attributable to sampling variability alone. Additionally, the estimated mean and median daily maximum wind speeds are higher at 80m.
+
+Taken together, these results suggest that, under the fitted model and the conditions represented in the observed data, placing turbine hubs at 80m is associated with more favorable wind speed characteristics for turbine operation. This conclusion is conditional on the validity of the model assumptions and on future wind conditions being similar to those reflected in the data used for this analysis.
+
 \newpage
 
 # Q6 
@@ -80,17 +439,54 @@ As an exercise in learning about statistical procedures, your friend would like 
 
 ## A: 
 
-### Concise 
+### Monte Carlo 
+
+```{r}
+set.seed(43)
+
+gamma <- 0.5772156649015329
+
+# Sample from right-skew Gumbel EV(xi, theta)
+rEV <- function(n, xi, theta) {
+  u <- runif(n)
+  xi - theta * log(-log(u))
+}
+
+mc_E_mu <- function(fit, M = 200000) {
+  xi_hat <- fit$xi_hat
+  th_hat <- fit$theta_hat
+
+  mu_draws <- rEV(M, xi_hat, th_hat)
+
+  mc_mean <- mean(mu_draws)
+  mc_se   <- sd(mu_draws) / sqrt(M)
+
+  mc_ci <- mc_mean + c(-1, 1) * qnorm(0.975) * mc_se
+
+  # For comparison: analytic plug-in
+  plug_in <- xi_hat + gamma * th_hat
+
+  list(
+    M = M,
+    plug_in = plug_in,
+    mc_mean = mc_mean,
+    mc_se = mc_se,
+    mc_ci95 = mc_ci
+  )
+}
+
+mc50 <- mc_E_mu(fit50, M = 200000)
+mc80 <- mc_E_mu(fit80, M = 200000)
+
+mc50
+mc80
+```
+
+### Comparison - Concise
 
 The Monte Carlo (MC) intervals are much narrower because they measure only simulation (numerical) error conditional on the estimated parameters $(\hat{\xi}, \hat{\theta})$, whereas the asymptotic confidence intervals in Question 2 account for statistical uncertainty in the joint estimation of $(\xi, \theta)$ from finite data.
 
-### More Details
-
-### Concise 
-
-The Monte Carlo (MC) intervals are much narrower because they measure only simulation (numerical) error conditional on the estimated parameters $(\hat{\xi}, \hat{\theta})$, whereas the asymptotic confidence intervals in Question 2 account for statistical uncertainty in the joint estimation of $(\xi, \theta)$ from finite data.
-
-### More Details
+### Comparison - More Details
 
 For each height, we simulated
 
@@ -139,3 +535,199 @@ $$
 and reflects uncertainty in estimating $(\xi, \theta)$ from $n=50$ observations. That parameter uncertainty propagates into uncertainty about $E(\mu)$.
 
 Thus, the Monte Carlo intervals are narrow because they measure numerical precision, not inferential uncertainty. The wider intervals from Question 2 are the appropriate measures of statistical uncertainty about the expected wind speed. To obtain a simulation-based interval comparable to Question 2, one would need to incorporate parameter uncertainty (e.g., via a parametric bootstrap), rather than conditioning on fixed MLEs.
+
+\newpage 
+
+# Appendix 
+
+```{r, echo = F, eval = F}
+############################################################
+# STAT 6010 — Wind Speed Hierarchical EV Model Assignment
+# Full Script (Q1–Q6)
+############################################################
+
+library(tidyverse)
+set.seed(43)
+
+############################################################
+# Data
+############################################################
+
+m50 <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat1.txt", header = TRUE)
+m80 <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat2.txt", header = TRUE)
+
+y50 <- as.numeric(m50$y)
+y80 <- as.numeric(m80$y)
+
+gamma <- 0.5772156649015329  # Euler–Mascheroni constant
+
+############################################################
+# Model Components
+############################################################
+
+# EV (right-skew Gumbel) density for mu
+g_mu <- function(mu, xi, theta) {
+  z <- (mu - xi) / theta
+  (1/theta) * exp(-z) * exp(-exp(-z))
+}
+
+# Stable marginal density m(y | xi, theta)
+m_y_stable <- function(y, xi, theta, zL = -10, zU = 30) {
+  integrand <- function(z) {
+    log_int <- dnorm(y, mean = xi + theta * z, sd = 1, log = TRUE) -
+      z - exp(-z)
+    exp(log_int)
+  }
+  val <- integrate(integrand, lower = zL, upper = zU,
+                   rel.tol = 1e-8, abs.tol = 0,
+                   subdivisions = 5000)$value
+  pmax(val, .Machine$double.xmin)
+}
+
+log_m_vec_stable <- function(y, xi, theta, zL = -500, zU = 500) {
+  vapply(y, function(yy)
+    log(m_y_stable(yy, xi, theta, zL, zU)), numeric(1))
+}
+
+############################################################
+# Q1 — MLE for each dataset
+############################################################
+
+ev_start <- function(y) {
+  v <- var(y)
+  theta0 <- sqrt(pmax((v - 1) * 6 / pi^2, 1e-6))
+  xi0 <- mean(y) - gamma * theta0
+  c(xi0, log(theta0))
+}
+
+nll_one <- function(par, y, zL = -500, zU = 500) {
+  xi <- par[1]
+  theta <- exp(par[2])
+  -sum(log_m_vec_stable(y, xi, theta, zL, zU))
+}
+
+fit_one <- function(y, zL = -500, zU = 500) {
+  start <- ev_start(y)
+  opt <- optim(start, nll_one, y = y,
+               method = "BFGS", hessian = TRUE,
+               control = list(maxit = 2000))
+  xi_hat <- opt$par[1]
+  theta_hat <- exp(opt$par[2])
+  V <- solve(opt$hessian)
+
+  list(
+    xi_hat = xi_hat,
+    theta_hat = theta_hat,
+    logLik = -opt$value,
+    V = V
+  )
+}
+
+fit50 <- fit_one(y50)
+fit80 <- fit_one(y80)
+
+############################################################
+# Likelihood Ratio Test (Full vs Reduced)
+############################################################
+
+nll_full <- function(par, y50, y80) {
+  xi1 <- par[1]; th1 <- exp(par[2])
+  xi2 <- par[3]; th2 <- exp(par[4])
+  -sum(log_m_vec_stable(y50, xi1, th1)) -
+    sum(log_m_vec_stable(y80, xi2, th2))
+}
+
+nll_reduced <- function(par, y50, y80) {
+  xi <- par[1]; th <- exp(par[2])
+  -sum(log_m_vec_stable(y50, xi, th)) -
+    sum(log_m_vec_stable(y80, xi, th))
+}
+
+start_full <- c(fit50$xi_hat, log(fit50$theta_hat),
+                fit80$xi_hat, log(fit80$theta_hat))
+
+opt_full <- optim(start_full, nll_full,
+                  y50 = y50, y80 = y80,
+                  method = "BFGS")
+
+opt_red <- optim(ev_start(c(y50, y80)), nll_reduced,
+                 y50 = y50, y80 = y80,
+                 method = "BFGS")
+
+LR <- 2 * (-opt_red$value + opt_full$value)
+pval <- 1 - pchisq(LR, df = 2)
+
+############################################################
+# Q2 — Expected true maximum wind speed
+############################################################
+
+wald_ci_mean_mu <- function(fit) {
+  xi_hat <- fit$xi_hat
+  th_hat <- fit$theta_hat
+  V <- fit$V
+  eta_hat <- xi_hat + gamma * th_hat
+  grad <- c(1, gamma * th_hat)
+  se <- sqrt(drop(t(grad) %*% V %*% grad))
+  ci <- eta_hat + c(-1, 1) * qnorm(0.975) * se
+  list(estimate = eta_hat, ci95 = ci)
+}
+
+ci50_mean <- wald_ci_mean_mu(fit50)
+ci80_mean <- wald_ci_mean_mu(fit80)
+
+############################################################
+# Q3 — Median daily maximum wind speed
+############################################################
+
+FY_stable <- function(y, xi, theta, zL = -15, zU = 35) {
+  integrand <- function(z)
+    pnorm(y - (xi + theta * z)) * exp(-z - exp(-z))
+  integrate(integrand, zL, zU)$value
+}
+
+median_y <- function(xi, theta) {
+  f <- function(y) FY_stable(y, xi, theta) - 0.5
+  y0 <- xi + gamma * theta
+  uniroot(f, c(y0 - 10*theta, y0 + 10*theta))$root
+}
+
+med50 <- median_y(fit50$xi_hat, fit50$theta_hat)
+med80 <- median_y(fit80$xi_hat, fit80$theta_hat)
+
+############################################################
+# Q4 — P(4 <= mu <= 17)
+############################################################
+
+G_mu <- function(u, xi, theta)
+  exp(-exp(-(u - xi)/theta))
+
+p50 <- G_mu(17, fit50$xi_hat, fit50$theta_hat) -
+       G_mu(4,  fit50$xi_hat, fit50$theta_hat)
+
+p80 <- G_mu(17, fit80$xi_hat, fit80$theta_hat) -
+       G_mu(4,  fit80$xi_hat, fit80$theta_hat)
+
+############################################################
+# Q6 — Monte Carlo approximation of E(mu)
+############################################################
+
+rEV <- function(n, xi, theta) {
+  u <- runif(n)
+  xi - theta * log(-log(u))
+}
+
+mc_E_mu <- function(fit, M = 200000) {
+  mu_draws <- rEV(M, fit$xi_hat, fit$theta_hat)
+  mc_mean <- mean(mu_draws)
+  mc_se <- sd(mu_draws)/sqrt(M)
+  mc_ci <- mc_mean + c(-1,1) * qnorm(0.975) * mc_se
+  list(mc_mean = mc_mean, ci95 = mc_ci)
+}
+
+mc50 <- mc_E_mu(fit50)
+mc80 <- mc_E_mu(fit80)
+
+############################################################
+# End of Script
+############################################################
+```

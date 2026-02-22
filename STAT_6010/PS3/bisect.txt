@@ -1,0 +1,40 @@
+"bisect"<-
+function(a, b, fctn, extras)
+{
+#bisection to find the root of an equation in one dimension
+#fctn is function to use
+#extras are any arguments that fctn is expecting
+#a and b are initial points of evaluation
+	fa <- fctn(a, extras)
+	fb <- fctn(b, extras)
+#cat("fa: ",fa,fill=T)
+#cat("fb: ",fb,fill=T)
+	if(fa * fb >= 0)
+		stop("Need new starting values")
+	m <- (a + b)/2
+	cnt <- 0
+	repeat {
+		cnt <- cnt + 1	
+#cat("Current values at iteration: ", cnt, fill = T)
+#	cat(c(a, m, b), fill = T)
+		m <- (a + b)/2
+		fa <- fctn(a, extras)
+		fb <- fctn(b, extras)
+		fm <- fctn(m, extras)	
+#cat("Current function evaluations: ",fill=T)
+#  cat(c(fa,fm,fb),fill=T)
+#  cat("",fill=T)
+		if(fa * fm < 0)
+			b <- m
+		if(fa * fm >= 0)
+			a <- m
+		if(abs(b - a) < 1e-08)
+			break
+	}
+	val <- c((a + b)/2,fa,fb)
+#cat("est: ",(a+b)/2,fill=T)
+        fval<-fctn(val[1],extras)
+        res<-c(val,fval)
+#cat("res: ",res,fill=T)
+	return(res)
+}
