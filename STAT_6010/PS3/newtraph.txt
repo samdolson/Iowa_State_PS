@@ -1,78 +1,82 @@
-"newtraph" <- 
-function(ders, dat, x0)
+"newtraph" <-
+function(ders, dat, x0,
+         quiet = TRUE, print_final = TRUE,
+         step_scale = 1, max_halving = 50)
 {
-	cat("While N-R may be used for either minimization or\nmaximization")
-	cat("The checks for progress in this function are written")
-	cat("for maximization.  If you want to minimize, chage your")
-	cat("derivative calculations (multiply by -1).")
-        crit1<-1e-10
-        crit2<-1e-06
-        crit3<-1e-06
-        c1<-0
-        c2<-0
-        c3<-0
-	curnt <- x0
-        nump<-length(x0)
-	k <- 0
-	repeat {
-		k <- k + 1
-                cat(" ",fill=T)
-                cat(" ",fill=T)
-                cat("Current estimates beginning iteration ", k, ":", fill = T)
-		cat(curnt, fill = T)
-                cat(" ",fill=T)
-		int <- ders(curnt, dat)
-                logL<-int[[1]]
-                gi<-int[[2]]
-		cat("Log likelihood for these estimates: ", fill = T)
-		cat(logL, fill = T)
-                cat("Gradient for these estimates: ",fill=T)
-                cat(gi,fill=T)
-		cat(" ", fill = T)
-		Gi <- int[[3]]
-		GiI <- solve(Gi)
-		step <- GiI %*% gi
-		new <- curnt - step
-		sc <- 1
-		repeat {
-                        sc <- sc + 1
-			check <- ders(new, dat)
-			if(check[[1]] <= logL) {new <- curnt - (1/sc) * step}
-			if(check[[1]] > logL){newL<-check[[1]]
-                                                 newg<-check[[2]]}
-                        if(check[[1]] > logL) break
-			if(sc == 10) {cat("Step halving not effective, try new starting values", fill = T)
-				     stop()}                        
-		}
-                dist1<-newL-logL
-		dist2 <- (sum((new - curnt)^2))^0.5
-		if(crit1 > dist1){c1<-1
-           cat("Convergence criterion of ",crit1,"met for change in log likelihood",fill=T)}
-		if(crit2 > dist2){c2<-1
-           cat("Convergence criterion of ",crit2," met for change in estimates",fill=T)}
-                if(sum(crit3 > abs(newg)) == nump){ c3<-1
-           cat("Convergence criterion of ",crit3," met for sum of derivatives",fill=T)}
-                if(c1+c2+c3==3)	break
-		curnt <- new
-	}
-	cat("", fill = T)
-        cat(" ",fill=T)
-	final <- ders(new, dat)
-        flogL<-final[[1]]
-        fgrad<-final[[2]]
-        fInf<--1*solve(final[[3]])
-	cat("Final Estimates Are: ", new, fill = T)
-	cat("", fill = T)
-	cat("Final Log Likelihood: ", flogL, fill = T)
-	cat("", fill = T)
-	cat("Value of Gradient at Convergence:", fill = T)
-	cat(fgrad, fill = T)
-	cat("", fill = T)
-	cat("Inverse Observed Information: ", fill = T)
-	cat("(i.e., Inverse of Negative Hessian)", fill = T)
-	cat("", fill = T)
-	print(fInf)
-	res<-list(new,flogL,fInf)
-        return(res)
-}
+  crit1 <- 1e-10
+  crit2 <- 1e-06
+  crit3 <- 1e-06
 
+  curnt <- x0
+  nump  <- length(x0)
+  k <- 0
+
+  repeat {
+    k <- k + 1
+    c1 <- 0; c2 <- 0; c3 <- 0
+
+    int  <- ders(curnt, dat)
+    logL <- int[[1]]
+    g    <- int[[2]]
+    H    <- int[[3]]
+
+    if (!quiet) {
+      cat("\nIter", k, "\n")
+      cat("par:", curnt, "\n")
+      cat("logLik:", logL, "\n")
+      cat("grad:", g, "\n")
+    }
+
+    # Newton ascent direction; fall back to gradient if Hessian is bad
+    step_dir <- try(-solve(H, g), silent = TRUE)
+    if (inherits(step_dir, "try-error")) {
+      step_dir <- g
+    } else {
+      if (sum(g * step_dir) <= 0) step_dir <- g
+    }
+
+    alpha <- as.numeric(step_scale)
+    new <- curnt + alpha * step_dir
+
+    # Multiplicative backtracking line search
+    ok <- FALSE
+    for (ls in 1:max_halving) {
+      check <- ders(new, dat)
+      if (check[[1]] > logL) {
+        newL <- check[[1]]
+        newg <- check[[2]]
+        ok <- TRUE
+        break
+      }
+      alpha <- alpha * 0.5
+      new <- curnt + alpha * step_dir
+    }
+    if (!ok) stop("Line search failed (no improvement). Try smaller step_scale or new start.")
+
+    dist1 <- newL - logL
+    dist2 <- sqrt(sum((new - curnt)^2))
+
+    if (crit1 > dist1) c1 <- 1
+    if (crit2 > dist2) c2 <- 1
+    if (sum(crit3 > abs(newg)) == nump) c3 <- 1
+
+    if (c1 + c2 + c3 == 3) break
+    curnt <- new
+  }
+
+  final <- ders(curnt, dat)
+  flogL <- final[[1]]
+  fgrad <- final[[2]]
+  fInf  <- -solve(final[[3]])
+  res   <- list(curnt, flogL, fInf)
+
+  if (print_final) {
+    cat("\nFinal Estimates:", curnt, "\n")
+    cat("Final logLik:", flogL, "\n")
+    cat("Final grad:", fgrad, "\n")
+    cat("Inverse observed info:\n")
+    print(fInf)
+  }
+
+  res
+}

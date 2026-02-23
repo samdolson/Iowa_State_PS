@@ -42,66 +42,37 @@ $$
 
 ## A: 
 
-```{r, message = F, warning = F}
+### LIKELIHOOD DIRECT 
+
+```{r, message = F, warning = F, echo = F}
 library(tidyverse)
+library(numDeriv)
+
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/newtraph.txt")
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/bisect.txt")
+
 # 50m
 m50 <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat1.txt", header = T)
 # 80m
 m80 <-  read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat2.txt", header = T)
-```
 
-```{r}
-# -----------------------------
-# Setup
-# -----------------------------
 y50 <- as.numeric(m50$y)
 y80 <- as.numeric(m80$y)
+```
 
+```{r, echo = F}
 # -----------------------------
 # Model pieces
 # f(y|mu) = N(mu, 1)
 # g(mu|xi,theta) = right-skew Gumbel density
 # m(y|xi,theta) = int f(y|mu) g(mu|xi,theta) dmu
+# (Using a numerically stable z = (mu - xi)/theta reparameterization)
 # -----------------------------
 
-f_y_given_mu <- function(y, mu) dnorm(y, mean = mu, sd = 1)
-
-g_mu <- function(mu, xi, theta) {
-  z <- (mu - xi) / theta
-  (1/theta) * exp(-z) * exp(-exp(-z))
-}
-
-m_y <- function(y, xi, theta, L = 1000) {
-  integrand <- function(mu) f_y_given_mu(y, mu) * g_mu(mu, xi, theta)
-  val <- integrate(integrand, lower = -L, upper = L,
-                   rel.tol = 1e-10, abs.tol = 0)$value
-  pmax(val, .Machine$double.xmin)
-}
-
-log_m_vec <- function(y, xi, theta, L = 1000) {
-  vapply(y, function(yy) log(m_y(yy, xi, theta, L = L)), numeric(1))
-}
-```
-
-```{r}
-# -----------------------------
-# One-sample MLE (xi, theta)
-# Use par = (xi, logtheta) so theta>0 automatically
-# -----------------------------
-# ---- EV-aware starting values (moment-matching) ----
-ev_start <- function(y) {
-  gamma <- 0.5772156649015329
-  v <- var(y)
-  theta0 <- sqrt(pmax((v - 1) * 6 / pi^2, 1e-6))  # from Var(y)=pi^2/6*theta^2 + 1
-  xi0 <- mean(y) - gamma * theta0                 # from E(y)=xi + gamma*theta
-  c(xi0, log(theta0))
-}
-
-# ---- stable marginal density via z = (mu - xi)/theta ----
+# ---- Stable marginal density via z = (mu - xi)/theta ----
 m_y_stable <- function(y, xi, theta, zL = -10, zU = 30) {
-
   integrand <- function(z) {
-    # log integrand = log N(y | xi+theta z, 1) - z - exp(-z)
+    # log integrand = log N(y | xi + theta z, 1) - z - exp(-z)
     log_int <- dnorm(y, mean = xi + theta * z, sd = 1, log = TRUE) - z - exp(-z)
     exp(log_int)
   }
@@ -111,65 +82,106 @@ m_y_stable <- function(y, xi, theta, zL = -10, zU = 30) {
   pmax(val, .Machine$double.xmin)
 }
 
-log_m_vec_stable <- function(y, xi, theta, zL = -500, zU = 500) {
+log_m_vec_stable <- function(y, xi, theta, zL = -10, zU = 30) {
   vapply(y, function(yy) log(m_y_stable(yy, xi, theta, zL, zU)), numeric(1))
 }
 
-nll_one <- function(par, y, zL = -500, zU = 500) {
+# ---- Log-likelihood (maximize) on par = (xi, logtheta) ----
+logLik_one <- function(par, y, zL = -10, zU = 30) {
   xi <- par[1]
   theta <- exp(par[2])
-  -sum(log_m_vec_stable(y, xi, theta, zL = zL, zU = zU))
+  sum(log_m_vec_stable(y, xi, theta, zL = zL, zU = zU))
 }
 
-fit_one <- function(y, zL = -500, zU = 500) {
+# -----------------------------
+# Starting values (moment-matching)
+# -----------------------------
+ev_start <- function(y) {
+  gamma <- 0.5772156649015329
+  v <- var(y)
+  theta0 <- sqrt(pmax((v - 1) * 6 / pi^2, 1e-6))  # Var(y)=pi^2/6*theta^2 + 1
+  xi0 <- mean(y) - gamma * theta0                 # E(y)=xi + gamma*theta
+  c(xi0, log(theta0))
+}
+
+# -----------------------------
+# newtraph glue: ders(par, dat) -> list(logLik, grad, Hessian)
+# -----------------------------
+make_ders_one <- function(zL = -10, zU = 30) {
+  function(par, dat) {
+    f <- function(pp) logLik_one(pp, y = dat, zL = zL, zU = zU)
+    ll <- f(par)
+    g  <- grad(f, par)
+    H  <- hessian(f, par)
+    list(ll, g, H)
+  }
+}
+
+# -----------------------------
+# Fit wrapper using newtraph()
+# NOTE: assumes newtraph() is already defined (e.g., sourced earlier)
+# -----------------------------
+fit_one_newtraph <- function(y, zL = -10, zU = 30) {
   start <- ev_start(y)
+  ders  <- make_ders_one(zL = zL, zU = zU)
 
-  opt <- optim(start, nll_one, y = y, zL = zL, zU = zU,
-               method = "BFGS", hessian = TRUE,
-               control = list(maxit = 2000))
+  out <- newtraph(ders, dat = y, x0 = start,
+                quiet = TRUE, print_final = FALSE,
+                step_scale = 0.5, max_halving = 60)
 
-  xi_hat <- opt$par[1]
-  theta_hat <- exp(opt$par[2])
+  par_hat   <- as.numeric(out[[1]])  # (xi, logtheta)
+  xi_hat    <- par_hat[1]
+  theta_hat <- exp(par_hat[2])
 
-  V <- solve(opt$hessian)         # var on (xi, logtheta)
-  se_xi <- sqrt(V[1, 1])
+  fInf  <- out[[3]]                  # (-H)^{-1} at solution
+  se_xi <- sqrt(fInf[1, 1])
 
   list(
-    xi_hat = xi_hat,
-    theta_hat = theta_hat,
-    logLik = -opt$value,
-    se_xi = se_xi,
+    xi_hat     = xi_hat,
+    theta_hat  = theta_hat,
+    logLik     = out[[2]],
+    se_xi      = se_xi,
     ci_xi_wald = c(xi_hat - 1.96 * se_xi, xi_hat + 1.96 * se_xi),
-    opt = opt, V = V,
-    start = start,
-    z_bounds = c(zL, zU)
+    start      = start,
+    z_bounds   = c(zL, zU),
+    out        = out,
+    fInf       = fInf
   )
 }
 ```
 
-```{r}
-fit50 <- fit_one(y50)
-fit50
-fit50$ci_xi_wald
+```{r, echo = F, cache = T}
+fit50 <- fit_one_newtraph(y50, zL = -100, zU = 100)
+# fit50
+# fit50$ci_xi_wald
+
+fit80 <- fit_one_newtraph(y80, zL = -100, zU = 100)
+# fit80
+# fit80$ci_xi_wald
+
+cat("\n--- MLE (50m) ---\n"); print(fit50$xi_hat); cat("Wald CI xi (50m):\n"); print(fit50$ci_xi_wald)
+cat("\n--- MLE (80m) ---\n"); print(fit80$xi_hat); cat("Wald CI xi (80m):\n"); print(fit80$ci_xi_wald)
 ```
 
-```{r}
-fit80 <- fit_one(y80, zL = -400, zU = 400)
-fit80
-fit80$ci_xi_wald
-```
+### PROFILE 
 
-```{r}
+```{r, echo = F}
 # -----------------------------
-# Profile-LR CI for xi (matches the "bisection/implicit function" hints)
-# CI solves: 2(ell_hat - ell_prof(xi)) = qchisq(.95, df=1)
+# Profile-LR CI for xi
+# CI solves: 2(ell_hat - ell_prof(xi)) = qchisq(1-alpha, df=1)
 # -----------------------------
+
+# negative log-likelihood (for optimize); keep consistent with logLik_one()
+nll_one <- function(par, y, zL = -10, zU = 30) {
+  -logLik_one(par, y = y, zL = zL, zU = zU)
+}
+
 profile_logLik_xi <- function(xi_fixed, y, logtheta_center, zL = -10, zU = 30) {
   obj <- function(logtheta) nll_one(c(xi_fixed, logtheta), y = y, zL = zL, zU = zU)
 
-  # constrain theta to a reasonable band around theta_hat
-  # factor 20 band: [theta_hat/20, theta_hat*20]
-  opt <- optimize(obj, interval = c(logtheta_center - log(20), logtheta_center + log(20)))
+  # band around theta_hat: [theta_hat/20, theta_hat*20] on log-scale
+  opt <- optimize(obj,
+                  interval = c(logtheta_center - log(20), logtheta_center + log(20)))
 
   list(logLik = -opt$objective, logtheta_hat = opt$minimum)
 }
@@ -180,25 +192,29 @@ ci_xi_profile <- function(y, xi_hat, theta_hat, logLik_hat,
   cutoff <- qchisq(1 - alpha, df = 1)
 
   target <- function(xi) {
-    ell_prof <- profile_logLik_xi(xi_fixed = xi, y = y,
-                                  logtheta_center = log(theta_hat),
-                                  zL = zL, zU = zU)$logLik
+    ell_prof <- profile_logLik_xi(
+      xi_fixed = xi, y = y,
+      logtheta_center = log(theta_hat),
+      zL = zL, zU = zU
+    )$logLik
     2 * (logLik_hat - ell_prof) - cutoff
   }
 
-  # bracket around xi_hat and expand until crossing
+  # bracket around xi_hat and expand until crossing (target changes sign)
   step0 <- max(0.25, 0.5 * theta_hat)
 
   left <- xi_hat - step0
   step <- step0
   for (k in 1:80) {
-    if (is.finite(target(left)) && target(left) > 0) { left <- left - step; step <- step * 1.2 } else break
+    tl <- target(left)
+    if (is.finite(tl) && tl < 0) { left <- left - step; step <- step * 1.2 } else break
   }
 
   right <- xi_hat + step0
   step <- step0
   for (k in 1:80) {
-    if (is.finite(target(right)) && target(right) > 0) { right <- right + step; step <- step * 1.2 } else break
+    tr <- target(right)
+    if (is.finite(tr) && tr < 0) { right <- right + step; step <- step * 1.2 } else break
   }
 
   lower <- uniroot(target, interval = c(left, xi_hat))$root
@@ -207,93 +223,133 @@ ci_xi_profile <- function(y, xi_hat, theta_hat, logLik_hat,
 }
 ```
 
-```{r, eval = F}
-ci50_prof <- ci_xi_profile(y50, fit50$xi_hat, fit50$theta_hat, fit50$logLik, zL=-10, zU=10)
-ci80_prof <- ci_xi_profile(y80, fit80$xi_hat, fit80$theta_hat, fit80$logLik, zL=-10, zU=10)
+```{r, echo = F, cache = T}
+ci50_prof <- ci_xi_profile(y50, fit50$xi_hat, fit50$theta_hat, fit50$logLik, zL = -100, zU = 100)
+ci80_prof <- ci_xi_profile(y80, fit80$xi_hat, fit80$theta_hat, fit80$logLik, zL = -100, zU = 100)
 
-ci50_prof
-ci80_prof
+# ci50_prof
+# ci80_prof
+
+cat("\nProfile-LR CI xi (50m):\n"); print(ci50_prof)
+cat("\nProfile-LR CI xi (80m):\n"); print(ci80_prof)
 ```
 
-```{r}
+### LRT 
+
+```{r, echo = F}
 # -----------------------------
-# Two-sample models for LRT
-# Full: (xi50,theta50) and (xi80,theta80)
-# Reduced: common (xi,theta)
+# Log-likelihoods (maximize)
 # -----------------------------
-nll_full <- function(par, y50, y80, zL = -100, zU = 100) {
+logLik_full <- function(par, y50, y80, zL=-100, zU=100) {
   xi1 <- par[1]; th1 <- exp(par[2])
   xi2 <- par[3]; th2 <- exp(par[4])
 
-  -sum(log_m_vec_stable(y50, xi1, th1, zL = zL, zU = zU)) -
-   sum(log_m_vec_stable(y80, xi2, th2, zL = zL, zU = zU))
+  sum(log_m_vec_stable(y50, xi1, th1, zL=zL, zU=zU)) +
+    sum(log_m_vec_stable(y80, xi2, th2, zL=zL, zU=zU))
 }
 
-nll_reduced <- function(par, y50, y80, zL = -100, zU = 100) {
+logLik_reduced <- function(par, y50, y80, zL=-100, zU=100) {
   xi <- par[1]; th <- exp(par[2])
-
-  -sum(log_m_vec_stable(y50, xi, th, zL = zL, zU = zU)) -
-   sum(log_m_vec_stable(y80, xi, th, zL = zL, zU = zU))
+  sum(log_m_vec_stable(y50, xi, th, zL=zL, zU=zU)) +
+    sum(log_m_vec_stable(y80, xi, th, zL=zL, zU=zU))
 }
 
-fit_full <- function(y50, y80, zL = -100, zU = 100) {
-  start <- c(fit50$xi_hat, log(fit50$theta_hat),
-             fit80$xi_hat, log(fit80$theta_hat))
+nll_full    <- function(par, ...) -logLik_full(par, ...)
+nll_reduced <- function(par, ...) -logLik_reduced(par, ...)
 
-  opt <- optim(start, nll_full, y50 = y50, y80 = y80, zL = zL, zU = zU,
-               method = "BFGS", hessian = TRUE,
-               control = list(maxit = 2000))
+# -----------------------------
+# Fit wrappers (BFGS), with a couple starts
+# -----------------------------
+fit_full <- function(y50, y80, zL=-100, zU=100) {
+  starts <- rbind(
+    c(fit50$xi_hat, log(fit50$theta_hat), fit80$xi_hat, log(fit80$theta_hat)),
+    c(ev_start(y50), ev_start(y80))  # second reasonable start
+  )
+
+  best <- NULL
+  best_val <- Inf
+
+  for (s in 1:nrow(starts)) {
+    opt <- optim(starts[s,], nll_full, y50=y50, y80=y80, zL=zL, zU=zU,
+                 method="BFGS", hessian=TRUE, control=list(maxit=4000))
+
+    if (is.finite(opt$value) && opt$value < best_val) {
+      best_val <- opt$value
+      best <- opt
+    }
+  }
+
+  if (is.null(best)) stop("Full model optimization failed for all starts.")
+  if (best$convergence != 0) warning("Full model did not report convergence (optim$convergence != 0).")
 
   list(
-    xi50_hat = opt$par[1], th50_hat = exp(opt$par[2]),
-    xi80_hat = opt$par[3], th80_hat = exp(opt$par[4]),
-    logLik = -opt$value,
-    opt = opt
+    xi50_hat = best$par[1], th50_hat = exp(best$par[2]),
+    xi80_hat = best$par[3], th80_hat = exp(best$par[4]),
+    logLik   = -best$value,
+    opt      = best
   )
 }
 
-# EV-aware start for reduced model (optional but recommended)
-ev_start <- function(y) {
-  gamma <- 0.5772156649015329
-  v <- var(y)
-  theta0 <- sqrt(pmax((v - 1) * 6 / pi^2, 1e-6))
-  xi0 <- mean(y) - gamma * theta0
-  c(xi0, log(theta0))
-}
-
-fit_reduced <- function(y50, y80, zL = -100, zU = 100) {
+fit_reduced <- function(y50, y80, zL=-100, zU=100) {
   yall <- c(y50, y80)
-  start <- ev_start(yall)   # better than median/sd for this model
+  starts <- rbind(
+    ev_start(yall),
+    c(mean(yall), log(sd(yall))) # a crude backup
+  )
 
-  opt <- optim(start, nll_reduced, y50 = y50, y80 = y80, zL = zL, zU = zU,
-               method = "BFGS", hessian = TRUE,
-               control = list(maxit = 2000))
+  best <- NULL
+  best_val <- Inf
+
+  for (s in 1:nrow(starts)) {
+    opt <- optim(starts[s,], nll_reduced, y50=y50, y80=y80, zL=zL, zU=zU,
+                 method="BFGS", hessian=TRUE, control=list(maxit=4000))
+
+    if (is.finite(opt$value) && opt$value < best_val) {
+      best_val <- opt$value
+      best <- opt
+    }
+  }
+
+  if (is.null(best)) stop("Reduced model optimization failed for all starts.")
+  if (best$convergence != 0) warning("Reduced model did not report convergence (optim$convergence != 0).")
 
   list(
-    xi_hat = opt$par[1], th_hat = exp(opt$par[2]),
-    logLik = -opt$value,
-    opt = opt
+    xi_hat = best$par[1], th_hat = exp(best$par[2]),
+    logLik = -best$value,
+    opt    = best
   )
 }
 ```
 
-```{r}
-full <- fit_full(y50, y80, zL = -100, zU = 100)
-red  <- fit_reduced(y50, y80, zL = -100, zU = 100)
+```{r, echo = F}
+# -----------------------------
+# LRT
+# -----------------------------
+full <- fit_full(y50, y80, zL=-100, zU=100)
+red  <- fit_reduced(y50, y80, zL=-100, zU=100)
 
 LR   <- 2 * (full$logLik - red$logLik)
-pval <- 1 - pchisq(LR, df = 2)
+df   <- 2
+pval <- 1 - pchisq(LR, df=df)
 
-c(LR = LR, df = 2, p_value = pval)
+# c(LR = LR, df = df, p_value = pval)
+cat("\n--- LRT (Full vs Reduced) ---\n")
+print(c(LR = LR, df = df, p_value = pval))
 ```
 
-```{r}
+```{r, echo = F}
 # Overlay EV mixing densities (full model)
 mu_grid <- seq(
   min(full$xi50_hat - 6*full$th50_hat, full$xi80_hat - 6*full$th80_hat),
   max(full$xi50_hat + 10*full$th50_hat, full$xi80_hat + 10*full$th80_hat),
   length.out = 800
 )
+
+# Right-skew Gumbel (Extreme Value Type I) density
+g_mu <- function(mu, xi, theta) {
+  z <- (mu - xi) / theta
+  (1/theta) * exp(-z - exp(-z))
+}
 
 plot(mu_grid, g_mu(mu_grid, full$xi50_hat, full$th50_hat),
      type = "l", lwd = 2,
@@ -316,28 +372,33 @@ In (2), $E(\mu) \approx \xi + 0.577\theta$, where $0.577$ is Euler’s constant 
 
 ## A: 
 
-```{r}
+```{r, echo = F}
 gamma <- 0.5772156649015329
 
 wald_ci_mean_mu <- function(fit) {
   xi_hat <- fit$xi_hat
   th_hat <- fit$theta_hat
-  V      <- fit$V   # cov matrix of (xi, logtheta)
+  V      <- fit$fInf   # cov matrix for (xi, logtheta)
 
   eta_hat <- xi_hat + gamma * th_hat
 
-  grad <- c(1, gamma * th_hat)          # d eta / d (xi, logtheta)
-  se   <- sqrt(drop(t(grad) %*% V %*% grad))
+  # gradient w.r.t. (xi, logtheta):
+  # d/dxi = 1
+  # d/dlogtheta = d/dlogtheta (gamma * exp(logtheta)) = gamma * theta
+  grad <- c(1, gamma * th_hat)
 
+  se <- sqrt(drop(t(grad) %*% V %*% grad))
   ci <- eta_hat + c(-1, 1) * qnorm(0.975) * se
+
   list(eta_hat = eta_hat, se = se, ci95 = ci)
 }
 
 ci50_eta_wald <- wald_ci_mean_mu(fit50)
 ci80_eta_wald <- wald_ci_mean_mu(fit80)
 
-ci50_eta_wald
-ci80_eta_wald
+# ci50_eta_wald
+# ci80_eta_wald
+cat("\n--- Q2: E(mu) ---\n"); print(ci50_eta_wald); print(ci80_eta_wald)
 ```
 
 \newpage
@@ -348,9 +409,9 @@ Find a maximum likelihood estimate or estimates (depending on your final model) 
 
 ## A: 
 
-```{r}
+```{r, echo = F}
 # ---------- FY(y | xi, theta) ----------
-FY_stable <- function(y, xi, theta, zL = -10, zU = 30) {
+FY_stable <- function(y, xi, theta, zL = -100, zU = 100) {
   integrand <- function(z) {
     # weight = exp(-z - exp(-z))
     # inside = Phi(y - (xi + theta z))
@@ -363,7 +424,7 @@ FY_stable <- function(y, xi, theta, zL = -10, zU = 30) {
 }
 
 # ---------- median of Y given (xi, theta) ----------
-median_y <- function(xi, theta, zL = -10, zU = 30) {
+median_y <- function(xi, theta, zL = -100, zU = 100) {
   f <- function(y) FY_stable(y, xi, theta, zL, zU) - 0.5
 
   # bracket around mean-ish scale; this is usually safe for wind speeds
@@ -382,12 +443,38 @@ median_y <- function(xi, theta, zL = -10, zU = 30) {
   uniroot(f, interval = c(lo, hi))$root
 }
 
-# plug-in MLE medians
-med50_hat <- median_y(fit50$xi_hat, fit50$theta_hat, zL = -100, zU = 100)
-med80_hat <- median_y(fit80$xi_hat, fit80$theta_hat, zL = -100, zU = 100)
+# ---------- Wald / delta-method CI for median_y ----------
+wald_ci_median_y <- function(fit, zL = -100, zU = 100) {
+  xi_hat <- fit$xi_hat
+  th_hat <- fit$theta_hat
+  V      <- fit$fInf          # cov for (xi, logtheta)
 
-med50_hat
-med80_hat
+  # function of par = (xi, logtheta)
+  h <- function(par) {
+    xi <- par[1]
+    th <- exp(par[2])
+    median_y(xi, th, zL = zL, zU = zU)
+  }
+
+  par_hat <- c(xi_hat, log(th_hat))
+
+  m_hat <- h(par_hat)
+
+  # numerical gradient wrt (xi, logtheta)
+  g <- numDeriv::grad(h, par_hat)
+
+  se <- sqrt(drop(t(g) %*% V %*% g))
+  ci <- m_hat + c(-1, 1) * qnorm(0.975) * se
+
+  list(median_hat = m_hat, se = se, ci95 = ci, grad = g)
+}
+
+ci50_med <- wald_ci_median_y(fit50, zL = -100, zU = 100)
+ci80_med <- wald_ci_median_y(fit80, zL = -100, zU = 100)
+
+# ci50_med
+# ci80_med
+cat("\n--- Q3: Median(Y) ---\n"); print(ci50_med); print(ci80_med)
 ```
 
 \newpage
@@ -398,7 +485,7 @@ Find a maximum likelihood estimate or estimates (depending on your final model) 
 
 ## A 
 
-```{r}
+```{r, echo = F}
 # EV (right-skew Gumbel) CDF for mu
 G_mu <- function(u, xi, theta) {
   exp( -exp( -(u - xi)/theta ) )
@@ -410,11 +497,41 @@ p_between_mu <- function(fit, a = 4, b = 17) {
   G_mu(b, xi, th) - G_mu(a, xi, th)
 }
 
-p50_hat <- p_between_mu(fit50, 4, 17)
-p80_hat <- p_between_mu(fit80, 4, 17)
+# ---------- Wald / delta-method CI for p_between_mu ----------
+wald_ci_p_between_mu <- function(fit, a = 4, b = 17) {
+  xi_hat <- fit$xi_hat
+  th_hat <- fit$theta_hat
+  V      <- fit$fInf          # cov for (xi, logtheta)
 
-p50_hat
-p80_hat
+  # function of par = (xi, logtheta)
+  h <- function(par) {
+    xi <- par[1]
+    th <- exp(par[2])
+    G_mu(b, xi, th) - G_mu(a, xi, th)
+  }
+
+  par_hat <- c(xi_hat, log(th_hat))
+
+  p_hat <- h(par_hat)
+
+  # numerical gradient wrt (xi, logtheta)
+  g <- numDeriv::grad(h, par_hat)
+
+  se <- sqrt(drop(t(g) %*% V %*% g))
+
+  # plain Wald CI (can slightly exceed [0,1])
+  ci_wald <- p_hat + c(-1, 1) * qnorm(0.975) * se
+  ci_wald <- pmin(pmax(ci_wald, 0), 1)  # clamp to [0,1] for reporting
+
+  list(p_hat = p_hat, se = se, ci95 = ci_wald, grad = g)
+}
+
+ci50_p <- wald_ci_p_between_mu(fit50, a = 4, b = 17)
+ci80_p <- wald_ci_p_between_mu(fit80, a = 4, b = 17)
+
+# ci50_p
+# ci80_p
+cat("\n--- Q4: P(4 <= mu <= 17) ---\n"); print(ci50_p); print(ci80_p)
 ```
 
 \newpage
@@ -441,7 +558,7 @@ As an exercise in learning about statistical procedures, your friend would like 
 
 ### Monte Carlo 
 
-```{r}
+```{r, echo = F, cache = T}
 set.seed(43)
 
 gamma <- 0.5772156649015329
@@ -452,7 +569,7 @@ rEV <- function(n, xi, theta) {
   xi - theta * log(-log(u))
 }
 
-mc_E_mu <- function(fit, M = 200000) {
+mc_E_mu <- function(fit, M = 20000) {
   xi_hat <- fit$xi_hat
   th_hat <- fit$theta_hat
 
@@ -475,11 +592,12 @@ mc_E_mu <- function(fit, M = 200000) {
   )
 }
 
-mc50 <- mc_E_mu(fit50, M = 200000)
-mc80 <- mc_E_mu(fit80, M = 200000)
+mc50 <- mc_E_mu(fit50, M = 20000)
+mc80 <- mc_E_mu(fit80, M = 20000)
 
-mc50
-mc80
+# mc50
+# mc80
+cat("\n--- Q6: Monte Carlo E(mu) ---\n"); print(mc50$mc_mean); print(mc50$mc_ci95); print(mc80$mc_mean) ; print(mc80$mc_ci95)
 ```
 
 ### Comparison - Concise
@@ -540,176 +658,398 @@ Thus, the Monte Carlo intervals are narrow because they measure numerical precis
 
 # Appendix 
 
-```{r, echo = F, eval = F}
-############################################################
-# STAT 6010 — Wind Speed Hierarchical EV Model Assignment
-# Full Script (Q1–Q6)
-############################################################
+```{r, echo = T, eval = F}
+# ============================================================
+# APPENDIX: All-in-one code chunk for PS3 wind mixture model
+# Normal–EV (right-skew Gumbel) mixture; MLE via newtraph
+# + Wald and profile-LR CIs for xi
+# + LRT (full vs reduced) across heights
+# + Q2–Q4 delta-method CIs
+# + Q6 Monte Carlo approximation + MC intervals
+# ============================================================
 
 library(tidyverse)
-set.seed(43)
+library(numDeriv)
 
-############################################################
-# Data
-############################################################
+# ---- Source helper routines (provide these files or edit paths) ----
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/newtraph.txt")
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/bisect.txt")
 
-m50 <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat1.txt", header = TRUE)
-m80 <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat2.txt", header = TRUE)
-
+# ---- Load data ----
+m50 <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat1.txt", 
+                  header = TRUE)
+m80 <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat2.txt", 
+                  header = TRUE)
 y50 <- as.numeric(m50$y)
 y80 <- as.numeric(m80$y)
 
-gamma <- 0.5772156649015329  # Euler–Mascheroni constant
+# ============================================================
+# Core model components
+# ============================================================
 
-############################################################
-# Model Components
-############################################################
-
-# EV (right-skew Gumbel) density for mu
-g_mu <- function(mu, xi, theta) {
-  z <- (mu - xi) / theta
-  (1/theta) * exp(-z) * exp(-exp(-z))
-}
-
-# Stable marginal density m(y | xi, theta)
-m_y_stable <- function(y, xi, theta, zL = -10, zU = 30) {
+# Stable marginal density m(y | xi, theta) using z = (mu - xi)/theta
+m_y_stable <- function(y, xi, theta, zL = -100, zU = 100) {
   integrand <- function(z) {
-    log_int <- dnorm(y, mean = xi + theta * z, sd = 1, log = TRUE) -
-      z - exp(-z)
+    # log integrand = log N(y | xi + theta z, 1) + log{exp(-z - exp(-z))}
+    log_int <- dnorm(y, mean = xi + theta * z, sd = 1, log = TRUE) - z - exp(-z)
     exp(log_int)
   }
+
   val <- integrate(integrand, lower = zL, upper = zU,
-                   rel.tol = 1e-8, abs.tol = 0,
-                   subdivisions = 5000)$value
+                   rel.tol = 1e-8, abs.tol = 0, subdivisions = 5000)$value
   pmax(val, .Machine$double.xmin)
 }
 
-log_m_vec_stable <- function(y, xi, theta, zL = -500, zU = 500) {
-  vapply(y, function(yy)
-    log(m_y_stable(yy, xi, theta, zL, zU)), numeric(1))
+log_m_vec_stable <- function(y, xi, theta, zL = -100, zU = 100) {
+  vapply(y, function(yy) log(m_y_stable(yy, xi, theta, zL, zU)), numeric(1))
 }
 
-############################################################
-# Q1 — MLE for each dataset
-############################################################
+# log-likelihood for one dataset; par = (xi, logtheta)
+logLik_one <- function(par, y, zL = -100, zU = 100) {
+  xi <- par[1]
+  theta <- exp(par[2])
+  sum(log_m_vec_stable(y, xi, theta, zL = zL, zU = zU))
+}
 
+# starting values (moment matching)
 ev_start <- function(y) {
+  gamma <- 0.5772156649015329
   v <- var(y)
-  theta0 <- sqrt(pmax((v - 1) * 6 / pi^2, 1e-6))
-  xi0 <- mean(y) - gamma * theta0
+  theta0 <- sqrt(pmax((v - 1) * 6 / pi^2, 1e-6))  # Var(Y)=pi^2/6*theta^2 + 1
+  xi0 <- mean(y) - gamma * theta0                 # E(Y)=xi + gamma*theta
   c(xi0, log(theta0))
 }
 
-nll_one <- function(par, y, zL = -500, zU = 500) {
-  xi <- par[1]
-  theta <- exp(par[2])
-  -sum(log_m_vec_stable(y, xi, theta, zL, zU))
+# newtraph glue: ders(par, dat) -> list(ll, grad, Hessian)
+make_ders_one <- function(zL = -100, zU = 100) {
+  function(par, dat) {
+    f <- function(pp) logLik_one(pp, y = dat, zL = zL, zU = zU)
+    ll <- f(par)
+    g  <- numDeriv::grad(f, par)
+    H  <- numDeriv::hessian(f, par)
+    list(ll, g, H)
+  }
 }
 
-fit_one <- function(y, zL = -500, zU = 500) {
+# fit one dataset using newtraph
+fit_one_newtraph <- function(y, zL = -100, zU = 100) {
   start <- ev_start(y)
-  opt <- optim(start, nll_one, y = y,
-               method = "BFGS", hessian = TRUE,
-               control = list(maxit = 2000))
-  xi_hat <- opt$par[1]
-  theta_hat <- exp(opt$par[2])
-  V <- solve(opt$hessian)
+  ders  <- make_ders_one(zL = zL, zU = zU)
+
+  out <- newtraph(ders, dat = y, x0 = start,
+                  quiet = TRUE, print_final = FALSE,
+                  step_scale = 0.5, max_halving = 60)
+
+  par_hat   <- as.numeric(out[[1]])  # (xi, logtheta)
+  xi_hat    <- par_hat[1]
+  theta_hat <- exp(par_hat[2])
+
+  V <- out[[3]]                      # (-H)^{-1} at solution, for (xi, logtheta)
+  se_xi <- sqrt(V[1, 1])
 
   list(
-    xi_hat = xi_hat,
-    theta_hat = theta_hat,
-    logLik = -opt$value,
-    V = V
+    xi_hat     = xi_hat,
+    theta_hat  = theta_hat,
+    logLik     = out[[2]],
+    se_xi      = se_xi,
+    ci_xi_wald = c(xi_hat - 1.96 * se_xi, xi_hat + 1.96 * se_xi),
+    start      = start,
+    z_bounds   = c(zL, zU),
+    out        = out,
+    fInf       = V
   )
 }
 
-fit50 <- fit_one(y50)
-fit80 <- fit_one(y80)
+# Fit separately
+fit50 <- fit_one_newtraph(y50, zL = -100, zU = 100)
+fit80 <- fit_one_newtraph(y80, zL = -100, zU = 100)
 
-############################################################
-# Likelihood Ratio Test (Full vs Reduced)
-############################################################
+cat("\n--- MLE (50m) ---\n"); print(fit50); cat("Wald CI xi (50m):\n"); print(fit50$ci_xi_wald)
+cat("\n--- MLE (80m) ---\n"); print(fit80); cat("Wald CI xi (80m):\n"); print(fit80$ci_xi_wald)
 
-nll_full <- function(par, y50, y80) {
+# ============================================================
+# Profile-LR CI for xi
+# ============================================================
+
+nll_one <- function(par, y, zL = -100, zU = 100) -logLik_one(par, y = y, zL = zL, zU = zU)
+
+profile_logLik_xi <- function(xi_fixed, y, logtheta_center, zL = -100, zU = 100) {
+  obj <- function(logtheta) nll_one(c(xi_fixed, logtheta), y = y, zL = zL, zU = zU)
+  opt <- optimize(obj, interval = c(logtheta_center - log(20), logtheta_center + log(20)))
+  list(logLik = -opt$objective, logtheta_hat = opt$minimum)
+}
+
+ci_xi_profile <- function(y, xi_hat, theta_hat, logLik_hat, zL = -100, zU = 100, alpha = 0.05) {
+  cutoff <- qchisq(1 - alpha, df = 1)
+
+  target <- function(xi) {
+    ell_prof <- profile_logLik_xi(xi_fixed = xi, y = y,
+                                  logtheta_center = log(theta_hat),
+                                  zL = zL, zU = zU)$logLik
+    2 * (logLik_hat - ell_prof) - cutoff
+  }
+
+  step0 <- max(0.25, 0.5 * theta_hat)
+
+  left <- xi_hat - step0
+  step <- step0
+  for (k in 1:80) {
+    tl <- target(left)
+    if (is.finite(tl) && tl < 0) { left <- left - step; step <- step * 1.2 } else break
+  }
+
+  right <- xi_hat + step0
+  step <- step0
+  for (k in 1:80) {
+    tr <- target(right)
+    if (is.finite(tr) && tr < 0) { right <- right + step; step <- step * 1.2 } else break
+  }
+
+  lower <- uniroot(target, interval = c(left, xi_hat))$root
+  upper <- uniroot(target, interval = c(xi_hat, right))$root
+  c(lower, upper)
+}
+
+ci50_prof <- ci_xi_profile(y50, fit50$xi_hat, fit50$theta_hat, fit50$logLik, zL = -100, zU = 100)
+ci80_prof <- ci_xi_profile(y80, fit80$xi_hat, fit80$theta_hat, fit80$logLik, zL = -100, zU = 100)
+cat("\nProfile-LR CI xi (50m):\n"); print(ci50_prof)
+cat("\nProfile-LR CI xi (80m):\n"); print(ci80_prof)
+
+# ============================================================
+# LRT: Reduced (common xi,theta) vs Full (separate per height)
+# ============================================================
+
+logLik_full <- function(par, y50, y80, zL=-100, zU=100) {
   xi1 <- par[1]; th1 <- exp(par[2])
   xi2 <- par[3]; th2 <- exp(par[4])
-  -sum(log_m_vec_stable(y50, xi1, th1)) -
-    sum(log_m_vec_stable(y80, xi2, th2))
+  sum(log_m_vec_stable(y50, xi1, th1, zL=zL, zU=zU)) +
+    sum(log_m_vec_stable(y80, xi2, th2, zL=zL, zU=zU))
 }
 
-nll_reduced <- function(par, y50, y80) {
+logLik_reduced <- function(par, y50, y80, zL=-100, zU=100) {
   xi <- par[1]; th <- exp(par[2])
-  -sum(log_m_vec_stable(y50, xi, th)) -
-    sum(log_m_vec_stable(y80, xi, th))
+  sum(log_m_vec_stable(y50, xi, th, zL=zL, zU=zU)) +
+    sum(log_m_vec_stable(y80, xi, th, zL=zL, zU=zU))
 }
 
-start_full <- c(fit50$xi_hat, log(fit50$theta_hat),
-                fit80$xi_hat, log(fit80$theta_hat))
+nll_full    <- function(par, ...) -logLik_full(par, ...)
+nll_reduced <- function(par, ...) -logLik_reduced(par, ...)
 
-opt_full <- optim(start_full, nll_full,
-                  y50 = y50, y80 = y80,
-                  method = "BFGS")
+fit_full <- function(y50, y80, zL=-100, zU=100) {
+  starts <- rbind(
+    c(fit50$xi_hat, log(fit50$theta_hat), fit80$xi_hat, log(fit80$theta_hat)),
+    c(ev_start(y50), ev_start(y80))
+  )
 
-opt_red <- optim(ev_start(c(y50, y80)), nll_reduced,
-                 y50 = y50, y80 = y80,
-                 method = "BFGS")
+  best <- NULL
+  best_val <- Inf
 
-LR <- 2 * (-opt_red$value + opt_full$value)
-pval <- 1 - pchisq(LR, df = 2)
+  for (s in 1:nrow(starts)) {
+    opt <- optim(starts[s,], nll_full, y50=y50, y80=y80, zL=zL, zU=zU,
+                 method="BFGS", hessian=TRUE, control=list(maxit=4000))
+    if (is.finite(opt$value) && opt$value < best_val) {
+      best_val <- opt$value
+      best <- opt
+    }
+  }
 
-############################################################
-# Q2 — Expected true maximum wind speed
-############################################################
+  if (is.null(best)) stop("Full model optimization failed for all starts.")
+  if (best$convergence != 0) warning("Full model did not report convergence.")
+
+  list(
+    xi50_hat = best$par[1], th50_hat = exp(best$par[2]),
+    xi80_hat = best$par[3], th80_hat = exp(best$par[4]),
+    logLik   = -best$value,
+    opt      = best
+  )
+}
+
+fit_reduced <- function(y50, y80, zL=-100, zU=100) {
+  yall <- c(y50, y80)
+  starts <- rbind(
+    ev_start(yall),
+    c(mean(yall), log(sd(yall)))
+  )
+
+  best <- NULL
+  best_val <- Inf
+
+  for (s in 1:nrow(starts)) {
+    opt <- optim(starts[s,], nll_reduced, y50=y50, y80=y80, zL=zL, zU=zU,
+                 method="BFGS", hessian=TRUE, control=list(maxit=4000))
+    if (is.finite(opt$value) && opt$value < best_val) {
+      best_val <- opt$value
+      best <- opt
+    }
+  }
+
+  if (is.null(best)) stop("Reduced model optimization failed for all starts.")
+  if (best$convergence != 0) warning("Reduced model did not report convergence.")
+
+  list(
+    xi_hat = best$par[1], th_hat = exp(best$par[2]),
+    logLik = -best$value,
+    opt    = best
+  )
+}
+
+full <- fit_full(y50, y80, zL=-100, zU=100)
+red  <- fit_reduced(y50, y80, zL=-100, zU=100)
+
+LR   <- 2 * (full$logLik - red$logLik)
+df   <- 2
+pval <- 1 - pchisq(LR, df=df)
+
+cat("\n--- LRT (Full vs Reduced) ---\n")
+print(c(LR = LR, df = df, p_value = pval))
+
+# ============================================================
+# Plot EV mixing density/densities for selected model
+# (Select full if p < 0.05; otherwise reduced)
+# ============================================================
+
+# Right-skew Gumbel density for mu
+g_mu <- function(mu, xi, theta) {
+  z <- (mu - xi) / theta
+  (1/theta) * exp(-z - exp(-z))
+}
+
+use_full <- is.finite(pval) && (pval < 0.05)
+
+if (use_full) {
+  mu_grid <- seq(
+    min(full$xi50_hat - 6*full$th50_hat, full$xi80_hat - 6*full$th80_hat),
+    max(full$xi50_hat + 10*full$th50_hat, full$xi80_hat + 10*full$th80_hat),
+    length.out = 800
+  )
+
+  plot(mu_grid, g_mu(mu_grid, full$xi50_hat, full$th50_hat),
+       type = "l", lwd = 2,
+       xlab = expression(mu), ylab = "density",
+       main = "EV mixing densities g(mu|xi,theta) — Full model")
+  lines(mu_grid, g_mu(mu_grid, full$xi80_hat, full$th80_hat), lwd = 2, lty = 2)
+  legend("topright", legend = c("50m", "80m"), lwd = 2, lty = c(1, 2), bty = "n")
+
+} else {
+  mu_grid <- seq(red$xi_hat - 6*red$th_hat, red$xi_hat + 10*red$th_hat, length.out = 800)
+  plot(mu_grid, g_mu(mu_grid, red$xi_hat, red$th_hat),
+       type = "l", lwd = 2,
+       xlab = expression(mu), ylab = "density",
+       main = "EV mixing density g(mu|xi,theta) — Reduced model")
+}
+
+# ============================================================
+# Q2: E(mu) = xi + gamma*theta + delta-method CI
+# ============================================================
+
+gamma <- 0.5772156649015329
 
 wald_ci_mean_mu <- function(fit) {
   xi_hat <- fit$xi_hat
   th_hat <- fit$theta_hat
-  V <- fit$V
+  V      <- fit$fInf   # cov for (xi, logtheta)
+
   eta_hat <- xi_hat + gamma * th_hat
-  grad <- c(1, gamma * th_hat)
+  grad <- c(1, gamma * th_hat)  # wrt (xi, logtheta)
+
   se <- sqrt(drop(t(grad) %*% V %*% grad))
   ci <- eta_hat + c(-1, 1) * qnorm(0.975) * se
-  list(estimate = eta_hat, ci95 = ci)
+  list(eta_hat = eta_hat, se = se, ci95 = ci)
 }
 
-ci50_mean <- wald_ci_mean_mu(fit50)
-ci80_mean <- wald_ci_mean_mu(fit80)
+ci50_eta <- wald_ci_mean_mu(fit50)
+ci80_eta <- wald_ci_mean_mu(fit80)
+cat("\n--- Q2: E(mu) ---\n"); print(ci50_eta); print(ci80_eta)
 
-############################################################
-# Q3 — Median daily maximum wind speed
-############################################################
+# ============================================================
+# Q3: Median of observed Y + delta-method CI
+# ============================================================
 
-FY_stable <- function(y, xi, theta, zL = -15, zU = 35) {
-  integrand <- function(z)
+FY_stable <- function(y, xi, theta, zL = -100, zU = 100) {
+  integrand <- function(z) {
     pnorm(y - (xi + theta * z)) * exp(-z - exp(-z))
-  integrate(integrand, zL, zU)$value
+  }
+  val <- integrate(integrand, lower = zL, upper = zU,
+                   rel.tol = 1e-8, abs.tol = 0, subdivisions = 5000)$value
+  pmin(pmax(val, 0), 1)
 }
 
-median_y <- function(xi, theta) {
-  f <- function(y) FY_stable(y, xi, theta) - 0.5
+median_y <- function(xi, theta, zL = -100, zU = 100) {
+  f <- function(y) FY_stable(y, xi, theta, zL, zU) - 0.5
+
   y0 <- xi + gamma * theta
-  uniroot(f, c(y0 - 10*theta, y0 + 10*theta))$root
+  lo <- y0 - 10 * theta - 5
+  hi <- y0 + 10 * theta + 5
+
+  for (k in 1:60) if (f(lo) > 0) lo <- lo - (2 + theta) else break
+  for (k in 1:60) if (f(hi) < 0) hi <- hi + (2 + theta) else break
+
+  uniroot(f, interval = c(lo, hi))$root
 }
 
-med50 <- median_y(fit50$xi_hat, fit50$theta_hat)
-med80 <- median_y(fit80$xi_hat, fit80$theta_hat)
+wald_ci_median_y <- function(fit, zL = -100, zU = 100) {
+  xi_hat <- fit$xi_hat
+  th_hat <- fit$theta_hat
+  V      <- fit$fInf
 
-############################################################
-# Q4 — P(4 <= mu <= 17)
-############################################################
+  h <- function(par) {
+    xi <- par[1]
+    th <- exp(par[2])
+    median_y(xi, th, zL = zL, zU = zU)
+  }
 
-G_mu <- function(u, xi, theta)
-  exp(-exp(-(u - xi)/theta))
+  par_hat <- c(xi_hat, log(th_hat))
+  m_hat <- h(par_hat)
 
-p50 <- G_mu(17, fit50$xi_hat, fit50$theta_hat) -
-       G_mu(4,  fit50$xi_hat, fit50$theta_hat)
+  g <- numDeriv::grad(h, par_hat)
+  se <- sqrt(drop(t(g) %*% V %*% g))
+  ci <- m_hat + c(-1, 1) * qnorm(0.975) * se
 
-p80 <- G_mu(17, fit80$xi_hat, fit80$theta_hat) -
-       G_mu(4,  fit80$xi_hat, fit80$theta_hat)
+  list(median_hat = m_hat, se = se, ci95 = ci)
+}
 
-############################################################
-# Q6 — Monte Carlo approximation of E(mu)
-############################################################
+ci50_med <- wald_ci_median_y(fit50, zL = -100, zU = 100)
+ci80_med <- wald_ci_median_y(fit80, zL = -100, zU = 100)
+cat("\n--- Q3: Median(Y) ---\n"); print(ci50_med); print(ci80_med)
+
+# ============================================================
+# Q4: P(4 <= mu <= 17) + delta-method CI (clamped to [0,1])
+# ============================================================
+
+G_mu <- function(u, xi, theta) exp(-exp(-(u - xi)/theta))
+
+wald_ci_p_between_mu <- function(fit, a = 4, b = 17) {
+  xi_hat <- fit$xi_hat
+  th_hat <- fit$theta_hat
+  V      <- fit$fInf
+
+  h <- function(par) {
+    xi <- par[1]
+    th <- exp(par[2])
+    G_mu(b, xi, th) - G_mu(a, xi, th)
+  }
+
+  par_hat <- c(xi_hat, log(th_hat))
+  p_hat <- h(par_hat)
+
+  g <- numDeriv::grad(h, par_hat)
+  se <- sqrt(drop(t(g) %*% V %*% g))
+
+  ci <- p_hat + c(-1, 1) * qnorm(0.975) * se
+  ci <- pmin(pmax(ci, 0), 1)
+
+  list(p_hat = p_hat, se = se, ci95 = ci)
+}
+
+ci50_p <- wald_ci_p_between_mu(fit50, a = 4, b = 17)
+ci80_p <- wald_ci_p_between_mu(fit80, a = 4, b = 17)
+cat("\n--- Q4: P(4 <= mu <= 17) ---\n"); print(ci50_p); print(ci80_p)
+
+# ============================================================
+# Q6: Monte Carlo approximation to E(mu) + MC intervals
+# ============================================================
+
+set.seed(43)
 
 rEV <- function(n, xi, theta) {
   u <- runif(n)
@@ -717,17 +1057,25 @@ rEV <- function(n, xi, theta) {
 }
 
 mc_E_mu <- function(fit, M = 200000) {
-  mu_draws <- rEV(M, fit$xi_hat, fit$theta_hat)
+  xi_hat <- fit$xi_hat
+  th_hat <- fit$theta_hat
+
+  mu_draws <- rEV(M, xi_hat, th_hat)
+
   mc_mean <- mean(mu_draws)
-  mc_se <- sd(mu_draws)/sqrt(M)
-  mc_ci <- mc_mean + c(-1,1) * qnorm(0.975) * mc_se
-  list(mc_mean = mc_mean, ci95 = mc_ci)
+  mc_se   <- sd(mu_draws) / sqrt(M)
+  mc_ci   <- mc_mean + c(-1, 1) * qnorm(0.975) * mc_se
+
+  plug_in <- xi_hat + gamma * th_hat
+
+  list(M = M, plug_in = plug_in, mc_mean = mc_mean, mc_se = mc_se, mc_ci95 = mc_ci)
 }
 
-mc50 <- mc_E_mu(fit50)
-mc80 <- mc_E_mu(fit80)
+mc50 <- mc_E_mu(fit50, M = 200000)
+mc80 <- mc_E_mu(fit80, M = 200000)
+cat("\n--- Q6: Monte Carlo E(mu) ---\n"); print(mc50); print(mc80)
 
-############################################################
-# End of Script
-############################################################
+# ============================================================
+# End appendix chunk
+# ============================================================
 ```

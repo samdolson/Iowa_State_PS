@@ -1,0 +1,400 @@
+---
+title: "Method to the Madness"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+* Two datasets: **50m** and **80m** wind speeds
+* Variables:
+
+  * `y` = observed wind speed
+  * `day` = numeric time index (not used in this model)
+* Goal: model the *distribution of wind speeds* at each height using a Normal–Extreme Value mixture, estimate the mode parameter $\xi$, construct CIs, and test whether the latent wind distributions differ by height.
+
+---
+
+# 1. What Is the Statistical Model in This Context?
+
+You observe daily wind speeds:
+
+* $Y_{50,i}$ = wind speed at 50m on day $i$
+* $Y_{80,i}$ = wind speed at 80m on day $i$
+
+We are **not modeling time trends** (`day` is unused here). Instead, we are modeling the **distribution of wind speeds across days**.
+
+---
+
+## The Modeling Idea
+
+Wind speed varies from day to day because:
+
+1. There is a “true wind level” on each day (a latent mean), call it $\mu_i$.
+2. The observed wind speed fluctuates around that true level.
+
+So we build a hierarchical model:
+
+---
+
+### Step 1: Measurement model (within-day variation)
+
+Given the day-specific latent level $\mu_i$:
+
+$$
+Y_i \mid \mu_i \sim N(\mu_i, 1).
+$$
+
+Interpretation:
+
+* Observed wind speed fluctuates normally around a latent daily wind level.
+* Variance is fixed at 1 (given in problem).
+
+---
+
+### Step 2: Distribution of daily wind levels
+
+The latent daily wind levels follow a right-skew Extreme Value distribution:
+
+$$
+\mu_i \sim \text{EV}(\xi, \theta),
+$$
+
+with density
+
+$$
+g(\mu \mid \xi, \theta)
+=
+\frac{1}{\theta}
+\exp\left(-\frac{\mu - \xi}{\theta}\right)
+\exp\left[-\exp\left(-\frac{\mu - \xi}{\theta}\right)\right].
+$$
+
+Interpretation:
+
+* $\xi$ = **mode** of the wind-level distribution.
+* $\theta$ = scale (spread).
+* Skewness reflects extreme-wind behavior (occasional unusually high wind regimes).
+
+---
+
+# 2. What Distribution Does Wind Speed Follow?
+
+Since $\mu_i$ is unobserved, the observed wind speed density is:
+
+$$
+m(y \mid \xi, \theta)
+=
+\int_{-\infty}^{\infty}
+f(y \mid \mu)
+g(\mu \mid \xi, \theta)
+d\mu.
+$$
+
+This is a **Normal location mixture with an Extreme Value mixing distribution**.
+
+---
+
+## Why This Is Not a Simple Regression Problem
+
+In an ordinary regression model, we would specify something like:
+
+$$
+Y_i = \beta_0 + \varepsilon_i,
+$$
+
+or possibly include covariates, and then directly estimate parameters from a closed-form likelihood.
+
+Here, however:
+
+* The mean $\mu_i$ is **unobserved**.
+* The likelihood of $Y_i$ is not directly Normal.
+* We must integrate out the latent variable $\mu_i$ to obtain the marginal density.
+
+Because of the integral
+
+$$
+m(y \mid \xi, \theta)
+=
+\int f(y \mid \mu), g(\mu \mid \xi, \theta), d\mu,
+$$
+
+there is:
+
+* No closed-form expression for the likelihood,
+* No linear estimating equations,
+* No sufficient statistics like a sample mean or variance,
+* No direct least-squares interpretation.
+
+Each evaluation of the likelihood requires **numerical integration**.
+
+This makes the model fundamentally a **hierarchical mixture model**, not a regression model. The parameters $(\xi, \theta)$ describe the *distribution of latent daily wind regimes*, not a linear mean relationship.
+
+That is why your code must:
+
+* Numerically integrate for every observation,
+* Numerically maximize the likelihood,
+* Use Hessians or profile likelihood methods for inference.
+
+---
+
+# 3. What Are We Estimating?
+
+For each height (50m and 80m separately), we estimate:
+
+* $\xi$ → the **most likely latent wind level**
+* $\theta$ → spread of latent wind levels
+
+The key parameter of interest:
+
+$$
+\xi = \text{mode of daily wind level distribution}.
+$$
+
+This answers:
+
+> What is the typical (most probable) daily wind regime at this height?
+
+Note: this is not the mean wind speed, but the most probable latent regime.
+
+---
+
+# 4. Maximum Likelihood Estimation
+
+For one dataset (say 50m), the log-likelihood is:
+
+$$
+\ell(\xi, \theta)
+=
+\sum_{i=1}^{n}
+\log m(y_i \mid \xi, \theta).
+$$
+
+Because $m(y_i \mid \xi, \theta)$ involves numerical integration, **each likelihood evaluation requires integration**.
+
+You maximize this using `optim()` with parameterization:
+
+$$
+(\xi, \log \theta)
+$$
+
+to ensure $\theta > 0$.
+
+This is fully numerical likelihood-based estimation.
+
+---
+
+## Why the moment-based starting values?
+
+For this model:
+
+$$
+E(Y) = \xi + \gamma \theta
+$$
+
+$$
+\mathrm{Var}(Y) = \frac{\pi^2}{6}\theta^2 + 1
+$$
+
+So you approximately invert these to get good starting values.
+
+This improves numerical stability during optimization.
+
+---
+
+# 5. Confidence Intervals for $\xi$ (Mode of Wind Regime)
+
+You compute two types:
+
+---
+
+## (A) Wald CI
+
+From the Hessian matrix:
+
+$$
+\hat{\xi} \pm 1.96,\mathrm{SE}(\hat{\xi}).
+$$
+
+This assumes:
+
+$$
+\hat{\xi} \approx N(\xi, \mathrm{Var}).
+$$
+
+This works well if the likelihood is approximately quadratic near the maximum.
+
+---
+
+## (B) Profile Likelihood CI
+
+Instead of relying on a quadratic approximation, you:
+
+1. Fix $\xi$
+2. Re-optimize over $\theta$
+3. Solve
+
+$$
+2(\ell_{\max} - \ell_{\text{prof}}(\xi))
+=
+\chi^2_{1,0.95}.
+$$
+
+This approach is more robust when the likelihood is skewed.
+
+---
+
+# 6. Comparing 50m and 80m
+
+Now we test whether the latent wind distributions differ by height.
+
+---
+
+## Full Model (different distributions)
+
+50m has:
+
+$$
+(\xi_{50}, \theta_{50})
+$$
+
+80m has:
+
+$$
+(\xi_{80}, \theta_{80})
+$$
+
+Total parameters = 4.
+
+---
+
+## Reduced Model (same distribution)
+
+Both heights share:
+
+$$
+(\xi, \theta).
+$$
+
+Total parameters = 2.
+
+---
+
+# 7. Likelihood Ratio Test
+
+Test:
+
+$$
+H_0: \xi_{50}=\xi_{80}, ; \theta_{50}=\theta_{80}
+$$
+
+vs
+
+$$
+H_1: \text{distributions differ}.
+$$
+
+Test statistic:
+
+$$
+\Lambda
+=
+2(\ell_F - \ell_R).
+$$
+
+Under $H_0$:
+
+$$
+\Lambda \sim \chi^2_2.
+$$
+
+If $p < 0.05$ → wind regimes differ by height.
+
+---
+
+# 8. Graphing the Mixing Densities
+
+You plot:
+
+$$
+g(\mu \mid \hat{\xi}, \hat{\theta})
+$$
+
+These curves represent:
+
+> The distribution of daily latent wind levels at each height.
+
+If curves are clearly separated:
+
+* The typical wind regime differs by height.
+
+If nearly identical:
+
+* Same wind structure at both heights.
+
+---
+
+# 9. Interpretation in Wind Context
+
+This model says:
+
+* Wind speeds fluctuate daily.
+* Each day has a latent wind level.
+* Those latent levels follow a skewed extreme-value distribution.
+* The parameter $\xi$ represents the **most likely daily wind level**.
+* The parameter $\theta$ represents variability in wind regimes.
+* The LRT determines whether 50m and 80m have fundamentally different wind regime structures.
+
+---
+
+# 10. What Is the General Method Being Used?
+
+This is a **likelihood-based hierarchical mixture modeling approach**:
+
+### Step 1
+
+Specify conditional model:
+$$
+Y_i \mid \mu_i
+$$
+
+### Step 2
+
+Specify latent distribution:
+$$
+\mu_i \sim g(\cdot)
+$$
+
+### Step 3
+
+Integrate out latent variable:
+$$
+m(y) = \int f g
+$$
+
+### Step 4
+
+Maximize marginal likelihood numerically.
+
+### Step 5
+
+Use likelihood theory for:
+
+* Wald CI
+* Profile CI
+* Likelihood ratio test
+
+---
+
+# Conceptually
+
+You are asking:
+
+> Are the *underlying wind regimes* at 50m and 80m statistically the same?
+
+Not:
+
+> Are individual wind speeds different?
+
+This is a structural comparison of the entire latent wind distribution, and the required integral is precisely what makes it a hierarchical mixture problem rather than a simple regression.
