@@ -1,11 +1,11 @@
-"newtraph" <-
-function(ders, dat, x0,
-         quiet = TRUE, print_final = TRUE,
-         step_scale = 1, max_halving = 50)
-{
-  crit1 <- 1e-10
-  crit2 <- 1e-06
-  crit3 <- 1e-06
+"newtraph" <- function(ders, dat, x0,
+                       quiet = TRUE, print_final = TRUE,
+                       step_scale = 1, max_halving = 50) {
+  # https://www.youtube.com/watch?v=TRc85qoNo6w&list=LL&index=3&t=87s
+  # Convergence tolerances (these are kind of problem-dependent)
+  crit1 <- 1e-10   # logLik increment tolerance (this one eats my ass)
+  crit2 <- 1e-06   # parameter distance tolerance
+  crit3 <- 1e-06   # gradient tolerance
 
   curnt <- x0
   nump  <- length(x0)
@@ -27,18 +27,32 @@ function(ders, dat, x0,
       cat("grad:", g, "\n")
     }
 
-    # Newton ascent direction; fall back to gradient if Hessian is bad
+    # --------------------------------------------------------------
+    # MOD 1: Better direction optimization
+    # - Newton ascent
+    # - if Hessian is non-singular/nnd, use gradient ascent
+    # - also make sure the direction is actually uphill (bc concave)
+    # --------------------------------------------------------------
+    
     step_dir <- try(-solve(H, g), silent = TRUE)
+
     if (inherits(step_dir, "try-error")) {
+      # if Hessian didn't invert , fallback on gradient direction
       step_dir <- g
     } else {
+      # if Newton step isn't in the right direction, revert to gradient
       if (sum(g * step_dir) <= 0) step_dir <- g
     }
 
+    # ------------------------------------------------------------------------
+    # MOD 2: Backtracking
+    # Sometimes, you want to take tiny steps 
+    # formally, you're taking "halving steps"" size until logLik increases
+    # ------------------------------------------------------------------------
+    
     alpha <- as.numeric(step_scale)
     new <- curnt + alpha * step_dir
 
-    # Multiplicative backtracking line search
     ok <- FALSE
     for (ls in 1:max_halving) {
       check <- ders(new, dat)
@@ -51,8 +65,16 @@ function(ders, dat, x0,
       alpha <- alpha * 0.5
       new <- curnt + alpha * step_dir
     }
-    if (!ok) stop("Line search failed (no improvement). Try smaller step_scale or new start.")
 
+    if (!ok)
+      stop("Line search failed (no improvement). Try smaller step_scale or new start.")
+
+    # ---------------------------------------
+    # MOD 3: Stopping rules 
+    # this is done after a step is accepted
+    # why did Kaiser not do this previously!?
+    # ---------------------------------------
+    
     dist1 <- newL - logL
     dist2 <- sqrt(sum((new - curnt)^2))
 
@@ -67,8 +89,11 @@ function(ders, dat, x0,
   final <- ders(curnt, dat)
   flogL <- final[[1]]
   fgrad <- final[[2]]
-  fInf  <- -solve(final[[3]])
-  res   <- list(curnt, flogL, fInf)
+
+  # Hessian is for logLik, so information matrix is -H
+  fInf <- -solve(final[[3]])
+
+  res <- list(curnt, flogL, fInf)
 
   if (print_final) {
     cat("\nFinal Estimates:", curnt, "\n")

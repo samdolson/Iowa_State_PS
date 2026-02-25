@@ -806,27 +806,28 @@ Thus, the Monte Carlo intervals are narrow because they measure numerical precis
 # Appendix 
 
 ```{r, echo = T, eval = F}
+# Setup
 library(tidyverse)
 library(numDeriv)
-
-# External optimization helpers (Newton–Raphson, etc.)
-source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/newtraph.txt")
-source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/bisect.txt")
-
-# Read data
 m50 <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat1.txt", 
                   header = TRUE)
 m80 <- read.table("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/winddat2.txt", 
                   header = TRUE)
-
 y50 <- as.numeric(m50$y)
 y80 <- as.numeric(m80$y)
 
-# Euler–Mascheroni constant
+# Euler constant
 gamma <- 0.5772156649015329
 
+
+# Note: Used Kaiser's functions
+# However, newtraph has been modified
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/newtraph.txt")
+source("C:/Users/samue/OneDrive/Desktop/Iowa_State_PS/STAT_6010/PS3/bisect.txt")
+
 # ------------------------------------------------------------
-# Extreme value (right-skew Gumbel) density for mu
+# Equation (2) 
+# Extreme value (right-skew) density for mu
 # ------------------------------------------------------------
 g_mu <- function(mu, xi, theta) {
   z <- (mu - xi) / theta
@@ -834,10 +835,16 @@ g_mu <- function(mu, xi, theta) {
 }
 
 # ------------------------------------------------------------
-# Stable marginal density m(y | xi, theta)
-#   Uses reparameterization z = (mu - xi)/theta
-#   m(y) = int phi(y | xi + theta z, 1) * exp(-z - exp(-z)) dz
+# Identify Mixture 
+# marginal for y
+# m(y | xi, theta)
+# Note: z = (mu - xi)/theta
+# location-scale
+# m(y) = int phi(y | xi + theta z, 1) * exp(-z - exp(-z)) dz
 # ------------------------------------------------------------
+
+# Note: address pmax 
+
 m_y_stable <- function(y, xi, theta, zL = -10, zU = 30) {
   integrand <- function(z) {
     log_int <- dnorm(y, mean = xi + theta * z, sd = 1, log = TRUE) - z - exp(-z)
@@ -850,29 +857,34 @@ m_y_stable <- function(y, xi, theta, zL = -10, zU = 30) {
 
 # Vectorized log m(y)
 log_m_vec_stable <- function(y, xi, theta, zL = -10, zU = 30) {
-  vapply(y, function(yy) log(m_y_stable(yy, xi, theta, zL, zU)), numeric(1))
+  vapply(X = y, 
+         FUN = function(yy) log(m_y_stable(yy, xi, theta, zL, zU)), numeric(1)
+         )
 }
 
 # ------------------------------------------------------------
-# Log-likelihood for one dataset
-# Parameterization: par = (xi, logtheta)
+# Log-likelihood for one dataset (m50 or m80)
+# input: par = (xi, logtheta)
 # ------------------------------------------------------------
+
 logLik_one <- function(par, y, zL = -10, zU = 30) {
   xi <- par[1]
   theta <- exp(par[2])
   sum(log_m_vec_stable(y, xi, theta, zL = zL, zU = zU))
 }
 
-# Negative log-likelihood (for optimization routines)
+# Take negative log-likelihood
+# find minimum
 nll_one <- function(par, y, zL = -10, zU = 30) {
   -logLik_one(par, y = y, zL = zL, zU = zU)
 }
 
 # ------------------------------------------------------------
-# Moment-based starting values
-#   Var(Y) = (pi^2/6) theta^2 + 1
-#   E(Y)   = xi + gamma * theta
+# "Best Guess" for starting values 
+# Var(Y) = (pi^2/6) theta^2 + 1
+# E(Y)   = xi + gamma * theta
 # ------------------------------------------------------------
+
 ev_start <- function(y) {
   v <- var(y)
   theta0 <- sqrt(pmax((v - 1) * 6 / pi^2, 1e-6))
@@ -881,8 +893,10 @@ ev_start <- function(y) {
 }
 
 # ------------------------------------------------------------
-# newtraph() interface: returns (logLik, gradient, Hessian)
+# input (xi, logtheta)
+# output (logLik, gradient, Hessian)
 # ------------------------------------------------------------
+
 make_ders_one <- function(zL = -10, zU = 30) {
   function(par, dat) {
     f <- function(pp) logLik_one(pp, y = dat, zL = zL, zU = zU)
@@ -894,9 +908,11 @@ make_ders_one <- function(zL = -10, zU = 30) {
 }
 
 # ------------------------------------------------------------
-# Fit one dataset using Newton–Raphson
-# Returns MLEs, Wald CI for xi, and covariance matrix
+# Actual optimization call
+# input y vector
+# output (MLE, Wald CI for xi, Cov Matrix)
 # ------------------------------------------------------------
+
 fit_one_newtraph <- function(y, zL = -10, zU = 30) {
   start <- ev_start(y)
   ders <- make_ders_one(zL = zL, zU = zU)
@@ -906,7 +922,8 @@ fit_one_newtraph <- function(y, zL = -10, zU = 30) {
   par_hat <- as.numeric(out[[1]])
   xi_hat <- par_hat[1]
   theta_hat <- exp(par_hat[2])
-  fInf <- out[[3]]               # (-H)^(-1) at solution
+  # (-H)^(-1) at solution
+  fInf <- out[[3]]               
   se_xi <- sqrt(fInf[1, 1])
   ci_xi_wald <- c(xi_hat - 1.96 * se_xi,
                   xi_hat + 1.96 * se_xi)
@@ -922,9 +939,11 @@ fit50 <- fit_one_newtraph(y50, zL = -100, zU = 100)
 fit80 <- fit_one_newtraph(y80, zL = -100, zU = 100)
 
 # ------------------------------------------------------------
+# Extra validation of direct likelihood evaluation
 # Profile likelihood CI for xi
 # Solves: 2(ell_hat - ell_prof(xi)) = chi^2_{1,0.95}
 # ------------------------------------------------------------
+
 profile_logLik_xi <- function(xi_fixed, y, logtheta_center,
                               zL = -10, zU = 30) {
   obj <- function(logtheta)
@@ -964,10 +983,13 @@ ci80_prof <- ci_xi_profile(y80, fit80$xi_hat,
                            zL = -100, zU = 100)
 
 # ------------------------------------------------------------
-# Likelihood ratio test: full vs reduced model
+# LRT: full vs reduced
 # Full: separate (xi, theta) by height
 # Reduced: common (xi, theta)
+# H0: reduced is sufficient 
+# H1: full 
 # ------------------------------------------------------------
+
 logLik_full <- function(par, y50, y80,
                         zL = -100, zU = 100) {
   xi1 <- par[1]; th1 <- exp(par[2])
@@ -996,7 +1018,8 @@ LR <- 2 * (-full_opt$value - (-red_opt$value))
 pval <- 1 - pchisq(LR, df = 2)
 use_full <- (pval < 0.05)
 
-# Plot EV mixing densities for selected model
+# Plot densities for full model
+
 if (use_full) {
   xi50_hat <- full_opt$par[1]
   th50_hat <- exp(full_opt$par[2])
@@ -1027,6 +1050,7 @@ if (use_full) {
 # Q2: E(mu) = xi + gamma * theta
 # Delta-method CI
 # ------------------------------------------------------------
+
 wald_ci_mean_mu <- function(fit) {
   xi_hat <- fit$xi_hat
   th_hat <- fit$theta_hat
@@ -1045,6 +1069,7 @@ ci80_eta_wald <- wald_ci_mean_mu(fit80)
 # Q3: Median of observed Y under mixture
 # Solve F_Y(y) = 0.5
 # ------------------------------------------------------------
+
 FY_stable <- function(y, xi, theta,
                       zL = -100, zU = 100) {
   integrand <- function(z)
@@ -1084,6 +1109,7 @@ ci80_med <- wald_ci_median_y(fit80)
 # ------------------------------------------------------------
 # Q4: P(4 <= mu <= 17) under EV mixing distribution
 # ------------------------------------------------------------
+
 G_mu <- function(u, xi, theta)
   exp(-exp(-(u - xi) / theta))
 
@@ -1108,8 +1134,9 @@ ci50_p <- wald_ci_p_between_mu(fit50)
 ci80_p <- wald_ci_p_between_mu(fit80)
 
 # ------------------------------------------------------------
-# Q6: Monte Carlo approximation of E(mu)
+# Q6: Monte Carlo CI for E(mu)
 # ------------------------------------------------------------
+
 set.seed(43)
 
 rEV <- function(n, xi, theta) {
@@ -1117,6 +1144,7 @@ rEV <- function(n, xi, theta) {
   xi - theta * log(-log(u))
 }
 
+# inverted test method, based on hint
 mc_E_mu <- function(fit, M = 20000) {
   xi_hat <- fit$xi_hat
   th_hat <- fit$theta_hat
