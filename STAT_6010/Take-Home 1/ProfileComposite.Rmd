@@ -1,0 +1,307 @@
+---
+title: "Notes on Profile Composite Likelihood"
+output:
+  pdf_document:
+    toc: true
+    number_sections: true
+    latex_engine: pdflatex
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{amssymb}
+  - \usepackage{bm}
+  - \newcommand{\cl}{\ell_C}
+  - \newcommand{\pcl}{\ell_{C,p}}
+  - \newcommand{\mle}[1]{\hat{#1}}
+  - \newcommand{\restr}[2]{\hat{#1}_{#2}}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Background: Composite Likelihood
+
+## Motivation
+
+The full joint likelihood $L(\bm{\theta}; \mathbf{y})$ may be unavailable, intractable,
+or computationally prohibitive in models with:
+
+- large dense covariance matrices (e.g., spatial/geostatistical models),
+- high-dimensional integrals over random effects,
+- dependent data where specifying the full joint density is difficult.
+
+A **composite likelihood** sidesteps these issues by forming a surrogate
+objective from lower-dimensional marginal or conditional densities, which are
+individually tractable even when the joint is not.
+
+## Definition
+
+Let $\mathbf{y}$ be observed data and $\bm{\theta} \in \Theta \subseteq \mathbb{R}^d$
+the parameter vector. Given a collection of events or sub-vectors indexed
+$k = 1, \ldots, K$, each with associated likelihood contribution $L_k(\bm{\theta}; \mathbf{y})$
+derived from a marginal or conditional density, the **composite likelihood function** is
+$$
+CL(\bm{\theta}; \mathbf{y}) = \prod_{k=1}^{K} L_k(\bm{\theta}; \mathbf{y})^{w_k},
+$$
+with nonnegative weights $w_k$. Working on the log scale, the **composite log-likelihood** is
+$$
+\cl(\bm{\theta}) = \sum_{k=1}^{K} w_k \log L_k(\bm{\theta}; \mathbf{y}).
+$$
+
+Common special cases include:
+
+- **Pairwise (marginal) likelihood**: $L_k$ is the joint density of a pair $(Y_i, Y_j)$; introduced formally in Cox \& Reid (2004).
+- **Conditional composite likelihood**: $L_k$ is a conditional density $f(y_i \mid y_j)$.
+- **Independence likelihood**: $L_k = f(y_i; \bm{\theta})$, ignoring dependence entirely.
+
+Lindsay (1988) introduced the general framework and established
+foundational consistency and asymptotic normality results.
+
+## The Godambe Information and Sandwich Variance
+
+A critical difference from ordinary likelihood is that the
+**second Bartlett identity fails**: in general,
+$$
+H(\bm{\theta}) \neq J(\bm{\theta}),
+$$
+where
+$$
+H(\bm{\theta}) = -\mathbb{E}\!\left[\nabla_{\bm{\theta}}^2 \cl(\bm{\theta})\right]
+\quad \text{(sensitivity matrix)},
+$$
+$$
+J(\bm{\theta}) = \mathrm{Var}\!\left[\nabla_{\bm{\theta}} \cl(\bm{\theta})\right]
+\quad \text{(variability matrix)}.
+$$
+
+The **Godambe information matrix** (analogous to Fisher information) is
+$$
+G(\bm{\theta}) = H(\bm{\theta})\, J(\bm{\theta})^{-1}\, H(\bm{\theta}).
+$$
+
+The maximum composite likelihood estimator $\mle{\bm{\theta}}_{CL}$, obtained by
+solving $\nabla_{\bm{\theta}} \cl(\bm{\theta}) = \mathbf{0}$, satisfies
+$$
+\sqrt{n}\,(\mle{\bm{\theta}}_{CL} - \bm{\theta}_0)
+\xrightarrow{d} \mathcal{N}\!\left(\mathbf{0},\; G(\bm{\theta}_0)^{-1}\right),
+$$
+so the asymptotic variance is the *inverse* Godambe information, not simply
+$H^{-1}$ as it would be under a correctly specified full likelihood.
+This is the **sandwich variance** structure familiar from Godambe's estimating
+equations framework and from quasi-likelihood theory.
+
+---
+
+# Profile Composite Likelihood
+
+## Setup and Definition
+
+Partition the parameter as $\bm{\theta} = (\bm{\psi}, \bm{\lambda})$, where
+$\bm{\psi} \in \mathbb{R}^p$ is the **parameter of interest** and
+$\bm{\lambda} \in \mathbb{R}^q$ is a **nuisance parameter**.
+
+The **profile composite log-likelihood** for $\bm{\psi}$ is
+$$
+\pcl(\bm{\psi}) = \cl\!\left(\bm{\psi},\; \restr{\bm{\lambda}}{\bm{\psi}}\right),
+$$
+where
+$$
+\restr{\bm{\lambda}}{\bm{\psi}} = \arg\max_{\bm{\lambda}}\; \cl(\bm{\psi}, \bm{\lambda})
+$$
+is the constrained maximizer of the composite log-likelihood with $\bm{\psi}$ fixed.
+
+This is structurally identical to the ordinary profile likelihood $\ell_p(\bm{\psi})$:
+we concentrate out the nuisance parameters by replacing them with their
+conditional composite MLEs.
+
+## Why Ordinary Profile Likelihood Theory Fails
+
+In the full-likelihood case, the profile log-likelihood ratio
+$$
+W(\bm{\psi}_0) = 2\left[\ell(\mle{\bm{\theta}}) - \ell_p(\bm{\psi}_0)\right]
+\xrightarrow{d} \chi^2_p
+$$
+under $H_0: \bm{\psi} = \bm{\psi}_0$. This Wilks-type result depends on the second
+Bartlett identity holding. Because composite likelihoods are not genuine
+likelihoods, $H \neq J$ in general, and the analogous ratio
+$$
+W_C(\bm{\psi}_0) = 2\left[\cl(\mle{\bm{\theta}}_{CL}) - \pcl(\bm{\psi}_0)\right]
+$$
+does **not** converge to $\chi^2_p$. Naive use of $W_C$ for inference—confidence
+regions, likelihood ratio tests—leads to incorrect coverage and type I error.
+
+## Asymptotic Distribution of the Profile Composite Likelihood Ratio
+
+Under regularity conditions, the unadjusted statistic $W_C(\bm{\psi}_0)$ converges
+to a weighted sum of independent $\chi^2_1$ random variables:
+$$
+W_C(\bm{\psi}_0) \xrightarrow{d} \sum_{j=1}^{p} \kappa_j Z_j^2,
+\quad Z_j \overset{\text{iid}}{\sim} \mathcal{N}(0,1),
+$$
+where $\kappa_1, \ldots, \kappa_p$ are eigenvalues of a matrix that depends on
+the profile Godambe information. This motivates a rescaling to recover a
+standard $\chi^2_p$ limit.
+
+---
+
+# Adjusted Composite Likelihood Ratio Statistics
+
+## The Rescaled Statistic
+
+Write the full parameter Godambe information in block form corresponding to
+$(\bm{\psi}, \bm{\lambda})$:
+$$
+G(\bm{\theta}) = H(\bm{\theta})\,J(\bm{\theta})^{-1}\,H(\bm{\theta}).
+$$
+
+Partition $H$ and $J$ conformably:
+$$
+H = \begin{pmatrix} H_{\psi\psi} & H_{\psi\lambda} \\ H_{\lambda\psi} & H_{\lambda\lambda} \end{pmatrix},
+\quad
+J = \begin{pmatrix} J_{\psi\psi} & J_{\psi\lambda} \\ J_{\lambda\psi} & J_{\lambda\lambda} \end{pmatrix}.
+$$
+
+The **profile Godambe information** for $\bm{\psi}$ is the $(\bm{\psi},\bm{\psi})$ block
+of $G^{-1}$ inverted—i.e., the Schur complement analog using Godambe rather than Fisher
+information. Let $G_{\psi\psi \cdot \lambda}$ denote the profile Godambe information
+(the appropriate Schur complement of $G$ in $\bm{\lambda}$).
+
+The adjusted composite likelihood ratio statistic proposed by
+Geys, Molenberghs \& Ryan (1999) is
+$$
+\boxed{W_C^*(\bm{\psi}_0) = \frac{p}{\mathrm{tr}\!\left(\hat{C}\right)}\,W_C(\bm{\psi}_0)},
+$$
+where $\hat{C}$ is the estimated matrix whose eigenvalues govern the asymptotic distribution.
+Under $H_0$, $W_C^* \xrightarrow{d} \chi^2_p$.
+
+## Wald-Type Inference
+
+A simpler route that avoids adjusting the ratio statistic is to use the
+**Wald statistic** directly from the sandwich variance:
+
+$$
+T_W(\bm{\psi}_0) = n\,(\mle{\bm{\psi}}_{CL} - \bm{\psi}_0)^\top
+\hat{G}_{\psi\psi \cdot \lambda}\,
+(\mle{\bm{\psi}}_{CL} - \bm{\psi}_0) \xrightarrow{d} \chi^2_p,
+$$
+
+where $\hat{G}_{\psi\psi \cdot \lambda}$ is the estimated profile Godambe information
+evaluated at $\mle{\bm{\theta}}_{CL}$. This is the most commonly implemented approach
+in practice, since it requires only the sandwich variance from the full parameter
+estimate, without profiling at all.
+
+## Score-Type (Rao) Statistic
+
+An analog to the score test is
+$$
+T_S(\bm{\psi}_0) = \nabla_{\bm{\psi}} \pcl(\bm{\psi}_0)^\top
+\hat{G}_{\psi\psi \cdot \lambda}^{-1}\,
+\nabla_{\bm{\psi}} \pcl(\bm{\psi}_0) \xrightarrow{d} \chi^2_p,
+$$
+evaluated only under the null, which can be useful when the unconstrained
+maximization of the composite likelihood is expensive.
+
+---
+
+# Nuisance Parameters and Information Bias
+
+## The Information Bias Problem
+
+Following Lindsay (1982), a composite likelihood is called **information-unbiased**
+if $H(\bm{\theta}) = J(\bm{\theta})$, and **information-biased** otherwise. Information
+bias has a direct analogue to the well-known issue with ordinary profile likelihood:
+
+- In ordinary profile likelihood, profiling introduces an $O(1)$ bias in the
+  profile score that does not vanish, motivating modified profile likelihoods
+  (Barndorff-Nielsen 1983; Cox \& Reid 1987).
+- In profile composite likelihood, the analogous bias is compounded: we have
+  both the information-bias inherent to $\cl$ *and* the additional bias from
+  plugging in $\restr{\bm{\lambda}}{\bm{\psi}}$.
+
+## Consequences for Efficiency
+
+A perhaps surprising result (Xu \& Reid, 2011; Mardia et al., 2009) is that
+information-biased composite likelihoods can be *more efficient* in the presence
+of nuisance parameters, because the profile Godambe information $G_{\psi\psi \cdot \lambda}$
+can exceed what a naive Schur complement of $H$ would give. Efficiency comparisons
+require working with $G$ directly rather than $H$ alone.
+
+## Many Nuisance Parameters: The Neyman--Scott Problem
+
+When the number of nuisance parameters grows with $n$ (the incidental parameters
+problem), profiling in ordinary likelihood is known to be inconsistent (Neyman \& Scott, 1948).
+Composite likelihood can help here. Gao \& Song (2013) consider estimation of a
+fixed-dimensional $\bm{\psi}$ with diverging-dimensional $\bm{\lambda}$:
+by profiling lower-dimensional marginal composite likelihoods, one can recover
+$\sqrt{n}$-consistent estimation of $\bm{\psi}$ even as $q \to \infty$ with $n$.
+
+---
+
+# Confidence Regions
+
+## From the Adjusted Ratio
+
+A $(1-\alpha)$ confidence region for $\bm{\psi}$ based on the adjusted ratio is
+$$
+\mathcal{C}_{1-\alpha} = \left\{\bm{\psi} :
+W_C^*(\bm{\psi}) \leq \chi^2_{p,\,1-\alpha}\right\}.
+$$
+
+For a scalar parameter of interest ($p = 1$), this gives a confidence interval
+by finding the roots of $W_C^*(\psi) = \chi^2_{1,\,1-\alpha}$.
+
+## From the Wald Statistic
+
+$$
+\mathcal{C}_{1-\alpha}^W = \left\{\bm{\psi} :
+T_W(\bm{\psi}) \leq \chi^2_{p,\,1-\alpha}\right\}
+= \mle{\bm{\psi}}_{CL} \pm z_{1-\alpha/2}\,
+\sqrt{\hat{G}_{\psi\psi \cdot \lambda}^{-1}/n}
+\quad (p = 1).
+$$
+
+In most software implementations (e.g., `lavaan`, spatial composite likelihood packages),
+the standard errors reported are $\sqrt{\text{diag}(\hat{G}^{-1}/n)}$—that is, the
+square root of the diagonal of the inverse Godambe information—and confidence
+intervals are formed as Wald intervals.
+
+---
+
+# Summary of Key References
+
+| Reference | Contribution |
+|-----------|-------------|
+| Lindsay (1988) | Founding framework; consistency and asymptotic normality of MCLE |
+| Cox \& Reid (2004) | Pairwise marginal likelihood; formal composite likelihood setup |
+| Geys, Molenberghs \& Ryan (1999) | Adjusted composite likelihood ratio statistic |
+| Varin (2008) | Review of composite marginal likelihoods |
+| Varin, Reid \& Firth (2011) | Comprehensive overview; Godambe information, efficiency, nuisance parameters |
+| Xu \& Reid (2011) | Information bias, efficiency in the presence of nuisance parameters |
+| Gao \& Song (2013) | Profiling with many nuisance parameters; incidental parameters problem |
+| Barndorff-Nielsen (1983); Cox \& Reid (1987) | Modified/adjusted profile likelihood (ordinary); template for corrections |
+
+---
+
+# Connections to Your Existing Resources
+
+**Geyer on Godambe**: The Godambe information $G = H J^{-1} H$ is exactly the
+object you need for profile composite likelihood inference. The sandwich variance
+$G^{-1}$ replaces $H^{-1}$ (Fisher information) everywhere. Geyer's treatment
+gives you the estimating-equations foundation from which composite likelihood
+asymptotics derive as a special case.
+
+**Jørgensen \& Knudsen (Jantsura \& Comet) on asymptotics**: The asymptotic
+theory for composite likelihood estimators runs through the same central limit
+theorem for the composite score (a sum of dependent but asymptotically manageable
+terms), with the key twist being the Godambe rather than Fisher information.
+
+**Profile likelihood resources**: The modified profile likelihood literature
+(Barndorff-Nielsen, Cox \& Reid) is the closest structural analogue. The problems
+of $O(1)$ score bias and information bias from profiling are parallel; composite
+likelihood adds the additional complication of $H \neq J$, requiring the rescaling
+of ratio statistics described above.
+
+The practical upshot: **profile the composite likelihood as you would any profile
+likelihood, then use Wald inference from the sandwich variance**, or apply the
+Geys--Molenberghs--Ryan rescaling to the ratio statistic. Do not use naive
+Wilks' theorem on the unscaled ratio.
