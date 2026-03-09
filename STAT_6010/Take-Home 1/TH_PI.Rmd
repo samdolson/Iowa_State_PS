@@ -2,6 +2,9 @@
 title: "Take-Home Part I"
 output: pdf_document
 author: "Sam Olson"
+header-includes:
+  - \usepackage{float}
+  - \usepackage{placeins}
 ---
 
 ```{r setup, include=FALSE}
@@ -259,7 +262,7 @@ kable(results_tab,
 
 Because the Q1 residuals $\hat{e}_i$ contain mean-estimation error, i.e., they are $y_i - \mu_i(\hat\alpha,\hat\beta,\hat\gamma)$ rather than $w_i = y_i - \mu_i(\alpha,\beta,\gamma)$, the estimating equations applied here are only approximations to those derived in Q2(a) and (b). The two estimating equations yield different estimates of $\theta$, though both target the same population parameter, that parameter being the AR(1) autocorrelation coefficient $\theta$ in model (3). The numerical difference between $\tilde{\theta}_{\text{naive}} = 1.005$ and $\tilde{\theta}_{\text{opt}} = 0.542$ reflects estimation error rather than any difference in what the equations are targetting, with the optimal estimate being the more reliable of the two by Godambe's criterion.
 
-More importantly, the *three* $\hat\sigma^2$ values are **not** all estimating the same quantity. The Q1 GLS estimate was obtained under the assumption that the $w_i$ are iid, so it targets $\text{Var}(w_i)$; because the true model is AR(1), or at least we are motivated to believe it is AR(1), $\text{Var}(w_i) = \sigma^2/(1-\theta^2)$. However, the Q1 GLS estimator itself has no knowledge of that structure. In contrast, the two EE-based estimates are obtained by squaring residuals of the form $W_i - \tilde\theta W_{i-1} \approx \epsilon_i$, so they target the innovation variance $\sigma^2$. Because the AR(1) process has positive autocorrelation ($\theta > 0$ appears typical for sorption data), the marginal variance exceeds the innovation variance, and we expect $\hat\sigma^2_{\text{Q1}} > \hat\sigma^2_{\text{naive}} \approx \hat\sigma^2_{\text{opt}}$.
+More importantly, the *three* $\hat\sigma^2$ values are **not** all estimating the same quantity. The Q1 GLS estimate was obtained under the assumption that the $w_i$ are iid, so it targets $\text{Var}(w_i)$; because the true model is AR(1), or at least we are motivated to believe it is AR(1), $\text{Var}(w_i) = \sigma^2/(1-\theta^2)$. However, the Q1 GLS estimator itself has no knowledge of that structure. In contrast, the two EE-based estimates are obtained by squaring residuals of the form $W_i - \tilde\theta W_{i-1} \approx \epsilon_i$, so they target the innovation variance $\sigma^2$. Because the AR(1) process has positive autocorrelation ($\theta > 0$ appears typical for sorption data), the marginal variance exceeds the innovation variance, and we expect $\hat\sigma^2_{\text{Q1}} > \hat\sigma^2_{\text{naive}}$ and $\hat\sigma^2_{\text{Q1}} > \hat\sigma^2_{\text{opt}}$. The two innovation-variance estimates both target $\sigma^2$ but are not expected to be numerically close: $\tilde\theta_{\text{naive}} = 1.005$ is inadmissible and the resulting squared innovations are distorted, so $\hat\sigma^2_{\text{naive}}$ and $\hat\sigma^2_{\text{opt}}$ can differ substantially even though they share a common target.
 
 # Q3
 
@@ -347,7 +350,9 @@ $$
 \ell_p(\psi) = \max_{\boldsymbol\lambda} \; \ell(\psi, \boldsymbol\lambda),
 $$
 
-where $\boldsymbol\lambda$ denotes the remaining four parameters. At each point of a 60-point grid spanning $\hat{\psi} \pm 4$ Wald standard errors---where the Wald SE is taken from the observed information matrix at the MLE---truncated to the parameter's natural support, the inner maximization over $\boldsymbol\lambda$ was performed using `optim` with `method = "BFGS"`, initialized at the full MLE. Results were confirmed with Nelder-Mead; BFGS was retained. The 95\% confidence interval for $\psi$ is the set of grid values satisfying
+where $\boldsymbol\lambda$ denotes the remaining four parameters. At each point of a 60-point grid spanning $\hat{\psi} \pm 12$ Wald standard errors for $(\alpha, \beta, \gamma)$ and $\hat{\psi} \pm 4$ Wald standard errors for $(\theta, \sigma^2)$---the wider range for the regression parameters reflecting the asymmetric likelihood surface and the need to capture the $\alpha > 0$ boundary region---where the Wald SE is taken from the observed information matrix at the MLE, truncated to the parameter's natural support, the inner maximization over $\boldsymbol\lambda$ was performed using `optim` with `method = "BFGS"`, initialized at the full MLE. Results were confirmed with Nelder-Mead; BFGS was retained. 
+
+The 95\% confidence interval for $\psi$ is the set of grid values satisfying
 
 $$
 \ell_p(\psi) \geq \hat\ell - \tfrac{1}{2}\chi^2_{0.95,\,1},
@@ -668,32 +673,7 @@ The log composite likelihood was maximized using `optim` with `method = "BFGS"`,
 
 ## **(c)** MCLEs, Confidence Intervals, and Maximized Log Composite 
 
-Likelihood Wald intervals use the standard inverse-Hessian covariance, computed from the Hessian of the negative composite log likelihood returned by `optim`. These are reported alongside the Godambe-based intervals further below. Profile composite likelihood intervals could in principle be constructed analogously to Q3, but the standard $\hat\ell_C - \frac{1}{2}\chi^2_{0.95,1}$ threshold requires a Godambe-based scaling correction for composite likelihoods; because $\hat{J} \approx \hat{H}$ here the correction is approximately unity, so the Godambe intervals are used in its place.
-
-```{r q4-wald, echo = F, message = F, warning = F}
-cov_wald4 <- solve(fit4$hessian)
-se_wald4  <- sqrt(diag(cov_wald4))
-
-ci_wald4 <- data.frame(
-  Parameter = c("$\\alpha$", "$\\beta$", "$\\gamma$", "$\\theta$", "$\\sigma^2$"),
-  MCLE      = unname(round(mcle,                    4)),
-  SE        = unname(round(se_wald4,                4)),
-  Lower     = unname(round(mcle - z95 * se_wald4,   4)),
-  Upper     = unname(round(mcle + z95 * se_wald4,   4))
-)
-
-kable(ci_wald4,
-      format    = "latex",
-      booktabs  = TRUE,
-      escape    = FALSE,
-      align     = c("l", "r", "r", "r", "r"),
-      col.names = c("Parameter", "MCLE", "SE", "Lower", "Upper"),
-      caption   = paste0("MCLEs with standard errors and Wald 95\\% confidence intervals. ",
-                         "Maximized log composite likelihood: ",
-                         round(-fit4$value, 4), ".")) |>
-  add_header_above(c(" " = 3, "95% CI" = 2)) |>
-  kable_styling(latex_options = "HOLD_position", font_size = 10)
-```
+Two sets of 95\% confidence intervals are reported in Table~9: Godambe Wald (sandwich covariance $\hat{G}^{-1}$) and Godambe-adjusted profile (preferred). the adjusted profile threshold requires the $\lambda_\psi$ scaling correction derived below; the adjusted profile intervals are preferred as they correctly respect the $\alpha > 0$ boundary and account for likelihood asymmetry.
 
 ## Asymptotic Context and Godambe Information
 
@@ -705,19 +685,54 @@ $$
 E[\nabla\ell_i \mid Y_{i-1}] = 0.
 $$
 
-The sequence $\{\nabla\ell_i\}$ is therefore a martingale difference sequence (MDS) — a concept not covered in this course, but one that carries a CLT and LLN under mild regularity conditions, without requiring iid replicates and without requiring stationarity of the $Y_i$ themselves. In the language of Geyer (2020), the composite score is an unbiased estimating function whose asymptotic variance takes the sandwich form $U^{-1}V(U^{-1})^T$, which is inverse Godambe information. The MDS property is precisely what makes the natural estimators of $U$ and $V$ --- namely $\hat{H}$ and $\hat{J}$ --- consistent as estimators of those matrices (conditions (8) and (9) of Geyer (2020), which are the requirements for the sandwich covariance to be valid). This justification comes not from either asymptotic context in Ch. 9, but from the conditional independence structure inherent in the AR(1) errors.
+The sequence $\{\nabla\ell_i(\boldsymbol\psi_0)\}$ evaluated at the \emph{true} parameter $\boldsymbol\psi_0$ is therefore a martingale difference sequence (MDS) — a concept not covered in this course, but one that carries a CLT and LLN under mild regularity conditions, without requiring iid replicates and without requiring stationarity of the $Y_i$ themselves. At the \emph{estimated} $\hat{\boldsymbol\psi}$, the MDS property holds only approximately; the standard justification appeals to continuity of the score and consistency of the MCLE, which together imply that $\nabla\ell_i(\hat{\boldsymbol\psi}) \approx \nabla\ell_i(\boldsymbol\psi_0) + o_p(1)$ termwise, preserving the asymptotic structure. In the language of Geyer (2020), the composite score is an unbiased estimating function whose asymptotic variance takes the sandwich form $U^{-1}V(U^{-1})^T$, which is inverse Godambe information. The MDS property is precisely what makes the natural estimators of $U$ and $V$ --- namely $\hat{H}$ and $\hat{J}$ --- consistent as estimators of those matrices (conditions (8) and (9) of Geyer (2020), which are the requirements for the sandwich covariance to be valid). 
 
-Geyer (2013) offers a complementary perspective: approximate normality of the MCLE follows if the composite log likelihood is approximately quadratic with Hessian approximately invariant in law, with no iid or stationarity requirement. Whether that holds here is an empirical question about this particular surface rather than a theoretical guarantee --- Geyer explicitly identifies the AR(1) likelihood as a non-example of LAN/LAMN (Geyer, 2013, §2.3) --- but both sources converge on the same practical prescription: bootstrap to check and correct the asymptotics.
+Geyer (2013) offers a complementary perspective: approximate normality of the MCLE follows if the composite log likelihood is approximately quadratic with Hessian approximately invariant in law, with no iid or stationarity requirement. Whether that holds here is an empirical question about this particular surface rather than a theoretical guarantee --- Geyer explicitly identifies the AR(1) likelihood as a non-example of LAN/LAMN (Geyer, 2013, Section 2.3).
 
-With $n = 23$ observations and five parameters, $\hat{H}$ and $\hat{J}$ should still be interpreted cautiously regardless of the theoretical grounding above; the finite-sample performance of both matrices is uncertain. As noted in Ch. 9.3.3, the parametric bootstrap is the more commonly used alternative in practice for Context II problems. The MDS argument provides the theoretical grounding that makes computing the Godambe intervals meaningful rather than purely heuristic, and similarly justifies any bootstrap procedure by guaranteeing the existence of a limiting distribution being approximated.
+With $n = 23$ observations and five parameters, $\hat{H}$ and $\hat{J}$ should be interpreted cautiously regardless; the finite-sample performance of both matrices is uncertain. The MDS argument provides the theoretical grounding that makes computing the Godambe intervals meaningful rather than purely heuristic, and guarantees a limiting distribution for any bootstrap procedure to approximate. As noted in Ch. 9.3.3, the parametric bootstrap remains the more reliable alternative in practice.
 
 ## $\hat{H}$, $\hat{J}$, and Godambe-Based Intervals
 
 With this justification in hand, the empirical analogs are computed as follows. $\hat{H}$ is taken as the negative Hessian of $\ell_C$ evaluated at the MCLE, returned directly by `optim`. $\hat{J}$ is the sum of outer products of individual piece score vectors $\nabla\ell_i$, approximated by numerical central differences at the MCLE. This outer-product form parallels the Context I estimator in Ch. 9.3.1, but its justification here is the MDS structure described above rather than averaging over iid replicates; the Comets--Janzura neighborhood-sum form (Ch. 9, eq. 9.34) does not apply and is not used.
 
-Examining Tables 11 and 12, the $(3,3)$ elements of both $\hat{H}$ (38593.78) and $\hat{J}$ (40035.62) are very large relative to all others, reflecting high curvature in the $\gamma$ direction and indicating that $\gamma$ is the most precisely determined parameter locally. The large negative off-diagonal entries in rows/columns 1--3 and 2--3 are consistent with the high $(\alpha, \gamma)$ and $(\beta, \gamma)$ correlations seen in Table 15, and confirm that the identifiability challenges in this model are concentrated in the $(\alpha, \beta, \gamma)$ block.
+Examining Tables 10 and 11, the $(3,3)$ elements of both $\hat{H}$ (38593.78) and $\hat{J}$ (40035.62) are very large relative to all others, reflecting high curvature in the $\gamma$ direction and indicating that $\gamma$ is the most precisely determined parameter locally. The large negative off-diagonal entries in rows/columns 1--3 and 2--3 are consistent with the high $(\alpha, \gamma)$ and $(\beta, \gamma)$ correlations seen in Table 15, and confirm that the identifiability challenges in this model are concentrated in the $(\alpha, \beta, \gamma)$ block.
 
-```{r q4-godambe, echo = F, message = F, warning = F}
+## Profile Composite Likelihoods
+
+The Godambe Wald intervals in Table~9 do not respect parameter boundaries and inherit the symmetric normal approximation. Profile intervals address both limitations, as in Q3, but the composite likelihood ratio statistic requires a Godambe-based correction before comparison to a $\chi^2_1$ threshold.
+
+Profile composite likelihood intervals are therefore constructed analogously to Q3, 
+with one modification. The composite likelihood ratio statistic
+
+$$
+W_C(\psi_0) = 2\bigl[\ell_C(\hat\psi) - \ell_C(\psi_0,\,\hat{\boldsymbol\lambda}_{\psi_0})\bigr]
+$$
+
+is not asymptotically $\chi^2_1$ in general; it converges to $\lambda_\psi \chi^2_1$, where the scalar correction
+
+$$
+\lambda_\psi
+  = \frac{(\hat{G}^{-1})_{\psi, \psi}}{(\hat{H}^{-1})_{\psi, \psi}}
+  = \frac{\text{Godambe variance for } \psi}{\text{Wald variance for } \psi}
+$$
+
+is the ratio of the Godambe to Wald marginal variance for parameter $\psi$, evaluated at the MCLE. The adjusted profile threshold is therefore
+
+$$
+\ell_C(\psi) \;\geq\; \hat\ell_C - \tfrac{1}{2}\,\lambda_\psi\,\chi^2_{0.95,\,1}.
+$$
+
+Because $\hat{J} \approx \hat{H}$ numerically (Tables 10 and 11), $\lambda_\psi \approx 1$ for all parameters, so the correction has modest practical effect here. The adjusted profile intervals are reported alongside the Godambe Wald intervals in Table~9. Note that $\hat{H}$ and $\hat{J}$ are not available until after the Godambe computation; the profile grid is evaluated first and the threshold is applied retrospectively once $\lambda_\psi$ is known.
+
+The CIs in Table~9 reveal a consistent pattern across methods: $\alpha$ and $\beta$ shift monotonically as the likelihood changes (Q1 Wald $\to$ Q3 Profile $\to$ Q4), while $\gamma$ remains relatively stable. The Q4 Godambe intervals are wider than Q3 profile for $\alpha$ and $\beta$, reflecting the additional uncertainty from losing one observation in the pairwise conditional construction.
+
+The adjusted profile lower bound for $\gamma$ does not exist at the 95% level: the composite likelihood surface to the left of $\hat\gamma = 0.145$ remains above the adjusted threshold all the way to the parameter boundary, in contrast to the full likelihood of Q3, which descends below its threshold and yields a lower bound of $0.068$. This is a direct consequence of the composite likelihood using only $n - 1 = 22$ pairs rather than all $n = 23$ observations --- the reduction in information is just enough to render $\gamma$'s lower bound undefined under the composite likelihood.
+
+Because the $(\alpha, \beta, \gamma)$ block of the adjusted profile covariance is not well-defined when one marginal profile is unbounded, a $\delta$-method confidence band cannot be constructed from it in the usual way. The Godambe Wald covariance $\hat{G}^{-1}$ is therefore used for the band, despite its inadmissible lower bound for $\alpha$ of $-0.818$.
+
+```{r q4-intervals, echo = F, message = F, warning = F}
+cov_wald4 <- solve(fit4$hessian)
+se_wald4  <- sqrt(diag(cov_wald4))
 # Numerical score for a single piece i (i indexes into 2:n, so piece i
 # corresponds to the pair (y[i], y[i-1]) with i in 2:n)
 score_piece <- function(par, x, y, i) {
@@ -762,27 +777,114 @@ cov_god  <- H_inv %*% J_hat %*% H_inv
 se_god   <- sqrt(diag(cov_god))
 names(se_god) <- names(mcle)
 
-ci_god <- data.frame(
-  Parameter = c("$\\alpha$", "$\\beta$", "$\\gamma$", "$\\theta$", "$\\sigma^2$"),
-  MCLE      = unname(round(mcle,                 4)),
-  SE        = unname(round(se_god,               4)),
-  Lower     = unname(round(mcle - z95 * se_god,  4)),
-  Upper     = unname(round(mcle + z95 * se_god,  4))
+# Godambe adjustment factors (requires cov_god and H_inv from Godambe chunk)
+cutoff_cl   <- qchisq(0.95, df = 1) / 2
+ll_max_cl   <- -fit4$value
+lambda_psi  <- diag(cov_god) / diag(H_inv)
+cutoff_adj  <- lambda_psi * cutoff_cl          # length-5 vector
+
+multipliers_cl <- c(12, 12, 12, 4, 4)
+
+profile_godambe_one <- function(par_idx, n_grid = 100) {
+  mle_val <- mcle[par_idx]
+  se_val  <- se_god[par_idx]
+  hard_lo <- c(1e-6, 1e-6, 1e-6, -1 + 1e-4, 1e-6)[par_idx]
+  hard_hi <- c(Inf,  Inf,  Inf,   1 - 1e-4,  Inf )[par_idx]
+  lo_raw  <- mle_val - multipliers_cl[par_idx] * se_val
+  hi_raw  <- mle_val + multipliers_cl[par_idx] * se_val
+  # Allow grid to extend past hard_lo so -Inf wall produces a natural crossing
+  grid    <- seq(lo_raw, min(hi_raw, hard_hi), length.out = n_grid)
+  pl <- vapply(grid, function(psi) {
+    obj <- function(p_other) {
+      par_full           <- numeric(5)
+      par_full[-par_idx] <- p_other
+      par_full[ par_idx] <- psi
+      negcl(par_full, x, y)
+    }
+    res <- tryCatch(
+      optim(mcle[-par_idx], obj, method = "BFGS",
+            control = list(maxit = 2000, reltol = 1e-10)),
+      error = function(e) list(value = Inf)
+    )
+    if (!is.finite(res$value)) {
+      res <- tryCatch(
+        optim(mcle[-par_idx], obj, method = "Nelder-Mead",
+              control = list(maxit = 5000, reltol = 1e-10)),
+        error = function(e) list(value = Inf)
+      )
+    }
+    -res$value
+  }, numeric(1))
+  target <- ll_max_cl - cutoff_adj[par_idx]
+  interp_cross <- function(side) {
+    idx       <- if (side == "lower") which(grid < mle_val) else which(grid > mle_val)
+    vals_side <- pl[idx]
+    grid_side <- grid[idx]
+    if (side == "lower") {
+      vals_side[!is.finite(vals_side)] <- -Inf
+    } else {
+      finite    <- is.finite(vals_side)
+      vals_side <- vals_side[finite]
+      grid_side <- grid_side[finite]
+    }
+    below <- which(vals_side < target)
+    if (length(below) == 0) return(NA_real_)
+    b    <- if (side == "lower") max(below) else min(below)
+    b_in <- if (side == "lower") b + 1      else b - 1
+    if (b_in < 1 || b_in > length(grid_side)) return(grid_side[b])
+    # If the wall point itself is -Inf, interpolation is undefined — return boundary
+    if (!is.finite(vals_side[b])) return(hard_lo)
+    result <- approx(x = vals_side[c(b, b_in)],
+                     y = grid_side[c(b, b_in)],
+                     xout = target)$y
+    if (side == "lower") result <- max(result, hard_lo)
+    result
+  }
+  list(
+    ci     = c(lower = interp_cross("lower"), upper = interp_cross("upper")),
+    grid   = grid,
+    pl     = pl,
+    lambda = lambda_psi[par_idx]
+  )
+}
+
+prof_god_bounds <- lapply(1:5, profile_godambe_one)
+prof_god_lower  <- sapply(prof_god_bounds, function(b) b$ci["lower"])
+prof_god_upper  <- sapply(prof_god_bounds, function(b) b$ci["upper"])
+
+hard_lo_vec <- c(1e-6, 1e-6, 1e-6, -1 + 1e-4, 1e-6)
+gp_lower_clean <- ifelse(
+  !is.na(prof_god_lower) & abs(prof_god_lower - hard_lo_vec) < 1e-5,
+  NA_real_,
+  prof_god_lower
 )
 
-kable(ci_god,
+prof_god_tab <- data.frame(
+  Parameter = c("$\\alpha$", "$\\beta$", "$\\gamma$", "$\\theta$", "$\\sigma^2$"),
+  MCLE      = unname(round(mcle,                  4)),
+  GW_Lower  = unname(round(mcle - z95 * se_god,   4)),
+  GW_Upper  = unname(round(mcle + z95 * se_god,   4)),
+  GP_Lower  = unname(round(gp_lower_clean,         4)),
+  GP_Upper  = unname(round(prof_god_upper,         4)),
+  row.names = NULL
+)
+
+kable(prof_god_tab,
       format    = "latex",
       booktabs  = TRUE,
       escape    = FALSE,
-      align     = c("l", "r", "r", "r", "r"),
-      col.names = c("Parameter", "MCLE", "SE", "Lower", "Upper"),
-      caption   = "MCLEs with Godambe-based 95\\% confidence intervals.") |>
-  add_header_above(c(" " = 3, "95\\% CI" = 2)) |>
+      align     = c("l", "r", "r", "r", "r", "r"),
+      col.names = c("Parameter", "MCLE", "Lower", "Upper", "Lower", "Upper"),
+      caption   = paste0("Godambe Wald and adjusted profile 95\\% confidence intervals. ",
+                         "Maximized composite log likelihood: ", round(ll_max_cl, 4), ".")) |>
+  add_header_above(c(" " = 2, "Godambe Wald 95% CI" = 2,
+                               "Godambe Adj. Profile 95% CI" = 2)) |>
   kable_styling(latex_options = "HOLD_position", font_size = 10)
+```
 
+```{r q4-godambe-info, echo = F, message = F, warning = F}
 pnames <- c("$\\alpha$", "$\\beta$", "$\\gamma$", "$\\theta$", "$\\sigma^2$")
-
-H_tab <- as.data.frame(round(H_hat, 4))
+H_tab <- as.data.frame(unname(round(H_hat, 4)))
 rownames(H_tab) <- pnames
 colnames(H_tab) <- pnames
 
@@ -793,7 +895,7 @@ kable(H_tab,
       caption  = "Estimated $H$ matrix (negative Hessian of composite log likelihood at MCLE).") |>
   kable_styling(latex_options = "HOLD_position", font_size = 9)
 
-J_tab <- as.data.frame(round(J_hat, 4))
+J_tab <- as.data.frame(unname(round(J_hat, 4)))
 rownames(J_tab) <- pnames
 colnames(J_tab) <- pnames
 
@@ -807,9 +909,9 @@ kable(J_tab,
 
 ## **(d)** Fitted Curve and 95% Pointwise Confidence Band
 
-The band uses the delta method with the $(\alpha,\beta,\gamma)$ block of the Godambe covariance $\hat{G}^{-1}$.
+For scalar parameters, the Godambe-adjusted profile intervals (Table~9) are preferred. However, constructing a pointwise confidence band requires a well-defined joint covariance matrix over $(\alpha, \beta, \gamma)$ via the delta method, and this cannot be formed from the adjusted profile: the profile lower bound for $\gamma$ does not exist at the 95% level, leaving the $(\alpha, \beta, \gamma)$ covariance block undefined. The Godambe Wald covariance $\hat{G}^{-1}$ is therefore used for the band~--- not as an approximation to the profile, but as the only well-defined joint covariance available.
 
-```{r q4-band, echo=F, message=F, warning=F, fig.height=4.5, fig.width=6}
+```{r q4-band, echo=F, message=F, warning=F, fig.height=4.5, fig.width=6, fig.pos="H", fig.cap="Fitted extended Freundlich curve with approximate 95\\% pointwise confidence band based on the Godambe covariance. Band uses the delta method with the $(\\alpha,\\beta,\\gamma)$ block of $\\hat{G}^{-1}$; see Q3(d) for the analogous Wald construction."}
 mugrid4 <- efctn(xgrid, mcle[1:3])
 Dgrid4  <- eders(xgrid, mcle[1:3])
 cov_abg4 <- cov_god[1:3, 1:3]
@@ -822,7 +924,7 @@ lines(xgrid, mugrid4 + hw4, lty = 2)
 lines(xgrid, mugrid4 - hw4, lty = 2)
 ```
 
-*Figure: Fitted extended Freundlich curve with approximate 95\% pointwise confidence band based on the Godambe covariance. Band uses the delta method with the $(\alpha,\beta,\gamma)$ block of $\hat{G}^{-1}$; see Q3(d) for the analogous Wald construction.*
+\FloatBarrier
 
 ## **(e)** Comparison of Large-Scale Component to Q1 and Q3
 
@@ -931,13 +1033,11 @@ plot(sqrt(x), stdres_q4, xlab = expression(sqrt("Covariate Value")), ylab = "",
 abline(h = 0, lty = 3)
 ```
 
-The point estimates show a clear monotone progression across methods: $\hat\alpha$ increases from 0.506 (Q1) to 0.740 (Q3) to 1.063 (Q4), while $\hat\beta$ and $\hat\gamma$ decrease correspondingly. This reflects movement along the likelihood ridge defined by the near-collinearity among the large-scale parameters (Table 15: $\hat\rho_{\alpha,\beta} = -0.980$, $\hat\rho_{\alpha,\gamma} = -0.845$), not sampling noise. The direction of the progression is also structurally meaningful: Q1 ignores $\theta$ entirely, Q3 conditions on $w_0 = 0$ using all $n$ terms, and Q4 conditions on $Y_1$ using only $n - 1$ terms, so each successive reduction in the likelihood contributes to the shift.
+The point estimates show a clear monotone progression across methods: $\hat\alpha$ increases from 0.506 (Q1) to 0.740 (Q3) to 1.063 (Q4), while $\hat\beta$ and $\hat\gamma$ decrease correspondingly. This reflects movement along the likelihood ridge defined by the near-collinearity  among the large-scale parameters (Table 14: $\hat{\rho}_{\alpha,\beta} = -0.980$, $\hat{\rho}_{\alpha,\gamma} = -0.845$), not sampling noise. The direction of the progression is also structurally meaningful: Q1 ignores $\theta$ entirely, Q3 conditions on $w_0 = 0$ using all $n$ terms, and Q4 conditions on $Y_1$ using only $n - 1$ terms, so each successive reduction in the likelihood contributes to the shift.
 
-The CI widths in Table 14 tell a nuanced story. Q4 Wald intervals are the widest for every parameter --- substantially so for $\alpha$ (5.467 vs 2.170 under Q3 profile) --- because the inverse-Hessian covariance inherits the near-singular curvature of the five-parameter surface without the stabilizing contribution of the first observation. The Godambe-based intervals are uniformly narrower than Q4 Wald, because $\hat{J} \approx \hat{H}$ numerically (Tables 11 and 12), so the sandwich correction $\hat{H}^{-1}\hat{J}\hat{H}^{-1}$ deflates slightly relative to $\hat{H}^{-1}$ alone. With only $n - 1 = 22$ outer products contributing to $\hat{J}$, the agreement may partly reflect insufficient sample size to reliably distinguish the two matrices --- though under correct model specification $J = H$ is expected asymptotically, so the approximate equality is at minimum consistent with an adequate composite likelihood specification.
+The CI widths in Table 13 tell a nuanced story. Q4 Wald intervals are the widest for every parameter --- substantially so for $\alpha$ (5.467 vs 2.170 under Q3 profile) --- because the inverse-Hessian covariance inherits the near-singular curvature of the five-parameter surface without the stabilizing contribution of the first observation. The Godambe-based intervals are uniformly narrower than Q4 Wald, because $\hat{J} \approx \hat{H}$ numerically (Tables 11 and 12), so the sandwich correction $\hat{H}^{-1}\hat{J}\hat{H}^{-1}$ deflates slightly relative to $\hat{H}^{-1}$ alone. With only $n - 1 = 22$ outer products contributing to $\hat{J}$, the agreement may partly reflect insufficient sample size to reliably distinguish the two matrices --- though under correct model specification $J = H$ is expected asymptotically, so the approximate equality is at minimum consistent with an adequate composite likelihood specification.
 
 The standardized residual plots (Figure 3) look visually similar across all three methods, but the comparison is asymmetric: the Q3 and Q4 innovation residuals ($\hat\epsilon_i = \hat{w}_i - \hat\theta\hat{w}_{i-1}$) have had the AR(1) dependence explicitly removed by construction, so their lack of trend confirms whitening rather than model adequacy. More notable is the mild cyclical pattern present in all three panels --- positive residuals at low and high covariate values, with a slight dip in the mid-range --- which points to a small remaining misspecification in $\mu_i$ itself rather than the error structure. This would be consistent with the extended Freundlich curve being an empirical approximation that may not perfectly capture the sorption mechanism across the full covariate range (Sibbesen, 1981). With $n = 23$ this cannot be formally tested, but it is a limitation worth acknowledging.
-
-\newpage 
 
 ## **(f)** Comparison of Small-Scale Component
 
@@ -975,201 +1075,6 @@ kable(all_s2_4,
 ```
 
 The Q4 estimates of $\theta$ and $\sigma^2$ are close to Q3, as expected given that the two likelihoods differ by exactly one term. The small monotone progression in $\hat\theta$ (0.542 $\to$ 0.560 $\to$ 0.575 across Q2, Q3, Q4) is consistent with successive reduction of first-stage approximation error: Q2 uses residuals from misspecified large-scale parameters, Q3 jointly estimates all parameters from the full conditional likelihood, and Q4 does the same from the pairwise conditional likelihood. The $\sigma^2$ estimates follow the same hierarchy noted in Q2(d) and Q3(f): Q1 GLS is substantially larger (1.015) because it targets the marginal variance, while Q2, Q3, and Q4 all target the innovation variance directly and are in close agreement (0.657, 0.625, 0.644).
-
-\newpage 
-
-## Aside: Attempt at Profile Composite Likelihoods
-
-Profile composite likelihood intervals are constructed analogously to Q3, with one modification. The composite likelihood ratio statistic
-
-$$
-W_C(\psi_0) = 2\bigl[\ell_C(\hat\psi) - \ell_C(\psi_0,\,\hat{\boldsymbol\lambda}_{\psi_0})\bigr]
-$$
-
-is not asymptotically $\chi^2_1$ in general; it converges to $\lambda_\psi \chi^2_1$, where the scalar correction
-
-$$
-\lambda_\psi
-  = \frac{(\hat{G}^{-1})_{\psi, \psi}}{(\hat{H}^{-1})_{\psi, \psi}}
-  = \frac{\text{Godambe variance for } \psi}{\text{Wald variance for } \psi}
-$$
-
-is the ratio of the Godambe to Wald marginal variance for parameter $\psi$, evaluated at the MCLE. The adjusted profile threshold is therefore
-
-$$
-\ell_C(\psi) \;\geq\; \hat\ell_C - \tfrac{1}{2}\,\lambda_\psi\,\chi^2_{0.95,\,1}.
-$$
-
-Because $\hat{J} \approx \hat{H}$ numerically (Tables 11 and 12), $\lambda_\psi \approx 1$ for all parameters, so the correction has modest practical effect here. The adjusted profile intervals are reported alongside the Wald and Godambe intervals in Table 10b. Note that $\hat{H}$ and $\hat{J}$ are not available until after the Godambe computation below; the profile grid is evaluated first and the threshold is applied retrospectively once $\lambda_\psi$ is known.
-
-```{r q4-profile-ci, echo = F, message = F, warning = F}
-profile_cl_one <- function(par_idx, n_grid = 100) {
-  multipliers_cl <- c(12, 12, 12, 4, 4)
-  cutoff_cl      <- qchisq(0.95, df = 1) / 2
-  ll_max_cl      <- -fit4$value
-  mle_val <- mcle[par_idx]
-  se_val  <- se_god[par_idx]
-  hard_lo <- c(1e-6, 1e-6, 1e-6, -1 + 1e-4, 1e-6)[par_idx]
-  hard_hi <- c(Inf,  Inf,  Inf,   1 - 1e-4,  Inf )[par_idx]
-  lo_raw  <- mle_val - multipliers_cl[par_idx] * se_val
-  hi_raw  <- mle_val + multipliers_cl[par_idx] * se_val
-  grid    <- seq(max(lo_raw, hard_lo), min(hi_raw, hard_hi), length.out = n_grid)
-  pl <- vapply(grid, function(psi) {
-    obj <- function(p_other) {
-      par_full           <- numeric(5)
-      par_full[-par_idx] <- p_other
-      par_full[ par_idx] <- psi
-      negcl(par_full, x, y)
-    }
-    res <- tryCatch(
-      optim(mcle[-par_idx], obj, method = "BFGS",
-            control = list(maxit = 2000, reltol = 1e-10)),
-      error = function(e) list(value = Inf)
-    )
-    if (!is.finite(res$value)) {
-      res <- tryCatch(
-        optim(mcle[-par_idx], obj, method = "Nelder-Mead",
-              control = list(maxit = 5000, reltol = 1e-10)),
-        error = function(e) list(value = Inf)
-      )
-    }
-    -res$value
-  }, numeric(1))
-  target <- ll_max_cl - cutoff_cl
-  interp_cross <- function(side) {
-    idx       <- if (side == "lower") which(grid < mle_val) else which(grid > mle_val)
-    vals_side <- pl[idx];  grid_side <- grid[idx]
-    finite    <- is.finite(vals_side)
-    vals_side <- vals_side[finite];  grid_side <- grid_side[finite]
-    below     <- which(vals_side < target)
-    if (length(below) == 0) return(NA_real_)
-    b    <- if (side == "lower") max(below) else min(below)
-    b_in <- if (side == "lower") b + 1      else b - 1
-    if (b_in < 1 || b_in > length(grid_side)) return(grid_side[b])
-    approx(x = vals_side[c(b, b_in)],
-           y = grid_side[c(b, b_in)],
-           xout = target)$y
-  }
-  list(
-    ci   = c(lower = interp_cross("lower"), upper = interp_cross("upper")),
-    grid = grid,
-    pl   = pl
-  )
-}
-
-prof_cl_raw <- lapply(1:5, profile_cl_one)
-cutoff_cl  <- qchisq(0.95, df = 1) / 2
-ll_max_cl  <- -fit4$value
-
-# lambda_psi requires Godambe output from q4-godambe chunk
-lambda_psi <- diag(cov_god) / diag(H_inv)
-cutoff_adj <- lambda_psi * cutoff_cl
-
-# Unadjusted: already interpolated inside profile_cl_one
-prof_cl_lower_unadj <- sapply(prof_cl_raw, function(b) b$ci["lower"])
-prof_cl_upper_unadj <- sapply(prof_cl_raw, function(b) b$ci["upper"])
-
-# Godambe-adjusted: re-interpolate same grids with scaled threshold
-interp_adj <- function(j, side) {
-  grid    <- prof_cl_raw[[j]]$grid
-  pl      <- prof_cl_raw[[j]]$pl
-  mle_val <- mcle[j]
-  thr     <- ll_max_cl - cutoff_adj[j]
-  idx       <- if (side == "lower") which(grid < mle_val) else which(grid > mle_val)
-  vals_side <- pl[idx];  grid_side <- grid[idx]
-  finite    <- is.finite(vals_side)
-  vals_side <- vals_side[finite];  grid_side <- grid_side[finite]
-  below     <- which(vals_side < thr)
-  if (length(below) == 0) return(NA_real_)
-  b    <- if (side == "lower") max(below) else min(below)
-  b_in <- if (side == "lower") b + 1      else b - 1
-  if (b_in < 1 || b_in > length(grid_side)) return(grid_side[b])
-  approx(x = vals_side[c(b, b_in)],
-         y = grid_side[c(b, b_in)],
-         xout = thr)$y
-}
-
-prof_cl_lower_adj <- sapply(1:5, interp_adj, side = "lower")
-prof_cl_upper_adj <- sapply(1:5, interp_adj, side = "upper")
-
-comp_ci4 <- data.frame(
-  Parameter = pnames3,
-  Q1_Lo     = unname(round(mle[1:3] - z95 * sqrt(diag(fit1$covb)),  4)),
-  Q1_Hi     = unname(round(mle[1:3] + z95 * sqrt(diag(fit1$covb)),  4)),
-  Q3_Lo     = unname(round(prof_lower[1:3],                          4)),
-  Q3_Hi     = unname(round(prof_upper[1:3],                          4)),
-  Q4G_Lo    = unname(round(mcle[1:3] - z95 * se_god[1:3],           4)),
-  Q4G_Hi    = unname(round(mcle[1:3] + z95 * se_god[1:3],           4)),
-  Q4AP_Lo   = unname(round(prof_cl_lower_adj[1:3],                   4)),
-  Q4AP_Hi   = unname(round(prof_cl_upper_adj[1:3],                   4))
-)
-
-kable(comp_ci4,
-      format    = "latex",
-      booktabs  = TRUE,
-      escape    = FALSE,
-      align     = c("l", rep("r", 8)),
-      col.names = c("Parameter",
-                    "Lower", "Upper",
-                    "Lower", "Upper",
-                    "Lower", "Upper",
-                    "Lower", "Upper"),
-      caption   = "95\\% CIs for large-scale parameters across methods. $^\\dagger$Profile lower bound for $\\gamma$ under Q4 does not exist within the parameter space; see text.") |>
-  add_header_above(c(" " = 1,
-                     "Q1 Wald"          = 2,
-                     "Q3 Profile"       = 2,
-                     "Q4 Godambe"       = 2,
-                     "Q4 Adj. Profile"  = 2)) |>
-  kable_styling(latex_options = "HOLD_position", font_size = 9)
-```
-
-```{r q4-profile-weirdness, echo = F, message = F, warning = F}
-# Run interactively
-par(mfrow = c(1,2))
-
-# Q3 full likelihood profile for gamma
-plot(prof_bounds[[3]]$grid, prof_bounds[[3]]$pl,
-     type = "l", xlab = "gamma", ylab = "profile log-lik",
-     main = "Q3: Full likelihood")
-abline(h = ll_max - cutoff, lty = 2, col = "red")
-abline(v = mle["gamma"], lty = 3)
-
-# Q4 composite likelihood profile for gamma
-plot(prof_cl_raw[[3]]$grid, prof_cl_raw[[3]]$pl,
-     type = "l", xlab = "gamma", ylab = "profile CL",
-     main = "Q4: Composite likelihood")
-abline(h = ll_max_cl - cutoff_cl, lty = 2, col = "red")
-abline(v = mcle["gamma"], lty = 3)
-```
-
-The CIs in Table~\ref{} reveal a consistent pattern across methods:
-$\alpha$ and $\beta$ shift monotonically as the likelihood changes
-(Q1 Wald $\to$ Q3 Profile $\to$ Q4), while $\gamma$ remains relatively
-stable. The Q4 Godambe intervals are wider than Q3 profile for $\alpha$
-and $\beta$, reflecting the additional uncertainty from losing one
-observation in the pairwise conditional construction.
-
-The adjusted profile lower bound for $\gamma$ does not exist at the
-95\% level: as shown in the right panel of Figure~\ref{}, the composite
-likelihood surface to the left of $\hat\gamma = 0.145$ remains above
-the threshold all the way to the parameter boundary, in contrast to
-the full likelihood (left panel), which descends below the threshold
-and yields a lower bound of 0.068. This is a direct consequence of the
-composite likelihood using only $n - 1 = 22$ pairs rather than all
-$n = 23$ observations --- the reduction in information is just enough
-to render $\gamma$'s lower bound undefined under the composite
-likelihood.
-
-Because the $(\alpha, \beta, \gamma)$ block of the adjusted profile
-covariance is not well-defined when one marginal profile is unbounded,
-a $\delta$-method confidence band cannot be constructed from it in the
-usual way. The Godambe covariance (Table~10) is therefore used for the
-band, despite its inadmissible lower bound for $\alpha$ of $-0.818$.
-This is the same situation encountered in Q3, where the Wald lower
-bound for $\alpha$ was also inadmissible; in both cases the
-inadmissibility reflects the flatness of the likelihood ridge in the
-$(\alpha, \beta)$ direction at $n = 23$ rather than a failure of the
-method.
 
 \newpage 
 
@@ -1252,9 +1157,9 @@ kable(summary_tab,
 
 As established in Q2(d), Q1 GLS targets the marginal variance $\sigma^2/(1-\theta^2)$ while all remaining methods target the innovation variance $\sigma^2$ directly.
 
-Beyond the finite-sample distortion already described, efficiency is lost relative to the joint MLE even asymptotically. The Q3 MLE shifts $\hat\alpha$ from $0.506$ to $0.739$ and $\hat\beta$ from $1.222$ to $1.028$ — non-trivial movements that reflect the reweighting of observations once the AR(1) structure is correctly incorporated. This loss is not purely a finite-sample concern: because the likelihood couples the regression and AR(1) parameters, no decoupled estimator can recover the efficiency of the joint estimator even asymptotically.
+Beyond the finite-sample distortion already described, efficiency is lost relative to the joint MLE even asymptotically. The Q3 MLE shifts $\hat\alpha$ from $0.506$ to $0.739$ and $\hat\beta$ from $1.222$ to $1.028$ — non-trivial movements that reflect the reweighting of observations once the AR(1) structure is correctly incorporated. This loss is a meaningful finite-sample concern: because the likelihood couples the regression and AR(1) parameters, the two-stage estimator with a fixed $W = I$ weight matrix is inefficient. In large samples, a \emph{feasible} GLS procedure that first estimates $\theta$ consistently and then uses $\hat\Sigma^{-1}(\hat\theta)$ as the weight matrix can recover the asymptotic efficiency of the joint MLE under standard regularity conditions---the two-stage procedure as described here does not do this, because Stage 1 fixes $W = I$ rather than iterating. The efficiency loss is therefore a consequence of the specific implementation, not an inherent property of decoupled estimation.
 
-Figure 4 and Table 18 make the practical consequence visible across all methods simultaneously. The Q1 confidence band is the narrowest of the three, but this narrowness is illusory — it reflects the iid assumption forcing underestimation of uncertainty rather than genuine precision. The Q3 and Q4 bands are wider throughout, and correctly so: they acknowledge the curvature of the five-parameter likelihood surface and the correlation structure of the errors jointly. The mean band half-widths in Table 18 (0.623 for Q1, 0.967 for Q3, 1.028 for Q4) quantify this directly. The Q4 band is the widest because the Godambe sandwich covariance, even approximately, propagates more uncertainty than the inverse Hessian alone. Taken together, Figure 4 and Table 18 provide the clearest single summary of why the two-stage procedure understates inferential uncertainty: its narrow band is not an achievement but a consequence of ignoring what Q3 and Q4 explicitly model.
+Figure 5 and Table 17 make the practical consequence visible across all methods simultaneously. The Q1 confidence band is the narrowest of the three, but this narrowness is illusory — it reflects the iid assumption forcing underestimation of uncertainty rather than genuine precision. The Q3 and Q4 bands are wider throughout, and correctly so: they acknowledge the curvature of the five-parameter likelihood surface and the correlation structure of the errors jointly. The mean band half-widths in Table 17 (0.623 for Q1, 0.967 for Q3, 1.028 for Q4) quantify this directly. The Q4 band is the widest because the Godambe sandwich covariance, even approximately, propagates more uncertainty than the inverse Hessian alone. Taken together, Figure 5 and Table 17 provide the clearest single summary of why the two-stage procedure understates inferential uncertainty: its narrow band is not an achievement but a consequence of ignoring what Q3 and Q4 explicitly model.
 
 ## The Q4 composite likelihood provides corroborating evidence
 
