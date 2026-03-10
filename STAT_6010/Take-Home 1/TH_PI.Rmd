@@ -74,7 +74,7 @@ Consider a simplified model in which the $w_i$ in (1) are iid $N(0, \sigma^2)$, 
 
 ## **(a)** and **(b)**: Report GLS estimates of $\alpha$, $\beta$, $\gamma$ and the moment-based estimate of $\sigma^2$. Approximate 95% confidence intervals for $\alpha$, $\beta$, $\gamma$.
 
-Starting values are chosen by reasoning through $\mu_i = \alpha x_i^{\beta x_i^{-\gamma}}$ from the outside in. The scatterplot shows the response still rising gradually near $x = 400$, suggesting slow exponent decay and thus a small $\gamma$; we set $\gamma_0 = 0.16$. At $x = 100$, the effective power on $x$ is $\beta \cdot 100^{-0.16} \approx 0.48\beta$; a mild power-law rise (effective exponent $\approx 0.55$) gives $\beta_0 \approx 0.55/0.48 \approx 1.2$. Finally, back-calculating from $y \approx 6.5$ near $x = 100$ gives $\alpha_0 \approx 0.5$.
+Starting values are chosen by reasoning through $\mu_i = \alpha x_i^{\beta x_i^{-\gamma}}$, starting with $\gamma$, followed by $\beta$, and then $\alpha$. The scatterplot of response by covariate shows the response rising gradually near $x = 400$, suggesting slow exponent decay and thus a small $\gamma$, certainly less than 1; we set $\gamma_0 = 0.16$ after some graphical exploration. At $x = 100$, the effective power on $x$ is $\beta \cdot 100^{-0.16} \approx 0.48\beta$; further graphical exploration indicated an effective exponent $\approx 0.55$ near this point, giving $\beta_0 \approx 0.55/0.48 \approx 1.2$. Finally, using these values of $\gamma$ and $\beta$, we back-calculate from $y \approx 6.5$, $x \approx 100$, giving $\alpha_0 \approx 0.5$.
   
 ```{r q1-b, echo = F, message = F, warning = F}
 bhat  <- fit1$bs
@@ -116,7 +116,7 @@ $$
   \frac{\partial \mu_i}{\partial \gamma} = -\mu_i \beta (\log x_i)^2 x_i^{-\gamma}.
 $$
 
-**(d)**: Standardized residuals were computed using the hat-matrix correction $r_i / [\hat{\sigma}^2(1 - h_{i,i})]^{1/2}$, expression (9.40) of the Stat 520 notes, returned directly by `nonlin` via `fit1$stdres`. The solution sheet cites (9.37), the general plug-in form; (9.40) is its constant-variance simplification, obtained by substituting $\hat{\sigma}_i^2 = \hat{\sigma}^2$. The residual plot shows a good deal of remaining structure as a function of the covariate, consistent with Figure 3 of Sibbesen (1981). This pattern motivates the use of an autoregressive structure in the “regression equation error terms”, i.e., the inclusion of an AR(1) small-scale component in the full model, treating the serial dependence across ordered covariate values analogously to serial correlation over time.
+**(d)**: Standardized residuals were computed using the hat-matrix correction $r_i / [\hat{\sigma}^2(1 - h_{i,i})]^{1/2}$, expression (9.40) of the Stat 520 notes, returned directly by `nonlin` via `fit1$stdres`. The solution sheet cites (9.37), the general plug-in form; (9.40) its constant-variance simplification used here, is obtained by substituting $\hat{\sigma}_i^2 = \hat{\sigma}^2$. The residual plot shows a good deal of remaining structure as a function of the covariate, consistent with Figure 3 of Sibbesen (1981). This pattern motivates the use of an autoregressive structure in the “regression equation error terms”. This is to say: The remaining pattern in the residual plot motivates the inclusion of an AR(1) small-scale component in the full model, treating the serial dependence across ordered covariate values analogously to serial correlation over time.
 
 ```{r q1-cd, echo = F, message = F, warning = F, fig.height=8, fig.width=5, fig.cap="(Top) Fitted extended Freundlich curve with approximate 95\\% pointwise confidence band. (Bottom) Standardized residuals versus covariate."}
 xgrid  <- seq(min(x[x > 0]), max(x), length.out = 300)
@@ -149,19 +149,23 @@ $$v_i(\mathbf{W}, \theta) = W_i - \theta W_{i-1}$$
 
 is an unbiased estimating equation.
 
-The naive estimating function is $v_i(\mathbf{W}, \theta) = W_i - \theta W_{i-1}$. Substituting $W_i = \theta W_{i-1} + \epsilon_i$ directly gives
+As given, the naive estimating function is $v_i(\mathbf{W}, \theta) = W_i - \theta W_{i-1}$. 
+
+Substituting $W_i = \theta W_{i-1} + \epsilon_i$ directly and taking expectation gives
 
 $$
-E[v_i(W, \theta)] = E[\theta W_{i-1} + \epsilon_i - \theta W_{i-1}] = E[\epsilon_i] = 0,
+E[v_i(\mathbf{W}, \theta)] = E[W_i - \theta W_{i-1}] = E[\theta W_{i-1} + \epsilon_i - \theta W_{i-1}] = E[\epsilon_i] = 0,
 $$
 
-since $\epsilon_i \sim N(0, \sigma^2)$ is independent of $W_{i-1}$. Because this holds for every $i$ and all $-1 < \theta < 1$, the estimating equation $\sum_{i=2}^n v_i(\mathbf{W}, \theta) = 0$ is unbiased. Setting it to zero and solving gives
+since $\epsilon_i \sim N(0, \sigma^2)$ is independent of $W_{i-1}$. 
+
+Because this holds for every $i$ and all $|\theta| < 1$, the estimating equation (EE) $\sum_{i=2}^n v_i(\mathbf{W}, \theta) = 0$ is unbiased. Setting the EE to zero and solving gives
 
 $$
 \tilde{\theta}_{\text{naive}} = \frac{\sum_{i=2}^n W_i}{\sum_{i=2}^n W_{i-1}}.
 $$
 
-While this form is algebraically valid, the denominator $\sum W_{i-1}$ can be near zero, contributing to the numerical instability ($\tilde\theta_{\text{naive}} > 1$) observed when this estimating equation is applied to the Q1 residuals in Q2(d), *spoilers*.
+Note: While this form is algebraically valid, the denominator $\sum W_{i-1}$ can be near zero, contributing to the numerical instability ($\tilde\theta_{\text{naive}} > 1$) observed when this estimating equation is applied to the Q1 residuals in Q2(d), *spoilers*.
 
 ## **(b)** Show that the estimating equation for $\theta$ based on the **optimal** estimating function
 
@@ -169,31 +173,26 @@ $$v_i(\mathbf{W}, \theta) = W_{i-1}(W_i - \theta W_{i-1})$$
 
 is an unbiased estimating equation.
 
-The optimal estimating function is $v_i(\mathbf{W},\theta) = W_{i-1}(W_i - \theta W_{i-1})$. Expanding the expectation and using the model $W_i = \theta W_{i-1} + \epsilon_i$,
+The given optimal estimating function is $v_i(\mathbf{W},\theta) = W_{i-1}(W_i - \theta W_{i-1})$.
 
-$$
-E[W_{i-1} W_i]
-  = E[W_{i-1}(\theta W_{i-1} + \epsilon_i)]
-  = \theta E[W_{i-1}^2] + E[W_{i-1}\,\epsilon_i].
-$$
-
-Because $W_{i-1}$ is a function of $\epsilon_1, \ldots, \epsilon_{i-1}$ alone and $\epsilon_i$ is independent of those, $E[W_{i-1}\epsilon_i] = 0$.
-
-Under the second-order stationarity assumed in the problem, which holds when $|\theta| < 1$, we have $E[W_{i-1}^2] = \sigma^2/(1 - \theta^2)$,
+Taking the expectation directly and substituting $W_i = \theta W_{i-1} + \epsilon_i$,
 
 $$
 E[v_i(\mathbf{W},\theta)]
-  = \theta \frac{\sigma^2}{1-\theta^2} - \theta \frac{\sigma^2}{1-\theta^2} = 0.
+  = E[W_{i-1}(W_i - \theta W_{i-1})]
+  = E[W_{i-1}\epsilon_i].
 $$
 
-The estimating equation $\sum_{i=2}^n W_{i-1}(W_i - \theta W_{i-1}) = 0$ is therefore unbiased, and its solution is the lag-1 autocorrelation estimator
+Since $W_{i-1}$ is a function of $\epsilon_1, \ldots, \epsilon_{i-1}$ alone and $\epsilon_i \sim N(0,\sigma^2)$ is independent of those, $E[W_{i-1}\epsilon_i] = E[W_{i-1}]E[\epsilon_i] = 0$.
+
+The EE $\sum_{i=2}^n W_{i-1}(W_i - \theta W_{i-1}) = 0$ is therefore unbiased, and its solution yields the estimator
 
 $$
 \tilde\theta_{\text{opt}}
   = \frac{\sum_{i=2}^n W_i W_{i-1}}{\sum_{i=2}^n W_{i-1}^2}.
 $$
 
-This is called "optimal" in the sense of Godambe's criterion: Among linear estimating functions in $W_{i-1}$, multiplying the naive function by $W_{i-1}$ maximizes the ratio $[E\{\partial v/\partial\theta\}]^2 / \operatorname{var}\{v\}$ (see Ch. 8.3, the "measure of the lost efficiency of the solution to any estimating function"). Note that both estimating equations yield closed-form estimators, and the two estimators are in general numerically distinct.
+Note: This EE is "optimal" in the sense of Godambe's criterion: Among linear estimating functions in $W_{i-1}$, multiplying the naive function by $W_{i-1}$ maximizes the ratio $[E\{\partial v/\partial\theta\}]^2 / \operatorname{var}\{v\}$ (see Ch. 8.3 of the textbook). Also, while both estimating equations yield closed-form estimators, and the two estimators are in general numerically distinct.
 
 ## **(c)** Develop a moment-based estimator for $\sigma^2$ that could be used with either estimating equation, and show that it is unbiased.
 
@@ -203,13 +202,17 @@ $$
 \hat\sigma^2 = \frac{1}{n-1}\sum_{i=1}^{n}(W_i - \tilde\theta\, W_{i-1})^2,
 $$
 
-where $W_0 = 0$. Note: The $i = 1$ term contributes $W_1 - \tilde{\theta} W_0 = W_1$, which equals $\epsilon_1$ by virtue of the boundary condition $W_0 = 0$; this is a boundary artifact rather than a general property of the innovation structure. To see that this estimator is approximately unbiased, note that at the true $\theta$ each term satisfies $E[(W_i - \theta W_{i-1})^2] = E[\epsilon_i^2] = \sigma^2$, so
+where $W_0 = 0$. Note: The $i = 1$ term contributes $W_1 - \tilde{\theta} W_0 = W_1$, which equals $\epsilon_1$ by virtue of the boundary condition $W_0 = 0$; this is a boundary artifact rather than a general property of the innovation structure.
+
+The denominator $n - 1$ is chosen by analogy with the residual mean square: one degree of freedom is notionally attributed to the estimation of $\theta$, paralleling the use of $n - p$ in linear regression. However, the unbiasedness argument at the true $\theta$ holds for any fixed positive denominator — each term satisfies $E[(W_i - \theta W_{i-1})^2] = \sigma^2$, so both $1/n$ and $1/(n-1)$ yield unbiased estimators for known $\theta$ — and the choice $n - 1$ is retained here as the standard convention.
+
+To see approximate unbiasedness, note
 
 $$
 E\!\left[\frac{1}{n}\sum_{i=1}^n (W_i - \theta W_{i-1})^2\right] = \sigma^2.
 $$
 
-Once $\theta$ is replaced by $\tilde\theta$, however, strict unbiasedness no longer holds: $E[(W_i - \tilde\theta W_{i-1})^2] \neq \sigma^2$ exactly, because $\tilde\theta$ is itself a function of the data. The estimator is therefore only approximately unbiased, in the same spirit as $s^2$ in ordinary regression, with the $n-1$ denominator providing a degrees-of-freedom correction by analogy with the linear case.
+Once $\theta$ is replaced by $\tilde\theta$, however, strict unbiasedness no longer holds: $E[(W_i - \tilde\theta W_{i-1})^2] \neq \sigma^2$ exactly, because $\tilde\theta$ is itself a function of the data.
 
 ## **(d)** Apply both estimating equations using the raw residuals from Q1 as surrogate observations of $w_i$. Compute $\hat\sigma^2$ for each and compare all three estimates of $\sigma^2$ (naive EE, optimal EE, Q1 GLS). Are these estimators all estimating the same quantity?
 
@@ -260,9 +263,9 @@ kable(results_tab,
                 font_size = 10)
 ```
 
-Because the Q1 residuals $\hat{e}_i$ contain mean-estimation error, i.e., they are $y_i - \mu_i(\hat\alpha,\hat\beta,\hat\gamma)$ rather than $w_i = y_i - \mu_i(\alpha,\beta,\gamma)$, the estimating equations applied here are only approximations to those derived in Q2(a) and (b). The two estimating equations yield different estimates of $\theta$, though both target the same population parameter, that parameter being the AR(1) autocorrelation coefficient $\theta$ in model (3). The numerical difference between $\tilde{\theta}_{\text{naive}} = 1.005$ and $\tilde{\theta}_{\text{opt}} = 0.542$ reflects estimation error rather than any difference in what the equations are targetting, with the optimal estimate being the more reliable of the two by Godambe's criterion.
+Because the Q1 residuals $\hat{e}_i$ contain mean-estimation error, i.e., they are $y_i - \mu_i(\hat\alpha,\hat\beta,\hat\gamma)$ rather than $w_i = y_i - \mu_i(\alpha,\beta,\gamma)$, the estimating equations applied here are only approximations to those derived in Q2(a) and (b). The two estimating equations yield different estimates of $\theta$, though both target the same population parameter, that parameter being the AR(1) autocorrelation coefficient $\theta$ in model (3). The numerical difference between $\tilde{\theta}_{\text{naive}} = 1.005$ and $\tilde{\theta}_{\text{opt}} = 0.542$ reflects estimation error rather than any difference in what the equations are targetting, with the optimal estimate being the more reliable of the two (again, "better" by Godambe's criterion.)
 
-More importantly, the *three* $\hat\sigma^2$ values are **not** all estimating the same quantity. The Q1 GLS estimate was obtained under the assumption that the $w_i$ are iid, so it targets $\text{Var}(w_i)$; because the true model is AR(1), or at least we are motivated to believe it is AR(1), $\text{Var}(w_i) = \sigma^2/(1-\theta^2)$. However, the Q1 GLS estimator itself has no knowledge of that structure. In contrast, the two EE-based estimates are obtained by squaring residuals of the form $W_i - \tilde\theta W_{i-1} \approx \epsilon_i$, so they target the innovation variance $\sigma^2$. Because the AR(1) process has positive autocorrelation ($\theta > 0$ appears typical for sorption data), the marginal variance exceeds the innovation variance, and we expect $\hat\sigma^2_{\text{Q1}} > \hat\sigma^2_{\text{naive}}$ and $\hat\sigma^2_{\text{Q1}} > \hat\sigma^2_{\text{opt}}$. The two innovation-variance estimates both target $\sigma^2$ but are not expected to be numerically close: $\tilde\theta_{\text{naive}} = 1.005$ is inadmissible and the resulting squared innovations are distorted, so $\hat\sigma^2_{\text{naive}}$ and $\hat\sigma^2_{\text{opt}}$ can differ substantially even though they share a common target.
+More importantly, the three $\hat\sigma^2$ values are **not** all estimating the same quantity. The Q1 GLS estimate was obtained under the assumption that the $w_i$ are iid, so it targets $\text{Var}(w_i) = \sigma^2/(1-\theta^2)$; the estimator itself has no knowledge of the AR(1) structure that connects that marginal variance to $\sigma^2$. The two EE-based estimates, by contrast, are obtained by squaring residuals of the form $W_i - \tilde\theta W_{i-1} \approx \epsilon_i$, so they target the innovation variance $\sigma^2$ directly. Because $\theta > 0$ is typical for sorption data, the marginal variance exceeds the innovation variance, and we expect $\hat\sigma^2_{\text{Q1}} > \hat\sigma^2_{\text{naive}}$ and $\hat\sigma^2_{\text{Q1}} > \hat\sigma^2_{\text{opt}}$. The two innovation-variance estimates share that common target but can differ substantially, since $\hat\sigma^2_{\text{naive}}$ is based on distorted squared innovations from the inadmissible $\tilde\theta_{\text{naive}} = 1.005$.
 
 # Q3
 
@@ -270,9 +273,13 @@ Assume $x_0 = 0$ and $w_0 = 0$ (based on Q1, Q2). Derive the full log likelihood
 
 ## **(a)** An expression for the log likelihood.
 
-Given $w_0 = 0$, the residuals $w_i = Y_i - \mu_i$ satisfy $w_i = \theta w_{i-1} + \epsilon_i$ with $\epsilon_i \overset{iid}{\sim} N(0,\sigma^2)$. The likelihood derived here is a *conditional* likelihood, conditioning on $w_0 = 0$ rather than treating $W_1$ as drawn from the stationary marginal distribution $N(0, \sigma^2/(1-\theta^2))$. Given this conditioning, each innovation $\epsilon_i = w_i - \theta w_{i-1}$ is independent, so the joint density of $(Y_1,\ldots,Y_n)$ may be written as a product of $n$ normal densities. This approximation is adequate when $|\theta|$ is well away from 1, but becomes less accurate near the stationarity boundary, where the marginal and conditional likelihoods can differ meaningfully.
+Given $w_0 = 0$, the residuals $w_i = Y_i - \mu_i$ satisfy $w_i = \theta w_{i-1} + \epsilon_i$ with $\epsilon_i \overset{iid}{\sim} N(0,\sigma^2)$. 
 
-Under these conditions, the log likelihood may be written
+The likelihood derived here is a *conditional* likelihood, conditioning on $w_0 = 0$ rather than treating $W_1$ as drawn from the stationary marginal distribution $N(0, \sigma^2/(1-\theta^2))$. 
+
+Given this conditioning, each innovation $\epsilon_i = w_i - \theta w_{i-1}$ is independent, so the joint density of $(Y_1,\ldots,Y_n)$ may be written as a product of $n$ normal densities. 
+
+Noting the above, the log likelihood may be written
 
 $$
 \ell(\alpha,\beta,\gamma,\theta,\sigma^2)
@@ -313,7 +320,7 @@ loglik_q3 <- function(par, x, y) {
 
 ### Wald 
 
-The log likelihood was maximized using `optim` with `method = "BFGS"`. Starting values for $(\alpha, \beta, \gamma)$ were taken from the Q1 GLS fit; $\theta_0 = 0$ and $\sigma^2_0 = \hat\sigma^2_{\text{Q1}}$ completed the five-parameter starting vector. These are natural starting values: the Q1 fit is the $\theta = 0$ special case of the full model, placing the initial iterate near the expected solution. Because `optim` minimizes by default, we pass the negative log likelihood. The Hessian was then extracted by specifying `hessian = TRUE` for Wald inference in part (c).
+The log likelihood was maximized using `optim` with `method = "BFGS"`. Starting values for $(\alpha, \beta, \gamma)$ were taken from the Q1 GLS fit; $\theta_0 = 0$ and $\sigma^2_0 = \hat\sigma^2_{\text{Q1}}$ completed the five-parameter starting vector. These are natural starting values: The Q1 fit is the $\theta = 0$ special case of the full model, placing the initial iterate near the expected solution. Multiple starting values were also considered to confirm convergence. Because `optim` minimizes by default, we pass the negative log likelihood. The Hessian was then extracted by specifying `hessian = TRUE` for Wald inference in part (c).
 
 ```{r q3-b, echo = F, message = F, warning = F}
 # Negative log likelihood for optim
@@ -350,15 +357,15 @@ $$
 \ell_p(\psi) = \max_{\boldsymbol\lambda} \; \ell(\psi, \boldsymbol\lambda),
 $$
 
-where $\boldsymbol\lambda$ denotes the remaining four parameters. At each point of a 60-point grid spanning $\hat{\psi} \pm 12$ Wald standard errors for $(\alpha, \beta, \gamma)$ and $\hat{\psi} \pm 4$ Wald standard errors for $(\theta, \sigma^2)$---the wider range for the regression parameters reflecting the asymmetric likelihood surface and the need to capture the $\alpha > 0$ boundary region---where the Wald SE is taken from the observed information matrix at the MLE, truncated to the parameter's natural support, the inner maximization over $\boldsymbol\lambda$ was performed using `optim` with `method = "BFGS"`, initialized at the full MLE. Results were confirmed with Nelder-Mead; BFGS was retained. 
+where $\boldsymbol\lambda$ denotes the remaining four parameters. At each point of a grid spanning $\hat{\psi} \pm 12$ Wald standard errors for $(\alpha, \beta, \gamma)$ and $\hat{\psi} \pm 4$ Wald standard errors for $(\theta, \sigma^2)$---the wider range for the regression parameters reflecting the asymmetric likelihood surface and the need to capture the $\alpha > 0$ boundary region---where the Wald SE is taken from the observed information matrix at the MLE, truncated to the parameter's natural support. The inner maximization over $\boldsymbol\lambda$ was performed using `optim` with `method = "BFGS"`, initialized at the full MLE. Results were confirmed with Nelder-Mead; BFGS was retained. 
 
 The 95\% confidence interval for $\psi$ is the set of grid values satisfying
 
 $$
-\ell_p(\psi) \geq \hat\ell - \tfrac{1}{2}\chi^2_{0.95,\,1},
+\ell_p(\psi) \geq \hat\ell - \tfrac{1}{2}\chi^2_{0.95,\,1}.
 $$
 
-with endpoints obtained by linear interpolation at the threshold crossing. The choice to profile over single parameters is one of convenience; profiling over pairs or higher-dimensional subsets is equally valid but produced negligible differences in preliminary analysis.
+The choice to profile over single parameters is one of convenience; profiling over pairs or higher-dimensional subsets is equally valid but produced negligible differences in preliminary analysis.
 
 ```{r q3-b-profile, echo = F, message = F, warning = F}
 cutoff      <- qchisq(0.95, df = 1) / 2
@@ -427,7 +434,7 @@ prof_upper  <- sapply(prof_bounds, function(b) b$ci["upper"])
 
 ### Wald
 
-Wald confidence intervals were constructed from the observed information matrix --- the negative Hessian of $\ell$ evaluated at the MLE, returned directly by `optim` via `hessian = TRUE` --- used in place of the expected Fisher information $\mathcal{I}(\boldsymbol\beta) = -E(\nabla^2 \ell)$. These are asymptotically equivalent under standard regularity conditions, though the distinction is worth noting: with $n = 23$ and $p = 5$, these intervals rely heavily on asymptotic normality and should be interpreted with caution.
+Wald confidence intervals were constructed from the observed information matrix --- the negative Hessian of $\ell$ evaluated at the MLE, returned directly by `optim` via `hessian = TRUE` --- used in place of the expected Fisher information $\mathcal{I}(\boldsymbol\beta) = -E(\nabla^2 \ell)$. These are asymptotically equivalent under standard regularity conditions, though the distinction is worth noting: With $n = 23$ and $p = 5$, these intervals rely heavily on asymptotic normality and should be interpreted with caution.
 
 ### Profile Method
 
@@ -464,7 +471,7 @@ kable(prof_tab,
 
 The confidence band for $\mu_i = \alpha x_i^{\beta x_i^{-\gamma}}$ uses the delta method with the $3 \times 3$ submatrix of $\widehat{\text{Cov}}$ corresponding to $(\alpha, \beta, \gamma)$. The derivatives are the same as in Q1.
 
-```{r q3-d, echo = F, message = F, warning = F, fig.height=4.5, fig.width=6, fig.cap="Fitted extended Freundlich curve with approximate 95\\% pointwise confidence band via the delta method. Scalar parameter CIs in (c) use profile intervals; the band uses the Wald delta method as profile bands for functions of multiple parameters are not standard."}
+```{r q3-d, echo = F, message = F, warning = F, fig.height=4.5, fig.width=6, fig.cap="Fitted extended Freundlich curve with approximate 95\\% pointwise confidence band via the delta method (not profile-based)."}
 
 alpha3 <- mle["alpha"]; beta3 <- mle["beta"]; gamma3 <- mle["gamma"]
 
@@ -507,9 +514,7 @@ kable(comp_tab,
       escape    = FALSE,
       align     = c("l", "r", "r", "r", "r"),
       col.names = c("Parameter", "Q1 GLS", "Q3 MLE", "Q1 GLS", "Q3 Profile"),
-      caption   = paste0("Point estimates and 95\\% CI widths by method (Q1 Wald, Q3 profile). ",
-                         "Mean confidence band half-width: Q1 = ",
-                         round(mean(hw), 4), ", Q3 = ", round(mean(hw3), 4), ".")) |>
+      caption   = "Point estimates and 95\\% CI widths by method (Q1 Wald, Q3 profile).") |>
   add_header_above(c(" " = 1, "Point Estimate" = 2, "CI Width" = 2)) |>
   kable_styling(latex_options = "HOLD_position", font_size = 10)
 
@@ -537,9 +542,9 @@ kable(cor_q3,
 
 The point estimates of $(\alpha, \beta, \gamma)$ shift noticeably between Q1 and Q3 --- most visibly $\hat\alpha$ moving from $0.5063$ to $0.7395$ --- because jointly estimating $\theta$ reweights the observations according to the AR(1) correlation structure rather than treating them as independent. When correlation parameters are known, GLS with $\Sigma^{-1}(\theta)$ as a fixed weight matrix improves efficiency over the iid estimator. When they must be estimated jointly, however, the additional uncertainty in $\theta$ and $\sigma^2$ propagates into the regression parameters and can widen confidence intervals.
 
-The profile CI widths under Q3 are wider than Q1 Wald for $\alpha$ and $\gamma$, narrower for $\beta$ — likely because the shift in $\hat\beta$ toward the interior of the likelihood ridge under Q3 places it in a region of higher curvature — and the mean confidence band half-width increases from $0.6225$ to $0.9666$. The inadmissible Wald lower bound of $-0.4834$ for $\alpha$ is replaced by a profile lower bound of $0.0801$, correctly respecting the $\alpha > 0$ constraint. This reflects the additional uncertainty introduced by estimating $\theta$ and $\sigma^2$ jointly with the regression parameters: the likelihood surface is more diffuse in the $(\alpha, \beta, \gamma)$ directions once the correlated error structure is acknowledged, and the Q1 covariance matrix, which ignored this coupling, was understating that uncertainty. It should also be noted that Table 4 compares Q1 Wald intervals to Q3 profile intervals --- methodologically distinct constructions. Profile intervals are generally wider than Wald when the likelihood surface is asymmetric, so part of the observed width difference reflects the interval type rather than purely the model specification change.
+The profile CI widths under Q3 are wider than Q1 Wald for $\alpha$ and $\gamma$, narrower for $\beta$ — likely because the shift in $\hat\beta$ toward the interior of the likelihood ridge under Q3 places it in a region of higher curvature — and the mean confidence band half-width increases from $0.6225$ to $0.9666$. The inadmissible Wald lower bound of $-0.4834$ for $\alpha$ is replaced by a profile lower bound of $0.0801$, respecting the $\alpha \geq 0$ constraint. This reflects the additional uncertainty introduced by estimating $\theta$ and $\sigma^2$ jointly with the regression parameters: the likelihood surface is more diffuse in the $(\alpha, \beta, \gamma)$ directions once the correlated error structure is built in, and the Q1 covariance matrix, which ignored this coupling, was understating that uncertainty. It should also be noted that Table 4 compares Q1 Wald intervals to Q3 profile intervals --- which are distinct constructions. Profile intervals are generally wider than Wald when the likelihood surface is asymmetric, so part of the observed width difference reflects the interval type rather than purely the model specification change.
 
-Part of the observed width difference is also attributable to $\hat\sigma^2_{\text{Q1}} = 1.015 > \hat\sigma^2_{\text{MLE}} = 0.625$, which inflates Q1 standard errors; the Q3 intervals would be even wider if $\sigma^2$ were held equal across methods. The estimated correlations among the regression parameter estimators also shift under Q3, with $|\hat\rho_{\alpha,\beta}| \approx 0.97$ under both methods indicating that the likelihood surface is extremely flat along the $(\alpha, \beta)$ ridge --- meaning individual parameter estimates are highly sensitive to small perturbations regardless of the fitting method, and the wide confidence intervals are intrinsic to the model structure rather than an artifact of the estimation procedure.
+Part of the observed width difference is also attributable to $\hat\sigma^2_{\text{Q1}} = 1.015 > \hat\sigma^2_{\text{MLE}} = 0.625$. Because Q1 uses a larger variance estimate, its standard errors are inflated relative to what they would be under the correct innovation variance. If both methods used the same $\sigma^2$ — say, the MLE value of $0.625$ — the Q1 intervals would be narrower still, meaning the structural difference between the models (ignoring vs.\ jointly estimating the AR(1) structure) accounts for \emph{more} of the width increase than the raw comparison in Table 4 suggests. The currently observed Q3 $>$ Q1 width comparison therefore understates the true inferential cost of the iid misspecification. The estimated correlations among the regression parameter estimators also shift under Q3, with $|\hat\rho_{\alpha,\beta}| \approx 0.97$ under both methods indicating that the likelihood surface is extremely flat along the $(\alpha, \beta)$ ridge --- meaning individual parameter estimates are highly sensitive to fluctuations regardless of the fitting method, and the wide confidence intervals are intrinsic to the model structure rather than an artifact of the estimation procedure.
 
 ## **(f)** A comparison of the small-scale component ($\theta$, $\sigma^2$) to the optimal estimating equation results from Q2. Two estimates of $\theta$ and three estimates of $\sigma^2$ are available (Q3 MLE, Q1 GLS, Q2 moment-based). Discuss any differences.
 
@@ -574,7 +579,7 @@ kable(all_s2,
   kable_styling(latex_options = "HOLD_position", font_size = 10)
 ```
 
-The two estimates of $\theta$ agree closely: the Q2 optimal estimating equation yields $\hat\theta = 0.5422$ and the Q3 MLE yields $\hat\theta = 0.5598$. Both target the same parameter but differ in how they handle the regression function. The Q2 estimate used raw residuals from the misspecified iid model of Q1 as surrogates for $w_i$, introducing noise from the first-stage estimation; the Q3 MLE estimates $\theta$ simultaneously with $(\alpha, \beta, \gamma)$, which should reduce that bias. The small discrepancy is consistent with this explanation.
+The two estimates of $\theta$ largely agree: the Q2 optimal estimating equation yields $\hat\theta = 0.5422$ and the Q3 MLE yields $\hat\theta = 0.5598$. Both target the same parameter but differ in how they handle the regression function. The Q2 estimate used raw residuals from the misspecified iid model of Q1 as surrogates for $w_i$, introducing noise from the first-stage estimation; the Q3 MLE estimates $\theta$ simultaneously with $(\alpha, \beta, \gamma)$, which should reduce that bias. The small discrepancy is consistent with this explanation.
 
 For $\sigma^2$, the three estimators target different quantities, as established in Q2(d): the Q1 GLS estimate of $1.0149$ targets the marginal variance $\sigma^2 / (1 - \theta^2)$ and is therefore expected to be the largest when $\theta > 0$. Both the Q2 moment-based estimate ($0.6573$) and the Q3 MLE ($0.6250$) target the innovation variance $\sigma^2$, and are indeed substantially smaller. The Q2 version inherits approximation error from using Q1 residuals instead of true $w_i$ values, while the Q3 MLE is obtained from the correctly specified joint model; the remaining discrepancy of $0.0323$ between them is attributable to that first-stage approximation.
 
@@ -588,7 +593,9 @@ Additionally, discuss which asymptotic context for composite likelihood is most 
 
 ## **(a)** Expression for the Log Composite Likelihood
 
-Given the model $w_i = Y_i - \mu_i$ and the AR(1) structure $w_i = \theta w_{i-1} + \epsilon_i$ with $\epsilon_i \sim N(0, \sigma^2)$. Since $w_i \mid w_{i-1} \sim N(\theta w_{i-1}, \sigma^2)$, the conditional distribution of $Y_i$ given $Y_{i-1} = y_{i-1}$ is
+We are given the model $w_i = Y_i - \mu_i$ and the AR(1) structure $w_i = \theta w_{i-1} + \epsilon_i$ with $\epsilon_i \sim N(0, \sigma^2)$. 
+
+Since $w_i \mid w_{i-1} \sim N(\theta w_{i-1}, \sigma^2)$, the conditional distribution of $Y_i$ given $Y_{i-1} = y_{i-1}$ is
 
 $$
 Y_i \mid Y_{i-1} = y_{i-1} \sim N\!\bigl(\mu_i + \theta(y_{i-1} - \mu_{i-1}),\; \sigma^2\bigr).
@@ -608,7 +615,7 @@ $$
        = -\frac{1}{2}\log(2\pi) - \frac{1}{2}\log\sigma^2 - \frac{\epsilon_i^2}{2\sigma^2}.
 $$
 
-Summing over $i = 2, \ldots, n$, the constants $-\tfrac{1}{2}\log(2\pi)$ and $-\tfrac{1}{2}\log\sigma^2$ each accumulate $n-1$ times and $\sigma^2$ factors out of the sum, giving the pairwise conditional log composite likelihood
+Summing over $i = 2, \ldots, n$, the constants $-\tfrac{1}{2}\log(2\pi)$ and $-\tfrac{1}{2}\log\sigma^2$ are summed $n-1$ times, with a factor of $\sigma^2$ able to be pulled out of the sum, giving the pairwise conditional log composite likelihood
 
 $$
 \ell_C = \sum_{i=2}^n \ell_i
@@ -616,7 +623,7 @@ $$
        = -\frac{n-1}{2}\log(2\pi) - \frac{n-1}{2}\log\sigma^2 - \frac{1}{2\sigma^2}\sum_{i=2}^n \epsilon_i^2.
 $$
 
-The composite likelihood thus conditions on $Y_1$ (i.e., sums from $i = 2$), whereas the full likelihood in Q3 used $w_0 = 0$ to include $i = 1$, so the two differ by exactly one term.
+Note: The composite likelihood thus conditions on $Y_1$ (i.e., sums from $i = 2$), whereas the full likelihood in Q3 used $w_0 = 0$ to include $i = 1$, so the two differ by exactly one term.
 
 ```{r q4-loglik, echo = F, message = F, warning = F}
 # Log composite likelihood: sum of conditional pieces i = 2, ..., n
@@ -669,15 +676,15 @@ names(mcle) <- c("alpha", "beta", "gamma", "theta", "sigma2")
 
 ## **(b)** Maximization
 
-The log composite likelihood was maximized using `optim` with `method = "BFGS"`, using Q1 GLS estimates as starting values for $(\alpha, \beta, \gamma)$ and $\theta_0 = 0$, $\sigma^2_0 = \hat\sigma^2_{\text{Q1}}$.
+The log composite likelihood was maximized using `optim` with `method = "BFGS"`, using Q1 GLS estimates as starting values for $(\alpha, \beta, \gamma)$ and $\theta_0 = 0$, $\sigma^2_0 = \hat\sigma^2_{\text{Q1}}$, though other starting values were also considered to ensure appropriate convergence.
 
 ## **(c)** MCLEs, Confidence Intervals, and Maximized Log Composite 
 
-Two sets of 95\% confidence intervals are reported in Table~9: Godambe Wald (sandwich covariance $\hat{G}^{-1}$) and Godambe-adjusted profile (preferred). the adjusted profile threshold requires the $\lambda_\psi$ scaling correction derived below; the adjusted profile intervals are preferred as they correctly respect the $\alpha > 0$ boundary and account for likelihood asymmetry.
+Two sets of 95\% confidence intervals are reported in Table~9: Godambe Wald (sandwich covariance $\hat{G}^{-1}$) and Godambe-adjusted profile. The adjusted profile threshold requires the $\lambda_\psi$ scaling correction derived below; similar to Q3, the adjusted profile intervals are preferred as they correctly respect the $\alpha \geq 0$ (and $\beta \geq 0$) boundary and account for likelihood asymmetry.
 
 ## Asymptotic Context and Godambe Information
 
-This problem falls under Asymptotic Context II (Ch. 9.3.2): a single realization of a length-$n = 23$ dependent sequence, not independent replicates of a multivariate vector. Neither formal asymptotic result from Ch. 9 applies directly. Context I requires iid replicates, which are unavailable. The Comets--Janzura result for Context II requires translation-invariant conditional specification, which fails here because $\mu_i$ varies with the covariate. The question is then whether computing empirical analogs of $H$ and $J$ has any theoretical grounding, or whether it is purely heuristic --- and the honest answer is that the grounding is weaker than in either formal context. What follows provides the best available justification by drawing on Geyer's (2020) lecture notes on unbiased estimating equations and Geyer's (2013) paper on likelihood asymptotics without the LLN, CLT, or sample size going to infinity, while acknowledging that the bootstrap remains the more reliable alternative at $n = 23$.
+This problem falls under Asymptotic Context II (Ch. 9.3.2): a single realization of a length-$n = 23$ dependent sequence. Neither formal asymptotic result from Ch. 9 applies directly. Context I requires iid replicates, which are unavailable. The Comets--Janzura result for Context II requires translation-invariant conditional specification, which fails here because $\mu_i$ varies with the covariate. The question is then whether computing empirical analogs of $H$ and $J$ has any theoretical grounding, or whether it is purely heuristic. What follows represents a good-faith attempt to understand that grounding; a fully rigorous treatment is beyond both the scope of the question and the course.
 
 The justification lies in the structure of the AR(1) model itself. Each piece of the conditional composite likelihood conditions on $Y_{i-1}$, so the residual entering $\ell_i$ is exactly $\epsilon_i = e_i \sim \mathrm{iid}\; N(0, \sigma^2)$. The piece score $\nabla\ell_i$ is a function of $e_i$ and $Y_{i-1}$, and because $e_i \perp Y_{i-1}$ by the AR(1) structure,
 
@@ -685,15 +692,13 @@ $$
 E[\nabla\ell_i \mid Y_{i-1}] = 0.
 $$
 
-The sequence $\{\nabla\ell_i(\boldsymbol\psi_0)\}$ evaluated at the \emph{true} parameter $\boldsymbol\psi_0$ is therefore a martingale difference sequence (MDS) — a concept not covered in this course, but one that carries a CLT and LLN under mild regularity conditions, without requiring iid replicates and without requiring stationarity of the $Y_i$ themselves. At the \emph{estimated} $\hat{\boldsymbol\psi}$, the MDS property holds only approximately; the standard justification appeals to continuity of the score and consistency of the MCLE, which together imply that $\nabla\ell_i(\hat{\boldsymbol\psi}) \approx \nabla\ell_i(\boldsymbol\psi_0) + o_p(1)$ termwise, preserving the asymptotic structure. In the language of Geyer (2020), the composite score is an unbiased estimating function whose asymptotic variance takes the sandwich form $U^{-1}V(U^{-1})^T$, which is inverse Godambe information. The MDS property is precisely what makes the natural estimators of $U$ and $V$ --- namely $\hat{H}$ and $\hat{J}$ --- consistent as estimators of those matrices (conditions (8) and (9) of Geyer (2020), which are the requirements for the sandwich covariance to be valid). 
+The sequence $\{\nabla\ell_i(\boldsymbol\psi_0)\}$ evaluated at the true parameter $\boldsymbol\psi_0$ is therefore a martingale difference sequence (MDS) — a concept not covered in this course, but one that carries a CLT and LLN under conditions that do not require iid replicates or second-order stationarity of the $Y_i$, though those conditions cannot be verified at $n = 23$. At the estimated $\hat{\boldsymbol\psi}$, the MDS property holds only approximately. In the language of Geyer (2020), the composite score is an unbiased estimating function whose asymptotic variance takes the sandwich form $U^{-1}V(U^{-1})^T$, which is inverse Godambe information. The MDS property is precisely what makes the natural estimators $\hat{H}$ and $\hat{J}$ consistent for those matrices (conditions (8) and (9) of Geyer (2020)).
 
-Geyer (2013) offers a complementary perspective: approximate normality of the MCLE follows if the composite log likelihood is approximately quadratic with Hessian approximately invariant in law, with no iid or stationarity requirement. Whether that holds here is an empirical question about this particular surface rather than a theoretical guarantee --- Geyer explicitly identifies the AR(1) likelihood as a non-example of LAN/LAMN (Geyer, 2013, Section 2.3).
-
-With $n = 23$ observations and five parameters, $\hat{H}$ and $\hat{J}$ should be interpreted cautiously regardless; the finite-sample performance of both matrices is uncertain. The MDS argument provides the theoretical grounding that makes computing the Godambe intervals meaningful rather than purely heuristic, and guarantees a limiting distribution for any bootstrap procedure to approximate. As noted in Ch. 9.3.3, the parametric bootstrap remains the more reliable alternative in practice.
+With $n = 23$ observations and five parameters, both matrices should be interpreted cautiously regardless; their finite-sample performance is uncertain. The MDS argument provides the theoretical grounding that makes computing Godambe intervals meaningful rather than purely heuristic, and guarantees a limiting distribution for any bootstrap procedure to approximate. As noted in Ch. 9.3.3, the parametric bootstrap remains the more reliable alternative in practice, particularly at $n = 23$.
 
 ## $\hat{H}$, $\hat{J}$, and Godambe-Based Intervals
 
-With this justification in hand, the empirical analogs are computed as follows. $\hat{H}$ is taken as the negative Hessian of $\ell_C$ evaluated at the MCLE, returned directly by `optim`. $\hat{J}$ is the sum of outer products of individual piece score vectors $\nabla\ell_i$, approximated by numerical central differences at the MCLE. This outer-product form parallels the Context I estimator in Ch. 9.3.1, but its justification here is the MDS structure described above rather than averaging over iid replicates; the Comets--Janzura neighborhood-sum form (Ch. 9, eq. 9.34) does not apply and is not used.
+With this justification in hand, imperfect as it is, the empirical analogs are computed as follows. $\hat{H}$ is taken as the negative Hessian of $\ell_C$ evaluated at the MCLE, returned directly by `optim`. $\hat{J}$ is the sum of outer products of individual piece score vectors $\nabla\ell_i$, approximated by numerical central differences at the MCLE. This outer-product form parallels the Context I estimator in Ch. 9.3.1, but its justification here is the MDS structure described above rather than averaging over iid replicates.
 
 Examining Tables 10 and 11, the $(3,3)$ elements of both $\hat{H}$ (38593.78) and $\hat{J}$ (40035.62) are very large relative to all others, reflecting high curvature in the $\gamma$ direction and indicating that $\gamma$ is the most precisely determined parameter locally. The large negative off-diagonal entries in rows/columns 1--3 and 2--3 are consistent with the high $(\alpha, \gamma)$ and $(\beta, \gamma)$ correlations seen in Table 15, and confirm that the identifiability challenges in this model are concentrated in the $(\alpha, \beta, \gamma)$ block.
 
@@ -724,11 +729,9 @@ $$
 
 Because $\hat{J} \approx \hat{H}$ numerically (Tables 10 and 11), $\lambda_\psi \approx 1$ for all parameters, so the correction has modest practical effect here. The adjusted profile intervals are reported alongside the Godambe Wald intervals in Table~9. Note that $\hat{H}$ and $\hat{J}$ are not available until after the Godambe computation; the profile grid is evaluated first and the threshold is applied retrospectively once $\lambda_\psi$ is known.
 
-The CIs in Table~9 reveal a consistent pattern across methods: $\alpha$ and $\beta$ shift monotonically as the likelihood changes (Q1 Wald $\to$ Q3 Profile $\to$ Q4), while $\gamma$ remains relatively stable. The Q4 Godambe intervals are wider than Q3 profile for $\alpha$ and $\beta$, reflecting the additional uncertainty from losing one observation in the pairwise conditional construction.
+The adjusted profile lower bound for $\gamma$ does not exist at the 95% level: the composite likelihood surface to the left of $\hat\gamma = 0.145$ remains above the adjusted threshold all the way to the parameter boundary, in contrast to the full likelihood of Q3, which yields a lower bound of $0.068$. This is a direct consequence of the composite likelihood using only $n - 1 = 22$ pairs rather than all $n = 23$ observations --- the reduction in information is just enough (in this instance) to render $\gamma$'s lower bound undefined under the composite likelihood.
 
-The adjusted profile lower bound for $\gamma$ does not exist at the 95% level: the composite likelihood surface to the left of $\hat\gamma = 0.145$ remains above the adjusted threshold all the way to the parameter boundary, in contrast to the full likelihood of Q3, which descends below its threshold and yields a lower bound of $0.068$. This is a direct consequence of the composite likelihood using only $n - 1 = 22$ pairs rather than all $n = 23$ observations --- the reduction in information is just enough to render $\gamma$'s lower bound undefined under the composite likelihood.
-
-Because the $(\alpha, \beta, \gamma)$ block of the adjusted profile covariance is not well-defined when one marginal profile is unbounded, a $\delta$-method confidence band cannot be constructed from it in the usual way. The Godambe Wald covariance $\hat{G}^{-1}$ is therefore used for the band, despite its inadmissible lower bound for $\alpha$ of $-0.818$.
+Because the $(\alpha, \beta, \gamma)$ block of the adjusted profile covariance is not well-defined when one marginal profile is unbounded, a delta-method confidence band cannot be constructed from it in the usual way. The Godambe Wald covariance $\hat{G}^{-1}$ is therefore used for the band, despite its inadmissible lower bound for $\alpha$ of $-0.818$.
 
 ```{r q4-intervals, echo = F, message = F, warning = F}
 cov_wald4 <- solve(fit4$hessian)
@@ -909,9 +912,9 @@ kable(J_tab,
 
 ## **(d)** Fitted Curve and 95% Pointwise Confidence Band
 
-For scalar parameters, the Godambe-adjusted profile intervals (Table~9) are preferred. However, constructing a pointwise confidence band requires a well-defined joint covariance matrix over $(\alpha, \beta, \gamma)$ via the delta method, and this cannot be formed from the adjusted profile: the profile lower bound for $\gamma$ does not exist at the 95% level, leaving the $(\alpha, \beta, \gamma)$ covariance block undefined. The Godambe Wald covariance $\hat{G}^{-1}$ is therefore used for the band~--- not as an approximation to the profile, but as the only well-defined joint covariance available.
+Constructing a pointwise confidence band via the delta method requires a joint covariance matrix over $(\alpha, \beta, \gamma)$, not a collection of marginal profile intervals. The Godambe Wald covariance $\hat{G}^{-1}$ is therefore used for the band as the natural sandwich covariance for the composite likelihood. Note that this choice is independent of the $\gamma$ lower-bound issue: even if all five adjusted profile CIs had well-defined bounds, the delta-method band would still require $\hat{G}^{-1}$ rather than marginal profile information.
 
-```{r q4-band, echo=F, message=F, warning=F, fig.height=4.5, fig.width=6, fig.pos="H", fig.cap="Fitted extended Freundlich curve with approximate 95\\% pointwise confidence band based on the Godambe covariance. Band uses the delta method with the $(\\alpha,\\beta,\\gamma)$ block of $\\hat{G}^{-1}$; see Q3(d) for the analogous Wald construction."}
+```{r q4-band, echo=F, message=F, warning=F, fig.height=4.5, fig.width=6, fig.pos="H", fig.cap="Fitted extended Freundlich curve with approximate 95\\% pointwise confidence band based on the Godambe covariance."}
 mugrid4 <- efctn(xgrid, mcle[1:3])
 Dgrid4  <- eders(xgrid, mcle[1:3])
 cov_abg4 <- cov_god[1:3, 1:3]
@@ -949,12 +952,35 @@ kable(comp_pt4,
   kable_styling(latex_options = "HOLD_position", font_size = 10)
 
 # --- CI widths
+# comp_width4 <- data.frame(
+#   Parameter      = pnames3,
+#   Width_Q1       = unname(round(2 * z95 * sqrt(diag(fit1$covb)), 4)),
+#   # Width_Q3       = unname(round(2 * z95 * se_mle[1:3],           4)),
+#   Width_Q3 = unname(round(prof_upper[1:3] - prof_lower[1:3], 4)),
+#   Width_Q4_Wald  = unname(round(2 * z95 * se_wald4[1:3],         4)),
+#   Width_Q4_God   = unname(round(2 * z95 * se_god[1:3],           4))
+# )
+# 
+# kable(comp_width4,
+#       format    = "latex",
+#       booktabs  = TRUE,
+#       escape    = FALSE,
+#       align     = c("l", "r", "r", "r", "r"),
+#       col.names = c("Parameter", "Q1 GLS", "Q3 MLE", "Q4 Wald", "Q4 Godambe"),
+#       caption   = paste0("95\\% CI widths for large-scale parameters across methods ",
+#                          "(Q1 Wald, Q3 profile, Q4 Wald and Godambe). ",
+#                          "Mean confidence band half-width (Q4): ",
+#                          round(mean(hw4), 4), ".")) |>
+#   add_header_above(c(" " = 1, " " = 1, " " = 1, "Q4" = 2)) |>
+#   kable_styling(latex_options = "HOLD_position", font_size = 10)
+prof_god_width <- prof_god_upper[1:3] - gp_lower_clean[1:3]
+# gamma lower is NA so its width is NA (one-sided interval)
+
 comp_width4 <- data.frame(
   Parameter      = pnames3,
   Width_Q1       = unname(round(2 * z95 * sqrt(diag(fit1$covb)), 4)),
-  # Width_Q3       = unname(round(2 * z95 * se_mle[1:3],           4)),
-  Width_Q3 = unname(round(prof_upper[1:3] - prof_lower[1:3], 4)),
-  Width_Q4_Wald  = unname(round(2 * z95 * se_wald4[1:3],         4)),
+  Width_Q3       = unname(round(prof_upper[1:3] - prof_lower[1:3], 4)),
+  Width_Q4_Prof  = unname(round(prof_god_width, 4)),
   Width_Q4_God   = unname(round(2 * z95 * se_god[1:3],           4))
 )
 
@@ -963,11 +989,10 @@ kable(comp_width4,
       booktabs  = TRUE,
       escape    = FALSE,
       align     = c("l", "r", "r", "r", "r"),
-      col.names = c("Parameter", "Q1 GLS", "Q3 MLE", "Q4 Wald", "Q4 Godambe"),
+      col.names = c("Parameter", "Q1 GLS", "Q3 MLE", "Q4 Profile", "Q4 Godambe"),
       caption   = paste0("95\\% CI widths for large-scale parameters across methods ",
-                         "(Q1 Wald, Q3 profile, Q4 Wald and Godambe). ",
-                         "Mean confidence band half-width (Q4): ",
-                         round(mean(hw4), 4), ".")) |>
+                         "(Q1 Wald, Q3 profile, Q4 adjusted profile and Godambe Wald). ",
+                         "Q4 profile width for $\\gamma$ is one-sided (lower bound undefined).")) |>
   add_header_above(c(" " = 1, " " = 1, " " = 1, "Q4" = 2)) |>
   kable_styling(latex_options = "HOLD_position", font_size = 10)
 
@@ -1033,29 +1058,52 @@ plot(sqrt(x), stdres_q4, xlab = expression(sqrt("Covariate Value")), ylab = "",
 abline(h = 0, lty = 3)
 ```
 
-The point estimates show a clear monotone progression across methods: $\hat\alpha$ increases from 0.506 (Q1) to 0.740 (Q3) to 1.063 (Q4), while $\hat\beta$ and $\hat\gamma$ decrease correspondingly. This reflects movement along the likelihood ridge defined by the near-collinearity  among the large-scale parameters (Table 14: $\hat{\rho}_{\alpha,\beta} = -0.980$, $\hat{\rho}_{\alpha,\gamma} = -0.845$), not sampling noise. The direction of the progression is also structurally meaningful: Q1 ignores $\theta$ entirely, Q3 conditions on $w_0 = 0$ using all $n$ terms, and Q4 conditions on $Y_1$ using only $n - 1$ terms, so each successive reduction in the likelihood contributes to the shift.
+The point estimates show a monotonically increase across methods: $\hat\alpha$ increases from 0.506 (Q1) to 0.740 (Q3) to 1.063 (Q4), while $\hat\beta$ and $\hat\gamma$ decrease correspondingly. This reflects movement along the likelihood ridge defined by the near-collinearity  among the large-scale parameters (Table 14: $\hat{\rho}_{\alpha,\beta} = -0.980$, $\hat{\rho}_{\alpha,\gamma} = -0.845$). The direction of the progression is also meaningful: Q1 ignores $\theta$ entirely, Q3 conditions on $w_0 = 0$ using all $n$ terms, and Q4 conditions on $Y_1$ using only $n - 1$ terms, so each successive reduction in the likelihood contributes to the shift.
 
-The CI widths in Table 13 tell a nuanced story. Q4 Wald intervals are the widest for every parameter --- substantially so for $\alpha$ (5.467 vs 2.170 under Q3 profile) --- because the inverse-Hessian covariance inherits the near-singular curvature of the five-parameter surface without the stabilizing contribution of the first observation. The Godambe-based intervals are uniformly narrower than Q4 Wald, because $\hat{J} \approx \hat{H}$ numerically (Tables 11 and 12), so the sandwich correction $\hat{H}^{-1}\hat{J}\hat{H}^{-1}$ deflates slightly relative to $\hat{H}^{-1}$ alone. With only $n - 1 = 22$ outer products contributing to $\hat{J}$, the agreement may partly reflect insufficient sample size to reliably distinguish the two matrices --- though under correct model specification $J = H$ is expected asymptotically, so the approximate equality is at minimum consistent with an adequate composite likelihood specification.
+The CI widths in Table 13 compare Q1 Wald, Q3 profile, and Q4 adjusted profile alongside Q4 Godambe Wald. For scalar inference the adjusted profile is preferred for the same reasons as in Q3: it respects parameter boundaries and accounts for likelihood asymmetry. The $\gamma$ lower bound remains undefined under the composite likelihood, now identified as a one-sided interval. The Godambe Wald widths are included for reference and because the delta-method confidence band in (d) must use $\hat{G}^{-1}$.
 
-The standardized residual plots (Figure 3) look visually similar across all three methods, but the comparison is asymmetric: the Q3 and Q4 innovation residuals ($\hat\epsilon_i = \hat{w}_i - \hat\theta\hat{w}_{i-1}$) have had the AR(1) dependence explicitly removed by construction, so their lack of trend confirms whitening rather than model adequacy. More notable is the mild cyclical pattern present in all three panels --- positive residuals at low and high covariate values, with a slight dip in the mid-range --- which points to a small remaining misspecification in $\mu_i$ itself rather than the error structure. This would be consistent with the extended Freundlich curve being an empirical approximation that may not perfectly capture the sorption mechanism across the full covariate range (Sibbesen, 1981). With $n = 23$ this cannot be formally tested, but it is a limitation worth acknowledging.
+The Q4 adjusted profile widths for $\alpha$ and $\beta$ are wider than Q3 profile --- substantially so for $\alpha$ (3.311 vs 2.170) --- because the inverse-Hessian covariance inherits the near-singular curvature of the five-parameter surface without the stabilizing contribution of the first observation. The Godambe-based intervals are uniformly narrower than Q4 Wald, because $\hat{J} \approx \hat{H}$ numerically (Tables 11 and 12), so the sandwich correction $\hat{H}^{-1}\hat{J}\hat{H}^{-1}$ deflates slightly relative to $\hat{H}^{-1}$ alone. With only $n - 1 = 22$ outer products contributing to $\hat{J}$, the agreement may partly reflect insufficient sample size to reliably distinguish the two matrices --- though under correct model specification $J = H$ is expected asymptotically, so the approximate equality is at minimum consistent with an adequate composite likelihood specification.
+
+The standardized residual plots of Figure 4 look visually similar across all three methods, but the comparison is asymmetric: the Q3 and Q4 innovation residuals ($\hat\epsilon_i = \hat{w}_i - \hat\theta\hat{w}_{i-1}$) have had the AR(1) dependence explicitly removed by construction. More notable is the mild cyclical pattern present in all three panels --- positive residuals at low and high covariate values, with a slight dip in the mid-range --- which points to a small remaining misspecification in $\mu_i$ itself rather than the error structure. This would be consistent with the extended Freundlich curve being an empirical approximation that may not perfectly capture the sorption mechanism across the full covariate range (alluded to in Sibbesen, 1981). With $n = 23$ this cannot be formally tested, but it is a limitation worth acknowledging.
 
 ## **(f)** Comparison of Small-Scale Component
 
 ```{r q4-comp-small, echo = F, message = F, warning = F}
+# comp_small4 <- data.frame(
+#   Quantity = c("$\\theta$", "$\\sigma^2$"),
+#   Q2_OptEE = unname(round(c(theta_opt, s2_opt),       4)),
+#   Q3_MLE   = unname(round(mle[c("theta", "sigma2")],  4)),
+#   Q4_MCLE  = unname(round(mcle[c("theta", "sigma2")], 4))
+# )
+# 
+# kable(comp_small4,
+#       format    = "latex",
+#       booktabs  = TRUE,
+#       escape    = FALSE,
+#       align     = c("l", "r", "r", "r"),
+#       col.names = c("Quantity", "Q2 Optimal EE", "Q3 MLE", "Q4 MCLE"),
+#       caption   = "Comparison of small-scale parameter estimates across methods.") |>
+#   kable_styling(latex_options = "HOLD_position", font_size = 10)
+# 
 comp_small4 <- data.frame(
-  Quantity = c("$\\theta$", "$\\sigma^2$"),
-  Q2_OptEE = unname(round(c(theta_opt, s2_opt),       4)),
-  Q3_MLE   = unname(round(mle[c("theta", "sigma2")],  4)),
-  Q4_MCLE  = unname(round(mcle[c("theta", "sigma2")], 4))
+  Quantity   = c("$\\theta$", "$\\sigma^2$"),
+  Q2_OptEE   = unname(round(c(theta_opt, s2_opt),       4)),
+  Q3_MLE     = unname(round(mle[c("theta", "sigma2")],  4)),
+  Q3_CI      = c(paste0("(", round(prof_lower[4], 3), ", ", round(prof_upper[4], 3), ")"),
+                 paste0("(", round(prof_lower[5], 3), ", ", round(prof_upper[5], 3), ")")),
+  Q4_MCLE    = unname(round(mcle[c("theta", "sigma2")], 4)),
+  Q4_CI      = c(paste0("(", round(prof_god_lower[4], 3), ", ", round(prof_god_upper[4], 3), ")"),
+                 paste0("(", round(prof_god_lower[5], 3), ", ", round(prof_god_upper[5], 3), ")"))
 )
 
 kable(comp_small4,
       format    = "latex",
       booktabs  = TRUE,
       escape    = FALSE,
-      align     = c("l", "r", "r", "r"),
-      col.names = c("Quantity", "Q2 Optimal EE", "Q3 MLE", "Q4 MCLE"),
-      caption   = "Comparison of small-scale parameter estimates across methods.") |>
+      align     = c("l", "r", "r", "l", "r", "l"),
+      col.names = c("Quantity", "Q2 Optimal EE", "Q3 MLE", "Q3 95\\% Profile CI",
+                    "Q4 MCLE", "Q4 95\\% Adj. Profile CI"),
+      caption   = "Comparison of small-scale parameter estimates with profile confidence intervals. Q3 uses standard profile; Q4 uses Godambe-adjusted profile.") |>
   kable_styling(latex_options = "HOLD_position", font_size = 10)
 
 all_s2_4 <- data.frame(
@@ -1074,7 +1122,7 @@ kable(all_s2_4,
   kable_styling(latex_options = "HOLD_position", font_size = 10)
 ```
 
-The Q4 estimates of $\theta$ and $\sigma^2$ are close to Q3, as expected given that the two likelihoods differ by exactly one term. The small monotone progression in $\hat\theta$ (0.542 $\to$ 0.560 $\to$ 0.575 across Q2, Q3, Q4) is consistent with successive reduction of first-stage approximation error: Q2 uses residuals from misspecified large-scale parameters, Q3 jointly estimates all parameters from the full conditional likelihood, and Q4 does the same from the pairwise conditional likelihood. The $\sigma^2$ estimates follow the same hierarchy noted in Q2(d) and Q3(f): Q1 GLS is substantially larger (1.015) because it targets the marginal variance, while Q2, Q3, and Q4 all target the innovation variance directly and are in close agreement (0.657, 0.625, 0.644).
+The Q4 estimates of $\theta$ and $\sigma^2$ are close to Q3, as expected given that the two likelihoods differ by exactly one term. The small (but monotonically increasing) progression in $\hat\theta$ (Q2: 0.542, Q3: 0.560, Q4: 0.575) is consistent with successive reduction of first-stage approximation error: Q2 uses residuals from misspecified large-scale parameters, Q3 jointly estimates all parameters from the full conditional likelihood, and Q4 does the same from the pairwise conditional likelihood. The $\sigma^2$ estimates follow the same hierarchy noted in Q2(d) and Q3(f): Q1 GLS is substantially larger (1.015) because it targets the marginal variance, while Q2, Q3, and Q4 all target the innovation variance directly and are in close agreement (0.657, 0.625, 0.644).
 
 \newpage 
 
@@ -1086,9 +1134,11 @@ A two-stage estimation strategy would consist of estimating $\alpha$, $\beta$, $
 
 The first-stage GLS fit assumes $w_i \overset{iid}{\sim} N(0,\sigma^2)$. When the true errors follow an AR(1) process with $\theta \approx 0.56$, this misspecification has two compounding consequences.
 
-First, the GLS estimating equations use weight matrix $W = I$ in place of the efficient $\Sigma^{-1}(\theta)$, producing a consistent but inefficient estimator of $(\alpha, \beta, \gamma)$ in large samples. The Q1 covariance matrix, which assumes $W = I$, is therefore incorrect even as a large-sample approximation, and the resulting standard errors are unreliable for inference regardless of what happens in Stage 2.
+First, the GLS estimating equations use weight matrix $W = I$ in place of the efficient $\Sigma^{-1}(\theta)$, producing a consistent but inefficient estimator of $(\alpha, \beta, \gamma)$. The Q1 covariance matrix, which assumes $W = I$, is therefore incorrect even as a large-sample approximation, and the resulting standard errors are unreliable for inference regardless of what happens in Stage 2.
 
-Second, and more critically, the Q1 raw residuals $\hat{e}_i = y_i - \mu_i(\hat\alpha,\hat\beta,\hat\gamma)$ are noisy surrogates for the true $w_i$, subject to systematic finite-sample distortion. The difference
+Second, and more critically, the Q1 raw residuals $\hat{e}_i = y_i - \mu_i(\hat\alpha,\hat\beta,\hat\gamma)$ are noise-filled surrogates for the true $w_i$. 
+
+The difference
 
 $$
 \hat{e}_i - w_i = \mu_i(\alpha,\beta,\gamma) - \mu_i(\hat\alpha,\hat\beta,\hat\gamma)
@@ -1100,11 +1150,11 @@ is a smooth nonlinear function of the Stage 1 parameter estimation error. Becaus
 
 The naive estimating equation applied to Q1 residuals returned $\tilde\theta_{\text{naive}} = 1.005$, outside the stationary parameter space $|\theta| < 1$. This is a symptom of the trend contamination described above, not a sampling anomaly: the systematic residual pattern visible in the Q1 panel of Figure 3 — positive residuals at low and high covariate values, a slight dip in the mid-range — is exactly the signature of a misspecified error structure, and the naive estimating function has no mechanism to separate genuine autocorrelation from it.
 
-The optimal estimating equation fares better ($\tilde\theta_{\text{opt}} = 0.542$) because multiplying by $W_{i-1}$ down-weights large residuals and focuses on local lag-1 relationships, making it more robust to the smooth global trend. Nevertheless $\tilde\theta_{\text{opt}} = 0.542$ remains below the Q3 MLE of $0.560$: the smooth trend in $\hat{e}_i - w_i$ reduces the apparent lag-1 dependence, attenuating the autocorrelation estimate toward zero relative to its true value.
+The optimal estimating equation fares better ($\tilde\theta_{\text{opt}} = 0.542$) because multiplying by $W_{i-1}$ down-weights large residuals and focuses on local lag-1 relationships, making it more robust to the smooth global trend. The direction of the remaining discrepancy between $\tilde\theta_{\text{opt}}$ and the Q3 MLE is not straightforward to sign analytically. Writing $\hat{e}_i = w_i + d_i$ where $d_i = \mu_i(\alpha,\beta,\gamma) - \mu_i(\hat\alpha,\hat\beta,\hat\gamma)$ is the Stage 1 estimation error, the numerator of $\tilde\theta_{\text{opt}}$ acquires cross terms involving $d_i$ and the denominator acquires $\sum d_{i-1}^2$, so the ratio can shift in either direction depending on the relative magnitudes. The observed difference $\tilde\theta_{\text{opt}} = 0.542$ vs.\ $\hat\theta_{\text{MLE}} = 0.560$ is $0.018$ — well within sampling variability at $n = 23$ — and is not by itself sufficient to establish the direction or source of bias. The substantive point stands: $\tilde\theta_{\text{opt}}$ uses noise-contaminated surrogates for $w_i$, and the Q3 MLE avoids this by estimating all parameters jointly.
 
 ## Efficiency loss relative to the joint MLE
 
-```{r q5-bands, echo = F, message = F, warning = F, fig.height=4.5, fig.width=9, fig.cap="Fitted extended Freundlich curves with approximate 95\\% pointwise confidence bands: Q1 GLS (left), Q3 MLE (center), Q4 MCLE/Godambe (right)."}
+```{r q5-bands, echo = F, message = F, warning = F, fig.height=4.5, fig.width=9, fig.cap="Fitted extended Freundlich curves with approximate 95\\% pointwise confidence bands."}
 ylim_shared <- range(c(mugrid  - hw,  mugrid  + hw,
                        mugrid3 - hw3, mugrid3 + hw3,
                        mugrid4 - hw4, mugrid4 + hw4, y))
@@ -1151,22 +1201,21 @@ kable(summary_tab,
       align     = c("l", "r", "r", "r"),
       col.names = c("Method", "$\\hat{\\theta}$",
                     "$\\hat{\\sigma}^2$", "Mean Confidence Band Half Width"),
-      caption = "Small-scale estimates and mean confidence band half-widths across all methods.") |>
-  kable_styling(latex_options = "HOLD_position", font_size = 10)
+      caption = "Small-scale estimates and mean confidence band half-widths across all methods.") |>   kable_styling(latex_options = "HOLD_position", font_size = 10)
 ```
 
 As established in Q2(d), Q1 GLS targets the marginal variance $\sigma^2/(1-\theta^2)$ while all remaining methods target the innovation variance $\sigma^2$ directly.
 
-Beyond the finite-sample distortion already described, efficiency is lost relative to the joint MLE even asymptotically. The Q3 MLE shifts $\hat\alpha$ from $0.506$ to $0.739$ and $\hat\beta$ from $1.222$ to $1.028$ — non-trivial movements that reflect the reweighting of observations once the AR(1) structure is correctly incorporated. This loss is a meaningful finite-sample concern: because the likelihood couples the regression and AR(1) parameters, the two-stage estimator with a fixed $W = I$ weight matrix is inefficient. In large samples, a \emph{feasible} GLS procedure that first estimates $\theta$ consistently and then uses $\hat\Sigma^{-1}(\hat\theta)$ as the weight matrix can recover the asymptotic efficiency of the joint MLE under standard regularity conditions---the two-stage procedure as described here does not do this, because Stage 1 fixes $W = I$ rather than iterating. The efficiency loss is therefore a consequence of the specific implementation, not an inherent property of decoupled estimation.
+Beyond the finite-sample distortion already described, efficiency is lost relative to the joint MLE even asymptotically. The Q3 MLE shifts $\hat\alpha$ from $0.506$ to $0.739$ and $\hat\beta$ from $1.222$ to $1.028$ — reflecting the reweighting of observations once the AR(1) structure is incorporated (or, perhaps, imposed). This loss is a meaningful finite-sample concern: because the likelihood couples the regression and AR(1) parameters, the two-stage estimator with a fixed $W = I$ weight matrix is inefficient. In large samples, a \emph{feasible} GLS procedure that first estimates $\theta$ consistently and then uses $\hat\Sigma^{-1}(\hat\theta)$ as the weight matrix would recover asymptotic efficiency. The two-stage procedure as described here cannot, because Stage 1 fixes $W = I$ rather than iterating.
 
 Figure 5 and Table 17 make the practical consequence visible across all methods simultaneously. The Q1 confidence band is the narrowest of the three, but this narrowness is illusory — it reflects the iid assumption forcing underestimation of uncertainty rather than genuine precision. The Q3 and Q4 bands are wider throughout, and correctly so: they acknowledge the curvature of the five-parameter likelihood surface and the correlation structure of the errors jointly. The mean band half-widths in Table 17 (0.623 for Q1, 0.967 for Q3, 1.028 for Q4) quantify this directly. The Q4 band is the widest because the Godambe sandwich covariance, even approximately, propagates more uncertainty than the inverse Hessian alone. Taken together, Figure 5 and Table 17 provide the clearest single summary of why the two-stage procedure understates inferential uncertainty: its narrow band is not an achievement but a consequence of ignoring what Q3 and Q4 explicitly model.
 
 ## The Q4 composite likelihood provides corroborating evidence
 
-The Q4 MCLE is close to Q3 ($\hat\theta = 0.575$, $\hat\sigma^2 = 0.644$), confirming that adjacent pairs carry most of the information about $\theta$ and that Q3 and Q4 are in close numerical agreement throughout. But constructing even approximately valid interval estimates for Q4 required invoking martingale difference sequence theory outside the course syllabus, and the Godambe-based intervals carry a formal caveat at $n = 23$. This is itself informative: the inferential difficulty that Q4 makes explicit is the same difficulty that the two-stage procedure sidesteps by ignoring the correlation structure entirely.
+The Q4 MCLE is close to Q3 ($\hat\theta = 0.575$, $\hat\sigma^2 = 0.644$), confirming that adjacent pairs carry most of the information about $\theta$ and that the two approaches are in close numerical agreement. That agreement is reassuring, but it comes at a cost: constructing even approximately valid interval estimates for Q4 required reaching outside the course material entirely, invoking martingale difference sequence theory that I will be the first to admit sits at the edge of my own understanding. What I can say with confidence is that such theory carries its own conditions, none of which can be meaningfully verified in this setting. The intervals are not without theoretical basis, but the finite-sample warrant for that basis is genuinely weak, and I would not overstate it. The inferential difficulty that Q4 makes explicit is the same difficulty the two-stage procedure sidesteps by ignoring the correlation structure entirely — and ignoring it does not make it go away.
 
 ## Conclusion
 
-The two-stage procedure fails for compounding reasons: a misspecified Stage 1 weight matrix, systematically distorted residuals passed to Stage 2, and an efficiency loss that persists even asymptotically because the likelihood couples the regression and AR(1) parameters. The numerical evidence is consistent: $\tilde\theta_{\text{naive}} > 1$ signals trend contamination, $\tilde\theta_{\text{opt}}$ is attenuated toward zero, and the Q1 confidence band is artificially narrow. Figure 4 and Table 18 bring the full picture into focus.
+The two-stage procedure as implemented here fails for compounding reasons: a misspecified Stage 1 weight matrix ($W = I$ rather than $\hat{\Sigma}^{-1}(\hat\theta)$), systematically distorted residuals passed to Stage 2, and an efficiency loss relative to the joint MLE that reflects the specific choice to fix the weight matrix rather than iterate. The numerical evidence is consistent: $\tilde\theta_{\text{naive}} > 1$ signals trend distortion, $\tilde\theta_{\text{opt}}$ is displaced from the true value, and the Q1 confidence band is artificially narrow. Figure 5 and Table 17 bring the full picture into focus.
 
-Among the estimators considered, the joint MLE of Q3 is the most defensible. For formal inference at this sample size, a parametric bootstrap calibrated to the Q3 model would be the natural next step.
+Among the estimators considered, the joint MLE of Q3 is the most defensible. More broadly, the Godambe-based inference explored in Q4 — while a worthwhile exercise in understanding the theory — is, in practice, ill-advised in this setting. A single realization of length $n = 23$ provides no replication, and neither formal asymptotic context from Ch. 9 applies cleanly. The MDS argument offers a theoretical framework, but it cannot substitute for the asymptotics the problem requires. For formal inference at this sample size, a parametric bootstrap calibrated to the Q3 model would be the natural and preferred alternative. Such an approach would require no appeal to asymptotic normality and respects parameter boundaries naturally, two conditions that make both Wald and profile intervals imprecise at $n = 23$ (perhaps a hint at what's to come).
