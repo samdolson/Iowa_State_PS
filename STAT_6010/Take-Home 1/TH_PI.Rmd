@@ -608,13 +608,13 @@ We are given the model $w_i = Y_i - \mu_i$ and the AR(1) structure $w_i = \theta
 Since $w_i \mid w_{i-1} \sim N(\theta w_{i-1}, \sigma^2)$, the conditional distribution of $Y_i$ given $Y_{i-1} = y_{i-1}$ is
 
 $$
-Y_i \mid Y_{i-1} = y_{i-1} \sim N\!\bigl(\mu_i + \theta(y_{i-1} - \mu_{i-1}),\; \sigma^2\bigr).
+A_i \equiv Y_i \mid Y_{i-1} = y_{i-1} \sim N\!\bigl(\mu_i + \theta(y_{i-1} - \mu_{i-1}),\; \sigma^2\bigr).
 $$
 
 The corresponding conditional density is
 
 $$
-f(y_i \mid y_{i-1}) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\!\left(-\frac{\bigl[(y_i - \mu_i) - \theta(y_{i-1} - \mu_{i-1})\bigr]^2}{2\sigma^2}\right).
+f(a_i) \equiv f(y_i \mid y_{i-1}) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\!\left(-\frac{\bigl[(y_i - \mu_i) - \theta(y_{i-1} - \mu_{i-1})\bigr]^2}{2\sigma^2}\right).
 $$
 
 Letting $\epsilon_i = (y_i - \mu_i) - \theta(y_{i-1} - \mu_{i-1})$ and applying log simplification rules, each conditional log-likelihood piece is
@@ -704,15 +704,66 @@ $$
 
 The sequence $\{\nabla\ell_i(\boldsymbol\psi_0)\}$ evaluated at the true parameter $\boldsymbol\psi_0$ is a martingale difference sequence (MDS). Notably, this concept is not covered in this course; that point notwithstanding, MDS admits a CLT and LLN under conditions that do not require iid replicates or second-order stationarity of the $Y_i$, though those conditions cannot be verified with the information and assumptions given. At the estimated $\hat{\boldsymbol\psi}$, the MDS property holds only approximately. In the language of Geyer (2020), the composite score is an unbiased estimating function whose asymptotic variance takes the sandwich form $U^{-1}V(U^{-1})^T$, which is inverse Godambe information. The MDS property is what makes the natural estimators $\hat{H}$ and $\hat{J}$ consistent for those matrices (conditions (8) and (9) of Geyer (2020)).
 
-With $n = 23$ observations and five parameters, both matrices should be interpreted cautiously regardless: because $\hat{H}$ and $\hat{J}$ must be estimated empirically from sums of $n - 1 = 22$ score contributions, small samples can produce unstable estimates of the sandwich variance, and their finite-sample performance is uncertain. The MDS argument provides the theoretical grounding that makes computing Godambe intervals meaningful rather than purely heuristic, and guarantees a limiting distribution for any bootstrap procedure to approximate. As noted in Ch. 9.3.3, the parametric bootstrap remains the more reliable alternative in practice, particularly fpr $n = 23$.
+With $n = 23$ observations and five parameters, both matrices should be interpreted cautiously regardless: because $\hat{H}$ and $\hat{J}$ must be estimated empirically from sums of $n - 1 = 22$ score contributions, small samples can produce unstable estimates of the sandwich variance. The MDS argument provides theoretical justification though, and guarantees a limiting distribution for an appropriate bootstrap procedure to approximate. As noted in Ch. 9.3.3, the parametric bootstrap remains the more reliable alternative in practice, particularly for $n = 23$.
 
 Note: The Geyer references are noted at the end of this exam under "Outside Resources". 
 
 ## $\hat{H}$, $\hat{J}$, and Godambe-Based Intervals
 
-With this justification, imperfect as it may be, the empirical analogs are computed as follows. The Godambe information matrix is $G = H^{-1} J H^{-1}$, with $H = -E[\nabla^2 \ell_C]$ and $J = \text{Var}[\nabla \ell_C]$, such that $\hat{G}^{-1} = \hat{H}^{-1} \hat{J} \hat{H}^{-1}$ serves as the sandwich covariance for the MCLE. $\hat{H}$ is taken as the negative Hessian of $\ell_C$ evaluated at the MCLE, returned directly by \texttt{optim}. $\hat{J}$ is the sum of outer products of individual piece score vectors $\nabla\ell_i$, approximated by numerical central differences at the MCLE. This outer-product form parallels the Context I estimator in Ch. 9.3.1.
+The Godambe information matrix is
 
-Examining Tables 10 and 11, the $(3,3)$ elements of both $\hat{H}$ (38593.78) and $\hat{J}$ (40035.62) are very large relative to all others, reflecting high curvature in the $\gamma$ direction and indicating that $\gamma$ is the most precisely determined parameter locally. The large negative off-diagonal entries in rows/columns 1--3 and 2--3 are consistent with the high $(\alpha, \gamma)$ and $(\beta, \gamma)$ correlations seen in Table 15, and confirm that the identifiability challenges in this model are concentrated in $(\alpha, \beta, \gamma)$
+$$
+G(\boldsymbol{\psi}) = H(\boldsymbol{\psi})\, J^{-1}(\boldsymbol{\psi})\, H(\boldsymbol{\psi}),
+$$
+
+where $\boldsymbol{\psi} = (\alpha, \beta, \gamma, \theta, \sigma^2)^\top$ denotes the full parameter vector (and using $\boldsymbol{\psi}$ throughout to avoid notational conflict with parameter $\theta$, consistent with its usage in Q3). 
+
+$H(\boldsymbol{\psi})$ is the $5 \times 5$ matrix with $uv$th element
+
+$$
+H_{u,v}(\boldsymbol{\psi}) = E\!\left[-\sum_{i=2}^{n}
+  \frac{\partial^{2} \ell_i(\boldsymbol{\psi})}
+       {\partial \psi_u \,\partial \psi_v}\right],
+$$
+
+and $J(\boldsymbol{\psi})$ is the $5 \times 5$ matrix with $uv$th element
+
+$$
+J_{u,v}(\boldsymbol{\psi}) = E\!\left[
+  \left(\sum_{i=2}^{n} \frac{\partial \ell_i(\boldsymbol{\psi})}{\partial \psi_u}\right)
+  \left(\sum_{i=2}^{n} \frac{\partial \ell_i(\boldsymbol{\psi})}{\partial \psi_v}\right)
+\right].
+$$
+
+With the justification of the previous section, the inverse Godambe matrix $\hat{G}^{-1} = \hat{H}^{-1}\hat{J}\hat{H}^{-1}$ serves as the sandwich covariance for the MCLE.  To see that both matrices are well-defined (or at least, defined) under the present model, note that the AR(1) structure of $\epsilon_i = (y_i - \mu_i) - \theta(y_{i-1} - \mu_{i-1})$ implies that for mean parameters $\psi_u \in \{\alpha, \beta, \gamma\}$ the derivative of $\epsilon_i$ with respect to $\psi_u$ propagates through both time points, producing the composite quantity
+
+$$
+d_i^{(u)} = \frac{\partial \mu_i}{\partial \psi_u}
+           - \theta \frac{\partial \mu_{i-1}}{\partial \psi_u}.
+$$
+
+The closed forms for the empirical matrices are then (after derivation and simplification)
+
+$$
+\hat{H}_{u,v} = \sum_{i=2}^{n} \frac{1}{\sigma^2}
+  \left[
+    d_i^{(u)}\,d_i^{(v)}
+    - \epsilon_i\!\left(
+        \frac{\partial^2\mu_i}{\partial\psi_u\partial\psi_v}
+      - \theta\frac{\partial^2\mu_{i-1}}{\partial\psi_u\partial\psi_v}
+      \right)
+  \right],
+$$
+
+$$
+\hat{J}^*_{u,v} = \sum_{i=2}^{n} s_{iu}\, s_{iv},
+\qquad
+s_{iu} = \frac{\partial \ell_i}{\partial \psi_u}\bigg|_{\hat{\boldsymbol{\psi}}},
+$$
+
+where $\hat{J}^*$ accumulates individual piece-score outer products; this is analogous to the Context I estimator (Ch.\ 9.3.1) when no iid replicates are available (hence $\hat{J}^*$ and not $\hat{J}$). In practice, $\hat{H}$ is taken as the negative Hessian of $\ell_C$ evaluated at the MCLE and returned directly by \texttt{optim}, and each $s_{iu}$ is obtained by numerical central differences of $\ell_i$ at the MCLE.
+
+Examining Tables 10 and 11, the $(3,3)$ elements of both $\hat{H}$ (38593.78) and $\hat{J}$ (40035.62) are large relative to all others, reflecting high curvature of the composite likelihood surface in the $\gamma$ direction and indicating that $\gamma$ is the most precisely determined parameter at the MCLE.  The large negative off-diagonal entries in rows/columns 1--3 and 2--3 are consistent with the $(\alpha,\gamma)$ and $(\beta,\gamma)$ correlations in Table 15, and confirm that the identifiability challenges in this model are concentrated in $(\alpha, \beta, \gamma)$.
 
 ## Profile Composite Likelihoods
 
@@ -739,9 +790,11 @@ $$
 \ell_C(\psi) \;\geq\; \hat\ell_C - \tfrac{1}{2}\,\lambda_\psi\,\chi^2_{0.95,\,1}.
 $$
 
-Because $\hat{J} \approx \hat{H}$ (see Tables 10 and 11), $\lambda_\psi \approx 1$ for all parameters, so the correction has modest practical effect here. The adjusted profile intervals are reported alongside the Godambe Wald intervals in Table~9. Note that $\hat{H}$ and $\hat{J}$ are not available until after the Godambe computation; the profile grid is evaluated first and the threshold is applied retrospectively once $\lambda_\psi$ is known.
+Because $\hat{J} \approx \hat{H}$ (see Tables 10 and 11), $\lambda_\psi \approx 1$ for all parameters, so the correction has modest practical effect here. The adjusted profile intervals are reported alongside the Godambe Wald intervals in Table~9. 
 
-Importantly, the adjusted profile lower bound for $\gamma$ does not exist at the 95% level: the composite likelihood surface to the left of $\hat\gamma = 0.145$ remains above the adjusted threshold all the way to the parameter boundary, in contrast to the full likelihood of Q3, which yields a lower bound of $0.068$. This is a direct consequence of the composite likelihood using only $n - 1 = 22$ pairs rather than all $n = 23$ observations. This reduction in information is just enough (in this instance) to render $\gamma$'s lower bound undefined under the composite likelihood. Figure~3 confirms this is a structural issue. The normed profile composite likelihood (y-axis of Figure 3) enters above the adjusted cutoff of $\approx 0.1465$ at the left boundary of the admissible parameter space ($\gamma > 0$) and never descends through it, rather than exhibiting the smooth symmetric crossing seen for the remaining parameters.
+Note: $\hat{H}$ and $\hat{J}$ are not available until after the Godambe computation; the profile grid is evaluated first and the threshold is applied retrospectively once $\lambda_\psi$ is known.
+
+Importantly, the adjusted profile lower bound for $\gamma$ does not exist at the 95% level: Tshe composite likelihood surface to the left of $\hat\gamma = 0.145$ remains above the adjusted threshold all the way to the parameter boundary, in contrast to the full likelihood of Q3, which yields a lower bound of $0.068$. This is a direct consequence of the composite likelihood using only $n - 1 = 22$ pairs rather than all $n = 23$ observations. This reduction in information is just enough (in this instance) to render $\gamma$'s lower bound undefined under the composite likelihood. Figure~3 confirms this is a structural issue. The normed profile composite likelihood (y-axis of Figure 3) enters above the adjusted cutoff of $\approx 0.1465$ at the left boundary of the admissible parameter space ($\gamma > 0$) and never descends through it, rather than exhibiting the smooth symmetric crossing seen for the remaining parameters.
 
 ```{r q4-intervals, echo = F, message = F, warning = F}
 cov_wald4 <- solve(fit4$hessian)
@@ -1097,7 +1150,7 @@ plot(sqrt(x), stdres_q4, xlab = expression(sqrt("Covariate Value")), ylab = "",
 abline(h = 0, lty = 3)
 ```
 
-The point estimates show a monotonically increasing progression across methods: $\hat\alpha$ increases from 0.506 (Q1) to 0.740 (Q3) to 1.063 (Q4), while $\hat\beta$ and $\hat\gamma$ decrease correspondingly. This reflects movement along the likelihood surface defined by the near-collinearity  among the large-scale parameters (Table 14: $\hat{\rho}_{\alpha,\beta} = -0.980$, $\hat{\rho}_{\alpha,\gamma} = -0.845$). It's worth emphasizing that Q1 ignores $\theta$ entirely, Q3 conditions on $w_0 = 0$ using all $n$ terms, and Q4 conditions on $Y_1$ using only $n - 1$ terms.
+The point estimates show a monotonically increasing progression across methods: $\hat\alpha$ increases from 0.506 (Q1) to 0.740 (Q3) to 1.063 (Q4), while $\hat\beta$ and $\hat\gamma$ decrease correspondingly. This reflects movement along the (composite) likelihood surface defined by the near-collinearity  among the large-scale parameters (Table 14: $\hat{\rho}_{\alpha,\beta} = -0.980$, $\hat{\rho}_{\alpha,\gamma} = -0.845$). It's worth emphasizing that Q1 ignores $\theta$ entirely, Q3 conditions on $w_0 = 0$ using all $n$ terms, and Q4 conditions on $Y_1$ using only $n - 1$ terms.
 
 The CI widths in Table 13 compare Q1 Wald, Q3 profile, and Q4 adjusted profile alongside Q4 Godambe Wald. For scalar inference the adjusted profile is preferred for the same reasons as in Q3: Profiling respects parameter boundaries and accounts for likelihood asymmetry. However, the $\gamma$ lower bound remains undefined under the composite likelihood, and becomes a one-sided interval. The Godambe Wald widths are included for reference and because the delta-method confidence band in (d) must use $\hat{G}^{-1}$.
 
