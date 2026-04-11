@@ -95,22 +95,20 @@ A major difficulty in what we did previously was determining a good covariance m
 
 Determine 95% confidence intervals for the five parameters of the model through the application of percentile bootstrap intervals for maximum likelihood estimation.
 
-**Methodology.** We construct 95% percentile bootstrap confidence intervals for each of the five model parameters $(\alpha, \beta, \gamma, \theta, \sigma^2)$ following the development in Section 10.3. The percentile interval is derived by assuming there exists some monotone symmetrizing transformation $\varphi = W(\theta)$ of the estimator; crucially, as noted following expression (10.15), the interval can be computed *without ever determining what that transformation is*. The result is that the $(1-\alpha)100\%$ percentile bootstrap interval for a scalar parameter takes the form
-
+**Methodology.** We construct 95% percentile bootstrap confidence intervals for each of the five model parameters $(\alpha, \beta, \gamma, \theta, \sigma^2)$ following the development in Section 10.3. The percentile interval is derived by assuming there exists some monotone symmetrizing transformation $\varphi = W(\hat\theta_n)$ of the estimator; crucially, as noted following expression (10.15), the interval can be computed *without ever determining what that transformation is*. The result is that the $(1-\alpha)100\%$ percentile bootstrap interval for a scalar parameter takes the form
 $$\left((\theta^*_n)_{[(M+1)\alpha/2]},\; (\theta^*_n)_{[(M+1)(1-\alpha/2)]}\right) \tag{10.15}$$
+where $(\theta^*_n)_{[k]}$ denotes the $k$th order statistic of the $M$ bootstrap estimates. That is, the interval endpoints are simply the empirical $\alpha/2$ and $1-\alpha/2$ quantiles of the bootstrap distribution of $\theta^*_{n,m}$.
 
-where $(\theta^*_n)_{[k]}$ denotes the $k$th order statistic of the $M$ bootstrap estimates. That is, the interval endpoints are simply the empirical $\alpha/2$ and $1-\alpha/2$ quantiles of the bootstrap distribution of $\hat\theta^*_n$.
+**Simulation from the fitted model.** We take $M = 999$ so that $(M+1)\cdot 0.025 = 25$ is an integer, satisfying the integrality condition noted after expression (10.10). For each bootstrap replicate $m = 1, \ldots, M$, we simulate $\mathbf{y}^*_m = (y^*_1, \ldots, y^*_n)^T$ from the fitted model $F(\mathbf{y} \mid \hat\theta_n)$ --- the model estimated at the MLE from the observed data, consistent with the general simulation framework described in Section 10.1. Because the model includes AR(1) errors, simulation requires drawing $\varepsilon_1^* \sim N\!\left(0,\, \hat\sigma^2/(1-\hat\theta^2)\right)$ from the stationary distribution and then propagating $\varepsilon_i^* = \hat\theta\,\varepsilon_{i-1}^* + \delta_i$ with $\delta_i \stackrel{iid}{\sim} N(0, \hat\sigma^2)$ for $i = 2, \ldots, n$. The simulated response is then $y_i^* = \hat\mu_i + \varepsilon_i^*$ where $\hat\mu_i = \hat\alpha\, x_i^{\hat\beta x_i^{-\hat\gamma}}$.
 
-**Simulation from the fitted model.** We take $M = 999$ so that $(M+1)\cdot 0.025 = 25$ is an integer, satisfying the integrality condition noted after expression (10.10). For each bootstrap replicate $m = 1, \ldots, M$, we simulate $\mathbf{y}^*_m = (y^*_1, \ldots, y^*_n)^T$ from the fitted model $F(\mathbf{y} \mid \hat\theta_n)$ — the model estimated at the MLE from the observed data, consistent with the general simulation framework described in Section 10.1. Because the model includes AR(1) errors, simulation requires drawing $\varepsilon_1^* \sim N\!\left(0,\, \hat\sigma^2/(1-\hat\theta^2)\right)$ from the stationary distribution and then propagating $\varepsilon_i^* = \hat\theta\,\varepsilon_{i-1}^* + \delta_i$ with $\delta_i \stackrel{iid}{\sim} N(0, \hat\sigma^2)$ for $i = 2, \ldots, n$. The simulated response is $y_i^* = \hat\mu_i + \varepsilon_i^*$ where $\hat\mu_i = \hat\alpha\, x_i^{\hat\beta x_i^{-\hat\gamma}}$.
+**Re-estimation.** Each bootstrap dataset $\mathbf{y}^*_m$ is re-fit by maximizing the same log-likelihood as in Q3, using the original MLE $\hat\theta_n$ as the starting point for BFGS optimization. This yields bootstrap estimates $\theta^*_{n,m}$ for $m = 1, \ldots, M$ in the notation of Section 10.1. Any replicate for which the optimizer fails to converge is discarded; we do not re-run to replace failed replicates, as repeatedly resampling until a convergence target is met would selectively exclude regions of the likelihood surface where optimization is difficult, potentially biasing the bootstrap distribution.
 
-**Re-estimation.** Each bootstrap dataset $\mathbf{y}^*_m$ is re-fit by maximizing the same log-likelihood as in Q3, using the original MLE $\hat\theta_n$ as the starting point for BFGS optimization. This yields bootstrap estimates $\theta^*_{n,m}$ for $m = 1, \ldots, M$, in the notation of Section 10.1. Any replicate for which the optimizer fails to converge is discarded; the number of retained fits $M_\text{eff}$ is reported.
+**Interval construction.** Of the $M = 999$ replicates, $M_\text{eff} = 988$ converged successfully and were retained (using `set.seed(42)`). Following expression (10.15), the 95% percentile interval for each parameter is the empirical 2.5% and 97.5% quantiles of the $M_\text{eff} = 988$ bootstrap estimates, computed via interpolation rather than exact order-statistic indexing since $(M_\text{eff} + 1) \cdot 0.025 = 24.725$ is no longer an integer. As Section 10.5 notes, discarding non-converging replicates conditions uncertainty estimation on estimable datasets, which may modestly understate uncertainty; with only 11 failures out of 999 this effect is expected to be negligible. No discrepancy function $h(\theta, \hat\theta_n)$ needs to be formed or inverted --- unlike the basic interval (10.10) or studentized interval (10.12) --- because the percentile method works directly on the empirical distribution of $\theta^*_{n,m}$.
 
-**Interval construction.** Following expression (10.15), the 95% percentile interval for each parameter is the 25th and 975th order statistics of the $M_\text{eff}$ bootstrap estimates. No discrepancy function $h(\theta, \hat\theta_n)$ needs to be formed or inverted — unlike the basic interval (10.10) or studentized interval (10.12) — because the percentile method works directly on the empirical distribution of $\theta^*_{n,m}$.
-
-It is worth noting the distinction from what Section 10.1 cautions against: we are *not* treating the empirical distribution of $\{\theta^*_{n,m}\}$ as a direct approximation to the sampling distribution of $\hat\theta_n$. Rather, the percentile method's validity rests on the existence of a transformation under which the basic bootstrap interval and the percentile interval coincide, as shown in expressions (10.13)–(10.15). The asymptotic-normal intervals from Q3 are included in the table for comparison, since one of the motivations for the bootstrap here — as stated in Section 10.2.1 — is precisely the difficulty in obtaining a reliable covariance matrix for use in expression (10.4).
+It is worth noting the distinction from what Section 10.1 cautions against: we are *not* treating the empirical distribution of $\{\theta^*_{n,m}\}$ as a direct approximation to the sampling distribution of $\hat\theta_n$. Rather, the percentile method's validity rests on the existence of a transformation under which the basic bootstrap interval and the percentile interval coincide, as shown in expressions (10.13) through (10.15). The asymptotic-normal intervals from Q3 are included in the table for comparison; the bootstrap offers an alternative that does not require directly inverting the observed information matrix for standard errors. However, this by no means eliminates the concerns of Part I regarding whether the relevant asymptotics hold. That being said, we nonetheless proceed.
 
 ```{r q1a, cache = T, echo = F, warning = F, messsage = F}
-set.seed(2025)
+set.seed(42)
 M <- 999   # (M+1)*0.025 = 25, integer ✓
 
 # Pull MLE components
@@ -149,14 +147,14 @@ for (m in seq_len(M)) {
 # --- drop any failed optimizations
 boot_mle <- boot_mle[complete.cases(boot_mle), ]
 M_eff    <- nrow(boot_mle)
-cat("Bootstrap fits retained:", M_eff, "of", M, "\n")
+# cat("Bootstrap fits retained:", M_eff, "of", M, "\n")
 
 # --- percentile intervals: (theta*_[(M+1)*q]) per Section 10.3
 ci_pct <- apply(boot_mle, 2, quantile, probs = c(0.025, 0.975), na.rm = TRUE)
 
 # --- display alongside MLEs and asymptotic-normal CIs for comparison
 param_tab <- data.frame(
-  Parameter = names(mle),
+  Parameter = c("$\\alpha$", "$\\beta$", "$\\gamma$", "$\\theta$", "$\\sigma^2$"),
   MLE       = round(mle, 4),
   Boot_Lo   = round(ci_pct["2.5%",  ], 4),
   Boot_Hi   = round(ci_pct["97.5%", ], 4),
@@ -164,26 +162,58 @@ param_tab <- data.frame(
   AN_Hi     = round(mle + z95 * se_mle, 4)
 )
 
-kable(param_tab,
-      col.names = c("Parameter", "MLE",
-                    "Boot 2.5%", "Boot 97.5%",
-                    "AN 2.5%",   "AN 97.5%"),
-      caption   = "95\\% Percentile Bootstrap and Asymptotic-Normal CIs",
-      booktabs  = TRUE, align = "lrrrrr") |>
-  kable_styling(latex_options = c("hold_position"))
+Parameter = I(c("$\\alpha$", "$\\beta$", "$\\gamma$", "$\\theta$", "$\\sigma^2$"))
+
+# kable(param_tab,
+#       col.names = c("Parameter", "MLE",
+#                     "Boot 2.5%", "Boot 97.5%",
+#                     "AN 2.5%",   "AN 97.5%"),
+#       caption   = "95\\% Percentile Bootstrap and Asymptotic-Normal CIs",
+#       booktabs  = TRUE,
+#       escape    = FALSE,
+#       row.names = FALSE,
+#       align     = "lrrrrr") |>
+#   kable_styling(latex_options = c("hold_position"))
+
+# kable(param_tab,
+#       format    = "latex",
+#       booktabs  = TRUE,
+#       escape    = FALSE,
+#       row.names = FALSE)
+```
+
+```{r testing, echo = F, results = "asis"}
+cat(sprintf(
+"\\begin{table}[H]
+\\centering
+\\caption{95\\%% Percentile Bootstrap and Asymptotic-Normal CIs}
+\\begin{tabular}{lrrrrr}
+\\toprule
+Parameter & MLE & Boot 2.5\\%% & Boot 97.5\\%% & AN 2.5\\%% & AN 97.5\\%% \\\\
+\\midrule
+$\\alpha$  & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\beta$   & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\gamma$  & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\theta$  & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\sigma^2$ & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+\\bottomrule
+\\end{tabular}
+\\end{table}",
+mle[1], ci_pct[1,1], ci_pct[2,1], mle[1]-z95*se_mle[1], mle[1]+z95*se_mle[1],
+mle[2], ci_pct[1,2], ci_pct[2,2], mle[2]-z95*se_mle[2], mle[2]+z95*se_mle[2],
+mle[3], ci_pct[1,3], ci_pct[2,3], mle[3]-z95*se_mle[3], mle[3]+z95*se_mle[3],
+mle[4], ci_pct[1,4], ci_pct[2,4], mle[4]-z95*se_mle[4], mle[4]+z95*se_mle[4],
+mle[5], ci_pct[1,5], ci_pct[2,5], mle[5]-z95*se_mle[5], mle[5]+z95*se_mle[5]
+))
 ```
 
 ## (b)
 
 Determine a 95% confidence band for the expectation function, also using percentile bootstrap methodology with maximum likelihood estimation.
 
-**Methodology.** A 95% pointwise confidence band for the expectation function $\mu(x;\, \alpha, \beta, \gamma) = \alpha x^{\beta x^{-\gamma}}$ is constructed by applying percentile bootstrap methodology directly to the functional quantity of interest. For each retained bootstrap replicate $m = 1, \ldots, M_\text{eff}$, the re-estimated parameters $(\hat\alpha^*_m, \hat\beta^*_m, \hat\gamma^*_m)$ from part (a) are used to evaluate the fitted curve over a grid of 300 equally spaced $x$-values spanning the observed covariate range, yielding $\mu^*_m(x_0) = \hat\alpha^*_m\, x_0^{\hat\beta^*_m x_0^{-\hat\gamma^*_m}}$ at each grid point $x_0$. Following expression (10.15), the pointwise 95% percentile interval at $x_0$ is then
+**Methodology.** A 95% pointwise confidence band for the expectation function $\mu(x;\, \alpha, \beta, \gamma) = \alpha x^{\beta x^{-\gamma}}$ is constructed by applying percentile bootstrap methodology directly to the functional quantity of interest. For each retained bootstrap replicate $m = 1, \ldots, M_\text{eff}$, the re-estimated parameters $(\hat\alpha^*_m, \hat\beta^*_m, \hat\gamma^*_m)$ from part (a) are used to evaluate the fitted curve over a grid of 300 equally spaced $x$-values spanning the observed covariate range, yielding $\mu^*_m(x_0) = \hat\alpha^*_m\, x_0^{\hat\beta^*_m x_0^{-\hat\gamma^*_m}}$ at each grid point $x_0$. Following expression (10.15), the pointwise 95% percentile interval at $x_0$ is the empirical 2.5% and 97.5% quantiles of $\{\mu^*_m(x_0) : m = 1, \ldots, M_\text{eff}\}$, computed via interpolation since $(M_\text{eff}+1)\cdot 0.025 = 24.725$ is not an integer. Sweeping this across all grid points produces the band shown in the figure. The band is *pointwise* in the sense that the nominal 95% coverage applies at each fixed $x_0$ separately, not simultaneously over the full curve.
 
-$$\left((\mu^*(x_0))_{[(M+1)\cdot 0.025]},\; (\mu^*(x_0))_{[(M+1)\cdot 0.975]}\right),$$
-
-taken as the 25th and 975th order statistics of $\{\mu^*_m(x_0) : m = 1, \ldots, M_\text{eff}\}$. Sweeping this across all grid points produces the band shown in the figure. The band is *pointwise* in the sense that the nominal 95% coverage applies at each fixed $x_0$ separately, not simultaneously over the full curve.
-
-Relative to the delta-method band from the earlier analysis — which propagates uncertainty through the analytic gradient $\mathbf{d}(x_0) = \partial\mu/\partial(\alpha,\beta,\gamma)$ and the estimated covariance matrix via $\hat{V}(\hat\mu(x_0)) = \mathbf{d}(x_0)^T \hat\Sigma\, \mathbf{d}(x_0)$ — the percentile band requires no gradient evaluation and no reliance on the accuracy of the inverse observed Fisher information as an approximation to $\Sigma$. It will also be naturally asymmetric about the fitted curve wherever the bootstrap distribution of $\mu^*(x_0)$ is skewed, a feature the symmetric delta-method band cannot capture.
+For comparison, a delta-method band is also shown. It propagates uncertainty through the analytic gradient $\mathbf{d}(x_0) = \partial\mu/\partial(\alpha,\beta,\gamma)$ and the estimated covariance matrix via $\hat{V}(\hat\mu(x_0)) = \mathbf{d}(x_0)^T \hat\Sigma\, \mathbf{d}(x_0)$, where $\hat\Sigma$ is the $(\alpha,\beta,\gamma)$ block of the full 5×5 inverse observed Hessian from the Q3 joint estimation under the AR(1) conditional likelihood. Both bands are centered on the same MLE curve $\hat\mu(x_0) = \hat\alpha\, x_0^{\hat\beta x_0^{-\hat\gamma}}$, so any visible differences reflect purely methodological differences in uncertainty quantification rather than differences in the underlying point estimate. The percentile band requires no gradient evaluation and no reliance on the accuracy of the inverse observed Fisher information as an approximation to $\Sigma$, and will be naturally asymmetric about the fitted curve wherever the bootstrap distribution of $\mu^*(x_0)$ is skewed --- a feature the symmetric delta-method band cannot capture.
 
 ```{r q1b, include = F, echo = F, warning = F, messsage = F}
 xgrid  <- seq(min(x[x > 0]), max(x), length.out = 300)
@@ -209,7 +239,7 @@ lines(xgrid, band_lo, lty = 2)
 xgrid  <- seq(min(x[x > 0]), max(x), length.out = 300)
 mugrid <- alpha_h * xgrid^(beta_h * xgrid^(-gamma_h))
 
-# --- Bootstrap percentile band (from part a bootstrap draws)
+# --- Bootstrap percentile band (from part (a) bootstrap draws)
 mu_boot <- matrix(NA_real_, nrow = M_eff, ncol = length(xgrid))
 for (m in seq_len(M_eff)) {
   a <- boot_mle[m, "alpha"]; b <- boot_mle[m, "beta"]; g <- boot_mle[m, "gamma"]
@@ -218,12 +248,17 @@ for (m in seq_len(M_eff)) {
 band_lo <- apply(mu_boot, 2, quantile, probs = 0.025)
 band_hi <- apply(mu_boot, 2, quantile, probs = 0.975)
 
-# --- Delta-method band (Q1 NLS fit)
-Dgrid <- eders(xgrid, bhat)
-pvar  <- apply(Dgrid, 1, function(d) t(d) %*% fit1$covb %*% d)
+# --- Delta-method band using Q3 joint MLE covariance
+# cov_mle is the full 5x5 inverse observed Hessian from joint estimation of
+# (alpha, beta, gamma, theta, sigma2) under the AR(1) conditional likelihood.
+# The [1:3, 1:3] block is the (alpha, beta, gamma) marginal covariance from
+# that joint fit — not a reduced-model covariance — so it correctly reflects
+# the non-iid estimation framework of Q3.
+Dgrid <- eders(xgrid, c(alpha_h, beta_h, gamma_h))
+pvar  <- apply(Dgrid, 1, function(d) t(d) %*% cov_mle[1:3, 1:3] %*% d)
 hw    <- z95 * sqrt(pvar)
-dm_lo <- efctn(xgrid, bhat) - hw
-dm_hi <- efctn(xgrid, bhat) + hw
+dm_lo <- mugrid - hw
+dm_hi <- mugrid + hw
 
 # --- Plot
 plot(x, y, xlab = "Covariate Value", ylab = "Response Value", main = "")
@@ -233,7 +268,7 @@ lines(xgrid, band_lo, lty = 2, col = "blue")
 lines(xgrid, dm_hi,   lty = 2, col = "red")
 lines(xgrid, dm_lo,   lty = 2, col = "red")
 legend("bottomright",
-       legend = c("MLE", "Percentile bootstrap", "Delta method"),
+       legend = c("MLE", "Percentile bootstrap", "Delta method (Q3)"),
        lty    = c(1, 2, 2),
        col    = c("black", "blue", "red"),
        lwd    = c(2, 1, 1))
@@ -284,7 +319,7 @@ Again the normalizing constant cancels in the MH ratio, so only $-|\theta|/0.35$
 ### Computation 
 
 ```{r q2-simSetup, echo = F, warning = F, messsage = F}
-set.seed(2025)
+set.seed(42)
 
 # ── Log-likelihood (AR(1) structure from Q3) ─────────────────────────────────
 log_lik <- function(alpha, beta, gamma, theta, sigma2, x, y, n) {
@@ -513,7 +548,7 @@ chain2 <- out2$chain
 chain3 <- out3$chain
 ```
 
-```{r q2a-trace, echo = F, warning = F, messsage = F, out.height="40%", out.width="90%"}
+```{r q2a-trace, echo = F, warning = F, messsage = F, out.height="45%", out.width="100%"}
 # Trace plot (all iterations, all chains)
 iter   <- seq_len(n_iter)
 ylim_a <- range(chain1[,"alpha"], chain2[,"alpha"], chain3[,"alpha"])
@@ -536,7 +571,7 @@ alpha_thin <- chain1[idx, "alpha"]
 #      main = expression("Trace Plot (thinned, Chain 1 post burn-in): " * alpha))
 ```
 
-```{r q2a-acf-plot, echo = F, warning = F, messsage = F, out.height="40%", out.width="90%"}
+```{r q2a-acf-plot, echo = F, warning = F, messsage = F, out.height="45%", out.width="100%"}
 acf(alpha_thin,
     main = expression("ACF (thinned): " * alpha))
 ```
@@ -615,7 +650,10 @@ post_all <- post_all[1:50000, ]
 post_df <- as.data.frame(post_all)
 post_df$sigma2 <- post_df$sigma^2
 post_df$sigma  <- NULL   # drop sigma, keep sigma2 to match MLE parameterization
+```
 
+```{r q2c-pt2, cache = T, echo = F, warning = F, message = F, results = "asis"}
+# ```{r q2c-pt2, cache = T, echo = F, warning = F, messsage = F}
 # ── Five-number summary ────────────────────────────────────────────────────────
 fivenum_tab <- t(apply(post_df, 2, function(v)
   c(Min    = min(v),
@@ -624,14 +662,38 @@ fivenum_tab <- t(apply(post_df, 2, function(v)
     Q3     = quantile(v, 0.75),
     Max    = max(v))))
 
-kable(round(fivenum_tab, 4),
-      col.names = c("Min", "Q1", "Median", "Q3", "Max"),
-      caption  = "Five-number summary of posterior samples ($M = 50{,}000$).",
-      booktabs = TRUE) |>
-  kable_styling(latex_options = "hold_position")
+# kable(round(fivenum_tab, 4),
+#       col.names = c("Min", "Q1", "Median", "Q3", "Max"),
+#       caption  = "Five-number summary of posterior samples ($M = 50{,}000$).",
+#       booktabs = TRUE) |>
+#   kable_styling(latex_options = "hold_position")
+fivenum_tab <- round(fivenum_tab, 4)
+
+cat(sprintf(
+"\\begin{table}[H]
+\\centering
+\\caption{Five-number summary of posterior samples ($M = 50{,}000$).}
+\\begin{tabular}{lrrrrr}
+\\toprule
+Parameter & Min & Q1 & Median & Q3 & Max \\\\
+\\midrule
+$\\alpha$   & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\beta$    & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\gamma$   & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\theta$   & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\sigma^2$ & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+\\bottomrule
+\\end{tabular}
+\\end{table}",
+fivenum_tab[1,1], fivenum_tab[1,2], fivenum_tab[1,3], fivenum_tab[1,4], fivenum_tab[1,5],
+fivenum_tab[2,1], fivenum_tab[2,2], fivenum_tab[2,3], fivenum_tab[2,4], fivenum_tab[2,5],
+fivenum_tab[3,1], fivenum_tab[3,2], fivenum_tab[3,3], fivenum_tab[3,4], fivenum_tab[3,5],
+fivenum_tab[4,1], fivenum_tab[4,2], fivenum_tab[4,3], fivenum_tab[4,4], fivenum_tab[4,5],
+fivenum_tab[5,1], fivenum_tab[5,2], fivenum_tab[5,3], fivenum_tab[5,4], fivenum_tab[5,5]
+))
 ```
 
-```{r q2c-pt2, cache = T, echo = F, warning = F, messsage = F}
+```{r q2c-pt3, cache = T, echo = F, warning = F, messsage = F}
 # ── 95% credible intervals ─────────────────────────────────────────────────────
 ci_bayes <- t(apply(post_df, 2, quantile, probs = c(0.025, 0.975)))
 
@@ -668,25 +730,53 @@ kable(ci_compare,
                      " " = 1),
                    escape = FALSE)
 
+```
+
+```{r q2c-pt4, cache = T, echo = F, warning = F, message = F, results = "asis"}
+# ```{r q2c-pt4, cache = T, echo = F, warning = F, messsage = F}
 # ── Posterior correlations ─────────────────────────────────────────────────────
 cor_tab <- round(cor(post_df), 4)
 
-kable(cor_tab,
-      caption  = "Posterior correlations among parameters ($M = 50{,}000$ samples).",
-      booktabs = TRUE) |>
-  kable_styling(latex_options = "hold_position")
+# kable(cor_tab,
+#       caption  = "Posterior correlations among parameters ($M = 50{,}000$ samples).",
+#       booktabs = TRUE) |>
+#   kable_styling(latex_options = "hold_position")
+cat(sprintf(
+"\\begin{table}[H]
+\\centering
+\\caption{Posterior correlations among parameters ($M = 50{,}000$ samples).}
+\\begin{tabular}{lrrrrr}
+\\toprule
+ & $\\alpha$ & $\\beta$ & $\\gamma$ & $\\theta$ & $\\sigma^2$ \\\\
+\\midrule
+$\\alpha$   & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\beta$    & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\gamma$   & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\theta$   & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+$\\sigma^2$ & %.4f & %.4f & %.4f & %.4f & %.4f \\\\
+\\bottomrule
+\\end{tabular}
+\\end{table}",
+cor_tab[1,1], cor_tab[1,2], cor_tab[1,3], cor_tab[1,4], cor_tab[1,5],
+cor_tab[2,1], cor_tab[2,2], cor_tab[2,3], cor_tab[2,4], cor_tab[2,5],
+cor_tab[3,1], cor_tab[3,2], cor_tab[3,3], cor_tab[3,4], cor_tab[3,5],
+cor_tab[4,1], cor_tab[4,2], cor_tab[4,3], cor_tab[4,4], cor_tab[4,5],
+cor_tab[5,1], cor_tab[5,2], cor_tab[5,3], cor_tab[5,4], cor_tab[5,5]
+))
 ```
 
-## (d) A scatterplot of the data with the median expectation function and a pointwise 95% credible band. Why might we prefer using the posterior medians here rather than the posterior means? Compare this Bayesian credible band to those constructed using likelihood theory, both asymptotic normality and as constructed by parametric bootstrap.
+## (d) 
+
+A scatterplot of the data with the median expectation function and a pointwise 95% credible band. Why might we prefer using the posterior medians here rather than the posterior means? Compare this Bayesian credible band to those constructed using likelihood theory, both asymptotic normality and as constructed by parametric bootstrap.
 
 **Why posterior medians rather than means.** The posterior distributions of $\alpha$ and $\beta$ are right-skewed — visible in the five-number summaries where Q3 $-$ Median $>$ Median $-$ Q1 for both parameters — and $\alpha$ in particular has a hard lower boundary at zero imposed by the truncated normal prior. The posterior mean is sensitive to skewness and to occasional large draws in the upper tail, making it a less stable summary of central tendency. The median is more robust to this skewness and, crucially, the plug-in curve $\mu(x; \tilde\alpha, \tilde\beta, \tilde\gamma)$ evaluated at the posterior medians $(\tilde\alpha, \tilde\beta, \tilde\gamma)$ is not the same as the pointwise posterior median of $\mu(x)$ — but it provides a single coherent curve rather than a parameter-by-parameter summary that may not correspond to any consistent parameter vector. For a nonlinear function like the extended Freundlich, the pointwise posterior median curve computed directly from the Monte Carlo draws, as done here, is generally preferred over plugging in marginal means precisely because it respects the joint posterior geometry.
 
-**Comparison of bands.** The most immediately striking feature of the plot is the separation between the two central curves — the posterior median curve sits visibly above the MLE throughout the middle of the covariate range, a direct consequence of the upward shift in the marginal posterior of $\alpha$ relative to its MLE documented in part (c). Regarding the bands themselves, the Bayesian credible band is the widest of the three at virtually every covariate value, and notably so at high covariate values where data are sparse — reflecting full propagation of posterior uncertainty across all five parameters simultaneously. The bootstrap band is intermediate in width and shares the Bayesian band's asymmetry, since both respect the nonlinearity of the expectation function rather than relying on a linear approximation. The delta-method band is the narrowest throughout and the most symmetric about its center curve, which is itself the NLS fit rather than the MLE — its underestimation of uncertainty is most visible at large covariate values and reflects both the linear approximation underlying the delta method and its failure to account for uncertainty in $\theta$ and $\sigma^2$, which the other two methods incorporate.
+**Comparison of bands.** The most immediately striking feature of the plot is the separation between the two central curves — the posterior median curve sits visibly above the MLE throughout the middle of the covariate range, a direct consequence of the upward shift in the marginal posterior of $\alpha$ relative to its MLE documented in part (c). Regarding the bands themselves, the Bayesian credible band is the widest of the three at virtually every covariate value, and notably so at high covariate values where data are sparse — reflecting full propagation of posterior uncertainty across all five parameters simultaneously. The bootstrap band is intermediate in width and shares the Bayesian band's asymmetry, since both respect the nonlinearity of the expectation function rather than relying on a linear approximation. The delta-method band is the narrowest throughout and the most symmetric about its center curve, which is shared with the bootstrap band — both are centered on the MLE $\hat\mu(x_0) = \hat\alpha\, x_0^{\hat\beta x_0^{-\hat\gamma}}$ from the Q3 joint fit. Its underestimation of uncertainty is most visible at large covariate values and reflects both the linear approximation underlying the delta method and its failure to propagate uncertainty in $\theta$ and $\sigma^2$, which the other two methods incorporate.
 
 ```{r q2d, echo = F, warning = F, messsage = F}
 xgrid <- seq(min(x[x > 0]), max(x), length.out = 300)
 
-# ── Posterior median curve and credible band ───────────────────────────────────
+# --- Posterior median curve and credible band
 mu_post <- matrix(NA_real_, nrow = nrow(post_df), ncol = length(xgrid))
 for (i in seq_len(nrow(post_df))) {
   a <- post_df$alpha[i]; b <- post_df$beta[i]; g <- post_df$gamma[i]
@@ -696,40 +786,41 @@ mu_med  <- apply(mu_post, 2, median)
 cred_lo <- apply(mu_post, 2, quantile, probs = 0.025)
 cred_hi <- apply(mu_post, 2, quantile, probs = 0.975)
 
-# MLE curve
-mu_mle  <- alpha_h * xgrid^(beta_h * xgrid^(-gamma_h))
+# --- MLE curve (shared center for bootstrap and delta-method bands)
+mu_mle <- alpha_h * xgrid^(beta_h * xgrid^(-gamma_h))
 
-# ── Plot ───────────────────────────────────────────────────────────────────────
+# --- Plot
 par(mar = c(7, 4, 2, 1))
-
 plot(x, y, xlab = "Covariate Value", ylab = "Response Value",
      main = "", pch = 16, cex = 0.7)
-
-# Curves
 lines(xgrid, mu_med, lwd = 2, col = "black")
-lines(xgrid, mu_mle, lwd = 2, col = "grey", lty = 1)
-
-# Bayes credible band: red dashed
-lines(xgrid, cred_hi, lty = 2, col = "red")
-lines(xgrid, cred_lo, lty = 2, col = "red")
-
-# Bootstrap band: blue dashed
+lines(xgrid, mu_mle, lwd = 2, col = "grey",   lty = 1)
+lines(xgrid, cred_hi, lty = 2, col = "purple")
+lines(xgrid, cred_lo, lty = 2, col = "purple")
 lines(xgrid, band_hi, lty = 2, col = "blue")
 lines(xgrid, band_lo, lty = 2, col = "blue")
-
-# Delta method band: blue dotted (likelihood-based, same family as bootstrap)
-lines(xgrid, dm_hi, lty = 2, col = "purple")
-lines(xgrid, dm_lo, lty = 2, col = "purple")
-
+lines(xgrid, dm_hi,   lty = 2, col = "red")
+lines(xgrid, dm_lo,   lty = 2, col = "red")
 legend(x = max(xgrid) * 0.55, y = max(y) * 0.35,
        legend = c("Posterior median", "MLE",
                   "Bayes 95% credible",
                   "Bootstrap 95% band",
                   "Delta method 95% band"),
-       col    = c("black", "grey", "red", "blue", "purple"),
-       lty    = c(1, 3, 2, 2, 2),
+       col    = c("black", "grey", "purple", "blue", "red"),
+       lty    = c(1, 1, 2, 2, 2),
        lwd    = c(2, 2, 1, 1, 1),
        bty    = "n", cex = 0.75)
+```
+
+\newpage 
+# Misc Note: 
+
+I'd be remiss not to note an ongoing concern with the progression of these models. While we motivate additional complexity in Part I and greater flexibility in estimation in Part II, the expectation function itself remains fixed throughout. This bears on the estimability discussion surrounding $\alpha$ and $\beta$ in the extended Freundlich model, as noted in class, but I believe additional nuance is warranted.
+
+Despite increasing the number of parameters to include estimation of both $\sigma^2$ and $\theta$, the extended Freundlich does not genuinely make the expectation function more flexible in its shape. To see why this matters, consider the original plot of the sorption data (included below): If one believes that the "oscillations" around covariate values 100 and 300 are real, insofar as they reflect a genuine feature of the underlying mechanism (or phenomenon resulting from said mechanism), then no reparameterization of the extended Freundlich can accommodate such behavior without changing the expectation function itself. This same limitation applies to the Fitter-Sutton equation ($m = Ac^B - D$), the "next-best" three-parameter model noted in Sibbesen (1981); this model too is similarly (functionally) constrained to monotone increasing behavior. The other literature you noted, Barrow (2023), details this issue as well, noting that purely empirical formulations of this family are ultimately approximations whose adequacy depends heavily on the concentration range studied. While Part I grapples with the inferential challenges arising from a single dependent sequence at $n=23$, and Part II pursues more reliable uncertainty bounds for the expectation function, the functional form of expectation presents a structural limitation that is distinct from, and not resolved by, the estimability concerns of the extended Freundlich.
+
+```{r, echo = F}
+plot(x, y, ylab = "Response Value", xlab = "Covariate Value", main = "Original Plot of Sorption Data")
 ```
 
 \newpage 
