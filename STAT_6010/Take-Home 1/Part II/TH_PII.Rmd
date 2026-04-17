@@ -88,6 +88,12 @@ ll_max     <- -fit3$value
 z95        <- qnorm(0.975)
 ```
 
+```{r cov-mat-full, echo = F, eval = F}
+cor_mle <- cov2cor(cov_mle)
+rownames(cor_mle) <- colnames(cor_mle) <- c("alpha", "beta", "gamma", "theta", "sigma2")
+knitr::kable(round(cor_mle, 4), digits = 4, caption = "Estimated correlation matrix of MLEs")
+```
+
 # Question 1
 
 A major difficulty in what we did previously was determining a good covariance matrix to use in the construction of confidence intervals based on asymptotic normality, regardless of whether that asymptotic normality was based on maximum likelihood or maximum composite likelihood estimation. One possible alternative to the direct use of asymptotic results is to compute intervals directly using parametric bootstrap methods.
@@ -102,15 +108,15 @@ where $(\theta^*_n)_{[k]}$ denotes the $k$th order statistic of the $M$ bootstra
 
 **Simulation from the fitted model.** We take $M = 999$ so that $(M+1)\cdot 0.025 = 25$ is an integer, satisfying the integrality condition noted after expression (10.10). For each bootstrap replicate $m = 1, \ldots, M$, we simulate $\mathbf{y}^*_m = (y^*_1, \ldots, y^*_n)^T$ from the fitted model $F(\mathbf{y} \mid \hat\theta_n)$ --- the model estimated at the MLE from the observed data, consistent with the general simulation framework described in Section 10.1. Because the model includes AR(1) errors, simulation requires drawing $\varepsilon_1^* \sim N\!\left(0,\, \hat\sigma^2/(1-\hat\theta^2)\right)$ from the stationary distribution and then propagating $\varepsilon_i^* = \hat\theta\,\varepsilon_{i-1}^* + \delta_i$ with $\delta_i \stackrel{iid}{\sim} N(0, \hat\sigma^2)$ for $i = 2, \ldots, n$. The simulated response is then $y_i^* = \hat\mu_i + \varepsilon_i^*$ where $\hat\mu_i = \hat\alpha\, x_i^{\hat\beta x_i^{-\hat\gamma}}$.
 
-**Re-estimation.** Each bootstrap dataset $\mathbf{y}^*_m$ is re-fit by maximizing the same log-likelihood as in Q3, using the original MLE $\hat\theta_n$ as the starting point for BFGS optimization. This yields bootstrap estimates $\theta^*_{n,m}$ for $m = 1, \ldots, M$ in the notation of Section 10.1. Any replicate for which the optimizer fails to converge is discarded; we do not re-run to replace failed replicates, as repeatedly resampling until a convergence target is met would selectively exclude regions of the likelihood surface where optimization is difficult, potentially biasing the bootstrap distribution.
+**Re-estimation.** Each bootstrap dataset $\mathbf{y}^*_m$ is re-fit by maximizing the same log-likelihood as in Q3, using the original MLE $\hat\theta_n$ as the starting point for BFGS optimization. This yields bootstrap estimates $\theta^*_{n,m}$ for $m = 1, \ldots, M$ in the notation of Section 10.1. It is important to clarify that the parametric bootstrap approximates the sampling distribution of the estimator as a *procedure*, not merely as a formal functional of the data. The estimator is defined implicitly through a numerical optimization routine, which may fail to converge for certain realizations of the data generated under the fitted model; for such datasets, the mapping from $\mathbf{y}^*_m$ to $\hat{\theta}^*_{n,m}$ is not well-defined in practice, and these replicates are therefore discarded. We do not resample to replace them, as doing so would alter the bootstrap data-generating mechanism by preferentially retaining datasets for which the likelihood surface is sufficiently regular, potentially excluding replicates corresponding to extreme parameter estimates and biasing the empirical distribution toward regions of the sample space where estimation is numerically stable.
 
-**Interval construction.** Of the $M = 999$ replicates, $M_\text{eff} = 988$ converged successfully and were retained (using `set.seed(42)`). Following expression (10.15), the 95% percentile interval for each parameter is the empirical 2.5% and 97.5% quantiles of the $M_\text{eff} = 988$ bootstrap estimates, computed via interpolation rather than exact order-statistic indexing since $(M_\text{eff} + 1) \cdot 0.025 = 24.725$ is no longer an integer. As Section 10.5 notes, discarding non-converging replicates conditions uncertainty estimation on estimable datasets, which may modestly understate uncertainty; with only 11 failures out of 999 this effect is expected to be negligible. No discrepancy function $h(\theta, \hat\theta_n)$ needs to be formed or inverted --- unlike the basic interval (10.10) or studentized interval (10.12) --- because the percentile method works directly on the empirical distribution of $\theta^*_{n,m}$.
+**Interval construction.** Of the $M = 999$ replicates, $M_\text{eff} = 988$ converged successfully and were retained (using `set.seed(42)`). Inference is therefore based on the empirical distribution of $\hat{\theta}^*_{n,m}$ conditional on successful convergence of the re-estimation procedure applied to $\mathbf{y}^*_m$. Following expression (10.15), the 95% percentile interval for each parameter is the empirical 2.5% and 97.5% quantiles of the $M_\text{eff} = 988$ bootstrap estimates, computed via interpolation rather than exact order-statistic indexing since $(M_\text{eff} + 1) \cdot 0.025 = 24.725$ is no longer an integer. This conditioning may modestly understate uncertainty, but with only 11 failures out of 999 the effect is expected to be negligible. No discrepancy function $h(\theta, \hat\theta_n)$ needs to be formed or inverted --- unlike the basic interval (10.10) or studentized interval (10.12) --- because the percentile method works directly on the empirical distribution of $\theta^*_{n,m}$.
 
 It is worth noting the distinction from what Section 10.1 cautions against: we are *not* treating the empirical distribution of $\{\theta^*_{n,m}\}$ as a direct approximation to the sampling distribution of $\hat\theta_n$. Rather, the percentile method's validity rests on the existence of a transformation under which the basic bootstrap interval and the percentile interval coincide, as shown in expressions (10.13) through (10.15). The asymptotic-normal intervals from Q3 are included in the table for comparison; the bootstrap offers an alternative that does not require directly inverting the observed information matrix for standard errors. However, this by no means eliminates the concerns of Part I regarding whether the relevant asymptotics hold. That being said, we nonetheless proceed.
 
 ```{r q1a, cache = T, echo = F, warning = F, message = F}
 set.seed(42)
-M <- 999   # (M+1)*0.025 = 25, integer ✓
+M <- 999   # (M+1)*0.025 = 25, integer 
 
 # Pull MLE components
 alpha_h <- mle["alpha"]; beta_h  <- mle["beta"]; gamma_h <- mle["gamma"]
@@ -557,18 +563,8 @@ chain2 <- out2$chain
 chain3 <- out3$chain
 ```
 
-```{r q2a-trace, echo = F, warning = F, message = F, out.height="45%", out.width="100%"}
-iter   <- seq_len(n_iter)
+```{r q2a-trace, eval = F, echo = F, warning = F, message = F, out.height="45%", out.width="100%"}
 ylim_a <- range(chain1[,"alpha"], chain2[,"alpha"], chain3[,"alpha"])
-
-# plot(iter, chain1[,"alpha"], type = "l", col = "black",
-#      ylim = ylim_a, xlab = "Iteration", ylab = expression(alpha),
-#      main = expression("Trace Plot: " * alpha))
-# lines(iter, chain2[,"alpha"], col = "blue")
-# lines(iter, chain3[,"alpha"], col = "red")
-# abline(v = burn, lty = 2, col = "gray50")        # burn-in cutoff
-# legend("topright", legend = paste("Chain", 1:3),
-#        col = c("black","blue","red"), lty = 1, bty = "n")
 
 par(mfrow = c(3, 1), mar = c(2, 4, 2, 1), oma = c(3, 0, 2, 0))
 
@@ -604,36 +600,161 @@ par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
 # mtext(expression("Trace Plot: " * alpha), side = 3, outer = TRUE, line = 0)
 # 
 # par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
+
+# iter   <- seq_len(n_iter)
+iter    <- seq_len(5000)
+# ylim_a <- range(chain1[,"alpha"], chain2[,"alpha"], chain3[,"alpha"])
+
+# plot(iter, chain1[1:5000,"alpha"], type = "l", col = "black",
+#      ylim = ylim_a, xlab = "Iteration", ylab = expression(alpha),
+#      main = expression("Trace Plot: " * alpha))
+# lines(iter, chain2[1:5000,"alpha"], col = "blue")
+# lines(iter, chain3[1:5000,"alpha"], col = "red")
+# abline(v = burn/2, lty = 2, col = "gray20")
+# abline(v = burn, lty = 2, col = "gray40")        # burn-in cutoff
+# legend("topright", legend = paste("Chain", 1:3),
+#        col = c("black","blue","red"), lty = 1, bty = "n")
+
+plot(iter, chain1[1:5000,"alpha"], type = "l",
+     col = adjustcolor("black", alpha.f = 0.75),
+     ylim = ylim_a, xlab = "Iteration", ylab = expression(alpha),
+     main = expression("Trace Plot: " * alpha))
+lines(iter, chain2[1:5000,"alpha"], col = adjustcolor("blue", alpha.f = 0.75))
+lines(iter, chain3[1:5000,"alpha"], col = adjustcolor("red", alpha.f = 0.75))
+abline(v = burn/2, lty = 2, col = "gray20")
+abline(v = burn, lty = 2, col = "gray40")
+legend("topright", legend = paste("Chain", 1:3),
+       col = c(adjustcolor("black", alpha.f = 0.75),
+               adjustcolor("blue",  alpha.f = 0.75),
+               adjustcolor("red",   alpha.f = 0.75)),
+       lty = 1, bty = "n")
 ```
 
-All three chains appear to have stabilized by around 2,000; so, we double it to 4,000 (dashed line) and use that as the burn-in.
+```{r comparing-trace-bounds1, echo = F, fig.height = 8, fig.width = 7}
+ylim_a <- range(chain1[,"alpha"], chain2[,"alpha"], chain3[,"alpha"])
+par(mfrow = c(2, 1))
 
-```{r q2a-acf-plot, echo = F, warning = F, message = F, out.height="45%", out.width="100%"}
+for (iter_max in c(100, 500)) {
+  iter <- seq_len(iter_max)
+  plot(iter, chain1[1:iter_max, "alpha"], type = "l",
+       col = adjustcolor("black", alpha.f = 0.75),
+       ylim = ylim_a, xlab = "Iteration", ylab = expression(alpha),
+       main = bquote("Trace Plot: " * alpha ~ "(" * .(iter_max) ~ "iterations)"))
+  lines(iter, chain2[1:iter_max, "alpha"], col = adjustcolor("blue", alpha.f = 0.75))
+  lines(iter, chain3[1:iter_max, "alpha"], col = adjustcolor("red",  alpha.f = 0.75))
+  abline(v = burn/2, lty = 2, col = "gray20")
+  abline(v = burn,   lty = 2, col = "gray40")
+  legend("topright", legend = paste("Chain", 1:3),
+         col = c(adjustcolor("black", alpha.f = 0.75),
+                 adjustcolor("blue",  alpha.f = 0.75),
+                 adjustcolor("red",   alpha.f = 0.75)),
+         lty = 1, bty = "n")
+}
+```
+
+```{r comparing-trace-bounds2, echo = F, fig.height = 8, fig.width = 7}
+par(mfrow = c(2, 1))
+
+for (iter_max in c(1000, 5000)) {
+  iter <- seq_len(iter_max)
+  plot(iter, chain1[1:iter_max, "alpha"], type = "l",
+       col = adjustcolor("black", alpha.f = 0.75),
+       ylim = ylim_a, xlab = "Iteration", ylab = expression(alpha),
+       main = bquote("Trace Plot: " * alpha ~ "(" * .(iter_max) ~ "iterations)"))
+  lines(iter, chain2[1:iter_max, "alpha"], col = adjustcolor("blue", alpha.f = 0.75))
+  lines(iter, chain3[1:iter_max, "alpha"], col = adjustcolor("red",  alpha.f = 0.75))
+  abline(v = burn/2, lty = 2, col = "gray20")
+  abline(v = burn,   lty = 2, col = "gray40")
+  legend("topright", legend = paste("Chain", 1:3),
+         col = c(adjustcolor("black", alpha.f = 0.75),
+                 adjustcolor("blue",  alpha.f = 0.75),
+                 adjustcolor("red",   alpha.f = 0.75)),
+         lty = 1, bty = "n")
+}
+
+par(mfrow = c(1, 1))
+```
+
+To determine an appropriate burn-in, three chains were initialized from dispersed starting values and run for several short trial lengths. Trace plots at 100 and 500 iterations show clear between-chain separation, with chains traversing distinct regions of the parameter space. By 1,000 iterations the chains overlap substantially, and by 2,000 iterations behavior is visually indistinguishable across chains — a conclusion that holds accounting for the visual compression inherent in plotting longer sequences. On this basis, 2,000 iterations (dark grey line of the final trace plot) was identified as a conservative stabilization point, and burn-in was set to double that, 4,000 iterations (lighter grey line of the final trace plot).
+
+```{r q2a-acf-plot, echo = F, warning = F, message = F, out.height="75%", out.width="100%"}
+par(mfrow = c(3, 1), mar = c(2, 4, 3, 1), oma = c(3, 0, 1, 0))
+
 alpha_postburn <- chain1[(burn + 1):n_iter, "alpha"]
 
 acf(alpha_postburn,
     main = expression("ACF (post burn-in, Chain 1): " * alpha))
 
-thin          <- 100
+thin          <- 50
 idx_thin      <- seq(burn + 1, n_iter, by = thin)
 alpha_thin    <- chain1[idx_thin, "alpha"]
 
 acf(alpha_thin,
+    main = expression("ACF (post burn-in, thinned by 50, Chain 1): " * alpha))
+
+thin2          <- 100
+idx_thin2      <- seq(burn + 1, n_iter, by = thin2)
+alpha_thin2    <- chain1[idx_thin2, "alpha"]
+
+acf(alpha_thin2,
     main = expression("ACF (post burn-in, thinned by 100, Chain 1): " * alpha))
+
+par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
 ```
 
-The raw post-burn-in ACF for $\alpha$ (top) reveals substantial autocorrelation that decays slowly and remains well above the significance bounds even at lag 50, indicating the chain mixes slowly in this parameter. To assess whether a sufficient effective sample size is nonetheless achieved over 50,000 iterations, the ACF is recomputed on a chain thinned by a factor of 100 (bottom). After thinning, autocorrelation is negligible beyond lag 1, confirming that draws separated by 100 iterations are effectively independent. This slow mixing motivates the long chain (rather than the several short chains approach) adopted here; inferences are drawn from the full post-burn-in chain with the understanding that the effective sample size is considerably smaller than the nominal $`r n_iter - burn`$ retained draws.
+The raw post-burn-in ACF for $\alpha$ (top) reveals substantial autocorrelation that decays slowly and remains well above the significance bounds even at lag 50, indicating the chain mixes slowly in this parameter. To assess whether a sufficient effective sample size is nonetheless achieved over 50,000 iterations, the ACF is recomputed on a chain thinned by a factor of 100 (bottom). After thinning, autocorrelation is negligible beyond lag 1, confirming that draws separated by 100 iterations are effectively independent.
+
+The slow mixing is likely attributable in part to the high correlations among parameters visible in Table X. Because $\alpha$ and $\beta$ are sampled jointly in a single Metropolis-Hastings step — motivated by their strong estimated correlation of $-0.968$ — the remaining correlation with $\gamma$ ($-0.685$ and $0.843$, respectively) is not explicitly addressed by the sampler. Jointly proposing all three parameters in a single MH step, or adopting an alternative simulation strategy such as a ratio-of-uniforms or Hamiltonian Monte Carlo scheme, could improve mixing; however, these approaches are not pursued here. This slow mixing motivates the long chain adopted here rather than the several short chains approach; inferences are drawn from the full post-burn-in chain with the understanding that the effective sample size is considerably smaller than the nominal $`r n_iter - burn`$ retained draws.
+
+```{r cov-mat-full-report, echo = F}
+# cor_mle <- cov2cor(cov_mle)
+# rownames(cor_mle) <- colnames(cor_mle) <- c("alpha", "beta", "gamma", "theta", "sigma2")
+# knitr::kable(round(cor_mle, 3), digits = 3, caption = "Estimated correlation matrix of MLEs")
+cor_mle <- cov2cor(cov_mle)
+rownames(cor_mle) <- colnames(cor_mle) <- c("alpha", "beta", "gamma", "theta", "sigma2")
+sub_cor <- cor_mle[c("alpha", "beta", "gamma"), c("alpha", "beta", "gamma")]
+knitr::kable(round(sub_cor, 3), digits = 3, caption = "Estimated correlation matrix of MLEs")
+```
 
 ## (b)
 
 > The proposal densities should all be random walks, and you will need to tune the Metropolis portions of your overall algorithm. Begin with a random walk variance of 0.50 for all parameters and tune the algorithm through trial and error to hopefully achieve acceptance rates of somewhere in the range of about 0.20 to 0.50. Present a table that shows variance specifications and acceptance rates. You do not need to show every step you used in your trial and error process, but show at least the beginning, the end, and one or maybe two places in between.
 
-The proposal standard deviations were initialized at 0.50 for all parameters (reported as standard deviations throughout, per the random walk variance of 0.50 specified as the starting point). Block 2 ($\gamma$) had an acceptance rate near 0.01 --- far below target --- because the informative Exp(15) prior concentrates $\gamma$ tightly near zero, making large proposals almost always land in low-probability territory. The $\gamma$ SD was reduced to 0.05 immediately. Block 1 ($\alpha, \beta$) and Block 3 ($\theta, \sigma$) were both below target, so their SDs were increased. This overcorrected Block 2, which was then refined further. Table 2 summarizes the proposal specifications and resulting acceptance rates at each stage.
+The proposal standard deviations were initialized at 0.50 for all parameters (reported as standard deviations throughout, per the random walk variance of 0.50 specified as the starting point). Acceptance rates at each tuning stage were evaluated by averaging across all three chains over 2,000 iterations. While perhaps somewhat inefficient, this provides a more solid foundation for ensuring the acceptance rates are consistent and not an artefact of any one run. 
+
+To start, Block 2 ($\gamma$) had an acceptance rate near 0.01 — far below target — because the informative Exp(15) prior concentrates $\gamma$ tightly near zero, making large proposals almost always land in low-probability territory. The $\gamma$ SD was reduced to 0.05 immediately. Block 1 ($\alpha, \beta$) and Block 3 ($\theta, \sigma$) were both below target, so their SDs were increased. This overcorrected Block 2, which was then refined further. Table 2 summarizes the proposal specifications and resulting averaged acceptance rates at each stage.
+
+```{r, q2-standalone-proposal-info, echo = F, eval = F}
+prop_sd_check <- c(alpha = 0.50, beta = 0.50, gamma = 0.50, theta = 0.50, sigma = 0.50)
+check1 <- run_chain_tracked(start1, 2000, prop_sd_check, x, y, n)
+check2 <- run_chain_tracked(start2, 2000, prop_sd_check, x, y, n)
+check3 <- run_chain_tracked(start3, 2000, prop_sd_check, x, y, n)
+rates <- rbind(round(check1$accept_rates, 3),
+               round(check2$accept_rates, 3),
+               round(check3$accept_rates, 3))
+rownames(rates) <- paste("Chain", 1:3)
+colnames(rates) <- c("Block 1 (alpha, beta)", "Block 2 (gamma)", "Block 3 (theta, sigma)")
+avg_rates <- round(colMeans(rates), 3)
+rates <- rbind(rates, Average = avg_rates)
+knitr::kable(rates, caption = paste("Acceptance rates for prop_sd =",
+             paste(names(prop_sd_check), prop_sd_check, sep = "=", collapse = ", ")))
+```
 
 ```{r q2b, echo = F, warning = F, message = F}
-prop_sd_init <- c(alpha = 0.50, beta = 0.50, gamma = 0.50, theta = 0.50, sigma = 0.50)
-init_run     <- run_chain_tracked(start1, 1000, prop_sd_init, x, y, n)
-init_rates   <- round(init_run$accept_rates, 3)
+avg_rates <- function(prop_sd) {
+  r1 <- run_chain_tracked(start1, 2000, prop_sd, x, y, n)$accept_rates
+  r2 <- run_chain_tracked(start2, 2000, prop_sd, x, y, n)$accept_rates
+  r3 <- run_chain_tracked(start3, 2000, prop_sd, x, y, n)$accept_rates
+  round(colMeans(rbind(r1, r2, r3)), 3)
+}
+
+prop_sd_1 <- c(alpha = 0.50, beta = 0.50, gamma = 0.50, theta = 0.50, sigma = 0.50)
+prop_sd_2 <- c(alpha = 0.80, beta = 0.80, gamma = 0.05, theta = 0.50, sigma = 0.50)
+prop_sd_3 <- c(alpha = 0.10, beta = 0.10, gamma = 0.03, theta = 0.25, sigma = 0.25)
+
+rates_1 <- avg_rates(prop_sd_1)
+rates_2 <- avg_rates(prop_sd_2)
+rates_3 <- avg_rates(prop_sd_3)
 
 tuning_tab <- data.frame(
   Step       = c("Initial", "Attempt 2", "Final"),
@@ -642,9 +763,9 @@ tuning_tab <- data.frame(
   sd_gamma   = c("0.50", "0.05", "0.03"),
   sd_theta   = c("0.50", "0.50", "0.25"),
   sd_sigma   = c("0.50", "0.50", "0.25"),
-  acc_block1 = c(init_rates[1], "0.057", "0.280"),
-  acc_block2 = c(init_rates[2], "0.221", "0.366"),
-  acc_block3 = c(init_rates[3], "0.115", "0.340")
+  acc_block1 = c(rates_1[1], rates_2[1], rates_3[1]),
+  acc_block2 = c(rates_1[2], rates_2[2], rates_3[2]),
+  acc_block3 = c(rates_1[3], rates_2[3], rates_3[3])
 )
 
 kable(tuning_tab,
@@ -664,7 +785,7 @@ kable(tuning_tab,
            general_title = "Note:")
 ```
 
-The final proposal specifications achieve acceptance rates of 0.280, 0.366, and 0.340 for Blocks 1, 2, and 3 respectively, all within the target range of 0.20--0.50. Note that all proposal tuning was conducted on the standard deviation scale; the corresponding variances for the final configuration are 0.010 ($\alpha, \beta$), 0.0009 ($\gamma$), and 0.0625 ($\theta, \sigma$).
+The final proposal specifications achieve acceptance rates of 0.317, 0.317, and 0.321 for Blocks 1, 2, and 3 respectively, all within the target range of 0.20--0.50. Note that all proposal tuning was conducted on the standard deviation (not variance) scale; the corresponding variances for the final configuration are 0.010 ($\alpha, \beta$), 0.0009 ($\gamma$), and 0.0625 ($\theta, \sigma$).
 
 ## (c)
 
