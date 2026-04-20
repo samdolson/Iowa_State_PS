@@ -510,7 +510,7 @@ chain2 <- out2$chain
 chain3 <- out3$chain
 
 # Correlated proposal for (alpha, beta) block using empirical posterior covariance
-burn       <- 4000
+burn       <- 1000
 post_burn  <- chain1[(burn + 1):n_iter, c("alpha", "beta")]
 Sigma_ab   <- cov(post_burn)
 
@@ -634,11 +634,10 @@ legend("topright", legend = paste("Chain", 1:3),
        lty = 1, bty = "n")
 ```
 
-```{r comparing-trace-bounds1, echo = F, fig.height = 8, fig.width = 7}
+```{r comparing-trace-bounds, echo = F, fig.height = 8, fig.width = 7}
 ylim_a <- range(chain1[,"alpha"], chain2[,"alpha"], chain3[,"alpha"])
-par(mfrow = c(2, 1))
-
-for (iter_max in c(100, 500)) {
+par(mfrow = c(2, 1), mar = c(4, 4, 3, 1))
+for (iter_max in c(500, 2500)) {
   iter <- seq_len(iter_max)
   plot(iter, chain1[1:iter_max, "alpha"], type = "l",
        col = adjustcolor("black", alpha.f = 0.75),
@@ -646,67 +645,35 @@ for (iter_max in c(100, 500)) {
        main = bquote("Trace Plot: " * alpha ~ "(" * .(iter_max) ~ "iterations)"))
   lines(iter, chain2[1:iter_max, "alpha"], col = adjustcolor("blue", alpha.f = 0.75))
   lines(iter, chain3[1:iter_max, "alpha"], col = adjustcolor("red",  alpha.f = 0.75))
-  abline(v = burn/2, lty = 2, col = "gray20")
-  abline(v = burn,   lty = 2, col = "gray40")
+  if (iter_max == 2500) {
+    abline(v = 500,  lty = 2, col = "gray20")
+    abline(v = 1000, lty = 2, col = "gray60")
+  }
   legend("topright", legend = paste("Chain", 1:3),
          col = c(adjustcolor("black", alpha.f = 0.75),
                  adjustcolor("blue",  alpha.f = 0.75),
                  adjustcolor("red",   alpha.f = 0.75)),
-         lty = 1, bty = "n")
+         lty = 1, bty = "n", cex = 0.85)
 }
+par(mfrow = c(1, 1), mar = c(5, 4, 4, 2))
 ```
 
-```{r comparing-trace-bounds2, echo = F, fig.height = 8, fig.width = 7}
-par(mfrow = c(2, 1))
+**A burn-in of 1,000 iterations is selected.** Three chains were initialized from dispersed starting values and run for several short trial lengths to justify this choice. By 500 iterations the chains traverse overlapping ranges with no systematic between-chain differences. Behavior is visually indistinguishable from the full 2,500-iteration run, confirming that the sampler has reached stationarity well before this point. The 500-iteration mark is taken as the convergence threshold; burn-in is set to 1,000 iterations as a conservative multiple of this value.
 
-for (iter_max in c(1000, 5000)) {
-  iter <- seq_len(iter_max)
-  plot(iter, chain1[1:iter_max, "alpha"], type = "l",
-       col = adjustcolor("black", alpha.f = 0.75),
-       ylim = ylim_a, xlab = "Iteration", ylab = expression(alpha),
-       main = bquote("Trace Plot: " * alpha ~ "(" * .(iter_max) ~ "iterations)"))
-  lines(iter, chain2[1:iter_max, "alpha"], col = adjustcolor("blue", alpha.f = 0.75))
-  lines(iter, chain3[1:iter_max, "alpha"], col = adjustcolor("red",  alpha.f = 0.75))
-  abline(v = burn/2, lty = 2, col = "gray20")
-  abline(v = burn,   lty = 2, col = "gray40")
-  legend("topright", legend = paste("Chain", 1:3),
-         col = c(adjustcolor("black", alpha.f = 0.75),
-                 adjustcolor("blue",  alpha.f = 0.75),
-                 adjustcolor("red",   alpha.f = 0.75)),
-         lty = 1, bty = "n")
-}
-
-par(mfrow = c(1, 1))
-```
-
-**A burn-in of 4,000 iterations is selected.** Three chains were initialized from dispersed starting values and run for several short trial lengths to justify this choice. The evidence proceeds as follows: trace plots at 100 and 500 iterations show clear between-chain separation, with chains traversing distinct regions of the parameter space. By 1,000 iterations the chains overlap substantially. By 2,000 iterations behavior is visually indistinguishable across chains --- accounting for the compression inherent in plotting longer sequences. This 2,000-iteration stabilization point (dark grey line) is taken as the conservative convergence threshold; burn-in is set to double that value, 4,000 iterations (light grey line).
-
-```{r q2a-acf-plot, echo = F, warning = F, message = F, out.height="75%", out.width="100%"}
-par(mfrow = c(3, 1), mar = c(2, 4, 3, 1), oma = c(3, 0, 1, 0))
-
+```{r q2a-acf-plot, echo = F, warning = F, message = F, fig.height = 6, fig.width = 7}
+par(mfrow = c(2, 1), mar = c(2, 4, 3, 1), oma = c(2, 0, 1, 0))
 alpha_postburn <- chain1[(burn + 1):n_iter, "alpha"]
-
 acf(alpha_postburn,
     main = expression("ACF (post burn-in, Chain 1): " * alpha))
-
-thin          <- 50
-idx_thin      <- seq(burn + 1, n_iter, by = thin)
-alpha_thin    <- chain1[idx_thin, "alpha"]
-
+thin       <- 50
+idx_thin   <- seq(burn + 1, n_iter, by = thin)
+alpha_thin <- chain1[idx_thin, "alpha"]
 acf(alpha_thin,
     main = expression("ACF (post burn-in, thinned by 50, Chain 1): " * alpha))
-
-thin2          <- 100
-idx_thin2      <- seq(burn + 1, n_iter, by = thin2)
-alpha_thin2    <- chain1[idx_thin2, "alpha"]
-
-acf(alpha_thin2,
-    main = expression("ACF (post burn-in, thinned by 100, Chain 1): " * alpha))
-
 par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
 ```
 
-The raw post-burn-in ACF for $\alpha$ (top) reveals substantial autocorrelation that remains well above significance bounds even at lag 50, indicating slow mixing. Thinning by a factor of 100 (bottom) reduces autocorrelation to negligible levels beyond lag 1; thinning is used here diagnostically to characterize mixing, not as a required step for inference. The slow mixing is attributable to the high correlations among $\alpha$, $\beta$, and $\gamma$ (Table 2) that are not fully resolved by block-wise proposals. It is worth being explicit about the methodological implication: the several short chains approach was used here for its intended purpose --- diagnosing burn-in by examining between-chain behavior across multiple dispersed initializations. However, the ACF evidence makes clear that short chains of the length adequate for burn-in assessment would yield very small effective sample sizes for inference. The posterior summaries in part (c) are therefore drawn from a single long chain of 54,000 iterations with the first 4,000 discarded, a deliberate departure from the short-chains framework motivated by the mixing behavior documented above. The effective sample size is considerably smaller than the nominal $`r n_iter - burn`$ retained draws, but the thinned ACF confirms that draws separated by 100 iterations are effectively independent, providing a usable posterior sample.
+The raw post-burn-in ACF for $\alpha$ (top) reveals substantial autocorrelation that remains well above significance bounds even at lag 50, indicating slow mixing. Thinning by a factor of 50 (bottom) reduces autocorrelation to negligible levels beyond lag 1; thinning is used here diagnostically to characterize mixing, not as a required step for inference. The slow mixing is attributable to the high correlations among $\alpha$, $\beta$, and $\gamma$ (Table 2) that are not fully resolved by block-wise proposals. It is worth being explicit about the methodological implication: the several short chains approach was used here for its intended purpose --- diagnosing burn-in by examining between-chain behavior across multiple dispersed initializations. However, the ACF evidence makes clear that short chains of the length adequate for burn-in assessment would yield very small effective sample sizes for inference. The posterior summaries in part (c) are therefore drawn from a single long chain of 54,000 iterations with the first 1,000 discarded, a deliberate departure from the short-chains framework motivated by the mixing behavior documented above. The effective sample size is considerably smaller than the nominal $`r n_iter - burn`$ retained draws, but the thinned ACF confirms that draws separated by 50 iterations are effectively independent, providing a usable posterior sample.
 
 ```{r cov-mat-full-report, echo = F}
 # cor_mle <- cov2cor(cov_mle)
@@ -742,9 +709,9 @@ knitr::kable(rates, caption = paste("Acceptance rates for prop_sd =",
 
 ```{r q2b, echo = F, warning = F, message = F}
 avg_rates <- function(prop_sd) {
-  r1 <- run_chain_tracked(start1, 2000, prop_sd, x, y, n)$accept_rates
-  r2 <- run_chain_tracked(start2, 2000, prop_sd, x, y, n)$accept_rates
-  r3 <- run_chain_tracked(start3, 2000, prop_sd, x, y, n)$accept_rates
+  r1 <- run_chain_tracked(start1, 1000, prop_sd, x, y, n)$accept_rates
+  r2 <- run_chain_tracked(start2, 1000, prop_sd, x, y, n)$accept_rates
+  r3 <- run_chain_tracked(start3, 1000, prop_sd, x, y, n)$accept_rates
   round(colMeans(rbind(r1, r2, r3)), 3)
 }
 
@@ -789,7 +756,7 @@ kable(tuning_tab,
 
 Table 3 reports the initial, two intermediate, and final tuning configurations. All tuning is conducted on the standard deviation scale (not variance); corresponding variances appear in the table footnote. Acceptance rates at each stage were averaged across all three chains over 2,000 iterations to avoid results being an artefact of any single run.
 
-To start, Block 2 ($\gamma$) had an acceptance rate near `r rates_1[2]` --- far below target --- because the informative Exp(15) prior concentrates $\gamma$ tightly near zero, making large proposals almost always land in low-probability territory. The $\gamma$ SD was reduced to `r prop_sd_2["gamma"]` immediately. Block 1 ($\alpha, \beta$) and Block 3 ($\theta, \sigma$) were both below target, so their SDs were increased. This overcorrected Block 1 (`r rates_2[1]`), so in Attempt 3 the SDs were pulled back to `r prop_sd_3["alpha"]` and `r prop_sd_3["theta"]` respectively, with $\gamma$ refined to `r prop_sd_3["gamma"]`. Block 1 remained below target (`r rates_3[1]`), motivating the final reduction. T
+To start, Block 2 ($\gamma$) had an acceptance rate near `r rates_1[2]` --- far below target --- because the informative Exp(15) prior concentrates $\gamma$ tightly near zero, making large proposals almost always land in low-probability territory. The $\gamma$ SD was reduced to `r prop_sd_2["gamma"]` immediately. Block 1 ($\alpha, \beta$) and Block 3 ($\theta, \sigma$) were both below target, so their SDs were increased. This overcorrected Block 1 (`r rates_2[1]`), so in Attempt 3 the SDs were pulled back to `r prop_sd_3["alpha"]` and `r prop_sd_3["theta"]` respectively, with $\gamma$ refined to `r prop_sd_3["gamma"]`. Block 1 remained below target (`r rates_3[1]`), motivating the final reduction.
 
 The final proposal specifications achieve acceptance rates of `r rates_4[1]`, `r rates_4[2]`, and `r rates_4[3]` for Blocks 1, 2, and 3 respectively, all within the target range of 0.20--0.50. 
 
@@ -978,41 +945,45 @@ cred_hi <- apply(mu_post, 2, quantile, probs = 0.975)
 mu_mle <- alpha_h * xgrid^(beta_h * xgrid^(-gamma_h))
 
 # --- Plot
+col_bayes <- adjustcolor("darkorange",  alpha.f = 0.9)
+col_boot  <- adjustcolor("darkgreen",   alpha.f = 0.9)
+col_dm    <- adjustcolor("deeppink3",   alpha.f = 0.9)
+
 par(mar = c(7, 4, 2, 1))
 plot(x, y, xlab = "Covariate Value", ylab = "Response Value",
      main = "", pch = 16, cex = 0.7)
-lines(xgrid, mu_med, lwd = 2, col = "black")
-lines(xgrid, mu_mle, lwd = 2, col = "grey",   lty = 1)
-lines(xgrid, cred_hi, lty = 2, col = "purple")
-lines(xgrid, cred_lo, lty = 2, col = "purple")
-lines(xgrid, band_hi, lty = 2, col = "blue")
-lines(xgrid, band_lo, lty = 2, col = "blue")
-lines(xgrid, dm_hi,   lty = 2, col = "red")
-lines(xgrid, dm_lo,   lty = 2, col = "red")
+lines(xgrid, mu_med,  lwd = 2.5, col = "black")
+lines(xgrid, mu_mle,  lwd = 2.5, col = "grey50", lty = 1)
+lines(xgrid, cred_hi, lty = 2, lwd = 1.2, col = col_bayes)
+lines(xgrid, cred_lo, lty = 2, lwd = 1.2, col = col_bayes)
+lines(xgrid, band_hi, lty = 3, lwd = 1.5, col = col_boot)
+lines(xgrid, band_lo, lty = 3, lwd = 1.5, col = col_boot)
+lines(xgrid, dm_hi,   lty = 4, lwd = 1.2, col = col_dm)
+lines(xgrid, dm_lo,   lty = 4, lwd = 1.2, col = col_dm)
 legend(x = max(xgrid) * 0.55, y = max(y) * 0.35,
        legend = c("Posterior median", "MLE",
                   "Bayes 95% credible",
                   "Bootstrap 95% band",
                   "Delta method 95% band"),
-       col    = c("black", "grey", "purple", "blue", "red"),
-       lty    = c(1, 1, 2, 2, 2),
-       lwd    = c(2, 2, 1, 1, 1),
-       bty    = "n", cex = 0.75)
+       col = c("black", "grey50", col_bayes, col_boot, col_dm),
+       lty = c(1, 1, 2, 3, 4),
+       lwd = c(2.5, 2.5, 1.2, 1.5, 1.2),
+       bty = "n", cex = 0.75)
 ```
 
-\newpage 
+<!-- \newpage  -->
 
-# Misc Note: 
+<!-- # Misc Note:  -->
 
-Throughout Parts I and II, the expectation function remains fixed --- a structural limitation distinct from, and not resolved by, the inferential challenges addressed at each stage. Increasing the number of parameters to include $\sigma^2$ and $\theta$ does not make the extended Freundlich more flexible in shape. The original sorption data (plotted below) exhibit apparent non-monotone behavior around covariate values 100 and 300 that no reparameterization of the extended Freundlich --- nor the Fitter-Sutton equation ($m = Ac^B - D$), the next-best alternative noted in Sibbesen (1981) --- can accommodate. Barrow (2023) makes a related point: empirical formulations of this family are approximations whose adequacy depends heavily on the concentration range and resolution of the data.
+<!-- Throughout Parts I and II, the expectation function remains fixed --- a structural limitation distinct from, and not resolved by, the inferential challenges addressed at each stage. Increasing the number of parameters to include $\sigma^2$ and $\theta$ does not make the extended Freundlich more flexible in shape. The original sorption data (plotted below) exhibit apparent non-monotone behavior around covariate values 100 and 300 that no reparameterization of the extended Freundlich --- nor the Fitter-Sutton equation ($m = Ac^B - D$), the next-best alternative noted in Sibbesen (1981) --- can accommodate. Barrow (2023) makes a related point: empirical formulations of this family are approximations whose adequacy depends heavily on the concentration range and resolution of the data. -->
 
-This observation may be grasping at straws. With $n = 23$ and no replicates, there is no way to formally distinguish genuine non-monotone behavior from noise --- the apparent oscillations could plausibly be sampling variation. But the absence of replication is itself the point. When replicates exist, lack-of-fit tests make model adequacy a routine diagnostic. Here they do not, and a potentially important feature of the data passes without formal assessment. Whether or not the oscillations are real, the inability to test for them is a genuine limitation that the analysis does not acknowledge.
+<!-- This observation may be grasping at straws. With $n = 23$ and no replicates, there is no way to formally distinguish genuine non-monotone behavior from noise --- the apparent oscillations could plausibly be sampling variation. But the absence of replication is itself the point. When replicates exist, lack-of-fit tests make model adequacy a routine diagnostic. Here they do not, and a potentially important feature of the data passes without formal assessment. Whether or not the oscillations are real, the inability to test for them is a genuine limitation that the analysis does not acknowledge. -->
 
-**Implications for simulation assessment.** A less obvious consequence follows. Both the parametric bootstrap in Part I and the Gibbs sampler in Part II use the fitted Freundlich as the data-generating process. If the oscillatory structure reflects genuine features of the sorption mechanism --- rather than AR(1) dependence around a smooth mean --- then both procedures generate data from a misspecified model, and the coverage properties of all reported intervals are only as reliable as that assumption. A more stringent evaluation would generate data from a flexible alternative and assess whether the Freundlich-based methods can detect the misspecification; that such an assessment is not possible within the current parametric framework is itself worth stating explicitly. Neither Part I nor Part II addresses the prior question on which both depend: whether the Freundlich family is adequate for these data to begin with.
+<!-- **Implications for simulation assessment.** A less obvious consequence follows. Both the parametric bootstrap in Part I and the Gibbs sampler in Part II use the fitted Freundlich as the data-generating process. If the oscillatory structure reflects genuine features of the sorption mechanism --- rather than AR(1) dependence around a smooth mean --- then both procedures generate data from a misspecified model, and the coverage properties of all reported intervals are only as reliable as that assumption. A more stringent evaluation would generate data from a flexible alternative and assess whether the Freundlich-based methods can detect the misspecification; that such an assessment is not possible within the current parametric framework is itself worth stating explicitly. Neither Part I nor Part II addresses the prior question on which both depend: whether the Freundlich family is adequate for these data to begin with. -->
 
-```{r, echo = F}
-plot(x, y, ylab = "Response Value", xlab = "Covariate Value", main = "Original Plot of Sorption Data")
-```
+<!-- ```{r, echo = F} -->
+<!-- plot(x, y, ylab = "Response Value", xlab = "Covariate Value", main = "Original Plot of Sorption Data") -->
+<!-- ``` -->
 
 \newpage 
 
@@ -1090,7 +1061,7 @@ run_chain_tracked <- function(start, n_iter, prop_sd, x, y, n) {
 
 # Example: run chain from MLE starting values, 54000 iterations, discard first 4000
 prop_sd <- c(alpha = 0.10, beta = 0.10, gamma = 0.03, theta = 0.25, sigma = 0.25)
-burn <- 4000
+burn <- 1000
 n_iter_c <- burn + 50000
 
 mle_sigma <- sqrt(mle["sigma2"])
