@@ -1,0 +1,96 @@
+---
+title: "Extension"
+output: pdf_document
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{amsthm}
+  - \usepackage{amssymb}
+  - \usepackage{mathtools}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Motivation and Open Problem
+
+Wu and Li (2024) establish the POEMV algorithm for continuous-time mean-variance portfolio selection in a regime-switching market with an unobservable regime state. Their theoretical contributions include well-posedness of a degenerate parabolic PDE system (Theorem 1) and Gaussian optimality of the exploratory policy under partial information (Theorem 2). The optimal policy mean takes the form
+
+$$
+m^*(t, x, p) = -\frac{x - \omega}{\sigma}
+\left[
+  \underbrace{\rho_2 + (\rho_1 - \rho_2)p}_{\text{myopic component}}
+  \;-\;
+  \underbrace{(\rho_1 - \rho_2)\, p(1-p)\,
+    \frac{f_p(t,p)}{f(t,p)}}_{\text{hedging demand}}
+\right],
+$$
+
+where $f(t, p)$ satisfies a degenerate parabolic PDE and $p_t \in (0,1)$ is the Wonham filter belief state, the posterior probability of the market being in the bull regime given the observed price path.
+
+Despite these structural results, Wu and Li (2024) acknowledge that the end-to-end error of the full POEMV learning loop is never formally analyzed. Three error sources compound in the algorithm:
+
+1. **Polynomial approximation error.** Because $f(t,p)$ and $g(t,p)$ have no closed-form solution, Wu and Li approximate $\ln f(t,p)$ and $g(t,p)$ by bivariate polynomials of degree $m$ in $(p,\, T - t)$. The approximation quality is assessed empirically---they report a 1.03% relative mean absolute error at $m = 2$---but no formal bound is derived.
+
+2. **Filter propagation error.** The Wonham filter requires estimates $\tilde{\theta} = (\tilde{\mu}_1, \tilde{\mu}_2, \tilde{\sigma}, \tilde{\lambda}_1, \tilde{\lambda}_2)$ of the environment parameters. Estimation errors in $\tilde{\theta}$ perturb the belief state trajectory: the estimated filter $\tilde{p}_t$ diverges from the true posterior $p_t$, with the error $e_t = p_t - \tilde{p}_t$ propagating through the Wonham SDE
+   
+$$
+dp_t = \bigl[-(\lambda_1 + \lambda_2)p_t + \lambda_2\bigr]\,dt
+  + (\rho_1 - \rho_2)\,p_t(1-p_t)\,d\hat{B}_t.
+$$
+No formal bound on $\sup_{t} \mathbb{E}[e_t^2]$ in terms of $\|\tilde{\theta} - \theta^*\|$ is provided.
+
+3. **Stochastic gradient estimation error.** The actor-critic updates rely on SGD approximations of the martingale loss gradient. The stability and convergence rate of these updates in the partial-information setting remain unestablished.
+
+Wu and Li (2024, p.\ 9) note that these sources "compound in a way that does not have a clean decomposition," and identify the absence of a rigorous end-to-end convergence rate as an open problem. Their Table 3 reveals the practical consequence: terminal wealth variance under POEMV with estimated parameters (0.170) is substantially larger than under true parameters (0.083), which itself exceeds the finite-difference optimum (0.067). Wu and Li attribute this degradation primarily to filtering error, but this attribution is empirical rather than theoretical.
+
+## What This Paper Addresses
+
+We provide the first formal partial error decomposition for POEMV, bounding the first two error sources explicitly and establishing their relative magnitudes. Specifically, we show:
+
+**Polynomial approximation** (Proposition 1). The regularity results of Wu and Li's Theorem 1 --- in particular, the uniform bounds $|f_p| \leq C_1$ and $|f_{pp}| \leq C_2$ on compact subsets of $(0,1)$ --- imply that $\ln f(t,p)$ belongs to $C^{2,2}$ on any domain $\mathcal{D}_\varepsilon = [0,T] \times [\varepsilon, 1-\varepsilon]$. The classical Jackson theorem for bivariate polynomial approximation then yields
+
+$$
+\inf_{q \in \mathcal{P}_m} \|\ln f - q\|_{L^\infty(\mathcal{D}_\varepsilon)}
+\;\leq\; \frac{K_\varepsilon}{m^2},
+$$
+
+where $K_\varepsilon$ depends on $C_1$, $C_2$, and $\bar{\rho} = \max\{|\rho_1|, |\rho_2|\}$ but not on $m$. This upgrades Wu and Li's empirical 1.03% figure to a theorem, and shows the approximation error is controlled by the regularity they already establish.
+
+**Filter propagation** (Proposition 2). Suppose $\|\tilde{\theta} - \theta^*\| \leq \delta$. A Gronwall argument applied to the Itô
+dynamics of $e_t^2$ yields the mean-squared filter error bound
+
+$$
+\sup_{t \in [0,T]} \mathbb{E}[e_t^2]
+\;\leq\;
+\frac{C_F\, \delta^2}{\tilde{\lambda}_1 + \tilde{\lambda}_2},
+$$
+
+where $C_F$ is an explicit constant. The damping factor $(\tilde{\lambda}_1 + \tilde{\lambda}_2)^{-1}$ is interpretable as the mean time spent in a single regime: faster-switching markets are more robust to parameter misestimation because the price path is more informative about the latent state.
+
+**Policy sensitivity** (Proposition 3). The Lipschitz constant of $\gamma^*(t,p) = \rho_2 + (\rho_1-\rho_2)p - (\rho_1-\rho_2)p(1-p)f_p/f$ with respect to $p$ is bounded by
+
+$$
+\left|\frac{\partial \gamma^*}{\partial p}\right|
+\;\leq\;
+|\rho_1 - \rho_2|\!\left(1 + C_1 + \tfrac{C_2}{4} +
+\tfrac{C_1^2}{4}\right) \;\eqqcolon\; C_\gamma,
+$$
+
+which together with the filter bound gives a mean-squared policy error controlled by $C_\gamma^2\, \mathbb{E}[(X_t - \omega)^2] \cdot \mathbb{E}[e_t^2]$.
+
+**Combined decomposition** (Theorem 1). The total mean-squared policy error decomposes as
+
+$$
+\mathbb{E}\!\left[\left|m^*(t, X_t, p_t)
+  - \tilde{m}(t, X_t, \tilde{p}_t)\right|^2\right]
+\;\leq\;
+\underbrace{\frac{A_\varepsilon}{m^4}\,
+  \mathbb{E}[(X_t-\omega)^2]}_{\text{(I) polynomial approximation}}
+\;+\;
+\underbrace{\frac{C_\gamma^2}{\sigma^2} \cdot
+  \frac{C_F\,\delta^2}{\tilde{\lambda}_1 + \tilde{\lambda}_2} \cdot
+  \mathbb{E}[(X_t-\omega)^2]}_{\text{(II) filter propagation}},
+$$
+
+where $\tilde{m}$ is the implemented policy using the degree-$m$ approximation at the estimated belief state $\tilde{p}_t$. Term (II) dominates term (I) when $\delta \gg C^* \approx 0.12$ for Wu and Li's calibrated parameters at $m = 2$, formally validating their empirical attribution of performance loss to filtering error rather than approximation error. The third error source --- SGD estimation error in the actor-critic updates --- remains an open problem for future work.
