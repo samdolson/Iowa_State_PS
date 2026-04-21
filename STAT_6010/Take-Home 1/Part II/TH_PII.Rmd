@@ -1017,17 +1017,22 @@ log_lik <- function(alpha, beta, gamma, theta, sigma2, x, y, n) {
 log_prior <- function(alpha, beta, gamma, theta, sigma) {
   if (alpha <= 0 || beta <= 0 || gamma <= 0 ||
       sigma <= 0 || sigma > 20 || abs(theta) >= 1) return(-Inf)
-  lpa <- dnorm(alpha, 0.5, sqrt(10), log = TRUE) # N(0.5, 10) truncated at 0
-  lpb <- dgamma(beta, shape = 0.01, rate = 0.01, log = TRUE) # Gamma(0.01, 0.01)
-  lpg <- dexp(gamma, rate = 15, log = TRUE) # Exp(15)
-  lpt <- -abs(theta) / 0.35 # Laplace(0, 0.35) truncated to (-1,1)
-  lpa + lpb + lpg + lpt # Uniform(0,20) on sigma contributes constant
+  # N(0.5, 10) truncated at 0
+  lpa <- dnorm(alpha, 0.5, sqrt(10), log = TRUE)
+  # Gamma(0.01, 0.01)
+  lpb <- dgamma(beta, shape = 0.01, rate = 0.01, log = TRUE)
+  # Exp(15)
+  lpg <- dexp(gamma, rate = 15, log = TRUE)
+  # Laplace(0, 0.35) truncated to (-1,1)
+  lpt <- -abs(theta) / 0.35
+  # Uniform(0,20) on sigma contributes constant
+  lpa + lpb + lpg + lpt
 }
 
 # Log posterior
 log_post <- function(state, x, y, n) {
   # Block 1
-  alpha <- state[1]; beta <- state[2]; 
+  alpha <- state[1]; beta <- state[2] 
   # Block 2
   gamma <- state[3]
   # Block 3
@@ -1038,24 +1043,35 @@ log_post <- function(state, x, y, n) {
 }
 
 # MH-within-Gibbs
-# Added acceptance tracker
+# Added acceptance tracker as a count
 gibbs_step_tracked <- function(state, prop_sd, x, y, n, acc) {
   lp_c <- log_post(state, x, y, n)
   # Block 1
   prop <- state
   prop[1:2] <- state[1:2] + rnorm(2, 0, prop_sd[1:2])
   lp_p <- log_post(prop, x, y, n)
-  if (log(runif(1)) < lp_p - lp_c) { state <- prop; lp_c <- lp_p; acc[1] <- acc[1] + 1 }
+  if (log(runif(1)) < lp_p - lp_c) {
+    state <- prop
+    lp_c <- lp_p
+    acc[1] <- acc[1] + 1
+    }
   # Block 2
   prop <- state
   prop[3] <- state[3] + rnorm(1, 0, prop_sd[3])
   lp_p <- log_post(prop, x, y, n)
-  if (log(runif(1)) < lp_p - lp_c) { state <- prop; lp_c <- lp_p; acc[2] <- acc[2] + 1 }
+  if (log(runif(1)) < lp_p - lp_c) {
+    state <- prop
+    lp_c <- lp_p
+    acc[2] <- acc[2] + 1
+    }
   # Block 3
   prop <- state
   prop[4:5] <- state[4:5] + rnorm(2, 0, prop_sd[4:5])
   lp_p <- log_post(prop, x, y, n)
-  if (log(runif(1)) < lp_p - lp_c) { state <- prop; acc[3] <- acc[3] + 1 }
+  if (log(runif(1)) < lp_p - lp_c) {
+    state <- prop
+    acc[3] <- acc[3] + 1
+    }
   list(state = state, acc = acc)
 }
 
