@@ -102,17 +102,17 @@ A major difficulty in what we did previously was determining a good covariance m
 
 > Determine 95% confidence intervals for the five parameters of the model through the application of percentile bootstrap intervals for maximum likelihood estimation.
 
-The 95% percentile bootstrap confidence intervals for all five parameters are reported in Table 1; the construction is described below. This approach avoids reliance on the observed information matrix, which was numerically unstable in Part I.
+The 95% percentile bootstrap confidence intervals for all five parameters are reported in Table 1; the construction is described below. 
 
-**Methodology.** We construct 95% percentile bootstrap confidence intervals for each of the five model parameters $(\alpha, \beta, \gamma, \theta, \sigma^2)$ following the development in Section 10.3. Following expression (10.15), the $(1-\alpha)100\%$ percentile bootstrap interval for a scalar parameter is given by the empirical $\alpha/2$ and $1-\alpha/2$ quantiles of the $M$ bootstrap estimates --- no discrepancy function need be formed or inverted, and no symmetrizing transformation need be determined explicitly.
+We construct 95% percentile bootstrap confidence intervals for each of the five model parameters $(\alpha, \beta, \gamma, \theta, \sigma^2)$ by following expression (10.15), where the $(1-\tilde{\alpha})100\%$ percentile bootstrap interval for a scalar parameter is given by the empirical $\tilde{\alpha}/2$ and $1-\tilde{\alpha}/2$ quantiles of the $M$ bootstrap estimates. The use of $\tilde{\alpha}$ is to distinguish between the parameter of interest and the "typical" usage for quantiles. 
 
-**Simulation from the fitted model.** We take $M = 999$ so that $(M+1)\cdot 0.025 = 25$ is an integer, satisfying the integrality condition noted after expression (10.10). For each bootstrap replicate $m = 1, \ldots, M$, we simulate $\mathbf{y}^*_m = (y^*_1, \ldots, y^*_n)^T$ from the fitted model $F(\mathbf{y} \mid \hat\theta_n)$ --- the model estimated at the MLE from the observed data, consistent with the general simulation framework described in Section 10.1. Because the model includes AR(1) errors, simulation requires drawing $\varepsilon_1^* \sim N\!\left(0,\, \hat\sigma^2/(1-\hat\theta^2)\right)$ from the stationary distribution and then propagating $\varepsilon_i^* = \hat\theta\,\varepsilon_{i-1}^* + \delta_i$ with $\delta_i \stackrel{iid}{\sim} N(0, \hat\sigma^2)$ for $i = 2, \ldots, n$. The simulated response is then $y_i^* = \hat\mu_i + \varepsilon_i^*$ where $\hat\mu_i = \hat\alpha\, x_i^{\hat\beta x_i^{-\hat\gamma}}$.
+We take $M = 999$ so that $(M+1)\cdot 0.025 = 25$ is an integer, satisfying the integrality condition noted after expression (10.10). For each bootstrap replicate $m = 1, \ldots, M$, we simulate $\mathbf{y}^*_m = (y^*_1, \ldots, y^*_n)^T$ from the fitted model $F(\mathbf{y} \mid \hat\theta_n)$. However, because the model includes AR(1) errors, simulation requires drawing $\varepsilon_1^* \sim N\!\left(0,\, \hat\sigma^2/(1-\hat\theta^2)\right)$ from the stationary distribution and then propagating $\varepsilon_i^* = \hat\theta\,\varepsilon_{i-1}^* + \delta_i$ with $\delta_i \stackrel{iid}{\sim} N(0, \hat\sigma^2)$ for $i = 2, \ldots, n$. The simulated response is then $y_i^* = \hat\mu_i + \varepsilon_i^*$ where $\hat\mu_i = \hat\alpha\, x_i^{\hat\beta x_i^{-\hat\gamma}}$.
 
-**Re-estimation.** Each bootstrap dataset $\mathbf{y}^*_m$ is re-fit by maximizing the same log-likelihood as in Q3, using the original MLE $\hat\theta_n$ as the starting point for BFGS optimization. This yields bootstrap estimates $\theta^*_{n,m}$ for $m = 1, \ldots, M$ in the notation of Section 10.1. 
+Each bootstrap dataset $\mathbf{y}^*_m$ is re-fit by maximizing the same log-likelihood as in Q3 from Part I, using the original MLE $\hat\theta_n$ as the starting point for BFGS optimization to get our bootstrap estimates.  
 
-**Remark (Convergence filtering).** The parametric bootstrap approximates the sampling distribution of the estimator as a *procedure*, not merely as a formal functional of the data. The estimator is defined implicitly through a numerical optimization routine, which may fail to converge for certain bootstrap datasets; for such replicates the estimator fails to exist numerically, and they are therefore discarded. We do not resample to replace them, as doing so would alter the bootstrap data-generating mechanism by preferentially retaining datasets for which the likelihood surface is sufficiently regular, potentially excluding replicates corresponding to extreme parameter estimates and biasing the empirical distribution toward regions of the sample space where estimation is numerically stable.
+Regarding these estimates: The parametric bootstrap approximates the sampling distribution of the estimator as a *procedure*, not solely as a functional of the data. As such, the estimator is defined implicitly through a numerical optimization routine, which may fail to converge for certain bootstrap datasets; such replicates are discarded, but not resampled so as to replace those bootstrap estimates. Doing so would alter the bootstrap data-generating mechanism by preferentially retaining datasets for which the likelihood surface is sufficiently regular, potentially excluding replicates corresponding to extreme parameter estimates and biasing the empirical distribution toward regions of the sample space where estimation is numerically stable.
 
-**Interval construction.** Of the $M = 999$ replicates, $M_\text{eff} = 988$ converged successfully and were retained (using `set.seed(42)`). Inference is therefore based on the empirical distribution of $\hat{\theta}^*_{n,m}$ conditional on successful convergence of the re-estimation procedure applied to $\mathbf{y}^*_m$. Following expression (10.15), the 95% percentile interval for each parameter is the empirical 2.5% and 97.5% quantiles of the $M_\text{eff} = 988$ bootstrap estimates, computed via interpolation rather than exact order-statistic indexing since $(M_\text{eff} + 1) \cdot 0.025 = 24.725$ is no longer an integer. This conditioning may modestly understate uncertainty, but with only 11 failures out of 999 the effect is expected to be negligible. No discrepancy function $h(\theta, \hat\theta_n)$ needs to be formed or inverted --- unlike the basic interval (10.10) or studentized interval (10.12) --- because the percentile method works directly on the empirical distribution of $\theta^*_{n,m}$.
+That said, of the $M = 999$ replicates, $M_\text{eff} = 988$ converged successfully and were retained (using `set.seed(42)`). Inference is therefore based on the empirical distribution of $\hat{\theta}^*_{n,m}$ (our boostrap estimates) conditional on successful convergence of the re-estimation procedure applied to $\mathbf{y}^*_m$. Following expression (10.15), the 95% percentile interval for each parameter is the empirical 2.5% and 97.5% quantiles of the $M_\text{eff} = 988$ bootstrap estimates, computed via interpolation rather than exact order-statistic indexing since $(M_\text{eff} + 1) \cdot 0.025 = 24.725$, which is not an integer. This conditioning may result in underestimating uncertainty, but with only 11 failures out of 999 the effect is expected to be negligible. Also, no discrepancy function $h(\theta, \hat\theta_n)$ needs to be formed or inverted because the percentile method works directly on the empirical distribution of $\theta^*_{n,m}$.
 
 The asymptotic-normal intervals from Q3 are included in Table 1 for comparison. The concerns of Part I regarding whether the relevant asymptotics hold are not eliminated by this approach, but the bootstrap avoids the need to invert the observed information matrix directly.
 
@@ -220,11 +220,11 @@ mle[5], ci_pct[1,5], ci_pct[2,5], mle[5]-z95*se_mle[5], mle[5]+z95*se_mle[5]
 
 > Determine a 95% confidence band for the expectation function, also using percentile bootstrap methodology with maximum likelihood estimation.
 
-**Methodology.** We construct a **pointwise** 95% confidence band for the expectation function $\mu(x;\, \alpha, \beta, \gamma) = \alpha x^{\beta x^{-\gamma}}$, meaning the nominal 95% coverage applies at each fixed $x_0$ separately, not simultaneously over the full curve. The figure below shows three curves: the MLE-centered fit, the percentile bootstrap band, and the delta-method band (described below), all evaluated on a grid of 300 equally spaced $x$-values spanning the observed covariate range. 
+We construct a *pointwise* 95% confidence band for the expectation function $\mu(x;\, \alpha, \beta, \gamma) = \alpha x^{\beta x^{-\gamma}}$, meaning the nominal 95% coverage applies at each fixed $x_0$ separately, not simultaneously over the full curve. The figure below shows the MLE-centered fit, the percentile bootstrap band, and the delta-method band (described below), all evaluated on an equally spaced grid of $x$-values spanning the observed covariate range. 
 
-For each retained bootstrap replicate $m = 1, \ldots, M_\text{eff}$, the re-estimated parameters $(\hat\alpha^*_m, \hat\beta^*_m, \hat\gamma^*_m)$ from part (a) are used to evaluate the fitted curve over a grid of 300 equally spaced $x$-values spanning the observed covariate range, yielding $\mu^*_m(x_0) = \hat\alpha^*_m\, x_0^{\hat\beta^*_m x_0^{-\hat\gamma^*_m}}$ at each grid point $x_0$. Following expression (10.15), the pointwise 95% percentile interval at $x_0$ is the empirical 2.5% and 97.5% quantiles of $\{\mu^*_m(x_0) : m = 1, \ldots, M_\text{eff}\}$, computed via interpolation since $(M_\text{eff}+1)\cdot 0.025 = 24.725$ is not an integer. Sweeping this across all grid points produces the band shown in the figure. 
+For each retained bootstrap replicate $m = 1, \ldots, M_\text{eff}$, the re-estimated parameters $(\hat\alpha^*_m, \hat\beta^*_m, \hat\gamma^*_m)$ from part (a) are used to evaluate the fitted curve over the aforementioned grid, yielding $\mu^*_m(x_0) = \hat\alpha^*_m\, x_0^{\hat\beta^*_m x_0^{-\hat\gamma^*_m}}$ at each grid point $x_0$. Following expression (10.15), the pointwise 95% percentile interval at $x_0$ is the empirical 2.5% and 97.5% quantiles of $\{\mu^*_m(x_0) : m = 1, \ldots, M_\text{eff}\}$, which required interpolation as $(M_\text{eff}+1)\cdot 0.025 = 24.725$ is not an integer.
 
-For comparison, a delta-method band is also shown. It propagates uncertainty through the analytic gradient $\mathbf{d}(x_0) = \partial\mu/\partial(\alpha,\beta,\gamma)$ --- the gradient of the expectation function with respect to the three mean parameters --- via $\hat{V}(\hat\mu(x_0)) = \mathbf{d}(x_0)^T \hat\Sigma\, \mathbf{d}(x_0)$, where $\hat\Sigma$ is the $(\alpha,\beta,\gamma)$ block of the full 5×5 inverse observed Hessian from the Q3 joint estimation. Both bands are centered on the same MLE curve, so visible differences reflect methodology, not point estimation. In summary: the bootstrap band is asymmetric and wider in regions of sparse data, while the delta-method band is symmetric and narrower throughout due to its reliance on a linear approximation.
+For comparison, a delta-method band is also shown, though wasn't explicitly asked for in this section. That said, both bands are centered on the same MLE curve, such that differences reflect methodology in the interval construction. Though commented in greater detail later, it is interesting that while both the bootstrap and delta-method intervals look fairly similar, the bootstrap band is asymmetric and wider in some regions, while the delta-method band is symmetric and narrower throughout.
 
 ```{r q1b, include = F, echo = F, warning = F, message = F}
 xgrid  <- seq(min(x[x > 0]), max(x), length.out = 300)
@@ -305,28 +305,30 @@ As part of your answer, you should execute and report on the following:
 
 ### Analytical justification
 
-**Target posterior.** By Bayes' theorem the posterior is proportional to the product of the likelihood and the prior:
+Given my question is class regarding truncation of distributions, I wanted to be explicit about the methodology I used here. 
+
+To start, our target posterior in this problem is proportional to the product of the likelihood and the prior:
 
 $$
 p(\alpha, \beta, \gamma, \theta, \sigma \mid \mathbf{y}) \;\propto\; L(\alpha,\beta,\gamma,\theta,\sigma^2 \mid \mathbf{y})\cdot \pi(\alpha)\cdot\pi(\beta)\cdot\pi(\gamma)\cdot\pi(\theta)\cdot\pi(\sigma)
 $$
 
-The likelihood with AR(1) errors $\varepsilon_i = w_i - \theta w_{i-1}$, $w_i = y_i - \mu(x_i;\alpha,\beta,\gamma)$, is
+The likelihood with AR(1) errors $\varepsilon_i = w_i - \theta w_{i-1}$, $w_i = y_i - \mu(x_i;\alpha,\beta,\gamma)$, is given by
 
 $$
 L \;=\; (2\pi\sigma^2)^{-n/2}\exp\!\left(-\frac{1}{2\sigma^2}\sum_{i=1}^n \varepsilon_i^2\right)
 $$
 This is the full conditional likelihood, treating $w_0 = 0$; the exact form would additionally include the marginal $w_1 \sim N(0, \sigma^2/(1-\theta^2))$.
 
-**Truncated normal for $\alpha$.** The untruncated $N(0.5, 10)$ density is $\phi\!\left(\frac{\alpha - 0.5}{\sqrt{10}}\right)/\sqrt{10}$. Truncating to $(0,\infty)$ renormalizes by the probability mass above zero:
+We then need to specify the densities of the parameters involved. Starting with $\alpha$, the untruncated $N(0.5, 10)$ density is $\phi\!\left(\frac{\alpha - 0.5}{\sqrt{10}}\right)/\sqrt{10}$. Truncating to $(0,\infty)$ renormalizes by the probability mass above zero:
 
 $$
 \pi(\alpha) = \frac{\phi\!\left(\frac{\alpha-0.5}{\sqrt{10}}\right)/\sqrt{10}}{1 - \Phi\!\left(\frac{0-0.5}{\sqrt{10}}\right)} \cdot \mathbf{1}(\alpha > 0)
 $$
 
-In the MH ratio this normalizing constant cancels when both current and proposed values satisfy $\alpha > 0$ — which is why returning $-\infty$ for $\alpha \leq 0$ is sufficient and no explicit constant is needed in the code.
+In the MH ratio this normalizing constant cancels when both current and proposed values satisfy $\alpha > 0$, which is why returning $-\infty$ for $\alpha \leq 0$ is sufficient and no explicit constant is needed in the code.
 
-**Truncated Laplace for $\theta$.** The Laplace$(0, 0.35)$ density is $\frac{1}{2(0.35)}\exp(-|\theta|/0.35)$. Truncating to $(-1,1)$ gives
+For $\theta$, the Laplace$(0, 0.35)$ density is $\frac{1}{2(0.35)}\exp(-|\theta|/0.35)$. Truncating to $(-1,1)$ gives
 
 $$
 \pi(\theta) = \frac{\exp(-|\theta|/0.35)}{2(0.35)\left(1 - e^{-1/0.35}\right)} \cdot \mathbf{1}(|\theta| < 1)
@@ -334,20 +336,20 @@ $$
 
 Again the normalizing constant cancels in the MH ratio, so only $-|\theta|/0.35$ enters `log_prior`, with hard rejection for $|\theta| \geq 1$.
 
-**Log-posterior.** For computational stability all evaluations are performed on the log scale. The unnormalized log-posterior is
+Up to this point, the full conditional likelihood was considered; however, we'll take logs to ensure computational stability. This means the unnormalized log-posterior is of the form 
 
 $$
 \log p(\boldsymbol{\psi} \mid \mathbf{y}) = \log L + \log\pi(\alpha) 
 + \log\pi(\beta) + \log\pi(\gamma) + \log\pi(\theta) + \log\pi(\sigma)
 $$
 
-with the likelihood contributing 
+with 
 
-$-\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_i \varepsilon_i^2$.
+$$
+\ell = -\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_i \varepsilon_i^2. 
+$$
 
 At each Metropolis step a proposal $\boldsymbol{\psi}^*$ is accepted with probability $\min\!\left(1,\, e^{\log p(\boldsymbol{\psi}^* \mid \mathbf{y}) - \log p(\boldsymbol{\psi}^{(t)} \mid \mathbf{y})}\right)$, evaluated in code as \texttt{log(runif(1)) < lp\_proposed - lp\_current}.
-
-**Why the uniform prior on $\sigma$, not $\sigma^2$.** The prior $\pi(\sigma) \propto 1$ on $(0,20)$ is not the same as $\pi(\sigma^2) \propto 1$; by the change-of-variables formula $\pi(\sigma^2) \propto 1/\sigma$, which is a more diffuse (Jeffreys-like) prior on the variance scale. The problem specifies the uniform on $\sigma$ explicitly, so the posterior is sampled in $\sigma$ and converted to $\sigma^2$ inside the likelihood evaluation — exactly what the code does.
 
 ### Computation 
 
@@ -658,7 +660,7 @@ for (iter_max in c(500, 2500)) {
 par(mfrow = c(1, 1), mar = c(5, 4, 4, 2))
 ```
 
-**A burn-in of 1,000 iterations is selected.** Three chains were initialized from dispersed starting values and run for several short trial lengths to justify this choice. By 500 iterations the chains traverse overlapping ranges with no systematic between-chain differences. Behavior is visually indistinguishable from the full 2,500-iteration run, confirming that the sampler has reached stationarity well before this point. The 500-iteration mark is taken as the convergence threshold; burn-in is set to 1,000 iterations as a conservative multiple of this value.
+**A burn-in of 1,000 iterations is selected.** Three chains were initialized from (relatively) dispersed starting values and run for several short trial lengths. By 500 iterations the chains are traversing overlapping ranges with no systematic drift or between-chain separation, indicating that transient dependence on the starting values has dissipated. Behavior is visually indistinguishable from the remainder of the 2,500-iteration run. The 500-iteration mark is taken as the apparent convergence threshold; we then double it. 
 
 ```{r q2a-acf-plot, echo = F, warning = F, message = F, fig.height = 6, fig.width = 7}
 par(mfrow = c(2, 1), mar = c(2, 4, 3, 1), oma = c(2, 0, 1, 0))
@@ -673,7 +675,9 @@ acf(alpha_thin,
 par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
 ```
 
-The raw post-burn-in ACF for $\alpha$ (top) reveals substantial autocorrelation that remains well above significance bounds even at lag 50, indicating slow mixing. Thinning by a factor of 50 (bottom) reduces autocorrelation to negligible levels beyond lag 1; thinning is used here diagnostically to characterize mixing, not as a required step for inference. The slow mixing is attributable to the high correlations among $\alpha$, $\beta$, and $\gamma$ (Table 2) that are not fully resolved by block-wise proposals. It is worth being explicit about the methodological implication: the several short chains approach was used here for its intended purpose --- diagnosing burn-in by examining between-chain behavior across multiple dispersed initializations. However, the ACF evidence makes clear that short chains of the length adequate for burn-in assessment would yield very small effective sample sizes for inference. The posterior summaries in part (c) are therefore drawn from a single long chain of 54,000 iterations with the first 1,000 discarded, a deliberate departure from the short-chains framework motivated by the mixing behavior documented above. The effective sample size is considerably smaller than the nominal $`r n_iter - burn`$ retained draws, but the thinned ACF confirms that draws separated by 50 iterations are effectively independent, providing a usable posterior sample.
+The raw post-burn-in ACF for $\alpha$ (top) reveals substantial autocorrelation remaining well above significance bounds even at lag 50, indicating slow mixing. Two sources contribute to this. First, although $\alpha$ and $\beta$ are updated jointly in the same MH block, an random walk proposal still struggles to efficiently traverse a strongly correlated posterior surface within that block. Second, and more fundamentally, $\gamma$ is updated in a separate MH block yet is itself highly correlated with $\alpha$ and $\beta$ (Table 2); this between-block correlation is never jointly addressed by the sampling structure, imposing an additional bottleneck on mixing. Thinning by a factor of 50 (bottom) reduces autocorrelation to negligible levels beyond lag 1, confirming that draws separated by 50 iterations are effectively independent. 
+
+Thinning is used here diagnostically to characterize mixing, not as a required step for inference. The practical consequence is that the effective sample size is considerably smaller than the nominal $`r format(n_iter - burn, big.mark = ",")`$ retained draws, and the several short chains approach, while appropriate for burn-in diagnosis via between-chain behavior, would yield effectively negligible inferential value at chain lengths adequate for convergence assessment alone. I believe that is why the posterior summaries in part (c) are drawn from a single long chain of $`r format(n_iter, big.mark = ",")`$ iterations with the first $`r burn`$ discarded.
 
 ```{r cov-mat-full-report, echo = F}
 # cor_mle <- cov2cor(cov_mle)
@@ -754,9 +758,9 @@ kable(tuning_tab,
            general_title = "Note:")
 ```
 
-Table 3 reports the initial, two intermediate, and final tuning configurations. All tuning is conducted on the standard deviation scale (not variance); corresponding variances appear in the table footnote. Acceptance rates at each stage were averaged across all three chains over 2,000 iterations to avoid results being an artefact of any single run.
+Table 3 reports the initial, two intermediate, and final tuning configurations. All tuning is conducted on the standard deviation scale; corresponding variances appear in the table footnote. Acceptance rates at each stage were averaged across all three chains over 2,000 iterations to avoid results being an artefact of any single run.
 
-To start, Block 2 ($\gamma$) had an acceptance rate near `r rates_1[2]` --- far below target --- because the informative Exp(15) prior concentrates $\gamma$ tightly near zero, making large proposals almost always land in low-probability territory. The $\gamma$ SD was reduced to `r prop_sd_2["gamma"]` immediately. Block 1 ($\alpha, \beta$) and Block 3 ($\theta, \sigma$) were both below target, so their SDs were increased. This overcorrected Block 1 (`r rates_2[1]`), so in Attempt 3 the SDs were pulled back to `r prop_sd_3["alpha"]` and `r prop_sd_3["theta"]` respectively, with $\gamma$ refined to `r prop_sd_3["gamma"]`. Block 1 remained below target (`r rates_3[1]`), motivating the final reduction.
+For the initial attempt, Block 2 ($\gamma$) had an acceptance rate near `r rates_1[2]`, far below target, because the informative Exp(15) prior concentrates $\gamma$ tightly near zero, making large proposals almost always land in low-probability territory. The $\gamma$ SD was reduced to `r prop_sd_2["gamma"]`. Block 1 ($\alpha, \beta$) and Block 3 ($\theta, \sigma$) were both below target, so their SDs were increased. This overcorrected Block 1 (`r rates_2[1]`), so in Attempt 3 the SDs were pulled back to `r prop_sd_3["alpha"]` and `r prop_sd_3["theta"]` respectively, with $\gamma$ refined to `r prop_sd_3["gamma"]`. Block 1 remained below target (`r rates_3[1]`), motivating the final reduction.
 
 The final proposal specifications achieve acceptance rates of `r rates_4[1]`, `r rates_4[2]`, and `r rates_4[3]` for Blocks 1, 2, and 3 respectively, all within the target range of 0.20--0.50. 
 
@@ -764,19 +768,19 @@ The final proposal specifications achieve acceptance rates of `r rates_4[1]`, `r
 
 > Collect $M = 50{,}000$ samples from the joint posterior after burn-in. Summarize the results using five number summaries, 95% credible intervals, and correlations in the joint posterior. Compare the point estimates and confidence intervals to what was obtained previously for maximum likelihood using a (probably incorrect) information matrix and using parametric bootstrap.
 
-Posterior summaries and 95% credible intervals are reported in Tables 4--6; posterior correlations appear in Table 6. The discussion proceeds parameter by parameter, followed by an overall comparison.
+Overall, the discrepancies between methods are largest where priors are more informative or the asymptotically normal intervals cross parameter boundaries ($\alpha$, $\theta$), and smallest where the likelihood dominates ($\gamma$). The asymptotically normal intervals from Part I are least trustworthy throughout, most visibly for $\alpha$, where both the bootstrap and Bayesian intervals offer clear improvement. Moreover, the strong posterior correlations of Table 6 suggest substantial parameter trading-off in the likelihood, which tends to produce a poorly-invertible observed information matrix (singular or nearly singular) and unreliable asymptotically normal intervals across all five parameters, perhaps an unsurprising conclusion given the results of Part I.
 
-**$\alpha$:** The most striking discrepancy. The posterior median (1.692) is more than double the MLE (0.740), and the Bayesian credible interval (0.309, 3.327) is shifted substantially rightward relative to both the bootstrap (0.068, 2.511) and AN intervals. The AN interval is demonstrably invalid --- it extends to $-0.483$, which violates the hard constraint $\alpha > 0$. This is the clearest illustration of why the information matrix was described as "probably incorrect" --- the asymptotic normal approximation takes no account of the parameter boundary.
+Specifically, for each parameter: 
 
-**$\beta$:** Posterior median (0.474) is roughly half the MLE (1.028). The Bayesian interval (0.181, 1.574) is notably narrower and lower than the bootstrap (0.309, 2.501). Due to strong posterior correlation ($\rho_{\alpha\beta} = -0.798$), combinations of higher $\alpha$ and lower $\beta$ yield similar fitted values; the marginal MLE captures neither the shift nor the tradeoff.
+The differences across methods are most striking for $\alpha$: The posterior median (1.692) is more than double the MLE (0.740), and the Bayesian credible interval (0.309, 3.327) is shifted substantially rightward relative to both the bootstrap (0.068, 2.511) and asymptotically normal (AN) intervals. The AN interval is invalid, including negative values and violating the parameter constraint $\alpha > 0$. This is the clearest illustration of why the information matrix was described as "probably incorrect".
 
-**$\gamma$:** The informative Exp(15) prior is visibly pulling the posterior median (0.101) below the MLE (0.157), and the Bayesian interval (0.008, 0.202) is narrower than the bootstrap (0.055, 0.210). This is expected and by design --- the prior was explicitly chosen to constrain $\gamma$ based on subject-matter knowledge about its extreme effect on the response function.
+For $\beta$, the posterior median (0.474) is roughly half the MLE (1.028). The Bayesian interval (0.181, 1.574) is notably narrower and lower than the bootstrap (0.309, 2.501). Due to strong posterior correlation ($\rho_{\alpha\beta} = -0.798$), combinations of higher $\alpha$ and lower $\beta$ yield similar fitted values; and the marginal MLE captures neither the shift nor the tradeoff.
 
-**$\theta$:** The posterior median (0.620) is modestly above the MLE (0.560), and the Bayesian interval (0.220, 0.957) sits entirely in positive territory. The bootstrap interval ($-0.129$, 0.649) includes negative values, suggesting the Laplace prior with its concentration near zero is providing meaningful regularization away from the lower tail.
+For $\gamma$, the relatively informative Exp(15) prior is visibly pulling the posterior median (0.101) below the MLE (0.157), and the Bayesian interval (0.008, 0.202) is narrower than the bootstrap (0.055, 0.210). This is perhaps to be expected (by design) as the prior was explicitly chosen to constrain $\gamma$ based on subject-matter knowledge about its extreme effect on the response function.
 
-**$\sigma^2$:** The posterior median (0.868) is notably higher than the MLE (0.625), and the Bayesian credible interval (0.481, 1.714) is considerably wider than both the bootstrap (0.263, 0.879) and AN intervals (0.279, 0.971). This makes sense --- the Bayesian analysis propagates uncertainty from all other parameters into the marginal posterior for $\sigma^2$, whereas the MLE treats the other parameters as fixed at their point estimates.
+For $\theta$, the posterior median (0.620) is modestly above the MLE (0.560), and the Bayesian interval (0.220, 0.957) sits entirely in positive territory. The bootstrap interval ($-0.129$, 0.649) includes negative values, suggesting the Laplace prior with its concentration near zero is providing meaningful regularization away from the lower tail.
 
-**Overall:** Discrepancies between methods are largest where priors are informative or constraints are active ($\alpha$, $\theta$), and smallest where the likelihood dominates ($\gamma$). The AN intervals are least trustworthy throughout --- most visibly for $\alpha$, but the posterior correlation structure suggests the information matrix was poorly conditioned in ways that affect all five parameters.
+For $\sigma^2$, the posterior median (0.868) is notably higher than the MLE (0.625), and the Bayesian credible interval (0.481, 1.714) is considerably wider than both the bootstrap (0.263, 0.879) and AN intervals (0.279, 0.971). This makes sense for two reasons. First, the Bayesian analysis propagates uncertainty from all other parameters into the marginal posterior for $\sigma^2$, whereas the MLE treats the other parameters as fixed at their point estimates. Second, the uniform prior on $\sigma$ implies a non-uniform induced prior on $\sigma^2$ proportional to $1/(2\sqrt{\sigma^2})$, placing relatively more prior mass in the upper tail of $\sigma^2$ and pulling the posterior upward relative to the MLE.
 
 ```{r q2c-pt1, cache = T, echo = F, warning = F, message = F}
 # ── Re-run with burn + 50000 iterations to guarantee 50k post-burn samples ────
@@ -853,33 +857,31 @@ ci_bayes <- t(apply(post_df, 2, quantile, probs = c(0.025, 0.975)))
 ci_compare <- data.frame(
   Parameter = c("$\\alpha$", "$\\beta$", "$\\gamma$", "$\\theta$", "$\\sigma^2$"),
   Post_Med  = round(apply(post_df, 2, median), 4),
+  MLE       = round(mle, 4),
   Bayes_Lo  = round(ci_bayes[, 1], 4),
   Bayes_Hi  = round(ci_bayes[, 2], 4),
   Boot_Lo   = round(ci_pct["2.5%",  ], 4),
   Boot_Hi   = round(ci_pct["97.5%", ], 4),
   AN_Lo     = round(mle - z95 * se_mle, 4),
-  AN_Hi     = round(mle + z95 * se_mle, 4),
-  MLE       = round(mle, 4)
+  AN_Hi     = round(mle + z95 * se_mle, 4)
 )
-
 kable(ci_compare,
       format    = "latex",
       col.names = c("Parameter", "Post. Med.",
+                    "MLE",
                     "2.5\\%", "97.5\\%",
                     "2.5\\%", "97.5\\%",
-                    "2.5\\%", "97.5\\%",
-                    "MLE"),
+                    "2.5\\%", "97.5\\%"),
       caption   = "Comparison of 95\\% intervals: Bayesian credible, percentile bootstrap, and asymptotic normal.",
       booktabs  = TRUE,
       escape    = FALSE,
-      align     = "lrrrrrrrr",
+      align     = "lrrrrrrrrr",
       row.names = FALSE) |>
   kable_styling(latex_options = c("hold_position", "scale_down")) |>
-  add_header_above(c(" " = 2,
+  add_header_above(c(" " = 3,
                      "Bayes" = 2,
                      "Bootstrap" = 2,
-                     "Asym. Normal" = 2,
-                     " " = 1),
+                     "Asym. Normal" = 2),
                    escape = FALSE)
 ```
 
@@ -920,9 +922,17 @@ cor_tab[5,1], cor_tab[5,2], cor_tab[5,3], cor_tab[5,4], cor_tab[5,5]
 
 > A scatterplot of the data with the median expectation function and a pointwise 95% credible band. Why might we prefer using the posterior medians here rather than the posterior means? Compare this Bayesian credible band to those constructed using likelihood theory, both asymptotic normality and as constructed by parametric bootstrap.
 
-**Posterior medians vs. means:** Posterior medians are preferred here due to skewness and the hard boundary constraint on $\alpha$. The posterior distributions of $\alpha$ and $\beta$ are right-skewed --- visible in the five-number summaries where Q3 $-$ Median $>$ Median $-$ Q1 for both parameters --- and $\alpha$ has a hard lower boundary at zero imposed by the truncated normal prior. The posterior mean is sensitive to skewness and to occasional large draws in the upper tail, making it a less stable summary of central tendency. The median is more robust to this skewness. And importantly, the plug-in curve $\mu(x; \tilde\alpha, \tilde\beta, \tilde\gamma)$ evaluated at the posterior medians $(\tilde\alpha, \tilde\beta, \tilde\gamma)$ is not the same as the pointwise posterior median of $\mu(x)$ --- but it provides a single coherent curve rather than a parameter-by-parameter summary that may not correspond to any consistent parameter vector. For a nonlinear function like the extended Freundlich, the pointwise posterior median of $\mu(x)$ computed directly from the Monte Carlo draws --- as done here --- is generally preferred over plugging in marginal means for two related reasons: the marginal means may not correspond to any coherent parameter vector given the strong posterior correlations documented in Table 6, and the nonlinearity of $\mu$ means that $E[\mu(x; \boldsymbol{\psi})] \neq \mu(x; E[\boldsymbol{\psi}])$ in general. Both concerns favor working directly with the Monte Carlo distribution of the curve rather than with summaries of the marginal parameter distributions.
+**Regarding Posterior medians:** 
 
-**Comparing bands:** The most immediately striking feature of the plot is the separation between the two central curves --- the posterior median curve sits visibly above the MLE throughout the middle of the covariate range, a direct consequence of the upward shift in the marginal posterior of $\alpha$ relative to its MLE documented in part (c). Regarding the bands themselves, the Bayesian credible band is the widest of the three at virtually every covariate value, and notably so at high covariate values where data are sparse --- reflecting joint uncertainty across all five parameters via the posterior distribution. The bootstrap band is intermediate in width and shares the Bayesian band's asymmetry, since both respect the nonlinearity of the expectation function rather than relying on a linear approximation. In summary: the Bayesian band is widest and asymmetric, accounting for full parameter uncertainty; the bootstrap band is intermediate and asymmetric, respecting the nonlinearity of $\mu$ without a linear approximation; the delta-method band is narrowest and symmetric, centered on the same MLE curve as the bootstrap band but underestimating uncertainty, most visibly at large covariate values where data are sparse.
+Posterior medians are preferred here for two related reasons. First, they are less sensitive to skewness in the marginal posterior distributions. This is relevant in this instance because the posteriors of $\alpha$ and $\beta$ are right-skewed, evidenced in the five-number summaries where Q3 $-$ Median $>$ Median $-$ Q1 for both parameters; in addition, $\alpha$ has a hard lower boundary at zero imposed by the truncated normal prior. By contrast, the posterior mean is more sensitive to skewness, making it a less stable summary of central tendency compared to the median.
+
+More fundamentally, for a nonlinear function like the extended Freundlich, plugging in marginal means is problematic on two counts: The marginal means may not correspond to any coherent parameter vector given the strong posterior correlations documented in Table 6, and the nonlinearity of $\mu$ means that $E[\mu(x; \boldsymbol{\psi})] \neq \mu(x; E[\boldsymbol{\psi}])$ in general, via Jensen's. Note that the plug-in curve $\mu(x; \tilde\alpha, \tilde\beta, \tilde\gamma)$ evaluated at the posterior medians is not the same as the pointwise posterior median of $\mu(x)$ computed directly from the Monte Carlo draws; the latter is what is reported here, and is the preferred summary for both reasons given.
+
+**Comparing bands:** 
+
+The most immediately striking feature of the below plot is the separation between the MLE and the posterior median: The posterior median curve sits visibly above the MLE throughout the middle of the covariate range, a direct consequence of the upward shift in the marginal posterior of $\alpha$ relative to its MLE, noted in part (c). Regarding the bands themselves, the Bayesian credible band is the widest of the three at virtually every covariate value, and notably so at high covariate values where data are sparse, reflecting joint uncertainty across all five parameters via the posterior distribution. The bootstrap slightly different from the AN band, and the bootstrap band shares the Bayesian band's asymmetry, since both respect the nonlinearity of the expectation function rather than relying on a linear approximation. 
+
+In summary: The Bayesian band is widest and asymmetric, accounting for full parameter uncertainty; the bootstrap band is intermediate (compared to the other too) while also being asymmetric, meaning both methods respect the nonlinearity of $\mu$ without a linear approximation. By contrast, the delta-method band from Part I is narrowest and symmetric, centered on the same MLE curve as the bootstrap band but underestimating uncertainty, most visibly at large covariate values where data are sparse.
 
 ```{r q2d, echo = F, warning = F, message = F}
 alpha_h <- mle["alpha"]
