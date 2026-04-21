@@ -220,11 +220,13 @@ mle[5], ci_pct[1,5], ci_pct[2,5], mle[5]-z95*se_mle[5], mle[5]+z95*se_mle[5]
 
 > Determine a 95% confidence band for the expectation function, also using percentile bootstrap methodology with maximum likelihood estimation.
 
-We construct a *pointwise* 95% confidence band for the expectation function $\mu(x;\, \alpha, \beta, \gamma) = \alpha x^{\beta x^{-\gamma}}$, meaning the nominal 95% coverage applies at each fixed $x_0$ separately, not simultaneously over the full curve. The figure below shows the MLE-centered fit, the percentile bootstrap band, and the delta-method band (described below), all evaluated on an equally spaced grid of $x$-values spanning the observed covariate range. 
+We construct a *pointwise* 95% confidence band for the expectation function $\mu(x;\, \alpha, \beta, \gamma) = \alpha x^{\beta x^{-\gamma}}$, meaning the nominal 95% coverage applies at each fixed $x_0$ separately, not simultaneously over the full curve. The figure below shows the MLE-centered fit and the percentile bootstrap band, all evaluated on an equally spaced grid of $x$-values spanning the observed covariate range. 
 
 For each retained bootstrap replicate $m = 1, \ldots, M_\text{eff}$, the re-estimated parameters $(\hat\alpha^*_m, \hat\beta^*_m, \hat\gamma^*_m)$ from part (a) are used to evaluate the fitted curve over the aforementioned grid, yielding $\mu^*_m(x_0) = \hat\alpha^*_m\, x_0^{\hat\beta^*_m x_0^{-\hat\gamma^*_m}}$ at each grid point $x_0$. Following expression (10.15), the pointwise 95% percentile interval at $x_0$ is the empirical 2.5% and 97.5% quantiles of $\{\mu^*_m(x_0) : m = 1, \ldots, M_\text{eff}\}$, which required interpolation as $(M_\text{eff}+1)\cdot 0.025 = 24.725$ is not an integer.
 
-For comparison, a delta-method band is also shown, though wasn't explicitly asked for in this section. That said, both bands are centered on the same MLE curve, such that differences reflect methodology in the interval construction. Though commented in greater detail later, it is interesting that while both the bootstrap and delta-method intervals look fairly similar, the bootstrap band is asymmetric and wider in some regions, while the delta-method band is symmetric and narrower throughout.
+Thoughts and comparisons noted in Question 2, parts (c) and (d). 
+
+<!-- For comparison, a delta-method band is also shown, though wasn't explicitly asked for in this section. That said, both bands are centered on the same MLE curve, such that differences reflect methodology in the interval construction. Though commented in greater detail later, it is interesting that while both the bootstrap and delta-method intervals look fairly similar, the bootstrap band is asymmetric and wider in some regions, while the delta-method band is symmetric and narrower throughout. -->
 
 ```{r q1b, include = F, echo = F, warning = F, message = F}
 xgrid  <- seq(min(x[x > 0]), max(x), length.out = 300)
@@ -276,12 +278,14 @@ plot(x, y, xlab = "Covariate Value", ylab = "Response Value", main = "")
 lines(xgrid, mugrid, lwd = 2)
 lines(xgrid, band_hi, lty = 2, col = "blue")
 lines(xgrid, band_lo, lty = 2, col = "blue")
-lines(xgrid, dm_hi,   lty = 2, col = "red")
-lines(xgrid, dm_lo,   lty = 2, col = "red")
+# lines(xgrid, dm_hi,   lty = 2, col = "red")
+# lines(xgrid, dm_lo,   lty = 2, col = "red")
 legend("bottomright",
-       legend = c("MLE", "Percentile bootstrap", "Delta method (Q3)"),
+       # legend = c("MLE", "Percentile bootstrap", "Delta method (Q3)"),
+       legend = c("MLE", "Percentile bootstrap"),
        lty    = c(1, 2, 2),
-       col    = c("black", "blue", "red"),
+       # col    = c("black", "blue", "red"),
+       col    = c("black", "blue"),
        lwd    = c(2, 1, 1))
 ```
 
@@ -667,17 +671,17 @@ par(mfrow = c(2, 1), mar = c(2, 4, 3, 1), oma = c(2, 0, 1, 0))
 alpha_postburn <- chain1[(burn + 1):n_iter, "alpha"]
 acf(alpha_postburn,
     main = expression("ACF (post burn-in, Chain 1): " * alpha))
-thin       <- 50
+thin       <- 100
 idx_thin   <- seq(burn + 1, n_iter, by = thin)
 alpha_thin <- chain1[idx_thin, "alpha"]
 acf(alpha_thin,
-    main = expression("ACF (post burn-in, thinned by 50, Chain 1): " * alpha))
+    main = expression("ACF (post burn-in, thinned by 100, Chain 1): " * alpha))
 par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
 ```
 
-The raw post-burn-in ACF for $\alpha$ (top) reveals substantial autocorrelation remaining well above significance bounds even at lag 50, indicating slow mixing. Two sources contribute to this. First, although $\alpha$ and $\beta$ are updated jointly in the same MH block, an random walk proposal still struggles to efficiently traverse a strongly correlated posterior surface within that block. Second, and more fundamentally, $\gamma$ is updated in a separate MH block yet is itself highly correlated with $\alpha$ and $\beta$ (Table 2); this between-block correlation is never jointly addressed by the sampling structure, imposing an additional bottleneck on mixing. Thinning by a factor of 50 (bottom) reduces autocorrelation to negligible levels beyond lag 1, confirming that draws separated by 50 iterations are effectively independent. 
+The raw post-burn-in ACF for $\alpha$ (top) reveals substantial autocorrelation remaining well above significance bounds even at lag 50, indicating slow mixing. Two sources contribute to this. First, although $\alpha$ and $\beta$ are updated jointly in the same MH block, an random walk proposal still struggles to efficiently traverse a strongly correlated posterior surface within that block. Second, and more fundamentally, $\gamma$ is updated in a separate MH block yet is itself highly correlated with $\alpha$ and $\beta$ (Table 2); this between-block correlation is never jointly addressed by the sampling structure, imposing an additional bottleneck on mixing. Thinning by a factor of 100 (bottom) reduces autocorrelation to negligible levels beyond lag 1, confirming that draws separated by 100 iterations are effectively independent. 
 
-Thinning is used here diagnostically to characterize mixing, not as a required step for inference. The practical consequence is that the effective sample size is considerably smaller than the nominal $`r format(n_iter - burn, big.mark = ",")`$ retained draws, and the several short chains approach, while appropriate for burn-in diagnosis via between-chain behavior, would yield effectively negligible inferential value at chain lengths adequate for convergence assessment alone. I believe that is why the posterior summaries in part (c) are drawn from a single long chain of $`r format(n_iter, big.mark = ",")`$ iterations with the first $`r burn`$ discarded.
+Thinning is used here diagnostically to characterize mixing, not as a required step for inference. The practical consequence is that the effective sample size is considerably smaller than the nominal $`r format(n_iter - burn, big.mark = ",")`$ retained draws, and the several short chains approach, while appropriate for burn-in diagnosis via between-chain behavior, would yield effectively negligible inferential value at chain lengths adequate for convergence assessment alone. I believe that is why the posterior summaries in part (c) are drawn from a single long chain of $`r format(n_iter, big.mark = ",")`$ iterations with the first $`r format(burn, big.mark = ",")`$ discarded.
 
 ```{r cov-mat-full-report, echo = F}
 # cor_mle <- cov2cor(cov_mle)
@@ -753,9 +757,9 @@ kable(tuning_tab,
       align     = "lcccccccc") |>
   kable_styling(latex_options = c("hold_position")) |>
   add_header_above(c(" " = 6, "Acceptance Rate" = 3), escape = FALSE) |>
-  footnote(general = "Block 1: $(\\\\alpha, \\\\beta)$ jointly. Block 2: $\\\\gamma$. Block 3: $(\\\\theta, \\\\sigma)$ jointly.",
-           escape        = FALSE,
-           general_title = "Note:")
+  footnote(general = "Note: Block 1: $(\\\\alpha, \\\\beta)$ jointly. Block 2: $\\\\gamma$. Block 3: $(\\\\theta, \\\\sigma)$ jointly.",
+           escape        = FALSE, 
+           general_title = "")
 ```
 
 Table 3 reports the initial, two intermediate, and final tuning configurations. All tuning is conducted on the standard deviation scale; corresponding variances appear in the table footnote. Acceptance rates at each stage were averaged across all three chains over 2,000 iterations to avoid results being an artefact of any single run.
@@ -1000,7 +1004,7 @@ legend(x = max(xgrid) * 0.55, y = max(y) * 0.35,
 # Appendix - Gibbs Sampler 
 
 ```{r, echo = T, eval = F}
-# Log-likelihood under AR(1) error structure
+# Log-likelihood with AR(1) errors
 log_lik <- function(alpha, beta, gamma, theta, sigma2, x, y, n) {
   mu <- alpha * x^(beta * x^(-gamma))
   w <- y - mu
@@ -1008,7 +1012,8 @@ log_lik <- function(alpha, beta, gamma, theta, sigma2, x, y, n) {
   -(n/2)*log(2*pi) - (n/2)*log(sigma2) - sum(eps^2)/(2*sigma2)
 }
 
-# Log prior — unnormalized, truncation constants cancel in MH ratio
+# Log prior
+# Note to self: unnormalized, truncation constants cancel in MH ratio
 log_prior <- function(alpha, beta, gamma, theta, sigma) {
   if (alpha <= 0 || beta <= 0 || gamma <= 0 ||
       sigma <= 0 || sigma > 20 || abs(theta) >= 1) return(-Inf)
@@ -1021,40 +1026,40 @@ log_prior <- function(alpha, beta, gamma, theta, sigma) {
 
 # Log posterior
 log_post <- function(state, x, y, n) {
+  # Block 1
   alpha <- state[1]; beta <- state[2]; 
+  # Block 2
   gamma <- state[3]
+  # Block 3
   theta <- state[4]; sigma <- state[5]
   lp <- log_prior(alpha, beta, gamma, theta, sigma)
   if (!is.finite(lp)) return(-Inf)
   log_lik(alpha, beta, gamma, theta, sigma^2, x, y, n) + lp
 }
 
-# Single Gibbs sweep with three MH blocks; tracks acceptance counts
+# MH-within-Gibbs
+# Added acceptance tracker
 gibbs_step_tracked <- function(state, prop_sd, x, y, n, acc) {
   lp_c <- log_post(state, x, y, n)
-
-  # Block 1: (alpha, beta) jointly
+  # Block 1
   prop <- state
   prop[1:2] <- state[1:2] + rnorm(2, 0, prop_sd[1:2])
   lp_p <- log_post(prop, x, y, n)
   if (log(runif(1)) < lp_p - lp_c) { state <- prop; lp_c <- lp_p; acc[1] <- acc[1] + 1 }
-
-  # Block 2: gamma alone
+  # Block 2
   prop <- state
   prop[3] <- state[3] + rnorm(1, 0, prop_sd[3])
   lp_p <- log_post(prop, x, y, n)
   if (log(runif(1)) < lp_p - lp_c) { state <- prop; lp_c <- lp_p; acc[2] <- acc[2] + 1 }
-
-  # Block 3: (theta, sigma) jointly
+  # Block 3
   prop <- state
   prop[4:5] <- state[4:5] + rnorm(2, 0, prop_sd[4:5])
   lp_p <- log_post(prop, x, y, n)
   if (log(runif(1)) < lp_p - lp_c) { state <- prop; acc[3] <- acc[3] + 1 }
-
   list(state = state, acc = acc)
 }
 
-# Chain runner
+# Run the chain
 run_chain_tracked <- function(start, n_iter, prop_sd, x, y, n) {
   mat <- matrix(NA, n_iter, 5,
                 dimnames = list(NULL, c("alpha","beta","gamma","theta","sigma")))
@@ -1069,11 +1074,11 @@ run_chain_tracked <- function(start, n_iter, prop_sd, x, y, n) {
   list(chain = mat, accept_rates = acc / n_iter)
 }
 
-# Example: run chain from MLE starting values, 54000 iterations, discard first 4000
+# Example Call: 
+# Start with MLE, 51,000 total iterations, burn 1,000
 prop_sd <- c(alpha = 0.10, beta = 0.10, gamma = 0.03, theta = 0.25, sigma = 0.25)
 burn <- 1000
 n_iter_c <- burn + 50000
-
 mle_sigma <- sqrt(mle["sigma2"])
 start1 <- c(mle["alpha"], mle["beta"], mle["gamma"], mle["theta"], mle_sigma)
 
@@ -1081,5 +1086,4 @@ set.seed(42)
 out <- run_chain_tracked(start1, n_iter_c, prop_sd, x, y, n)
 post <- as.data.frame(out$chain[(burn + 1):n_iter_c, ])
 post$sigma2 <- post$sigma^2
-post$sigma <- NULL
 ```
