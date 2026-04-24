@@ -1,0 +1,487 @@
+---
+title: "Presenter Notes: Continuous-Time RL for Portfolio Optimization"
+author: "Sam Olson & Craig Orman"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    latex_engine: pdflatex
+header-includes:
+  - \usepackage{amsmath, amssymb}
+  - \usepackage{booktabs}
+  - \usepackage{geometry}
+  - \geometry{margin=1in}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+\newpage
+
+---
+
+> **How to use these notes.** Each section corresponds to one slide.
+> Blue boxes contain the core mathematical or conceptual point to land.
+> Green boxes are suggested spoken transitions or phrasing.
+> Orange boxes flag likely audience questions and suggested responses.
+> Timing targets are approximate; adjust based on audience engagement.
+
+---
+
+# Slide 1 — Title (Slide 1/20, ~0:30)
+
+**What to say.** Introduce yourselves briefly. One sentence on the paper: Wu and Li (2024) extend the continuous-time mean-variance RL framework of Wang and Zhou (2020) to the practically important case where the market regime is unobservable. State that the presentation is structured to motivate the problem, walk through the theory carefully, and then evaluate how well the algorithm actually works.
+
+**Suggested opening:** ``Today we're reviewing Wu and Li (2024), which asks: can you do reinforcement learning for mean-variance portfolio optimization when you can't directly observe whether you're in a bull or bear market? The short answer is yes, and it works substantially better than the alternatives.''
+
+---
+
+# Slide 2 — The Pitch (Slide 2/20, ~0:30)
+
+**What to say.** Brief comic relief. The joke is that stonks go up, but the serious version is: mean-variance portfolio optimization is a canonical problem, and doing it well under realistic market conditions (non-stationarity, partial information) is genuinely hard. This paper has a clean answer.
+
+**Transition.** Move quickly. This slide exists to set a light tone before the math starts.
+
+---
+
+# Slide 3 — Motivation (Slide 3/20, ~1:30)
+
+**Why continuous-time RL?**
+
+The classical RL literature (Sutton & Barto, Q-learning, etc.) works in discrete time. For financial applications this is a mismatch: asset prices are quoted and traded continuously. More importantly, the continuous-time framework unlocks tractable analytical structure. For linear-quadratic problems, you get closed-form or semi-closed-form representations of the optimal value function and policy — something that discrete-time RL cannot offer. This is what makes the whole approach possible.
+
+The exploration challenge is non-trivial. In standard RL you explore by taking random actions. In continuous time with a Gaussian policy, exploration means sampling from a distribution rather than a point, and the temperature parameter $\Lambda$ controls how wide that distribution is. As $\Lambda \to 0$ the policy collapses to deterministic. The paper's key insight is that for the mean-variance problem, the optimal exploration policy turns out to be Gaussian — so you can parametrize it very parsimoniously.
+
+**Why regime switching?**
+
+The S&P 500 chart is your visual anchor. Bull and bear markets are not just informal descriptions — they represent genuinely different data-generating processes with different drift parameters. Ignoring this structure means your policy is blind to the state of the world. The EMV algorithm of Wang and Zhou (2020) does exactly this: it fits a single GBM to the data and learns a policy under that model. POEMV uses a two-regime model and filters the current regime probability from prices. The whole slide is building to: regime-awareness is practically consequential, and that consequence is quantified in the results section.
+
+**Key point:** The regime is unobservable — investors see prices $\{S_t\}$ but not $I_t \in \{1,2\}$ directly. The question is how to make rational investment decisions under this uncertainty. The answer is Bayesian filtering via the Wonham equation, covered in Slide 8.
+
+**Likely question:** ``Why only two regimes?'' Answer: Two regimes (bull/bear) is the standard in this literature (Guidolin \& Timmermann 2007, 2008; Dai et al. 2010) and is empirically well-supported for long-horizon investment. The appendix of Wu and Li extends to the multi-asset case; more regimes would require solving higher-dimensional versions of the same PDEs.
+
+---
+
+# Slide 4 — RL vs. the Classical Approach (Slide 4/20, ~2:00)
+
+**The classical approach and its failure mode.**
+
+The classical approach says: estimate $(\mu_i, \lambda_i, \sigma)$ from data, plug into the analytically derived optimal policy. The problem is that mean return $\mu$ is notoriously hard to estimate. This is sometimes called the *mean blur* problem (Luenberger 2014, Chapter 9; Michaud \& Michaud 2008). The Sharpe ratio for a single stock estimated from 20 years of daily data has a standard error on the order of 0.1–0.2. Even a small error in $\mu$ translates to large swings in optimal holdings because the optimal control is proportional to $\rho/\sigma$. The classical approach provides no mechanism to correct for this — you estimate once and commit.
+
+**Why RL is better here.**
+
+RL never uses the estimated parameters to compute the optimal control directly. Parameters are estimated only for the purposes of running the Wonham filter — to get $p_t$. The policy parameters $(\phi_1, \phi_2)$ are learned from observed outcomes. If some configurations of the policy led to bad terminal wealth, those get corrected through the actor-critic updates. This is the self-correction mechanism.
+
+**Key point:** In the classical approach, estimation error enters the policy directly. In POEMV, estimation error enters only through the filter, and as Slide 14 shows, the filter is quite robust to moderate estimation error. The policy learning is essentially model-free given $p_t$.
+
+**Paper's contribution box.**
+
+Wang and Zhou (2020) handled the single-regime (GBM) case and got a fully analytical solution. Wu and Li (2024) replace the GBM with a regime-switching GBM, lose the analytical solution for $f$ and $g$, but show that the structural form of the optimal policy is preserved — still Gaussian, still decomposable into myopic and hedging terms. The algorithm is essentially the same actor-critic loop, augmented with a filtering step.
+
+**Suggested phrasing:** ``The punchline of the RL advantage is that when you're wrong about the model — which you always are — the RL policy has seen those scenarios during training and learned to handle them. The classical policy was never tested on real data. That asymmetry shows up dramatically in the empirical results.''
+
+---
+
+# Slide 5 — The MV Portfolio Problem (Slide 5/20, ~2:00)
+
+**The constrained problem.**
+
+The standard Markowitz mean-variance problem over a continuous-time horizon $[0,T]$:
+$$\min_u \; \mathrm{Var}[X_T^u] \quad \text{s.t.} \quad \mathbb{E}[X_T^u] = z$$
+where $X_T^u$ is the discounted terminal wealth and $u_t$ is the dollar value invested in the risky asset at time $t$. The discount is at the risk-free rate $r$.
+
+**The Lagrangian reformulation.**
+
+Via the standard Lagrange multiplier trick (Zhou and Li 2000), the constrained problem is equivalent to minimizing:
+$$\mathbb{E}\left[(X_T^u - \omega)^2\right] - (\omega - z)^2$$
+for a fixed $\omega$. The $-(\omega - z)^2$ term is a constant with respect to $u$, so minimizing over $u$ reduces to $\min_u \mathbb{E}[(X_T^u - \omega)^2]$ — a mean-squared-error problem. This is a linear-quadratic (LQ) control problem, which is why the optimal policy turns out to be Gaussian.
+
+**Time inconsistency.**
+
+This is a technically important point worth dwelling on briefly. The variance operator $\mathrm{Var}[X_T^u]$ is not a standard expected value of a running reward, so the Bellman principle does not apply directly. A policy that is optimal at $t=0$ will generally not be optimal from the perspective of a later time $t > 0$. The paper focuses on the *precommitted* strategy: the investor commits at $t=0$ to a policy that is optimal from that initial perspective, and then executes it mechanically, without re-optimizing. This is the standard approach in the continuous-time MV literature (see also Dai et al. 2023 for the equilibrium approach).
+
+**The $\omega$ update rule.**
+
+The optimal $\omega^*$ satisfies $\mathbb{E}[X_T^{u^*(\omega^*)}] = z$. Since we don't know $u^*(\omega^*)$ in closed form, we use stochastic approximation. Every 10 training episodes, we compute the average terminal wealth over those episodes and nudge $\omega$ in the direction that corrects the mean. This is the Robbins-Monro scheme. Deferred updates (every $s=10$ iterations rather than every episode) stabilize learning by averaging out stochasticity in the terminal wealth.
+
+**Likely question:** ``Isn't the precommitted strategy sub-optimal?'' Answer: Relative to a time-consistent equilibrium strategy, yes. But the precommitted strategy is the standard benchmark in this literature. Dai et al. (2023) develop an equilibrium RL approach for the GBM case; extending that to the regime-switching case is Open Problem 2 on the Discussion slide.
+
+---
+
+# Slide 6 — Exploratory Stochastic Control (Slide 6/20, ~2:30)
+
+**The key idea.**
+
+Wang et al. (2020) proposed replacing deterministic controls $u_t$ with distribution-valued policies $\boldsymbol{\pi}_t \in \mathcal{P}(\mathcal{U})$. Instead of choosing a specific dollar amount to invest, the agent samples from a distribution over dollar amounts. This is exploration in continuous time.
+
+**The exploratory SDE.**
+
+The wealth process under stochastic policy $\boldsymbol{\pi}$ is:
+$$d\tilde{X}_t^{\boldsymbol{\pi}} = \sigma\hat\rho_t \bar{u}_t \, dt + \sigma \bar{u}_t \, d\hat{B}_t + \sigma \sqrt{\overline{u^2}_t - \bar{u}_t^2} \, d\bar{B}_t$$
+where $\bar{u}_t = \int u \, \boldsymbol{\pi}(u) \, du$ is the mean action and $\overline{u^2}_t - \bar{u}_t^2$ is the variance of the policy. The third term involves $\bar{B}$, an independent Brownian motion introduced purely by the randomization of actions. This is the *variance* of the policy contributing directly to the wealth dynamics.
+
+The key step in deriving this is that diffusion processes are characterized by their first two moments, so averaging over the randomized actions produces a drift proportional to the mean control and a diffusion proportional to both the mean and variance of the control.
+
+**The novelty over Wang and Zhou (2020).**
+
+In the GBM case (no regime switching), wealth $X_t$ is the only state variable and the covariance structure is simple. Here, the joint state is $(X_t, p_t)$, and the covariance $\mathrm{Cov}(\Delta X^\pi, \Delta p_t)$ is non-zero because both are driven by the same innovation $\hat{B}_t$. This cross term $\propto (\rho_1 - \rho_2) p(1-p) v_{xp}$ shows up in the HJB equation and is the source of the hedging term in the optimal policy. In the GBM case this term vanishes because there is no $p_t$.
+
+**Entropy regularization.**
+
+The objective adds $-\Lambda \int_0^T \mathcal{H}(\boldsymbol{\pi}_t) \, dt$ to the criterion, where $\mathcal{H}$ is differential entropy. Maximizing entropy encourages the policy to remain spread out (high variance). The temperature $\Lambda$ controls the exploration-exploitation tradeoff. Setting $\Lambda = 0$ gives the original deterministic problem. For LQ problems, the entropy-regularized optimal policy is Gaussian — this is a standard result that follows from completing the square in the HJB equation.
+
+**Core point to land:** Entropy regularization is not just a training trick — it has a rigorous mathematical justification. The optimal policy for the regularized problem is Gaussian, which gives you a natural parametrization for learning. As $\Lambda \to 0$ the Gaussian collapses to the deterministic optimal control (Corollary 1 of the paper).
+
+---
+
+# Slide 7 — Market Model \& Wonham Filtering (Slide 7/20, ~3:00)
+
+**The regime-switching GBM.**
+
+The risky asset follows:
+$$dS_t = S_t(\mu_t \, dt + \sigma \, dB_t)$$
+where $\mu_t = \mu_{I_t}$ and $I_t \in \{1,2\}$ is a continuous-time Markov chain (CTMC) with generator:
+$$Q = \begin{pmatrix} -\lambda_1 & \lambda_1 \\ \lambda_2 & -\lambda_2 \end{pmatrix}$$
+
+Regime 1 is the bull market ($\mu_1 = 0.25$), Regime 2 is the bear market ($\mu_2 = -0.73$). The transition rates $\lambda_1 = 0.36$ and $\lambda_2 = 2.89$ mean the bull regime lasts on average $1/\lambda_1 \approx 2.8$ years and the bear regime lasts $1/\lambda_2 \approx 0.35$ years. This asymmetry reflects the well-known tendency for bull markets to be longer-lived than bear markets.
+
+Volatility $\sigma$ is regime-independent. This is standard in the literature because $\sigma$ can be identified exactly from the quadratic variation of $\ln S_t$, so it's not part of the unobservable state (Xiong and Zhou 2007, Remark 1 of the paper).
+
+**The partial information problem.**
+
+The investor observes $\{S_t\}$ continuously but never observes $I_t$. The portfolio strategy must be adapted to $\mathcal{F}_t^S$ — the filtration generated by prices alone. This rules out any strategy that uses the true regime.
+
+**Wonham filtering.**
+
+The belief state $p_t = P(I_t = 1 \mid \mathcal{F}_t^S)$ evolves according to the Wonham filter:
+$$dp_t = \left[-(\lambda_1 + \lambda_2)p_t + \lambda_2\right] dt + (\rho_1 - \rho_2) p_t(1-p_t) \, d\hat{B}_t$$
+
+where $\hat{B}_t$ is the innovation process (a standard Brownian motion with respect to $\mathcal{F}_t^S$). The drift is mean-reverting toward $\lambda_2/(\lambda_1 + \lambda_2)$ — the stationary probability of the bull market. The diffusion term $(\rho_1-\rho_2)p_t(1-p_t)$ is zero when $p_t = 0$ or $p_t = 1$ (certainty about the regime) and maximal at $p_t = 1/2$ (maximum uncertainty).
+
+**Entrance boundaries.**
+
+Both $p=0$ and $p=1$ are entrance boundaries in the sense of Feller's boundary classification. This means: if $p_t$ starts in $(0,1)$, it stays there forever (almost surely). You never become fully certain of the regime. This is mathematically convenient — it means the PDE for $f$ and $g$ doesn't need boundary conditions at the endpoints.
+
+**Separation principle.**
+
+The key result, established by Xiong and Zhou (2007), is that the partial-information problem with state $(X_t, I_t)$ reduces to a fully observed problem with state $(X_t, p_t)$. The wealth dynamics become:
+$$dX_t = \sigma u_t(\hat\rho_t \, dt + d\hat{B}_t)$$
+where $\hat\rho_t = (\rho_1-\rho_2)p_t + \rho_2$ is the filtered Sharpe ratio — a weighted average of the two regime Sharpe ratios. Everything is now driven by the observable innovation $\hat{B}_t$.
+
+This is the reason the Jia and Zhou (2022) martingale theory applies directly: once you condition on $\mathcal{F}_t^S$ and use $p_t$ as the state, the problem is fully observed, and all the CT-RL machinery carries over.
+
+**Core point:** The separation principle is doing heavy lifting here. It converts a POMDP into a fully-observed MDP. The price is that you need to estimate the model parameters to run the filter — which is the main distinguishing feature of POEMV vs. a fully model-free algorithm.
+
+**Likely question:** ``Why not just use the EM algorithm to estimate the regime parameters?'' Answer: This is addressed directly in the paper and in the appendix slide. The EM algorithm produces wildly implausible transition rate estimates ($\hat\lambda_1 \approx 128$, $\hat\lambda_2 \approx 132$, i.e., regime switches every two days) because at daily frequency the drift signal is swamped by the diffusion noise. The heuristic approach of Dai et al. (2010) — segment the data by bull/bear periods using threshold rules, then estimate within each segment — produces much more sensible estimates.
+
+---
+
+# Slide 8 — Solution Structure: Theorems 1 \& 2 (Slide 8/20, ~3:00)
+
+**From HJB to the ansatz.**
+
+The HJB equation for the entropy-regularized problem is a nonlinear PDE in $(t, x, p)$. The nonlinearity comes from the term $-[(\cdots)v_x + (\cdots)v_{xp}]^2 / (2v_{xx})$ after minimizing over $\boldsymbol{\pi}$. The key insight is that the terminal condition $v(T,x,p) = (x-\omega)^2 - (\omega-z)^2$ is quadratic in $x$, which motivates the ansatz:
+$$v(t,x,p) = \frac{(x-\omega)^2}{f(t,p)} + g(t,p) - (\omega-z)^2$$
+
+This separates $x$ from $(t,p)$. Plugging back into the HJB equation and matching terms gives two decoupled linear parabolic PDEs for $f$ and $g$.
+
+**The $f$ PDE.**
+
+$$f_t + \tfrac{1}{2}(\rho_1-\rho_2)^2 p^2(1-p)^2 f_{pp} - \left[2\hat\rho(\rho_1-\rho_2)p(1-p) + (\lambda_1+\lambda_2)p - \lambda_2\right] f_p + \hat\rho^2 f = 0$$
+with $f(T,p) = 1$. 
+
+The drift coefficient of $f_p$ involves both the Sharpe ratio parameters (the $2\hat\rho(\rho_1-\rho_2)p(1-p)$ term) and the transition rates (the $(\lambda_1+\lambda_2)p - \lambda_2$ term). The first comes from the cross-variation between the wealth and belief processes; the second from the drift of the belief process itself.
+
+**The $g$ PDE.**
+
+$$g_t + \tfrac{1}{2}(\rho_1-\rho_2)^2 p^2(1-p)^2 g_{pp} + \left[\lambda_2 - (\lambda_1+\lambda_2)p\right] g_p - \tfrac{\Lambda}{2} \ln\tfrac{\pi\Lambda f}{\sigma^2} = 0$$
+with $g(T,p) = 0$.
+
+The drift of $g$ involves only the transition rates (same as the belief process drift), not the Sharpe ratio terms. The source term $-\tfrac{\Lambda}{2}\ln\tfrac{\pi\Lambda f}{\sigma^2}$ is where the entropy regularization enters. When $\Lambda = 0$ the source term vanishes and $g \equiv 0$, recovering the classical case (Corollary 1).
+
+**Sequential structure.** The two PDEs are not coupled in the forward direction: solve $f$ first (it doesn't depend on $g$), then use $f$ as an input to solve $g$. Both are solved numerically by finite difference (Crank-Nicolson scheme, Appendix B of the paper).
+
+**Properties of $f$ (Theorem 1).**
+
+- $f \in [1, e^{\bar\rho^2(T-t)}]$: bounded between 1 and the single-regime EMV solution.
+- $f$ is decreasing in $t$: as you approach the terminal time, the value function becomes less sensitive to the wealth deviation $(x-\omega)^2$.
+- $f_p$ and $f_{pp}$ are uniformly bounded: ensures the optimal policy mean is well-defined everywhere.
+- Well-posedness proved via comparison principle using probabilistic arguments (Lemma 1 in the paper's appendix).
+
+**Core point:** The ansatz separates $x$ from $p$, converting a nonlinear PDE in three variables into two linear PDEs in two variables. The fact that this works is the paper's main theoretical contribution — it extends the Wang-Zhou (2020) structure to the partial information setting.
+
+---
+
+# Slide 9 — Optimal Policy: Myopic-Hedging Decomposition (Slide 9/20, ~2:30)
+
+**The Gaussian optimal policy.**
+
+Minimizing over $\boldsymbol{\pi}$ in the HJB equation yields a Gaussian policy. This follows from completing the square in the exponential:
+$$\boldsymbol{\pi}^*(u \mid t,x,p) = \mathcal{N}\!\left(m^*(t,x,p), \; \frac{f(t,p)\Lambda}{2\sigma^2}\right)$$
+
+**The mean decomposition.**
+
+$$m^*(t,x,p) = \underbrace{-\frac{x-\omega}{\sigma}\hat\rho_t}_{\text{myopic}} + \underbrace{\frac{x-\omega}{\sigma}(\rho_1-\rho_2)p(1-p)\frac{f_p}{f}}_{\text{hedging}}$$
+
+The *myopic* component is what you would invest if you knew the expected Sharpe ratio were $\hat\rho_t$ and there were no regime uncertainty — it scales position by $(x-\omega)$ and the filtered Sharpe ratio.
+
+The *hedging* component accounts for regime transition risk. If $\rho_1 > \rho_2$ (bull regime has higher Sharpe ratio), then $f_p > 0$ (higher belief in bull market means more favorable prospects). The hedging term then *reduces* the position (adds a positive contribution to $m^*$ when $x < \omega$, making the net investment smaller), because the investor wants to hedge against the possibility of a regime switch away from the bull.
+
+At $p = 0$ or $p = 1$ the hedging term vanishes (certainty about regime). It is largest at $p = 1/2$, where regime uncertainty is maximal.
+
+**Connection to the single-regime case.**
+
+Setting $\rho_1 = \rho_2 = \rho$ makes $f_p = 0$ (the belief state doesn't matter) and the hedging term vanishes. The policy reduces to $m^* = -(x-\omega)\rho/\sigma$, which is exactly the Wang-Zhou (2020) EMV optimal policy. So EMV is a special case of POEMV.
+
+**Policy variance.**
+
+The variance $f(t,p)\Lambda/(2\sigma^2)$ decays as $t \to T$ because $f(t,p)$ is decreasing in $t$. This means exploration naturally winds down as the horizon approaches — the policy becomes more deterministic near $T$. This is the continuous-time analog of $\epsilon$-greedy with decaying $\epsilon$.
+
+**Suggested phrasing for the hedging term:** ``Think of the hedging demand as your uncertainty insurance. When you're very uncertain about the regime — when $p$ is near 1/2 — you pull back from the risky asset relative to the myopic allocation, because a regime switch would change the optimal strategy dramatically. When you're confident the market is in a bull, you invest more aggressively. This is rational Bayesian portfolio adjustment, and it's embedded directly in the policy structure.''
+
+---
+
+# Slide 10 — PDE Surfaces (Slide 10/20, ~1:00)
+
+**Reading the surfaces.**
+
+Left panel ($f(t,p)$): $f$ is large for small $t$ (early in the horizon) and small $p$ (likely bear market). The $f(t,p)$ surface determines both the policy variance $f\Lambda/(2\sigma^2)$ and the scale of the value function $(x-\omega)^2/f$. Large $f$ early in the horizon means more exploration.
+
+Right panel ($\gamma^*(t,p)$): this is the $p$-dependent part of the mean policy:
+$$\gamma^*(t,p) = \frac{1}{\sigma}\left(\hat\rho_t - (\rho_1-\rho_2)p(1-p)\frac{f_p}{f}\right)$$
+It increases in $p$: higher belief in the bull market (higher $p$) → invest more in the risky asset (when $x < \omega$). This is intuitive.
+
+These surfaces are produced by numerically solving the PDEs using finite differences and are the ground truth for evaluating how well the polynomial approximation $f^\theta$ fits.
+
+---
+
+# Slide 11 — The POEMV Algorithm (Slide 11/20, ~3:00)
+
+**Polynomial parametrization.**
+
+Since $f$ and $g$ have no closed form, approximate:
+$$\ln f^\theta(t,p) = \sum_{\substack{0 \le i \le m \\ 1 \le j \le m}} \theta_{i,j} \, p^i (T-t)^j, \qquad g^\theta(t,p) = \sum_{\substack{0 \le i \le m \\ 1 \le j \le m}} \tilde\theta_{i,j} \, p^i(T-t)^j$$
+
+At order $m=2$: 8 parameters for $\ln f^\theta$ and 4 for $g^\theta$ (since $g$ varies little in $p$). The relative mean absolute error of this approximation against the finite-difference truth is 1.03\% for $\ln f$ and 0.06\% for $g$, justifying $m=2$.
+
+Note: we parametrize $\ln f^\theta$ (not $f^\theta$ directly) to ensure positivity.
+
+**The parametrized policy.**
+
+Substituting $v^\theta$ into the optimal policy formula gives:
+$$\boldsymbol{\pi}^\phi(\cdot \mid t,x,p) = \mathcal{N}\!\left(-(x-\omega)\!\left[\phi_1\!\left(p - \frac{f^\theta_p}{f^\theta}p(1-p)\right) + \phi_2\right], \; \Lambda e^{\phi_3} f^\theta(t,p)\right)$$
+
+The convergence target is $\phi_1 \to \phi_1^* = (\rho_1-\rho_2)/\sigma$ and $\phi_2 \to \phi_2^* = \rho_2/\sigma$. The parameter $\phi_3$ adjusts the exploration variance; in the true optimal policy, $e^{\phi_3} = 1/(2\sigma^2)$, but we let the algorithm learn this.
+
+**The four-step episode loop.**
+
+Step 1 (Filter): At each time step $t_k$, compute $p_{t_k}$ from observed prices using the discretized Wonham filter (Appendix slide). This requires the estimated environment parameters $\tilde\sigma, \tilde\mu_i, \tilde\lambda_i$.
+
+Step 2 (Critic/PE): Minimize the martingale loss over $\theta$ given fixed $\phi$. For any policy $\boldsymbol{\pi}$, the process $M_t^\pi = V^\pi(t,X_t,p_t) - \Lambda\int_0^t \mathcal{H}(\boldsymbol{\pi}_s) \, ds$ is a martingale. If your parametrized value function $V^\theta$ is misspecified, $M_t^\theta$ will have nonzero drift, and the martingale loss penalizes this. The loss is:
+$$\mathcal{ML}_{\Delta t}(\theta; \phi) = \tfrac{1}{2}\overline{\mathbb{E}} \sum_{k=0}^{K-1} \left[h(X_T) - V^\theta(t_k, X_{t_k}, p_{t_k}) - \sum_{i=k}^{K-1} \Lambda \mathcal{H}(\boldsymbol{\pi}^\phi) \Delta t\right]^2 \Delta t$$
+This is the squared prediction error between the terminal cost-to-go and the current value function estimate, accumulated over time. Its unique minimizer is the true value function parameter vector for policy $\boldsymbol{\pi}^\phi$.
+
+Step 3 (Actor/PG): Given fixed $\theta$, update $\phi$ by taking a score-function gradient step to reduce the objective. The gradient uses Theorem 5 of Jia and Zhou (2022b): the policy gradient equals an expectation of the score function of the policy times the TD error of the value function.
+
+Step 4 (Lagrange): Every 10 episodes, update $\omega$ using the stochastic approximation rule.
+
+**Why polynomial vs. neural network?** The polynomial has 12 parameters total. A typical actor-critic with neural networks might have thousands. With 200,000 training episodes of 10 years each (2,520 steps per episode), you have about 500 million data points — enough for neural networks, but the polynomial converges much faster and more stably because its structure matches the known form of the solution.
+
+**Likely question:** ``Is the martingale loss the same as TD learning?'' Answer: Related but not identical. TD learning at each step minimizes the one-step Bellman error. The martingale loss looks at the full-trajectory prediction error — the gap between terminal payoff and current value estimate, summed over all time steps. Jia and Zhou (2022a) show that the minimizer of the martingale loss is exactly the true value function, whereas TD learning only converges to the true value function under specific conditions.
+
+---
+
+# Slide 12 — Simulation Setup (Slide 12/20, ~1:30)
+
+**Parameter calibration.**
+
+Parameters come from 20 years of daily S\&P 500 data (1992--2011), estimated using the heuristic of Dai et al. (2010). Define a bear market as a decline of at least 19\% and a bull market as a recovery of at least 24\%. Segment the data accordingly, then estimate $\mu_i$ as the annualized average daily return in regime $i$, $\lambda_i$ as the reciprocal of the average time spent in regime $i$, and $\sigma$ as the annualized standard deviation of daily returns across the full sample.
+
+The resulting parameters are:
+
+| $\mu_1$ | $\mu_2$ | $\sigma$ | $\lambda_1$ | $\lambda_2$ |
+|---------|---------|---------|------------|------------|
+| 0.25    | -0.73   | 0.22    | 0.36       | 2.89       |
+
+Bull regime has annualized return of 25\%, bear regime has -73\%. Average bull duration is $1/0.36 \approx 2.8$ years, average bear duration is $1/2.89 \approx 0.35$ years. These are treated as the true parameters for the simulation study.
+
+**Why not EM?**
+
+The EM algorithm (Elliott et al. 2008) applied to this setting produces $\hat\lambda_1 \approx 128$, $\hat\lambda_2 \approx 132$ — implying regime switches every two days. This is an artifact of the low signal-to-noise ratio at daily frequency: with $\mu/\sigma \approx 1$ annualized and $\Delta t = 1/252$, the per-period Sharpe ratio is about $0.06$, which is small relative to the noise. The EM algorithm mistakes noise fluctuations for regime transitions.
+
+**Training setup.**
+
+- Horizon: $T = 10$ years, $\Delta t = 1/252$ (daily), $K = 2{,}520$ steps per episode
+- Initial wealth $x_0 = 1$, target $z = 8$, risk-free rate $r = 0$
+- Temperature $\Lambda = 1$
+- 200,000 training episodes
+- Learning rates: $\alpha_\omega = 10^{-3}$, $\alpha_\theta = 10^{-13}$ (very small because $\theta$ is sensitive to trajectory noise), $\alpha_\phi = 10^{-4}$
+
+---
+
+# Slide 13 — Filtering Quality (Slide 13/20, ~1:30)
+
+**What the plot shows.**
+
+Top panel: one simulated 10-year stock price path under the calibrated RS-GBM. The price shows characteristic bull-run and crash structure.
+
+Bottom panel: the true market regime (red step function, 1 = bull, 0 = bear), the belief state computed with true parameters (blue dashed), and the belief state computed with heuristic-estimated parameters (light blue dotted).
+
+**What to notice.**
+
+Both belief state paths track the true regime transitions well. There is a lag — the filter takes some time after a regime switch before $p_t$ moves substantially — but the estimated-parameter belief state is very close to the true-parameter belief state. This is the key practical finding: even though the heuristic estimates of $\mu_1$ (0.58 vs. 0.25 true) and $\lambda_1$ (1.21 vs. 0.36 true) are quite inaccurate, the filter still works well because $\sigma$ is estimated accurately and $\sigma$ determines the signal-to-noise ratio of the innovation process.
+
+**Suggested phrasing:** ``The important takeaway is that you don't need to estimate the model perfectly to get a good filter. What matters most is $\sigma$, which you can estimate very accurately from realized variance. The mean return estimates can be quite noisy — and as we saw, they are — without compromising the belief state much. This is why the POEMV(est) performance is much closer to POEMV(true) than you might naively expect.''
+
+---
+
+# Slide 14 — Simulation Convergence (Slide 14/20, ~1:30)
+
+**What the plots show.**
+
+Each panel contains two sub-plots: (left) the training trajectories of $\phi_1$ and $\phi_2$ over 200,000 episodes, with dashed lines at the true optimal values $\phi_1^* = (\rho_1-\rho_2)/\sigma$ and $\phi_2^* = \rho_2/\sigma$; (right) the rolling 100-episode average of terminal wealth, with a dashed line at the target $z = 8$.
+
+Panel (a): POEMV with true parameters. $\phi_1$ and $\phi_2$ converge cleanly to their true values. Terminal wealth converges to 8 from below.
+
+Panel (b): POEMV with estimated parameters. $\phi_1$ converges to ~15 (vs. true 20.25) and $\phi_2$ converges to ~-7 (vs. true -15.08). The terminal wealth still converges to approximately 8. Despite the parameter gap, the mean target is achieved — the $\omega$ update is doing its job.
+
+**Key message.**
+
+The gap between $(\phi_1, \phi_2)$ in the two settings translates into a variance penalty (0.083 vs. 0.170 in Table 3), not a mean penalty. This is exactly what you would expect from the theory: estimation error enters through filtering, and filtering error propagates into suboptimal $(\phi_1, \phi_2)$, which means a less efficient policy (more variance) rather than a biased one (wrong mean).
+
+---
+
+# Slide 15 — Simulation Out-of-Sample Performance (Slide 15/20, ~2:00)
+
+**Interpreting Table 3.**
+
+| | $\phi_1$ | $\phi_2$ | Mean | Variance | Sharpe |
+|---|---|---|---|---|---|
+| Optimal (FD) | 20.25 | -15.08 | 7.99 | 0.067 | 27.00 |
+| POEMV (true) | 20.56 | -15.05 | 7.99 | 0.083 | 24.26 |
+| POEMV (est.) | 15.23 | -7.29 | 8.03 | 0.170 | 17.05 |
+
+The Optimal (FD) row is the oracle: finite-difference solution with true parameters, not learned. POEMV (true) nearly matches it — the additional variance (0.083 vs. 0.067) reflects the stochasticity of the learning process. POEMV (est.) has substantially higher variance (0.170) but still achieves the mean target.
+
+**Dominant error source.**
+
+The gap from Optimal to POEMV(true) is learning error: $0.083 - 0.067 = 0.016$ in variance units, or about 24\% relative. The gap from POEMV(true) to POEMV(est.) is filtering error: $0.170 - 0.083 = 0.087$ in variance units, or about 105\% relative. Filtering error is roughly 5× larger than learning error. This identifies the bottleneck clearly.
+
+**Core point:** The algorithm learns well given the filter. The binding constraint is filter quality, which is limited by how accurately you can estimate $\mu_i$ and $\lambda_i$ from historical data. This directly motivates Open Problem 3: joint estimation and control, where the filter parameters are updated alongside the policy rather than pre-estimated.
+
+---
+
+# Slide 16 — Empirical Results: Wealth Trajectories (Slide 16/20, ~1:30)
+
+**Setup.**
+
+30 years of daily S\&P 500 index + 121 constituent stocks (September 1992 -- October 2022). First 20 years are training, last 10 years are test. Since there is only one index path, the paper uses a ``universal training'' trick: 30 stocks with estimated $\beta \in [0.9, 1.1]$ are treated as proxies for the index. Overlapping 10-year blocks from these 30 stock paths give approximately 75,000 training episodes.
+
+Baselines: EMV (same actor-critic architecture but under the single-regime GBM model, no filtering) and the classical plug-in control (estimate parameters, compute finite-difference optimal, deploy).
+
+**The plots.**
+
+Each panel shows 122 out-of-sample paths (121 stocks + index). The shaded band is $\pm$ half-standard-deviation from the mean trajectory; the overlap region is grey. POEMV (orange) consistently lies above EMV (blue) and has a tighter band. The March 2020 COVID crash is visible as the sharp dip around year 2020 — POEMV shows a smaller drawdown, consistent with the hedging demand reducing exposure when uncertainty ($p_t \approx 1/2$) is high.
+
+---
+
+# Slide 17 — Empirical Results: Performance Tables (Slide 17/20, ~1:30)
+
+**Daily rebalancing numbers.**
+
+POEMV achieves variance 0.224 vs. EMV 0.453 — roughly half, consistent with the simulation finding. Classical is 1.537 — nearly $7\times$ the POEMV variance. Sharpe ratio of 15.38 vs. 10.09 vs. 5.77.
+
+**Monthly rebalancing numbers.**
+
+The variance gap widens dramatically under monthly rebalancing: POEMV 0.284, EMV 0.597, Classical 10.081. The classical approach under monthly rebalancing is essentially unusable — it's missing market movements for 20+ trading days at a time and the mean-blur problem in the parameters causes extreme holdings that compound over those long intervals.
+
+**Why POEMV is better than EMV.**
+
+Both algorithms share the same actor-critic architecture. The only difference is that POEMV conditions on $p_t$. The performance gap is entirely attributable to regime-awareness. In bull markets, POEMV allocates more aggressively (higher $\hat\rho_t$). In bear markets or high-uncertainty periods, the hedging term reduces exposure. EMV uses a fixed blended Sharpe ratio that doesn't respond to market state.
+
+---
+
+# Slide 18 — Open Problems (Slide 18/20, ~2:00)
+
+**Problem 1: Convergence.**
+
+The paper establishes that (a) the martingale loss has a unique minimizer at the true value function, and (b) the optimal policy is Gaussian. But it does not prove that the POEMV algorithm converges to the optimal policy. This would require jointly bounding: filter error (from parameter estimation), polynomial approximation error (from $m=2$ truncation), and stochastic gradient error (from single-episode SGD). No existing result handles all three simultaneously in the regime-switching CT-RL setting.
+
+**Problem 2: Time consistency.**
+
+The precommitted strategy is optimal only from $t=0$. A time-consistent investor would use the equilibrium strategy (also called the game-theoretic optimal). Dai et al. (2023) develop this for the GBM case. Extending to the regime-switching case requires establishing a separation principle for the equilibrium problem, which is not known to hold.
+
+**Problem 3: Joint estimation and control.**
+
+Currently, the filter parameters are estimated once from historical data before training begins. A more principled approach would update $(\tilde\mu_i, \tilde\lambda_i, \tilde\sigma)$ alongside $(\theta, \phi, \omega)$ during training. This would be truly model-free in the sense that no pre-training estimation step is needed. The difficulty is that the filter parameters enter nonlinearly through the innovation process, making joint gradient updates non-trivial.
+
+**Problem 4: Scalability.**
+
+The paper handles one risky asset and two regimes. The multi-asset extension is in Appendix A of the paper: the policy becomes a multivariate Gaussian, $f$ and $g$ satisfy the same structural PDEs but with $\|\hat\rho\|^2$ replacing $\hat\rho^2$. More regimes would require extending the Wonham filter to a higher-dimensional CTMC, with $p_t$ becoming a probability vector on $K$ states and the PDE state space growing accordingly.
+
+**Suggested framing:** ``These open problems aren't weaknesses of the paper so much as a research agenda it opens up. The paper established the right structure and showed empirically that it works. The theoretical consolidation — convergence rates, time-consistency, fully model-free joint estimation — is the natural next step for the field.''
+
+---
+
+# Slide 19 — Conclusion (Slide 19/20, ~1:30)
+
+**Four takeaways to reinforce.**
+
+1. **Gaussian optimality survives partial information.** The key structural result — that the optimal exploration policy is Gaussian with the myopic-hedging decomposition — carries over from the full-information GBM case to the partial-information regime-switching case. This is enabled by the separation principle, which converts the partial-information problem into a fully observed one by promoting $p_t$ to a state variable.
+
+2. **Martingale actor-critic transfers cleanly.** The only modification needed to the Wang-Zhou (2020) / Jia-Zhou (2022) actor-critic architecture is augmenting the state space from $X_t$ to $(X_t, p_t)$ and adding a filtering step. The loss functions, gradient formulas, and update rules are structurally unchanged. This is a strong modularity result.
+
+3. **Regime-awareness materially improves performance.** The numbers are stark: halving variance vs. EMV under daily rebalancing, $>10\times$ variance reduction vs. classical under monthly rebalancing.
+
+4. **Filtering error, not learning error, is the bottleneck.** The path to further improvement runs through better parameter estimation (or joint estimation and control), not through more training episodes or more complex function approximators.
+
+**Suggested closing:** ``To put it concisely: Wu and Li (2024) show you can do continuous-time RL for mean-variance investing under partial information, you should, and the limiting factor in practice is how well you can estimate the regime dynamics — which is an estimation problem, not a learning one.''
+
+---
+
+# General Q\&A Notes
+
+**``What happens if the two regimes aren't sufficient?''**
+The model can be extended to $K > 2$ regimes at the cost of a higher-dimensional Wonham filter and PDE. The separation principle still holds. Empirically, two regimes capture the dominant bull/bear structure for long-horizon investment.
+
+**``How sensitive is performance to $\Lambda$?''**
+The paper uses $\Lambda = 1$ throughout. Higher $\Lambda$ means more exploration (higher variance policy), which can help with convergence but hurts out-of-sample variance. The paper notes that the optimal $\Lambda$ is a tuning parameter; no systematic sensitivity analysis is provided.
+
+**``What about transaction costs?''**
+The paper explicitly ignores transaction costs (footnote 4). Under daily rebalancing the high Sharpe ratio comes at the cost of frequent trades. Under monthly rebalancing costs would be lower but so is performance. This is a known limitation.
+
+**``Why is the Sharpe ratio defined as (Mean - 1)/sqrt(Var)?''**
+Initial wealth is 1, so the numerator is the excess return above the initial investment. This is a 10-year Sharpe ratio and is not annualized.
+
+**``How does POEMV handle the leverage constraint?''**
+The paper uses a post-hoc truncation: if $u_t > x_t \ell$, set $u_t' = x_t \ell$. This is not learned — it's a hard cap applied at execution time. Table 5 shows POEMV still outperforms EMV under leverage limits $\ell = 2$ and $\ell = 3$.
+
+---
+
+# Timing Summary
+
+| Slide | Title | Target Time | Cumulative |
+|-------|-------|-------------|------------|
+| 1 | Title | 0:30 | 0:30 |
+| 2 | The Pitch | 0:30 | 1:00 |
+| 3 | Motivation | 1:30 | 2:30 |
+| 4 | RL vs. Classical | 2:00 | 4:30 |
+| 5 | MV Problem | 2:00 | 6:30 |
+| 6 | Exploratory Control | 2:30 | 9:00 |
+| 7 | Market Model \& Filter | 3:00 | 12:00 |
+| 8 | Solution Structure | 3:00 | 15:00 |
+| 9 | Optimal Policy | 2:30 | 17:30 |
+| 10 | PDE Surfaces | 1:00 | 18:30 |
+| 11 | POEMV Algorithm | 3:00 | 21:30 |
+| 12 | Simulation Setup | 1:30 | 23:00 |
+| 13 | Filtering Quality | 1:30 | 24:30 |
+| 14 | Convergence | 1:30 | 26:00 |
+| 15 | OOS Performance | 2:00 | 28:00 |
+| 16 | Wealth Trajectories | 1:30 | 29:30 |
+| 17 | Performance Tables | 1:30 | 31:00 |
+| 18 | Open Problems | 2:00 | 33:00 |
+| 19 | Conclusion | 1:30 | 34:30 |
+
+**Total: approximately 34--35 minutes at a measured pace.** For a strict 20-minute slot, plan to spend no more than 60--90 seconds on Slides 3--7, keep Slide 11 to a tight walk-through of the four steps without derivations, and compress Slides 12--14 into a single narrative beat (``we calibrated these parameters, the filter tracks well, and the algorithm converges'').
