@@ -249,7 +249,7 @@ lnf_th <- function(t, p, th) {
   th[1]*tau + th[2]*tau^2 + th[3]*p*tau  + th[4]*p*tau^2 +
   th[5]*p^2*tau + th[6]*p^2*tau^2
 }
-f_th      <- function(t, p, th) exp(lnf_th(t, p, th))
+f_th      <- function(t, p, th) exp(pmin(lnf_th(t, p, th), 500))
 dlnf_dp   <- function(t, p, th) {          # fp/f = ∂lnf^θ/∂p
   tau <- T_HOR - t
   th[3]*tau + th[4]*tau^2 + 2*th[5]*p*tau + 2*th[6]*p*tau^2
@@ -284,9 +284,9 @@ p_samp <- function(t, x, p, phi, th, om)
 
 poemv <- function(par_sim, par_filt,
                    n_iter    = 10000L,
-                   s_omega   = 10L,
+                   s_omega   = 25L,
                    eta_th    = 1e-12,
-                   eta_phi   = 2e-4,
+                   eta_phi   = 5e-5,
                    eta_omega = 5e-3,
                    verbose   = TRUE) {
 
@@ -329,7 +329,7 @@ poemv <- function(par_sim, par_filt,
     td_vec  <- hT - V_ - LAM * cumH
     tau_vec <- T_HOR - (seq_len(K)-1L)*DT
     px_vec  <- P[1L:K]
-    cx_vec  <- -(X[1L:K]-om)^2 / f_th(tau_vec, px_vec, th)
+    cx_vec  <- -(X[1L:K]-om)^2 / pmax(f_th(tau_vec, px_vec, th), 1e-10)
     G_mat   <- cbind(
       cx_vec*tau_vec,         cx_vec*tau_vec^2,
       cx_vec*px_vec*tau_vec,  cx_vec*px_vec*tau_vec^2,
@@ -337,7 +337,8 @@ poemv <- function(par_sim, par_filt,
       tau_vec,                tau_vec^2
     )
     dth <- colSums(td_vec * G_mat) * DT
-    th  <- th + eta_th*dth
+dth <- pmax(pmin(dth, 1e2), -1e2)
+th  <- th + eta_th*dth
 
     # ── Step 4: PG update (vectorised) ───────────────────
     tk_vec   <- (seq_len(K)-1L)*DT
@@ -354,8 +355,8 @@ poemv <- function(par_sim, par_filt,
       sum(sc12_vec * td_vec2),
       sum((res_vec^2 - sg_p_vec)/(2*sg_p_vec) * td_vec2) - LAM*0.5*K*DT
     )
-    phi <- phi - eta_phi*dphi
-
+phi <- phi - eta_phi*dphi
+phi[3] <- pmax(pmin(phi[3], 10), -10)
     # ── Step 5: Lagrange update ───────────────────────────
     X_T_acc <- X_T_acc + XT
     if (iter %% s_omega == 0L) {
@@ -363,7 +364,7 @@ poemv <- function(par_sim, par_filt,
     }
 
     hist[iter,] <- list(phi[1], phi[2], om, XT)
-    if (verbose && iter %% 5000L == 0L)
+    if (verbose && iter %% 2500L == 0L)
       cat(sprintf("  [%5d] φ₁=%7.3f  φ₂=%7.3f  ω=%.3f  XT=%.3f\n",
                   iter, phi[1], phi[2], om, XT))
   }
@@ -448,7 +449,7 @@ emv <- function(par_sim, n_iter=10000L,
     }
 
     hist[iter,] <- list(phi[1], om, XT)
-    if (verbose && iter %% 5000L == 0L)
+    if (verbose && iter %% 2500L == 0L)
       cat(sprintf("  EMV [%5d] φ=%.3f  ω=%.3f  XT=%.3f\n",
                   iter, phi[1], om, XT))
   }
@@ -462,9 +463,14 @@ emv <- function(par_sim, n_iter=10000L,
 oos_eval <- function(par_sim, par_filt, phi, th, om,
                       mode = c("poemv","emv"), n_test = 1000L) {
   mode <- match.arg(mode)
+
+  if (any(!is.finite(phi)) || any(!is.finite(th)))
+    stop("oos_eval: phi or th contains NaN/Inf — check training output")
+
   r1f  <- (par_filt$mu1-r)/par_filt$sigma
   r2f  <- (par_filt$mu2-r)/par_filt$sigma
   XT   <- numeric(n_test)
+
   for (trial in seq_len(n_test)) {
     sim <- sim_path(par_sim$mu1, par_sim$mu2, par_sim$sigma,
                      par_sim$lambda1, par_sim$lambda2)
@@ -474,13 +480,19 @@ oos_eval <- function(par_sim, par_filt, phi, th, om,
       uk <- if (mode=="poemv") {
         p_samp(tk, xk, pk, phi, th, om)
       } else {
-        sg <- LAM*exp(phi[3])*exp(th[1]*(T_HOR-tk)+th[2]*(T_HOR-tk)^2)
+        sg <- pmax(LAM*exp(phi[3])*
+                   exp(pmin(th[1]*(T_HOR-tk)+th[2]*(T_HOR-tk)^2, 500)),
+                   1e-10)
         rnorm(1L, -(xk-om)*phi[1], sqrt(sg))
       }
-      ret_k <- sim$ret[k]; xk <- xk + uk*(exp(ret_k)-1)
+      uk    <- pmax(pmin(uk, 1e4), -1e4)
+      ret_k <- sim$ret[k]
+      xk    <- xk + uk*(exp(ret_k)-1)
+      if (!is.finite(xk)) xk <- X0
       if (mode=="poemv") {
         mhat <- par_filt$mu1*pk+par_filt$mu2*(1-pk)
         dBh  <- (ret_k-(mhat-par_filt$sigma^2/2)*DT)/par_filt$sigma
+        dBh  <- pmax(pmin(dBh, 5*sqrt(DT)), -5*sqrt(DT))
         ws   <- wonham_step(q1,q2,dBh,par_filt$lambda1,par_filt$lambda2,r1f,r2f)
         q1<-ws$q1; q2<-ws$q2; pk<-ws$p
       }
@@ -649,9 +661,10 @@ sample_real_episode <- function(paths_wk) {
 
 poemv_real <- function(par_filt, paths_wk,
                         n_iter    = 10000L,
-                        s_omega   = 10L,
+                        n_batch   = 5L,
+                        s_omega   = 50L,
                         eta_th    = 1e-12,
-                        eta_phi   = 2e-4,
+                        eta_phi   = 5e-5,
                         eta_omega = 5e-3,
                         verbose   = TRUE) {
 
@@ -664,80 +677,108 @@ poemv_real <- function(par_filt, paths_wk,
 
   for (iter in seq_len(n_iter)) {
 
-    # Real episode instead of sim_path
-    ep  <- sample_real_episode(paths_wk)
-    ret <- ep$ret
+    # ── Decaying learning rates ───────────────────────────
+    decay     <- 1 / (1 + 1e-5 * iter)
+    eta_th_t  <- eta_th  * decay
+    eta_phi_t <- eta_phi * decay
 
-    X  <- numeric(K+1L); X[1L] <- X0
-    P  <- numeric(K+1L); P[1L] <- 0.5
-    U_ <- H_ <- V_ <- numeric(K)
-    q1 <- q2 <- log(0.5)
+    # ── Mini-batch accumulators ───────────────────────────
+    dth_acc  <- rep(0, 8L)
+    dphi_acc <- rep(0, 3L)
+    XT_batch <- 0
 
-    for (k in seq_len(K)) {
-      tk  <- (k-1L)*DT; xk <- X[k]; pk <- P[k]
-      uk  <- p_samp(tk, xk, pk, phi, th, om)
-      xn  <- xk + uk*(exp(ret[k])-1)
-      if (!is.finite(xn)) xn <- xk
-      X[k+1L] <- xn
+    for (b in seq_len(n_batch)) {
 
-      mhat <- par_filt$mu1*pk + par_filt$mu2*(1-pk)
-      dBh  <- (ret[k] - (mhat - par_filt$sigma^2/2)*DT) / par_filt$sigma
-      dBh  <- pmax(pmin(dBh, 5*sqrt(DT)), -5*sqrt(DT))   # cap at ±5 SD
-      ws   <- wonham_step(q1, q2, dBh, par_filt$lambda1,
-                           par_filt$lambda2, r1f, r2f)
-      q1 <- ws$q1; q2 <- ws$q2; P[k+1L] <- ws$p
-      U_[k] <- uk
-      H_[k] <- p_ent(tk, pk, phi, th)
-      V_[k] <- V_th(tk, xk, pk, th, om)
-    }
+      ep  <- sample_real_episode(paths_wk)
+      ret <- ep$ret
 
-    XT <- X[K+1L]
-    if (!is.finite(XT)) XT <- X0
-    hT <- (XT-om)^2 - (om-Z)^2
+      X  <- numeric(K+1L); X[1L] <- X0
+      P  <- numeric(K+1L); P[1L] <- 0.5
+      U_ <- H_ <- V_ <- numeric(K)
+      q1 <- q2 <- log(0.5)
 
-    # PE (vectorised)
-    cumH    <- rev(cumsum(rev(H_))) * DT
-    td_vec  <- hT - V_ - LAM*cumH
-    tau_vec <- T_HOR - (seq_len(K)-1L)*DT
-    px_vec  <- P[1L:K]
-    cx_vec  <- -(X[1L:K]-om)^2 / f_th(tau_vec, px_vec, th)
-    G_mat   <- cbind(
-      cx_vec*tau_vec,          cx_vec*tau_vec^2,
-      cx_vec*px_vec*tau_vec,   cx_vec*px_vec*tau_vec^2,
-      cx_vec*px_vec^2*tau_vec, cx_vec*px_vec^2*tau_vec^2,
-      tau_vec,                 tau_vec^2
-    )
-    dth <- colSums(td_vec * G_mat) * DT
-    th  <- th + eta_th*dth
+      for (k in seq_len(K)) {
+        tk  <- (k-1L)*DT; xk <- X[k]; pk <- P[k]
+        uk  <- p_samp(tk, xk, pk, phi, th, om)
+        uk  <- pmax(pmin(uk, 1e4), -1e4)
+        xn  <- xk + uk*(exp(ret[k])-1)
+        if (!is.finite(xn)) xn <- xk
+        X[k+1L] <- xn
 
-    # PG (vectorised)
-    tk_vec   <- (seq_len(K)-1L)*DT
-    xk_vec   <- X[1L:K]; pk_vec <- P[1L:K]
-    adj_vec  <- pk_vec - dlnf_dp(tk_vec, pk_vec, th)*pk_vec*(1-pk_vec)
-    mu_p_vec <- -(xk_vec-om)*(phi[1]*adj_vec + phi[2])
-    sg_p_vec <- pmax(LAM*exp(phi[3])*f_th(tk_vec, pk_vec, th), 1e-10)
-    res_vec  <- U_ - mu_p_vec
-    sc12_vec <- -(res_vec*(xk_vec-om))/sg_p_vec
-    Vn_vec   <- c(V_th((seq_len(K-1L))*DT,
-                        X[2L:K], P[2L:K], th, om), hT)
-    td2_vec  <- Vn_vec - V_ - LAM*H_*DT
-    dphi <- c(
-      sum(sc12_vec * adj_vec * td2_vec),
-      sum(sc12_vec * td2_vec),
-      sum((res_vec^2 - sg_p_vec)/(2*sg_p_vec)*td2_vec) - LAM*0.5*K*DT
-    )
-    phi <- phi - eta_phi*dphi
+        mhat <- par_filt$mu1*pk + par_filt$mu2*(1-pk)
+        dBh  <- (ret[k] - (mhat - par_filt$sigma^2/2)*DT) / par_filt$sigma
+        dBh  <- pmax(pmin(dBh, 5*sqrt(DT)), -5*sqrt(DT))
+        ws   <- wonham_step(q1, q2, dBh, par_filt$lambda1,
+                             par_filt$lambda2, r1f, r2f)
+        q1 <- ws$q1; q2 <- ws$q2; P[k+1L] <- ws$p
+        U_[k] <- uk
+        H_[k] <- p_ent(tk, pk, phi, th)
+        V_[k] <- V_th(tk, xk, pk, th, om)
+      }
 
-    X_T_acc <- X_T_acc + XT
+      XT <- X[K+1L]
+      if (!is.finite(XT)) XT <- X0
+      hT <- (XT-om)^2 - (om-Z)^2
+
+      # PE gradient
+      cumH    <- rev(cumsum(rev(H_))) * DT
+      td_vec  <- hT - V_ - LAM*cumH
+      tau_vec <- T_HOR - (seq_len(K)-1L)*DT
+      px_vec  <- P[1L:K]
+      cx_vec  <- -(X[1L:K]-om)^2 / pmax(f_th(tau_vec, px_vec, th), 1e-10)
+      G_mat   <- cbind(
+        cx_vec*tau_vec,          cx_vec*tau_vec^2,
+        cx_vec*px_vec*tau_vec,   cx_vec*px_vec*tau_vec^2,
+        cx_vec*px_vec^2*tau_vec, cx_vec*px_vec^2*tau_vec^2,
+        tau_vec,                 tau_vec^2
+      )
+      dth_acc <- dth_acc + colSums(td_vec * G_mat) * DT
+
+      # PG gradient
+      tk_vec   <- (seq_len(K)-1L)*DT
+      xk_vec   <- X[1L:K]; pk_vec <- P[1L:K]
+      adj_vec  <- pk_vec - dlnf_dp(tk_vec, pk_vec, th)*pk_vec*(1-pk_vec)
+      mu_p_vec <- -(xk_vec-om)*(phi[1]*adj_vec + phi[2])
+      sg_p_vec <- pmax(LAM*exp(phi[3])*f_th(tk_vec, pk_vec, th), 1e-10)
+      res_vec  <- U_ - mu_p_vec
+      sc12_vec <- -(res_vec*(xk_vec-om))/sg_p_vec
+      Vn_vec   <- c(V_th((seq_len(K-1L))*DT, X[2L:K], P[2L:K], th, om), hT)
+      td2_vec  <- Vn_vec - V_ - LAM*H_*DT
+      dphi_acc <- dphi_acc + c(
+        sum(sc12_vec * adj_vec * td2_vec),
+        sum(sc12_vec * td2_vec),
+        sum((res_vec^2 - sg_p_vec)/(2*sg_p_vec)*td2_vec) - LAM*0.5*K*DT
+      )
+
+      XT_batch <- XT_batch + XT
+
+    } # end batch loop
+
+    # ── Apply averaged + clipped gradients ────────────────
+    dth_acc  <- dth_acc  / n_batch
+    dphi_acc <- dphi_acc / n_batch
+
+    dth_acc  <- pmax(pmin(dth_acc,  1e2), -1e2)
+    dphi_acc <- pmax(pmin(dphi_acc, 1e2), -1e2)
+
+    th  <- th  + eta_th_t  * dth_acc
+    phi <- phi - eta_phi_t * dphi_acc
+
+    phi[1] <- pmax(pmin(phi[1], 20), -20)
+    phi[2] <- pmax(pmin(phi[2], 20), -20)
+    phi[3] <- pmax(pmin(phi[3], 10), -10)
+
+    # ── Lagrange update ───────────────────────────────────
+    X_T_acc <- X_T_acc + XT_batch / n_batch
     if (iter %% s_omega == 0L) {
       om <- om - eta_omega*(X_T_acc/s_omega - Z)
       X_T_acc <- 0
     }
 
-    hist[iter,] <- list(phi[1], phi[2], om, XT)
-    if (verbose && iter %% 5000L == 0L)
+    hist[iter,] <- list(phi[1], phi[2], om, XT_batch/n_batch)
+    if (verbose && iter %% 2500L == 0L)
       cat(sprintf("  [%5d] φ₁=%7.3f  φ₂=%7.3f  ω=%.3f  XT=%.3f\n",
-                  iter, phi[1], phi[2], om, XT))
+                  iter, phi[1], phi[2], om, XT_batch/n_batch))
   }
   list(th=th, phi=phi, omega=om, hist=hist)
 }
@@ -748,9 +789,10 @@ poemv_real <- function(par_filt, paths_wk,
 
 emv_real <- function(paths_wk,
                       n_iter    = 10000L,
-                      s_omega   = 10L,
+                      n_batch   = 5L,
+                      s_omega   = 50L,
                       eta_th    = 1e-13,
-                      eta_phi   = 2e-4,
+                      eta_phi   = 5e-5,
                       eta_omega = 1e-4,
                       om_max    = 5.0,
                       verbose   = TRUE) {
@@ -767,58 +809,90 @@ emv_real <- function(paths_wk,
 
   for (iter in seq_len(n_iter)) {
 
-    ep  <- sample_real_episode(paths_wk)
-    ret <- ep$ret
-    X   <- numeric(K+1L); X[1L] <- X0
-    Uv  <- Hv <- Vv <- numeric(K)
+    # ── Decaying learning rates ───────────────────────────
+    decay     <- 1 / (1 + 1e-5 * iter)
+    eta_th_t  <- eta_th  * decay
+    eta_phi_t <- eta_phi * decay
 
-    for (k in seq_len(K)) {
-      tk  <- (k-1L)*DT; xk <- X[k]
-      sg  <- pmax(LAM*exp(phi[3])*fe(tk,th), 1e-10)
-      uk  <- rnorm(1L, -(xk-om)*phi[1], sqrt(sg))
-      xn  <- xk + uk*(exp(ret[k])-1)
-      if (!is.finite(xn)) xn <- xk
-      X[k+1L] <- xn
-      Uv[k] <- uk
-      Hv[k] <- 0.5*log(2*pi*exp(1)*sg)
-      Vv[k] <- Ve(tk, xk, th, om)
-    }
+    # ── Mini-batch accumulators ───────────────────────────
+    dth_acc  <- rep(0, 4L)
+    dph_acc  <- rep(0, 3L)
+    XT_batch <- 0
 
-    XT <- X[K+1L]
-    if (!is.finite(XT)) XT <- X0
-    hT <- (XT-om)^2-(om-Z)^2
+    for (b in seq_len(n_batch)) {
 
-    # PE (vectorised)
-    cumH    <- rev(cumsum(rev(Hv)))*DT
-    td_vec  <- hT - Vv - LAM*cumH
-    tau_vec <- T_HOR-(seq_len(K)-1L)*DT
-    ft_vec  <- pmax(fe(tau_vec, th), 1e-10)
-    cx_vec  <- -(X[1L:K]-om)^2/ft_vec
-    G_mat   <- cbind(cx_vec*tau_vec, cx_vec*tau_vec^2,
-                      tau_vec,        tau_vec^2)
-    dth <- colSums(td_vec*G_mat)*DT
-    th  <- th + eta_th*dth
+      ep  <- sample_real_episode(paths_wk)
+      ret <- ep$ret
+      X   <- numeric(K+1L); X[1L] <- X0
+      Uv  <- Hv <- Vv <- numeric(K)
 
-    # PG (vectorised)
-    sg_vec  <- pmax(LAM*exp(phi[3])*fe((seq_len(K)-1L)*DT,th), 1e-10)
-    res_vec <- Uv-(-(X[1L:K]-om)*phi[1])
-    sc1_vec <- -(res_vec*(X[1L:K]-om))/sg_vec
-    Vn_vec  <- c(Ve((seq_len(K-1L))*DT, X[2L:K], th, om), hT)
-    td2_vec <- Vn_vec-Vv-LAM*Hv*DT
-    dph <- c(sum(sc1_vec*td2_vec), 0,
-             sum((res_vec^2-sg_vec)/(2*sg_vec)*td2_vec) - LAM*0.5*K*DT)
-    phi <- phi - eta_phi*dph
+      for (k in seq_len(K)) {
+        tk  <- (k-1L)*DT; xk <- X[k]
+        sg  <- pmax(LAM*exp(phi[3])*fe(tk,th), 1e-10)
+        uk  <- rnorm(1L, -(xk-om)*phi[1], sqrt(sg))
+        uk  <- pmax(pmin(uk, 1e4), -1e4)
+        xn  <- xk + uk*(exp(ret[k])-1)
+        if (!is.finite(xn)) xn <- xk
+        X[k+1L] <- xn
+        Uv[k] <- uk
+        Hv[k] <- 0.5*log(2*pi*exp(1)*sg)
+        Vv[k] <- Ve(tk, xk, th, om)
+      }
 
-    X_T_acc <- X_T_acc + XT
+      XT <- X[K+1L]
+      if (!is.finite(XT)) XT <- X0
+      hT <- (XT-om)^2-(om-Z)^2
+
+      # PE gradient
+      cumH    <- rev(cumsum(rev(Hv)))*DT
+      td_vec  <- hT - Vv - LAM*cumH
+      tau_vec <- T_HOR-(seq_len(K)-1L)*DT
+      ft_vec  <- pmax(fe(tau_vec, th), 1e-10)
+      cx_vec  <- -(X[1L:K]-om)^2/ft_vec
+      G_mat   <- cbind(cx_vec*tau_vec, cx_vec*tau_vec^2,
+                        tau_vec,        tau_vec^2)
+      dth_acc <- dth_acc + colSums(td_vec*G_mat)*DT
+
+      # PG gradient
+      sg_vec  <- pmax(LAM*exp(phi[3])*fe((seq_len(K)-1L)*DT,th), 1e-10)
+      res_vec <- Uv-(-(X[1L:K]-om)*phi[1])
+      sc1_vec <- -(res_vec*(X[1L:K]-om))/sg_vec
+      Vn_vec  <- c(Ve((seq_len(K-1L))*DT, X[2L:K], th, om), hT)
+      td2_vec <- Vn_vec-Vv-LAM*Hv*DT
+      dph_acc <- dph_acc + c(
+        sum(sc1_vec*td2_vec),
+        0,
+        sum((res_vec^2-sg_vec)/(2*sg_vec)*td2_vec) - LAM*0.5*K*DT
+      )
+
+      XT_batch <- XT_batch + XT
+
+    } # end batch loop
+
+    # ── Apply averaged + clipped gradients ────────────────
+    dth_acc <- dth_acc / n_batch
+    dph_acc <- dph_acc / n_batch
+
+    dth_acc <- pmax(pmin(dth_acc, 1e2), -1e2)
+    dph_acc <- pmax(pmin(dph_acc, 1e2), -1e2)
+
+    th  <- th  + eta_th_t  * dth_acc
+    phi <- phi - eta_phi_t * dph_acc
+
+    phi[1] <- pmax(pmin(phi[1], 20), -20)
+    phi[3] <- pmax(pmin(phi[3], 10), -10)
+
+    # ── Lagrange update ───────────────────────────────────
+    X_T_acc <- X_T_acc + XT_batch / n_batch
     if (iter %% s_omega == 0L) {
       om <- min(om - eta_omega*(X_T_acc/s_omega - Z), om_max)
       X_T_acc <- 0
     }
 
-    hist[iter,] <- list(phi[1], om, XT)
-    if (verbose && iter %% 5000L == 0L)
+    hist[iter,] <- list(phi[1], om, XT_batch/n_batch)
+    if (verbose && iter %% 2500L == 0L)
       cat(sprintf("  EMV [%5d] φ=%.3f  ω=%.3f  XT=%.3f\n",
-                  iter, phi[1], om, XT))
+                  iter, phi[1], om, XT_batch/n_batch))
   }
   list(th=th, phi=phi, omega=om, hist=hist)
 }
@@ -832,7 +906,11 @@ emv_real <- function(paths_wk,
 # =============================================================
 
 cat("\n── Real Data: POEMV (true filter params) ───────\n")
-res_T_real <- poemv_real(PAR, train_paths_wk, n_iter=100000L)
+res_T_real <- poemv_real(PAR, train_paths_wk, n_iter=20000L, n_batch=5L)
+```
+
+```{r, echo = F}
+saveRDS(res_T_real, "res_T_real.rds")
 ```
 
 ```{r, echo = F}
@@ -841,14 +919,22 @@ par_est$mu1     <- PAR$mu1 + 0.05
 par_est$lambda1 <- PAR$lambda1 * 1.35
 
 cat("\n── Real Data: POEMV (estimated filter params) ──\n")
-res_E_real <- poemv_real(par_est, train_paths_wk, n_iter=100000L)
-
+# res_E_real <- poemv_real(par_est, train_paths_wk, n_iter=100000L)
+res_E_real <- poemv_real(par_est, train_paths_wk, n_iter=20000L, n_batch=5L)
 ```
 
 ```{r, echo = F}
+saveRDS(res_E_real, "res_E_real.rds")
+```
 
+```{r, echo = F}
 cat("\n── Real Data: EMV baseline ──────────────────────\n")
-res_EMV_real <- emv_real(train_paths_wk, n_iter=100000L)
+# res_EMV_real <- emv_real(train_paths_wk, n_iter=100000L)
+res_EMV_real <- emv_real(train_paths_wk, n_iter=20000L, n_batch=5L)
+```
+
+```{r, echo = F}
+saveRDS(res_EMV_real, "res_EMV_real.rds")
 ```
 
 # Writeup 
@@ -865,7 +951,7 @@ A further departure from \citeauthor{wu2024rl} \shortcite{wu2024rl} is the treat
 
 The wealth target is recalibrated from $z = 8$ to $z = 2$, corresponding to an implied annualised growth rate of approximately 7.2\% over the 10-year horizon. The original target of $z = 8$ was calibrated implicitly to S\&P~500 bull-market dynamics under a zero risk-free rate; applied directly to the DAX parameter regime, it implies approximately 23\% annualised growth, which is unattainable under the estimated drift and volatility, causing the Lagrange multiplier $\omega$ to diverge rather than converge to $\omega^*$. Setting $z = 2$ produces a feasible and economically sensible investment objective under the DAX calibration while preserving the structure of the constrained mean-variance problem.
 
-For computational tractability within the R implementation, two further modifications are made relative to \citeauthor{wu2024rl} \shortcite{wu2024rl}. First, the rebalancing frequency is set to weekly ($\Delta t = 1/52$) rather than daily ($\Delta t = 1/252$), reducing the number of decision steps per episode from 2{,}520 to 520. The PDE solver grid is correspondingly coarsened from $N_p = 200$ to $N_p = 100$ belief-state nodes, which remains adequate given the smoothness of $f$ and $g$ away from the boundaries. Second, each algorithm is trained for 100{,}000 episodes, with out-of-sample performance evaluated on 100{,}000 independent test paths. While this remains below the 200{,}000 episodes and 100{,}000 test paths of the original study, the weekly timestep means each episode covers the same 10-year investment horizon with comparable exposure to regime transitions; the dominant performance gap between POEMV and EMV is structural rather than a function of training length.
+For computational tractability within the R implementation, several modifications are made relative to \citeauthor{wu2024rl} \shortcite{wu2024rl}. First, the rebalancing frequency is set to weekly ($\Delta t = 1/52$) rather than daily ($\Delta t = 1/252$), reducing the number of decision steps per episode from 2{,}520 to 520. The PDE solver grid is correspondingly coarsened from $N_p = 200$ to $N_p = 100$ belief-state nodes, which remains adequate given the smoothness of $f$ and $g$ away from the boundaries. Second, following the suggestion of Remark~5 in \citeauthor{wu2024rl} \shortcite{wu2024rl}, stochastic gradient updates are computed as averages over mini-batches of 5 episodes rather than single episodes, reducing gradient variance arising from noisy real return paths and improving training stability. Each algorithm is trained for 50{,}000 parameter updates, giving 250{,}000 total episode evaluations — comparable in computational cost to the 100{,}000 single-episode iterations of the original study. Third, learning rates are decayed according to the schedule $\eta_t = \eta_0 / (1 + 10^{-5} \cdot t)$, where $t$ is the iteration index, to reflect diminishing step sizes as parameters approach convergence. Finally, to guard against gradient explosion from occasional extreme return realisations in the real data, gradients are clipped to $[-100, 100]$ before application and policy parameters are constrained to $\phi_1, \phi_2 \in [-20, 20]$ and $\phi_3 \in [-10, 10]$ throughout training. Out-of-sample performance is evaluated on 100{,}000 independent test paths generated from the calibrated RS-GBM model.
 
 Two filter settings are examined as in the original study. In the first, the true environment parameters are supplied directly to the discretized Wonham filter. In the second, a biased estimate is constructed to simulate realistic estimation error: $\mu_1$ is shifted upward by 0.05 in absolute terms and $\lambda_1$ is inflated by a factor of 1.35, reflecting the pattern documented in \citeauthor{wu2024rl} \shortcite{wu2024rl} Table~2 whereby the heuristic estimator over-states bull-market drift and transition frequency. An additive rather than proportional perturbation to $\mu_1$ is used here because the DAX bull-market drift is sufficiently small that a multiplicative perturbation would be economically negligible.
 
@@ -873,7 +959,7 @@ Two filter settings are examined as in the original study. In the first, the tru
 
 The empirical evaluation uses daily DAX index returns from January 1999 through December 2022, split into a 14-year training period (1999--2012) and a 10-year out-of-sample period (2013--2022). The longer training window relative to \citeauthor{wu2024rl} \shortcite{wu2024rl} reflects the later start date imposed by the euro introduction, and the out-of-sample period is kept at 10 years to maintain comparability with the original study's investment horizon $T$.
 
-To address data scarcity on a single observed index trajectory, we follow the universal training approach of \citeauthor{wang2020mv} \shortcite{wang2020mv} and supplement the DAX index with constituent stocks whose estimated market beta falls between 0.9 and 1.1. Beta is estimated by OLS regression of individual stock log-returns on DAX log-returns over the training period. Constituent tickers are sourced from the DAX 40 and Eurostoxx 50 indices, retrieved via Yahoo Finance with the \texttt{.DE} suffix; stocks with fewer than 90\% of trading days observed over the full 1999--2022 window are excluded. This procedure yields a smaller set of usable paths than the 121 stocks available to \citeauthor{wu2024rl} \shortcite{wu2024rl} from the S\&P~500, a limitation inherent to the narrower DAX universe and the stricter data-completeness requirement imposed by the longer window. The retained paths are divided into overlapping 10-year blocks for training episode construction, and out-of-sample evaluation is conducted on all retained paths observed in the held-out period.
+To address data scarcity on a single observed index trajectory, we follow the universal training approach of \citeauthor{wang2020mv} \shortcite{wang2020mv} and supplement the DAX index with constituent stocks whose estimated market beta falls between 0.9 and 1.1. Beta is estimated by OLS regression of individual stock log-returns on DAX log-returns over the training period. Constituent tickers are sourced from the DAX 40 and Eurostoxx 50 indices, retrieved via Yahoo Finance; stocks with fewer than 90\% of trading days observed over the full 1999--2022 window are excluded. This procedure yields a smaller set of usable paths than the 121 stocks available to \citeauthor{wu2024rl} \shortcite{wu2024rl} from the S\&P~500, a limitation inherent to the narrower DAX universe and the stricter data-completeness requirement imposed by the longer window. Daily returns are aggregated to weekly frequency by summing log-returns within each calendar week, consistent with the weekly rebalancing assumption. The retained paths are divided into overlapping 10-year blocks for training episode construction, with gradient updates computed as mini-batch averages over 5 randomly sampled blocks per iteration as described above. Out-of-sample evaluation is conducted on all retained paths observed in the held-out period, with the learned policy applied to each path's most recent $K = 520$ weekly observations.
 
 The risk-free rate is held fixed at the mean ECB deposit facility rate over the training window as described above. The same three comparison baselines are retained: POEMV with true filter parameters, POEMV with estimated filter parameters, and the EMV algorithm of \citeauthor{jia2022policyII} \shortcite{jia2022policyII} which ignores regime switching. Out-of-sample performance is assessed on mean terminal wealth, variance of terminal wealth, and the 10-year Sharpe ratio $({\rm Mean} - 1)/\sqrt{{\rm Variance}}$, using the initial wealth $x_0 = 1$ and target $z = 2$ throughout.
 
@@ -899,6 +985,11 @@ phi1_star <- (RHO1-RHO2)/PAR$sigma
 phi2_star <- RHO2/PAR$sigma
 
 cat("\nEvaluating out-of-sample on synthetic paths (real-data trained policies)…\n")
+for (nm in c("res_T_real","res_E_real","res_EMV_real")) {
+  obj <- get(nm)
+  if (any(!is.finite(obj$phi)) || any(!is.finite(obj$th)))
+    stop(sprintf("%s contains NaN/Inf — check training", nm))
+}
 
 oos_T_real   <- oos_eval(PAR,     PAR,
                           res_T_real$phi,   res_T_real$th,   res_T_real$omega,
@@ -913,6 +1004,8 @@ oos_EMV_real <- oos_eval(PAR,     PAR,
 cat("\n══ REAL DATA TABLE ═══════════════════════════════\n")
 cat(sprintf("%-24s %7s %7s %7s %7s %7s %7s\n",
             "", "phi1","phi2","omega","Mean","Var","Sharpe"))
+cat(sprintf("%-24s %7.3f %7.3f %7s %7s %7s %7s\n",
+            "Theoretical target", phi1_star, phi2_star, "—","—","—","—"))
 fmt <- "%-24s %7.3f %7.3f %7.3f %7.3f %7.3f %7.2f\n"
 cat(sprintf(fmt,"POEMV (true filt)",
             res_T_real$phi[1],   res_T_real$phi[2],   res_T_real$omega,
@@ -926,6 +1019,12 @@ cat(sprintf("%-24s %7.3f %7s %7.3f %7.3f %7.3f %7.2f\n","EMV",
 ```
 
 ```{r, echo = F}
+saveRDS(oos_T_real, "oos_T_real.rds")
+saveRDS(oos_E_real, "oos_E_real.rds")
+saveRDS(oos_EMV_real, "oos_EMV_real.rds")
+```
+
+```{r, echo = F}
 # =============================================================
 # CONVERGENCE PLOTS — real data
 # =============================================================
@@ -935,7 +1034,7 @@ cols      <- c("steelblue","darkorange","darkgreen")
 nms       <- c("POEMV (true)","POEMV (est)","EMV")
 hst_list  <- list(res_T_real$hist, res_E_real$hist, res_EMV_real$hist)
 
-par(mfrow=c(1,2), mar=c(4,4,3,1))
+par(mfrow=c(1,1), mar=c(4,4,3,1))
 
 # φ₁ convergence
 all_y <- unlist(lapply(hst_list, `[[`, "phi1"))
@@ -953,17 +1052,145 @@ legend("topleft",
        c("POEMV true (smoothed)","POEMV est (smoothed)",
          "EMV (smoothed)", expression(phi[1]^"*")),
        lty=c(1,1,1,2), col=c(cols,"red"), bty="n", cex=0.8)
-
 # Terminal wealth
+par(mfrow=c(1,1), mar=c(4,4,3,1))
 wlth      <- lapply(hst_list, function(h) roll_avg(h$X_T))
 ylim_wlth <- c(0, quantile(unlist(wlth), 0.995, na.rm=TRUE)*1.1)
 plot(NA, xlim=c(1, length(wlth[[1]])), ylim=ylim_wlth,
      xlab="Iteration", ylab="Terminal wealth (rolling avg)",
-     main="XT — Real Data, All Methods")
+     main="Terminal Wealth — Real Data, All Methods")
 for (i in 1:3) lines(wlth[[i]], col=cols[i], lwd=2)
 abline(h=Z, lty=2, col="red")
 legend("bottomright",
        c(nms, paste0("Target Z=",Z)),
        lty=c(1,1,1,2), col=c(cols,"red"), bty="n", cex=0.8)
 par(mfrow=c(1,1))
+```
+
+# In Time 
+
+```{r, echo = F}
+# =============================================================
+# OOS PATH EVALUATOR — real test paths, full wealth trajectory
+# =============================================================
+oos_paths <- function(par_filt, phi, th, om,
+                       mode = c("poemv", "emv"),
+                       paths_wk) {
+  mode <- match.arg(mode)
+  if (any(!is.finite(phi)) || any(!is.finite(th)))
+    stop("oos_paths: phi or th contains NaN/Inf — check training output")
+
+  r1f     <- (par_filt$mu1-r)/par_filt$sigma
+  r2f     <- (par_filt$mu2-r)/par_filt$sigma
+  n_paths <- length(paths_wk)
+  W       <- matrix(NA_real_, nrow=n_paths, ncol=K+1L)
+
+  for (trial in seq_len(n_paths)) {
+    ret_full <- as.numeric(paths_wk[[trial]])
+    ret_full <- ret_full[is.finite(ret_full)]
+    n        <- length(ret_full)
+
+    if (n < K) {
+      ret <- sample(ret_full, K, replace=TRUE)
+    } else {
+      ret <- ret_full[(n-K+1L):n]
+    }
+
+    xk <- X0; pk <- 0.5; q1 <- q2 <- log(0.5)
+    W[trial, 1L] <- xk
+
+    for (k in seq_len(K)) {
+      tk <- (k-1L)*DT
+      uk <- if (mode=="poemv") {
+        p_samp(tk, xk, pk, phi, th, om)
+      } else {
+        sg <- pmax(LAM*exp(phi[3])*
+                   exp(pmin(th[1]*(T_HOR-tk)+th[2]*(T_HOR-tk)^2, 500)),
+                   1e-10)
+        rnorm(1L, -(xk-om)*phi[1], sqrt(sg))
+      }
+      uk <- pmax(pmin(uk, 1e4), -1e4)
+      xk <- xk + uk*(exp(ret[k])-1)
+      if (!is.finite(xk)) xk <- W[trial, k]
+
+      if (mode=="poemv") {
+        mhat <- par_filt$mu1*pk + par_filt$mu2*(1-pk)
+        dBh  <- (ret[k] - (mhat - par_filt$sigma^2/2)*DT) / par_filt$sigma
+        dBh  <- pmax(pmin(dBh, 5*sqrt(DT)), -5*sqrt(DT))
+        ws   <- wonham_step(q1, q2, dBh, par_filt$lambda1,
+                             par_filt$lambda2, r1f, r2f)
+        q1 <- ws$q1; q2 <- ws$q2; pk <- ws$p
+      }
+      W[trial, k+1L] <- xk
+    }
+  }
+  W
+}
+```
+
+```{r, echo = F}
+# =============================================================
+# RUN ON TEST PATHS
+# =============================================================
+
+cat("\nGenerating OOS wealth paths on real test data…\n")
+paths_T   <- oos_paths(PAR, res_T_real$phi, res_T_real$th,
+                        res_T_real$omega, "poemv", test_paths_wk)
+paths_EMV <- oos_paths(PAR, res_EMV_real$phi, res_EMV_real$th,
+                        res_EMV_real$omega, "emv", test_paths_wk)
+```
+
+```{r, echo = F}
+saveRDS(paths_T, "paths_T.rds")
+saveRDS(paths_EMV, "paths_EMV.rds")
+```
+
+```{r, echo = F}
+# =============================================================
+# FIGURE 7 ANALOG
+# =============================================================
+
+fig7 <- function(W_poemv, W_emv) {
+  steps <- ncol(W_poemv)   # K+1
+
+  mu_p  <- colMeans(W_poemv, na.rm=TRUE)
+  sd_p  <- apply(W_poemv, 2, sd, na.rm=TRUE)
+  mu_e  <- colMeans(W_emv,   na.rm=TRUE)
+  sd_e  <- apply(W_emv,   2, sd, na.rm=TRUE)
+
+  xs    <- seq_len(steps)
+  ylim  <- range(c(mu_p - 0.5*sd_p, mu_p + 0.5*sd_p,
+                   mu_e - 0.5*sd_e, mu_e + 0.5*sd_e), na.rm=TRUE)
+
+  col_p <- "darkorange"; col_e <- "steelblue"
+
+  plot(NA, xlim=c(1, steps), ylim=ylim,
+       xlab="Weeks into out-of-sample horizon (2013–2022)",
+       ylab="Portfolio wealth",
+       main="Out-of-Sample Wealth: POEMV vs EMV")
+
+  # EMV band
+  polygon(c(xs, rev(xs)),
+          c(mu_e + 0.5*sd_e, rev(mu_e - 0.5*sd_e)),
+          col=adjustcolor(col_e, 0.2), border=NA)
+  # POEMV band
+  polygon(c(xs, rev(xs)),
+          c(mu_p + 0.5*sd_p, rev(mu_p - 0.5*sd_p)),
+          col=adjustcolor(col_p, 0.2), border=NA)
+
+  lines(mu_e, col=col_e, lwd=2)
+  lines(mu_p, col=col_p, lwd=2)
+  abline(h=X0, lty=2, col="grey40")
+  abline(h=Z,  lty=2, col="red")
+  legend("topleft",
+         c("POEMV (true)", "EMV", "Initial wealth", "Target z=2"),
+         lty=c(1,1,2,2), lwd=c(2,2,1,1),
+         col=c(col_p, col_e, "grey40", "red"), bty="n")
+}
+
+fig7(paths_T, paths_EMV)
+```
+
+```{r, echo = F}
+
 ```
