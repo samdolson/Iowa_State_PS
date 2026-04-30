@@ -635,6 +635,124 @@ print(sapply(train_paths_wk, length))
 ```
 
 ```{r, echo = F}
+r    <- mean(r_series$value[r_series$date <= "2013-12-31"], na.rm=TRUE) / 100
+RHO1 <- (PAR$mu1 - r) / PAR$sigma
+RHO2 <- (PAR$mu2 - r) / PAR$sigma
+
+FREQ  <- 52L; T_HOR <- 10.0; DT <- 1/FREQ
+K     <- round(T_HOR / DT)
+X0    <- 1.0; Z <- 2.0; LAM <- 1.0; M <- 2L
+```
+
+# TRAIN 
+
+```{r, echo = F}
+# =============================================================
+# POEMV SIMULATION STUDY  |  DAX × ECB Rate
+# Replication of Wu & Li (2024), Section 5
+# Assumes in workspace: dax (xts), r (scalar, annualised ECB rate)
+# =============================================================
+library(xts)
+library(zoo)
+set.seed(42)
+
+FREQ  <- 52L;   T_HOR <- 10.0;  DT <- 1/FREQ
+K     <- round(T_HOR / DT)          # 520 steps/episode
+X0    <- 1.0;   Z <- 8.0;  LAM <- 1.0;  M <- 2L
+Z <- 2.0  
+# =============================================================
+# 1  PARAMETER ESTIMATION  (heuristic, Section 5 of paper)
+# =============================================================
+
+# Clean price series before anything else
+dax_clean <- na.approx(dax, na.rm = FALSE)
+dax_clean <- na.omit(dax_clean)
+cat("NAs remaining after cleaning:", sum(is.na(dax_clean)), "\n")
+
+identify_regimes <- function(px, ul = 0.19, uu = 0.24) {
+  px  <- px[!is.na(px)]
+  n   <- length(px); reg <- integer(n)
+  cur <- 1L; ref <- as.numeric(px[1L])
+  for (i in seq_len(n)) {
+    p <- as.numeric(px[i])
+    if (is.na(p)) { reg[i] <- cur; next }
+    if (cur == 1L) {
+      if (p > ref) ref <- p
+      if ((ref - p)/ref >= ul) { cur <- 2L; ref <- p }
+    } else {
+      if (p < ref) ref <- p
+      if ((p - ref)/ref >= uu) { cur <- 1L; ref <- p }
+    }
+    reg[i] <- cur
+  }
+  reg
+}
+
+estimate_params <- function(ret, reg, freq = FREQ) {
+  mu1 <- mean(ret[reg == 1L]) * freq
+  mu2 <- mean(ret[reg == 2L]) * freq
+  sig <- sd(ret) * sqrt(freq)
+  rl  <- rle(reg)
+  list(mu1 = mu1, mu2 = mu2, sigma = sig,
+       lambda1 = freq / mean(rl$lengths[rl$values == 1L]),
+       lambda2 = freq / mean(rl$lengths[rl$values == 2L]))
+}
+
+tr_px  <- as.numeric(dax_clean["1999-01-01/2012-12-31"])
+te_px  <- as.numeric(dax_clean["2013-01-01/2022-12-31"])
+tr_ret <- diff(log(tr_px))
+te_ret <- diff(log(te_px))
+tr_reg <- identify_regimes(tr_px)[-1L]
+
+stopifnot(length(tr_ret) == length(tr_reg))
+
+PAR    <- estimate_params(tr_ret, tr_reg)
+RHO1   <- (PAR$mu1 - r) / PAR$sigma
+RHO2   <- (PAR$mu2 - r) / PAR$sigma
+
+cat("── True parameters ──────────────────────────────\n")
+cat(sprintf("  μ₁=%6.3f  μ₂=%6.3f  σ=%5.3f  λ₁=%5.3f  λ₂=%5.3f\n",
+            PAR$mu1, PAR$mu2, PAR$sigma, PAR$lambda1, PAR$lambda2))
+cat(sprintf("  ρ₁=%6.3f  ρ₂=%6.3f  r=%6.4f\n", RHO1, RHO2, r))
+
+phi1_true <- RHO1 - RHO2
+phi2_true <- RHO2
+
+cat(sprintf("True φ₁ = %.4f\n", phi1_true))
+cat(sprintf("True φ₂ = %.4f\n", phi2_true))
+```
+
+# TEST 
+
+```{r, echo = F}
+# =============================================================
+# TEST PERIOD PARAMETERS  |  2013-2022
+# =============================================================
+
+r_te <- mean(r_series$value[r_series$date >= "2013-01-01" &
+                              r_series$date <= "2022-12-31"], na.rm = TRUE) / 100
+
+te_reg <- identify_regimes(te_px)[-1L]
+stopifnot(length(te_ret) == length(te_reg))
+
+PAR_te  <- estimate_params(te_ret, te_reg)
+RHO1_te <- (PAR_te$mu1 - r_te) / PAR_te$sigma
+RHO2_te <- (PAR_te$mu2 - r_te) / PAR_te$sigma
+
+phi1_true_te <- RHO1_te - RHO2_te
+phi2_true_te <- RHO2_te
+
+cat("── Test parameters (2013–2022) ──────────────────\n")
+cat(sprintf("  μ₁=%6.3f  μ₂=%6.3f  σ=%5.3f  λ₁=%5.3f  λ₂=%5.3f\n",
+            PAR_te$mu1, PAR_te$mu2, PAR_te$sigma, PAR_te$lambda1, PAR_te$lambda2))
+cat(sprintf("  ρ₁=%6.3f  ρ₂=%6.3f  r=%6.4f\n", RHO1_te, RHO2_te, r_te))
+cat(sprintf("True φ₁ = %.4f\n", phi1_true_te))
+cat(sprintf("True φ₂ = %.4f\n", phi2_true_te))
+```
+
+# FUNCTIONS 
+
+```{r, echo = F}
 # =============================================================
 # REAL-DATA EPISODE SAMPLER
 # Replaces sim_path() — samples a random overlapping 10-year

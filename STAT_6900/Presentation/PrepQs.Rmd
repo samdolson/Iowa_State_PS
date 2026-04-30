@@ -4,16 +4,10 @@ subtitle: "Wu and Li (2024) — STAT 6900A | Olson & Orman"
 date: "May 4, 2025"
 output:
   pdf_document:
-    toc: true
+    toc: false
     toc_depth: 2
     number_sections: false
 ---
-
-> Questions marked **[Sabzikar]** are most likely to come from Dr. Sabzikar given his background in stochastic processes and probability theory. Questions marked **[Caution]** are ones where you should acknowledge a genuine limitation honestly rather than overselling the answer.
-
----
-
-\newpage
 
 # Part I: Questions Likely from Dr. Sabzikar
 
@@ -21,304 +15,694 @@ output:
 
 ## Q1: Boundary Classification of the Wonham Filter [Sabzikar]
 
-**Q:** The paper claims $p = 0$ and $p = 1$ are entrance boundaries for the belief state process. Can you walk through why, using Feller's boundary classification, and what the mathematical consequence is for the PDE system?
+**Q:** The paper claims $p = 0$ and $p = 1$ are entrance boundaries for the belief
+state process. Can you walk through why, using Feller's boundary classification, and
+what the mathematical consequence is for the PDE system?
 
-**A:** Feller's boundary classification applies to one-dimensional diffusions $dY_t = b(Y_t)\,dt + \sigma(Y_t)\,dW_t$. For the belief state on $(0,1)$:
-$$dp_t = \left[-(\lambda_1+\lambda_2)p_t + \lambda_2\right]dt + (\rho_1-\rho_2)p_t(1-p_t)\,d\hat{B}_t$$
-the diffusion coefficient is $\sigma(p) = |\rho_1-\rho_2|p(1-p)$, which vanishes at both endpoints. Under Feller's classification, a boundary is an **entrance boundary** if the process cannot be started there but immediately enters the interior — formally verified by checking the integrability conditions on the scale function and speed measure near the boundary. Here, the drift pushes away from both endpoints (positive near 0, negative near 1) while the diffusion vanishes faster than the drift. Both endpoints satisfy the entrance boundary conditions.
+**A:** Feller's boundary classification applies to one-dimensional diffusions
+$dY_t = b(Y_t)\,dt + \sigma(Y_t)\,dW_t$. For the belief state on $(0,1)$:
+$$dp_t = \left[-(\lambda_1+\lambda_2)p_t + \lambda_2\right]dt +
+(\rho_1-\rho_2)p_t(1-p_t)\,d\hat{B}_t$$
+the diffusion coefficient is $\sigma(p) = |\rho_1-\rho_2|p(1-p)$, which vanishes at
+both endpoints. Under Feller's classification, a boundary is an **entrance boundary**
+if the process cannot be started there but immediately enters the interior ---
+formally verified by checking the integrability conditions on the scale function and
+speed measure near the boundary. Here, the drift pushes away from both endpoints
+(positive near 0, negative near 1) while the diffusion vanishes faster than the drift.
+Both endpoints satisfy the entrance boundary conditions. This is established in
+Dai et al. (2010) and used throughout the paper.
 
-**Consequence for the PDE:** Since a process started in $(0,1)$ never reaches 0 or 1, the PDEs for $f$ and $g$ on $[0,T] \times (0,1)$ do not require boundary conditions at the endpoints. Well-posedness follows from Theorem 10 of Krylov (2008) and the comparison principle in the paper's Lemma 1.
+**Consequence for the PDE:** Since a process started in $(0,1)$ never reaches 0 or 1,
+the PDEs for $f$ and $g$ on $[0,T] \times (0,1)$ do not require boundary conditions at
+the endpoints. Well-posedness follows from Theorem 10 of Krylov (2008) and the
+comparison principle in the paper's Lemma 1. The finite-difference scheme in Appendix B
+does impose artificial boundary conditions at $p=0$ and $p=1$, using the Wang-Zhou
+(2020) single-regime formulas (exact at the limiting cases of certain bear and certain
+bull), but these are needed only for the numerical grid, not for the underlying theory.
 
-**Note on the numerics:** The finite-difference scheme (Appendix B) does need artificial boundary conditions because the grid has finite endpoints. The paper uses the Wang-Zhou (2020) single-regime formulas there, which are exact at $p=0$ (certain bear) and $p=1$ (certain bull).
+**Likely follow-up:** "How does the comparison principle apply when the diffusion
+degenerates at the boundary?"
 
-**Likely follow-up:** "How does the comparison principle apply when the diffusion degenerates at the boundary?"
-
-The proof uses localization: define stopping times $\tau_n = \inf\{t : p_t \notin (1/n, 1-1/n)\}$. Since the endpoints are entrance boundaries, $\tau_n \to \infty$ a.s. Establish the comparison on $[0, T \wedge \tau_n]$ where the diffusion is nondegenerate, then pass to the limit using dominated convergence.
+The proof uses localization: define stopping times
+$\tau_n = \inf\{t : p_t \notin (1/n, 1-1/n)\}$. Since the endpoints are entrance
+boundaries, $\tau_n \to \infty$ a.s. Establish the comparison on
+$[0, T \wedge \tau_n]$ where the diffusion is nondegenerate, then pass to the limit
+using dominated convergence.
 
 ---
 
-## Q2: Innovation Process and Measurability [Sabzikar]
+## Q2: The Innovation Process and Measurability [Sabzikar]
 
-**Q:** You write the innovation process as $d\hat{B}_t = [d\ln S_t - (\hat\mu_t - \sigma^2/2)\,dt]/\sigma$. For this to be a standard Brownian motion with respect to $\mathcal{F}_t^S$, which theorem are you invoking, and what are its conditions?
+**Q:** You write the innovation process as
+$d\hat{B}_t = [d\ln S_t - (\hat\mu_t - \sigma^2/2)\,dt]/\sigma$. For this to be a
+standard Brownian motion with respect to $\mathcal{F}_t^S$, which theorem are you
+invoking, and what are its conditions?
 
-**A:** This is the **Fujisaki-Kallianpur-Kunita (FKK) theorem**, cited as Kallianpur (2013), Theorem 8.1.2. The conditions are: (1) the signal $I_t$ is a finite-state CTMC with bounded transition rates; (2) the observation $S_t$ has drift depending on $I_t$ through $\mu_t = \mu_{I_t}$ with additive Brownian noise; (3) the filtered drift $\hat\mu_t = \mathbb{E}[\mu_t \mid \mathcal{F}_t^S]$ is $\mathcal{F}_t^S$-adapted and square-integrable.
+**A:** This is the **Fujisaki-Kallianpur-Kunita (FKK) theorem**, cited in the paper as
+Kallianpur (2013), Theorem 8.1.2. The conditions are: (1) the signal $I_t$ is a
+finite-state CTMC with bounded transition rates; (2) the observation $S_t$ has drift
+depending on $I_t$ through $\mu_t = \mu_{I_t}$ with additive Brownian noise of constant
+volatility $\sigma$; (3) the filtered drift
+$\hat\mu_t = \mathbb{E}[\mu_t \mid \mathcal{F}_t^S]$ is $\mathcal{F}_t^S$-adapted
+and square-integrable.
 
-Under these conditions, $\hat{B}_t$ is a standard $(\mathcal{F}_t^S)$-Brownian motion. It drives both the Wonham filter SDE and the observable wealth dynamics $dX_t = \sigma u_t(\hat\rho_t\,dt + d\hat{B}_t)$. Since $\hat{B}_t$ is constructed entirely from observables, the wealth dynamics are fully adapted to $\mathcal{F}_t^S$.
+Under these conditions, $\hat{B}_t$ is a standard $(\mathcal{F}_t^S)$-Brownian motion.
+It drives both the Wonham filter SDE and the observable wealth dynamics
+$dX_t = \sigma u_t(\hat\rho_t\,dt + d\hat{B}_t)$. Since $\hat{B}_t$ is constructed
+entirely from observables (log-price increments and the filtered drift), the wealth
+dynamics are fully adapted to $\mathcal{F}_t^S$.
 
-**[Caution]:** The paper cites Kallianpur (2013) but does not reproduce the proof. If pressed for more detail, acknowledge that the paper treats this as a standard result from nonlinear filtering theory.
+**[Caution]:** The paper cites Kallianpur (2013) but does not reproduce the proof. If
+pressed for more detail, acknowledge that the paper treats this as a standard result
+from nonlinear filtering theory.
 
 ---
 
 ## Q3: Does the Separation Principle Apply to the Entropy-Regularized Problem? [Sabzikar]
 
-**Q:** The separation principle you cite is from Xiong and Zhou (2007), which covers the standard MV problem. Wu and Li solve an entropy-regularized version. Does the separation principle still apply after adding the entropy term?
+**Q:** The separation principle you cite is from Xiong and Zhou (2007), which covers
+the standard MV problem. Wu and Li solve an entropy-regularized version. Does the
+separation principle still apply after adding the entropy term?
 
-**A:** Yes, and this is handled in Section 2.3 of the paper, though implicitly. The exploratory wealth dynamics:
-$$d\tilde{X}_t^{\boldsymbol\pi} = \sigma\hat\rho_t \bar{u}_t\,dt + \sigma\bar{u}_t\,d\hat{B}_t + \sigma\sqrt{\overline{u^2}_t - \bar{u}_t^2}\,d\bar{B}_t$$
-are adapted to the expanded filtration $\bar{\mathcal{F}}_t = \mathcal{F}_t^S \vee \sigma(Z_s, s \le t)$ where $Z_s$ are the randomization variables. The entropy objective $\mathcal{H}(\boldsymbol\pi(\cdot \mid t, X_t, p_t))$ depends on $p_t$, which is $\mathcal{F}_t^S$-adapted. So the full objective is measurable with respect to the observable filtration.
+**A:** Yes, and this is handled in Section 2.3 of the paper, though implicitly. The
+exploratory wealth dynamics:
+$$d\tilde{X}_t^{\boldsymbol\pi} = \sigma\hat\rho_t \bar{u}_t\,dt + \sigma\bar{u}_t\,d\hat{B}_t
++ \sigma\sqrt{\overline{u^2}_t - \bar{u}_t^2}\,d\bar{B}_t$$
+are adapted to the expanded filtration
+$\bar{\mathcal{F}}_t = \mathcal{F}_t^S \vee \sigma(Z_s, s \le t)$ where $Z_s$ are the
+randomization variables used to sample actions from the stochastic policy. The
+probability measure $\bar{\mathbb{P}}$ agrees with $\mathbb{P}$ when restricted to
+$\mathcal{F}_T^S$. The entropy objective
+$\mathcal{H}(\boldsymbol\pi(\cdot \mid t, X_t, p_t))$ depends on $p_t$, which is
+$\mathcal{F}_t^S$-adapted. So the full objective is measurable with respect to the
+observable filtration.
 
-The separation works because the stochastic policy $\boldsymbol\pi$ is a function of $(t, X_t, p_t)$ — all observable — and the entropy regularizer adds a running cost that also depends only on observables. The belief state $p_t$ serves as the sufficient statistic for the unobservable regime.
+The separation works because the stochastic policy $\boldsymbol\pi$ is required to be
+a function of $(t, X_t, p_t)$ --- all observable --- and the entropy regularizer adds a
+running cost that also depends only on observables. The belief state $p_t$ remains the
+sufficient statistic for the unobservable regime in the regularized problem.
 
-**Likely follow-up:** "Doesn't the randomization noise $\bar{B}_t$ create a measurability issue?"
+**Likely follow-up:** "Doesn't the randomization noise $\bar{B}_t$ create a
+measurability issue?"
 
-No. Jia and Zhou (2022b) show the sample state process $\{X_t^\pi\}$ is identical in law to the exploratory state process $\{\tilde{X}_t^\pi\}$. The $\bar{B}_t$ noise is averaged out in the expectation. The value function is defined under the expanded measure $\bar{\mathbb{P}}$, which agrees with $\mathbb{P}$ when restricted to $\mathcal{F}_T^S$.
+No. Jia and Zhou (2022b) show the sample state process $\{X_t^\pi\}$ is identical in
+law to the exploratory state process $\{\tilde{X}_t^\pi\}$. The $\bar{B}_t$ noise is
+averaged out in the expectation. The value function is defined under the expanded
+measure $\bar{\mathbb{P}}$, which agrees with $\mathbb{P}$ when restricted to
+$\mathcal{F}_T^S$.
 
 ---
 
 ## Q4: Well-Posedness of the $f$ PDE [Sabzikar]
 
-**Q:** The diffusion coefficient in the $f$ PDE is $(\rho_1-\rho_2)^2 p^2(1-p)^2$ — a fourth-order polynomial in $p$ that vanishes at the endpoints. Standard parabolic PDE theory requires uniform ellipticity. How do you establish well-posedness here?
+**Q:** The diffusion coefficient in the $f$ PDE is
+$(\rho_1-\rho_2)^2 p^2(1-p)^2$ --- a fourth-order polynomial in $p$ that vanishes at
+the endpoints. Standard parabolic PDE theory requires uniform ellipticity. How do you
+establish well-posedness here?
 
-**A:** On any compact interval $[\varepsilon, 1-\varepsilon]$ for $\varepsilon \in (0, 1/2)$, the diffusion coefficient is bounded below by $(\rho_1-\rho_2)^2 \varepsilon^2(1-\varepsilon)^2 > 0$, so the PDE is uniformly parabolic on compact subsets. Global well-posedness on $(0,1)$ follows from three steps:
+**A:** On any compact interval $[\varepsilon, 1-\varepsilon]$ for
+$\varepsilon \in (0, 1/2)$, the diffusion coefficient is bounded below by
+$(\rho_1-\rho_2)^2 \varepsilon^2(1-\varepsilon)^2 > 0$, so the PDE is uniformly
+parabolic on compact subsets. Global well-posedness on $(0,1)$ follows from three steps:
 
-1. Krylov (2008), Theorem 10 (Chapter 2) gives existence and uniqueness of a smooth solution on $[0,T) \times [\varepsilon, 1-\varepsilon]$ for each $\varepsilon$.
-2. The comparison principle establishes that solutions agree on overlapping compact sets, yielding a unique global solution.
-3. Boundedness of $f$ on $[0,T] \times (0,1)$ follows from the bounds $1 \le f(t,p) \le e^{\bar\rho^2(T-t)}$, proved by constructing explicit super- and sub-solutions.
+1. Krylov (2008), Theorem 10 (Chapter 2) gives existence and uniqueness of a smooth
+   solution on $[0,T) \times [\varepsilon, 1-\varepsilon]$ for each $\varepsilon$.
+2. The comparison principle (Lemma 1 of the paper) establishes that solutions agree
+   on overlapping compact sets, yielding a unique global solution on $(0,1)$. The
+   comparison argument uses a localization with stopping times, exactly because the
+   diffusion is degenerate at the boundary.
+3. Boundedness of $f$ on $[0,T] \times (0,1)$ follows from the bounds
+   $1 \le f(t,p) \le e^{\bar\rho^2(T-t)}$ where $\bar\rho = \max\{|\rho_1|, |\rho_2|\}$,
+   proved by constructing explicit super- and sub-solutions.
 
-The entrance boundary behavior is essential: because $p_t$ never hits 0 or 1, you never need to evaluate $f$ at the degenerate points in the control problem.
+The entrance boundary behavior is essential: because $p_t$ never hits 0 or 1, you
+never need to evaluate $f$ at the degenerate points during the stochastic control
+problem.
 
 ---
 
-## Q5: The $v_{xp}$ Cross-Derivative — Where Does It Come From? [Sabzikar]
+## Q5: The $v_{xp}$ Cross-Derivative --- Where Does It Come From? [Sabzikar]
 
-**Q:** The HJB equation has a cross-derivative term $(\rho_1-\rho_2)p(1-p)v_{xp}$. Can you explicitly show via Itô's formula where this comes from?
+**Q:** The HJB equation has a cross-derivative term
+$(\rho_1-\rho_2)p(1-p)v_{xp}$. Can you explicitly show via Itô's formula where this
+comes from?
 
 **A:** Apply Itô's formula to $v(t, X_t, p_t)$. The relevant cross-variation term is:
-$$dX_t \cdot dp_t = \sigma u_t\,d\hat{B}_t \cdot (\rho_1-\rho_2)p_t(1-p_t)\,d\hat{B}_t = \sigma u_t(\rho_1-\rho_2)p_t(1-p_t)\,dt$$
-because $d\hat{B}_t \cdot d\hat{B}_t = dt$. The exploration noise $d\bar{B}_t$ is independent of $d\hat{B}_t$, so $d\bar{B}_t \cdot dp_t = 0$.
+$$dX_t \cdot dp_t = \sigma u_t\,d\hat{B}_t \cdot (\rho_1-\rho_2)p_t(1-p_t)\,d\hat{B}_t
+= \sigma u_t(\rho_1-\rho_2)p_t(1-p_t)\,dt$$
+because $d\hat{B}_t \cdot d\hat{B}_t = dt$. The exploration noise $d\bar{B}_t$ is
+independent of $d\hat{B}_t$, so $d\bar{B}_t \cdot dp_t = 0$.
 
-This cross-variation produces the $v_{xp}$ term in the HJB. When you complete the square over $u$ to find the optimal $\boldsymbol\pi$, this term enters the mean of the Gaussian policy — it is the hedging term in Theorem 2:
-$$m^* = \underbrace{-\frac{x-\omega}{\sigma}\hat\rho}_{\text{myopic}} + \underbrace{\frac{x-\omega}{\sigma}(\rho_1-\rho_2)p(1-p)\frac{f_p}{f}}_{\text{hedging from } v_{xp}}$$
+This cross-variation produces the $v_{xp}$ term in the HJB. When you complete the
+square over $u$ to find the optimal $\boldsymbol\pi^*$, this term enters the mean of
+the Gaussian policy as the hedging component:
+$$m^* = \underbrace{-\frac{x-\omega}{\sigma}\hat\rho}_{\text{myopic}}
++ \underbrace{\frac{x-\omega}{\sigma}(\rho_1-\rho_2)p(1-p)\frac{f_p}{f}}_{\text{hedging from } v_{xp}}$$
 
-In the GBM case (Wang and Zhou 2020), there is no $p_t$, no cross-variation, no $v_{xp}$ term, and no hedging component. The hedging term is the direct consequence of regime switching.
+In the GBM case (Wang and Zhou 2020), there is no $p_t$, no cross-variation, no
+$v_{xp}$ term, and no hedging component. The hedging term is the direct consequence
+of regime switching entering through this covariance.
 
 ---
 
 ## Q6: Verification Theorem Conditions [Sabzikar]
 
-**Q:** For the verification theorem (Theorem 2) to hold, you need to verify several conditions. What are they, and is there a gap in the proof?
+**Q:** For the verification theorem (Theorem 2) to hold, you need to verify several
+conditions on $\boldsymbol\pi^*$. What are they, and is there any gap in the proof?
 
-**A:** The verification requires:
+**A:** The verification requires three things:
 
-1. **Admissibility of $\boldsymbol\pi^*$:** Four conditions in the paper's definition. The key ones are: (ii) unique strong solution to the exploratory SDE under $\boldsymbol\pi^*$ — follows from linear growth and Lipschitz conditions on the drift, which hold because $f_p/f$ is uniformly bounded (Theorem 1); (iii) and (iv) square-integrability conditions — follow from a moment bound on $\tilde{X}^*$ (equation 42 in the paper) and boundedness of $f$.
+1. **Admissibility of $\boldsymbol\pi^*$:** The key conditions are a unique strong
+   solution to the exploratory SDE under $\boldsymbol\pi^*$ --- follows from linear
+   growth and global Lipschitz conditions on the drift and volatility coefficients,
+   which hold because $f_p/f$ is uniformly bounded (Theorem 1) --- plus
+   square-integrability conditions, which follow from a moment bound:
+   $\mathbb{E}[\sup_{t \le T}|\tilde{X}^*_t|^2] \le C(1+x^2)e^{CT}$
+   (Karatzas and Shreve 1991).
 
-2. **Inequality $v(t,x,p) \le V^\pi(t,x,p)$ for all admissible $\boldsymbol\pi$:** Apply Itô's formula to $v(t, \tilde{X}^\pi_t, p_t)$, use the HJB inequality, and take expectations. Stochastic integrals are martingales by square-integrability up to $T \wedge \tau_n$; dominated convergence passes the result to $t = T$.
+2. **Inequality $v(t,x,p) \le V^\pi(t,x,p)$ for all admissible $\boldsymbol\pi$:**
+   Apply Itô's formula to $v(t, \tilde{X}^\pi_t, p_t)$, use the HJB inequality, and
+   take expectations. The stochastic integrals are martingales by square-integrability
+   up to $T \wedge \tau_n$; dominated convergence passes the result to $t = T$.
 
-3. **Equality for $\boldsymbol\pi^*$:** The HJB holds with equality at $\boldsymbol\pi^*$ by construction.
+3. **Equality for $\boldsymbol\pi^*$:** The HJB holds with equality at $\boldsymbol\pi^*$
+   by construction, so the same Itô argument gives equality throughout.
 
-**[Caution]:** The proof relies on Krylov (2008) for regularity ($v \in C^{1,2}$ on compact subsets) and Karatzas and Shreve (1991) for the moment bound. It is rigorous but not self-contained — it invokes external results. If Dr. Sabzikar asks whether the proof is fully self-contained, the honest answer is no.
-
----
-
-## Q7: Martingale Loss — Uniqueness of Minimizer [Sabzikar]
-
-**Q:** You claim the martingale loss $\mathcal{ML}(\theta; \phi)$ has a unique minimizer at the true value function parameters. Why doesn't the polynomial parametrization introduce multiple local minima?
-
-**A:** The uniqueness result is from Jia and Zhou (2022a), Theorem 3.2. The martingale loss for a fixed $\phi$ is:
-$$\mathcal{ML}(\theta; \phi) = \tfrac{1}{2}\mathbb{E}\int_0^T \left|M_T^{\boldsymbol\pi^\phi} - M_t^\theta\right|^2 dt$$
-Uniqueness requires strict convexity in $\theta$. The gradients $\partial V^\theta / \partial \theta_{i,j} = -(x-\omega)^2 p^i(T-t)^j / f^\theta$ and $\partial V^\theta / \partial \tilde\theta_{i,j} = p^i(T-t)^j$ are linearly independent as functions of $(t,p)$ — polynomial basis functions are linearly independent. This ensures the Hessian of the martingale loss is positive definite, giving a unique global minimizer.
-
-**Practical caveat:** The polynomial with $m=2$ introduces approximation error — the true $f(t,p)$ is not exactly of the form $\exp(\text{quadratic in } p, T-t)$. The minimizer $\theta^*$ is the best polynomial approximation in the metric induced by the martingale loss. The 1.03% MAE confirms the approximation is tight.
-
----
-
-\newpage
-
-# Part II: Questions from the General PhD Audience
+**[Caution]:** The proof relies on Krylov (2008) for the $C^{1,2}$ regularity of $v$
+on compact subsets, and on Karatzas and Shreve (1991) for the moment bound. The proof
+is correct but not self-contained in the paper. If Dr. Sabzikar asks whether the
+verification is fully self-contained, the honest answer is no.
 
 ---
 
-## Q8: Why Not Just Use Deep RL (DDPG, SAC)?
+## Q7: Martingale Loss --- Uniqueness of the Minimizer [Sabzikar]
 
-**Q:** DDPG and SAC handle continuous state and action spaces. Why use a problem-specific polynomial parametrization?
+**Q:** You claim the martingale loss $\mathcal{ML}(\theta; \phi)$ has a unique
+minimizer at the true value function parameters. Why doesn't the polynomial
+parametrization introduce multiple local minima?
 
-**A:** The paper benchmarks against DDPG and SAC in related work (Wang and Zhou 2020, Huang et al. 2022) and the polynomial consistently wins for three reasons:
+**A:** The uniqueness result is from Jia and Zhou (2022a), Theorem 3.2. For a fixed
+$\phi$, the gradients
+$\partial V^\theta / \partial \theta_{i,j} = -(x-\omega)^2 p^i(T-t)^j / f^\theta$
+and $\partial V^\theta / \partial \tilde\theta_{i,j} = p^i(T-t)^j$ are linearly
+independent as functions of $(t, p)$ over $(0,T) \times (0,1)$ --- polynomial basis
+functions are linearly independent on any open set. This ensures the Hessian of the
+martingale loss is positive definite in $\theta$, giving a unique global minimizer.
 
-1. **Parameter efficiency.** The polynomial has 12 parameters total; a typical neural network actor-critic has thousands. 200,000 training episodes is enough for the polynomial to converge reliably but may be insufficient for a neural network to explore the parameter space adequately.
-
-2. **Structural inductive bias.** The paper derives analytically that the value function is quadratic in $x$ with coefficient $1/f^\theta(t,p)$, and the policy is Gaussian with mean proportional to $(x-\omega)$. The polynomial encodes this as a prior. A neural network has to rediscover this structure from data.
-
-3. **Training stability.** DDPG and SAC are known to produce unstable training curves in this problem class. The polynomial's constrained structure avoids this.
-
-The tradeoff: this only works because the solution structure is known analytically. For a problem without such structure, neural networks would be necessary.
-
----
-
-## Q9: What Happens if $\Lambda$ Is Too Large or Too Small?
-
-**Q:** You set $\Lambda = 1$ throughout with no sensitivity analysis. What are the consequences of misspecifying $\Lambda$?
-
-**A:** The policy variance is $f(t,p)\Lambda/(2\sigma^2)$. Larger $\Lambda$ means more exploration — wider sampling of investment amounts — which helps the critic generate diverse trajectories but increases trajectory noise for the actor. As $\Lambda \to 0$, the policy collapses to deterministic and training degenerates (no exploration). As $\Lambda \to \infty$, the policy randomizes investment amounts so heavily that no useful signal accumulates.
-
-The paper uses $\Lambda = 1$, borrowed from Wang and Zhou (2020) where it worked well for the GBM case. No sensitivity analysis is provided, which is a genuine limitation. The empirical convergence in Fig. 5 is circumstantial evidence that $\Lambda = 1$ is in a reasonable range, but the optimal $\Lambda$ is likely problem-dependent.
+**Practical caveat:** The polynomial with $m=2$ introduces approximation error ---
+the true $f(t,p)$ is not exactly of the form $\exp(\text{quadratic in } p, T-t)$.
+The minimizer $\theta^*$ is the best polynomial approximation in the metric induced
+by the martingale loss. The 1.03\% mean absolute error for $\ln f$ in the simulation
+study confirms the approximation is tight at $m=2$.
 
 ---
 
-## Q10: The Precommitted Strategy — Doesn't Time Inconsistency Undermine Practical Usefulness?
+## Q8: Why Is the Exploration Noise $\bar{B}_t$ Independent of the Filter? [Sabzikar]
 
-**Q:** The precommitted strategy is optimal at $t=0$ but an investor at $t > 0$ would want to deviate. Doesn't this limit practical applicability?
+**Q:** The exploratory SDE introduces $\bar{B}_t$, which is independent of $\hat{B}_t$.
+The investor observes prices driven by $\hat{B}_t$. Does the exploration noise leak
+into the filter or create any measurability problem?
+
+**A:** No, and this is one of the cleaner aspects of the paper's construction. The
+observation filtration $\mathcal{F}_t^S$ is generated by price increments
+$d\ln S_t = (\mu_t - \sigma^2/2)dt + \sigma\,dB_t$. Actions are drawn from the
+stochastic policy using randomization variables $Z_t \sim \text{Uniform}[0,1]$,
+independent of $B_t$ and therefore independent of $\mathcal{F}_t^S$. The expanded
+filtration is $\bar{\mathcal{F}}_t = \mathcal{F}_t^S \vee \sigma(Z_s, s \le t)$.
+
+The exploration noise $\bar{B}_t$ is $\bar{\mathcal{F}}_t$-adapted but not
+$\mathcal{F}_t^S$-adapted. Crucially, the investor does not observe actions taken ---
+only prices. The Wonham filter equation depends only on the innovation process $\hat{B}_t$,
+which is $\mathcal{F}_t^S$-measurable. The exploration noise $\bar{B}_t$ drives the
+variance of the wealth process but does not enter the filter or the policy mean, both of
+which are functions of $(t, X_t, p_t)$. The independence of $\bar{B}_t$ from
+$\hat{B}_t$ is assumed explicitly in the construction following Wang et al. (2020).
+
+---
+
+# Part II: Questions from the General Audience
+
+---
+
+## Q9: Why Not Just Use Deep RL (DDPG, SAC)?
+
+**Q:** DDPG and SAC handle continuous state and action spaces. Why use a
+problem-specific polynomial parametrization?
+
+**A:** The paper benchmarks against DDPG and SAC in related work (Huang et al. 2022,
+Wang and Zhou 2020) and the polynomial consistently wins for three reasons:
+
+1. **Parameter efficiency.** The polynomial has roughly 12 parameters total; a typical
+   neural network actor-critic has thousands. The available training budget is sufficient
+   for the polynomial to converge reliably but would be insufficient for a neural network
+   to explore the parameter space adequately. The DAX exercise illustrates this even
+   with the polynomial --- 8 training paths is not enough for $\phi_1$ convergence.
+   A neural network in that setting would be far worse.
+
+2. **Structural inductive bias.** The paper derives analytically that the value function
+   is quadratic in $x$ with coefficient $1/f^\theta(t,p)$, and the policy is Gaussian
+   with mean proportional to $(x-\omega)$. The polynomial encodes this as a prior.
+   A neural network has to rediscover this structure from data.
+
+3. **Training stability.** DDPG and SAC are known to produce unstable training curves
+   in this problem class. The constrained polynomial structure avoids this.
+
+The tradeoff: this only works because the solution structure is known analytically.
+For a problem without such structure, neural methods would be necessary.
+
+---
+
+## Q10: What Happens if $\Lambda$ Is Too Large or Too Small?
+
+**Q:** You set $\Lambda = 1$ throughout with no sensitivity analysis. What are the
+consequences of misspecifying $\Lambda$?
+
+**A:** The policy variance is $f(t,p)\Lambda/(2\sigma^2)$. Larger $\Lambda$ means more
+exploration --- wider sampling of investment amounts --- which helps the critic generate
+diverse trajectories but increases trajectory noise for the actor. As $\Lambda \to 0$,
+the policy collapses to deterministic and training degenerates. As $\Lambda \to \infty$,
+the policy randomizes so heavily that no useful signal accumulates.
+
+The paper uses $\Lambda = 1$, inherited from Wang and Zhou (2020). No systematic
+sensitivity analysis is provided, which is a genuine limitation. The convergence trends
+visible in the DAX training dynamics confirm $\Lambda = 1$ is in a workable range, but
+the optimal $\Lambda$ is almost certainly problem-dependent.
+
+---
+
+## Q11: The Precommitted Strategy --- Doesn't Time Inconsistency Undermine Practical Usefulness?
+
+**Q:** The precommitted strategy is optimal at $t=0$ but an investor at $t > 0$ would
+want to deviate. Doesn't this limit practical applicability?
 
 **A:** This is a real issue and the paper is explicit about it. Two responses:
 
-**Theoretical:** The equilibrium (time-consistent) approach for continuous-time MV was developed by Dai et al. (2023) for the GBM case. Extending to the regime-switching partial-information case is listed as Open Problem 2. The precommitted strategy is a deliberate scoping decision, not an oversight.
+**Theoretical:** The equilibrium (time-consistent) approach for continuous-time MV was
+developed by Dai et al. (2023) for the observable GBM case. Extending to regime-switching
+with partial information is an open problem. The precommitted strategy is a deliberate
+scoping decision, not an oversight.
 
-**Practical:** In delegated investment (a fund manager following a mandate), precommitment is natural — the manager commits to a strategy at $t=0$ and executes it. The time inconsistency is not a practical problem in this context. The empirical results also show the precommitted policy executes well: terminal wealth mean is close to the target $z=8$ across all experiments.
-
----
-
-## Q11: Is the Two-Regime Model Credible?
-
-**Q:** Financial returns have fat tails, volatility clustering, and potentially more than two regime types. Is two-regime GBM adequate for long-horizon investment?
-
-**A:** For long-horizon investment (10-year horizon), the dominant empirical regularity is the bull-bear cycle, which the two-regime model captures parsimoniously. Guidolin and Timmermann (2007, 2008) document that two-regime models describe long-horizon return dynamics well. The calibrated parameters ($\mu_1 = 0.25$, $\mu_2 = -0.73$, average bull duration $\approx 2.8$ years) are economically reasonable, and the empirical out-of-sample performance on 30 years of S&P 500 data provides at least circumstantial validation.
-
-The constant volatility assumption is more limiting — bear markets empirically have higher volatility — but regime-dependent volatility would fundamentally change the filtering problem (the quadratic variation of $\ln S_t$ would reveal the regime). More regimes would require a higher-dimensional belief state $p_t \in \mathbb{R}^{K-1}$ and a corresponding increase in the PDE dimension.
+**Practical:** In delegated investment (a fund manager following a mandate),
+precommitment is natural --- the manager commits to a strategy at $t=0$ and executes
+it. The time inconsistency is not a practical problem in that context. The
+out-of-sample wealth trajectories show the precommitted policy executing reasonably
+even under materially different DAX dynamics from the training environment.
 
 ---
 
-## Q12: How Does Exploration Wind Down Over Time?
+## Q12: Is the Two-Regime Model Credible?
 
-**Q:** Standard RL uses a decay schedule for $\epsilon$-greedy or temperature. How does POEMV handle exploration decay, and is it automatic?
+**Q:** Financial returns have fat tails, volatility clustering, and potentially more
+than two regime types. Is two-regime GBM adequate?
 
-**A:** It is automatic and built into the solution structure. The policy variance is $f(t,p)\Lambda/(2\sigma^2)$, and $f(t,p)$ is proved to be decreasing in $t$ (Theorem 1). So exploration naturally winds down as $t \to T$ without any manual schedule. The intuition is correct: near the terminal time, committing to a more deterministic allocation matters more than continued exploration. The parametrized $f^\theta$ inherits this monotonicity approximately, so the learned policy also reduces exploration over the investment horizon.
+**A:** For long-horizon investment, the dominant empirical regularity is the bull-bear
+cycle, which the two-regime model captures parsimoniously. Guidolin and Timmermann
+(2007, 2008) document that two-regime models describe long-horizon return dynamics well.
+The DAX calibration provides additional external validation: the parameters
+($\mu_1 = 0.029$, $\mu_2 = -0.081$, average bear duration $\approx 3$ years) are
+economically interpretable and identify the European sovereign debt crisis as a genuine
+extended bear-market episode.
 
----
-
-## Q13: Why Does the Self-Correcting $\omega$ Update Work?
-
-**Q:** You update $\omega \leftarrow \omega - \eta_\omega(\bar{X}_T - z)$. Why does this converge to $\omega^*$?
-
-**A:** Define $h(\omega) = \mathbb{E}[X_T^{u^*(\omega)}] - z$. The optimal $\omega^*$ satisfies $h(\omega^*) = 0$. The update rule is a **Robbins-Monro stochastic approximation** algorithm for solving $h(\omega) = 0$, using $\bar{X}_T - z$ as a noisy estimate of $h(\omega)$.
-
-Convergence requires $h(\omega)$ to be monotone decreasing in $\omega$. This holds because a higher $\omega$ increases $(\omega - x)$ in the mean policy $m^* = -(x-\omega)\gamma^*(t,p)$, leading to larger positions and higher expected terminal wealth. With $h$ decreasing and Robbins-Monro conditions satisfied, $\omega^{(n)} \to \omega^*$.
-
-The every-$s$-episode update (using average terminal wealth over $s=10$ episodes) reduces noise in $\hat{h}$, improving convergence stability.
-
----
-
-## Q14: Why Does Monthly Rebalancing Hurt the Classical Approach So Much More?
-
-**Q:** POEMV variance is 0.284 under monthly rebalancing; classical is 10.081. That's a 35x gap. Why?
-
-**A:** Two compounding effects:
-
-1. **Mean blur compounds over the rebalancing window.** The classical policy uses inaccurate $\hat\mu_i$, creating a fixed allocation bias. Under daily rebalancing this is corrected continuously. Under monthly rebalancing, the biased allocation persists for 20 trading days at a time, compounding the error multiplicatively.
-
-2. **Regime transitions between rebalancing dates.** The market can switch regimes during the 20-day window. The classical policy cannot respond because it doesn't condition on $p_t$. POEMV conditions on the belief state at each monthly rebalancing date and adjusts accordingly.
-
-The 10.081 variance reflects a small number of catastrophic paths where estimated parameters implied aggressive allocation into a bear market for extended periods. POEMV's regime-awareness prevents these tail events.
+The constant volatility assumption is more limiting --- bear markets empirically have
+higher volatility --- but regime-dependent $\sigma$ would reveal the regime through the
+quadratic variation of $\ln S_t$, fundamentally changing the filtering problem (see Q22).
+More regimes require a higher-dimensional belief state and a corresponding increase in
+PDE dimension.
 
 ---
 
-## Q15: Is the Universal Training Trick In-Sample?
+## Q13: How Does Exploration Wind Down Over Time?
 
-**Q:** You train on 30 $\beta \approx 1$ stocks and test on those same 30 stocks plus the index. Isn't the test set the training set?
+**Q:** Standard RL uses a decay schedule for $\epsilon$-greedy or temperature. How
+does POEMV handle exploration decay?
 
-**A:** Partially yes, which is a legitimate concern. The defense is: the policy being learned maps $(t, X_t, p_t)$ to an action — it is not path-specific. The same policy applies to any asset with similar statistical properties. Training on 30 stocks addresses data scarcity (one index path gives ~5,000 observations; 30 stock paths give ~150,000). The train-test split is temporal: training uses 1992--2012 data, testing uses 2012--2022 realizations. The policy is not fitted to the specific 2012--2022 paths.
-
-A cleaner design would train on different stocks from the test stocks. The paper does not do this — a limitation worth acknowledging. However, since the policy is state-based rather than path-memorizing, the overfitting risk is lower than it would be for a path-interpolating model.
-
----
-
-## Q16: How Long Does Training Take?
-
-**Q:** 200,000 episodes of 2,520 steps each is 504 million steps. Is this feasible computationally?
-
-**A:** The paper does not report wall-clock times. However, the computation per step is lightweight: update the Wonham filter (a scalar SDE update), sample from a Gaussian, compute gradients for 12 parameters — all $O(1)$ scalar operations with no neural network backpropagation. The gradient update for $\theta$ involves a sum over $K = 2{,}520$ steps, so training is $O(MK) \approx 5 \times 10^8$ scalar operations total. On modern hardware this runs in minutes to a few hours — far faster than comparable neural network actor-critic approaches. The small parameter count is the key computational advantage.
+**A:** It is automatic and built into the solution structure. The policy variance is
+$f(t,p)\Lambda/(2\sigma^2)$, and $f(t,p)$ is proved to be decreasing in $t$
+(Theorem 1 of the paper). Exploration naturally winds down as $t \to T$ without any
+manual schedule. Near the terminal time, committing to a more deterministic allocation
+matters more than continued exploration. The parametrized $f^\theta$ inherits this
+monotonicity approximately, so the learned policy also reduces exploration over the
+investment horizon. This is the continuous-time analog of decaying $\varepsilon$-greedy,
+but it emerges from the optimal solution structure rather than being imposed by hand.
 
 ---
 
-\newpage
+## Q14: Why Does the Self-Correcting $\omega$ Update Work?
+
+**Q:** You update $\omega \leftarrow \omega - \eta_\omega(\bar{X}_T - z)$. Why does
+this converge to $\omega^*$?
+
+**A:** Define $h(\omega) = \mathbb{E}[X_T^{u^*(\omega)}] - z$. The optimal $\omega^*$
+satisfies $h(\omega^*) = 0$. The update rule is a **Robbins-Monro stochastic
+approximation** algorithm for solving $h(\omega) = 0$, using $\bar{X}_T - z$ as a
+noisy estimate of $h(\omega)$.
+
+Convergence requires $h(\omega)$ to be monotone decreasing in $\omega$. This holds
+because a higher $\omega$ increases $(x - \omega)$ in magnitude in the mean policy
+$m^* = -(x-\omega)\gamma^*(t,p)$, leading to larger positions and higher expected
+terminal wealth, so $h$ decreases. With Robbins-Monro conditions satisfied,
+$\omega^{(n)} \to \omega^*$.
+
+The every-$s$-episode update (using average terminal wealth over $s=10$ episodes)
+reduces noise in $\hat{h}$, improving convergence stability. In the DAX training
+dynamics, both POEMV variants show rolling-average terminal wealth approaching $z=2$
+by roughly 10,000 iterations, while EMV plateaus near 1.65 --- the $\omega$ update
+cannot compensate for a policy that is structurally unable to reach the target.
+
+---
+
+## Q15: Why Does EMV Plateau Below the Target in the DAX? [DAX]
+
+**Q:** The training dynamics show EMV plateauing near 1.65, well below the target
+$z=2$. Is this a failure of the algorithm or the parameter settings?
+
+**A:** It is structural, not a training failure. The DAX calibration has a negative
+unconditional average excess return. Under the stationary distribution of the Markov
+chain (stationary probability of bull regime =
+$\lambda_2/(\lambda_1+\lambda_2) = 0.339/0.449 \approx 0.755$), the long-run average
+excess return is approximately $0.755 \times 0.014 + 0.245 \times (-0.096) \approx
+-0.013$ per year, where 0.014 and $-0.096$ are the per-regime excess drifts. A
+regime-blind policy has no mechanism to allocate more aggressively during the bull
+regime and withdraw during the bear --- it uses a blended Sharpe ratio calibrated to
+the unconditional average, which is insufficient to reach $z=2$.
+
+POEMV avoids this because the hedging and myopic terms together concentrate equity
+exposure when $p_t$ is high (likely bull) and reduce it when $p_t$ is low (likely
+bear), generating a higher realized average excess return without needing the
+unconditional return to be positive.
+
+---
+
+## Q16: Why Does POEMV (est.) Outperform POEMV (true) in the DAX Results? [DAX] [Caution]
+
+**Q:** POEMV with estimated filter parameters achieves Sharpe 0.49 vs. 0.06 for the
+true filter. Shouldn't better filter parameters produce better performance?
+
+**A:** Wu and Li (2024) document the same pattern in their simulation study (Table 3 of
+the paper) and attribute it to a **regularizing effect**: the biased filter (which
+over-states $\mu_1$ and $\lambda_1$) produces smoother $p_t$ trajectories with less
+volatility. This dampens variance in the policy gradient estimates, which can stabilize
+parameter learning relative to the true filter whose $p_t$ path is more responsive to
+price changes.
+
+**[Caution]:** In our DAX setting, where both variants are far from $\phi_1^*$ due to
+the 8-path training limitation, the cleaner explanation is that POEMV (est.) happened
+to land in a better region of parameter space within the available iterations rather
+than reflecting a systematic advantage of imprecise filtering. The 8 held-out paths
+provide insufficient statistical power to distinguish these explanations. The honest
+position: the pattern is consistent with what Wu and Li observed, the regularization
+hypothesis is plausible, but we cannot make a strong claim from our data alone.
+
+---
+
+## Q17: Why Is EMV Terminal Wealth Variance *Lower* Than POEMV (true) in the DAX OOS Table? [DAX]
+
+**Q:** The OOS table shows EMV variance 0.787 vs. POEMV (true) variance 1.171. Doesn't
+that mean EMV achieves better risk control?
+
+**A:** No --- this is near-inactivity, not risk control. With $\phi_1 \approx 1.057$,
+EMV takes only modest positions in the risky asset. Small positions mechanically produce
+low terminal wealth variance, but they also sacrifice the return required to hit $z=2$.
+The mean terminal wealth for EMV is 1.043 vs. a target of 2.000 --- EMV failed at its
+primary objective. POEMV (true) takes materially larger positions, generating variance
+1.171 but reaching mean 1.070, which while still well below target reflects a partially
+converged policy that is at least moving in the right direction.
+
+The meaningful performance comparison is the joint achievement of mean target and
+variance control. On the Sharpe ratio (which penalizes both low mean and high variance
+simultaneously), POEMV (true) at 0.06 edges EMV at 0.05, and POEMV (est.) at 0.49
+dominates both.
+
+---
+
+## Q18: Why Did $\phi_1$ Fail to Converge in the DAX? [DAX]
+
+**Q:** $\phi_1$ reaches only 2--5\% of its theoretical target
+$\phi_1^* \approx (\mu_1-\mu_2)/\sigma^2 = 0.110/0.115^2 \approx 8.32$.
+Is this a problem with the algorithm or with the data?
+
+**A:** Primarily the data, for two compounding reasons. First, only 8 training paths
+survived the $\beta$-filter. Compare to Wu and Li's 30 paths: with fewer paths, the
+gradient estimates for $\phi_1$ are noisier and the effective learning rate for this
+parameter is proportionally lower. Second, the persistent bear regime ($\lambda_2 =
+0.339$, average duration $\approx 3$ years) means many training episodes are spent in
+periods where the belief state $p_t$ is low and the regime-discriminating signal is
+weak. Episodes with $p_t \approx 0$ throughout provide almost no gradient signal for
+$\phi_1$, which encodes the regime-sensitivity of investment intensity.
+
+The upward trend in the convergence plot is visible and encouraging --- the algorithm
+is moving in the right direction --- but extrapolating to full convergence would require
+substantially more training paths than the DAX universe provides under the $\beta$
+filter.
+
+---
+
+## Q19: Is the Out-of-Sample Comparison Meaningful if the Policy Hasn't Converged? [DAX] [Caution]
+
+**Q:** You draw conclusions about POEMV's advantage over EMV, but $\phi_1$ reached
+only 2--5\% of its target. Can those conclusions be trusted?
+
+**A:** The out-of-sample results should be read carefully. All three methods --- POEMV
+(true), POEMV (est.), and EMV --- finish with mean terminal wealth near 1 (initial
+wealth), far below the $z=2$ target. The headline finding is that the results are
+"quite surprising compared to Wu and Li," as the slide itself states. The clear S\&P
+500 performance advantage for POEMV does not replicate cleanly here.
+
+Within those modest results, the qualitative comparison is still informative: even a
+partially converged POEMV policy at $\phi_1 \approx 0.2$ is more regime-responsive
+than EMV because POEMV conditions on $p_t$ and EMV does not. The direction of the
+advantage is meaningful.
+
+**[Caution]:** The scalar OOS metrics depend quantitatively on $\phi_1$, which is far
+from its theoretical target. A fully converged POEMV would take substantially larger
+bull-market positions, generating higher mean wealth at the cost of higher variance.
+The specific numbers in the table reflect the partially converged regime, not the
+algorithm's theoretical performance at convergence. The honest framing: the exercise
+demonstrates algorithm behavior under a structurally harder parameter regime and severe
+data constraint, not a definitive empirical assessment of POEMV's performance on the
+DAX.
+
+---
+
+## Q20: How Long Does Training Take in the DAX Implementation?
+
+**Q:** How computationally demanding is the DAX training exercise?
+
+**A:** The training uses 20,000 episodes (iterations) over the 8 available DAX training
+paths, with the Lagrange multiplier updated every 10 iterations. The computation per
+episode is lightweight: a Wonham filter update at each time step, a Gaussian action
+sample, and gradient computations for roughly 12 parameters --- all scalar operations
+with no neural network backpropagation. The small parameter count is the key
+computational advantage of the polynomial parametrization over neural methods.
+Full training in R runs in a matter of hours on standard hardware, which is the
+practical limit rather than computational cost per se.
+
+---
+
+## Q21: Is the Universal Training Trick In-Sample?
+
+**Q:** You train on $\beta \approx 1$ stocks and test on held-out paths from the same
+constituent universe. Isn't the test set the training set?
+
+**A:** Partially, which is a legitimate concern. The defense: the policy being learned
+maps $(t, X_t, p_t)$ to an action --- it is not path-specific. The same policy applies
+to any asset with similar statistical properties. The train-test split is temporal:
+the training window is approximately 1999--2012, and the test paths are the 2013--2022
+realizations of held-out DAX constituents that the algorithm never saw during training.
+The policy is not fitted to the specific 2013--2022 paths.
+
+A cleaner design would train on a disjoint set of stocks from the test stocks. Since the
+policy is state-based rather than path-memorizing, the overfitting risk is lower than it
+would be for a path-interpolating model. With only 8 held-out paths the statistical
+power to detect overfitting is limited regardless.
+
+---
+
+## Q22: Does the Lack of a Convergence Guarantee Matter Practically? [Caution]
+
+**Q:** Is the missing end-to-end convergence guarantee just a theoretical nicety? The
+algorithm clearly converges in the S\&P 500 simulation.
+
+**A:** It matters both practically and theoretically. Practically: the simulations show
+convergence for the specific parameters of Wu and Li's S\&P 500 calibration. Without a
+guarantee, we cannot rule out pathological behavior for different parameters. The DAX
+exercise illustrates this directly: under DAX parameters, $\phi_1$ does not converge
+within the available training budget. A convergence theorem would characterize exactly
+how many training paths and iterations are required for $\phi_1$ to reach
+$\varepsilon$-tolerance of $\phi_1^*$ as a function of market parameters and
+filter error.
+
+Theoretically: three error sources interact --- filter error, polynomial approximation
+error, and stochastic gradient error --- in ways that are not currently bounded jointly.
+Filter error corrupts $p_t$, which corrupts the gradient estimates for $\phi$, meaning
+the converged $\phi^\infty$ may differ from $\phi^*$ even if the stochastic gradient
+step itself converges. The DAX OOS table shows this: POEMV (true) and POEMV (est.)
+converge to different $\phi_1$ values, with the gap attributable to filter error
+propagating into the gradient estimates. A joint error bound would quantify exactly
+how large this gap can be, which is Open Problem 3 on the final slide.
+
+---
 
 # Part III: Assumptions and Limitations
 
 ---
 
-## Q17: Constant Volatility
+## Q23: Constant Volatility
 
-**Q:** Bear markets empirically have substantially higher volatility. How sensitive are results to the constant $\sigma$ assumption?
+**Q:** Bear markets empirically have substantially higher volatility. How sensitive are
+results to the constant $\sigma$ assumption?
 
-**A:** Constant volatility is standard in this literature and is mathematically motivated: if $\sigma$ were regime-dependent, the quadratic variation of $\ln S_t$ would reveal the regime, trivializing the filtering problem. With constant $\sigma$, only the drift is unobservable. The sensitivity to this assumption is genuinely unknown — the paper does not address it. If $\sigma$ were regime-dependent, the separation principle derivation would need substantial revision since it relies on $dX_t = \sigma u_t(\hat\rho_t\,dt + d\hat{B}_t)$ having constant $\sigma$.
-
----
-
-## Q18: Transaction Costs
-
-**Q:** Daily rebalancing must incur substantial transaction costs. Does the paper account for this?
-
-**A:** No. The paper explicitly states (footnote 4) that the comparison ignores transaction costs. Monthly rebalancing results are partly motivated by this concern, and POEMV still substantially outperforms at monthly frequency. Incorporating transaction costs would require a non-smooth cost term in the HJB equation, fundamentally changing the structure of the solution. This is left as future work.
-
----
-
-## Q19: Is the Heuristic Estimation Circular?
-
-**Q:** The heuristic method defines bull/bear markets using fixed thresholds and then estimates parameters within those segments. Isn't this circular?
-
-**A:** There is mild circularity: the thresholds (19% decline, 24% advance) presuppose a two-regime structure. A fully principled approach would estimate regime structure and parameters jointly — which is what EM does, and as Table 2 shows, EM fails catastrophically at daily frequency. The defense of the heuristic is pragmatic: the thresholds are economically motivated rather than data-driven, and the resulting estimates are reasonable. More importantly, filter performance is validated directly in Fig. 4 — the belief state tracks regime transitions well despite imperfect parameter estimates, which is the empirical justification for the approach.
+**A:** Constant volatility is standard in this literature and is mathematically
+motivated: if $\sigma$ were regime-dependent, the quadratic variation of $\ln S_t$
+would reveal the regime, trivializing the filtering problem. With constant $\sigma$,
+only the drift is unobservable and the Wonham filter works as described. The DAX
+calibration partially stress-tests this assumption: $\sigma = 0.115$ is estimated over
+a training window that includes both the 2008--2009 financial crisis and the European
+sovereign debt crisis (2010--2012), both high-volatility periods. That the OOS results
+are directionally consistent with the theory provides circumstantial evidence against
+severe misspecification, but the paper does not address this sensitivity directly.
 
 ---
 
-## Q20: Does the Lack of a Convergence Guarantee Matter Practically?
+## Q24: Transaction Costs
 
-**Q:** Is the missing end-to-end convergence guarantee just a theoretical nicety? The algorithm clearly converges in simulations.
+**Q:** The policy trades frequently. Does the paper account for transaction costs?
 
-**A:** It matters both practically and theoretically. Practically: the simulations show convergence for the specific parameters in Table 1 and specific learning rates. Without a guarantee, we cannot rule out pathological behavior for different parameters or market environments. A practitioner deploying POEMV in a different context has no theoretical assurance of convergence.
-
-Theoretically: the three error sources — filter error, polynomial approximation error, stochastic gradient error — interact in ways that are not currently bounded. Filter error corrupts $p_t$, which corrupts the gradient estimates for $\phi$, which means the converged $\phi^\infty$ may differ from $\phi^*$ even if the stochastic gradient step itself converges. Fig. 5b already shows this: with estimated parameters, $\phi_1$ converges to $\approx 15$ rather than the true 20.25. A convergence theorem would quantify exactly how large the filter error must be before the policy gap exceeds a given tolerance.
+**A:** No. The paper explicitly states (footnote 4) that transaction costs are ignored.
+The Wu \& Li empirical slide shows both daily and monthly rebalancing results, with
+POEMV still substantially outperforming at monthly frequency. Our DAX application uses
+weekly rebalancing ($\Delta t = 1/52$), which reduces turnover. Incorporating
+transaction costs would require a non-smooth cost term in the HJB equation,
+fundamentally changing the solution structure --- the Gaussian policy would no longer
+be optimal. This is left as future work.
 
 ---
 
-\newpage
+## Q25: Is the Heuristic Estimation Circular?
+
+**Q:** The heuristic method defines bull/bear markets using fixed thresholds and then
+estimates parameters within those segments. Isn't this circular?
+
+**A:** There is mild circularity: the thresholds (19\% decline, 24\% advance) presuppose
+a two-regime structure. A fully principled approach would estimate regime structure and
+parameters jointly --- which is what EM does, and as the appendix slide shows, EM fails
+at daily frequency (transition rate estimates near 128 and 132). The defense of the
+heuristic is pragmatic: the thresholds are economically motivated rather than
+data-driven (Dai et al. 2010 use the same values), and the resulting estimates are
+economically interpretable. For the DAX, the estimated parameters cleanly identify the
+sovereign debt crisis and the dot-com crash as bear-market episodes.
+
+---
 
 # Part IV: Connections to Broader Literature
 
 ---
 
-## Q21: Why Not Standard POMDP Algorithms?
+## Q26: Why Not Standard POMDP Algorithms?
 
-**Q:** This is a POMDP. Why not discretize time and use standard POMDP algorithms like point-based value iteration?
+**Q:** This is a POMDP. Why not discretize time and use standard POMDP algorithms
+like point-based value iteration?
 
 **A:** Three reasons to prefer the continuous-time formulation:
 
-1. **Tractability.** Standard POMDP algorithms scale poorly with the belief space dimension. The continuous-time formulation with Wonham filtering gives a semi-analytical solution — a specific parametric form for the value function and policy — which makes learning efficient. Discrete-time algorithms would discretize both $p$ and $X$, leading to combinatorial explosion.
+1. **Tractability.** Standard POMDP algorithms scale poorly with the belief space
+   dimension. The continuous-time formulation with Wonham filtering gives a
+   semi-analytical solution --- a specific parametric form for the value function and
+   policy --- which makes learning efficient. Discrete-time algorithms would discretize
+   both $p$ and $X$, leading to a high-dimensional state space.
 
-2. **Solution structure.** The continuous-time formulation reveals the Gaussian optimal policy with myopic-hedging decomposition. This structure is invisible in discrete time and enables the 12-parameter polynomial to fit the solution precisely.
+2. **Solution structure.** The continuous-time formulation reveals the Gaussian optimal
+   policy with myopic-hedging decomposition. This structure is invisible in discrete
+   time and enables the 12-parameter polynomial to fit the solution precisely.
 
-3. **No discretization bias.** The continuous-time formulation is exact. The discrete training episodes ($\Delta t = 1/252$) are an approximation of the exact dynamics, and the paper shows this approximation is tight.
-
----
-
-## Q22: What Does This Add Beyond Xiong and Zhou (2007)?
-
-**Q:** Xiong and Zhou (2007) already solved the classical MV problem with partial information. What does this paper add?
-
-**A:** Three things: (1) **Exploratory formulation.** Wu and Li add entropy regularization and solve the resulting exploratory problem under partial information. The cross-covariance $\mathrm{Cov}(\Delta X, \Delta p)$ makes this technically non-trivial — Xiong-Zhou has no exploratory component. (2) **Solution characterization.** The paper derives the structural form of the optimal value function (the ansatz) and establishes properties of $f$ and $g$ — bounds, monotonicity, boundedness of derivatives — that are needed for the algorithm. (3) **Practical algorithm.** POEMV learns the optimal policy from data without needing the true parameters for anything other than filtering. Xiong-Zhou's solution requires full knowledge of $(\mu_i, \lambda_i, \sigma)$, and as Table 2 shows, accurately estimating $(\mu_i, \lambda_i)$ at daily frequency is effectively impossible.
-
----
-
-## Q23: Why Wonham Filter and Not Kalman?
-
-**Q:** The Kalman filter is the standard tool for filtering. Why use the Wonham filter?
-
-**A:** The Kalman filter applies to **linear-Gaussian** state-space models. The regime process $I_t$ is a finite-state CTMC, not a Gaussian process. The Wonham filter is the exact nonlinear filter for this specific structure (CTMC signal, Gaussian observation noise). The belief state $p_t \in (0,1)$ is the natural sufficient statistic and its dynamics are given exactly by the Wonham equation — no linear approximation is involved.
-
-Applying the Kalman filter here would require linearizing the observation model around the current $p_t$ estimate (extended Kalman filter), introducing linearization error. The Wonham filter is exact and has no such error.
+3. **No discretization bias.** The continuous-time formulation is exact. Training
+   episodes at step size $\Delta t = 1/252$ approximate the exact dynamics, and the
+   paper shows this approximation is tight via the polynomial error analysis.
 
 ---
 
-\newpage
+## Q27: What Does This Add Beyond Xiong and Zhou (2007)?
+
+**Q:** Xiong and Zhou (2007) already solved the classical MV problem with partial
+information. What does this paper add?
+
+**A:** Three things: (1) **Exploratory formulation.** Wu and Li add entropy
+regularization and solve the resulting exploratory problem under partial information.
+The cross-covariance $\mathrm{Cov}(\Delta X, \Delta p) \ne 0$ makes this technically
+non-trivial --- the Xiong-Zhou setting has no exploratory component and no
+$v_{xp}$ cross term. (2) **Solution characterization.** The paper derives the
+structural form of the optimal value function (the separating ansatz) and establishes
+properties of $f$ and $g$ --- bounds, monotonicity, boundedness of derivatives ---
+needed for the algorithm to parametrize these functions reliably. (3) **Practical
+algorithm.** POEMV learns the optimal policy from data without needing the true
+parameters for anything beyond filtering. The Xiong-Zhou solution requires full
+knowledge of $(\mu_i, \lambda_i, \sigma)$, and as the estimation appendix slide shows,
+accurately estimating $(\mu_i, \lambda_i)$ at daily frequency is effectively impossible.
+
+---
+
+## Q28: Why Wonham Filter and Not Kalman?
+
+**Q:** The Kalman filter is the standard tool for filtering in continuous time. Why
+use the Wonham filter?
+
+**A:** The Kalman filter applies to **linear-Gaussian** state-space models. The regime
+process $I_t$ is a finite-state continuous-time Markov chain, not a Gaussian process.
+The Wonham filter is the exact nonlinear filter for this specific structure: CTMC
+signal observed through a Brownian observation channel. The belief state $p_t \in (0,1)$
+is the natural sufficient statistic and its dynamics are given exactly by the Wonham
+SDE --- no linear approximation is involved.
+
+Applying a Kalman filter here would require linearizing around the current $p_t$
+estimate (extended Kalman filter), introducing linearization error. The Wonham filter
+is exact. The discretized implementation preserves this exactness through the
+log-transform trick ($q_t^1 = \log p_t$, $q_t^2 = \log(1-p_t)$) that guarantees
+$p_{t_k} \in (0,1)$ at every step regardless of step size --- a naive Euler scheme
+on $p_t$ directly can violate the probability constraint.
+
+---
+
+## Q29: What Is the Relationship Between the Martingale Loss and Temporal Difference Learning?
+
+**Q:** The critic minimizes a martingale loss. Is this essentially TD learning?
+
+**A:** Related but not identical, and the distinction matters theoretically. Temporal
+difference learning minimizes the **one-step Bellman error** at each transition:
+$|V^\theta(t_k, x_k, p_k) - [r_k + V^\theta(t_{k+1}, x_{k+1}, p_{k+1})]|^2$.
+
+The martingale loss instead minimizes the expected squared deviation between the
+current value estimate and the full terminal payoff (accumulated over all time steps):
+$$\mathcal{ML}(\theta; \phi) = \frac{1}{2}\mathbb{E}\int_0^T
+\left[h(X_T) - V^\theta(t, X_t, p_t) - \Lambda\int_t^T \mathcal{H}(\boldsymbol\pi_\phi)\,ds\right]^2 dt$$
+The key theoretical advantage: Jia and Zhou (2022a) prove the **unique minimizer** of
+the martingale loss is the true value function for the current policy. Standard TD
+learning requires additional conditions (convergence of the linear system, non-singular
+feature matrix) that are harder to verify. The martingale loss's unique-minimizer
+property is what allows the polynomial parametrization to converge reliably.
+
+Computationally, the martingale loss is an offline algorithm (updates after a full
+episode), while TD is online (updates at each step). Either is feasible here;
+the paper uses the offline version.
+
+---
 
 # Quick Reference: One-Sentence Answers
 
 | Question | Short Answer |
 |---|---|
-| Why two regimes? | Standard parsimonious model for bull-bear cycles, calibrated to S&P 500, empirically sufficient at long horizons. |
-| Why polynomial, not neural network? | Solution structure is known analytically — 12 parameters fit it precisely and train stably. |
-| Why not EM for estimation? | Signal-to-noise too low at daily frequency; EM identifies regime switches from noise ($\hat\lambda_i \approx 128$). |
-| Why does the martingale loss work? | Misspecification of $V^\theta$ creates nonzero drift in $M_t^\theta$; minimizing the loss enforces the martingale property. |
-| Where does the hedging term come from? | From $dX_t \cdot dp_t \ne 0$, which produces $v_{xp}$ in the HJB — absent in the single-regime GBM case. |
-| Is filtering error bounded? | Informally (Fig. 4 shows good tracking), but no formal bound is provided. |
-| Does this generalize to multiple assets? | Yes — Appendix A of the paper extends to $d$ risky assets with multivariate Gaussian policy. |
-| What is the dominant source of suboptimality? | Filtering error from imprecise parameter estimation, not the learning algorithm. |
-| Why is constant $\sigma$ assumed? | Regime-dependent $\sigma$ would reveal the regime via quadratic variation, changing the filtering problem entirely. |
-| What's the key thing Wonham gives you over Kalman? | Wonham is exact for a CTMC signal; Kalman requires a linear-Gaussian model, which the regime process is not. |
+| Why two regimes? | Standard parsimonious model for bull-bear cycles; empirically sufficient at long horizons with an economically interpretable DAX calibration. |
+| Why polynomial, not neural network? | Solution structure is known analytically --- 12 parameters fit it precisely, train stably, and converge faster than neural networks given limited training data. |
+| Why not EM for parameter estimation? | Signal-to-noise too low at daily frequency; EM identifies regime switches from diffusion noise ($\hat\lambda_i \approx 128$ vs. true 0.36). |
+| Why does the martingale loss work? | Misspecification of $V^\theta$ creates nonzero drift in $M_t^\theta$; minimizing the loss enforces the martingale property with a provably unique minimizer. |
+| Where does the hedging term come from? | From $dX_t \cdot dp_t \ne 0$, producing a $v_{xp}$ cross-term in the HJB --- absent in the single-regime GBM case. |
+| Why are $p=0,1$ entrance boundaries? | Drift pushes away from both endpoints while the diffusion coefficient $p(1-p)$ vanishes faster than the drift; starting in $(0,1)$ implies staying in $(0,1)$. |
+| Why does the $f$ PDE not need boundary conditions? | Entrance boundaries mean the belief process never reaches $p=0$ or $p=1$; the PDE is only evaluated on the interior. |
+| Why did $\phi_1$ not converge in the DAX? | Only 8 training paths survived the $\beta$-filter; persistent bear regime provides weak gradient signal for regime-discriminating parameters. |
+| Why does EMV plateau below $z=2$ in DAX training? | Negative unconditional average excess return under DAX parameters ($\approx -1.3\%$ per year); a regime-blind policy cannot overcome this without conditioning on $p_t$. |
+| Why is EMV variance lower than POEMV in DAX OOS? | Near-inactivity, not risk control --- EMV takes small positions and mechanically produces low variance while failing to approach the mean target. |
+| Why does POEMV (est.) outperform POEMV (true) in DAX? | Biased filter smooths $p_t$ trajectories, regularizing gradient estimates; in the low-data regime, this may also reflect favorable parameter initialization. |
+| What is the dominant source of suboptimality in the POEMV simulation? | Filtering error from imprecise parameter estimation dominates learning error: in Wu \& Li's Table 3, the Sharpe-ratio gap attributable to filtering error (24.26 $\to$ 17.05) substantially exceeds the gap attributable to learning error (27.00 $\to$ 24.26). |
+| What's the key advantage of Wonham over Kalman here? | Wonham is exact for a CTMC signal; Kalman requires a linear-Gaussian model, which the regime process is not. |
+| Does this generalize to multiple assets? | Yes --- Appendix A of the paper extends to $d$ risky assets with a multivariate Gaussian policy and the same two PDEs. |
+| Why constant $\sigma$? | Regime-dependent $\sigma$ would reveal the regime via quadratic variation, trivializing the filtering problem. |
+| What is the Wonham filter SDE? | $dp_t = [-(\lambda_1+\lambda_2)p_t + \lambda_2]dt + (\rho_1-\rho_2)p_t(1-p_t)d\hat{B}_t$; mean-reverting toward the stationary bull probability, diffusion maximal at $p_t=1/2$. |
