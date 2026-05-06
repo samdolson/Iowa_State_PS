@@ -12,8 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Left To-Do 
 
-* AQ4 
-* All AI Comparisons/Evaluations 
+* AI Comparisons/Evaluations --- Additional Questions
 
 # Short Answer Questions
 
@@ -37,6 +36,7 @@ Pearson residuals are better suited for quasi-likelihood because **quasi-likelih
 
 ## Evaluation 
 
+AI correctly identifies that Pearson residuals require only the mean–variance relationship, which is all quasi-likelihood specifies, but the answer stops there. In this sense, I would regard it as incomplete. 
 
 \newpage 
 
@@ -56,8 +56,7 @@ A key assumption in likelihood-based analysis with left/right/interval censored 
 
 ## Evaluation 
 
-
-\newpage 
+The AI answer correctly identifies the core assumption, but lacks additional context I believe is meaningful (not just because of how it was explicitly noted in the course text).
 
 # 3. 
 
@@ -78,8 +77,7 @@ In the Neyman–Pearson framework, assumptions like normality and independence a
 
 ## Evaluation 
 
-
-\newpage 
+AI gets part of the answer, but misses some key details, namely that $H_0$ and $H_1$ must partition $\Theta$ (violated when assumptions are folded into $H_0$), and that power requires a fully specified alternative (which is impossible, as noted in my own answer.) 
 
 # 4. 
 
@@ -106,6 +104,8 @@ $$
 So instead of trying to approximate the distribution of ($\hat{\theta}_n$) directly, you approximate a **transformed version** that behaves the same in both worlds.
 
 ## Evaluation 
+
+AI identifies the *what*, but lacks detail on the *why*. 
 
 \newpage 
 
@@ -142,8 +142,7 @@ So:
 
 ## Evaluation 
 
-
-\newpage 
+AI does not directly answer the question, and is simply wrong for that.
 
 # 6.
 
@@ -173,6 +172,7 @@ $$
 
 ### Evaluation 
 
+AI answer is correct and complete, missing only a minor detail (the factorization) that I included in my answer. 
 
 ## (b) 
 
@@ -281,8 +281,7 @@ This is the distribution of data **before observing anything**, but now accounti
 
 ### Evaluation 
 
-
-\newpage 
+AI is correct w/r/t the prior predictive distribution, in toto, but gets the second distribution wrong entirely. In that sense, the AI answers a different question and is simply wrong for the second part.
 
 # Additional Questions
 
@@ -400,8 +399,6 @@ $$
 
 ## Evaluation 
 
-\newpage 
-
 # 2. 
 
 Consider four random variables $X_1$, $X_2$, $Y$, and $Z$. You are told that $X_1$ and $X_2$ are conditionally independent given the pair $(Y, Z)$ but that $Y$ and $Z$ are not independent. Determine two conditions, similar in form but one for $X_1$ and one for $X_2$, that are sufficient for $[X_1, X_2 \mid Y, Z] = [X_1 \mid Y][X_2 \mid Z]$.
@@ -434,9 +431,6 @@ $$
 $$
 
 ## Evaluation 
-
-
-\newpage 
 
 # 3. 
 
@@ -596,8 +590,6 @@ The assumption implies that, conditional on their respective underlying processe
 
 As per the question comment, *"but one should really do it"*, AI really didn't take that to heart. 
 
-\newpage 
-
 # 4.
 
 If you have heard any news about the stock market over the past 10 weeks or so, you know that there have been some days with extreme losses, some with sizable "bounce-back" gains, and some with relatively little movement. This is called high "volatility" in the market. There are all kinds of ways one might model a high volatility situation, but suppose we suggest the following:
@@ -620,7 +612,108 @@ Determine the expected values, variances, and one-step covariances of $S_t$ (tha
 
 ### Answer - Me 
 
+The process governing $S_t$ is
+
+$$S_t = \alpha S_{t-1} + v_t, \quad v_t \stackrel{\text{iid}}{\sim} N(0, \sigma^2),$$
+
+which is an AR(1) process in $S_t$. We may therefore apply AR(1) results directly.
+
+Since $E[v_t] = 0$ for all $t$, iterating expectations gives
+
+$$E[S_t] = 0.$$
+
+Assuming second-order stationarity, which requires $|\alpha| < 1$, the AR(1) variance result gives
+
+$$\text{var}(S_t) = \frac{\sigma^2}{1 - \alpha^2}.$$
+
+From the general AR(1) covariance formula $\text{cov}(S_t, S_{t-k}) = \alpha^k \sigma^2 / (1 - \alpha^2)$, evaluated at lag $k = 1$,
+
+$$\text{cov}(S_t, S_{t-1}) = \frac{\alpha\sigma^2}{1 - \alpha^2}.$$
+
 ### Answer - AI 
+
+We recognize that ({S_t}) is an AR(1) process:
+
+$$
+S_t = \alpha S_{t-1} + v_t,\quad v_t \stackrel{iid}{\sim} N(0,\sigma^2).
+$$
+
+Assume ($|\alpha| < 1$) so the process is (weakly) stationary.
+
+Take expectations on both sides:
+
+$$
+\mathbb{E}[S_t] = \alpha \mathbb{E}[S_{t-1}] + \mathbb{E}[v_t].
+$$
+
+Since ($\mathbb{E}[v_t]=0$), stationarity implies ($\mathbb{E}[S_t]=\mathbb{E}[S_{t-1}] = \mu_S$), so:
+
+$$
+\mu_S = \alpha \mu_S \quad \Rightarrow \quad (1-\alpha)\mu_S = 0 \quad \Rightarrow \quad \mu_S = 0.
+$$
+
+So,
+
+$$
+\boxed{\mathbb{E}[S_t] = 0.}
+$$
+
+Let ($\gamma_0 = \mathrm{Var}(S_t)$). Then:
+
+$$
+\mathrm{Var}(S_t) = \mathrm{Var}(\alpha S_{t-1} + v_t).
+$$
+
+Using independence of ($S_{t-1}$) and ($v_t$):
+
+$$
+\gamma_0 = \alpha^2 \gamma_0 + \sigma^2.
+$$
+
+Solve:
+
+$$
+\gamma_0(1-\alpha^2) = \sigma^2
+\quad \Rightarrow \quad
+\boxed{\mathrm{Var}(S_t) = \frac{\sigma^2}{1-\alpha^2}}.
+$$
+
+For one-step covariances
+
+(i) $Cov(S_t, S_{t-1})$
+
+$$
+\mathrm{Cov}(S_t, S_{t-1}) = \mathrm{Cov}(\alpha S_{t-1} + v_t, S_{t-1})
+= \alpha \mathrm{Var}(S_{t-1}) + 0
+$$
+
+So:
+
+$$
+\boxed{\mathrm{Cov}(S_t, S_{t-1}) = \alpha \frac{\sigma^2}{1-\alpha^2}}.
+$$
+
+(ii) $Cov(S_t, S_{t+1})$
+
+Use:
+
+$$
+S_{t+1} = \alpha S_t + v_{t+1}.
+$$
+
+Then:
+
+$$
+\mathrm{Cov}(S_t, S_{t+1})
+= \mathrm{Cov}(S_t, \alpha S_t + v_{t+1})
+= \alpha \mathrm{Var}(S_t).
+$$
+
+So:
+
+$$
+\boxed{\mathrm{Cov}(S_t, S_{t+1}) = \alpha \frac{\sigma^2}{1-\alpha^2}}.
+$$
 
 ### Evaluation 
 
@@ -632,7 +725,116 @@ Determine the expected values, variances, and one-step covariances of $\epsilon_
 
 ### Answer - Me 
 
+By the law of total expectation, conditioning on $S_t$,
+
+$$E[\epsilon_t] = E\bigl[E[\epsilon_t \mid S_t]\bigr] = E[0] = 0,$$
+
+since $\epsilon_t \mid S_t \sim N(0, S_t^2)$.
+
+By the law of total variance,
+
+$$\text{var}(\epsilon_t) = E\bigl[\text{var}(\epsilon_t \mid S_t)\bigr] + \text{var}\bigl(E[\epsilon_t \mid S_t]\bigr) = E[S_t^2] + \text{var}(0) = E[S_t^2].$$
+
+Since $E[S_t^2] = \text{var}(S_t) + (E[S_t])^2 = \sigma^2/(1-\alpha^2) + 0$, we have
+
+$$\text{var}(\epsilon_t) = \frac{\sigma^2}{1 - \alpha^2}.$$
+
+Since both marginal means are zero, $\text{cov}(\epsilon_t, \epsilon_{t-1}) = E[\epsilon_t \epsilon_{t-1}]$. Conditioning on $(S_t, S_{t-1})$ and using the fact that $\epsilon_t$ and $\epsilon_{t-1}$ are conditionally independent given their respective scales,
+
+$$E[\epsilon_t \epsilon_{t-1}] = E\bigl[E[\epsilon_t \epsilon_{t-1} \mid S_t, S_{t-1}]\bigr] = E\bigl[E[\epsilon_t \mid S_t]\, E[\epsilon_{t-1} \mid S_{t-1}]\bigr] = E[0 \cdot 0] = 0.$$
+
+Therefore $\text{cov}(\epsilon_t, \epsilon_{t-1}) = 0$.
+
 ### Answer - AI 
+
+Using the law of iterated expectation:
+
+$$
+\mathbb{E}[\epsilon_t] = \mathbb{E}\big[\mathbb{E}[\epsilon_t \mid S_t]\big].
+$$
+
+But
+
+$$
+\mathbb{E}[\epsilon_t \mid S_t] = 0,
+$$
+
+so
+
+$$
+\boxed{\mathbb{E}[\epsilon_t] = 0.}
+$$
+
+Use the law of total variance:
+
+$$
+\mathrm{Var}(\epsilon_t)
+= \mathbb{E}[\mathrm{Var}(\epsilon_t \mid S_t)] + \mathrm{Var}(\mathbb{E}[\epsilon_t \mid S_t]).
+$$
+
+The second term is zero since the conditional mean is zero.
+
+So:
+
+$$
+\mathrm{Var}(\epsilon_t)
+= \mathbb{E}[S_t^2].
+$$
+
+Now:
+
+$$
+\mathbb{E}[S_t^2] = \mathrm{Var}(S_t) + (\mathbb{E}[S_t])^2
+= \frac{\sigma^2}{1-\alpha^2}.
+$$
+
+Thus:
+
+$$
+\boxed{\mathrm{Var}(\epsilon_t) = \frac{\sigma^2}{1-\alpha^2}.}
+$$
+
+We compute ($\mathrm{Cov}(\epsilon_t, \epsilon_{t-1})$).
+
+Using iterated expectation:
+
+$$
+\mathrm{Cov}(\epsilon_t, \epsilon_{t-1})
+= \mathbb{E}[\epsilon_t \epsilon_{t-1}]
+$$
+
+(since both have mean 0).
+
+Now condition on ($S_t, S_{t-1}$):
+
+$$
+\mathbb{E}[\epsilon_t \epsilon_{t-1}]
+= \mathbb{E}\Big[\mathbb{E}[\epsilon_t \epsilon_{t-1} \mid S_t, S_{t-1}]\Big].
+$$
+
+Given (S_t, S_{t-1}), we have:
+
+* ($\epsilon_t \sim N(0,S_t^2)$)
+* ($\epsilon_{t-1} \sim N(0,S_{t-1}^2)$)
+* and they are independent conditional on the volatility process (standard assumption in this type of model).
+
+So:
+
+$$
+\mathbb{E}[\epsilon_t \epsilon_{t-1} \mid S_t, S_{t-1}] = 0.
+$$
+
+Therefore:
+
+$$
+\boxed{\mathrm{Cov}(\epsilon_t, \epsilon_{t-1}) = 0.}
+$$
+
+By the same argument:
+
+$$
+\boxed{\mathrm{Cov}(\epsilon_t, \epsilon_{t+1}) = 0.}
+$$
 
 ### Evaluation 
 
@@ -643,7 +845,81 @@ Determine the expected values, variances, and one-step covariances of $Y_t$.
 
 ### Answer - Me 
 
+Since $Y_t = \mu + \epsilon_t$, these follow directly from part (b).
+
+Expected Value is given by 
+
+$$E[Y_t] = \mu + E[\epsilon_t] = \mu.$$
+
+Variance is given by 
+
+$$\text{var}(Y_t) = \text{var}(\epsilon_t) = \frac{\sigma^2}{1 - \alpha^2}.$$
+
+The one-step covariance is given by 
+
+$$\text{cov}(Y_t, Y_{t-1}) = \text{cov}(\epsilon_t, \epsilon_{t-1}) = 0.$$
+
 ### Answer - AI 
+
+$$
+\mathbb{E}[Y_t] = \mathbb{E}[\mu + \epsilon_t]
+= \mu + \mathbb{E}[\epsilon_t]
+= \mu.
+$$
+
+So,
+
+$$
+\boxed{\mathbb{E}[Y_t] = \mu.}
+$$
+
+Since ($\mu$) is constant:
+
+$$
+\mathrm{Var}(Y_t) = \mathrm{Var}(\epsilon_t).
+$$
+
+Thus,
+
+$$
+\boxed{\mathrm{Var}(Y_t) = \frac{\sigma^2}{1-\alpha^2}.}
+$$
+
+We compute:
+
+$$
+\mathrm{Cov}(Y_t, Y_{t-1}).
+$$
+
+Substitute:
+
+$$
+Y_t = \mu + \epsilon_t,\quad Y_{t-1} = \mu + \epsilon_{t-1}.
+$$
+
+Constants drop out:
+
+$$
+\mathrm{Cov}(Y_t, Y_{t-1}) = \mathrm{Cov}(\epsilon_t, \epsilon_{t-1}).
+$$
+
+From the previous part:
+
+$$
+\mathrm{Cov}(\epsilon_t, \epsilon_{t-1}) = 0.
+$$
+
+So:
+
+$$
+\boxed{\mathrm{Cov}(Y_t, Y_{t-1}) = 0.}
+$$
+
+Similarly:
+
+$$
+\boxed{\mathrm{Cov}(Y_t, Y_{t+1}) = 0.}
+$$
 
 ### Evaluation 
 
@@ -654,13 +930,30 @@ What does this model then imply about a sequence of changes in the index of stoc
 
 *Note: Just for information (but not really important for this question), an example series of values $Y_1, \ldots, Y_T$ with $T = 100$, $\mu = 0$, $\sigma^2 = 1.5$ and $\alpha = 0.90$ is shown in Figure 1.*
 
+```{r fig1, echo=FALSE, fig.align="center", out.width="50%", fig.cap="A realization of the model from Additional Question 4."}
+knitr::include_graphics("Fig1.png")
+```
+
 ### Answer - Me 
+
+The results of parts (b) and (c) together reveal an apparent tension. The $Y_t$ have constant mean $\mu$, constant marginal variance $\sigma^2/(1-\alpha^2)$, and zero one-step covariance — marginally, the sequence of daily changes resembles uncorrelated white noise with no systematic drift.
+
+However, the $Y_t$ are not independent. The variance of $Y_t$ is governed by $S_t^2$, and $S_t$ follows an AR(1) process with coefficient $\alpha$. When $\alpha$ is close to 1 (as in the $\alpha = 0.90$ example), the volatility process is highly persistent: a large $|S_t|$ today tends strongly to be followed by a large $|S_{t+1}|$ tomorrow. This induces **volatility clustering** — periods of large swings in the index tend to cluster together in time, as do periods of relative calm, even though successive changes are marginally uncorrelated.
+
+This is consistent with the behavior visible in Figure 1, where episodes of extreme positive and negative changes (around $t = 15$--$25$ and $t = 50$--$60$) are concentrated in time rather than distributed uniformly across the series, while other stretches show comparatively little movement. The model therefore captures a key empirical feature of financial markets: the magnitude of daily price changes is predictable in a way that the direction is not.
 
 ### Answer - AI 
 
-### Evaluation 
+This model implies a classic empirical fact of financial data:
 
-\newpage
+> **Returns are approximately uncorrelated, but volatility is strongly autocorrelated.**
+
+So a stock index path under this model:
+
+* looks like random noise in direction
+* but with **time-varying intensity (“volatility bursts”)**
+
+### Evaluation 
 
 # 5. 
 
@@ -683,9 +976,6 @@ Pearson’s chi-squared goodness-of-fit test does not fit squarely into either t
 * and fundamentally functions as a **model adequacy diagnostic rather than a strict hypothesis test**.
 
 ## Evaluation 
-
-
-\newpage 
 
 # 6.
 
