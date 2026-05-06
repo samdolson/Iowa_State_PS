@@ -10,7 +10,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Overall Evaluation - Thoughts 
 
+Left To-Do 
 
+* AQ1 
+* AQ3 
+* AQ4 
+* AQ6 
+* All AI Comparisons/Evaluations 
 
 # Short Answer Questions
 
@@ -24,7 +30,13 @@ Why are Pearson residuals better suited for use with quasi-likelihood than are d
 
 ## Answer - Me 
 
+Pearson residuals are better suited for quasi-likelihood diagnostics because quasi-likelihood specifies only the first two moments of the response --- $E(Y_i) = \mu_i$ and $\text{var}(Y_i) = (1/\phi)V(\mu_i)$ --- and Pearson residuals are defined entirely in terms of those moments. Deviance residuals, by contrast, require a fully specified log-likelihood to construct the deviance, which is precisely what quasi-likelihood forgoes. In that sense, deviance residuals are not naturally available in the quasi-likelihood framework.
+
+There is also a deeper inferential point. The asymptotic theory underlying deviance-based diagnostics relies on large-sample chi-squared approximations justified through a fully specified likelihood. Pearson residuals carry no such requirement; their moment-based construction means their behavior is governed directly by the variance function $V(\mu_i)$, which is the central modeling object in quasi-likelihood. Their use is therefore on firmer (exact-theory) footing, making them the more appropriate tool for assessing whether the specified $V(\mu_i)$ adequately describes the observed variability.
+
 ## Answer - AI 
+
+Pearson residuals are better suited for quasi-likelihood because **quasi-likelihood methods do not fully specify a probability model**, and Pearson residuals depend only on the **mean–variance relationship**, which is exactly what quasi-likelihood keeps.
 
 ## Evaluation 
 
@@ -37,7 +49,13 @@ In any problem involving censored observations for which we will use a likelihoo
 
 ## Answer - Me 
 
+That major assumption is that the censoring mechanism is independent of the mechanism producing observed values, and the Notes go on to say, *"which is similar to an assumption of missing at random or, in a situation lacking covariates, missing completely at random."*
+
 ## Answer - AI 
+
+A key assumption in likelihood-based analysis with left/right/interval censored data is:
+
+> **The censoring mechanism is non-informative (a.k.a. independent or ignorable) given the model parameters.**
 
 ## Evaluation 
 
@@ -50,9 +68,19 @@ There is some evidence that Fisher may have considered aspects of a testing prob
 
 ## Answer - Me 
 
+The core issue is decision-based: the Neyman-Pearson framework is built around choosing either $H_0$ or $H_1$. If distributional assumptions (normality, constant variance, independence) are folded into $H_0$, rejecting $H_0$ no longer points toward a specific, actionable alternative. As the text notes, it becomes unclear how one should *"behave under a decision that a null hypothesis is not entirely true, but any one of an array of other possibilities might be."* The decision rule collapses because $H_0$ and $H_1$ no longer constitute a **logical disjunction**, i.e., they no longer partition $\Theta$, which is the foundational structural requirement of the
+Neyman-Pearson setup.
+
+This non-specificity also destroys the power machinery. Type II error and power are defined relative to a *specific* alternative: to compute $\beta(\theta)$, one needs the distribution of the test statistic under $H_1$, which requires a fully specified model. If the alternative is effectively "anything other than a normal distribution with equal variances and independent errors," that reference distribution is undefined. Without it, power calculations are impossible, sample size cannot be determined, and no claim to optimality --- UMP or otherwise --- can be made.
+
 ## Answer - AI 
 
+The short answer is: the Neyman–Pearson framework requires a **fully specified probabilistic model before you even define the test**, whereas Ronald Fisher treated model features more flexibly—as things that could themselves be scrutinized by the data.
+
+In the Neyman–Pearson framework, assumptions like normality and independence are **built into the mathematical foundation of the test**. If you tried to test them within the same framework, you would lose the very distributional results needed to control error rates—so the procedure would no longer be valid.
+
 ## Evaluation 
+
 
 \newpage 
 
@@ -62,7 +90,23 @@ What is the purpose of using what in class was called a comparison function $h(\
 
 ## Answer - Me 
 
+The comparison function $h(\theta, \hat{\theta}_n)$ (referred to in the Notes as a discrepancy function) serves to reduce or eliminate the dependence of the sampling distribution of $\hat{\theta}_n$ on the unknown true parameter $\theta$. Because the sampling distribution of $\hat{\theta}_n$ itself depends on $\theta$, the bootstrap instead targets the distribution of $h(\theta, \hat{\theta}_n)$. The ideal case is a **pivotal quantity**, where the distribution of $h(\theta, \hat{\theta}_n)$ is entirely free of $\theta$, making the bootstrap approximation as stable and reliable as possible. The choice of $h$ is flexible, and different choices characterize different aspects of the estimator's sampling behavior, leading to different bootstrap interval procedures. It is worth noting that the bootstrap is approximating the distribution of $h(\theta, \hat{\theta}_n)$, not the distribution of $\hat{\theta}_n$ itself, a distinction the Notes treat as essential.
+
 ## Answer - AI 
+
+It lets you replace the unknown distribution:
+
+$$
+h(\theta, \hat{\theta}_n)
+$$
+
+with the computable bootstrap approximation:
+
+$$
+h(\hat{\theta}_n, \hat{\theta}_n^*).
+$$
+
+So instead of trying to approximate the distribution of ($\hat{\theta}_n$) directly, you approximate a **transformed version** that behaves the same in both worlds.
 
 ## Evaluation 
 
@@ -74,9 +118,33 @@ Why are normed profile likelihoods of no help in finding maximum likelihood esti
 
 ## Answer - Me 
 
+In a word: Because calculating a normed profile likelihood requires the maximum likelihood estimate to calculate. 
+
+Per the Notes: normed profile likelihoods require the unrestricted joint MLE $\hat{\boldsymbol{\theta}}_n = (\hat{\boldsymbol{\theta}}_1, \hat{\boldsymbol{\theta}}_2)$ in the denominator of the equation (the expression of the *normed profile likelihood* for $\theta_1$):
+
+$$
+R_n^p(\theta_1) = \max_{\boldsymbol{\theta}_2} \left[ \frac{L_n(\theta_1, \boldsymbol{\theta}_2)}{L_n(\hat{\boldsymbol{\theta}}_n)} \right]
+$$
+
 ## Answer - AI 
 
+The crucial point:
+
+$$
+\arg\max_{\theta} \tilde{L}_p(\theta)
+=
+\arg\max_{\theta} L_p(\theta).
+$$
+
+Multiplying or dividing by a **positive constant** does not change where the maximum occurs.
+
+So:
+
+* The MLE is determined by where the likelihood is largest.
+* Normalizing only changes the *scale*, not the *location* of the maximum.
+
 ## Evaluation 
+
 
 \newpage 
 
@@ -92,7 +160,19 @@ For this definition to hold, $\mathbf{Y}^0$ must follow the same distribution as
 
 ### Answer - Me 
 
+The other thing that must hold is $\mathbf{Y}^0$ and $\mathbf{Y}$ must be **conditionally independent given $\boldsymbol{\theta}$**. This allows the factorization $f(\mathbf{y}^0, \mathbf{y} \mid \boldsymbol{\theta}) = f(\mathbf{y}^0 \mid \boldsymbol{\theta})\, f(\mathbf{y} \mid \boldsymbol{\theta})$, which is necessary to reduce the joint predictive to the integral form shown.
+
 ### Answer - AI 
+
+In addition to ($\mathbf{Y}^0$) and ($\mathbf{Y}$) sharing the same sampling model conditional on ($\boldsymbol{\theta}$), a crucial requirement is:
+
+> **Conditional independence given the parameter $(\boldsymbol{\theta})$.**
+
+Formally, we must have:
+
+$$
+\mathbf{Y}^0 \perp \mathbf{Y} \mid \boldsymbol{\theta}.
+$$
 
 ### Evaluation 
 
@@ -103,9 +183,107 @@ There are two other predictive distributions that can be useful in a Bayesian an
 
 ### Answer - Me 
 
+The first is the **prior predictive distribution**, applicable under a standard data model and prior $f(\mathbf{y} \mid \boldsymbol{\theta})$, $\pi(\boldsymbol{\theta})$: 
+
+$$p(\mathbf{y}) = \int f(\mathbf{y} \mid \boldsymbol{\theta})\, \pi(\boldsymbol{\theta})\, d\boldsymbol{\theta}.$$
+
+Its primary uses are prior predictive model checking, i.e., assessing whether the model implies plausible data before observing $\mathbf{y}$, in addition to being the marginal likelihood in Bayes factor model comparisons.
+
+The second is the **posterior predictive distribution for new random parameters** $\boldsymbol{\theta}^*$, connected specifically with hierarchical models $f(\mathbf{y} \mid \boldsymbol{\theta})$, $g(\boldsymbol{\theta} \mid \boldsymbol{\lambda})$, $\pi(\boldsymbol{\lambda})$:
+$$p(\boldsymbol{\theta}^* \mid \mathbf{y}) = \int g(\boldsymbol{\theta}^* \mid \boldsymbol{\lambda})\, p(\boldsymbol{\lambda} \mid \mathbf{y})\, d\boldsymbol{\lambda}.$$
+
+Its primary use is making probability statements about what will occur in new, unobserved situations drawn from the same mechanism, e.g., predicting the economic optimal nitrogen rate in a future trial (as noted in the Notes). It is preferred over evaluating $g(\boldsymbol{\theta}^* \mid \hat{\boldsymbol{\lambda}})$ at a point estimate because it propagates full posterior uncertainty in $\boldsymbol{\lambda}$.
+
 ### Answer - AI 
 
+#### 1. Prior predictive distribution (marginal predictive)
+
+##### Definition
+
+Given a standard Bayesian model:
+
+* likelihood: ($f(\mathbf{y}\mid \boldsymbol{\theta})$)
+* prior: ($\pi(\boldsymbol{\theta})$)
+
+the **prior predictive distribution** is:
+
+$$
+p(\mathbf{y}) = \int f(\mathbf{y}\mid \boldsymbol{\theta}), \pi(\boldsymbol{\theta}), d\boldsymbol{\theta}.
+$$
+
+##### Interpretation
+
+This is the distribution of the data **before seeing any observations**, integrating over prior uncertainty in ($\boldsymbol{\theta}$).
+
+##### Primary uses
+
+1. **Model checking (prior-to-data coherence)**
+
+   * Do simulated datasets from the model “look like” plausible data?
+   * Helps detect whether the prior + likelihood combination is unreasonable.
+
+2. **Design / prior sensitivity assessment**
+
+   * Shows what kinds of data the model expects a priori.
+   * Useful for diagnosing overly informative or implausible priors.
+
+3. **Bayesian model comparison (marginal likelihood)**
+
+   * This is the key quantity in Bayes factors:
+   
+$$
+p(\mathbf{y}\mid M)
+$$
+
+#### 2. Prior predictive for hierarchical models (conditional predictive at the hyperparameter level)
+
+Now consider a hierarchical model:
+
+* ($f(\mathbf{y}\mid \boldsymbol{\theta})$)
+* ($g(\boldsymbol{\theta}\mid \boldsymbol{\lambda})$)
+* ($\pi(\boldsymbol{\lambda})$)
+
+##### Definition
+
+The **hierarchical prior predictive distribution** is:
+
+$$
+p(\mathbf{y}) =
+\int \int f(\mathbf{y}\mid \boldsymbol{\theta}), g(\boldsymbol{\theta}\mid \boldsymbol{\lambda}), \pi(\boldsymbol{\lambda}) , d\boldsymbol{\theta}, d\boldsymbol{\lambda}.
+$$
+
+Equivalently:
+
+$$
+p(\mathbf{y}) =
+\int f(\mathbf{y}\mid \boldsymbol{\lambda}), \pi(\boldsymbol{\lambda}), d\boldsymbol{\lambda},
+\quad \text{where } f(\mathbf{y}\mid \boldsymbol{\lambda}) = \int f(\mathbf{y}\mid \boldsymbol{\theta})g(\boldsymbol{\theta}\mid \boldsymbol{\lambda})d\boldsymbol{\theta}.
+$$
+
+##### Interpretation
+
+This is the distribution of data **before observing anything**, but now accounting for both:
+
+* within-group variation ($(\boldsymbol{\theta}\mid \boldsymbol{\lambda})$)
+* between-group variation ($(\boldsymbol{\lambda})$)
+
+##### Primary uses
+
+1. **Hierarchical model checking**
+
+   * Does the full multilevel model generate realistic data?
+   * Important for checking whether shrinkage assumptions are plausible.
+
+2. **Assessing prior structure at multiple levels**
+
+   * Evaluates whether hyperpriors imply reasonable variability across groups.
+
+3. **Understanding induced marginal behavior**
+
+   * Shows what marginal distributions the hierarchy implies for observables (often heavy-tailed or overdispersed forms).
+
 ### Evaluation 
+
 
 \newpage 
 
@@ -135,9 +313,33 @@ Consider four random variables $X_1$, $X_2$, $Y$, and $Z$. You are told that $X_
 
 ## Answer - Me 
 
+We begin from the given conditional independence of $X_1$ and $X_2$ given $(Y, Z)$:
+
+$$[X_1, X_2 \mid Y, Z] = [X_1 \mid Y, Z]\,[X_2 \mid Y, Z].$$
+
+For this to equal $[X_1 \mid Y][X_2 \mid Z]$, it suffices to impose the following two conditions:
+
+1. $X_1 \perp Z \mid Y$, so that $[X_1 \mid Y, Z] = [X_1 \mid Y]$;
+2. $X_2 \perp Y \mid Z$, so that $[X_2 \mid Y, Z] = [X_2 \mid Z]$.
+
+Substituting both into the factorization above yields
+
+$$[X_1, X_2 \mid Y, Z] = [X_1 \mid Y]\,[X_2 \mid Z],$$
+
+as required. Each condition asserts that one $X$ variable is conditionally independent of the "irrelevant" member of the conditioning pair given the other, and the two conditions are symmetric in form.
+
 ## Answer - AI 
 
+The two sufficient conditions are:
+
+$$
+\boxed{X_1 \perp Z \mid Y}
+\quad \text{and} \quad
+\boxed{X_2 \perp Y \mid Z.}
+$$
+
 ## Evaluation 
+
 
 \newpage 
 
@@ -257,13 +459,26 @@ Consider a formal Goodness of Fit test, such as the Chi-squared test of Karl Pea
 
 ## Answer - Me 
 
+Pearson's notion of goodness of fit resists clean placement in either the Fisherian or Neyman-Pearson framework for several related reasons. Most fundamentally, Neyman-Pearson testing requires a null and alternative that together form a logical disjunction, but GOF tests have no such alternative. A theoretical distribution that cannot be rejected is deemed an acceptable graduation of the data, though this is neither acceptance in the Neyman-Pearson behavioral sense nor a claim of uniqueness — multiple theoretical distributions may simultaneously pass.
+
+The direction of evidence is also reversed relative to Fisherian significance testing. Where a small $p$-value constitutes evidence against the null in Fisher's framework, Pearson's goal is a large $p$-value; the closer to 1.0, the better the fit. Fisher objected to this explicitly, noting that under a true model, $p = 0.999$ is no more expected than $p = 0.001$. Relatedly, Pearson regarded the posited distribution not as a falsifiable scientific claim but as a mathematical convenience for graduating observed data, which sits uneasily with either school's treatment of the null hypothesis.
+
+Finally, Pearson's interpretation of $p$-values relied on overlaying a hypothetical random generating mechanism on the data regardless of whether actual random sampling occurred, effectively folding the assumption of random sampling into the hypothesis under test rather than treating it as a precondition. Neither framework accommodates this move naturally, leaving the inferential basis of GOF tests in an uncomfortable middle ground.
+
 ## Answer - AI 
+
+Pearson’s chi-squared goodness-of-fit test does not fit squarely into either theory because:
+
+* it lacks a fully specified alternative model (violating Neyman–Pearson structure),
+* yet is often used as a decision rule rather than purely an evidential measure (going beyond Fisher’s interpretation),
+* and fundamentally functions as a **model adequacy diagnostic rather than a strict hypothesis test**.
 
 ## Evaluation 
 
+
 \newpage 
 
-## 6.
+# 6.
 
 Consider two continuous, independent random variables $X$ and $Y$ that have distributions with densities $p(x|\theta)$ and $p(y|\lambda)$, respectively, with each having support on the entire real line. Suppose we would like to compute a Monte Carlo approximation to $\Pr(Y > X)$ for given values of $\theta$ and $\lambda$.
 
