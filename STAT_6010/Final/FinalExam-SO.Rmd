@@ -12,10 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Left To-Do 
 
-* AQ1 
-* AQ3 
 * AQ4 
-* AQ6 
 * All AI Comparisons/Evaluations 
 
 # Short Answer Questions
@@ -301,7 +298,105 @@ Write the likelihood function for the entire collection of $n_1$ samples analyze
 
 ## Answer - Me 
 
+Let $i \in \{1, 2\}$ index the laboratory and $j = 1, \ldots, n_i$ index the sample within lab $i$,
+where $n_1$ and $n_2$ denote the number of samples sent to Lab 1 and Lab 2, respectively.
+
+Let $X_{ij}$ denote the true PCB concentration of sample $j$ analyzed at lab $i$, with
+
+$$X_{ij} \overset{\text{iid}}{\sim} \text{Gamma}(\alpha, \beta), \quad i = 1, 2, \quad j = 1, \ldots, n_i.$$
+
+Each sample is associated with an indicator
+
+$$
+\delta_{ij} =
+\begin{cases}
+1, & X_{ij} < c_i \quad \text{(below detection limit)} \\
+0, & X_{ij} \ge c_i \quad \text{(detected)}
+\end{cases}
+$$
+
+and, when $\delta_{ij} = 0$, a reported concentration $y_{ij}$ recorded to precision $\Delta = 0.005\ \mu\text{g/L}$.
+Define the index sets
+
+$$\mathcal{D}_i = \{j : \delta_{ij} = 0\}, \quad \mathcal{U}_i = \{j : \delta_{ij} = 1\}, \quad |\mathcal{D}_i| + |\mathcal{U}_i| = n_i.$$
+
+Assuming independence across all samples, the likelihood factors as a product over both labs and all samples within each lab. Each observation contributes a probability mass under the Gamma model corresponding to its censoring type: detected samples contribute an interval probability of width $2\Delta$, while below-detection samples contribute the probability of falling below the lab's detection limit $c_i$.
+
+$$L(\alpha, \beta) = \prod_{i=1}^{2} \left[
+  \prod_{j \in \mathcal{D}_i} \Big[ F(y_{ij} + \Delta \mid \alpha, \beta) - F(y_{ij} - \Delta \mid \alpha, \beta) \Big]
+  \prod_{j \in \mathcal{U}_i} F(c_i \mid \alpha, \beta)
+\right]$$
+
+where $F(\,\cdot \mid \alpha, \beta)$ is the Gamma CDF, $\Delta = 0.005\ \mu\text{g/L}$ is the common reporting precision, and $c_1 = 0.01$, $c_2 = 0.03\ \mu\text{g/L}$ are the detection limits for Labs 1 and 2, respectively. Note that $F(0 \mid \alpha, \beta) = 0$ for the Gamma distribution, so the left-censored contribution simplifies directly to $F(c_i \mid \alpha, \beta)$. The shared parameters $(\alpha, \beta)$ across both labs reflect our objective of estimating a single underlying concentration distribution.
+
 ## Answer - AI 
+
+Let ($X_{ij}$) denote the true PCB concentration for sample (j) analyzed at lab (i), where
+
+* ($i = 1,2$) indexes the laboratory,
+* ($j = 1,\dots,n_i$),
+* and ($X_{ij} \stackrel{\text{ind}}{\sim} \text{Gamma}(\alpha,\beta)$) with density
+
+$$
+f(x\mid \alpha,\beta)=\frac{\beta^\alpha}{\Gamma(\alpha)}x^{\alpha-1}e^{-\beta x},\quad x>0.
+$$
+
+Let ($c_1 = 0.01$) and ($c_2 = 0.03$) be the detection limits for Lab 1 and Lab 2 respectively.
+
+Define an indicator:
+
+$$
+\delta_{ij} =
+\begin{cases}
+1, & X_{ij} < c_i \quad \text{(below detection limit)} \\
+0, & X_{ij} \ge c_i \quad \text{(detected)}
+\end{cases}
+$$
+
+We observe:
+
+* If ($\delta_{ij}=0$): we observe the actual value ($x_{ij}$).
+* If ($\delta_{ij}=1$): we only know ($X_{ij} < c_i$), so we observe a censored contribution.
+
+#### Likelihood contribution for one observation
+
+(i) Detected observation ($(\delta_{ij}=0)$)
+
+$$
+L_{ij} = f(x_{ij}\mid \alpha,\beta)
+$$
+
+(ii) Non-detect ($(\delta_{ij}=1)$)
+
+$$
+L_{ij} = P(X_{ij} < c_i) = \int_0^{c_i} f(x\mid \alpha,\beta),dx = F(c_i\mid \alpha,\beta)
+$$
+
+where ($F(\cdot)$) is the Gamma CDF.
+
+Assuming independence across all samples (and across labs), the likelihood is:
+
+$$
+L(\alpha,\beta)
+=
+\prod_{i=1}^2 \prod_{j=1}^{n_i}
+\Big[
+f(x_{ij}\mid \alpha,\beta)^{1-\delta_{ij}}
+; F(c_i\mid \alpha,\beta)^{\delta_{ij}}
+\Big].
+$$
+
+Substituting the gamma density:
+
+$$
+L(\alpha,\beta)
+=
+\prod_{i=1}^2 \prod_{j=1}^{n_i}
+\left[
+\left(\frac{\beta^\alpha}{\Gamma(\alpha)} x_{ij}^{\alpha-1} e^{-\beta x_{ij}}\right)^{1-\delta_{ij}}
+\left(F(c_i\mid \alpha,\beta)\right)^{\delta_{ij}}
+\right].
+$$ 
 
 ## Evaluation 
 
@@ -353,7 +448,45 @@ First, define some notation to make a problem such as those described (two non-i
 
 ### Answer - Me 
 
+Let $Y$ and $Z$ represent Process 1 and Process 2, respectively. These processes are not independent of one another, i.e., $[Y, Z] \neq [Y][Z]$, reflecting the substantive belief that the two underlying processes are related.
+
+Let $X_1$ and $X_2$ represent Observable 1 and Observable 2, respectively, where $X_1$ is a direct reflection of Process 1 ($Y$) and $X_2$ is a direct reflection of Process 2 ($Z$).
+
 ### Answer - AI 
+
+Let the two underlying scientific processes of interest be:
+
+* Process 1: ($P_1$) (e.g., tree growth rate, or access to healthcare)
+* Process 2: ($P_2$) (e.g., evapotranspiration, or poverty level)
+
+We assume these processes are **not independent**, i.e., ($P_1 \not\perp  P_2$).
+
+Now define two observable quantities that are measured from sampling units and serve as proxies or indicators of these processes:
+
+* Observable 1: ($O_1$), which reflects Process 1
+* Observable 2: ($O_2$), which reflects Process 2
+
+To align with the previous conditional independence framework, define:
+
+* ($X_1 := O_1$) (observable indicator of Process 1)
+* ($X_2 := O_2$) (observable indicator of Process 2)
+* ($Y := P_1$) (latent underlying Process 1)
+* ($Z := P_2$) (latent underlying Process 2)
+
+Under this mapping:
+
+* ($X_1$) is a direct measurement of Process 1
+* ($X_2$) is a direct measurement of Process 2
+* (Y) and (Z) are the true (possibly dependent) scientific processes generating the system
+* The observables ($X_1, X_2$) are assumed to arise from their respective processes (possibly with measurement error or sampling variation)
+
+Thus, the structure is:
+
+$$
+X_1 \leftarrow Y, \quad X_2 \leftarrow Z, \quad \text{with } Y \not\perp Z.
+$$
+
+This places the scientific example directly into the probabilistic framework of the earlier question, where the goal is to understand conditional relationships of observables given underlying dependent processes.
 
 ### Evaluation 
 
@@ -363,7 +496,41 @@ Using an extension of your notation from (a), identify the distributional forms 
 
 ### Answer - Me 
 
+A hierarchical model for this setting requires three distributional components.
+
+At the **data level**, we need a model for each observable given its directly associated process:
+
+$$[X_1 \mid Y, \boldsymbol{\theta}_1] \quad \text{and} \quad [X_2 \mid Z, \boldsymbol{\theta}_2]$$
+
+where $\boldsymbol{\theta}_1$ and $\boldsymbol{\theta}_2$ parameterize the relationship between each observable and its respective process.
+
+At the **process level**, because $Y$ and $Z$ are not independent, we require a joint model for the two processes:
+
+$$[Y, Z \mid \boldsymbol{\theta}_3]$$
+
+where $\boldsymbol{\theta}_3$ governs the marginal behavior of each process as well as the dependence between them. The full parameter vector for the hierarchical model is then $\boldsymbol{\theta} = (\boldsymbol{\theta}_1, \boldsymbol{\theta}_2, \boldsymbol{\theta}_3)$.
+
 ### Answer - AI 
+
+Putting the layers together, the full model requires specifying:
+
+(i) Latent process layer
+
+$$
+[Y, Z \mid \phi]
+$$
+
+(ii) Observation layer 1
+
+$$
+[X_1 \mid Y, \theta_1]
+$$
+
+(iii) Observation layer 2
+
+$$
+[X_2 \mid Z, \theta_2]
+$$
 
 ### Evaluation 
 
@@ -373,7 +540,43 @@ Suppose we are willing to assume the conditions given and identified in your ans
 
 ### Answer - Me 
 
+The conditions from the prior question — that $X_1 \perp Z \mid Y$ and $X_2 \perp Y \mid Z$ — affect only the **data level** of the model. Without those conditions, we would in general need to formulate a joint model for the two observables given both processes,
+
+$$[X_1, X_2 \mid Y, Z, \boldsymbol{\theta}_1, \boldsymbol{\theta}_2],$$
+
+which could require specifying a dependence structure between $X_1$ and $X_2$ even after conditioning on $(Y, Z)$. Under the stated conditions, this joint model factorizes as
+
+$$[X_1, X_2 \mid Y, Z, \boldsymbol{\theta}_1, \boldsymbol{\theta}_2] = [X_1 \mid Y, \boldsymbol{\theta}_1]\,[X_2 \mid Z, \boldsymbol{\theta}_2],$$
+
+so each observable need only be modeled conditionally on its own directly associated process. The two data-level components from part (b) can therefore be specified independently of one another.
+
+The process-level component $[Y, Z \mid \boldsymbol{\theta}_3]$ is **not** simplified — $Y$ and $Z$ remain non-independent by assumption, so a joint model for the two processes is still required.
+
 ### Answer - AI 
+
+The assumption simplifies the model specifically by:
+
+1. **Forcing factorization of the observation model**
+
+$$
+[X_1, X_2 \mid Y, Z] \to [X_1 \mid Y],[X_2 \mid Z]
+$$
+
+2. **Removing any need for a joint measurement error or dependence structure between ($X_1$) and ($X_2$)**
+
+3. **Allowing complete separation of observation parameters**
+
+$$
+\theta \to (\theta_1, \theta_2)
+$$
+
+4. **Yielding a fully factorized hierarchical likelihood**
+
+$$
+[Y, Z \mid \phi],[X_1 \mid Y, \theta_1],[X_2 \mid Z, \theta_2].
+$$
+
+In short: the assumption collapses what could have been a coupled, potentially complex observation model into two conditionally independent measurement models, greatly simplifying both specification and inference.
 
 ### Evaluation 
 
@@ -383,9 +586,15 @@ In one or possibly two (but one should really do it) sentence or sentences, stat
 
 ### Answer - Me 
 
+The assumption implies that each observable is driven entirely by its own associated process — once the value of that process is known, the other process contributes no additional information about the observable.
+
 ### Answer - AI 
 
+The assumption implies that, conditional on their respective underlying processes, each observable quantity depends only on its own process and carries no additional information about the other process or its measurement, so any association between the two observables is entirely mediated through the dependence between the underlying processes themselves. In other words, once we account for (say) tree growth affecting biomass and evapotranspiration affecting respiration, biomass tells us nothing further about evapotranspiration beyond what is already encoded through the latent ecological linkage between the two processes.
+
 ### Evaluation 
+
+As per the question comment, *"but one should really do it"*, AI really didn't take that to heart. 
 
 \newpage 
 
@@ -496,7 +705,65 @@ Identify the explicit integral forms, both equal to $\Pr(Y > X)$, that $P_M^{(A)
 
 ### Answer - Me 
 
+Both approximations equal $\Pr(Y > X)$ but arise from structurally distinct integral representations.
+
+**Approximation A** treats $(X, Y)$ as a jointly drawn pair and approximates the single expected value of $I(Y > X)$ with respect to the joint density,
+
+$$\Pr(Y > X) = \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} I(y > x)\, p(x \mid \theta)\, p(y \mid \lambda)\, dx\, dy,$$
+
+where each simulated pair $(x_m, y_m)$ is drawn together from $p(x|\theta)p(y|\lambda)$ and contributes a single indicator value. This is a direct application of (11.4) with $g(x, y) = I(y > x)$.
+
+**Approximation B** arises from the iterated expectation $E_X[E_Y[I(Y > X)]]$, in which the inner integral over $y$ is computed first for each fixed $x$, and the result is then integrated over $x$,
+
+$$\Pr(Y > X) = \int_{-\infty}^{\infty} \underbrace{\left[ \int_{-\infty}^{\infty} I(y > x)\, p(y \mid \lambda)\, dy \right]}_{=\,\Pr(Y > x)} p(x \mid \theta)\, dx.$$
+
+The inner bracket is $\Pr(Y > x)$ for a fixed value of $x$, which is itself approximated by a Monte Carlo average over all $M$ simulated $y_j$ values for each $x_m$. The outer average then integrates over the $M$ simulated $x_m$ values. Approximation B therefore makes use of all $M^2$ pairs $(x_m, y_j)$ rather than only the $M$ matched pairs used in A.
+
 ### Answer - AI 
+
+Let ($X \sim p(x\mid \theta)$) and ($Y \sim p(y\mid \lambda)$) be independent.
+
+Start from the basic definition:
+
+$$
+\Pr(Y > X) = \iint I(y > x), p(x\mid \theta), p(y\mid \lambda), dx, dy.
+$$
+
+Approximation A uses **paired draws** ((x_m, y_m)), so it directly approximates the joint expectation over independent draws of ((X,Y)):
+
+$$
+\Pr(Y > X)
+= \mathbb{E}[I(Y > X)]
+= \int I(y > x), p(x\mid \theta), p(y\mid \lambda), dx, dy.
+$$
+
+This is the integral form that matches:
+
+$$
+P_M^{(A)} = \frac{1}{M}\sum_{m=1}^M I(y_m > x_m).
+$$
+
+Approximation B uses **conditioning on (X)** and then averaging over (Y) given (X):
+
+$$
+\Pr(Y > X)
+= \int \Pr(Y > x \mid X=x), p(x\mid \theta), dx.
+$$
+
+Since independence implies ($p(y\mid x)=p(y)$), we get:
+
+$$
+\Pr(Y > x \mid X=x) = \int I(y > x)\, p(y\mid \lambda)\, dy.
+$$
+
+So the full expression is:
+
+$$
+\Pr(Y > X)
+= \int \left[ \int I(y > x)\, p(y\mid \lambda)\, dy \right] p(x\mid \theta) dx.
+$$
+
+This is exactly what the nested Monte Carlo in B approximates.
 
 ### Evaluation 
 
@@ -510,6 +777,66 @@ Identify, in terms of expectation operators, again both equal to $\Pr(Y > X)$, t
 
 ### Answer - Me 
 
+**Approximation A** is directly approximating the single expected value of $I(Y > X)$ with respect to the joint distribution of $(X, Y)$,
+
+$$\Pr(Y > X) = E_{X,Y}[I(Y > X)].$$
+
+Each matched pair $(x_m, y_m)$ is a single draw from the joint distribution, contributing one evaluation of $g(x, y) = I(y > x)$.
+
+**Approximation B** is approximating the iterated expectation,
+
+$$\Pr(Y > X) = E_X\!\left[E_Y[I(Y > X) \mid X]\right],$$
+
+where the inner expectation $E_Y[I(Y > X) \mid X = x_m] = \Pr(Y > x_m \mid X = x_m)$ is itself approximated by the inner Monte Carlo average over all $M$ draws $y_j$ for each fixed $x_m$, and the outer expectation over $X$ is then approximated by averaging the $M$ resulting values over all $x_m$. Although $X \perp Y$ implies $\Pr(Y > x \mid X = x) = \Pr(Y > x)$, the iterated expectation structure is still meaningful and is precisely what gives Approximation B its nested double-sum form. The two forms are equal by the law of total expectation. The iterated form also suggests why B achieves lower Monte Carlo variance than A: by the law of total variance, $$\text{Var}_{X,Y}(I(Y > X)) = E_X[\text{Var}_Y(I(Y > X) \mid X)] + \text{Var}_X(E_Y[I(Y > X) \mid X]),$$ so the quantity Approximation B averages over $x_m$ — namely $E_Y[I(Y > X) \mid X]$ — has variance equal only to the second term, strictly less than the full $\text{Var}_{X,Y}(I(Y > X))$ driving the variance of A. This is a Rao-Blackwell type argument: conditioning on $X$ yields a smoother, lower-variance integrand.
+
 ### Answer - AI 
+
+For Approximation A, This is a **single expectation over the joint distribution**:
+
+$$
+\Pr(Y > X) = \mathbb{E}\big[I(Y > X)\big],
+$$
+
+where ($(X,Y) \sim p(x\mid\theta)p(y\mid\lambda))$.
+
+So ($P_M^{(A)}$) is estimating:
+
+$$
+\mathbb{E}[I(Y > X)].
+$$
+
+For Approximation B, rewrite using iterated expectation:
+
+$$
+\Pr(Y > X)
+= \mathbb{E}_X\left[ \mathbb{E}_Y[I(Y > X)\mid X] \right].
+$$
+
+Since independence implies the inner expectation does not depend on conditioning beyond (X):
+
+$$
+\mathbb{E}_Y[I(Y > X)\mid X]
+= \Pr(Y > X \mid X).
+$$
+
+So the target becomes:
+
+$$
+\Pr(Y > X)
+= \mathbb{E}\left[ \Pr(Y > X \mid X) \right].
+$$
+
+Thus ($P_M^{(B)}$) approximates:
+
+$$
+\mathbb{E}_X\left[\mathbb{E}_Y[I(Y > X)\mid X]\right].
+$$
+
+Key conceptual difference (why B can have lower variance)
+
+* **A:** estimates a *single noisy indicator per pair* ($I(Y>X)$).
+* **B:** replaces the inner randomness in (Y) with its *conditional average given (X)*, reducing Monte Carlo noise via Rao–Blackwellization.
+
+So B is effectively a **variance-reduced (Rao–Blackwellized) version** of A, which explains the consistently lower asymptotic variance.
 
 ### Evaluation 
