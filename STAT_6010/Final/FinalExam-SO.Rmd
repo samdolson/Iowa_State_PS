@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Left To-Do 
 
+* Overall Evaluation
 * AI Comparisons/Evaluations --- Additional Questions
 
 # Short Answer Questions
@@ -26,9 +27,9 @@ Why are Pearson residuals better suited for use with quasi-likelihood than are d
 
 ## Answer - Me 
 
-Pearson residuals are better suited for quasi-likelihood diagnostics because quasi-likelihood specifies only the first two moments of the response --- $E(Y_i) = \mu_i$ and $\text{var}(Y_i) = (1/\phi)V(\mu_i)$ --- and Pearson residuals are defined entirely in terms of those moments. Deviance residuals, by contrast, require a fully specified log-likelihood to construct the deviance, which is precisely what quasi-likelihood forgoes. In that sense, deviance residuals are not naturally available in the quasi-likelihood framework.
+Pearson residuals are better suited for quasi-likelihood (specifically diagnostics) because quasi-likelihood specifies only the first two moments of the response --- $E(Y_i) = \mu_i$ and $\text{var}(Y_i) = (1/\phi)V(\mu_i)$ --- and Pearson residuals are defined entirely in terms of those moments. Deviance residuals, by contrast, require a fully specified log-likelihood to construct the deviance, which is precisely what quasi-likelihood forgoes. In that sense, deviance residuals are not naturally available in the quasi-likelihood framework.
 
-There is also a deeper inferential point. The asymptotic theory underlying deviance-based diagnostics relies on large-sample chi-squared approximations justified through a fully specified likelihood. Pearson residuals carry no such requirement; their moment-based construction means their behavior is governed directly by the variance function $V(\mu_i)$, which is the central modeling object in quasi-likelihood. Their use is therefore on firmer (exact-theory) footing, making them the more appropriate tool for assessing whether the specified $V(\mu_i)$ adequately describes the observed variability.
+There is also a related, though distinct, argument concerning their *use*. Pearson residuals are constructed by standardizing $(y_i - \hat{\mu}_i)$ by the model-implied standard deviation, so their magnitude reflects precisely how well $V(\mu_i)$ accounts for the observed variability. If the variance function is correctly specified, the Pearson residuals should behave like a standardized sample; systematic departures, conversely, signal misspecification of $V(\mu_i)$, making them a natural tool for probing the central assumption quasi-likelihood actually makes. Deviance residuals require a fully specified likelihood simply to be constructed, and the asymptotic justification for treating them as diagnostics (essentially their approximate normality in large samples) inherits a full distributional assumption that quasi-likelihood does not require (or even make).
 
 ## Answer - AI 
 
@@ -36,9 +37,7 @@ Pearson residuals are better suited for quasi-likelihood because **quasi-likelih
 
 ## Evaluation 
 
-AI correctly identifies that Pearson residuals require only the mean–variance relationship, which is all quasi-likelihood specifies, but the answer stops there. In this sense, I would regard it as incomplete. 
-
-\newpage 
+AI correctly identifies that Pearson residuals require only the mean–variance relationship, which is all quasi-likelihood specifies, but the answer stops there. In this sense, I would regard it as incomplete as it doesn't directly address the *"for use"* aspect of the question. 
 
 # 2.
 
@@ -64,10 +63,9 @@ There is some evidence that Fisher may have considered aspects of a testing prob
 
 ## Answer - Me 
 
-The core issue is decision-based: the Neyman-Pearson framework is built around choosing either $H_0$ or $H_1$. If distributional assumptions (normality, constant variance, independence) are folded into $H_0$, rejecting $H_0$ no longer points toward a specific, actionable alternative. As the text notes, it becomes unclear how one should *"behave under a decision that a null hypothesis is not entirely true, but any one of an array of other possibilities might be."* The decision rule collapses because $H_0$ and $H_1$ no longer constitute a **logical disjunction**, i.e., they no longer partition $\Theta$, which is the foundational structural requirement of the
-Neyman-Pearson setup.
+The core issue is the Neyman-Pearson (NP) framework is decision-based. The NP framework is built around choosing either $H_0$ or $H_1$. If distributional assumptions (normality, constant variance, independence) are folded into $H_0$, rejecting $H_0$ no longer points toward a specific, actionable alternative. As the text notes, it becomes unclear how one should *"behave under a decision that a null hypothesis is not entirely true, but any one of an array of other possibilities might be."* The decision rule collapses because $H_0$ and $H_1$ no longer constitute a logical disjunction, i.e., they no longer partition $\Theta$, which is the foundational requirement of the Neyman-Pearson setup.
 
-This non-specificity also destroys the power machinery. Type II error and power are defined relative to a *specific* alternative: to compute $\beta(\theta)$, one needs the distribution of the test statistic under $H_1$, which requires a fully specified model. If the alternative is effectively "anything other than a normal distribution with equal variances and independent errors," that reference distribution is undefined. Without it, power calculations are impossible, sample size cannot be determined, and no claim to optimality --- UMP or otherwise --- can be made.
+This non-specificity of the alternative hypothesis also destroys the power machinery of the NP framework. Type II error and power are defined relative to a *specific* alternative: to compute $\beta(\theta)$, one needs the distribution of the test statistic under $H_1$, which requires a fully specified model. The NP framework is fundamentally a pre-data precision procedure, whose coherence derives from pre-committing to error rates $\alpha$ and $\beta$ before observing data. If $H_1$ is effectively "anything other than a normal distribution with equal variances and independent errors," (to take a standard example) there is no single $\beta$ to pre-commit to, and with it any claim to optimality (UMP or otherwise) is lost.
 
 ## Answer - AI 
 
@@ -77,7 +75,7 @@ In the Neyman–Pearson framework, assumptions like normality and independence a
 
 ## Evaluation 
 
-AI gets part of the answer, but misses some key details, namely that $H_0$ and $H_1$ must partition $\Theta$ (violated when assumptions are folded into $H_0$), and that power requires a fully specified alternative (which is impossible, as noted in my own answer.) 
+The AI gets the spirit of the question but not the mechanism. It never addresses that $H_0$ and $H_1$ must partition $\Theta$, nor that $\beta(\theta)$ requires a fully specified alternative; consequently, it misses that the NP framework's decision-based structure collapses entirely when additional (non-distributional) assumptions are folded into $H_0$.
 
 # 4. 
 
@@ -85,7 +83,7 @@ What is the purpose of using what in class was called a comparison function $h(\
 
 ## Answer - Me 
 
-The comparison function $h(\theta, \hat{\theta}_n)$ (referred to in the Notes as a discrepancy function) serves to reduce or eliminate the dependence of the sampling distribution of $\hat{\theta}_n$ on the unknown true parameter $\theta$. Because the sampling distribution of $\hat{\theta}_n$ itself depends on $\theta$, the bootstrap instead targets the distribution of $h(\theta, \hat{\theta}_n)$. The ideal case is a **pivotal quantity**, where the distribution of $h(\theta, \hat{\theta}_n)$ is entirely free of $\theta$, making the bootstrap approximation as stable and reliable as possible. The choice of $h$ is flexible, and different choices characterize different aspects of the estimator's sampling behavior, leading to different bootstrap interval procedures. It is worth noting that the bootstrap is approximating the distribution of $h(\theta, \hat{\theta}_n)$, not the distribution of $\hat{\theta}_n$ itself, a distinction the Notes treat as essential.
+The comparison function $h(\theta, \hat{\theta}_n)$ (referred to in the Notes as a discrepancy function) serves to reduce or eliminate the dependence of the sampling distribution of $\hat{\theta}_n$ on the unknown true parameter $\theta$. Because the sampling distribution of $\hat{\theta}_n$ itself depends on $\theta$, the bootstrap instead targets the distribution of $h(\theta, \hat{\theta}_n)$. The ideal choice of $h$ is a pivotal quantity, where the distribution of $h(\theta, \hat{\theta}_n)$ is entirely free of $\theta$, making the bootstrap approximation as stable and reliable as possible. The choice of $h$ is otherwise flexible, and different choices characterize different aspects of the estimator's sampling behavior, leading to different bootstrap interval procedures. In practice, discrepancy functions should correspond to appropriately centered and scaled versions of estimators for which a limit distribution is known to exist. It is worth emphasizing that the bootstrap is approximating the distribution of $h(\theta, \hat{\theta}_n)$, not the distribution of $\hat{\theta}_n$ itself.
 
 ## Answer - AI 
 
@@ -105,7 +103,7 @@ So instead of trying to approximate the distribution of ($\hat{\theta}_n$) direc
 
 ## Evaluation 
 
-AI identifies the *what*, but lacks detail on the *why*. 
+AI identifies the *what*, but lacks detail on the *why*. Specifically, AI does not address what $h$ is actually designed to accomplish, which is reducing or eliminating the dependence of the sampling distribution of $\hat{\theta}_n$ on the unknown $\theta$.
 
 \newpage 
 
@@ -115,13 +113,13 @@ Why are normed profile likelihoods of no help in finding maximum likelihood esti
 
 ## Answer - Me 
 
-In a word: Because calculating a normed profile likelihood requires the maximum likelihood estimate to calculate. 
+In a word: using the normed profile likelihood to find maximum likelihood estimates is circular. As the Notes make clear, the normed
+profile likelihood for $\theta_1$,
 
-Per the Notes: normed profile likelihoods require the unrestricted joint MLE $\hat{\boldsymbol{\theta}}_n = (\hat{\boldsymbol{\theta}}_1, \hat{\boldsymbol{\theta}}_2)$ in the denominator of the equation (the expression of the *normed profile likelihood* for $\theta_1$):
+$$R_n^p(\theta_1) = \max_{\boldsymbol{\theta}_2} \left[ \frac{L_n(\theta_1,
+\boldsymbol{\theta}_2)}{L_n(\hat{\boldsymbol{\theta}}_n)} \right]$$
 
-$$
-R_n^p(\theta_1) = \max_{\boldsymbol{\theta}_2} \left[ \frac{L_n(\theta_1, \boldsymbol{\theta}_2)}{L_n(\hat{\boldsymbol{\theta}}_n)} \right]
-$$
+requires the unrestricted joint MLE $\hat{\boldsymbol{\theta}}_n = (\hat{\theta}_1, \hat{\boldsymbol{\theta}}_2)$ in the denominator, the very quantity one is trying to find.
 
 ## Answer - AI 
 
@@ -156,7 +154,7 @@ For this definition to hold, $\mathbf{Y}^0$ must follow the same distribution as
 
 ### Answer - Me 
 
-The other thing that must hold is $\mathbf{Y}^0$ and $\mathbf{Y}$ must be **conditionally independent given $\boldsymbol{\theta}$**. This allows the factorization $f(\mathbf{y}^0, \mathbf{y} \mid \boldsymbol{\theta}) = f(\mathbf{y}^0 \mid \boldsymbol{\theta})\, f(\mathbf{y} \mid \boldsymbol{\theta})$, which is necessary to reduce the joint predictive to the integral form shown.
+The other thing that must hold is $\mathbf{Y}^0$ and $\mathbf{Y}$ must be *conditionally independent given $\boldsymbol{\theta}$*. This allows the factorization $f(\mathbf{y}^0, \mathbf{y} \mid \boldsymbol{\theta}) = f(\mathbf{y}^0 \mid \boldsymbol{\theta})\, f(\mathbf{y} \mid \boldsymbol{\theta})$, which is necessary to reduce the joint predictive to the integral form shown.
 
 ### Answer - AI 
 
@@ -180,16 +178,17 @@ There are two other predictive distributions that can be useful in a Bayesian an
 
 ### Answer - Me 
 
-The first is the **prior predictive distribution**, applicable under a standard data model and prior $f(\mathbf{y} \mid \boldsymbol{\theta})$, $\pi(\boldsymbol{\theta})$: 
+The first is the *prior predictive distribution*, applicable under a standard data model and prior $f(\mathbf{y} \mid \boldsymbol{\theta})$, $\pi(\boldsymbol{\theta})$ (i.e., not restricted to hierarchical model settings): 
 
 $$p(\mathbf{y}) = \int f(\mathbf{y} \mid \boldsymbol{\theta})\, \pi(\boldsymbol{\theta})\, d\boldsymbol{\theta}.$$
 
 Its primary uses are prior predictive model checking, i.e., assessing whether the model implies plausible data before observing $\mathbf{y}$, in addition to being the marginal likelihood in Bayes factor model comparisons.
 
-The second is the **posterior predictive distribution for new random parameters** $\boldsymbol{\theta}^*$, connected specifically with hierarchical models $f(\mathbf{y} \mid \boldsymbol{\theta})$, $g(\boldsymbol{\theta} \mid \boldsymbol{\lambda})$, $\pi(\boldsymbol{\lambda})$:
+The second is the *posterior predictive distribution for new random parameters* $\boldsymbol{\theta}^*$, connected specifically with hierarchical models viewed as mixtures (rather than multi-stage priors), where the scientific mechanism is embodied in the mixing distribution $g(\boldsymbol{\theta} \mid \boldsymbol{\lambda})$ rather than in the data model parameters $\boldsymbol{\theta}_i$ themselves:
+
 $$p(\boldsymbol{\theta}^* \mid \mathbf{y}) = \int g(\boldsymbol{\theta}^* \mid \boldsymbol{\lambda})\, p(\boldsymbol{\lambda} \mid \mathbf{y})\, d\boldsymbol{\lambda}.$$
 
-Its primary use is making probability statements about what will occur in new, unobserved situations drawn from the same mechanism, e.g., predicting the economic optimal nitrogen rate in a future trial (as noted in the Notes). It is preferred over evaluating $g(\boldsymbol{\theta}^* \mid \hat{\boldsymbol{\lambda}})$ at a point estimate because it propagates full posterior uncertainty in $\boldsymbol{\lambda}$.
+Its primary use is making probability statements about what will occur in new, unobserved situations drawn from the same mechanism, e.g., predicting the economic optimal nitrogen rate in a future trial, as used in the Notes. This is preferred over using the individual posteriors $p(\boldsymbol{\theta}_i \mid \mathbf{y})$ directly, since those form only a collection of conditional distributions without a natural structure for inference about the distribution of $\boldsymbol{\theta}$ across situations. It is also preferred over evaluating $g(\boldsymbol{\theta}^* \mid \hat{\boldsymbol{\lambda}})$ at a point estimate, since it propagates full posterior uncertainty in $\boldsymbol{\lambda}$.
 
 ### Answer - AI 
 
@@ -281,7 +280,7 @@ This is the distribution of data **before observing anything**, but now accounti
 
 ### Evaluation 
 
-AI is correct w/r/t the prior predictive distribution, in toto, but gets the second distribution wrong entirely. In that sense, the AI answers a different question and is simply wrong for the second part.
+AI is largely correct on the prior predictive distribution, but is fully incorrect about the second predictive distribution relevant to this question. For the second distribution, the AI answers a different question entirely and doesn't acknowledge the conceptual distinction between the hierarchical model as mixture vs. multi-stage prior framing.
 
 # Additional Questions
 
