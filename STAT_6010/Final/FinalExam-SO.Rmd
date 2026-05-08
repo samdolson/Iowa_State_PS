@@ -12,18 +12,20 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Overall, going through each question and grading based on available points, I'd give AI 106/150 ($\approx$ 71%).
 
-In broad strokes, there are some consistent issues with the AI answers (though not an exhaustive list of sins committed):
+In broad strokes, there are some consistent issues with the AI answers:
 
 * It sometimes does not directly answer the question (Q4, Q5, AQ4 part (d)).
 * It fails to connect important concepts and ideas together (Q3, AQ5).
 * It is overly verbose or restates given information (AQ1, AQ6).
 * It occasionally gets the answer outright incorrect (Q5, Q6 part (b)).
 
-I want to provide my experience and perspective in answering these questions, as I believe it helps illustrate what I think is the missing "secret ingredient" in the AI answers. On the first day of class, in reviewing the syllabus, one key aspect of this course stuck with me:
+I want to provide my experience and perspective in answering these questions, as I believe it helps illustrate what I think is the missing "secret ingredient" in the AI answers. 
+
+On the first day of class, in reviewing the syllabus, one aspect of this course stuck with me:
 
 > The learning objectives of this course are for students to develop the ability to approach problems from a methodologically mature viewpoint.
 
-Treating "methodologically mature" as exchangeable with "statistical maturity" (though not in the formal statistical sense), that has been my overarching goal in my work, in this class and otherwise. As you went on to note, statistical maturity is connecting the dots between otherwise seemingly disparate ideas. I would also say it involves searching for related but not explicitly cited literature, taking the time to review more than just the Course Notes, and generally refusing to confine concepts in tidy, "This is Statistics" type of box. It is in this respect that I have grown to appreciate this course, and it is in this respect that I believe AI fell short. And this is a shortcoming I hope would not be resolved simply through access to the course notes.
+Treating "methodologically mature" as exchangeable with "statistical maturity" (though not in the formal statistical sense), that has been my overarching goal. As you went on to note, statistical maturity is connecting the dots between otherwise seemingly disparate ideas. I would also say it involves searching for related, and often not explicitly cited, literature, taking the time to review more than just the Course Notes, and generally refusing to confine concepts in tidy, "This-is-X-kind-of-Statistics" type of box. It is in this respect that I have grown to appreciate this course. And it is in this respect that I believe AI fell short. 
 
 # Short Answer Questions
 
@@ -97,17 +99,9 @@ The comparison function $h(\theta, \hat{\theta}_n)$ (referred to in the Notes as
 
 ## Answer - AI 
 
-It lets you replace the unknown distribution:
+It lets you replace the unknown distribution: $h(\theta, \hat{\theta}_n)$
 
-$$
-h(\theta, \hat{\theta}_n)
-$$
-
-with the computable bootstrap approximation:
-
-$$
-h(\hat{\theta}_n, \hat{\theta}_n^*).
-$$
+with the computable bootstrap approximation: $h(\hat{\theta}_n, \hat{\theta}_n^*).$
 
 So instead of trying to approximate the distribution of ($\hat{\theta}_n$) directly, you approximate a **transformed version** that behaves the same in both worlds.
 
@@ -121,8 +115,7 @@ Why are normed profile likelihoods of no help in finding maximum likelihood esti
 
 ## Answer - Me 
 
-In a word: using the normed profile likelihood to find maximum likelihood estimates is circular. As the Notes make clear, the normed
-profile likelihood for $\theta_1$,
+In a word: using the normed profile likelihood to find maximum likelihood estimates is circular. As the Notes make clear, the normed profile likelihood for $\theta_1$,
 
 $$R_n^p(\theta_1) = \max_{\boldsymbol{\theta}_2} \left[ \frac{L_n(\theta_1,
 \boldsymbol{\theta}_2)}{L_n(\hat{\boldsymbol{\theta}}_n)} \right]$$
@@ -170,11 +163,7 @@ In addition to ($\mathbf{Y}^0$) and ($\mathbf{Y}$) sharing the same sampling mod
 
 > **Conditional independence given the parameter $(\boldsymbol{\theta})$.**
 
-Formally, we must have:
-
-$$
-\mathbf{Y}^0 \perp \mathbf{Y} \mid \boldsymbol{\theta}.
-$$
+Formally, we must have: $\mathbf{Y}^0 \perp \mathbf{Y} \mid \boldsymbol{\theta}.$
 
 ### Evaluation 
 
@@ -229,11 +218,7 @@ Primary uses
 
 3. **Bayesian model comparison (marginal likelihood)**
 
-   * This is the key quantity in Bayes factors:
-   
-$$
-p(\mathbf{y}\mid M)
-$$
+   * This is the key quantity in Bayes factors: $p(\mathbf{y}\mid M)$
 
 #### 2. Prior predictive for hierarchical models (conditional predictive at the hyperparameter level)
 
@@ -482,11 +467,7 @@ Under this mapping:
 * (Y) and (Z) are the true (possibly dependent) scientific processes generating the system
 * The observables ($X_1, X_2$) are assumed to arise from their respective processes (possibly with measurement error or sampling variation)
 
-Thus, the structure is:
-
-$$
-X_1 \leftarrow Y, \quad X_2 \leftarrow Z, \quad \text{with } Y \not\perp Z.
-$$
+Thus, the structure is: $X_1 \leftarrow Y, \quad X_2 \leftarrow Z, \quad \text{with } Y \not\perp Z.$
 
 This places the scientific example directly into the probabilistic framework of the earlier question, where the goal is to understand conditional relationships of observables given underlying dependent processes.
 
@@ -522,23 +503,11 @@ $$[X_1, X_2, Y, Z \mid \boldsymbol{\theta}] = [X_1 \mid Y, \boldsymbol{\theta}_1
 
 Putting the layers together, the full model requires specifying:
 
-(i) Latent process layer
+(i) Latent process layer $[Y, Z \mid \phi]$
 
-$$
-[Y, Z \mid \phi]
-$$
+(ii) Observation layer 1 $[X_1 \mid Y, \theta_1]$
 
-(ii) Observation layer 1
-
-$$
-[X_1 \mid Y, \theta_1]
-$$
-
-(iii) Observation layer 2
-
-$$
-[X_2 \mid Z, \theta_2]
-$$
+(iii) Observation layer 2 $[X_2 \mid Z, \theta_2]$
 
 ### Evaluation 
 
@@ -550,17 +519,9 @@ Suppose we are willing to assume the conditions given and identified in your ans
 
 ### Answer - Me 
 
-The conditions from the prior question — that $X_1 \perp Z \mid Y$ and $X_2 \perp Y \mid Z$ — affect only the *data level* of the model. Without those conditions, we would in general need to formulate a joint model for the two observables given both processes, i.e., specify 
+The conditions from the prior question — that $X_1 \perp Z \mid Y$ and $X_2 \perp Y \mid Z$ — affect only the *data level* of the model. Without those conditions, we would in general need to formulate a joint model for the two observables given both processes, i.e., specify $[X_1, X_2 \mid Y, Z, \boldsymbol{\theta}_1, \boldsymbol{\theta}_2],$ which could require specifying a dependence structure between $X_1$ and $X_2$ even after conditioning on $(Y, Z)$. 
 
-$$[X_1, X_2 \mid Y, Z, \boldsymbol{\theta}_1, \boldsymbol{\theta}_2],$$
-
-which could require specifying a dependence structure between $X_1$ and $X_2$ even after conditioning on $(Y, Z)$. 
-
-Under the stated conditions, this joint model factorizes as
-
-$$[X_1, X_2 \mid Y, Z, \boldsymbol{\theta}_1, \boldsymbol{\theta}_2] = [X_1 \mid Y, \boldsymbol{\theta}_1]\,[X_2 \mid Z, \boldsymbol{\theta}_2],$$
-
-so each observable need only be modeled conditionally on its own directly associated process. The two data-level components from part (b) can therefore be specified independently of one another.
+Under the stated conditions, this joint model factorizes as $[X_1, X_2 \mid Y, Z, \boldsymbol{\theta}_1, \boldsymbol{\theta}_2] = [X_1 \mid Y, \boldsymbol{\theta}_1]\,[X_2 \mid Z, \boldsymbol{\theta}_2],$ so each observable need only be modeled conditionally on its own directly associated process. The two data-level components from part (b) can therefore be specified independently of one another.
 
 The process-level component $[Y, Z \mid \boldsymbol{\theta}_3]$, by contrast, is not simplified. The processes $Y$ and $Z$ remain non-independent by assumption, so a joint model for the two processes is still required.
 
@@ -634,35 +595,19 @@ Determine the expected values, variances, and one-step covariances of $S_t$ (tha
 
 The model places an AR(1) structure on $S_t$, the conditional standard deviation of $\epsilon_t$, so AR(1) results apply directly.
 
-Since $E[v_t] = 0$ for all $t$, iterating expectations gives
+Since $E[v_t] = 0$ for all $t$, iterating expectations gives $E[S_t] = 0.$
 
-$$E[S_t] = 0.$$
+Assuming second-order stationarity, which requires $|\alpha| < 1$, the AR(1) variance result gives $\text{var}(S_t) = \frac{\sigma^2}{1 - \alpha^2}.$
 
-Assuming second-order stationarity, which requires $|\alpha| < 1$, the AR(1) variance result gives
-
-$$\text{var}(S_t) = \frac{\sigma^2}{1 - \alpha^2}.$$
-
-From the general AR(1) covariance formula $\text{cov}(S_t, S_{t-k}) = \alpha^k \sigma^2 / (1 - \alpha^2)$, evaluated at lag $k = 1$,
-
-$$\text{cov}(S_t, S_{t-1}) = \frac{\alpha\sigma^2}{1 - \alpha^2},$$
-
-which is equivalent to $\text{cov}(S_{t+1}, S_{t})$.
+From the general AR(1) covariance formula $\text{cov}(S_t, S_{t-k}) = \alpha^k \sigma^2 / (1 - \alpha^2)$, evaluated at lag $k = 1$, $\text{cov}(S_t, S_{t-1}) = \frac{\alpha\sigma^2}{1 - \alpha^2},$ which is equivalent to $\text{cov}(S_{t+1}, S_{t})$.
 
 ### Answer - AI 
 
-We recognize that ({S_t}) is an AR(1) process:
-
-$$
-S_t = \alpha S_{t-1} + v_t,\quad v_t \stackrel{iid}{\sim} N(0,\sigma^2).
-$$
+We recognize that (${S_t}$) is an AR(1) process: $S_t = \alpha S_{t-1} + v_t,\quad v_t \stackrel{iid}{\sim} N(0,\sigma^2).$
 
 Assume ($|\alpha| < 1$) so the process is (weakly) stationary.
 
-Take expectations on both sides:
-
-$$
-\mathbb{E}[S_t] = \alpha \mathbb{E}[S_{t-1}] + \mathbb{E}[v_t].
-$$
+Take expectations on both sides: $\mathbb{E}[S_t] = \alpha \mathbb{E}[S_{t-1}] + \mathbb{E}[v_t].$
 
 Since ($\mathbb{E}[v_t]=0$), stationarity implies ($\mathbb{E}[S_t]=\mathbb{E}[S_{t-1}] = \mu_S$), so:
 
@@ -670,23 +615,11 @@ $$
 \mu_S = \alpha \mu_S \quad \Rightarrow \quad (1-\alpha)\mu_S = 0 \quad \Rightarrow \quad \mu_S = 0.
 $$
 
-So,
+So, $\boxed{\mathbb{E}[S_t] = 0.}$
 
-$$
-\boxed{\mathbb{E}[S_t] = 0.}
-$$
+Let ($\gamma_0 = \mathrm{Var}(S_t)$). Then: $\mathrm{Var}(S_t) = \mathrm{Var}(\alpha S_{t-1} + v_t).$
 
-Let ($\gamma_0 = \mathrm{Var}(S_t)$). Then:
-
-$$
-\mathrm{Var}(S_t) = \mathrm{Var}(\alpha S_{t-1} + v_t).
-$$
-
-Using independence of ($S_{t-1}$) and ($v_t$):
-
-$$
-\gamma_0 = \alpha^2 \gamma_0 + \sigma^2.
-$$
+Using independence of ($S_{t-1}$) and ($v_t$): $\gamma_0 = \alpha^2 \gamma_0 + \sigma^2.$
 
 Solve:
 
@@ -705,11 +638,7 @@ $$
 = \alpha \mathrm{Var}(S_{t-1}) + 0
 $$
 
-So:
-
-$$
-\boxed{\mathrm{Cov}(S_t, S_{t-1}) = \alpha \frac{\sigma^2}{1-\alpha^2}}.
-$$
+So: $\boxed{\mathrm{Cov}(S_t, S_{t-1}) = \alpha \frac{\sigma^2}{1-\alpha^2}}.$
 
 (ii) $Cov(S_t, S_{t+1})$
 
@@ -719,19 +648,9 @@ $$
 S_{t+1} = \alpha S_t + v_{t+1}.
 $$
 
-Then:
+Then: $\mathrm{Cov}(S_t, S_{t+1}) = \mathrm{Cov}(S_t, \alpha S_t + v_{t+1}) = \alpha \mathrm{Var}(S_t).$
 
-$$
-\mathrm{Cov}(S_t, S_{t+1})
-= \mathrm{Cov}(S_t, \alpha S_t + v_{t+1})
-= \alpha \mathrm{Var}(S_t).
-$$
-
-So:
-
-$$
-\boxed{\mathrm{Cov}(S_t, S_{t+1}) = \alpha \frac{\sigma^2}{1-\alpha^2}}.
-$$
+So: $\boxed{\mathrm{Cov}(S_t, S_{t+1}) = \alpha \frac{\sigma^2}{1-\alpha^2}}.$
 
 ### Evaluation 
 
@@ -767,70 +686,27 @@ Therefore $\text{cov}(\epsilon_t, \epsilon_{t-1}) = 0$.
 
 ### Answer - AI 
 
-Using the law of iterated expectation:
+Using the law of iterated expectation: $\mathbb{E}[\epsilon_t] = \mathbb{E}\big[\mathbb{E}[\epsilon_t \mid S_t]\big].$
 
-$$
-\mathbb{E}[\epsilon_t] = \mathbb{E}\big[\mathbb{E}[\epsilon_t \mid S_t]\big].
-$$
+But $\mathbb{E}[\epsilon_t \mid S_t] = 0,$
 
-But
+so $\boxed{\mathbb{E}[\epsilon_t] = 0.}$
 
-$$
-\mathbb{E}[\epsilon_t \mid S_t] = 0,
-$$
-
-so
-
-$$
-\boxed{\mathbb{E}[\epsilon_t] = 0.}
-$$
-
-Use the law of total variance:
-
-$$
-\mathrm{Var}(\epsilon_t)
-= \mathbb{E}[\mathrm{Var}(\epsilon_t \mid S_t)] + \mathrm{Var}(\mathbb{E}[\epsilon_t \mid S_t]).
-$$
+Use the law of total variance: $\mathrm{Var}(\epsilon_t) = \mathbb{E}[\mathrm{Var}(\epsilon_t \mid S_t)] + \mathrm{Var}(\mathbb{E}[\epsilon_t \mid S_t]).$
 
 The second term is zero since the conditional mean is zero.
 
-So:
+So: $\mathrm{Var}(\epsilon_t) = \mathbb{E}[S_t^2].$
 
-$$
-\mathrm{Var}(\epsilon_t)
-= \mathbb{E}[S_t^2].
-$$
+Now: $\mathbb{E}[S_t^2] = \mathrm{Var}(S_t) + (\mathbb{E}[S_t])^2 = \frac{\sigma^2}{1-\alpha^2}.$
 
-Now:
-
-$$
-\mathbb{E}[S_t^2] = \mathrm{Var}(S_t) + (\mathbb{E}[S_t])^2
-= \frac{\sigma^2}{1-\alpha^2}.
-$$
-
-Thus:
-
-$$
-\boxed{\mathrm{Var}(\epsilon_t) = \frac{\sigma^2}{1-\alpha^2}.}
-$$
+Thus: $\boxed{\mathrm{Var}(\epsilon_t) = \frac{\sigma^2}{1-\alpha^2}.}$
 
 We compute ($\mathrm{Cov}(\epsilon_t, \epsilon_{t-1})$).
 
-Using iterated expectation:
+Using iterated expectation: $\mathrm{Cov}(\epsilon_t, \epsilon_{t-1}) = \mathbb{E}[\epsilon_t \epsilon_{t-1}]$ (since both have mean 0).
 
-$$
-\mathrm{Cov}(\epsilon_t, \epsilon_{t-1})
-= \mathbb{E}[\epsilon_t \epsilon_{t-1}]
-$$
-
-(since both have mean 0).
-
-Now condition on ($S_t, S_{t-1}$):
-
-$$
-\mathbb{E}[\epsilon_t \epsilon_{t-1}]
-= \mathbb{E}\Big[\mathbb{E}[\epsilon_t \epsilon_{t-1} \mid S_t, S_{t-1}]\Big].
-$$
+Now condition on ($S_t, S_{t-1}$): $\mathbb{E}[\epsilon_t \epsilon_{t-1}] = \mathbb{E}\Big[\mathbb{E}[\epsilon_t \epsilon_{t-1} \mid S_t, S_{t-1}]\Big].$
 
 Given ($S_t, S_{t-1}$), we have:
 
@@ -838,23 +714,11 @@ Given ($S_t, S_{t-1}$), we have:
 * ($\epsilon_{t-1} \sim N(0,S_{t-1}^2)$)
 * and they are independent conditional on the volatility process (standard assumption in this type of model).
 
-So:
+So: $\mathbb{E}[\epsilon_t \epsilon_{t-1} \mid S_t, S_{t-1}] = 0.$
 
-$$
-\mathbb{E}[\epsilon_t \epsilon_{t-1} \mid S_t, S_{t-1}] = 0.
-$$
+Therefore: $\boxed{\mathrm{Cov}(\epsilon_t, \epsilon_{t-1}) = 0.}$
 
-Therefore:
-
-$$
-\boxed{\mathrm{Cov}(\epsilon_t, \epsilon_{t-1}) = 0.}
-$$
-
-By the same argument:
-
-$$
-\boxed{\mathrm{Cov}(\epsilon_t, \epsilon_{t+1}) = 0.}
-$$
+By the same argument: $\boxed{\mathrm{Cov}(\epsilon_t, \epsilon_{t+1}) = 0.}$
 
 ### Evaluation 
 
@@ -888,59 +752,23 @@ $$
 = \mu.
 $$
 
-So,
+So, $\boxed{\mathbb{E}[Y_t] = \mu.}$
 
-$$
-\boxed{\mathbb{E}[Y_t] = \mu.}
-$$
+Since ($\mu$) is constant: $\mathrm{Var}(Y_t) = \mathrm{Var}(\epsilon_t).$
 
-Since ($\mu$) is constant:
+Thus, $\boxed{\mathrm{Var}(Y_t) = \frac{\sigma^2}{1-\alpha^2}.}$
 
-$$
-\mathrm{Var}(Y_t) = \mathrm{Var}(\epsilon_t).
-$$
+We compute: $\mathrm{Cov}(Y_t, Y_{t-1}).$
 
-Thus,
+Substitute: $Y_t = \mu + \epsilon_t,\quad Y_{t-1} = \mu + \epsilon_{t-1}.$
 
-$$
-\boxed{\mathrm{Var}(Y_t) = \frac{\sigma^2}{1-\alpha^2}.}
-$$
+Constants drop out: $\mathrm{Cov}(Y_t, Y_{t-1}) = \mathrm{Cov}(\epsilon_t, \epsilon_{t-1}).$
 
-We compute:
+From the previous part: $\mathrm{Cov}(\epsilon_t, \epsilon_{t-1}) = 0.$
 
-$$
-\mathrm{Cov}(Y_t, Y_{t-1}).
-$$
+So: $\boxed{\mathrm{Cov}(Y_t, Y_{t-1}) = 0.}$
 
-Substitute:
-
-$$
-Y_t = \mu + \epsilon_t,\quad Y_{t-1} = \mu + \epsilon_{t-1}.
-$$
-
-Constants drop out:
-
-$$
-\mathrm{Cov}(Y_t, Y_{t-1}) = \mathrm{Cov}(\epsilon_t, \epsilon_{t-1}).
-$$
-
-From the previous part:
-
-$$
-\mathrm{Cov}(\epsilon_t, \epsilon_{t-1}) = 0.
-$$
-
-So:
-
-$$
-\boxed{\mathrm{Cov}(Y_t, Y_{t-1}) = 0.}
-$$
-
-Similarly:
-
-$$
-\boxed{\mathrm{Cov}(Y_t, Y_{t+1}) = 0.}
-$$
+Similarly: $\boxed{\mathrm{Cov}(Y_t, Y_{t+1}) = 0.}$
 
 ### Evaluation 
 
@@ -989,15 +817,15 @@ Addendum:
 
 ## Answer - Me 
 
-Pearson's notion of goodness of fit resists clean placement in either the Fisherian or Neyman-Pearson framework for several related reasons. Most fundamentally, Neyman-Pearson testing requires a null and alternative that together form a logical disjunction, but GOF tests have no such alternative. A theoretical distribution that cannot be rejected is deemed an acceptable "graduation" of the data, and is neither accepted in the Neyman-Pearson behavioral sense nor claimed to be unique, since multiple theoretical distributions may simultaneously pass.
+Pearson's notion of goodness of fit (GOF) resists clean placement in either the Fisherian or the Neyman-Pearson (NP) theories for several related reasons. Most fundamentally, NP testing requires a null and alternative that together form a logical disjunction, but GOF tests have no such alternative. In Pearson's GOF framework, a theoretical distribution that cannot be rejected is deemed an acceptable "graduation" of the data, but is neither accepted in the NP decision-theoretic sense nor claimed to be unique, since multiple theoretical distributions may simultaneously pass the test.
 
-The direction of evidence is also reversed relative to Fisherian significance testing. Where a small $p$-value constitutes evidence against the null in Fisher's framework, (Karl) Pearson's goal is a large $p$-value, the closer to 1.0 the better, and Fisher objected to this explicitly, noting that under a true model, $p = 0.999$ is no more expected than $p = 0.001$. More fundamentally, Pearson regarded the posited distribution not as a falsifiable scientific claim but as a mathematical convenience for graduating observed data, which fails the Fisherian requirement of a hypothesis against which evidence can accumulate and equally fails the Neyman-Pearson requirement of a hypothesis that is one element of a mutually exhaustive pair. The two schools fail for distinct reasons, not the same one.
+The direction of evidence is also reversed relative to Fisherian significance testing. Where a small $p$-value constitutes evidence against the null in Fisher's framework, Karl Pearson's goal was to achieve a large $p$-value, and the closer to 1.0 the better; as cited in the Course Notes, Fisher objected to this explicitly, stating that under a true model, $p = 0.999$ is no more expected than $p = 0.001$. Fundamentally, Pearson regarded the posited distribution not as a falsifiable scientific claim but as a mathematical construct for graduating observed data, explicitly denying that such curves represent natural laws or bear any meaningful relationship to hypothesis or its reverse, which fails the Fisherian requirement of a hypothesis against which evidence can accumulate.
 
-Finally, Pearson's interpretation of $p$-values relied on overlaying a hypothetical random generating mechanism on the data regardless of whether actual random sampling occurred, effectively folding the assumption of random sampling into the hypothesis under test rather than treating it as a precondition for the test's validity. Neither framework accommodates this, leaving the inferential basis of GOF tests, as the text puts it, *"wandering in the wilderness."*
+Finally, Pearson's interpretation of $p$-values relied on overlaying a hypothetical random generating mechanism on the data regardless of whether actual random sampling occurred, effectively folding the assumption of random sampling into the hypothesis under test rather than treating it as a precondition for the test's validity. Neither NP nor Fisherian frameworks *explicitly* accommodate this (though Question 3 is all the more interesting given this point); this leaves the inferential basis of GOF tests, as the text puts it, *"wandering in the wilderness."*
 
-Regarding the Addendum: the key distinction drawn is that GOF testing, as Pearson envisioned it, asks a single blunt question about global distributional agreement, namely whether the theoretical distribution provides an adequate graduation of the observed frequency distribution regardless of where the data actually came from. Posterior predictive $p$-values, by contrast, decompose that question into multiple targeted diagnostics each probing a specific structural feature of the data such as extreme tail behavior, mean-variance relationship, or other aspects of distributional form. The text makes this recommendation explicit, going so far as to advocate abandoning the search for any one omnibus GOF procedure in all but the simplest problems, noting that it is normal, not unusual, for multiple $p$-values to vary in magnitude precisely because they are measuring different characteristics of the model.
+Regarding the Addendum: GOF testing, as Karl Pearson envisioned it, asks a single blunt question about global distributional agreement, namely whether the theoretical distribution provides an adequate "graduation" of the observed frequency distribution regardless of where the data actually came from. This framing, while coherent on its own terms, is precisely what makes Pearson's approach resistant to the kind of decomposition that gives simulation-based and Bayesian methods their practical advantage. Posterior predictive $p$-values, by contrast, decompose that question into multiple targeted diagnostics each of which probes specific structural features of the data such as extreme tail behavior, mean-variance relationship, or other aspects of distributional form. The text makes this recommendation explicit, going so far as to advocate abandoning the search for any one omnibus GOF procedure in all but the simplest problems, noting that it is normal, not unusual, for multiple $p$-values to vary in magnitude precisely because they are measuring different characteristics of the model (a recommendation I personally agree with).
 
-The inferential basis for preferring targeted test quantities over an omnibus statistic lies in their relationship to sufficient statistics. Posterior predictive distributions already condition on the data through the likelihood, so test quantities that are functions of sufficient statistics are circular by construction: the posterior has already absorbed whatever information those quantities contain, rendering the resulting predictive $p$-values uninformative regardless of model fit. Pearson's chi-squared, tied as it is to cell frequencies that are sufficient in the multinomial setting, risks exactly this problem when applied within a Bayesian framework. Targeted test quantities, chosen to reflect aspects of data structure not already absorbed by the model's sufficient statistics, are what give posterior predictive checks their diagnostic value.
+My own view is that the inferential basis for preferring targeted test quantities over an omnibus statistic lies in their relationship to sufficient statistics. Posterior predictive distributions already condition on the data through the likelihood, so test quantities that are functions of sufficient statistics are circular. The posterior has already absorbed whatever "information" those quantities contain, rendering the resulting predictive $p$-values uninformative regardless of model fit. Targeted test quantities, chosen to reflect aspects of data structure not already absorbed by the model's sufficient statistics, are what give posterior predictive checks diagnostic value. That said, this is a practical recommendation about making posterior predictive checks *informative*, and is in no way a resolution of the inferential ambiguity brought about by trying to square where (and how) Pearson's GOF test belongs. At the expense of being "cute": Whether simulation-based (and Bayesian) approaches have truly escaped the wilderness, or simply found a more navigable corner of it, is a question that may be as much semantic as it is philosophical.
 
 ## Answer - AI 
 
