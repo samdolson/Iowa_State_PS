@@ -2,6 +2,8 @@
 title: "Final Exam"
 output: pdf_document
 author: "Sam Olson"
+header-includes:
+  - \usepackage{dsfont}
 ---
 
 ```{r setup, include=FALSE}
@@ -292,20 +294,20 @@ Note: Because the samples themselves are taken from the same site, we do not hav
 Further, each sample is associated with an indicator
 
 $$
-\mathbb{1}_{ij} =
+\mathds{1}_{ij} =
 \begin{cases}
-1, & X_{ij} < c_i \quad \text{(sample below detection limit)} \\
-0, & X_{ij} \ge c_i \quad \text{(sample at or above detection limit)}
+1, & X_{ij} < c_i \quad \text{when sample below detection limit} \\
+0, & X_{ij} \ge c_i \quad \text{when sample at or above detection limit}
 \end{cases}
 $$
 
-Note: When $\mathbb{1}_{ij} = 0$, a reported concentration $y_{ij}$ is recorded to precision $\Delta = 0.005\ \mu\text{g/L}$.
+Note: When $\mathds{1}_{ij} = 0$, a reported concentration $y_{ij}$ is recorded to precision $\Delta = 0.005\ \mu\text{g/L}$.
 
 Since $X_{ij}$ is modeled as a continuous random variable, $\Pr(X_{ij} = c_i) = 0$ and the distinction between strict and non-strict inequality at the boundary is inconsequential.
 
 Next, define the index sets
 
-$$\mathcal{D}_i = \{j : \mathbb{1}_{ij} = 0\}, \quad \mathcal{U}_i = \{j : \mathbb{1}_{ij} = 1\}, \quad |\mathcal{D}_i| + |\mathcal{U}_i| = n_i.$$
+$$\mathcal{D}_i = \{j : \mathds{1}_{ij} = 0\}, \quad \mathcal{U}_i = \{j : \mathds{1}_{ij} = 1\}, \quad |\mathcal{D}_i| + |\mathcal{U}_i| = n_i.$$
 
 Assuming independence across all samples, the likelihood factors as a product over both labs and all samples within each lab. Each observation contributes a probability mass under the Gamma model corresponding to its censoring type: Detected samples contribute an interval probability of width $2\Delta$, while below-detection samples contribute the probability of falling below the lab's detection limit $c_i$. Because the Gamma distribution has support on $(0, \infty)$, the effective lower bound for interval-censored observations is $\max(y_{ij} - \Delta,\, 0)$; in this problem this distinction is inconsequential because the smallest possible reported value from Lab 1 is $c_1 = 0.01\ \mu\text{g/L}$, giving $y_{ij} - \Delta \ge 0.01 - 0.005 = 0.005 > 0$, and similarly for Lab 2, $y_{ij} - \Delta \ge 0.03 - 0.005 = 0.025 > 0$.
 
@@ -940,11 +942,7 @@ Each matched pair $(x_m, y_m)$ is a single draw from the joint distribution, con
 
 (2): $\Pr_M^{(B)}(Y > X)$ approximates the iterated expectation, $\Pr(Y > X) = E_X\!\left[E_Y[I(Y > X) \mid X]\right],$ where the inner expectation $E_Y[I(Y > X) \mid X = x_m]$ is approximated by the inner Monte Carlo average over all $M$ draws $y_j$ for each fixed $x_m$, and the outer expectation is approximated by averaging the $M$ resulting values over all $x_m$. The two forms are equal by the law of total expectation, and independence simply implies $E_Y[I(Y > X) \mid X = x] = \Pr(Y > x)$.
 
-And regarding the note: The iterated structure suggests why the second approximation (B) may achieve lower Monte Carlo variance than the first one (A). Approximation B effectively Rao-Blackwellizes $I(Y > X)$ by conditioning on $X$, replacing the raw indicator with its conditional expectation $E_Y[I(Y>X)\mid X]$; and by the law of total variance,
-
-$$\text{Var}_{X,Y}(I(Y > X)) = E_X[\text{Var}_Y(I(Y > X) \mid X)] + \text{Var}_X(E_Y[I(Y > X) \mid X]),$$
-
-so the variance of the Rao-Blackwellized integrand is no worse than that of the original, though the precise Monte Carlo variance of B is complicated by the fact that the same draws $\{y_j\}$ are shared across all $x_m$ in the double sum.
+Though not asked, I also wanted to briefly comment on the note. The variance advantage of B over A is driven by the law of total variance, which guarantees that replacing $I(Y > X)$ with its conditional expectation $\Pr(Y > x)$ can only maintain or *reduce* the Monte Carlo variance, since the conditional expectation removes within-$x$ noise while retaining all between-$x$ variation. Approximation B does this by averaging all $M$ values of $y_j$ against each fixed $x_m$, effectively smoothing the integrand. The (empirical) ratio you note, $V^{(B)}/V^{(A)} \approx 0.65$ to $0.70$, reflects this same mechanism, though computing it precisely requires additional accounting for the dependence introduced by the shared $\{y_j\}$ draws across all $x_m$. The direction of the improvement, however, follows directly from the primitive.
 
 ### Answer - AI 
 
