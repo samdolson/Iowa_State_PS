@@ -41,7 +41,7 @@ Why are Pearson residuals better suited for use with quasi-likelihood than are d
 
 ## Answer - Me 
 
-Pearson residuals are better suited for quasi-likelihood (specifically diagnostics) because quasi-likelihood specifies only the first two moments of the response --- $E(Y_i) = \mu_i$ and $\text{var}(Y_i) = (1/\phi)V(\mu_i)$ --- and Pearson residuals are defined entirely in terms of those moments. Deviance residuals, by contrast, require a fully specified log-likelihood to construct the deviance, which is precisely what quasi-likelihood forgoes. In that sense, deviance residuals are not naturally available in the quasi-likelihood framework.
+Pearson residuals are better suited for quasi-likelihood (specifically diagnostics) because quasi-likelihood specifies only the first two moments of the response ($E(Y_i) = \mu_i$ and $\text{var}(Y_i) = (1/\phi)V(\mu_i)$) and Pearson residuals are defined entirely in terms of those moments. Deviance residuals, by contrast, require a fully specified log-likelihood to construct the deviance, which is precisely what quasi-likelihood forgoes. In that sense, deviance residuals are not naturally available in the quasi-likelihood framework.
 
 There is also a related, though distinct, argument concerning their *use*. Pearson residuals are constructed by standardizing $(y_i - \hat{\mu}_i)$ by the model-implied standard deviation, so their magnitude reflects precisely how well $V(\mu_i)$ accounts for the observed variability. If the variance function is correctly specified, the Pearson residuals should behave like a standardized sample; systematic departures, conversely, signal misspecification of $V(\mu_i)$, making them a natural tool for probing the central assumption quasi-likelihood actually makes. Deviance residuals require a fully specified likelihood simply to be constructed, and the asymptotic justification for treating them as diagnostics (essentially their approximate normality in large samples) inherits a full distributional assumption that quasi-likelihood does not require (or even make).
 
@@ -97,7 +97,7 @@ What is the purpose of using what in class was called a comparison function $h(\
 
 ## Answer - Me 
 
-The comparison function $h(\theta, \hat{\theta}_n)$ (referred to in the Notes as a discrepancy function) serves to reduce or eliminate the dependence of the sampling distribution of $\hat{\theta}_n$ on the unknown true parameter $\theta$. Because the sampling distribution of $\hat{\theta}_n$ itself depends on $\theta$, the bootstrap instead targets the distribution of $h(\theta, \hat{\theta}_n)$. The ideal choice of $h$ is a pivotal quantity, where the distribution of $h(\theta, \hat{\theta}_n)$ is entirely free of $\theta$, making the bootstrap approximation as stable and reliable as possible. The choice of $h$ is otherwise flexible, and different choices characterize different aspects of the estimator's sampling behavior, leading to different bootstrap interval procedures. In practice, discrepancy functions should correspond to appropriately centered and scaled versions of estimators for which a limit distribution is known to exist. It is worth emphasizing that the bootstrap is approximating the distribution of $h(\theta, \hat{\theta}_n)$, not the distribution of $\hat{\theta}_n$ itself.
+The comparison function $h(\theta, \hat{\theta}_n)$ (referred to as a discrepancy function in the Notes) serves to reduce or eliminate the dependence of the sampling distribution of $\hat{\theta}_n$ on the unknown true parameter $\theta$. Because the sampling distribution of $\hat{\theta}_n$ itself depends on $\theta$, the bootstrap instead targets the distribution of $h(\theta, \hat{\theta}_n)$. The ideal choice of $h$ is a pivotal quantity, where the distribution of $h(\theta, \hat{\theta}_n)$ is entirely free of $\theta$, making the bootstrap approximation as stable and reliable as possible. The choice of $h$ is otherwise flexible, and different choices characterize different aspects of the estimator's sampling behavior, leading to different bootstrap interval procedures. In practice, discrepancy functions should correspond to appropriately centered and scaled versions of estimators for which a limit distribution is known to exist. It is worth emphasizing that the bootstrap is approximating the distribution of $h(\theta, \hat{\theta}_n)$, not the distribution of $\hat{\theta}_n$ itself.
 
 ## Answer - AI 
 
@@ -119,8 +119,7 @@ Why are normed profile likelihoods of no help in finding maximum likelihood esti
 
 In a word: using the normed profile likelihood to find maximum likelihood estimates is circular. As the Notes make clear, the normed profile likelihood for $\theta_1$,
 
-$$R_n^p(\theta_1) = \max_{\boldsymbol{\theta}_2} \left[ \frac{L_n(\theta_1,
-\boldsymbol{\theta}_2)}{L_n(\hat{\boldsymbol{\theta}}_n)} \right]$$
+$$R_n^p(\theta_1) = \max_{\boldsymbol{\theta}_2} \left[ \frac{L_n(\theta_1, \boldsymbol{\theta}_2)}{L_n(\hat{\boldsymbol{\theta}}_n)} \right]$$
 
 requires the unrestricted joint MLE $\hat{\boldsymbol{\theta}}_n = (\hat{\theta}_1, \hat{\boldsymbol{\theta}}_2)$ in the denominator, the very quantity one is trying to find.
 
@@ -234,14 +233,14 @@ The **hierarchical prior predictive distribution** is:
 
 $$
 p(\mathbf{y}) =
-\int \int f(\mathbf{y}\mid \boldsymbol{\theta}), g(\boldsymbol{\theta}\mid \boldsymbol{\lambda}), \pi(\boldsymbol{\lambda}) , d\boldsymbol{\theta}, d\boldsymbol{\lambda}.
+\int \int f(\mathbf{y}\mid \boldsymbol{\theta})\, g(\boldsymbol{\theta}\mid \boldsymbol{\lambda})\, \pi(\boldsymbol{\lambda}) \, d\boldsymbol{\theta}\, d\boldsymbol{\lambda}.
 $$
 
 Equivalently:
 
 $$
 p(\mathbf{y}) =
-\int f(\mathbf{y}\mid \boldsymbol{\lambda}), \pi(\boldsymbol{\lambda}), d\boldsymbol{\lambda},
+\int f(\mathbf{y}\mid \boldsymbol{\lambda})\, \pi(\boldsymbol{\lambda})\, d\boldsymbol{\lambda}\,
 \quad \text{where } f(\mathbf{y}\mid \boldsymbol{\lambda}) = \int f(\mathbf{y}\mid \boldsymbol{\theta})g(\boldsymbol{\theta}\mid \boldsymbol{\lambda})d\boldsymbol{\theta}.
 $$
 
@@ -287,7 +286,7 @@ Let $i \in \{1, 2\}$ index the laboratory and $j = 1, \ldots, n_i$ index the sam
 
 Let $X_{ij}$ denote the true PCB concentration of sample $j$ analyzed at lab $i$, with
 
-$$X_{ij} \overset{\text{iid}}{\sim} \text{Gamma}(\alpha, \beta), \quad i = 1, 2, \quad j = 1, \ldots, n_i.$$
+$$X_{ij} \overset{\text{iid}}{\sim} \text{Gamma}(\alpha, \beta), \quad i = 1, 2, \quad j = 1, \ldots, n_i, \quad \alpha > 0 \, ,  \beta > 0.$$
 
 Note: Because the samples themselves are taken from the same site, we do not have lab-specific parameters for the true PCB concentration. 
 
@@ -437,9 +436,9 @@ First, define some notation to make a problem such as those described (two non-i
 
 ### Answer - Me 
 
-Let $Y$ and $Z$ represent Process 1 and Process 2, respectively. These processes are not independent of one another, i.e., $[Y, Z] \neq [Y][Z]$, reflecting the substantive belief that the two underlying processes are related.
+Let $Y$ and $Z$ represent Process 1 and Process 2, respectively. These processes are not independent of one another, i.e., $[Y, Z] \neq [Y][Z]$, reflecting that the two underlying processes are related.
 
-Let $X_1$ and $X_2$ represent Observable 1 and Observable 2, respectively, where $X_1$ is a direct reflection of Process 1 and $X_2$ is a direct reflection of Process 2.
+Let $X_1$ and $X_2$ represent Observable 1 and Observable 2, respectively, where $X_1$ is a direct indicator of Process 1 and $X_2$ is a direct indicator of Process 2.
 
 ### Answer - AI 
 
@@ -521,7 +520,7 @@ Suppose we are willing to assume the conditions given and identified in your ans
 
 ### Answer - Me 
 
-The conditions from the prior question — that $X_1 \perp Z \mid Y$ and $X_2 \perp Y \mid Z$ — affect only the *data level* of the model. Without those conditions, we would in general need to formulate a joint model for the two observables given both processes, i.e., specify $[X_1, X_2 \mid Y, Z, \boldsymbol{\theta}_1, \boldsymbol{\theta}_2],$ which could require specifying a dependence structure between $X_1$ and $X_2$ even after conditioning on $(Y, Z)$. 
+The conditions from the prior question, i.e., $X_1 \perp Z \mid Y$ and $X_2 \perp Y \mid Z$, affect only the *data level* of the model. Without those conditions, we would in general need to formulate a joint model for the two observables given both processes: Specify $[X_1, X_2 \mid Y, Z, \boldsymbol{\theta}_1, \boldsymbol{\theta}_2],$ which could require specifying a dependence structure between $X_1$ and $X_2$ even after conditioning on $(Y, Z)$. 
 
 Under the stated conditions, this joint model factorizes as $[X_1, X_2 \mid Y, Z, \boldsymbol{\theta}_1, \boldsymbol{\theta}_2] = [X_1 \mid Y, \boldsymbol{\theta}_1]\,[X_2 \mid Z, \boldsymbol{\theta}_2],$ so each observable need only be modeled conditionally on its own directly associated process. The two data-level components from part (b) can therefore be specified independently of one another.
 
