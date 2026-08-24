@@ -1,0 +1,262 @@
+\documentclass[12pt,letterpaper, onecolumn]{exam}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{mathrsfs}
+\usepackage{xcolor}
+\usepackage[lmargin=71pt, tmargin=1.2in]{geometry}  %For centering solution box
+\usepackage[english]{babel}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\usepackage{accents}
+\newcommand{\ubar}[1]{\underaccent{\bar}{#1}}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\bm}[1]{\mathbf{#1}}
+\newcommand{\der}[2]{\frac{d #1}{d#2}}
+\newcommand{\pder}[3]{\frac{\delta^{#3} #1}{\delta^{#3}#2}}
+\newcommand{\rs}{$X_1, ..., X_n$}
+\newcommand{\nsum}{\sum_{i=1}^n}
+\newcommand{\nprod}{\prod_{i=1}^n}
+\newcommand*{\Comb}[2]{{}^{#1}C_{#2}}%
+\newcommand{\ifc}{\textrm{ if }}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\nat}{\mathbb{N}}
+\newcommand{\power}{\mathcal{P}}
+\newcommand{\rational}{\mathbb{Q}}
+\newcommand{\complex}{\mathbb{C}}
+\newcommand{\cutelim}{\lim\limits_{n\to\infty}}
+\newcommand{\Sbb}{\mathbb{S}}
+\newcommand{\sigmaF}{\mathcal{F}}
+\newcommand{\sigmaG}{\mathcal{G}}
+\newcommand{\salg}{$\sigma$-algebra }
+
+% \chead{\hline} % Un-comment to draw line below header
+\thispagestyle{empty}   %For removing header/footer from page 1
+
+\begin{document}
+
+\begingroup  
+    \centering
+    \LARGE STAT 6410\\
+    \LARGE Homework 2\\[0.5em]
+    \large Sarah Kilgard\par
+\endgroup
+\rule{\textwidth}{0.4pt}
+\pointsdroppedatright   %Self-explanatory
+\printanswers
+\renewcommand{\solutiontitle}{\noindent\textbf{Ans:}\enspace}   %Replace "Ans:" with starting keyword in solution box
+
+\begin{questions}
+%%%%%%%%%%% Question 1 %%%%%%%%%%%%%%%%%%%%    
+    \question Appendix A, Problem 29
+    Let $\Sbb = C[0, 1]$ and $d_p(f,g) \equiv (\int_0^1|f(t) - g(t)|^p dt)^{1/p}$ for $1 \leq p < \infty$ and $d_\infty(f,g) = \sup\{|f(t) - g(t)| : t \in [0, 1]\}$.
+    \begin{itemize}
+    \item[(a)] Let $f(x) \equiv 1$. Let $f_n(t) \equiv $1 for $0 \leq t \leq 1 - \frac{1}{n}$, and $f_n(t)=n(1-t)$ for $1 - \frac{1}{n} \leq t \leq 1$. Show that $d_p(f_n,f) \to 0$ for $1 \leq p < \infty$ but $d_\infty(f_n,f) \nrightarrow 0$
+    \item[(b)] Fix $f \in C[0, 1]$. Let $g_n(t)=f(t)$, $0 \leq t \leq 1 - \frac{1}{n}$, and $g_n(t)= f(1 - \frac{1}{n})+(f(1) - f(1 - \frac{1}{n}))n(t + \frac{1}{n} - 1)$, $1 - \frac{1}{n} \leq t \leq 1$.
+    \end{itemize}
+    Show that $d_p(g_n,f) \to 0$  for all  $1\leq p \leq \infty$.
+
+    \textbf{You may use this inequality:} $|a + b|^p \leq 2^p(|a|^p+|b|^p) $
+    \begin{solution}
+     (a) \\
+     For $1 \leq p < \infty:$
+     \begin{align*}
+         & d_p(f_n, f) = \left(\int_0^{1-\tfrac{1}{n}}|1-1|^p dt + \int_{1-\tfrac{1}{n}}^1|1-n(1-t)|^p dt\right)^{1/p} \\
+         & = \left(\int_{1-\tfrac{1}{n}}^1|1-n +nt|^p dt\right)^{1/p} \\
+         & (d_p(f_n, f))^p = \int_{1-\tfrac{1}{n}}^1|1-n + nt|^p dt\\
+         & = \int_{1-\tfrac{1}{n}}^1(1-n + nt)^p dt && 1-n + nt > 0 \\
+         & \textrm{Define: } u = 1 - n + nt \quad du = n \: dt \\
+         & = \frac{1}{n} \int_{0}^1 u^p du = \frac{u^{p+1}}{n(p+1)}\Big|_{0}^1 = \frac{1}{n(p+1)} \\
+         & \lim\limits_{n \to \infty}\frac{1}{n(p+1)} = 0
+     \end{align*}
+     Since $\lim\limits_{n\to \infty}d_p(f_n, f) = 0$, $\left(\lim\limits_{n\to \infty}d_p(f_n, f)\right)^p = 0$
+
+     For $p = \infty$
+     \begin{align*}
+         & d_{\infty}(f_n, f) = \sup\{|f_n(t) - f(t)|: t \in [0, 1]\} \\
+         & \textbf{Case 1: } 0 \leq t \leq 1 - \tfrac{1}{n} \\
+         & |f_n(t) - f(t)| = |1 - 1| = 0 \\
+         & \textbf{Case 2: } 1 - \tfrac{1}{n} \leq t \leq 1\\
+         & |n(1-t) - 1| = |n - nt - 1| \\
+         & \lim\limits_{n \to \infty}\sup\{|n - nt - 1\} = 1 \\
+     \end{align*}
+     Since $\lim\limits_{n \to \infty}d_\infty(f_n, f) = 1$, $d_\infty(f_n, f) \nrightarrow 0$.
+
+     (b)
+
+     \begin{align*}
+         & d_p(f_n, f) = \left(\int_0^{1-\tfrac{1}{n}}|1-1|^p dt +\int_{1 - \tfrac{t}{n}}^1 1 + (1 - 1)n(t + \frac{1}{n} - 1)dt\right) \\
+         & = ( 0 + 1|_{1 - \tfrac{1}{n}}^1 = 1 - 1 = 0 \\
+         & \lim\limits_{n \to \infty}d_p(f_n, f) = \lim\limits_{n \to \infty} 0 = 0 
+     \end{align*}
+    \end{solution}
+
+%%%%%%%%%%% Question 2 %%%%%%%%%%%%%%%%%%%%    
+    \question Appendix A, Problem 34
+    
+    Show that unions of open sets are open and intersection of any two open sets is open. Give an example to show that the intersection of an infinite number of open sets need not be open.
+
+    \begin{solution} Let $(\Sbb, d)$ be a metric space.
+    
+      WTS: The union of open sets are open.
+      \begin{proof} 
+ Let $I \in \real$ be an index set, and $\{A_j\}_{j \in I}$ be a subset of open sets on $(\Sbb, d)$.
+
+ Let $x \in \cup_{i \in I} A_i$ be given. 
+
+ Thus, $x \in A_i$ for some $i \in I$. Since $A_i$ is an open set, there exists $\epsilon > 0$ such that for all $y \in \Sbb$ satisfying $d(x, y) < \epsilon$, $y \in A_i \subset \cup_{j \in I} A_j$.
+
+ Therefore, by definition, the unions of open sets are open. 
+      \end{proof}
+
+      WTS: The intersection of any 2 open sets is open. 
+      \begin{proof}
+        Let $A_1$ and $A_2$ be open sets on $(\Sbb, d)$. \\
+        Thus,
+          \begin{itemize}
+              \item For any $y_1 \in A_1$, there exist $\epsilon_1 > 0$ such that for all $x_1 \in \Sbb$ satisfying $d(x_1, y_1) < \epsilon_1$ belongs to $A_1$.
+              \item For any $y_2 \in A_2$, there exist $\epsilon_2 > 0$ such that for all $x_2 \in \Sbb$ satisfying $d(x_2, y_2) < \epsilon_2$ belongs to $A_2$.
+          \end{itemize}
+
+          Let $y \in A_1 \cap A_2$ be given. Thus, there exists $\epsilon_1 > 0$ such that all $x_1 \in \Sbb$ satisfying $d(x_1, y) < \epsilon_1$ belong to $A_1$ and there exist $\epsilon_2 > 0$ such that all $x_2 \in \Sbb$ satisfying $d(x_2, y_2) < \epsilon_2$ belong to $A_2$.\\
+
+          Thus, all $z \in \Sbb$ satisfying $d(z, y) < \min(\epsilon_1, \epsilon_2)$ belong in $A_1 \cap A_2$.
+
+          Thus, the intersection of any 2 open sets is open. 
+      \end{proof}
+
+      WTS: an example to show that the intersection of an infinite number of open sets need not be open
+
+      Let $A_n = (-\frac{1}{n}, \frac{1}{n})$, which is an open set on $(\real, |\cdot|)$. 
+      
+      $\cap_{n \in (0, \infty)}A_i = \{0\}$ which is not an open set. Thus, this is an example of an intersection of an infinite number of open sets that is not open. 
+
+    \end{solution}
+
+%%%%%%%%%%% Question 3 %%%%%%%%%%%%%%%%%%%%    
+    \question Appendix A, Problem 36
+
+    Let $f_n(x)=x^n$ and $g(x) \equiv 0$ on $\real$. Then $\{f_n\}_{n\geq 1}$ converges pointwise to $g$ on $(-1, 1)$, uniformly on $[a, b]$ for $-1 <a<b<1$, but not uniformly on $(0, 1)$.
+
+
+    \begin{solution}
+    \begin{proof}
+        \textbf{Part 1:} WTS: $\{f_n\}_{n\geq 1}$ converges pointwise to $g$ on $(-1, 1)$
+
+        Let $x \in (-1, 1)$ be given. \\
+        $\cutelim f_n(x) = \cutelim x^n = 0$. \\
+        Therefore, $\{f_n\}_{n\geq 1}$ converges pointwise to $g$ on $(-1, 1)$.
+
+        \textbf{Part 2:} WTS: $\{f_n\}_{n\geq 1}$ converges  uniformly on $[a, b]$ for $-1 <a<b<1$.
+
+        Let $-1 <a<b<1$ be given. \\
+        Let $\epsilon < 0$ be given. Define $N_\epsilon = \max\{|\log_{|a|}(\epsilon)| + 1,  \:|\log_{|b|}(\epsilon)| + 1\}> 0$. \\
+        Let $x \in [a, b]$ and $n \geq N_\epsilon$ be given. \\
+        $|f_n(x) - f(x)| = |x^n - 0| = |x^n| = |x|^n \leq |x|^{N_\epsilon} < \epsilon$
+
+        Thus, $\{f_n\}_{n\geq 1}$ converges  uniformly on $[a, b]$ for $-1 <a<b<1$.
+
+        \textbf{Part 3:} WTS: $\{f_n\}_{n\geq 1}$ does not converge uniformly on $(0, 1)$.
+
+        Suppose to the contrary that $\{f_n\}_{n\geq 1}$ does converge uniformly on $(0, 1)$. 
+
+        Thus, for all $\epsilon > 0$, there exists some $N_\epsilon$ such that, $n \geq N_\epsilon \: \implies \: |f_n(x) - f(x)| < \epsilon$ for all $x \in (0, 1)$.
+
+        However, as $x \to 1$, $x^n \to 1$ regardless of how big $n$ is. 
+
+        Thus, $\{f_n\}_{n\geq 1}$ does not converge uniformly on $(0, 1)$.
+        \end{proof}
+    
+    \end{solution}
+
+%%%%%%%%%%% Question 4 %%%%%%%%%%%%%%%%%%%%    
+    \question Chapter 1, Problem 2
+    Let $\Omega$ be a finite set, i.e., the number of elements in $\Omega$ is finite. Let $\sigmaF \subset \power(\Omega)$ be an algebra. Show that $\sigmaF$ is a $\sigma$-algebra. 
+
+    \begin{solution}
+    \begin{proof}
+    Since $\sigmaF$ is an algebra, 4 things must be true:
+    \begin{itemize}
+        \item[(a)] $\Omega \in \sigmaF$
+        \item[(b)] If $A \in \power$, $A^c \in \sigmaF$
+        \item[(c)] If $A, \: B \in \power$, $A \cup B \in \sigmaF$
+        \item[(c')] If $A, \: B \in \power$, $A \cap B \in \sigmaF$
+    \end{itemize}
+
+    Since $\power(\sigmaF)$ is finite, $\sigmaF$ is finite. Suppose $n \equiv |\sigmaF|$, and $\{B_1, B_2, ... , B_n\} = \sigmaF$. Since $\sigmaF$ is finite, $B_i$ is finite for all $i \in \{1, 2, ... , n\}.$
+
+    Let $m \leq n$ be given. \\
+    Suppose $\{B_1, ... , B_m\} \subset \sigmaF$. \\
+    Define, 
+    \begin{itemize}
+    \item $G_1 \equiv B_1$
+    \item $G_2 \equiv B_1 \cup B_2 = G_1 \cup B_2$ ($G_2 \in \sigmaF$ since $\sigmaF$ is an algebra)
+    \item $G_3 = B_1 \cup B_2 \cup B_3 = G_2 \cup B_3$ ($G_2 \in \sigmaF$ since $\sigmaF$ is an algebra and $B_3, G_2 \in \sigmaF$)
+    \item ... 
+    \item and $G_m \equiv B_1 \cup B_2 \cup ... \cup B_{m-1} \cup B_m = G_{m-1} \sup B_m$ ($G_m \in \sigmaF$ since $\sigmaF$ is an algebra and $B_m, G_{m-1} \in \sigmaF$). 
+    \end{itemize}
+    It is clear to see that $G_1 \subset G_2 \subset G_3 \subset ... \subset G_m$. Thus, $\cup_{i=1}^m G_i = G_m \in \sigmaF$.
+
+    Since, $\sigmaF$ is an algebra, and $G_n \in \sigmaF$, $G_n \subset G_{n+1} \: \forall \: n \: \implies \: \cup_{i=1}^m G_i = G_m \in \sigmaF$, by \textit{Proposition 1.1.1}, $\sigmaF$ is a $\sigma$-algebra. 
+    \end{proof}
+    \end{solution}
+
+%%%%%%%%%%% Question 5 %%%%%%%%%%%%%%%%%%%%    
+    \question Chapter 1, Problem 4
+
+    Let $\{\sigmaF_\theta : \theta \in  \Theta\}$ be a family of $\sigma$-algebras on $\Omega$. Show that $\sigmaG \equiv \cap_{\theta \in \Theta} \sigmaF_\theta$ is also a $\sigma$-algebra.
+
+    \begin{solution}
+    \begin{proof}
+    \begin{itemize}
+        \item[(a)] $\Omega \in \sigmaF_\theta$ for all $\theta \in \Theta$, since they are all $\sigma$-algebras. Thus, $\Omega \in \sigmaG$.
+        \item[(b)] Let $A \in \sigmaG$ be given. Thus, $A \in \sigmaF_\theta$ for all $\theta \in \Theta$. Therefore, $A^c \in \sigmaG$ since $A^c \in \sigmaF_\theta$ for all $\theta \in \Theta$ since they are all $\sigma$-algebras.
+        \item[(c)] Suppose $A_1, \: A_2 \in \sigmaG$. Thus, $A_1, \: A_2 \in \sigmaF_\theta$ for all $\theta \in \Theta$. Since $\sigmaF_\theta$ are all $\sigma$-algebras, $A_1 \cup A_2 \in \sigmaF_\theta$ for all $\theta \in \Theta$. Therefore, $A_1 \cup A_2 \in \sigmaG$.
+
+    Thus, $\sigmaG$ is an algebra on $\Omega$, by definition.
+    
+        \item[(d)] Let $A_1, A_2, ... , A_n \in \sigmaG$ be given. Thus, $A_1, A_2, ... , A_n \in \sigmaF_\theta$ for all $\theta \in \Theta$. Since $\sigmaF_\theta$ are all $\sigma$-algebras, $\cup_{i=1}^n A_i \in \sigmaF_\theta$ for all $\theta \in \Theta$. Thus, $\cup_{i=1}^n A_i \in \sigmaG$.
+
+        Therefore, $\sigmaG$ is a $\sigma$-algebra.
+    \end{itemize}
+    \end{proof}    
+    \end{solution}
+
+%%%%%%%%%%% Question 6 %%%%%%%%%%%%%%%%%%%%    
+    \question Chapter 1, Problem 6
+    
+    Let $\Omega$ be a nonempty set and let $A\equiv\{A_i : i \in \nat\}$ be a partition of $\Omega$, i.e., $A_i \cap A_j = \phi$ for all $i = j$ and $\cup_{n\geq 1} A_n =\Omega$. Let $\sigmaF = \{\cup_{i\in J} A_i : J  \subset  \nat\}$ where, for $J = \phi$, $\cup_{i\in J} A_i \equiv\phi$. Show that $\sigmaF$ is a $\sigma$-algebra.
+
+    \begin{solution}
+        \begin{proof}
+            \textbf{Part 1:} WTS: (a) $\Omega \in \sigmaF$ \\
+            Since $\cup_{n\geq 1} A_n =\Omega$, $\Omega \in \sigmaF$.
+
+            \textbf{Part 2:} WTS:(b) $B \in \sigmaF \: \implies B^c \in \sigmaF$ \\
+            Let $B \in \sigmaF$ be given. Thus, $B = \cup_{i \in J}A_i$ for some $J \subset \nat$. \\
+            $B^c = (\cup_{i \in J}A_i)^c = \cap_{i \in J}A_i^c.$ \\
+            Since, $A\equiv\{A_i : i \in \nat\}$ be a partition of $\Omega$, $A_i^c = \cup_{j \neq i}A_j$. \\
+            Thus, $B^c = \cap_{i \in J}\cup_{j \neq i}A_j = \cup_{k \in \nat/J} \in \sigmaF.$
+
+            \textbf{Part 3:} WTS: (d) $B_1, B_2, ... , B_j \in \sigmaF $ for some $j \in \nat \: \implies \: \cup_{k \leq j}B_k \in \sigmaF$ \\
+            $\cup_{k \leq j}B_k = \cup_{k \leq j}(\cup_{i\in J_j} A_i) = \cup_{m \in \cup_{n \leq j}J_n}A_m \in \sigmaF$. 
+
+            Since (a), (b), and (d) are true, $\sigmaF$ is a $\sigma$ - algebra. 
+        \end{proof}
+    \end{solution}
+
+%%%%%%%%%%% Question 7 %%%%%%%%%%%%%%%%%%%%    
+    \question Chapter 1, Problem A \\
+    Let $\Omega$ be an uncountable set (e.g. $\real$) and $\complex$ be the collection of all the singleton sets (i.e. $\complex = \{\{\omega\}: \omega \in \Omega\}$). Find the smallest $\sigma$-algebra generated by $\complex$. Justify your answer. 
+    \begin{solution}
+    $<\complex> = \sigmaF_6 = \{A \subset \Omega: A \textrm{ is countable or } A^c \textrm{ is countable}\}$. \\
+    $\sigmaF_6$ is a \salg by Example 1.1.4 in the textbook. It is the smallest \salg \\ generated by $\complex$ because:
+    \begin{itemize}
+        \item While, $\emptyset, \Omega \notin \complex$, they are in $\sigmaF$.
+        \item All elements of $\complex$ are clearly countable sets, so $\complex \subset \sigmaF_6$, and thus $\{\{\omega\}^c: \omega \in \Omega\}$
+        \item $\{\bigcup_{i \in J}A_i: \{\{\omega_i\}\}_{i \in J} \subset \complex \textrm{ for some } J \subset \real\}$ is the set of all countable sets on $\Omega$. Thus, it is clear to see that $\{\bigcup_{i \in J}A_i: \{\{\omega_i\}\}_{i \in J} \subset \complex \textrm{ for some } J \subset \real\} \cup \{\bigcup_{i \in J}A_i: \{\{\omega_i\}\}_{i \in J} \subset \complex \textrm{ for some } J \subset \real\} \cup \{\Omega, \emptyset\} = \sigmaF_6$ $\implies$ $<\complex> = \sigmaF_6 $. 
+    \end{itemize}
+    \end{solution}
+\end{questions}
+\end{document}
