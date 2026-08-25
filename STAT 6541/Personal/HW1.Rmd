@@ -8,19 +8,227 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Q1: 3
+# Status 
 
-# Q2: 5
+Q1: Started
+Q2: Done (Minor Touch-ups)
+Q3: 
+Q4: 
+Q5: 
+Q6: 
+Q7: 
+Q8: Done 
 
-# Q3: 9
+# Q1: A.3
 
-# Q4: 11
+Let $I = [0,1]$, $\Omega = \mathbb{R}$ and for $\alpha \in \mathbb{R}$, $A_\alpha = (\alpha - 1, \alpha + 1)$, the open interval $\{x : \alpha - 1 < x < \alpha + 1\}$.
 
-# Q5: 12
+## (a) 
 
-# Q6: 17 
+Show that $\bigcup_{\alpha \in I} A_\alpha = (-1, 2)$ and $\bigcap_{\alpha \in I} A_\alpha = (0, 1)$.
 
-# Q7: 18
+## Answer 
 
-# Q8: 24c
+To start, note that $A_{0} = (-1, 1)$ and $A_{1} = (0, 2)$. 
 
+## (b) 
+
+Suppose $J = \{x : x \in I, x \text{ is rational}\}$. Find $\bigcup_{x \in J} A_x$ and $\bigcap_{x \in J} A_x$.
+
+## Answer 
+
+# Q2: A.5
+
+Show that $X \equiv \{0,1\}^{\mathbb{N}}$, the set of all sequences $\{\omega_i\}_{i \in \mathbb{N}}$ where each $\omega_i \in \{0,1\}$, is **uncountable**. Conclude that $\mathcal{P}(\mathbb{N})$ is uncountable.
+
+## Answer 
+
+## A.5 Solution
+
+Sketch: To prove $X \equiv \{0,1\}^{\mathbb{N}}$ is uncountable, and consequently $\mathcal{P}(\mathbb{N})$ is uncountable, we must first establish (1): $X$ is uncountable and then (2): $\mathcal{P}(\mathbb{N})$ and $X$ are in bijection. 
+
+### (1): $X$ is uncountable
+
+Suppose, for contradiction, that $X$ is countable. Since $X$ is infinite (it contains, e.g., one sequence for every finite subset of $\mathbb{N}$), countability would mean there exists a surjection $h : \mathbb{N} \to X$ enumerating every element of $X$: $h(1), h(2), h(3), \ldots$
+
+Write $h(n) = (h(n)_1, h(n)_2, h(n)_3, \ldots)$ for the $n$-th sequence in the list, with $h(n)_i \in \{0,1\}$ its $i$-th coordinate. 
+
+Define $\delta = (\delta_i)_{i \in \mathbb{N}}$ by flipping the diagonal entries: $\delta_i = 1 - h(i)_i, \qquad i \in \mathbb{N}.$
+
+Then $\delta \in X$, since each $\delta_i \in \{0,1\}$. But for every $n \in \mathbb{N}$, $\delta_n = 1 - h(n)_n \neq h(n)_n,$, so $\delta$ and $h(n)$ disagree in coordinate $n$, i.e. $\delta \neq h(n)$. This holds for **every** $n$, so $\delta \notin \{h(1), h(2), h(3), \ldots\}$, contradicting the assumption that $h$ is surjective (enumerates all of $X$).
+
+Hence no such enumeration exists, and $X$ is uncountable.
+
+### (2): $\mathcal{P}(\mathbb{N})$ and $X$ are in bijection
+
+Define $\Phi : \mathcal{P}(\mathbb{N}) \to X$ by
+
+$$\Phi(A) = \{\omega_i\}_{i \in \mathbb{N}}, \qquad \omega_i = \mathbb{1}\{i \in A\}, \quad \forall A \in \mathcal{P}(\mathbb{N}),$$
+
+i.e. $\Phi(A)$ is the indicator sequence of $A$: coordinate $i$ is $1$ if $i \in A$ and $0$ otherwise. We show $\Phi$ is a bijection.
+
+- **Injective:** if $A \neq B$, then without loss of generality there is some $i \in A \setminus B$, so $\Phi(A)_i = 1 \neq 0 = \Phi(B)_i$, hence $\Phi(A) \neq \Phi(B)$.
+- **Surjective:** given any $\omega = (\omega_i)_{i \in \mathbb{N}} \in X$, let $A = \{i \in \mathbb{N} : \omega_i = 1\} \in \mathcal{P}(\mathbb{N})$. Then $\Phi(A) = \omega$ by construction.
+
+Hence $\Phi$ is a bijection, so $|\mathcal{P}(\mathbb{N})| = |X|$.
+
+### Conclusion
+
+Bijections preserve cardinality, so $|\mathcal{P}(\mathbb{N})| = |X|$. By Step 1, $X$ is uncountable. Therefore $\mathcal{P}(\mathbb{N})$ is uncountable.
+
+### Remarks
+
+This recovers the general fact $|\Omega| < |\mathcal{P}(\Omega)|$ (proved for $\Omega = \mathbb{N}$ directly in the first proof) as a special case. That argument builds, for any purported bijection $g : \mathbb{N} \to \mathcal{P}(\mathbb{N})$, the set $A = \{i \in \mathbb{N} : i \notin g(i)\}$, which lies in no $g(i)$: a preimage $x$ with $g(x) = A$ would force $x \in A \iff x \notin g(x) = A$, a contradiction. Translating through $\Phi$, this $A$ is exactly the diagonal sequence $\delta$ constructed above, since $\delta_i = 1 - \Phi(g(i))_i$ says precisely $\delta_i = 1 \iff i \notin g(i)$. The two diagonalizations are the same argument, one on sequences and one on sets.
+
+# Q3: A.9
+
+Apply the principle of induction to establish the following:
+
+## (a) 
+
+For each $n \in \mathbb{N}$, $\sum_{j=1}^n j^2 = \dfrac{n(n+1)(2n+1)}{6}$.
+
+## Answer 
+
+## (b) 
+
+For each $n \in \mathbb{N}$, $x_1, x_2, \ldots, x_k \in \mathbb{R}$,
+
+### (i) 
+
+**(The binomial formula)**. $(x_1 + x_2)^n = \sum_{r=0}^{n} \binom{n}{r} x_1^r x_2^{n-r}$.
+
+### Answer 
+
+## (ii) 
+
+**(The multinomial formula)**.
+
+$$(x_1 + x_2 + \ldots + x_k)^n = \sum \frac{n!}{r_1! r_2! \ldots r_k!} x_1^{r_1} x_2^{r_2} \ldots x_k^{r_k},$$
+
+where the summation extends over all $(r_1, r_2, \ldots, r_k)$ such that $r_i \in \mathbb{N}$, $0 \leq r_i \leq n$, $\sum_{i=1}^{k} r_i = n$.
+
+### Answer 
+
+# Q4: A.11
+
+Show that the set $A = \{r : r \in \mathbb{Q}, r^2 < 2\}$ is bounded above in $\mathbb{Q}$ but has no l.u.b. in $\mathbb{Q}$.
+
+## Answer
+
+# Q5: A.12
+
+Show that for any two sequences $\{x_n\}_{n\geq 1}, \{y_n\}_{n\geq 1} \subset \mathbb{R}$,
+
+$$\varliminf_{n\to\infty} x_n + \varliminf_{n\to\infty} y_n \leq \varliminf_{n\to\infty} (x_n + y_n) \leq \varlimsup_{n\to\infty} (x_n + y_n)$$
+
+$$\leq \varlimsup_{n\to\infty} x_n + \varlimsup_{n\to\infty} y_n.$$
+
+## Answer 
+
+# Q6: A.17 
+
+Find the radius of convergence, $\rho$, for the powers series $A(x) \equiv \sum_{n=0}^{\infty} a_n x^n$ where
+
+## (a) 
+
+$a_n = \dfrac{n}{(n+1)}$, $n \geq 0$.
+
+## Answer 
+
+## (b) 
+
+$a_n = n^p$, $n \geq 0$, $p \in \mathbb{R}$.
+
+## Answer 
+
+## (c) 
+
+$a_n = \dfrac{1}{n!}$, $n \geq 0$ (where $0! = 1$).
+
+## Answer 
+
+# Q7: A.18
+
+## (a) 
+
+Find the Taylor series at $a = 0$ for the function $f(x) = \dfrac{1}{1-x}$ in $I \equiv (-1, +1)$ and show that it converges to $f(x)$ on $I$.
+
+## Answer 
+
+## (b) 
+
+Find the Taylor series of $1 + x + x^2$ in $I = (1,3)$, centered at 2.
+
+## Answer 
+
+## (c) 
+
+Let
+
+$$f(x) = \begin{cases} e^{-\frac{1}{x^2}} & \text{if } |x| < 1, x \neq 0 \\ 0 & \text{if } x = 0. \end{cases}$$
+
+### (i) 
+
+Show that $f$ is infinitely differentiable at 0 and compute $f^{(j)}(0)$ for all $j \geq 1$.
+
+### Answer 
+
+### (ii) 
+
+Show that the Taylor series at $a = 0$ converges but not to $f$ on $(-1,1)$.
+
+### Answer 
+
+# Q8: A.24 (c)
+
+Draw the open unit ball $B_p \equiv \{x : x \in \mathbb{R}^2,\ d_p(x,0) < 1\}$ in $\mathbb{R}^2$ for $p = 1, 2$ and $\infty$.
+
+## Answer 
+
+$p = 1, 2$ and $\infty$ are shown below in black, red, and blue respectively. 
+
+```{r, echo = F, warning = F, message = F}
+library(ggplot2)
+library(patchwork)
+
+theme_ball <- theme_void() +
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        plot.margin = margin(10, 10, 10, 10))
+
+lims <- coord_fixed(xlim = c(-1.5, 1.5), ylim = c(-1.5, 1.5))
+
+## p = 1 : diamond (black)
+diamond <- data.frame(x = c(1, 0, -1, 0, 1), y = c(0, 1, 0, -1, 0))
+p1 <- ggplot() +
+  geom_path(data = diamond, aes(x, y), color = "black") +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  lims +
+  labs(title = expression(group("||", x, "||")[1])) +
+  theme_ball
+
+## p = 2 : circle (red)
+theta <- seq(0, 2*pi, length.out = 200)
+circle <- data.frame(x = cos(theta), y = sin(theta))
+p2 <- ggplot() +
+  geom_path(data = circle, aes(x, y), color = "red") +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  lims +
+  labs(title = expression(group("||", x, "||")[2])) +
+  theme_ball
+
+## p = infinity : square (blue)
+square <- data.frame(x = c(1, 1, -1, -1, 1), y = c(-1, 1, 1, -1, -1))
+p3 <- ggplot() +
+  geom_path(data = square, aes(x, y), color = "blue") +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  lims +
+  labs(title = expression(group("||", x, "||")[infinity])) +
+  theme_ball
+
+# side-by-side (patchwork default with "+")
+p1 + p2 + p3
+```
