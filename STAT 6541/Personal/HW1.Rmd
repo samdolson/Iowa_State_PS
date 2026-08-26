@@ -8,24 +8,6 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Status 
-
-Q1: Done (Minor Touch-ups)
-
-Q2: Done (Minor Touch-ups)
-
-Q3: 
-
-Q4: Done (Minor Touch-ups)
-
-Q5: Done (Minor Touch-ups)
-
-Q6: Done (Minor Touch-ups)
-
-Q7: 
-
-Q8: Done 
-
 # Q1: A.3
 
 Let $I = [0,1]$, $\Omega = \mathbb{R}$ and for $\alpha \in \mathbb{R}$, $A_\alpha = (\alpha - 1, \alpha + 1)$, the open interval $\{x : \alpha - 1 < x < \alpha + 1\}$.
@@ -54,7 +36,7 @@ In every case $x \in A_\alpha$ for some $\alpha \in I$, so $x \in \bigcup_{\alph
 
 $$(-1,2) \subset \bigcup_{\alpha\in I} A_\alpha.$$
 
-Combining both containments, $\bigcup_{\alpha\in I} A_\alpha = (-1,2)$. $\square$
+Combining both containments, $\bigcup_{\alpha\in I} A_\alpha = (-1,2)$.
 
 ### Intersection
 
@@ -64,7 +46,7 @@ Combining both containments, $\bigcup_{\alpha\in I} A_\alpha = (-1,2)$. $\square
 
 $$(0,1) \subset \bigcap_{\alpha\in I} A_\alpha.$$
 
-Combining both containments, $\bigcap_{\alpha\in I} A_\alpha = (0,1)$. $\square$
+Combining both containments, $\bigcap_{\alpha\in I} A_\alpha = (0,1)$.
 
 ## (b) 
 
@@ -102,7 +84,7 @@ Combining both containments,
 
 $$\bigcap_{x\in J} A_x = (0,1).$$
 
-Thus $\bigcup_{x\in J}A_x = \bigcup_{\alpha\in I}A_\alpha = (-1,2)$ and $\bigcap_{x\in J}A_x = \bigcap_{\alpha\in I}A_\alpha = (0,1)$: restricting the index set from all of $I$ down to just its rationals changes neither the union nor the intersection. $\square$
+Thus $\bigcup_{x\in J}A_x = \bigcup_{\alpha\in I}A_\alpha = (-1,2)$ and $\bigcap_{x\in J}A_x = \bigcap_{\alpha\in I}A_\alpha = (0,1)$: restricting the index set from all of $I$ down to just its rationals changes neither the union nor the intersection.
 
 # Q2: A.5
 
@@ -157,6 +139,41 @@ For each $n \in \mathbb{N}$, $\sum_{j=1}^n j^2 = \dfrac{n(n+1)(2n+1)}{6}$.
 
 ## Answer 
 
+Sketch: We induct on $n$. The base case $n=1$ is a direct check. For the inductive step, we split off the $(n+1)^2$ term from the sum, substitute the induction hypothesis for the rest, and factor the resulting expression — reducing it to checking a polynomial identity, $2n^2+7n+6=(n+2)(2n+3)$, which puts the sum back into the closed form with $n+1$ in place of $n$.
+
+*Proof.* Let $P(n)$ be the statement
+$$\sum_{j=1}^n j^2 = \frac{n(n+1)(2n+1)}{6}.$$
+
+*Base case ($n=1$):* The left side is $\sum_{j=1}^1 j^2 = 1$. The right side is $\dfrac{1 \cdot 2 \cdot 3}{6} = 1$. Since LHS $=$ RHS, $P(1)$ holds.
+
+*Inductive step:* Let $n \in \mathbb{N}$ be given, and suppose $P(n)$ holds, i.e.
+
+$$\sum_{j=1}^n j^2 = \frac{n(n+1)(2n+1)}{6}.$$
+
+We want to show $P(n+1)$ holds. We have
+
+$$
+\sum_{j=1}^{n+1} j^2 = \sum_{j=1}^n j^2 + (n+1)^2 = \frac{n(n+1)(2n+1)}{6} + (n+1)^2,
+$$
+
+using the induction hypothesis. Factoring out $(n+1)$,
+
+$$
+\sum_{j=1}^{n+1} j^2 = (n+1)\left[\frac{n(2n+1)}{6} + (n+1)\right]
+= (n+1) \cdot \frac{n(2n+1) + 6(n+1)}{6}
+= (n+1) \cdot \frac{2n^2 + 7n + 6}{6}.
+$$
+
+Since $2n^2 + 7n + 6 = (n+2)(2n+3)$, this gives
+
+$$
+\sum_{j=1}^{n+1} j^2 = \frac{(n+1)(n+2)(2n+3)}{6} = \frac{(n+1)\big((n+1)+1\big)\big(2(n+1)+1\big)}{6},
+$$
+
+which is exactly the statement $P(n+1)$.
+
+Thus $P(n) \implies P(n+1)$. By induction, $P(n)$ holds for all $n \in \mathbb{N}$. 
+
 ## (b) 
 
 For each $n \in \mathbb{N}$, $x_1, x_2, \ldots, x_k \in \mathbb{R}$,
@@ -167,7 +184,55 @@ For each $n \in \mathbb{N}$, $x_1, x_2, \ldots, x_k \in \mathbb{R}$,
 
 ### Answer 
 
-## (ii) 
+Sketch: We induct on $n$. The base case $n=1$ is immediate. For the inductive step, we multiply the induction hypothesis by $(x_1+x_2)$, split the result into two sums, re-index one of them so both run over the same range, and combine the coefficients using Pascal's Rule $\binom{n}{r-1}+\binom{n}{r}=\binom{n+1}{r}$ to land exactly on the $(n+1)$-th binomial expansion.
+
+*Proof.* Let $P(n)$ be the statement
+
+$$(x_1+x_2)^n = \sum_{r=0}^n \binom{n}{r} x_1^r x_2^{n-r}.$$
+
+*Base case ($n=1$):* The left side is $(x_1+x_2)^1 = x_1 + x_2$. The right side is
+
+$$
+\sum_{r=0}^1 \binom{1}{r} x_1^r x_2^{1-r} = \binom{1}{0}x_2 + \binom{1}{1}x_1 = x_1 + x_2.
+$$
+
+Since LHS $=$ RHS, $P(1)$ holds.
+
+*Inductive step:* Let $n \in \mathbb{N}$ be given, and suppose $P(n)$ holds. We show $P(n+1)$ holds. We have
+
+$$
+(x_1+x_2)^{n+1} = (x_1+x_2)(x_1+x_2)^n = (x_1+x_2)\sum_{r=0}^n \binom{n}{r} x_1^r x_2^{n-r}
+$$
+
+by the induction hypothesis. Distributing,
+
+$$
+(x_1+x_2)^{n+1} = \sum_{r=0}^n \binom{n}{r} x_1^{r+1} x_2^{n-r} + \sum_{r=0}^n \binom{n}{r} x_1^r x_2^{n-r+1}.
+$$
+
+Re-indexing the first sum with $r \to r-1$,
+
+$$
+(x_1+x_2)^{n+1} = \sum_{r=1}^{n+1} \binom{n}{r-1} x_1^{r} x_2^{n+1-r} + \sum_{r=0}^n \binom{n}{r} x_1^r x_2^{n+1-r}.
+$$
+
+Separating out the $r=0$ term from the first sum's absence and the $r=n+1$ term from the second sum's absence, and combining the overlapping terms $1 \le r \le n$,
+
+$$
+(x_1+x_2)^{n+1} = x_2^{n+1} + \sum_{r=1}^n \left[\binom{n}{r-1} + \binom{n}{r}\right] x_1^r x_2^{n+1-r} + x_1^{n+1}.
+$$
+
+By Pascal's Rule, $\binom{n}{r-1}+\binom{n}{r} = \binom{n+1}{r}$, so
+
+$$
+(x_1+x_2)^{n+1} = \binom{n+1}{0}x_2^{n+1} + \sum_{r=1}^n \binom{n+1}{r} x_1^r x_2^{n+1-r} + \binom{n+1}{n+1}x_1^{n+1} = \sum_{r=0}^{n+1} \binom{n+1}{r} x_1^r x_2^{n+1-r},
+$$
+
+which is exactly the statement $P(n+1)$.
+
+Thus $P(n) \implies P(n+1)$. By induction, $P(n)$ holds for all $n \in \mathbb{N}$.
+
+### (ii) 
 
 **(The multinomial formula)**.
 
@@ -176,6 +241,64 @@ $$(x_1 + x_2 + \ldots + x_k)^n = \sum \frac{n!}{r_1! r_2! \ldots r_k!} x_1^{r_1}
 where the summation extends over all $(r_1, r_2, \ldots, r_k)$ such that $r_i \in \mathbb{N}$, $0 \leq r_i \leq n$, $\sum_{i=1}^{k} r_i = n$.
 
 ### Answer 
+
+Sketch: We induct on $n$, holding $k$ fixed. The base case $n=1$ follows since exactly one $r_i$ can equal $1$. For the inductive step, we multiply the induction hypothesis by $(x_1+\cdots+x_k)$, which raises one exponent $r_i$ by $1$ in each resulting term; re-indexing by $s_i = r_i+1$ and collecting terms with the same exponents produces a common factor of $\sum_i s_i = n+1$ in the coefficient, giving the generalized Pascal's Rule step that yields the $(n+1)$-th multinomial expansion.
+
+*Proof.* Fix $k \in \mathbb{N}$ and $x_1,\ldots,x_k \in \mathbb{R}$. Let $P(n)$ be the statement
+
+$$
+(x_1 + x_2 + \cdots + x_k)^n = \sum \frac{n!}{r_1! r_2! \cdots r_k!} x_1^{r_1} x_2^{r_2} \cdots x_k^{r_k},
+$$
+
+where the sum extends over all $(r_1,\ldots,r_k)$ such that $r_i \in \mathbb{N} \cup \{0\}$, $0 \le r_i \le n$, and $\sum_{i=1}^k r_i = n$.
+
+*Base case ($n=1$):* The left side is $x_1+x_2+\cdots+x_k$. On the right side, since $\sum_{i=1}^k r_i = 1$ and each $r_i \ge 0$, exactly one $r_i$ equals $1$ and all others equal $0$. The term corresponding to $r_i = 1$ is
+
+$$
+\frac{1!}{0! \cdots 1! \cdots 0!} x_1^0 \cdots x_i^1 \cdots x_k^0 = x_i,
+$$
+
+so summing over $i = 1,\ldots,k$ gives $x_1 + x_2 + \cdots + x_k$. Since LHS $=$ RHS, $P(1)$ holds.
+
+*Inductive step:* Let $n \in \mathbb{N}$ be given, and suppose $P(n)$ holds. We show $P(n+1)$ holds. We have
+
+$$
+(x_1+\cdots+x_k)^{n+1} = (x_1+\cdots+x_k)^n (x_1+\cdots+x_k) = \left(\sum_{r_1+\cdots+r_k=n} \frac{n!}{r_1!\cdots r_k!} x_1^{r_1}\cdots x_k^{r_k}\right)(x_1+\cdots+x_k)
+$$
+
+by the induction hypothesis. Distributing over the $k$ terms $x_1,\ldots,x_k$,
+
+$$
+(x_1+\cdots+x_k)^{n+1} = \sum_{i=1}^k \sum_{r_1+\cdots+r_k=n} \frac{n!}{r_1!\cdots r_k!} x_1^{r_1}\cdots x_i^{r_i+1}\cdots x_k^{r_k}.
+$$
+
+For fixed $i$, re-index by setting $s_j = r_j$ for $j \ne i$ and $s_i = r_i + 1$, so that $\sum_{j=1}^k s_j = n+1$ and $s_i \ge 1$. Since $r_i = s_i - 1$ gives $(s_i-1)! = s_i!/s_i$,
+
+$$
+\frac{n!}{r_1!\cdots r_i! \cdots r_k!} = \frac{n!}{s_1!\cdots (s_i-1)! \cdots s_k!} = \frac{n! \, s_i}{s_1! \cdots s_i! \cdots s_k!}.
+$$
+
+Thus
+
+$$
+(x_1+\cdots+x_k)^{n+1} = \sum_{i=1}^k \sum_{s_1+\cdots+s_k=n+1} \frac{n!\, s_i}{s_1!\cdots s_k!} x_1^{s_1}\cdots x_k^{s_k},
+$$
+
+where for each $i$ the sum is understood to run only over indices with $s_i \ge 1$ (terms with $s_i = 0$ do not arise, since they would require $r_i = -1$). Swapping the order of summation and collecting terms with the same exponents $(s_1,\ldots,s_k)$,
+
+$$
+(x_1+\cdots+x_k)^{n+1} = \sum_{s_1+\cdots+s_k=n+1} \frac{n!}{s_1!\cdots s_k!}\left(\sum_{i=1}^k s_i\right) x_1^{s_1}\cdots x_k^{s_k}.
+$$
+
+Since $\sum_{i=1}^k s_i = n+1$ for every term in the sum, this is
+
+$$
+(x_1+\cdots+x_k)^{n+1} = \sum_{s_1+\cdots+s_k=n+1} \frac{(n+1)!}{s_1!\cdots s_k!} x_1^{s_1}\cdots x_k^{s_k},
+$$
+
+which is exactly the statement $P(n+1)$. (This step is the natural generalization of Pascal's Rule to $k$ indices.)
+
+Thus $P(n) \implies P(n+1)$. By induction, $P(n)$ holds for all $n \in \mathbb{N}$.
 
 # Q4: A.11
 
@@ -188,7 +311,7 @@ Sketch: To show $A$ is bounded above in $\mathbb{Q}$ but has no l.u.b. in $\math
 ### (1): $A$ is bounded above
 
 *Proof.* Let $r \in A$ be given. Thus $r^2 < 2$. If $r \geq 2$, then $r^2 \geq 4 > 2$, contradicting $r \in A$. Thus $r < 2$.
-By definition of an upper bound, $2$ is an upper bound of $A$. $\square$
+By definition of an upper bound, $2$ is an upper bound of $A$.
 
 ### (2): $A$ has no l.u.b. in $\mathbb{Q}$
 
@@ -204,7 +327,7 @@ Let $\varepsilon = M^2 - 2 > 0$. Choose a rational $\delta$ with $0 < \delta < \
 $$b^2 = M^2 - 2M\delta + \delta^2 > M^2 - 2M\delta > M^2 - \varepsilon = 2.$$
 Since $b > 0$ and $b^2 > 2$: for any $a \in A$, $a^2 < 2 < b^2$, and since $a, b > 0$, this gives $a < b$. So $b$ is an upper bound of $A$, yet $b < M$ — contradicting that $M$ is the *least* upper bound.
 
-Both cases are contradictions, so no such $M \in \mathbb{Q}$ exists. Thus $A$ has no l.u.b. in $\mathbb{Q}$. $\square$
+Both cases are contradictions, so no such $M \in \mathbb{Q}$ exists. Thus $A$ has no l.u.b. in $\mathbb{Q}$.
 
 # Q5: A.12
 
@@ -264,7 +387,7 @@ $$\varliminf_{n\to\infty}(x_n+y_n) \leq \varlimsup_{n\to\infty}(x_n+y_n).$$
 
 Step 3 gives the outer two inequalities of the claim, and Step 4 gives the middle one. Chaining all three together yields
 
-$$\varliminf_{n\to\infty} x_n + \varliminf_{n\to\infty} y_n \leq \varliminf_{n\to\infty} (x_n + y_n) \leq \varlimsup_{n\to\infty} (x_n + y_n) \leq \varlimsup_{n\to\infty} x_n + \varlimsup_{n\to\infty} y_n. \qquad \blacksquare$$
+$$\varliminf_{n\to\infty} x_n + \varliminf_{n\to\infty} y_n \leq \varliminf_{n\to\infty} (x_n + y_n) \leq \varlimsup_{n\to\infty} (x_n + y_n) \leq \varlimsup_{n\to\infty} x_n + \varlimsup_{n\to\infty} y_n.$$
 
 # Q6: A.17 
 
@@ -335,7 +458,7 @@ $$0 \;<\; \left(\frac{1}{n!}\right)^{1/n} = \frac{1}{(n!)^{1/n}} \;\leq\; \frac{
 
 By the squeeze theorem, $\displaystyle\lim_{n\to\infty}\left(\frac{1}{n!}\right)^{1/n} = 0$, so $\varlimsup_{n\to\infty}|a_n|^{1/n} = 0$.
 
-Thus $\rho = (0)^{-1} = +\infty$: the series converges for every $x \in \mathbb{R}$. $\blacksquare$
+Thus $\rho = (0)^{-1} = +\infty$: the series converges for every $x \in \mathbb{R}$.
 
 # Q7: A.18
 
@@ -345,11 +468,75 @@ Find the Taylor series at $a = 0$ for the function $f(x) = \dfrac{1}{1-x}$ in $I
 
 ## Answer 
 
+Sketch: We first find a closed form for $f^{(n)}(x)$ by induction on $n$, then evaluate at $x=0$ to read off the Taylor coefficients, which turn out to be exactly those of the geometric series $\sum x^n$. To show the series converges to $f$, we compute the geometric partial sums explicitly and show the error term vanishes for $|x|<1$.
+
+*Claim.* For all $n \in \mathbb{N} \cup \{0\}$, $f^{(n)}(x) = \dfrac{n!}{(1-x)^{n+1}}$.
+
+*Proof.* *Base case ($n=0$):* $f^{(0)}(x) = f(x) = \dfrac{1}{1-x} = \dfrac{0!}{(1-x)^{0+1}}$, so the claim holds.
+
+*Inductive step:* Suppose $f^{(n)}(x) = \dfrac{n!}{(1-x)^{n+1}}$ for some $n \ge 0$. Differentiating,
+
+$$
+f^{(n+1)}(x) = \frac{d}{dx}\left[n!(1-x)^{-(n+1)}\right] = n!(n+1)(1-x)^{-(n+2)}(1) = \frac{(n+1)!}{(1-x)^{(n+1)+1}},
+$$
+
+which is the claim for $n+1$. By induction, the formula holds for all $n \in \mathbb{N}\cup\{0\}$.
+
+*The Taylor series at $a=0$.* Since $f^{(n)}(0) = n!$ for all $n$, the Taylor series is
+
+$$
+\sum_{n=0}^{\infty} \frac{f^{(n)}(0)}{n!}(x-0)^n = \sum_{n=0}^{\infty} \frac{n!}{n!} x^n = \sum_{n=0}^\infty x^n.
+$$
+
+*Convergence to $f$ on $I = (-1,1)$.* For $x \in I$, let $S_N(x) = \sum_{n=0}^N x^n$ be the $N$-th partial sum. By the finite geometric sum formula (since $x \ne 1$),
+
+$$
+S_N(x) = \frac{1-x^{N+1}}{1-x} = \frac{1}{1-x} - \frac{x^{N+1}}{1-x}.
+$$
+
+Since $|x| < 1$, we have $x^{N+1} \to 0$ as $N \to \infty$, so
+
+$$
+\lim_{N\to\infty} S_N(x) = \frac{1}{1-x} - 0 = f(x).
+$$
+
+Hence $\sum_{n=0}^\infty x^n$ converges to $f(x)$ for every $x \in I = (-1,1)$. 
+
 ## (b) 
 
 Find the Taylor series of $1 + x + x^2$ in $I = (1,3)$, centered at 2.
 
 ## Answer 
+
+Sketch: Since $g$ is a degree-2 polynomial, all derivatives of order $3$ and higher vanish identically, so the Taylor series centered at any point is just the 3-term Taylor polynomial itself. We compute $g, g', g''$ at $a=2$ and assemble the finite sum, then verify by expanding that it reproduces $g(x)$.
+
+Let $g(x) = 1+x+x^2$, and consider its Taylor expansion centered at $a=2$.
+
+*Derivatives.* We compute
+
+$$
+g(x) = 1+x+x^2, \qquad g'(x) = 1+2x, \qquad g''(x) = 2, \qquad g^{(n)}(x) = 0 \text{ for } n \ge 3.
+$$
+
+Evaluating at $a=2$:
+
+$$
+g(2) = 1+2+4 = 7, \qquad g'(2) = 1+4 = 5, \qquad g''(2) = 2, \qquad g^{(n)}(2)=0 \ (n\ge 3).
+$$
+
+*Taylor series.* Since all derivatives of order $\ge 3$ vanish, the Taylor series at $a=2$ is the finite sum
+
+$$
+g(x) = \sum_{n=0}^{\infty} \frac{g^{(n)}(2)}{n!}(x-2)^n = g(2) + g'(2)(x-2) + \frac{g''(2)}{2!}(x-2)^2 = 7 + 5(x-2) + (x-2)^2.
+$$
+
+*Verification.* Expanding,
+
+$$
+7 + 5(x-2) + (x-2)^2 = 7 + 5x - 10 + x^2 - 4x + 4 = x^2 + x + 1,
+$$
+
+which recovers $g(x) = 1+x+x^2$ exactly. Since this is a finite sum (a polynomial identity), it holds for all $x \in \mathbb{R}$, and in particular on $I = (1,3)$.
 
 ## (c) 
 
@@ -363,11 +550,61 @@ Show that $f$ is infinitely differentiable at 0 and compute $f^{(j)}(0)$ for all
 
 ### Answer 
 
+Sketch: Away from $0$, each derivative of $f$ has the form (rational function of $x$) $\times\, e^{-1/x^2}$, since differentiating this shape via the chain/product rule always produces another term of the same shape. To handle $x=0$, we show $e^{-1/x^2}$ divided by any power of $x$ still $\to 0$ as $x\to 0$ (the exponential decay dominates any polynomial blow-up), then induct on $j$ using the definition of the derivative at a point to show every $f^{(j)}(0) = 0$.
+
+*Claim.* $f$ is infinitely differentiable at $0$, and $f^{(j)}(0) = 0$ for all $j \ge 1$.
+
+*Setup.* For $x \ne 0$ (with $|x|<1$), one can show inductively that each derivative of $f$ has the form
+
+$$
+f^{(j)}(x) = \sum_{k=0}^{j-1} a_{k,j}\, x^{2k-3j}\, e^{-1/x^2}, \qquad x \ne 0,
+$$
+
+for suitable constants $a_{k,j}$ (this follows by repeated differentiation via the chain and product rules; each differentiation multiplies existing terms by a rational function of $1/x$ and adds new terms of the same general shape). We take this representation as given and focus on differentiability at $x=0$.
+
+*Key Lemma.* For every integer $m \ge 0$,
+
+$$
+\lim_{x\to 0} \frac{e^{-1/x^2}}{x^m} = 0.
+$$
+
+*Proof:* Substituting $s = 1/|x|$ so that $s\to\infty$ as $x\to 0$, we have $\left|\dfrac{e^{-1/x^2}}{x^m}\right| = s^m e^{-s^2} \to 0$ as $s \to \infty$, since the exponential $e^{-s^2}$ decays faster than any polynomial power $s^m$ grows.
+
+*Proof (by induction on $j$) that $f^{(j)}(0)$ exists and equals $0$ for all $j \ge 0$.*
+
+*Base case ($j=0$):* By definition $f(0) = 0$. Also $\lim_{x\to 0} f(x) = \lim_{x\to 0} e^{-1/x^2} = 0$ by the Lemma (with $m=0$), so $f$ is continuous at $0$ with $f(0)=0$.
+
+*Inductive step:* Suppose $f^{(j)}(0) = 0$ and, for $x\ne 0$, $f^{(j)}(x) = \sum_{k=0}^{j-1} a_{k,j} x^{2k-3j} e^{-1/x^2}$. Then by the definition of the derivative,
+
+$$
+f^{(j+1)}(0) = \lim_{h\to 0} \frac{f^{(j)}(h) - f^{(j)}(0)}{h} = \lim_{h\to 0} \frac{f^{(j)}(h)}{h} = \lim_{h\to 0} \sum_{k=0}^{j-1} a_{k,j}\, \frac{e^{-1/h^2}}{h^{3j-2k+1}}.
+$$
+
+Each term in this finite sum tends to $0$ by the Key Lemma (with $m = 3j-2k+1 \ge 0$). Hence the whole limit is $0$, so $f^{(j+1)}(0)$ exists and equals $0$.
+
+By induction, $f^{(j)}(0)$ exists and equals $0$ for every $j \ge 0$; in particular, $f$ is infinitely differentiable at $0$ and $f^{(j)}(0) = 0$ for all $j \ge 1$. 
+
 ### (ii) 
 
 Show that the Taylor series at $a = 0$ converges but not to $f$ on $(-1,1)$.
 
 ### Answer 
+
+Sketch: Since every derivative of $f$ vanishes at $0$ by part (c)(i), the Taylor series at $a=0$ is identically the zero function, which trivially converges everywhere. But $f(x) = e^{-1/x^2} > 0$ for every $x \neq 0$, so the series (constant $0$) disagrees with $f$ at every nonzero point of $(-1,1)$.
+
+*Claim.* The Taylor series of $f$ at $a=0$ converges on $(-1,1)$, but not to $f$.
+
+*Proof.* From part (c)(i), $f^{(n)}(0) = 0$ for all $n \ge 0$ (including $f(0)=0$). Therefore the Taylor series at $a=0$ is
+
+$$
+\sum_{n=0}^\infty \frac{f^{(n)}(0)}{n!}(x-0)^n = \sum_{n=0}^\infty \frac{0}{n!}x^n = \sum_{n=0}^\infty 0 = 0,
+$$
+
+i.e., the Taylor series is identically the zero function. This series trivially converges (to $0$) for every $x \in \mathbb{R}$, and in particular for every $x \in (-1,1)$.
+
+However, for any $x \in (-1,1)$ with $x \ne 0$, we have $f(x) = e^{-1/x^2} > 0 \ne 0$. Hence the Taylor series converges to $0$, but $f(x) \ne 0$, so the Taylor series does **not** converge to $f(x)$ at any such point. Only at $x=0$ does the series' value ($0$) agree with $f(0) = 0$.
+
+Thus the Taylor series of $f$ at $a=0$ converges on all of $(-1,1)$, but it converges to $f$ only at the single point $x=0$, not on $(-1,1)$ as a whole.
 
 # Q8: A.24 (c)
 
@@ -377,7 +614,7 @@ Draw the open unit ball $B_p \equiv \{x : x \in \mathbb{R}^2,\ d_p(x,0) < 1\}$ i
 
 $p = 1, 2$ and $\infty$ are shown below in black, red, and blue respectively. 
 
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, out.height="40%"}
 library(ggplot2)
 library(patchwork)
 
