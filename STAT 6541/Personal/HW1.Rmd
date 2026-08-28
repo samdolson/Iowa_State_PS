@@ -8,6 +8,9 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Q1: Done 
+Q8: Done 
+
 # Q1: A.3
 
 Let $I = [0,1]$, $\Omega = \mathbb{R}$ and for $\alpha \in \mathbb{R}$, $A_\alpha = (\alpha - 1, \alpha + 1)$, the open interval $\{x : \alpha - 1 < x < \alpha + 1\}$.
@@ -18,11 +21,15 @@ Show that $\bigcup_{\alpha \in I} A_\alpha = (-1, 2)$ and $\bigcap_{\alpha \in I
 
 ## Answer 
 
-Sketch: For each containment we argue both directions. For the union, every $A_\alpha$ with $\alpha\in I=[0,1]$ sits inside $(-1,2)$ since $\alpha-1\geq -1$ and $\alpha+1\leq 2$; conversely, any $x\in(-1,2)$ lies in $A_\alpha$ for $\alpha = \mathrm{clamp}(x,0,1) := \min(\max(x,0),1) \in I$. For the intersection, $A_0\cap A_1=(0,1)$ already gives one containment since $0,1\in I$; the reverse follows because every $\alpha\in I$ satisfies $\alpha - 1 \leq 0$ and $\alpha+1\geq 1$, so $(0,1)\subset A_\alpha$ for every such $\alpha$.
+Sketch: To prove equality we argue both directions for both the Union and Intersection proofs, i.e. $\subset$ and $\supset$. 
+
+Note: we use $\subset \equiv \subseteq$ and $\supset \equiv \supseteq$ for the purposes of set relations, as noted by Dr. Ghosh in lecture.  
 
 ### Union
 
-*Proof.* ($\subset$) For any $\alpha \in [0,1]$, $\alpha - 1 \in [-1,0]$ and $\alpha+1\in[1,2]$, so $A_\alpha = (\alpha-1,\alpha+1) \subset (-1,2)$. Since this holds for every $\alpha\in I$,
+*Proof.* 
+
+($\subset$) For any $\alpha \in [0,1]$, $\alpha - 1 \in [-1,0]$ and $\alpha+1\in[1,2]$, so $A_\alpha = (\alpha-1,\alpha+1) \subset (-1,2)$. Since this holds for every $\alpha\in I$,
 
 $$\bigcup_{\alpha\in I} A_\alpha \subset (-1,2).$$
 
@@ -36,17 +43,19 @@ In every case $x \in A_\alpha$ for some $\alpha \in I$, so $x \in \bigcup_{\alph
 
 $$(-1,2) \subset \bigcup_{\alpha\in I} A_\alpha.$$
 
-Combining both containments, $\bigcup_{\alpha\in I} A_\alpha = (-1,2)$.
+Combining both containments, we conclude $\bigcup_{\alpha\in I} A_\alpha = (-1,2)$.//
 
 ### Intersection
 
-*Proof.* ($\subset$) Since $0,1 \in I$, $\bigcap_{\alpha\in I} A_\alpha \subset A_0 \cap A_1 = (-1,1)\cap(0,2) = (0,1)$.
+*Proof.* 
 
-($\supset$) Let $x \in (0,1)$ be given, and let $\alpha \in I$ be arbitrary. Since $\alpha \geq 0$, $\alpha - 1 \geq -1$... more precisely, since $0 \le \alpha \le 1$, we have $\alpha - 1 \leq 0 < x$ and $x < 1 \leq \alpha+1$, so $x \in A_\alpha$. As $\alpha\in I$ was arbitrary, $x \in \bigcap_{\alpha\in I} A_\alpha$. Hence
+($\subset$) Since $0,1 \in I$, $\bigcap_{\alpha\in I} A_\alpha \subset A_0 \cap A_1 = (-1,1)\cap(0,2) = (0,1)$.
+
+($\supset$) Let $x \in (0,1)$ be given, and let $\alpha \in I$ be arbitrary. Since $\alpha \geq 0$, $\alpha - 1 \geq -1$. And since $0 \le \alpha \le 1$, it follows that $\alpha - 1 \leq 0 < x$ and $x < 1 \leq \alpha+1$, for $x \in A_\alpha$. As $\alpha\in I$ was arbitrary, $x \in \bigcap_{\alpha\in I} A_\alpha$. Hence
 
 $$(0,1) \subset \bigcap_{\alpha\in I} A_\alpha.$$
 
-Combining both containments, $\bigcap_{\alpha\in I} A_\alpha = (0,1)$.
+Combining both containments, we conclude $\bigcap_{\alpha\in I} A_\alpha = (0,1)$.//
 
 ## (b) 
 
@@ -54,7 +63,7 @@ Suppose $J = \{x : x \in I, x \text{ is rational}\}$. Find $\bigcup_{x \in J} A_
 
 ## Answer 
 
-Sketch: Since $J \subset I$, both $\bigcup_{x\in J}A_x \subset \bigcup_{\alpha\in I}A_\alpha$ and $\bigcap_{x\in J}A_x \supset \bigcap_{\alpha\in I}A_\alpha$ hold automatically (a union over fewer sets is smaller; an intersection over fewer sets is larger). The key observation is that $0$ and $1$ are themselves rational, so $0,1 \in J$ — meaning $A_0, A_1$ belong to the $J$-indexed family too. That lets us reuse part (a)'s results ($A_0\cup A_1 = (-1,2)$ and $A_0\cap A_1=(0,1)$, both established above) to force the reverse containments, without any density argument.
+Sketch: The key is that $0$ and $1$ are each rational, so $0,1 \in J$; this lets us use the results from part (a) to force the reverse containments.
 
 ### Union
 
@@ -68,7 +77,7 @@ $$\bigcup_{x\in J} A_x \supset A_0 \cup A_1 = (-1,1)\cup(0,2) = (-1,2),$$
 
 using that the two intervals overlap on $(0,1)$. Combining both containments,
 
-$$\bigcup_{x\in J} A_x = (-1,2).$$
+$$\bigcup_{x\in J} A_x = (-1,2).//$$
 
 ### Intersection
 
@@ -82,17 +91,13 @@ $$\bigcap_{x\in J} A_x \subset A_0 \cap A_1 = (-1,1)\cap(0,2) = (0,1).$$
 
 Combining both containments,
 
-$$\bigcap_{x\in J} A_x = (0,1).$$
-
-Thus $\bigcup_{x\in J}A_x = \bigcup_{\alpha\in I}A_\alpha = (-1,2)$ and $\bigcap_{x\in J}A_x = \bigcap_{\alpha\in I}A_\alpha = (0,1)$: restricting the index set from all of $I$ down to just its rationals changes neither the union nor the intersection.
+$$\bigcap_{x\in J} A_x = (0,1).//$$
 
 # Q2: A.5
 
 Show that $X \equiv \{0,1\}^{\mathbb{N}}$, the set of all sequences $\{\omega_i\}_{i \in \mathbb{N}}$ where each $\omega_i \in \{0,1\}$, is **uncountable**. Conclude that $\mathcal{P}(\mathbb{N})$ is uncountable.
 
 ## Answer 
-
-## A.5 Solution
 
 Sketch: To prove $X \equiv \{0,1\}^{\mathbb{N}}$ is uncountable, and consequently $\mathcal{P}(\mathbb{N})$ is uncountable, we must first establish (1): $X$ is uncountable and then (2): $\mathcal{P}(\mathbb{N})$ and $X$ are in bijection. 
 
