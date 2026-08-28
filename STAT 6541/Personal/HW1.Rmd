@@ -9,6 +9,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 Q1: Done 
+Q2: Done
+Q3: Done
+Q4: Done
+Q5: 
+Q6: 
+Q7: 
 Q8: Done 
 
 # Q1: A.3
@@ -99,17 +105,17 @@ Show that $X \equiv \{0,1\}^{\mathbb{N}}$, the set of all sequences $\{\omega_i\
 
 ## Answer 
 
-Sketch: To prove $X \equiv \{0,1\}^{\mathbb{N}}$ is uncountable, and consequently $\mathcal{P}(\mathbb{N})$ is uncountable, we must first establish (1): $X$ is uncountable and then (2): $\mathcal{P}(\mathbb{N})$ and $X$ are in bijection. 
+Sketch: To prove $X \equiv \{0,1\}^{\mathbb{N}}$ is uncountable, and that consequently $\mathcal{P}(\mathbb{N})$ is uncountable, we first establish (1): $X$ is uncountable and then (2): $\mathcal{P}(\mathbb{N})$ and $X$ are in bijection. 
 
 ### (1): $X$ is uncountable
 
-Suppose, for contradiction, that $X$ is countable. Since $X$ is infinite (it contains, e.g., one sequence for every finite subset of $\mathbb{N}$), countability would mean there exists a surjection $h : \mathbb{N} \to X$ enumerating every element of $X$: $h(1), h(2), h(3), \ldots$
+Suppose, for contradiction, that $X$ is countable. Since $X$ is countable and nonempty (it contains, e.g., the constant sequence $\omega_i = 0$ for all $i$), $\exists$ a surjection $h : \mathbb{N} \to X$ enumerating every element of $X$: $h(1), h(2), h(3), \ldots$
 
-Write $h(n) = (h(n)_1, h(n)_2, h(n)_3, \ldots)$ for the $n$-th sequence in the list, with $h(n)_i \in \{0,1\}$ its $i$-th coordinate. 
+Write $h(n) = (h(n)_1, h(n)_2, h(n)_3, \ldots)$ for the $n$-th sequence in the list, with $h(n)_i \in \{0,1\}$ its $i$-th coordinate.
 
 Define $\delta = (\delta_i)_{i \in \mathbb{N}}$ by flipping the diagonal entries: $\delta_i = 1 - h(i)_i, \qquad i \in \mathbb{N}.$
 
-Then $\delta \in X$, since each $\delta_i \in \{0,1\}$. But for every $n \in \mathbb{N}$, $\delta_n = 1 - h(n)_n \neq h(n)_n,$, so $\delta$ and $h(n)$ disagree in coordinate $n$, i.e. $\delta \neq h(n)$. This holds for **every** $n$, so $\delta \notin \{h(1), h(2), h(3), \ldots\}$, contradicting the assumption that $h$ is surjective (enumerates all of $X$).
+Then $\delta \in X$, since each $\delta_i \in \{0,1\}$. But for every $n \in \mathbb{N}$, $\delta_n = 1 - h(n)_n \neq h(n)_n,$ so $\delta$ and $h(n)$ disagree in coordinate $n$, i.e. $\delta \neq h(n)$. This holds for **every** $n$, so $\delta \notin \{h(1), h(2), h(3), \ldots\}$, contradicting the assumption that $h$ is surjective (enumerates all of $X$).
 
 Hence no such enumeration exists, and $X$ is uncountable.
 
@@ -128,11 +134,7 @@ Hence $\Phi$ is a bijection, so $|\mathcal{P}(\mathbb{N})| = |X|$.
 
 ### Conclusion
 
-Bijections preserve cardinality, so $|\mathcal{P}(\mathbb{N})| = |X|$. By Step 1, $X$ is uncountable. Therefore $\mathcal{P}(\mathbb{N})$ is uncountable.
-
-### Remarks
-
-This recovers the general fact $|\Omega| < |\mathcal{P}(\Omega)|$ (proved for $\Omega = \mathbb{N}$ directly in the first proof) as a special case. That argument builds, for any purported bijection $g : \mathbb{N} \to \mathcal{P}(\mathbb{N})$, the set $A = \{i \in \mathbb{N} : i \notin g(i)\}$, which lies in no $g(i)$: a preimage $x$ with $g(x) = A$ would force $x \in A \iff x \notin g(x) = A$, a contradiction. Translating through $\Phi$, this $A$ is exactly the diagonal sequence $\delta$ constructed above, since $\delta_i = 1 - \Phi(g(i))_i$ says precisely $\delta_i = 1 \iff i \notin g(i)$. The two diagonalizations are the same argument, one on sequences and one on sets.
+By Part (2), $\Phi$ is a bijection, so $|\mathcal{P}(\mathbb{N})| = |X|$. Since bijections preserve cardinality (and $X$ is uncountable by Part (1)), it follows that $\mathcal{P}(\mathbb{N})$ is uncountable as well.//
 
 # Q3: A.9
 
@@ -144,24 +146,23 @@ For each $n \in \mathbb{N}$, $\sum_{j=1}^n j^2 = \dfrac{n(n+1)(2n+1)}{6}$.
 
 ## Answer 
 
-Sketch: We induct on $n$. The base case $n=1$ is a direct check. For the inductive step, we split off the $(n+1)^2$ term from the sum, substitute the induction hypothesis for the rest, and factor the resulting expression — reducing it to checking a polynomial identity, $2n^2+7n+6=(n+2)(2n+3)$, which puts the sum back into the closed form with $n+1$ in place of $n$.
-
 *Proof.* Let $P(n)$ be the statement
+
 $$\sum_{j=1}^n j^2 = \frac{n(n+1)(2n+1)}{6}.$$
 
-*Base case ($n=1$):* The left side is $\sum_{j=1}^1 j^2 = 1$. The right side is $\dfrac{1 \cdot 2 \cdot 3}{6} = 1$. Since LHS $=$ RHS, $P(1)$ holds.
+*Base case ($n=1$):* The left side is $\sum_{j=1}^1 j^2 = 1$. The right side is $\dfrac{1 \cdot 2 \cdot 3}{6} = 1$. Since equality holds, the base case $P(1)$ holds.
 
 *Inductive step:* Let $n \in \mathbb{N}$ be given, and suppose $P(n)$ holds, i.e.
 
 $$\sum_{j=1}^n j^2 = \frac{n(n+1)(2n+1)}{6}.$$
 
-We want to show $P(n+1)$ holds. We have
+Then consider $P(n+1)$. By the inductive hypothesis 
 
 $$
 \sum_{j=1}^{n+1} j^2 = \sum_{j=1}^n j^2 + (n+1)^2 = \frac{n(n+1)(2n+1)}{6} + (n+1)^2,
 $$
 
-using the induction hypothesis. Factoring out $(n+1)$,
+Factoring out $(n+1)$,
 
 $$
 \sum_{j=1}^{n+1} j^2 = (n+1)\left[\frac{n(2n+1)}{6} + (n+1)\right]
@@ -169,7 +170,7 @@ $$
 = (n+1) \cdot \frac{2n^2 + 7n + 6}{6}.
 $$
 
-Since $2n^2 + 7n + 6 = (n+2)(2n+3)$, this gives
+Simplifying, using $2n^2 + 7n + 6 = (n+2)(2n+3)$, gives
 
 $$
 \sum_{j=1}^{n+1} j^2 = \frac{(n+1)(n+2)(2n+3)}{6} = \frac{(n+1)\big((n+1)+1\big)\big(2(n+1)+1\big)}{6},
@@ -177,7 +178,7 @@ $$
 
 which is exactly the statement $P(n+1)$.
 
-Thus $P(n) \implies P(n+1)$. By induction, $P(n)$ holds for all $n \in \mathbb{N}$. 
+Thus $P(n) \implies P(n+1)$. By induction, $P(n)$ holds for all $n \in \mathbb{N}$.// 
 
 ## (b) 
 
@@ -189,8 +190,6 @@ For each $n \in \mathbb{N}$, $x_1, x_2, \ldots, x_k \in \mathbb{R}$,
 
 ### Answer 
 
-Sketch: We induct on $n$. The base case $n=1$ is immediate. For the inductive step, we multiply the induction hypothesis by $(x_1+x_2)$, split the result into two sums, re-index one of them so both run over the same range, and combine the coefficients using Pascal's Rule $\binom{n}{r-1}+\binom{n}{r}=\binom{n+1}{r}$ to land exactly on the $(n+1)$-th binomial expansion.
-
 *Proof.* Let $P(n)$ be the statement
 
 $$(x_1+x_2)^n = \sum_{r=0}^n \binom{n}{r} x_1^r x_2^{n-r}.$$
@@ -201,15 +200,15 @@ $$
 \sum_{r=0}^1 \binom{1}{r} x_1^r x_2^{1-r} = \binom{1}{0}x_2 + \binom{1}{1}x_1 = x_1 + x_2.
 $$
 
-Since LHS $=$ RHS, $P(1)$ holds.
+Since equality holds, the base case $P(1)$ holds.
 
-*Inductive step:* Let $n \in \mathbb{N}$ be given, and suppose $P(n)$ holds. We show $P(n+1)$ holds. We have
+*Inductive step:* Let $n \in \mathbb{N}$ be given, and suppose $P(n)$ holds. We then consider $P(n+1)$. By the inductive hypothesis 
 
 $$
 (x_1+x_2)^{n+1} = (x_1+x_2)(x_1+x_2)^n = (x_1+x_2)\sum_{r=0}^n \binom{n}{r} x_1^r x_2^{n-r}
 $$
 
-by the induction hypothesis. Distributing,
+Distributing,
 
 $$
 (x_1+x_2)^{n+1} = \sum_{r=0}^n \binom{n}{r} x_1^{r+1} x_2^{n-r} + \sum_{r=0}^n \binom{n}{r} x_1^r x_2^{n-r+1}.
@@ -221,7 +220,7 @@ $$
 (x_1+x_2)^{n+1} = \sum_{r=1}^{n+1} \binom{n}{r-1} x_1^{r} x_2^{n+1-r} + \sum_{r=0}^n \binom{n}{r} x_1^r x_2^{n+1-r}.
 $$
 
-Separating out the $r=0$ term from the first sum's absence and the $r=n+1$ term from the second sum's absence, and combining the overlapping terms $1 \le r \le n$,
+Separating out the $r=0$ term from the first sum's absence and the $r=n+1$ term from the second sum's absence, and combining,
 
 $$
 (x_1+x_2)^{n+1} = x_2^{n+1} + \sum_{r=1}^n \left[\binom{n}{r-1} + \binom{n}{r}\right] x_1^r x_2^{n+1-r} + x_1^{n+1}.
@@ -235,7 +234,7 @@ $$
 
 which is exactly the statement $P(n+1)$.
 
-Thus $P(n) \implies P(n+1)$. By induction, $P(n)$ holds for all $n \in \mathbb{N}$.
+Thus $P(n) \implies P(n+1)$. By induction, $P(n)$ holds for all $n \in \mathbb{N}$.// 
 
 ### (ii) 
 
@@ -246,8 +245,6 @@ $$(x_1 + x_2 + \ldots + x_k)^n = \sum \frac{n!}{r_1! r_2! \ldots r_k!} x_1^{r_1}
 where the summation extends over all $(r_1, r_2, \ldots, r_k)$ such that $r_i \in \mathbb{N}$, $0 \leq r_i \leq n$, $\sum_{i=1}^{k} r_i = n$.
 
 ### Answer 
-
-Sketch: We induct on $n$, holding $k$ fixed. The base case $n=1$ follows since exactly one $r_i$ can equal $1$. For the inductive step, we multiply the induction hypothesis by $(x_1+\cdots+x_k)$, which raises one exponent $r_i$ by $1$ in each resulting term; re-indexing by $s_i = r_i+1$ and collecting terms with the same exponents produces a common factor of $\sum_i s_i = n+1$ in the coefficient, giving the generalized Pascal's Rule step that yields the $(n+1)$-th multinomial expansion.
 
 *Proof.* Fix $k \in \mathbb{N}$ and $x_1,\ldots,x_k \in \mathbb{R}$. Let $P(n)$ be the statement
 
@@ -263,15 +260,15 @@ $$
 \frac{1!}{0! \cdots 1! \cdots 0!} x_1^0 \cdots x_i^1 \cdots x_k^0 = x_i,
 $$
 
-so summing over $i = 1,\ldots,k$ gives $x_1 + x_2 + \cdots + x_k$. Since LHS $=$ RHS, $P(1)$ holds.
+so summing over $i = 1,\ldots,k$ gives $x_1 + x_2 + \cdots + x_k$. Since equality holds, the base case $P(1)$ holds.
 
-*Inductive step:* Let $n \in \mathbb{N}$ be given, and suppose $P(n)$ holds. We show $P(n+1)$ holds. We have
+*Inductive step:* Let $n \in \mathbb{N}$ be given, and suppose $P(n)$ holds. We then turn to $P(n+1)$. By the inductive hypothesis
 
 $$
 (x_1+\cdots+x_k)^{n+1} = (x_1+\cdots+x_k)^n (x_1+\cdots+x_k) = \left(\sum_{r_1+\cdots+r_k=n} \frac{n!}{r_1!\cdots r_k!} x_1^{r_1}\cdots x_k^{r_k}\right)(x_1+\cdots+x_k)
 $$
 
-by the induction hypothesis. Distributing over the $k$ terms $x_1,\ldots,x_k$,
+Distributing over the $k$ terms $x_1,\ldots,x_k$,
 
 $$
 (x_1+\cdots+x_k)^{n+1} = \sum_{i=1}^k \sum_{r_1+\cdots+r_k=n} \frac{n!}{r_1!\cdots r_k!} x_1^{r_1}\cdots x_i^{r_i+1}\cdots x_k^{r_k}.
@@ -283,13 +280,13 @@ $$
 \frac{n!}{r_1!\cdots r_i! \cdots r_k!} = \frac{n!}{s_1!\cdots (s_i-1)! \cdots s_k!} = \frac{n! \, s_i}{s_1! \cdots s_i! \cdots s_k!}.
 $$
 
-Thus
+Since the $s_i=0$ terms vanish anyway, we can drop the restriction $s_i \ge 1$ and sum over the full range $s_1+\cdots+s_k=n+1$:
 
 $$
-(x_1+\cdots+x_k)^{n+1} = \sum_{i=1}^k \sum_{s_1+\cdots+s_k=n+1} \frac{n!\, s_i}{s_1!\cdots s_k!} x_1^{s_1}\cdots x_k^{s_k},
+(x_1+\cdots+x_k)^{n+1} = \sum_{i=1}^k \sum_{s_1+\cdots+s_k=n+1} \frac{n!\, s_i}{s_1!\cdots s_k!} x_1^{s_1}\cdots x_k^{s_k}.
 $$
 
-where for each $i$ the sum is understood to run only over indices with $s_i \ge 1$ (terms with $s_i = 0$ do not arise, since they would require $r_i = -1$). Swapping the order of summation and collecting terms with the same exponents $(s_1,\ldots,s_k)$,
+Swapping the order of summation and collecting terms with the same exponents $(s_1,\ldots,s_k)$,
 
 $$
 (x_1+\cdots+x_k)^{n+1} = \sum_{s_1+\cdots+s_k=n+1} \frac{n!}{s_1!\cdots s_k!}\left(\sum_{i=1}^k s_i\right) x_1^{s_1}\cdots x_k^{s_k}.
@@ -301,9 +298,9 @@ $$
 (x_1+\cdots+x_k)^{n+1} = \sum_{s_1+\cdots+s_k=n+1} \frac{(n+1)!}{s_1!\cdots s_k!} x_1^{s_1}\cdots x_k^{s_k},
 $$
 
-which is exactly the statement $P(n+1)$. (This step is the natural generalization of Pascal's Rule to $k$ indices.)
+which is exactly the statement $P(n+1)$.
 
-Thus $P(n) \implies P(n+1)$. By induction, $P(n)$ holds for all $n \in \mathbb{N}$.
+Thus $P(n) \implies P(n+1)$. By induction, $P(n)$ holds for all $n \in \mathbb{N}$.// 
 
 # Q4: A.11
 
@@ -311,7 +308,7 @@ Show that the set $A = \{r : r \in \mathbb{Q}, r^2 < 2\}$ is bounded above in $\
 
 ## Answer
 
-Sketch: To show $A$ is bounded above in $\mathbb{Q}$ but has no l.u.b. in $\mathbb{Q}$, we establish (1): $A$ is bounded above, by exhibiting an explicit upper bound; and (2): no rational $M$ can be the *least* upper bound, by supposing $M = \sup_{\mathbb{Q}}(A)$ exists and deriving a contradiction from a case split on $M^2 < 2$ versus $M^2 > 2$, in each case constructing a rational that violates either "upper bound" or "least."
+Sketch: We establish (1): $A$ is bounded above, and (2): No rational $M$ can be the *least* upper bound, by supposing $M = \sup_{\mathbb{Q}}(A)$ exists and deriving a contradiction (two contradictions, one for each case). 
 
 ### (1): $A$ is bounded above
 
@@ -320,19 +317,21 @@ By definition of an upper bound, $2$ is an upper bound of $A$.
 
 ### (2): $A$ has no l.u.b. in $\mathbb{Q}$
 
-*Proof.* Suppose to the contrary that $M = \sup_{\mathbb{Q}}(A)$ exists. Since $1 \in A$ (as $1^2 = 1 < 2$), $M \geq 1$, so $M$ is a positive rational. Since $\sqrt{2}$ is irrational, no rational squares to $2$, so $M^2 \neq 2$. Thus either $M^2 < 2$ or $M^2 > 2$; we derive a contradiction in each case.
+*Proof.* Suppose, for contradiction, that $M = \sup_{\mathbb{Q}}(A)$ exists. Since $1 \in A$ (as $1^2 = 1 < 2$), $M \geq 1$, so $M$ is a positive rational. Since $\sqrt{2}$ is irrational, no rational squares to $2$, so $M^2 \neq 2$. Thus either $M^2 < 2$ or $M^2 > 2$; we then examine each case.
 
-**Case $M^2 < 2$:** We construct $r \in A$ with $r > M$, contradicting $M$ as an upper bound.
-Let $\varepsilon = 2 - M^2 > 0$. Choose a rational $\delta$ with $0 < \delta < \min\left(1, \dfrac{\varepsilon}{2M+1}\right)$, and set $r = M + \delta$. Then
+**Case $M^2 < 2$:** Let $\varepsilon = 2 - M^2 > 0$. Choose a rational $\delta$ with $0 < \delta < \min\left(1, \dfrac{\varepsilon}{2M+1}\right)$, and set $r = M + \delta$. Then
+
 $$r^2 = M^2 + 2M\delta + \delta^2 < M^2 + \delta(2M+1) < M^2 + \varepsilon = 2.$$
-So $r \in A$, yet $r = M + \delta > M$ — contradicting that $M$ is an upper bound of $A$.
 
-**Case $M^2 > 2$:** We construct a rational upper bound $b$ of $A$ with $b < M$, contradicting $M$ as the *least* upper bound.
-Let $\varepsilon = M^2 - 2 > 0$. Choose a rational $\delta$ with $0 < \delta < \min\left(M, \dfrac{\varepsilon}{2M}\right)$, and set $b = M - \delta$. Then
+So $r \in A$, yet $r = M + \delta > M$, contradicting that $M$ is an upper bound of $A$.
+
+**Case $M^2 > 2$:** Let $\varepsilon = M^2 - 2 > 0$. Choose a rational $\delta$ with $0 < \delta < \min\left(M, \dfrac{\varepsilon}{2M}\right)$, and set $b = M - \delta$. Then
+
 $$b^2 = M^2 - 2M\delta + \delta^2 > M^2 - 2M\delta > M^2 - \varepsilon = 2.$$
-Since $b > 0$ and $b^2 > 2$: for any $a \in A$, $a^2 < 2 < b^2$, and since $a, b > 0$, this gives $a < b$. So $b$ is an upper bound of $A$, yet $b < M$ — contradicting that $M$ is the *least* upper bound.
 
-Both cases are contradictions, so no such $M \in \mathbb{Q}$ exists. Thus $A$ has no l.u.b. in $\mathbb{Q}$.
+Since $b > 0$ and $b^2 > 2$: for any $a \in A$, $a^2 < 2 < b^2$, and since $a, b > 0$, this gives $a < b$. So $b$ is an upper bound of $A$, yet $b < M$, contradicting that $M$ is the *least* upper bound.
+
+Both cases are contradictions, leading to the conclusion that no such $M \in \mathbb{Q}$ exists. Thus $A$ has no l.u.b. in $\mathbb{Q}$.//
 
 # Q5: A.12
 
@@ -404,7 +403,7 @@ $a_n = \dfrac{n}{(n+1)}$, $n \geq 0$.
 
 ## Answer 
 
-Sketch: Since $\rho = \left(\varlimsup_{n\to\infty}|a_n|^{1/n}\right)^{-1}$ (Cauchy–Hadamard), it suffices to show $a_n^{1/n} \to 1$. Since $a_n \in (0,1)$ for all $n\geq 1$ and $a_n \to 1$, we compute the limit of $\log(a_n^{1/n})$ directly using the standard fact $\log(1+t)/t \to 1$ as $t\to 0$.
+Sketch: Since $\rho = \left(\varlimsup_{n\to\infty}|a_n|^{1/n}\right)^{-1}$, it suffices to show $a_n^{1/n} \to 1$. Since $a_n \in (0,1)$ for all $n\geq 1$ and $a_n \to 1$, we compute the limit of $\log(a_n^{1/n})$ directly using the standard fact $\log(1+t)/t \to 1$ as $t\to 0$.
 
 For $n \geq 1$,
 
