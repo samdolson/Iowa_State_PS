@@ -12,8 +12,8 @@ Q1: Done
 Q2: Done
 Q3: Done
 Q4: Done
-Q5: 
-Q6: 
+Q5: Done 
+Q6: Done 
 Q7: 
 Q8: Done 
 
@@ -343,78 +343,57 @@ $$\leq \varlimsup_{n\to\infty} x_n + \varlimsup_{n\to\infty} y_n.$$
 
 ## Answer
 
-Sketch: To establish the chain of four inequalities, we bound $x_n + y_n$ between $\inf_{k\geq n}x_k + \inf_{k\geq n}y_k$ and $\sup_{k\geq n}x_k + \sup_{k\geq n}y_k$ for every $n$, then pass this bound through the definitions of $\varliminf$ and $\varlimsup$ — using that $\inf_{k\geq n}x_k$ is itself monotone increasing in $n$ (so it *converges* to $\varliminf x_n$, rather than merely bounding it) and $\sup_{k\geq n}x_k$ is monotone decreasing (converging to $\varlimsup x_n$). The middle inequality is then just the trivial fact that liminf never exceeds limsup.
-
-### Step 1: The pointwise bound
-
-For every $n \in \mathbb{N}$ and every $k \geq n$,
+*Proof*: By definition, for every $n \in \mathbb{N}$ and every $k \geq n$,
 
 $$\inf_{k\geq n} x_k \leq x_k \leq \sup_{k\geq n} x_k, \qquad \inf_{k\geq n} y_k \leq y_k \leq \sup_{k\geq n} y_k.$$
 
-Taking $k = n$ and adding the two left- and right-hand inequalities gives, for every $n$, the bound
+Taking $k=n$ and adding the left- and right-hand inequalities gives, for every $n$,
 
-$$\inf_{k\geq n} x_k + \inf_{k\geq n} y_k \;\leq\; x_n + y_n \;\leq\; \sup_{k\geq n} x_k + \sup_{k\geq n} y_k,$$
+$$\inf_{k\geq n} x_k + \inf_{k\geq n} y_k \;\leq\; x_n + y_n \;\leq\; \sup_{k\geq n} x_k + \sup_{k\geq n} y_k. \tag{1}$$
 
-which we refer to below as $(\ast)$.
+Since $\inf_{k\geq n}x_k$ is non-decreasing in $n$ and $\sup_{k\geq n}x_k$ is non-increasing in $n$ (and likewise for $y_n$), both are monotone sequences and hence by definition converge to $\varliminf_{n\to\infty}x_n$ and $\varlimsup_{n\to\infty}x_n$ respectively. So the left side of $(1)$ converges, as $n \to \infty$, to $\varliminf_{n\to\infty} x_n + \varliminf_{n\to\infty} y_n$, and the right side converges to $\varlimsup_{n\to\infty} x_n + \varlimsup_{n\to\infty} y_n$.
 
-### Step 2: The outer terms converge to $\varliminf$ and $\varlimsup$
-
-By definition, $\varliminf_{n\to\infty} x_n = \lim_{n\to\infty}\inf_{k\geq n} x_k$ and $\varlimsup_{n\to\infty} x_n = \lim_{n\to\infty}\sup_{k\geq n} x_k$, and these limits exist (possibly $\pm\infty$) because $\inf_{k\geq n}x_k$ is non-decreasing in $n$ and $\sup_{k\geq n}x_k$ is non-increasing in $n$. The same holds for $y_n$. Hence the left side of $(\ast)$ converges:
-
-$$\inf_{k\geq n} x_k + \inf_{k\geq n} y_k \;\longrightarrow\; \varliminf_{n\to\infty} x_n + \varliminf_{n\to\infty} y_n,$$
-
-and the right side of $(\ast)$ converges:
-
-$$\sup_{k\geq n} x_k + \sup_{k\geq n} y_k \;\longrightarrow\; \varlimsup_{n\to\infty} x_n + \varlimsup_{n\to\infty} y_n.$$
-
-### Step 3: Pass $(\ast)$ through liminf and limsup
-
-Since $\liminf$ and $\limsup$ are monotone with respect to termwise $\leq$, applying them to $(\ast)$ gives, from the left inequality,
+Now apply $\liminf$ and $\limsup$ to $(1)$, using that both are monotone with respect to termwise $\leq$. From the left inequality of $(1)$,
 
 $$\varliminf_{n\to\infty}\Big(\inf_{k\geq n} x_k + \inf_{k\geq n} y_k\Big) \leq \varliminf_{n\to\infty}(x_n+y_n),$$
 
-and by Step 2 the left side is an honest limit, equal to $\varliminf_{n\to\infty} x_n + \varliminf_{n\to\infty} y_n$. This gives
+and since the left side is a limit (shown above), it equals $\varliminf_{n\to\infty} x_n + \varliminf_{n\to\infty} y_n$. This gives
 
 $$\varliminf_{n\to\infty} x_n + \varliminf_{n\to\infty} y_n \;\leq\; \varliminf_{n\to\infty}(x_n+y_n).$$
-
-Symmetrically, applying $\limsup$ to the right inequality of $(\ast)$ and using Step 2 gives
+Symmetrically, applying $\limsup$ to the right inequality of $(1)$ gives
 
 $$\varlimsup_{n\to\infty}(x_n+y_n) \;\leq\; \varlimsup_{n\to\infty} x_n + \varlimsup_{n\to\infty} y_n.$$
 
-### Step 4: The middle inequality
-
-For any real sequence $z_n$, $\inf_{k\geq n} z_k \leq \sup_{k\geq n} z_k$ for every $n$; taking the limit in $n$ gives $\varliminf_{n\to\infty} z_n \leq \varlimsup_{n\to\infty} z_n$. Applying this with $z_n = x_n + y_n$:
+Finally, for any real sequence $z_n$ we have $\inf_{k\geq n} z_k \leq \sup_{k\geq n} z_k$ for every $n$, and taking $n \to \infty$ gives $\varliminf_{n\to\infty} z_n \leq \varlimsup_{n\to\infty} z_n$. Applying this with $z_n = x_n+y_n$ gives the middle inequality,
 
 $$\varliminf_{n\to\infty}(x_n+y_n) \leq \varlimsup_{n\to\infty}(x_n+y_n).$$
 
-### Conclusion
+Chaining the three inequalities above gives us:
 
-Step 3 gives the outer two inequalities of the claim, and Step 4 gives the middle one. Chaining all three together yields
-
-$$\varliminf_{n\to\infty} x_n + \varliminf_{n\to\infty} y_n \leq \varliminf_{n\to\infty} (x_n + y_n) \leq \varlimsup_{n\to\infty} (x_n + y_n) \leq \varlimsup_{n\to\infty} x_n + \varlimsup_{n\to\infty} y_n.$$
+$$\varliminf_{n\to\infty} x_n + \varliminf_{n\to\infty} y_n \leq \varliminf_{n\to\infty} (x_n + y_n) \leq \varlimsup_{n\to\infty} (x_n + y_n) \leq \varlimsup_{n\to\infty} x_n + \varlimsup_{n\to\infty} y_n.//$$
 
 # Q6: A.17 
 
 Find the radius of convergence, $\rho$, for the powers series $A(x) \equiv \sum_{n=0}^{\infty} a_n x^n$ where
 
 ## (a) 
-
 $a_n = \dfrac{n}{(n+1)}$, $n \geq 0$.
 
 ## Answer 
 
-Sketch: Since $\rho = \left(\varlimsup_{n\to\infty}|a_n|^{1/n}\right)^{-1}$, it suffices to show $a_n^{1/n} \to 1$. Since $a_n \in (0,1)$ for all $n\geq 1$ and $a_n \to 1$, we compute the limit of $\log(a_n^{1/n})$ directly using the standard fact $\log(1+t)/t \to 1$ as $t\to 0$.
+Sketch: Since $\rho = \left(\varlimsup_{n\to\infty}|a_n|^{1/n}\right)^{-1}$, it suffices to show $a_n^{1/n} \to 1$.
 
-For $n \geq 1$,
+*Proof.* For $n \geq 1$,
 
 $$\log\big(a_n^{1/n}\big) = \frac{1}{n}\log\!\left(\frac{n}{n+1}\right) = -\frac{1}{n}\log\!\left(1+\frac{1}{n}\right).$$
+
 Writing $t = 1/n \to 0$ and using $\lim_{t\to 0} \dfrac{\log(1+t)}{t} = 1$,
 
 $$\frac{1}{n}\log\!\left(1+\frac{1}{n}\right) = \frac{1}{n^2}\cdot\frac{\log(1+1/n)}{1/n} \;\longrightarrow\; 0 \cdot 1 = 0.$$
 
 Hence $\log(a_n^{1/n}) \to 0$, so $a_n^{1/n} \to e^0 = 1$. Since this is an honest limit, $\varlimsup_{n\to\infty}|a_n|^{1/n} = 1$.
 
-Thus $\rho = 1^{-1} = 1$.
+Thus $\rho = 1^{-1} = 1$.//
 
 ## (b) 
 
@@ -422,9 +401,9 @@ $a_n = n^p$, $n \geq 0$, $p \in \mathbb{R}$.
 
 ## Answer 
 
-Sketch: The key fact is $\log n / n \to 0$, which lets us show $n^{p/n} \to 1$ for *every* fixed $p$ — so the radius of convergence is $1$ regardless of the exponent $p$. We justify $\log n/n \to 0$ by applying L'Hôpital's rule to the continuous function $\log x/x$ as $x \to \infty$; since the resulting limit holds over all reals $x \to \infty$, it holds in particular along the integer sequence $n \to \infty$.
+Sketch: The key fact is $\log n / n \to 0$, which gives $n^{p/n} \to 1$ for every fixed $p$, so $\rho = 1$ regardless of the exponent.
 
-*Proof.* For the continuous function $f(x) = \dfrac{\log x}{x}$, L'Hôpital's rule gives
+*Proof.* For the continuous function $f(x) = \dfrac{\log x}{x}$, L'Hopital's rule gives
 
 $$\lim_{x\to\infty} \frac{\log x}{x} = \lim_{x\to\infty} \frac{1/x}{1} = 0,$$
 
@@ -438,31 +417,29 @@ for every fixed $p \in \mathbb{R}$. Hence $a_n^{1/n} = n^{p/n} \to e^0 = 1$, so 
 
 (For $p<0$ the term $a_0 = 0^p$ is undefined, but the radius of convergence depends only on the tail behavior as $n\to\infty$, so this does not affect $\rho$.)
 
-Thus $\rho = 1^{-1} = 1$, for every $p \in \mathbb{R}$.
+Thus $\rho = 1^{-1} = 1$, for every $p \in \mathbb{R}$.//
 
 ## (c) 
-
 $a_n = \dfrac{1}{n!}$, $n \geq 0$ (where $0! = 1$).
 
 ## Answer 
 
-Sketch: We show $(1/n!)^{1/n} \to 0$ using the elementary bound $n! \geq (n/e)^n$, obtained by truncating the power series for $e^n$ to a single term. This avoids relying on Stirling's formula, and avoids the false intermediate claim $(1/n)^{1/n}\to 0$ (in fact $(1/n)^{1/n}\to 1$, which would only give $\varlimsup \leq 1$ — far too weak to conclude $\rho=\infty$).
+Sketch: We show $(1/n!)^{1/n} \to 0$ using the elementary bound $n! \geq (n/e)^n$, obtained by truncating the series for $e^n$ to a single term (without invoking Stirling's formula, though that is also an option).
 
 *Proof.* For $n \geq 1$, the exponential series $e^n = \displaystyle\sum_{k=0}^{\infty} \frac{n^k}{k!}$ has all nonnegative terms, so it is bounded below by its $k=n$ term:
 
 $$e^n \geq \frac{n^n}{n!} \quad\Longrightarrow\quad n! \geq \frac{n^n}{e^n} = \left(\frac{n}{e}\right)^n.$$
 
 Taking $n$-th roots (all quantities positive),
-
 $$(n!)^{1/n} \geq \frac{n}{e}.$$
 
 Hence
 
 $$0 \;<\; \left(\frac{1}{n!}\right)^{1/n} = \frac{1}{(n!)^{1/n}} \;\leq\; \frac{e}{n} \;\longrightarrow\; 0.$$
 
-By the squeeze theorem, $\displaystyle\lim_{n\to\infty}\left(\frac{1}{n!}\right)^{1/n} = 0$, so $\varlimsup_{n\to\infty}|a_n|^{1/n} = 0$.
+By the squeeze (or sandwich, they are one-and-the-same) theorem, $\displaystyle\lim_{n\to\infty}\left(\frac{1}{n!}\right)^{1/n} = 0$, so $\varlimsup_{n\to\infty}|a_n|^{1/n} = 0$.
 
-Thus $\rho = (0)^{-1} = +\infty$: the series converges for every $x \in \mathbb{R}$.
+Thus $\rho = (0)^{-1} = +\infty$: the series converges for every $x \in \mathbb{R}$.//
 
 # Q7: A.18
 
