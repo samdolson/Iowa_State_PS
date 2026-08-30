@@ -8,15 +8,6 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Q1: Done 
-Q2: Done
-Q3: Done
-Q4: Done
-Q5: Done 
-Q6: Done 
-Q7: 
-Q8: Done 
-
 # Q1: A.3
 
 Let $I = [0,1]$, $\Omega = \mathbb{R}$ and for $\alpha \in \mathbb{R}$, $A_\alpha = (\alpha - 1, \alpha + 1)$, the open interval $\{x : \alpha - 1 < x < \alpha + 1\}$.
@@ -533,11 +524,9 @@ Show that $f$ is infinitely differentiable at 0 and compute $f^{(j)}(0)$ for all
 
 ### Answer 
 
-Sketch: Away from $0$, each derivative of $f$ has the form (rational function of $x$) $\times\, e^{-1/x^2}$, since differentiating this shape via the chain/product rule always produces another term of the same shape. To handle $x=0$, we show $e^{-1/x^2}$ divided by any power of $x$ still $\to 0$ as $x\to 0$ (the exponential decay dominates any polynomial blow-up), then induct on $j$ using the definition of the derivative at a point to show every $f^{(j)}(0) = 0$.
+Sketch: There are two parts to this proof: (1) that $f$ is infinitely differentiable, using the chain rule for derivation, and (2) compute $f^{(j)}(0)$ utilizing an inductive proof. 
 
-*Claim.* $f$ is infinitely differentiable at $0$, and $f^{(j)}(0) = 0$ for all $j \ge 1$.
-
-*Setup.* For $x \ne 0$ (with $|x|<1$), one can show inductively that each derivative of $f$ has the form
+*Setup.* For $x \ne 0$ (with $|x|<1$) and $j\ge 1$, each derivative of $f$ has the form
 
 $$
 f^{(j)}(x) = \sum_{k=0}^{j-1} a_{k,j}\, x^{2k-3j}\, e^{-1/x^2}, \qquad x \ne 0,
@@ -545,27 +534,35 @@ $$
 
 for suitable constants $a_{k,j}$ (this follows by repeated differentiation via the chain and product rules; each differentiation multiplies existing terms by a rational function of $1/x$ and adds new terms of the same general shape). We take this representation as given and focus on differentiability at $x=0$.
 
-*Key Lemma.* For every integer $m \ge 0$,
+*Lemma.* For every integer $m \ge 0$,
 
 $$
 \lim_{x\to 0} \frac{e^{-1/x^2}}{x^m} = 0.
 $$
 
-*Proof:* Substituting $s = 1/|x|$ so that $s\to\infty$ as $x\to 0$, we have $\left|\dfrac{e^{-1/x^2}}{x^m}\right| = s^m e^{-s^2} \to 0$ as $s \to \infty$, since the exponential $e^{-s^2}$ decays faster than any polynomial power $s^m$ grows.
+*Proof.* Substituting $s = 1/|x|$ so that $s\to\infty$ as $x\to 0$, we have $\left|\dfrac{e^{-1/x^2}}{x^m}\right| = s^m e^{-s^2} \to 0$ as $s \to \infty$, since the exponential $e^{-s^2}$ decays faster than any polynomial power $s^m$ grows.
 
-*Proof (by induction on $j$) that $f^{(j)}(0)$ exists and equals $0$ for all $j \ge 0$.*
+*Proof (by induction on $j$) that $f^{(j)}(0)$ exists and equals $0$ for all $j \ge 1$.*
 
-*Base case ($j=0$):* By definition $f(0) = 0$. Also $\lim_{x\to 0} f(x) = \lim_{x\to 0} e^{-1/x^2} = 0$ by the Lemma (with $m=0$), so $f$ is continuous at $0$ with $f(0)=0$.
+Note first that $f$ is continuous at $0$: $\lim_{x\to 0} f(x) = \lim_{x\to 0} e^{-1/x^2} = 0$ by the Lemma given above (with $m=0$), which agrees with $f(0)=0$.
 
-*Inductive step:* Suppose $f^{(j)}(0) = 0$ and, for $x\ne 0$, $f^{(j)}(x) = \sum_{k=0}^{j-1} a_{k,j} x^{2k-3j} e^{-1/x^2}$. Then by the definition of the derivative,
+*Base case ($j=1$):* By the definition of the derivative (at least as defined in the Appendix of the text),
+
+$$
+f'(0) = \lim_{h\to 0} \frac{f(h) - f(0)}{h} = \lim_{h\to 0} \frac{e^{-1/h^2}}{h},
+$$
+
+which equals $0$ by the Lemma (with $m=1$). So $f'(0)$ exists and equals $0$.
+
+*Inductive step:* Suppose $j\ge 1$, $f^{(j)}(0) = 0$, and, for $x\ne 0$, $f^{(j)}(x) = \sum_{k=0}^{j-1} a_{k,j} x^{2k-3j} e^{-1/x^2}$ (as given in the Setup, valid since $j\ge 1$). Then by the definition of the derivative,
 
 $$
 f^{(j+1)}(0) = \lim_{h\to 0} \frac{f^{(j)}(h) - f^{(j)}(0)}{h} = \lim_{h\to 0} \frac{f^{(j)}(h)}{h} = \lim_{h\to 0} \sum_{k=0}^{j-1} a_{k,j}\, \frac{e^{-1/h^2}}{h^{3j-2k+1}}.
 $$
 
-Each term in this finite sum tends to $0$ by the Key Lemma (with $m = 3j-2k+1 \ge 0$). Hence the whole limit is $0$, so $f^{(j+1)}(0)$ exists and equals $0$.
+Each term in this finite sum tends to $0$ by the Lemma (with $m = 3j-2k+1 \ge 0$). Hence the whole limit is $0$, so $f^{(j+1)}(0)$ exists and equals $0$.
 
-By induction, $f^{(j)}(0)$ exists and equals $0$ for every $j \ge 0$; in particular, $f$ is infinitely differentiable at $0$ and $f^{(j)}(0) = 0$ for all $j \ge 1$.// 
+By induction, $f^{(j)}(0)$ exists and equals $0$ for every $j \ge 1$; together with $f(0)=0$, $f$ is infinitely differentiable at $0$ with $f^{(j)}(0) = 0$ for all $j \ge 1$.//
 
 ### (ii) 
 
@@ -573,9 +570,7 @@ Show that the Taylor series at $a = 0$ converges but not to $f$ on $(-1,1)$.
 
 ### Answer 
 
-Sketch: Since every derivative of $f$ vanishes at $0$ by part (c)(i), the Taylor series at $a=0$ is identically the zero function, which trivially converges everywhere. But $f(x) = e^{-1/x^2} > 0$ for every $x \neq 0$, so the series (constant $0$) disagrees with $f$ at every nonzero point of $(-1,1)$.
-
-*Claim.* The Taylor series of $f$ at $a=0$ converges on $(-1,1)$, but not to $f$.
+Sketch: We can apply the result from part (c)(i). Then, since $f(x) = e^{-1/x^2} > 0$ for every $x \neq 0$, the series (identically $0$) converges to a value different from $f(x)$ at every nonzero point of $(-1,1)$.
 
 *Proof.* From part (c)(i), $f^{(n)}(0) = 0$ for all $n \ge 0$ (including $f(0)=0$). Therefore the Taylor series at $a=0$ is
 
@@ -583,9 +578,9 @@ $$
 \sum_{n=0}^\infty \frac{f^{(n)}(0)}{n!}(x-0)^n = \sum_{n=0}^\infty \frac{0}{n!}x^n = \sum_{n=0}^\infty 0 = 0,
 $$
 
-i.e., the Taylor series is identically the zero function. This series trivially converges (to $0$) for every $x \in \mathbb{R}$, and in particular for every $x \in (-1,1)$.
+i.e., the Taylor series is the zero function. This series converges (trivially to $0$) for every $x \in \mathbb{R}$, and in particular for every $x \in (-1,1)$.
 
-However, for any $x \in (-1,1)$ with $x \ne 0$, we have $f(x) = e^{-1/x^2} > 0 \ne 0$. Hence the Taylor series converges to $0$, but $f(x) \ne 0$, so the Taylor series does **not** converge to $f(x)$ at any such point. Only at $x=0$ does the series' value ($0$) agree with $f(0) = 0$.
+However, for any $x \in (-1,1)$ with $x \ne 0$, we have $f(x) = e^{-1/x^2} > 0 \ne 0$. Hence the Taylor series converges to $0$, but $f(x) \ne 0$, so the Taylor series does **not** converge to $f(x)$ at any such point. And only at $x=0$ does the series' value ($0$) agree with $f(0) = 0$.
 
 Thus the Taylor series of $f$ at $a=0$ converges on all of $(-1,1)$, but it converges to $f$ only at the single point $x=0$, not on $(-1,1)$ as a whole.//
 
