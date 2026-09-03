@@ -8,6 +8,14 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Progress 
+
+- Q1: 
+- Q2: 
+- Q3: Draft
+- Q4: Draft
+- Q5: Draft
+
 # Q1 
 
 Let $X$, $W$, and $Z$ denote matrices.
@@ -107,27 +115,58 @@ $$
 
 # 3. 
 
+Note to self, see: 
+  
+  - Dale L. Zimmerman, Linear Model Theory: Exercises and Solutions (Springer, 2020), Chapter 3, "Generalized Inverses and Solutions to Systems of Linear Equations"
+  - https://people.stat.sc.edu/Tebbs/stat714/f10notes.pdf
+  
 For each of the following statements, indicate whether the statement is true or false, and explain.
 
 ## (a) 
 
 If $Ax = y$ has a unique solution, then $A$ must be a nonsingular matrix.
 
+**False.** Let $A$ be an $n \times m$ matrix and suppose $A\mathbf{x} = \mathbf{y}$ is consistent, with particular solution $\mathbf{x}_0$. The full solution set is $\mathbf{x}_0 + \mathcal{N}(A)$, so the solution is unique if and only if $\mathcal{N}(A) = \{\mathbf{0}\}$, i.e., $A$ has full column rank. This is purely a rank condition and has nothing intrinsically to do with $A$ being square — indeed, "nonsingular" is a term defined only for square matrices. As a counterexample, let
+
+$$A = \begin{pmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{pmatrix},$$
+
+a $3 \times 2$ matrix of full column rank. For any $\mathbf{y}$ in the column space of $A$ — say $\mathbf{y} = A(2,-1)^\top$ — the system $A\mathbf{x} = \mathbf{y}$ has the unique solution $\mathbf{x} = (2,-1)^\top$, even though $A$ is not square and so cannot properly be called nonsingular at all.
+
 ## (b) 
 
 If $G$ is a generalized inverse of $A$, then $GA = I$, where $I$ denotes the identity matrix of appropriate dimensions.
+
+**False.** The defining property of a generalized inverse is only $AGA = A$; nothing in this equation forces $GA = I$. As a counterexample, let $A = \operatorname{diag}(1,0)$, a symmetric, singular, idempotent matrix ($A^2 = A$), and take $G = I$. Then $AGA = A \cdot I \cdot A = A^2 = A$, so $G = I$ is a valid generalized inverse of $A$. However, $GA = IA = A \neq I$, since $A$ is singular. This single example is enough to show that a valid generalized inverse need not satisfy $GA = I$.
 
 ## (c) 
 
 If $A$ has a generalized inverse $G$ such that $GA = I$, then $A$ must be a (square) nonsingular matrix.
 
+**False.** The condition $GA = I_m$ forces $A$ (of size $n \times m$) to have full column rank, but this is again a rank condition, not a requirement that $n = m$. Let
+
+$$A = \begin{pmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{pmatrix},$$
+
+a $3 \times 2$ matrix of full column rank, so that $A^\top A$ is $2 \times 2$ and nonsingular. Setting $G = (A^\top A)^{-1} A^\top$ gives $GA = (A^\top A)^{-1} A^\top A = I_2$ and $AGA = A(A^\top A)^{-1} A^\top A = A$, so $G$ is a genuine generalized inverse of $A$ satisfying $GA = I$. Yet $A$ itself is $3 \times 2$ — rectangular, not square — and therefore cannot be nonsingular. (This $G$ is, in fact, the Moore–Penrose pseudoinverse of $A$ in the full-column-rank case, the same object used to prove part (e).)
+
 ## (d) 
 
 If $A$ is a symmetric matrix, then all its generalized inverses are also symmetric.
 
+**False.** Symmetry of $A$ constrains $A$, not $G$: the equation $AGA = A$ generally admits many solutions $G$, most of which are not symmetric. Let $A = \operatorname{diag}(1,0)$, a symmetric matrix, and take
+
+$$G = \begin{pmatrix} 1 & 1 \\ 0 & 0 \end{pmatrix}.$$
+
+Direct computation gives $AGA = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix} = A$, so $G$ is a valid generalized inverse of $A$, but $G \neq G^\top$. This counterexample shows that not every generalized inverse of a symmetric matrix is itself symmetric.
+
 ## (e) 
 
 If $A$ is a symmetric matrix, then it has at least one symmetric generalized inverse.
+
+**True.** Unlike the previous parts, this is an existence claim, so a counterexample cannot settle it — a constructive proof is required instead. Because $A$ is symmetric, the spectral theorem guarantees an orthogonal matrix $P$ (with $P^\top P = PP^\top = I$) and a diagonal matrix $D = \operatorname{diag}(\lambda_1, \dots, \lambda_n)$ of eigenvalues such that $A = PDP^\top$. Define $D^-$ to be the diagonal matrix whose $i$th entry is $1/\lambda_i$ when $\lambda_i \neq 0$ and $0$ when $\lambda_i = 0$, and set $G = PD^-P^\top$. Since $D^-$ is diagonal, $G^\top = P(D^-)^\top P^\top = PD^-P^\top = G$, so $G$ is symmetric. Moreover, since $P^\top P = I$ and $DD^-D = D$ entrywise regardless of whether $\lambda_i$ is zero,
+
+$$AGA = (PDP^\top)(PD^-P^\top)(PDP^\top) = P(DD^-D)P^\top = PDP^\top = A.$$
+
+Thus $G = PD^-P^\top$ is symmetric and satisfies $AGA = A$, proving that every symmetric matrix has at least one symmetric generalized inverse.
 
 # 4. 
 
@@ -137,39 +176,104 @@ For each of the following questions, give, if possible, a $3 \times 3$ **nondiag
 
 $A$ is a generalized inverse of $A$.
 
+**Possible.** The condition $A$ is a generalized inverse of itself means $A \cdot A \cdot A = A$, i.e. $A^3 = A$. This holds for any idempotent matrix, since $A^2 = A$ implies $A^3 = A^2 \cdot A = A \cdot A = A^2 = A$. Take
+
+$$A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix},$$
+
+a nondiagonal matrix with $A^2 = A$. Consequently $A^3 = A$, so $A$ is a generalized inverse of itself.
+
 ## (b) 
 
 $A'$ is a generalized inverse of $A$.
+
+**Possible.** We need $AA^\top A = A$, which holds whenever $A^\top = A^{-1}$, i.e. whenever $A$ is orthogonal. A nondiagonal orthogonal matrix is easy to produce: let $A$ be the $3 \times 3$ cyclic permutation matrix
+
+$$A = \begin{pmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 0 & 0 \end{pmatrix}.$$
+
+Since $A^\top A = I$, we have $A^\top = A^{-1}$, and so $AA^\top A = AA^{-1}A = A$. Note $A^\top \neq A$ here (the transpose is the inverse permutation), which nicely illustrates that $A'$ need not equal $A$ to serve as its generalized inverse.
 
 ## (c) 
 
 The identity matrix $I$ is a generalized inverse of $A$.
 
+**Possible.** The condition is $AIA = A^2 = A$, i.e. $A$ is idempotent — exactly the same requirement used in part (a). The matrix
+
+$$A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix}$$
+
+from part (a) again works, since $A^2 = A$ directly gives $AIA = A$. It's worth noting that idempotency ($A^2 = A$) is strictly stronger than the condition $A^3 = A$ needed in (a): every idempotent matrix satisfies (a), but not every matrix satisfying (a) is idempotent (a nondiagonal reflection, with $A^2 = I \neq A$ but $A^3 = A$, would satisfy (a) without satisfying (c)).
+
 ## (d) 
 
 Every $3 \times 3$ matrix is a generalized inverse of $A$.
+
+**Not possible.** Requiring $AGA = A$ for *every* $3 \times 3$ matrix $G$ is an extremely strong condition. Taking $G = 0$ in particular forces $A \cdot 0 \cdot A = 0 = A$, so $A$ must be the zero matrix; and conversely, if $A = 0$ then $AGA = 0 = A$ trivially holds for any $G$. Hence $A = 0$ is the *unique* matrix with this property. But the zero matrix has all off-diagonal entries equal to zero, so it is itself a diagonal matrix — there is no nondiagonal $3\times 3$ matrix for which every matrix serves as a generalized inverse.
 
 ## (e) 
 
 Every generalized inverse of $A$ is nonsingular.
 
+**Possible.** This property holds if and only if $A$ is nonsingular. If $A$ is nonsingular, the equation $AGA = A$ has the unique solution $G = A^{-1}$ (multiply on the left and right by $A^{-1}$), and $A^{-1}$ is of course nonsingular. Conversely, if $A$ is singular with $\operatorname{rank}(A) = r < 3$, a reflexive generalized inverse always exists — one additionally satisfying $GAG = G$ — and any such $G$ necessarily has $\operatorname{rank}(G) = \operatorname{rank}(A) = r < 3$, making it singular; so a singular $A$ always admits at least one singular generalized inverse, ruling it out. A nondiagonal nonsingular example:
+
+$$A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}, \qquad \det(A) = 1 \neq 0.$$
+
+Its unique generalized inverse, $A^{-1}$, is nonsingular by construction.
+
 # 5. 
 
 For any matrix $A$, let $B$ and $C$ be any two matrices that satisfy $A'AB = A'$ and $AA'C' = A$ (the existence of such $B$ and $C$ follows from Corollary 2 to Lemma 1.4). Let $G = CAB$. Show that $G$ satisfies the following four conditions:
+
+From lecture notes, we have: 
+
+**Preliminary facts.** Corollary 2 to Lemma 1.4 (with $X=A$) guarantees the matrix $B$ satisfying $A'AB=A'$, and Corollary 1 to Lemma 1.5 (again $X=A$) immediately gives
+
+$$ABA = B'A'A = A. \qquad (\star)$$
+
+Corollary 5 to Lemma 1.5 identifies $AB$ as the orthogonal projection matrix onto $C(A)$, which by Corollary 4 to Lemma 1.5 is symmetric:
+
+$$(AB)' = AB. \qquad (\star\star)$$
+
+Applying the *same two corollaries* with $X=A'$ in place of $X=A$ produces the $C$-side facts. Here $X'X = AA'$ and $X'=A$, so the condition $AA'C'=A$ is exactly Corollary 2 to Lemma 1.4's existence statement for a "$B$" attached to $X=A'$; Corollary 1 to Lemma 1.5 then gives $A'C'A'=A'$, and transposing (using $(PQR)'=R'Q'P'$) turns this into
+
+$$ACA = A. \qquad (\star\star\star)$$
+
+Likewise, Corollary 4 to Lemma 1.5 says $A'C'$ is symmetric, i.e. $(A'C')'=A'C'$; since $(A'C')' = CA$, this reads $CA = A'C'$, and transposing once more gives
+
+$$(CA)' = A'C' = CA. \qquad (\star\!\star\!\star\star)$$
+
+So the notes hand us, at no extra cost, four identities: $ABA=A$, $ACA=A$, $AB$ symmetric, and $CA$ symmetric — everything needed for (i)–(iv) below.
 
 ## (i) 
 
 $AGA = A$, 
 
+Substituting $G=CAB$ and grouping,
+
+$$AGA = A(CAB)A = (ACA)(BA) = A(BA) = ABA = A,$$
+
+using $(\star\star\star)$ to collapse $ACA \to A$, then $(\star)$ to collapse $ABA \to A$.
+
 ## (ii) 
 
 $GAG = G$, 
+
+First note the two identities that also drive (iii) and (iv): $GA = (CAB)A = C(ABA) = CA$ by $(\star)$, and $AG = A(CAB) = (ACA)B = AB$ by $(\star\star\star)$. Using $GA = CA$,
+
+$$GAG = (GA)G = (CA)(CAB) = C(ACA)B = C A B = G,$$
+
+again invoking $(\star\star\star)$ to collapse the middle $ACA$ to $A$.
 
 ## (iii) 
 
 $(GA)' = GA$, and 
 
+Since $GA = CA$ (shown in (ii)), symmetry of $GA$ is exactly $(\star\!\star\!\star\star)$:
+
+$$(GA)' = (CA)' = CA = GA.$$
+
 ## (iv) 
 
 $(AG)' = AG$.
 
+Since $AG = AB$ (shown in (ii)), symmetry of $AG$ is exactly $(\star\star)$:
+
+$$(AG)' = (AB)' = AB = AG.$$
