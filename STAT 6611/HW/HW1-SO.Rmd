@@ -1,0 +1,175 @@
+---
+title: "HW1"
+author: "Sam Olson"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Q1 
+
+Let $X$, $W$, and $Z$ denote matrices.
+
+## (a) 
+
+If $\mathcal{C}(X) = \mathcal{C}(W)$, show that $P_X = P_W$, i.e., the projection matrices must be the same.
+
+*Hint: Consider $(P_W - P_X)'(P_W - P_X)$.*
+
+## (b) 
+
+If $X$ is an $n \times n$ matrix of rank $n$, show $P_X = I_n$ (i.e., the $n \times n$ identity matrix).
+
+## (c) 
+
+Let $\mathcal{C}^{\perp}(X)$ denote the orthogonal complement of $\mathcal{C}(X)$ (i.e., $\underline{y} \in \mathcal{C}^{\perp}(X)$ if and only if $\underline{x}'\underline{y} = 0$ for any column $\underline{x}$ of $X$). If a vector $\underline{b} \in \mathcal{C}(X)$ and $\underline{b} \in \mathcal{C}^{\perp}(X)$, show that $\underline{b}$ must equal the zero vector (this also implies that a non-zero vector in $\mathcal{C}(X)$ must be linearly independent from a non-zero vector in $\mathcal{C}^{\perp}(X)$).
+
+*Hint: Write $\underline{b} = X\underline{a}$ and consider $\underline{b}'\underline{b}$.*
+
+## (d) 
+
+Let $X$ be an $n \times p$ matrix of rank $r \geq 1$, and $Z$ be an $n \times (n-r)$ matrix with columns formed by $n - r$ linearly independent vectors in $\mathcal{C}^{\perp}(X)$. Show that $P_Z = I_n - P_X$.
+
+*Hint: Put $r$ linearly independent columns of $X$ along with the columns of $Z$ into one $n \times n$ matrix $\tilde{X}$ (if $n = r$, technically $Z$ is just a zero vector). Compute $P_{\tilde{X}}$ and use (a)-(b).*
+
+## (e) 
+
+For a vector $\underline{y}$, show that $P_X \underline{y} = 0$ if and only if $\underline{y} \in \mathcal{C}^{\perp}(X)$.
+
+*Hint: use (d) and multiply $I = I - P_X + P_X$ by $\underline{y}$*
+
+## (f) 
+
+Show that $P_X + P_W$ is a projection matrix if and only if $X'W = 0$ (the columns of $X$ and $W$ must be orthogonal).
+
+*Hint: If $P_X + P_W$ is a projection matrix, one can show $P_X P_W = -P_W P_X$ must hold; this relation implies that any vector $\underline{y}$ that is in both $\mathcal{C}(X)$ and $\mathcal{C}(W)$ must be zero (why?). Further, for $M = P_X P_W$, the relation also gives $M'M = P_X P_W P_W$ and $M'M = P_W P_X P_W$, meaning any column of $M'M$ belongs to $\mathcal{C}^{\perp}(X)$ and to $\mathcal{C}^{\perp}(W)$.*
+
+## (g) 
+
+Show that $P_X - P_W$ is a projection matrix if and only if $\mathcal{C}(W) \subset \mathcal{C}(X)$.
+
+*Hint: If $P_X - P_W$ is a projection matrix then $(I - P_X)P_W = -P_W(I - P_X)$ must hold; then the proof is kind of the same as in (f), using that (from (d)) $P_Z = I_n - P_X$ holds, where $Z$ is a matrix with linearly independent columns that span $\mathcal{C}^{\perp}(X)$.*
+
+# 2. 
+
+Suppose that $\mathcal{C}(C)$ is a subspace of $\mathcal{C}(A)$ and that $\mathcal{R}(D)$ is a subspace of $\mathcal{R}(A)$.
+
+## (a) 
+
+Show that $AA^-C = C$ and $DA^-A = D$.
+
+## (b) 
+
+Using (a), show that
+
+$$
+\begin{bmatrix} I & 0 \\ -DA^- & I \end{bmatrix}
+\begin{bmatrix} A & C \\ D & B \end{bmatrix}
+\begin{bmatrix} I & -A^-C \\ 0 & I \end{bmatrix}
+=
+\begin{bmatrix} A & 0 \\ 0 & Q \end{bmatrix},
+$$
+
+where $Q = B - DA^-C$, and $I$ denotes the identity matrix of appropriate dimensions.
+
+## (c) 
+
+Using (b) with the fact that the two matrices defined by "$I$ on the diagonals" are square and invertible in (b), show that
+
+$$
+\begin{bmatrix} I & -A^-C \\ 0 & I \end{bmatrix}
+\begin{bmatrix} A^- & 0 \\ 0 & Q^- \end{bmatrix}
+\begin{bmatrix} I & 0 \\ -DA^- & I \end{bmatrix}
+$$
+
+is a generalized inverse of
+
+$$
+M \equiv \begin{bmatrix} A & C \\ D & B \end{bmatrix}.
+$$
+
+## (d) 
+
+Show that the above generalized inverse matches that given in (i) of Theorem 1.4.
+
+## (e) 
+
+Show that the conditions imposed on the matrices $B$, $C$, and $D$ in part (ii) of Theorem 1.4 are satisfied if there exists a matrix $Z = (Z_1, Z_2)$ for which
+
+$$
+M = Z'Z = (Z_1, Z_2)'(Z_1, Z_2) =
+\begin{bmatrix} Z_1'Z_1 & Z_1'Z_2 \\ Z_2'Z_1 & Z_2'Z_2 \end{bmatrix}
+=
+\begin{bmatrix} A & C \\ D & B \end{bmatrix}.
+$$
+
+# 3. 
+
+For each of the following statements, indicate whether the statement is true or false, and explain.
+
+## (a) 
+
+If $Ax = y$ has a unique solution, then $A$ must be a nonsingular matrix.
+
+## (b) 
+
+If $G$ is a generalized inverse of $A$, then $GA = I$, where $I$ denotes the identity matrix of appropriate dimensions.
+
+## (c) 
+
+If $A$ has a generalized inverse $G$ such that $GA = I$, then $A$ must be a (square) nonsingular matrix.
+
+## (d) 
+
+If $A$ is a symmetric matrix, then all its generalized inverses are also symmetric.
+
+## (e) 
+
+If $A$ is a symmetric matrix, then it has at least one symmetric generalized inverse.
+
+# 4. 
+
+For each of the following questions, give, if possible, a $3 \times 3$ **nondiagonal** matrix $A$ that has the stated property.
+
+## (a) 
+
+$A$ is a generalized inverse of $A$.
+
+## (b) 
+
+$A'$ is a generalized inverse of $A$.
+
+## (c) 
+
+The identity matrix $I$ is a generalized inverse of $A$.
+
+## (d) 
+
+Every $3 \times 3$ matrix is a generalized inverse of $A$.
+
+## (e) 
+
+Every generalized inverse of $A$ is nonsingular.
+
+# 5. 
+
+For any matrix $A$, let $B$ and $C$ be any two matrices that satisfy $A'AB = A'$ and $AA'C' = A$ (the existence of such $B$ and $C$ follows from Corollary 2 to Lemma 1.4). Let $G = CAB$. Show that $G$ satisfies the following four conditions:
+
+## (i) 
+
+$AGA = A$, 
+
+## (ii) 
+
+$GAG = G$, 
+
+## (iii) 
+
+$(GA)' = GA$, and 
+
+## (iv) 
+
+$(AG)' = AG$.
+
