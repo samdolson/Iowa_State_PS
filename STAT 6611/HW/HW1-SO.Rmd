@@ -10,33 +10,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Progress 
 
-- Q1: 
-- Q2: 
+- Q1: Part (d) needs work
+- Q2: Draft
 - Q3: Draft
 - Q4: Draft
 - Q5: Draft
-
-
-
-Note to self, see: 
-  
-  - Dale L. Zimmerman, Linear Model Theory: Exercises and Solutions (Springer, 2020), Chapter 3, "Generalized Inverses and Solutions to Systems of Linear Equations"
-  - https://people.stat.sc.edu/Tebbs/stat714/f10notes.pdf
-  
-## Relevant sections — STAT 714 Lecture Notes (Tebbs)
-
-**Primary — generalized inverse theory**
-
-- **§7.4, Systems of equations** (p. 128) — the $AGA=A$ definition, existence of a generalized inverse for any matrix, general-solution formula $x = A^-y + (I-A^-A)z$.
-- **§7.5, Perpendicular projection matrices** (p. 134) — $P_X = X(X'X)^-X'$: idempotent, symmetric, unique, invariant to choice of g-inverse.
-- **Ch. 2, §2.1–2.2, The Linear Least Squares Problem** (pp. 13–24) — normal equations $X'X\hat\beta=X'Y$; Results 2.6–2.8 (construction and properties of $P_X$) as a worked application.
-
-**Supporting background**
-
-- **§7.1–7.3, Matrix algebra basics, rank, vector spaces** (pp. 118–127) — $\mathcal{C}(\cdot)$/$\mathcal{N}(\cdot)$ notation, rank facts (e.g. $\operatorname{rank}(AB)\le\operatorname{rank}(A)$).
-- **§7.6, Trace, determinant, and eigenproblems** (p. 136) — spectral decomposition $A=PDP'$, used in symmetric-g-inverse constructions.
-
-**Not needed for this topic:** Ch. 1, 3–6 (linear model examples, estimability, Gauss-Markov theory, distribution theory, testing) — build on generalized inverses rather than developing the theory itself.
   
 # Q1 
 
@@ -48,9 +26,37 @@ If $\mathcal{C}(X) = \mathcal{C}(W)$, show that $P_X = P_W$, i.e., the projectio
 
 *Hint: Consider $(P_W - P_X)'(P_W - P_X)$.*
 
+**Proof.** 
+By Corollary 5 (4), of Lecture Notes part 1, $P_XX=X$; more generally, for any $v\in\mathcal C(X)$, writing $v=Xa$, $P_Xv=P_XXa=Xa=v$ (and similarly for $P_W$). 
+
+Since $\mathcal C(X)=\mathcal C(W)$, every column of $W$ lies in $\mathcal C(X)$ and vice versa, so $P_XW=W$ and $P_WX=X$. 
+
+It then follows 
+
+$$P_WP_X = P_W X(X'X)^-X' = X(X'X)^-X' = P_X$$ 
+and 
+
+$$P_XP_W = P_X W(W'W)^-W' = W(W'W)^-W' = P_W.$$
+
+Using symmetry and idempotency of $P_X$ and $P_W$,
+
+$$(P_W-P_X)'(P_W-P_X) = P_W - P_WP_X - P_XP_W + P_X = P_W - P_X - P_W + P_X = 0.$$
+
+By Lemma 1.2, $A'A=0\Rightarrow A=0$. Taking $A=P_W-P_X$, it then follows that $P_X=P_W$. //
+
 ## (b) 
 
 If $X$ is an $n \times n$ matrix of rank $n$, show $P_X = I_n$ (i.e., the $n \times n$ identity matrix).
+
+**Proof.** 
+
+Since $X$ is $n\times n$ of rank $n$, $X^{-1}$ exists (as $X$ is full-rank). 
+
+By Lemma 2.3, $\mathrm{rank}(X'X)=\mathrm{rank}(X)=n$, so $X'X$ is nonsingular with unique generalized inverse $(X'X)^-=(X'X)^{-1}$. 
+
+Then
+
+$$P_X = X(X'X)^-X' = X X^{-1}(X')^{-1}X' = I_n. \;//$$
 
 ## (c) 
 
@@ -58,11 +64,39 @@ Let $\mathcal{C}^{\perp}(X)$ denote the orthogonal complement of $\mathcal{C}(X)
 
 *Hint: Write $\underline{b} = X\underline{a}$ and consider $\underline{b}'\underline{b}$.*
 
+**Proof.** 
+
+Since $\underline b\in\mathcal C(X)$, it follows that $\underline b=X\underline a$ for some $\underline a$. 
+
+Since $\underline b\in\mathcal C^\perp(X)$, it follows that $X'\underline b=\underline 0$. 
+
+Then $\underline b'\underline b=(X\underline a)'\underline b=\underline a'X'\underline b=0$. However, since $\underline b'\underline b=\sum_i b_i^2=0$, it follows that $b_i=0$, for all i, and we conclude that $\underline b=\underline 0$. //
+
 ## (d) 
 
 Let $X$ be an $n \times p$ matrix of rank $r \geq 1$, and $Z$ be an $n \times (n-r)$ matrix with columns formed by $n - r$ linearly independent vectors in $\mathcal{C}^{\perp}(X)$. Show that $P_Z = I_n - P_X$.
 
 *Hint: Put $r$ linearly independent columns of $X$ along with the columns of $Z$ into one $n \times n$ matrix $\tilde{X}$ (if $n = r$, technically $Z$ is just a zero vector). Compute $P_{\tilde{X}}$ and use (a)-(b).*
+
+**Proof.** 
+
+Let $X_1$ ($n\times r$) consist of $r$ linearly independent columns of $X$, so $\mathcal C(X_1)=\mathcal C(X)$ and $P_{X_1}=P_X$ by (a) given above. Then, let $\tilde X=(X_1\ Z)$.
+
+Let us start by considering the degenerate case, $r=n$. If $Z$ has zero columns, $\mathcal C^\perp(X)=\{\underline 0\}$, $P_X=I_n$, and $P_Z=I_n-P_X=0$ holds trivially. 
+
+Let us then consider the other case. 
+
+*Nonsingularity:* $X_1$'s columns span $\mathcal C(X)$ ($\dim r$), $Z$'s span $\mathcal C^\perp(X)$ ($\dim n-r$). By (c), $\mathcal C(X)\cap\mathcal C^\perp(X)=\{\underline 0\}$, so all $n$ columns of $\tilde X$ are independent: $\mathrm{rank}(\tilde X)=n$.
+
+*Block structure:* Columns of $Z$ lie in $\mathcal C^\perp(X)$, so $X_1'Z=0=Z'X_1$, giving
+
+$$\tilde X'\tilde X = \begin{pmatrix}X_1'X_1 & 0\\ 0 & Z'Z\end{pmatrix}, \qquad (\tilde X'\tilde X)^{-1} = \begin{pmatrix}(X_1'X_1)^{-1} & 0\\ 0 & (Z'Z)^{-1}\end{pmatrix},$$
+
+where both diagonal blocks are nonsingular by Lemma 2.3. Hence
+
+$$P_{\tilde X} = \tilde X(\tilde X'\tilde X)^{-1}\tilde X' = X_1(X_1'X_1)^{-1}X_1' + Z(Z'Z)^{-1}Z' = P_{X_1}+P_Z = P_X+P_Z.$$
+
+Since $\tilde X$ is nonsingular, (b) gives $P_{\tilde X}=I_n$, so $P_Z = I_n-P_X$. //
 
 ## (e) 
 
@@ -70,17 +104,67 @@ For a vector $\underline{y}$, show that $P_X \underline{y} = 0$ if and only if $
 
 *Hint: use (d) and multiply $I = I - P_X + P_X$ by $\underline{y}$*
 
+**Proof.**
+
+($\Leftarrow$) Suppose $\underline y\in\mathcal C^\perp(X)=\mathcal C(Z)$. 
+
+Since $\underline y\in\mathcal C(Z)$, it follows that$P_Z\underline y=\underline y$. 
+
+By (d), $I=P_X+P_Z$. Multiplying by $\underline y$ gives,
+
+$$\underline y = I\underline y = P_X\underline y + P_Z\underline y = P_X\underline y + \underline y \;\Longrightarrow\; P_X\underline y = \underline 0.$$
+
+($\Rightarrow$) If $P_X\underline y=\underline 0$, then by (d), $\underline y=I\underline y=P_X\underline y+P_Z\underline y=P_Z\underline y\in\mathcal C(Z)=\mathcal C^\perp(X)$. //
+
 ## (f) 
 
 Show that $P_X + P_W$ is a projection matrix if and only if $X'W = 0$ (the columns of $X$ and $W$ must be orthogonal).
 
 *Hint: If $P_X + P_W$ is a projection matrix, one can show $P_X P_W = -P_W P_X$ must hold; this relation implies that any vector $\underline{y}$ that is in both $\mathcal{C}(X)$ and $\mathcal{C}(W)$ must be zero (why?). Further, for $M = P_X P_W$, the relation also gives $M'M = P_X P_W P_W$ and $M'M = P_W P_X P_W$, meaning any column of $M'M$ belongs to $\mathcal{C}^{\perp}(X)$ and to $\mathcal{C}^{\perp}(W)$.*
 
+**Preliminary fact** (used in (f), (g)): $M$ is symmetric and idempotent $\iff$ $M=P_A$ for some $A$. ($\Rightarrow$: Corollary 5. $\Leftarrow$: if $M'=M,\,M^2=M$, then $M\cdot M\cdot M=M$, so $M$ is a generalized inverse of $M'M=M$, giving $P_M=M(M'M)^-M'=M^3=M$.) So "$P_X+P_W$ is a projection matrix" $\iff$ "$P_X+P_W$ is idempotent" (symmetry is automatic).
+
+**Proof.**
+
+($\Leftarrow$) If $X'W=0$ (so also $W'X=0$), then $P_XP_W=X(X'X)^-X'W(W'W)^-W'=0$ and $P_WP_X=0$, so $(P_X+P_W)^2=P_X+P_W$: idempotent, hence a projection matrix.
+
+($\Rightarrow$) If $P_X+P_W$ is a projection matrix, idempotency gives
+
+$$P_X+P_XP_W+P_WP_X+P_W = P_X+P_W \implies P_XP_W=-P_WP_X. \quad(*)$$
+
+*Step 1: $\mathcal C(X)\cap\mathcal C(W)=\{\underline 0\}$.* If $\underline y\in\mathcal C(X)\cap\mathcal C(W)$, then $P_X\underline y=\underline y=P_W\underline y$ (reproduction property). Applying $(*)$ to $\underline y$: $P_XP_W\underline y=P_X\underline y=\underline y$, while $-P_WP_X\underline y=-P_W\underline y=-\underline y$. Since these are equal by $(*)$, $\underline y=-\underline y$, so $\underline y=\underline 0$.
+
+*Step 2: columns of $M'M$, where $M=P_XP_W$, lie in both $\mathcal C(X)$ and $\mathcal C(W)$.* Using $P_X^2=P_X$,
+$$M'M = P_WP_XP_XP_W = P_WP_XP_W = P_W(P_XP_W) = P_W M,$$
+so $\mathcal C(M'M)\subseteq\mathcal C(P_W)=\mathcal C(W)$. Separately, grouping as $(P_WP_X)P_W$ and applying $(*)$ ($P_WP_X=-P_XP_W$),
+$$M'M = (P_WP_X)P_W \overset{(*)}{=} -P_XP_WP_W = -P_XP_W,$$
+so $\mathcal C(M'M)\subseteq\mathcal C(P_X)=\mathcal C(X)$.
+
+*Step 3: conclude $M=0$.* By Steps 1–2, every column of $M'M$ lies in $\mathcal C(X)\cap\mathcal C(W)=\{\underline 0\}$, so $M'M=0$. By Lemma 1.2, $M=0$, i.e. $P_XP_W=0$; then $(*)$ gives $P_WP_X=0$ too.
+
+Right-multiplying $P_XP_W=0$ by $W$ and using $P_WW=W$ gives $P_XW=0$; left-multiplying by $X'$ and using $X'P_X=X'$ gives $X'W=X'P_XW=0$. //
+
 ## (g) 
 
 Show that $P_X - P_W$ is a projection matrix if and only if $\mathcal{C}(W) \subset \mathcal{C}(X)$.
 
 *Hint: If $P_X - P_W$ is a projection matrix then $(I - P_X)P_W = -P_W(I - P_X)$ must hold; then the proof is kind of the same as in (f), using that (from (d)) $P_Z = I_n - P_X$ holds, where $Z$ is a matrix with linearly independent columns that span $\mathcal{C}^{\perp}(X)$.*
+
+**Proof.**
+
+($\Leftarrow$) If $\mathcal C(W)\subseteq\mathcal C(X)$, then since $Z$'s columns span $\mathcal C^\perp(X)$, they're orthogonal to $\mathcal C(X)\supseteq\mathcal C(W)$, so $Z'W=0$. By (f), $P_ZP_W=P_WP_Z=0$ and $P_Z+P_W$ is symmetric idempotent. Then $P_X-P_W=(I-P_Z)-P_W=I-(P_Z+P_W)$, and for symmetric idempotent $Q$, $I-Q$ is symmetric idempotent, so $P_X-P_W$ is a projection matrix.
+
+($\Rightarrow$) If $P_X-P_W$ is a projection matrix, idempotency gives
+
+$$P_X - P_XP_W-P_WP_X+P_W = P_X-P_W \implies P_XP_W+P_WP_X=2P_W.$$
+
+Substituting $P_X=I-P_Z$:
+
+$$(I-P_Z)P_W+P_W(I-P_Z)=2P_W \implies P_ZP_W=-P_WP_Z,$$
+
+which is exactly relation $(*)$ from (f) with $Z$ in place of $X$. The identical computation as in (f) then gives $Z'W=0$, i.e. $\mathcal C(W)\subseteq\mathcal C^\perp(Z)$.
+
+Since $\mathcal C(X)\subseteq\mathcal C^\perp(Z)$ by construction and $\dim\mathcal C^\perp(Z)=n-(n-r)=r=\dim\mathcal C(X)$, equal dimension plus containment gives $\mathcal C^\perp(Z)=\mathcal C(X)$. Hence $\mathcal C(W)\subseteq\mathcal C(X)$. //
 
 # 2. 
 
@@ -89,6 +173,15 @@ Suppose that $\mathcal{C}(C)$ is a subspace of $\mathcal{C}(A)$ and that $\mathc
 ## (a) 
 
 Show that $AA^-C = C$ and $DA^-A = D$.
+
+**Proof.** 
+
+Since $\mathcal C(C)\subseteq\mathcal C(A)$, Lemma 1.6(i) gives $C=AF$ for some matrix $F$. Then
+$$AA^-C = AA^-(AF) = (AA^-A)F = AF = C,$$
+using $AA^-A=A$ (the defining property of a generalized inverse).
+
+Since $\mathcal R(D)\subseteq\mathcal R(A)$, Lemma 1.6(ii) gives $D=GA$ for some matrix $G$. Then
+$$DA^-A = (GA)A^-A = G(AA^-A) = GA = D. \;//$$
 
 ## (b) 
 
@@ -103,6 +196,26 @@ $$
 $$
 
 where $Q = B - DA^-C$, and $I$ denotes the identity matrix of appropriate dimensions.
+
+**Proof.** 
+
+First compute $\begin{bmatrix} A & C\\ D& B\end{bmatrix}\begin{bmatrix} I & -A^-C\\ 0& I\end{bmatrix}$ blockwise:
+
+- top-left: $AI+C\cdot 0 = A$
+- top-right: $A(-A^-C)+CI = -AA^-C+C = -C+C=0$ (by (a))
+- bottom-left: $DI+B\cdot 0 = D$
+- bottom-right: $D(-A^-C)+BI = B-DA^-C = Q$
+
+$$\begin{bmatrix} A & C\\ D& B\end{bmatrix}\begin{bmatrix} I & -A^-C\\ 0& I\end{bmatrix} = \begin{bmatrix} A & 0\\ D& Q\end{bmatrix}.$$
+
+Now left-multiply by $\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix}$:
+
+- top-left: $IA+0\cdot D=A$
+- top-right: $I\cdot 0+0\cdot Q=0$
+- bottom-left: $-DA^-A+ID = -D+D=0$ (by (a))
+- bottom-right: $-DA^-\cdot 0+IQ=Q$
+
+$$\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix}\begin{bmatrix} A & 0\\ D& Q\end{bmatrix} = \begin{bmatrix} A&0\\0&Q\end{bmatrix}. \;//$$
 
 ## (c) 
 
@@ -120,9 +233,34 @@ $$
 M \equiv \begin{bmatrix} A & C \\ D & B \end{bmatrix}.
 $$
 
+**Proof.** 
+
+Let $L=\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix}$, $R=\begin{bmatrix} I&-A^-C\\0&I\end{bmatrix}$, and $\tilde M = \begin{bmatrix} A&0\\0&Q\end{bmatrix}$. Direct multiplication confirms
+$$L^{-1}=\begin{bmatrix} I&0\\DA^-&I\end{bmatrix}, \qquad R^{-1}=\begin{bmatrix} I&A^-C\\0&I\end{bmatrix}$$
+(e.g. $LL^{-1}=\begin{bmatrix} I&0\\-DA^-+DA^-&I\end{bmatrix}=I$, and similarly for $R$), so $L,R$ are invertible.
+
+By (b), $LMR=\tilde M$, so $M = L^{-1}\tilde M R^{-1}$.
+
+Let $G = R\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}L$. Then
+$$MGM = \big(L^{-1}\tilde M R^{-1}\big)\Big(R\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}L\Big)\big(L^{-1}\tilde M R^{-1}\big) = L^{-1}\tilde M\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}\tilde M R^{-1},$$
+since $R^{-1}R=I$ and $LL^{-1}=I$. Now
+$$\tilde M\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}\tilde M = \begin{bmatrix} AA^-A&0\\0&QQ^-Q\end{bmatrix} = \begin{bmatrix} A&0\\0&Q\end{bmatrix} = \tilde M,$$
+using $AA^-A=A$ and $QQ^-Q=Q$. Hence $MGM = L^{-1}\tilde M R^{-1} = M$, so $G$ is a generalized inverse of $M$. //
+
 ## (d) 
 
 Show that the above generalized inverse matches that given in (i) of Theorem 1.4.
+
+**Proof.** 
+
+First,
+$$\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix} = \begin{bmatrix} A^-&0\\-Q^-DA^-&Q^-\end{bmatrix}.$$
+Then
+$$R\begin{bmatrix} A^-&0\\-Q^-DA^-&Q^-\end{bmatrix} = \begin{bmatrix} I&-A^-C\\0&I\end{bmatrix}\begin{bmatrix} A^-&0\\-Q^-DA^-&Q^-\end{bmatrix}
+= \begin{bmatrix} A^- + A^-CQ^-DA^- & -A^-CQ^- \\ -Q^-DA^- & Q^- \end{bmatrix},$$
+computing entrywise: top-left $= A^- + (-A^-C)(-Q^-DA^-) = A^-+A^-CQ^-DA^-$; top-right $=(-A^-C)Q^-=-A^-CQ^-$; bottom-left $=-Q^-DA^-$; bottom-right $=Q^-$.
+
+This is exactly the matrix given in Theorem 1.4(i). //
 
 ## (e) 
 
@@ -135,6 +273,17 @@ M = Z'Z = (Z_1, Z_2)'(Z_1, Z_2) =
 \begin{bmatrix} A & C \\ D & B \end{bmatrix}.
 $$
 
+**Proof.** 
+
+By Lemma 1.4 (applied with $X=Z_2$), $Z_2'Z_2(Z_2'Z_2)^-Z_2' = Z_2'$, so $Z_2' = (Z_2'Z_2)\big[(Z_2'Z_2)^-Z_2'\big]$, which by Lemma 1.6(i) gives $\mathcal C(Z_2')\subseteq\mathcal C(Z_2'Z_2)$. Conversely, $Z_2'Z_2=Z_2'\cdot Z_2$ trivially gives $\mathcal C(Z_2'Z_2)\subseteq\mathcal C(Z_2')$ (Lemma 1.6(i) again). Hence
+$$\mathcal C(Z_2') = \mathcal C(Z_2'Z_2) = \mathcal C(B).$$
+
+Since $D=Z_2'Z_1$, each column of $D$ is $Z_2'$ times a column of $Z_1$, so by Lemma 1.6(i), $\mathcal C(D)\subseteq\mathcal C(Z_2')=\mathcal C(B)$. This is exactly the first condition of Theorem 1.4(ii).
+
+For the second condition, note $C=Z_1'Z_2$ so $C' = (Z_1'Z_2)' = Z_2'Z_1 = D$, and $B'=(Z_2'Z_2)'=Z_2'Z_2=B$. Then
+$$\mathcal R(C) = \mathcal C(C') = \mathcal C(D) \subseteq \mathcal C(B) = \mathcal C(B') = \mathcal R(B),$$
+which is exactly the second condition of Theorem 1.4(ii). //
+
 # 3. 
   
 For each of the following statements, indicate whether the statement is true or false, and explain.
@@ -143,7 +292,9 @@ For each of the following statements, indicate whether the statement is true or 
 
 If $Ax = y$ has a unique solution, then $A$ must be a nonsingular matrix.
 
-**False.** Let $A$ be an $n \times m$ matrix and suppose $A\mathbf{x} = \mathbf{y}$ is consistent, with particular solution $\mathbf{x}_0$. The full solution set is $\mathbf{x}_0 + \mathcal{N}(A)$, so the solution is unique if and only if $\mathcal{N}(A) = \{\mathbf{0}\}$, i.e., $A$ has full column rank. This is purely a rank condition and has nothing intrinsically to do with $A$ being square — indeed, "nonsingular" is a term defined only for square matrices. As a counterexample, let
+**False.** 
+
+Let $A$ be an $n \times m$ matrix and suppose $A\mathbf{x} = \mathbf{y}$ is consistent, with particular solution $\mathbf{x}_0$. The full solution set is $\mathbf{x}_0 + \mathcal{N}(A)$, so the solution is unique if and only if $\mathcal{N}(A) = \{\mathbf{0}\}$, i.e., $A$ has full column rank. This is purely a rank condition and has nothing intrinsically to do with $A$ being square — indeed, "nonsingular" is a term defined only for square matrices. As a counterexample, let
 
 $$A = \begin{pmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{pmatrix},$$
 
@@ -153,13 +304,17 @@ a $3 \times 2$ matrix of full column rank. For any $\mathbf{y}$ in the column sp
 
 If $G$ is a generalized inverse of $A$, then $GA = I$, where $I$ denotes the identity matrix of appropriate dimensions.
 
-**False.** The defining property of a generalized inverse is only $AGA = A$; nothing in this equation forces $GA = I$. As a counterexample, let $A = \operatorname{diag}(1,0)$, a symmetric, singular, idempotent matrix ($A^2 = A$), and take $G = I$. Then $AGA = A \cdot I \cdot A = A^2 = A$, so $G = I$ is a valid generalized inverse of $A$. However, $GA = IA = A \neq I$, since $A$ is singular. This single example is enough to show that a valid generalized inverse need not satisfy $GA = I$.
+**False.** 
+
+The defining property of a generalized inverse is only $AGA = A$; nothing in this equation forces $GA = I$. As a counterexample, let $A = \operatorname{diag}(1,0)$, a symmetric, singular, idempotent matrix ($A^2 = A$), and take $G = I$. Then $AGA = A \cdot I \cdot A = A^2 = A$, so $G = I$ is a valid generalized inverse of $A$. However, $GA = IA = A \neq I$, since $A$ is singular. This single example is enough to show that a valid generalized inverse need not satisfy $GA = I$.
 
 ## (c) 
 
 If $A$ has a generalized inverse $G$ such that $GA = I$, then $A$ must be a (square) nonsingular matrix.
 
-**False.** The condition $GA = I_m$ forces $A$ (of size $n \times m$) to have full column rank, but this is again a rank condition, not a requirement that $n = m$. Let
+**False.** 
+
+The condition $GA = I_m$ forces $A$ (of size $n \times m$) to have full column rank, but this is again a rank condition, not a requirement that $n = m$. Let
 
 $$A = \begin{pmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{pmatrix},$$
 
@@ -169,7 +324,9 @@ a $3 \times 2$ matrix of full column rank, so that $A^\top A$ is $2 \times 2$ an
 
 If $A$ is a symmetric matrix, then all its generalized inverses are also symmetric.
 
-**False.** Symmetry of $A$ constrains $A$, not $G$: the equation $AGA = A$ generally admits many solutions $G$, most of which are not symmetric. Let $A = \operatorname{diag}(1,0)$, a symmetric matrix, and take
+**False.** 
+
+Symmetry of $A$ constrains $A$, not $G$: the equation $AGA = A$ generally admits many solutions $G$, most of which are not symmetric. Let $A = \operatorname{diag}(1,0)$, a symmetric matrix, and take
 
 $$G = \begin{pmatrix} 1 & 1 \\ 0 & 0 \end{pmatrix}.$$
 
@@ -179,7 +336,9 @@ Direct computation gives $AGA = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix} = A
 
 If $A$ is a symmetric matrix, then it has at least one symmetric generalized inverse.
 
-**True.** Unlike the previous parts, this is an existence claim, so a counterexample cannot settle it — a constructive proof is required instead. Because $A$ is symmetric, the spectral theorem guarantees an orthogonal matrix $P$ (with $P^\top P = PP^\top = I$) and a diagonal matrix $D = \operatorname{diag}(\lambda_1, \dots, \lambda_n)$ of eigenvalues such that $A = PDP^\top$. Define $D^-$ to be the diagonal matrix whose $i$th entry is $1/\lambda_i$ when $\lambda_i \neq 0$ and $0$ when $\lambda_i = 0$, and set $G = PD^-P^\top$. Since $D^-$ is diagonal, $G^\top = P(D^-)^\top P^\top = PD^-P^\top = G$, so $G$ is symmetric. Moreover, since $P^\top P = I$ and $DD^-D = D$ entrywise regardless of whether $\lambda_i$ is zero,
+**True.** 
+
+Unlike the previous parts, this is an existence claim, so a counterexample cannot settle it — a constructive proof is required instead. Because $A$ is symmetric, the spectral theorem guarantees an orthogonal matrix $P$ (with $P^\top P = PP^\top = I$) and a diagonal matrix $D = \operatorname{diag}(\lambda_1, \dots, \lambda_n)$ of eigenvalues such that $A = PDP^\top$. Define $D^-$ to be the diagonal matrix whose $i$th entry is $1/\lambda_i$ when $\lambda_i \neq 0$ and $0$ when $\lambda_i = 0$, and set $G = PD^-P^\top$. Since $D^-$ is diagonal, $G^\top = P(D^-)^\top P^\top = PD^-P^\top = G$, so $G$ is symmetric. Moreover, since $P^\top P = I$ and $DD^-D = D$ entrywise regardless of whether $\lambda_i$ is zero,
 
 $$AGA = (PDP^\top)(PD^-P^\top)(PDP^\top) = P(DD^-D)P^\top = PDP^\top = A.$$
 
@@ -193,7 +352,7 @@ For each of the following questions, give, if possible, a $3 \times 3$ **nondiag
 
 $A$ is a generalized inverse of $A$.
 
-**Possible.** The condition $A$ is a generalized inverse of itself means $A \cdot A \cdot A = A$, i.e. $A^3 = A$. This holds for any idempotent matrix, since $A^2 = A$ implies $A^3 = A^2 \cdot A = A \cdot A = A^2 = A$. Take
+The condition $A$ is a generalized inverse of itself means $A \cdot A \cdot A = A$, i.e. $A^3 = A$. This holds for any idempotent matrix, since $A^2 = A$ implies $A^3 = A^2 \cdot A = A \cdot A = A^2 = A$. Take
 
 $$A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix},$$
 
@@ -203,7 +362,7 @@ a nondiagonal matrix with $A^2 = A$. Consequently $A^3 = A$, so $A$ is a general
 
 $A'$ is a generalized inverse of $A$.
 
-**Possible.** We need $AA^\top A = A$, which holds whenever $A^\top = A^{-1}$, i.e. whenever $A$ is orthogonal. A nondiagonal orthogonal matrix is easy to produce: let $A$ be the $3 \times 3$ cyclic permutation matrix
+We need $AA^\top A = A$, which holds whenever $A^\top = A^{-1}$, i.e. whenever $A$ is orthogonal. A nondiagonal orthogonal matrix is easy to produce: let $A$ be the $3 \times 3$ cyclic permutation matrix
 
 $$A = \begin{pmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 0 & 0 \end{pmatrix}.$$
 
@@ -213,7 +372,7 @@ Since $A^\top A = I$, we have $A^\top = A^{-1}$, and so $AA^\top A = AA^{-1}A = 
 
 The identity matrix $I$ is a generalized inverse of $A$.
 
-**Possible.** The condition is $AIA = A^2 = A$, i.e. $A$ is idempotent — exactly the same requirement used in part (a). The matrix
+The condition is $AIA = A^2 = A$, i.e. $A$ is idempotent — exactly the same requirement used in part (a). The matrix
 
 $$A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix}$$
 
@@ -229,7 +388,11 @@ Every $3 \times 3$ matrix is a generalized inverse of $A$.
 
 Every generalized inverse of $A$ is nonsingular.
 
-**Possible.** This property holds if and only if $A$ is nonsingular. If $A$ is nonsingular, the equation $AGA = A$ has the unique solution $G = A^{-1}$ (multiply on the left and right by $A^{-1}$), and $A^{-1}$ is of course nonsingular. Conversely, if $A$ is singular with $\operatorname{rank}(A) = r < 3$, a reflexive generalized inverse always exists — one additionally satisfying $GAG = G$ — and any such $G$ necessarily has $\operatorname{rank}(G) = \operatorname{rank}(A) = r < 3$, making it singular; so a singular $A$ always admits at least one singular generalized inverse, ruling it out. A nondiagonal nonsingular example:
+This property holds if and only if $A$ is nonsingular. If $A$ is nonsingular, the equation $AGA=A$ has the unique solution $G=A^{-1}$, which is of course nonsingular.
+
+Conversely, suppose $A$ is singular, with $\mathrm{rank}(A)=r<3$. By Theorem 1.1, there exist nonsingular $3\times3$ matrices $P,Q$ and a nonsingular $r\times r$ diagonal matrix $D$ with $PAQ=\begin{pmatrix}D&0\\0&0\end{pmatrix}$, and $G=Q\begin{pmatrix}D^{-1}&F\\H&B\end{pmatrix}P$ is a generalized inverse of $A$ for *any* choice of $F,H,B$. Taking $F=H=B=0$, the matrix $G_0=Q\begin{pmatrix}D^{-1}&0\\0&0\end{pmatrix}P$ satisfies
+$$\mathrm{rank}(G_0)=\mathrm{rank}\begin{pmatrix}D^{-1}&0\\0&0\end{pmatrix}=r<3,$$
+since pre- and post-multiplying by the nonsingular matrices $P,Q$ preserves rank. So $G_0$ is a singular generalized inverse of $A$, ruling the property out for any singular $A$. A nondiagonal nonsingular example where the property *does* hold:
 
 $$A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}, \qquad \det(A) = 1 \neq 0.$$
 
@@ -239,58 +402,90 @@ Its unique generalized inverse, $A^{-1}$, is nonsingular by construction.
 
 For any matrix $A$, let $B$ and $C$ be any two matrices that satisfy $A'AB = A'$ and $AA'C' = A$ (the existence of such $B$ and $C$ follows from Corollary 2 to Lemma 1.4). Let $G = CAB$. Show that $G$ satisfies the following four conditions:
 
-From lecture notes, we have: 
-
-**Preliminary facts.** Corollary 2 to Lemma 1.4 (with $X=A$) guarantees the matrix $B$ satisfying $A'AB=A'$, and Corollary 1 to Lemma 1.5 (again $X=A$) immediately gives
-
-$$ABA = B'A'A = A. \qquad (\star)$$
-
-Corollary 5 to Lemma 1.5 identifies $AB$ as the orthogonal projection matrix onto $C(A)$, which by Corollary 4 to Lemma 1.5 is symmetric:
-
-$$(AB)' = AB. \qquad (\star\star)$$
-
-Applying the *same two corollaries* with $X=A'$ in place of $X=A$ produces the $C$-side facts. Here $X'X = AA'$ and $X'=A$, so the condition $AA'C'=A$ is exactly Corollary 2 to Lemma 1.4's existence statement for a "$B$" attached to $X=A'$; Corollary 1 to Lemma 1.5 then gives $A'C'A'=A'$, and transposing (using $(PQR)'=R'Q'P'$) turns this into
-
-$$ACA = A. \qquad (\star\star\star)$$
-
-Likewise, Corollary 4 to Lemma 1.5 says $A'C'$ is symmetric, i.e. $(A'C')'=A'C'$; since $(A'C')' = CA$, this reads $CA = A'C'$, and transposing once more gives
-
-$$(CA)' = A'C' = CA. \qquad (\star\!\star\!\star\star)$$
-
-So the notes hand us, at no extra cost, four identities: $ABA=A$, $ACA=A$, $AB$ symmetric, and $CA$ symmetric — everything needed for (i)–(iv) below.
-
 ## (i) 
 
-$AGA = A$, 
+$AGA = A$
 
-Substituting $G=CAB$ and grouping,
+**Proof.**
 
-$$AGA = A(CAB)A = (ACA)(BA) = A(BA) = ABA = A,$$
+We invoke Corollary 1 to Lemma 1.5: for any matrix $X$ and any matrix $B$ satisfying $X'XB = X'$, it holds that $XBX = X$.
 
-using $(\star\star\star)$ to collapse $ACA \to A$, then $(\star)$ to collapse $ABA \to A$.
+**(1)** Take $X=A$: given $A'AB = A'$, with $X=A$, it then follows that $X'XB=X'$. 
+
+The corollary gives $XBX = X$, i.e.
+
+$$ABA = A. \tag{1}$$
+
+**(2)** Take $X=A'$: given $AA'C'=A$, substitute $B$ with $C'$:
+
+$$X'XC' = A  A'  C' = AA'C' = A = X',$$
+
+So $X'XC' = X'$ holds, and application of the corollary gives $XC'X = X$, i.e., $A'C'A' = A'.$
+
+Now transpose both sides (using $(PQR)' = R'Q'P'$ with $P=A', Q=C', R=A'$):
+
+$$(A'C'A')' = (A')'(C')'(A')' = A\,C\,A,$$
+
+Using $(A')' = A$, we then have 
+
+$$ACA = A. \tag{2}$$
+
+**(The rest of the proof)** 
+
+Now, with $G = CAB$,
+
+$$AGA = A(CAB)A = (ACA)(BA) = A(BA) = ABA = A.//$$
 
 ## (ii) 
 
-$GAG = G$, 
+$GAG = G$
 
-First note the two identities that also drive (iii) and (iv): $GA = (CAB)A = C(ABA) = CA$ by $(\star)$, and $AG = A(CAB) = (ACA)B = AB$ by $(\star\star\star)$. Using $GA = CA$,
+**Proof.** 
 
-$$GAG = (GA)G = (CA)(CAB) = C(ACA)B = C A B = G,$$
+Using $(1)$ from part (i), 
 
-again invoking $(\star\star\star)$ to collapse the middle $ACA$ to $A$.
+$$GA = (CAB)A = C(ABA) = CA, \tag{3}$$
+
+and similarly using $(2)$,
+
+$$AG = A(CAB) = (ACA)B = AB. \tag{4}$$
+
+Taking everything together,
+
+$$GAG = (GA)G = (CA)(CAB) = C(ACA)B = CAB = G. //$$
 
 ## (iii) 
 
-$(GA)' = GA$, and 
+$(GA)' = GA$
 
-Since $GA = CA$ (shown in (ii)), symmetry of $GA$ is exactly $(\star\!\star\!\star\star)$:
+**Proof.** 
 
-$$(GA)' = (CA)' = CA = GA.$$
+Take $X = A'$, so $X' = A$. 
+
+As in part (i), $C'$ satisfies $X'XC' = AA'C' = A = X'$, so application of Corollary 4 to Lemma 1.5 gives that $XC' = A'C'$ is symmetric, i.e.:
+
+$$(A'C')' = A'C'.$$
+
+Since $(A'C')' = (C')'(A')' = CA$, it follows that $CA = A'C'$. 
+
+Similarly, the standard transpose rule gives $(CA)' = A'C'$. 
+
+Combining these two statements,
+
+$$(CA)' = A'C' = CA.$$
+
+By $(3)$ in part (ii), $GA = CA$, so $(GA)' = (CA)' = CA = GA. //$
 
 ## (iv) 
 
-$(AG)' = AG$.
+$(AG)' = AG$
 
-Since $AG = AB$ (shown in (ii)), symmetry of $AG$ is exactly $(\star\star)$:
+**Proof.** 
 
-$$(AG)' = (AB)' = AB = AG.$$
+Take $X = A$. 
+
+Since $B$ satisfies $X'XB = A'AB = A' = X'$, Corollary 4 to Lemma 1.5 gives that $XB = AB$ is symmetric, i.e.:
+
+$$(AB)' = AB.$$
+
+By $(4)$ in part (ii), $AG = AB$, so $(AG)' = (AB)' = AB = AG. //$
