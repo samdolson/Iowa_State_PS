@@ -13,9 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 - Q1: Part (d) needs work
 - Q2: Draft
 - Q3: Draft
-- Q4: General Edits 
-- Q5: Pretty ok
-  
+- Q4: Part (d) and (e) 
+
 # Q1 
 
 Let $X$, $W$, and $Z$ denote matrices.
@@ -360,7 +359,7 @@ $$A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix},$$
 
 Generally, $A$ being a generalized inverse of itself means $A \cdot A \cdot A = A$, i.e. $A^3 = A$. This holds for any idempotent matrix, since $A^2 = A$ implies $A^3 = A^2 \cdot A = A \cdot A = A^2 = A$. 
 
-So we simply need to identify nondiagonal matrix with $A^2 = A$. The matrix stated above suffices, as: 
+So we simply need to identify nondiagonal matrix that satisfies $A^2 = A$. The matrix stated above suffices, as: 
 
 $$
 A A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix} \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix} = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix} = A
@@ -376,9 +375,9 @@ It is possible, and as an example take
 
 $$A = \begin{pmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 0 & 0 \end{pmatrix}.$$
 
-Generally, we need to identify a matrix $A$ such that $AA^\top A = A$. However, this considition holds when $A^\top = A^{-1}$, i.e. whenever $A$ is orthogonal. This is to say, we need only identify some nondiagonal orthogonal matrix. 
+Generally, we need to identify a matrix $A$ such that $AA^\top A = A$. This condition holds when $A^\top = A^{-1}$. 
 
-Since $A^\top A = I$, we have $A^\top = A^{-1}$, and so $AA^\top A = AA^{-1}A = A$. In the example matrix given: 
+Since $A^\top A = I$, we have $A^\top = A^{-1}$, and so $AA^\top A = AA^{-1}A = A$. Using the matrix given above:
 
 $$
 A^\top = \begin{pmatrix} 0 & 0 & 1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \end{pmatrix} =  A^{-1}, 
@@ -396,13 +395,18 @@ The identity matrix $I$ is a generalized inverse of $A$.
 
 **Answer**
 
-It is possible, and to illustrate take 
+It is possible, and to illustrate take the matrix used in part (a): 
 
 $$A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix}$$
 
-Generally, the necessary condition is that $AIA = A^2 = A$ holds, i.e., that $A$ is idempotent (the same requirement as (a) given above). 
+Generally, the necessary condition is that $AIA = A^2 = A$ holds, i.e., that $A$ is idempotent. That is to say, the identity matrix $I$ is a generalized inverse of $A$ when the matrix $A$ is idempotent. 
 
-Borrowing from part (a), since $A^2 = A$, it then follows that $AIA = A$. It's worth noting that idempotency ($A^2 = A$) is strictly stronger than the condition $A^3 = A$ needed in (a): every idempotent matrix satisfies (a), but not every matrix satisfying (a) is idempotent (a nondiagonal reflection, with $A^2 = I \neq A$ but $A^3 = A$, would satisfy (a) without satisfying (c)).
+But for the purpose of this example, we verify: 
+$$A I A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix} \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix}  = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix} \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix} = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix}$$
+
+## Note: 
+
+For the following two parts, answering *it is/is not possible* is grammatically a bit odd. Flagging because this oddity is used to ensure internal consistency throughout this problem. 
 
 ## (d) 
 
@@ -410,21 +414,31 @@ Every $3 \times 3$ matrix is a generalized inverse of $A$.
 
 **Answer** 
 
-It is **not possible.** Requiring $AGA = A$ for *every* $3 \times 3$ matrix $G$ is an extremely strong condition. Taking $G = 0$ in particular forces $A \cdot 0 \cdot A = 0 = A$, so $A$ must be the zero matrix; and conversely, if $A = 0$ then $AGA = 0 = A$ trivially holds for any $G$. Hence $A = 0$ is the *unique* matrix with this property. But the zero matrix has all off-diagonal entries equal to zero, so it is itself a diagonal matrix — there is no nondiagonal $3\times 3$ matrix for which every matrix serves as a generalized inverse.
+It is **not possible**.
+
+Let $A$ be an arbitrary nondiagonal $3\times3$ matrix, and take $G = 0$. Then
+
+$$
+AGA = A \begin{pmatrix} 0 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix} A = \begin{pmatrix} 0 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix},
+$$
+
+regardless of the entries of $A$. So $AGA = A$ only if $A = 0$. However, the zero matrix is diagonal, contradicting the assumption that $A$ is nondiagonal. Hence $G = 0$ fails to be a generalized inverse for *every* nondiagonal $A$, and no such $A$ exists.//
 
 ## (e) 
 
 Every generalized inverse of $A$ is nonsingular.
 
-This property holds if and only if $A$ is nonsingular. If $A$ is nonsingular, the equation $AGA=A$ has the unique solution $G=A^{-1}$, which is of course nonsingular.
+**Answer** 
 
-Conversely, suppose $A$ is singular, with $\mathrm{rank}(A)=r<3$. By Theorem 1.1, there exist nonsingular $3\times3$ matrices $P,Q$ and a nonsingular $r\times r$ diagonal matrix $D$ with $PAQ=\begin{pmatrix}D&0\\0&0\end{pmatrix}$, and $G=Q\begin{pmatrix}D^{-1}&F\\H&B\end{pmatrix}P$ is a generalized inverse of $A$ for *any* choice of $F,H,B$. Taking $F=H=B=0$, the matrix $G_0=Q\begin{pmatrix}D^{-1}&0\\0&0\end{pmatrix}P$ satisfies
-$$\mathrm{rank}(G_0)=\mathrm{rank}\begin{pmatrix}D^{-1}&0\\0&0\end{pmatrix}=r<3,$$
-since pre- and post-multiplying by the nonsingular matrices $P,Q$ preserves rank. So $G_0$ is a singular generalized inverse of $A$, ruling the property out for any singular $A$. A nondiagonal nonsingular example where the property *does* hold:
+It is possible, and to illustrate take the (nondiagonal nonsingular) matrix: 
 
-$$A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}, \qquad \det(A) = 1 \neq 0.$$
+$$
+A = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}, \qquad \det(A) = 1 \neq 0.
+$$
 
-Its unique generalized inverse, $A^{-1}$, is nonsingular by construction.
+Generally, if $A$ is nonsingular, then $AGA = A$ has the unique solution $G = A^{-1}$: left-multiplying by $A^{-1}$ gives $GA = I$, and right-multiplying by $A^{-1}$ gives $G = A^{-1}$. Since this is the *only* generalized inverse and it is automatically nonsingular, any nonsingular $A$ has the stated property.
+
+In this example, $A$'s unique generalized inverse, $A^{-1}$, is nonsingular by construction.//
 
 # 5. 
 
@@ -474,7 +488,7 @@ Using $(1)$ from part (i),
 
 $$GA = (CAB)A = C(ABA) = CA, \tag{3}$$
 
-and similarly using $(2)$,
+and similarly using $(2)$ from part (i),
 
 $$AG = A(CAB) = (ACA)B = AB. \tag{4}$$
 
@@ -490,7 +504,11 @@ $(GA)' = GA$
 
 Take $X = A'$, so $X' = A$. 
 
-As in part (i), $C'$ satisfies $X'XC' = AA'C' = A = X'$, so application of Corollary 4 to Lemma 1.5 gives that $XC' = A'C'$ is symmetric, i.e.:
+As in part (i), $C'$ satisfies $X'XC' = AA'C' = A = X'$. Note and then apply Corollary 4 to Lemma 1.5, which states: 
+
+Let $X$ be any matrix and let $B$ be any matrix that satisfies $X' X B = X'$. Then, the matrix $XB$ is symmetric. 
+
+We thus note that $XC' = A'C'$ is symmetric, i.e.:
 
 $$(A'C')' = A'C'.$$
 
@@ -512,7 +530,7 @@ $(AG)' = AG$
 
 Take $X = A$. 
 
-Since $B$ satisfies $X'XB = A'AB = A' = X'$, Corollary 4 to Lemma 1.5 gives that $XB = AB$ is symmetric, i.e.:
+Since $B$ satisfies $X'XB = A'AB = A' = X'$, Corollary 4 to Lemma 1.5, as noted in part (iii), gives that $XB = AB$ is symmetric, i.e.:
 
 $$(AB)' = AB.$$
 
