@@ -10,6 +10,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Note: We use $\subset \equiv \subseteq$ and $\supset \equiv \supseteq$ for the purposes of set relations. This note will be dropped henceforth in future problemsets. 
 
+# Progress 
+
+- Q1: part (b) needs edits 
+- Q2
+- Q3
+- Q4
+- Q5
+- Q6
+- Q7 
+
 # Q1: A.29
 
 Let $\mathbb{S} = C[0,1]$ and $d_p(f,g) \equiv \left(\int_0^1 |f(t)-g(t)|^p\, dt\right)^{\frac{1}{p}}$ for $1 \le p < \infty$
@@ -25,29 +35,37 @@ Let $f(x) \equiv 1$. Let $f_n(t) \equiv 1$ for $0 \le t \le 1 - \frac{1}{n}$, an
 
 ### Answer 
 
-**Sketch:** The difference vanishes on $[0,1-1/n]$, so $d_p(f_n,f)^p$ reduces to an integral over the ramp $[1-1/n,1]$, which is $O(1/n)\to0$. For $d_\infty$, the difference at $t=1$ is $1$ for every $n$, which rules out convergence.
-
 **Proof.**
 
-**Case $1\leq p <\infty$.** On $[0,1-1/n]$, $f_n(t) = 1 = f(t)$, so $|f_n(t)-f(t)|^p=0$ there. On $[1-1/n,1]$, $f_n(t)-f(t) = n(1-t)-1$. Hence
+**Case (1): $1\leq p <\infty$.** On $[0,1-1/n]$, $f_n(t) = 1 = f(t)$, so $|f_n(t)-f(t)|^p=0$ in that interval. 
+
+And on $[1-1/n,1]$, $f_n(t)-f(t) = n(1-t)-1$. 
+
+It then follows that
 
 $$d_p(f_n,f)^p = \int_0^1 |f_n(t)-f(t)|^p\,dt = \int_{1-\frac1n}^1 |n(1-t)-1|^p\,dt.$$
 
-Substitute $u=1-t$ ($du=-dt$; $t=1-1/n\Rightarrow u=1/n$, $t=1\Rightarrow u=0$):
+This can be evaluated; to do so, substitute $u=1-t$ and $du=-dt$ ($t=1-1/n\Rightarrow u=1/n$, $t=1\Rightarrow u=0$):
 
-$$= \int_0^{1/n}|nu-1|^p\,du.$$
+$$d_p(f_n,f)^p  = \int_0^{1/n}|nu-1|^p\,du.$$
 
-Substitute $w=nu-1$ ($dw=n\,du$; $u=0\Rightarrow w=-1$, $u=1/n\Rightarrow w=0$):
+Utilize substitution again, this time with $w=nu-1$ and $dw=n\,du$ ($u=0\Rightarrow w=-1$, $u=1/n\Rightarrow w=0$):
 
-$$= \frac{1}{n}\int_{-1}^0 |w|^p\,dw = \frac1n\int_0^1 w^p\,dw = \frac{1}{n(p+1)}.$$
+$$d_p(f_n,f)^p  = \frac{1}{n}\int_{-1}^0 |w|^p\,dw = \frac1n\int_0^1 w^p\,dw = \frac{1}{n(p+1)}.$$
 
-Since $p$ is fixed, $\dfrac{1}{n(p+1)}\to 0$ as $n\to\infty$, so $d_p(f_n,f)^p\to0$, hence $d_p(f_n,f)\to0$, for every $1\leq p<\infty$.
+Since $p$ is fixed, $\dfrac{1}{n(p+1)}\to 0$ as $n\to\infty$, so $d_p(f_n,f)^p\to0$, and consequently $d_p(f_n,f)\to0$, for every $1\leq p<\infty$.
 
-**Case $p=\infty$.** On $[1-1/n,1]$, $n(1-t)$ is a strictly decreasing affine function of $t$, taking the value $n(1-(1-1/n))=1$ at $t=1-1/n$ and the value $0$ at $t=1$. So $|n(1-t)-1|$ increases monotonically from $0$ to $1$ on this interval, attaining its maximum of $1$ at $t=1$:
+**Case (2): $p=\infty$.** On $[1-1/n,1]$, $n(1-t)$ is a strictly decreasing function of $t$, taking the value $n(1-(1-1/n))=1$ at $t=1-1/n$ and the value $0$ at $t=1$. 
+
+So $|n(1-t)-1|$ increases monotonically from $0$ to $1$ on this interval, attaining its maximum of $1$ at $t=1$, i.e.:
+
 $$|f_n(1)-f(1)| = |n(1-1)-1| = |0-1| = 1.$$
-Since the difference is $0$ on $[0,1-1/n]$ and its supremum on $[1-1/n,1]$ is $1$ (attained at $t=1$),
-$$d_\infty(f_n,f) = \sup_{t\in[0,1]}|f_n(t)-f(t)| = 1$$
-for **every** $n\geq1$. Hence $\lim_{n\to\infty}d_\infty(f_n,f) = 1 \neq 0$, so $d_\infty(f_n,f)\not\to0$.//
+
+Since the difference is $0$ on $[0,1-1/n]$ and its supremum on $[1-1/n,1]$ is $1$ (attained at $t=1$), it follows that for all $n\geq1$
+
+$$d_\infty(f_n,f) = \sup_{t\in[0,1]}|f_n(t)-f(t)| = 1.$$
+
+Hence $\lim_{n\to\infty}d_\infty(f_n,f) = 1 \neq 0$, and we conclude that $d_\infty(f_n,f)\not\to0$.//
 
 ## (b) 
 
@@ -57,19 +75,23 @@ Show that $d_p(g_n, f) \to 0$ for all $1 \le p \le \infty$.
 
 ### Answer
 
-**Sketch:** $g_n(t)-f(t)$ is a convex combination of $f(1-1/n)-f(t)$ and $f(1)-f(t)$ on the ramp $[1-1/n,1]$, and $0$ elsewhere. For finite $p$, the Note plus boundedness of $f$ gives $d_p(g_n,f)^p = O(1/n)\to0$. For $p=\infty$, uniform continuity of $f$ does the job directly, since the ramp shrinks to the point $t=1$.
+**Sketch:** For finite $p$, the Note plus boundedness of $f$ gives $d_p(g_n,f)^p = O(1/n)\to0$. For $p=\infty$, uniform continuity of $f$ is sufficient to conclude.
 
 **Proof.**
 
-Fix $f\in C[0,1]$. Since $[0,1]$ is compact and $f$ is continuous, $f$ is bounded: $\exists M>0$ such that $|f(t)|\leq M$ for all $t\in[0,1]$ (Extreme Value Theorem).
+Fix $f\in C[0,1]$. Since $[0,1]$ is compact and $f$ is continuous, $f$ is bounded: By the Extreme Value Theorem, $\exists M>0$ such that $|f(t)|\leq M$ for all $t\in[0,1]$.
 
-For $t\in[1-1/n,1]$, let $s\equiv n(t+1/n-1)\in[0,1]$, the linear reparametrization of $[1-1/n,1]$ onto $[0,1]$. By definition $g_n(t) = (1-s)f(1-1/n)+sf(1)$, so
+For $t\in[1-1/n,1]$, let $s\equiv n(t+1/n-1)\in[0,1]$ (the linear reparametrization of $[1-1/n,1]$ onto $[0,1]$). 
 
-$$g_n(t)-f(t) = (1-s)\big(f(1-\tfrac1n)-f(t)\big) + s\big(f(1)-f(t)\big). \tag{$*$}$$
+By definition $g_n(t) = (1-s)f(1-1/n)+sf(1)$, so
 
-(Check: $(1-s)f(1-\tfrac1n)+sf(1) - (1-s)f(t)-sf(t) = g_n(t)-f(t)$, using $(1-s)+s=1$.) On $[0,1-1/n]$, $g_n(t)=f(t)$, so the difference is $0$ there.
+$$g_n(t)-f(t) = (1-s)\big(f(1-\tfrac1n)-f(t)\big) + s\big(f(1)-f(t)\big). \tag{1}$$
 
-**Case $1\leq p<\infty$.** By $(*)$ and the Note, $|a+b|^p\leq 2^p(|a|^p+|b|^p)$, with $a=(1-s)(f(1-\tfrac1n)-f(t))$ and $b=s(f(1)-f(t))$:
+(Note: $(1-s)f(1-\tfrac1n)+sf(1) - (1-s)f(t)-sf(t) = g_n(t)-f(t)$, using $(1-s)+s=1$.) 
+
+On $[0,1-1/n]$, $g_n(t)=f(t)$, so the difference is $0$ there.
+
+**Case (1): $1\leq p<\infty$.** By $(1)$ and the Note, $|a+b|^p\leq 2^p(|a|^p+|b|^p)$, with $a=(1-s)(f(1-\tfrac1n)-f(t))$ and $b=s(f(1)-f(t))$:
 
 $$|g_n(t)-f(t)|^p \leq 2^p\Big[(1-s)^p|f(1-\tfrac1n)-f(t)|^p + s^p|f(1)-f(t)|^p\Big].$$
 
@@ -81,19 +103,21 @@ Since $|f(1-\tfrac1n)|,|f(t)|,|f(1)|\leq M$, both $|f(1-\tfrac1n)-f(t)|\leq 2M$ 
 
 $$|g_n(t)-f(t)|^p \leq 2^p\big[(2M)^p+(2M)^p\big] = 2^{p+1}(2M)^p$$
 
-for all $t\in[1-1/n,1]$. Hence
+for all $t\in[1-1/n,1]$. 
+
+Hence
 
 $$d_p(g_n,f)^p = \int_0^1|g_n(t)-f(t)|^p\,dt = \int_{1-\frac1n}^1|g_n(t)-f(t)|^p\,dt \leq 2^{p+1}(2M)^p\cdot\frac1n.$$
 
 Since $p$ is fixed, $2^{p+1}(2M)^p$ is a constant, so $d_p(g_n,f)^p\to0$ as $n\to\infty$, hence $d_p(g_n,f)\to0$.
 
-**Case $p=\infty$.** Since $f$ is continuous on the compact set $[0,1]$, $f$ is uniformly continuous (Heine–Cantor Theorem): $\forall\varepsilon>0$, $\exists\delta>0$ such that $|x-y|<\delta\Rightarrow|f(x)-f(y)|<\varepsilon$ for all $x,y\in[0,1]$.
+**Case (2): $p=\infty$.** By Heine–Cantor Theorem, since $f$ is continuous on the compact set $[0,1]$, $f$ is uniformly continuous: $\forall\varepsilon>0$, $\exists\delta>0$ such that $|x-y|<\delta\Rightarrow|f(x)-f(y)|<\varepsilon$ for all $x,y\in[0,1]$.
 
 Let $\varepsilon>0$ be given, and choose $N\in\mathbb{N}$ with $1/N<\delta$. Let $n\geq N$ and $t\in[1-1/n,1]$ be given. Since $|t-(1-\tfrac1n)|\leq\tfrac1n\leq\tfrac1N<\delta$ and $|t-1|\leq\tfrac1n\leq\tfrac1N<\delta$,
 
 $$|f(1-\tfrac1n)-f(t)|<\varepsilon \quad\text{and}\quad |f(1)-f(t)|<\varepsilon.$$
 
-By $(*)$ and the triangle inequality (the Note only covers finite $p$),
+By $(1)$ and the triangle inequality (the Note only covers finite $p$),
 
 $$|g_n(t)-f(t)| \leq (1-s)|f(1-\tfrac1n)-f(t)| + s|f(1)-f(t)| < (1-s)\varepsilon+s\varepsilon = \varepsilon$$
 
@@ -111,17 +135,31 @@ Show that unions of open sets are open and intersection of any two open sets is 
 
 ## Answer
 
-**Sketch:** Parts 1–2 argue directly from the $\varepsilon$-ball definition: pull a radius from each set containing a point, then take the max (resp. min). Part 3 exhibits $\bigcap_{n\geq 1}(-1/n,1/n) = \{0\}$, which fails the open-set definition outright.
-
 **Proof.**
 
 **Part 1: Unions of open sets are open.**
 
-Let $(\mathbb{S},d)$ be a metric space, $I$ an index set, and $\{O_\alpha\}_{\alpha \in I}$ a family of open sets on $\mathbb{S}$. Let $x \in \bigcup_{\alpha \in I} O_\alpha$ be given. Then $\exists \alpha_0 \in I$ such that $x \in O_{\alpha_0}$. Since $O_{\alpha_0}$ is open, $\exists \delta > 0$ such that for all $y \in \mathbb{S}$, $d(x,y) < \delta \implies y \in O_{\alpha_0}$. Since $O_{\alpha_0} \subset \bigcup_{\alpha \in I} O_\alpha$, this gives $d(x,y) < \delta \implies y \in \bigcup_{\alpha \in I} O_\alpha$. Since $x \in \bigcup_{\alpha \in I} O_\alpha$ was arbitrary, $\bigcup_{\alpha \in I} O_\alpha$ is open.
+Let $(\mathbb{S},d)$ be a metric space, $I$ an index set, and $\{O_\alpha\}_{\alpha \in I}$ a family of open sets on $\mathbb{S}$. 
+
+Let $x \in \bigcup_{\alpha \in I} O_\alpha$ be given. Then $\exists \alpha_0 \in I$ such that $x \in O_{\alpha_0}$. 
+
+Since $O_{\alpha_0}$ is open, $\exists \delta > 0$ such that for all $y \in \mathbb{S}$, $d(x,y) < \delta \implies y \in O_{\alpha_0}$. 
+
+Since $O_{\alpha_0} \subset \bigcup_{\alpha \in I} O_\alpha$, this gives $d(x,y) < \delta \implies y \in \bigcup_{\alpha \in I} O_\alpha$. 
+
+Since $x \in \bigcup_{\alpha \in I} O_\alpha$ was arbitrary, $\bigcup_{\alpha \in I} O_\alpha$ is open.
 
 **Part 2: The intersection of any two open sets is open.**
 
-Let $A, B$ be open sets on $(\mathbb{S},d)$. Let $x \in A \cap B$ be given, i.e., $x \in A$ and $x \in B$. Since $A$ is open, $\exists \delta_1 > 0$ such that for all $y \in \mathbb{S}$, $d(x,y) < \delta_1 \implies y \in A$. Since $B$ is open, $\exists \delta_2 > 0$ such that for all $y \in \mathbb{S}$, $d(x,y) < \delta_2 \implies y \in B$. Let $\delta \equiv \min(\delta_1,\delta_2) > 0$. Then for all $y \in \mathbb{S}$ with $d(x,y) < \delta$, both $d(x,y) < \delta_1$ and $d(x,y) < \delta_2$ hold, so $y \in A$ and $y \in B$, i.e., $y \in A \cap B$. Since $x \in A \cap B$ was arbitrary, $A \cap B$ is open.
+Let $A, B$ be open sets on $(\mathbb{S},d)$. Let $x \in A \cap B$ be given, i.e., $x \in A$ and $x \in B$. 
+
+Since $A$ is open, $\exists \delta_1 > 0$ such that for all $y \in \mathbb{S}$, $d(x,y) < \delta_1 \implies y \in A$. 
+
+Since $B$ is open, $\exists \delta_2 > 0$ such that for all $y \in \mathbb{S}$, $d(x,y) < \delta_2 \implies y \in B$. 
+
+Let $\delta \equiv \min(\delta_1,\delta_2) > 0$. 
+
+Then for all $y \in \mathbb{S}$ with $d(x,y) < \delta$, both $d(x,y) < \delta_1$ and $d(x,y) < \delta_2$ hold, so $y \in A$ and $y \in B$, i.e., $y \in A \cap B$. Since $x \in A \cap B$ was arbitrary, $A \cap B$ is open.
 
 **Part 3: The intersection of infinitely many open sets need not be open.**
 
@@ -129,21 +167,21 @@ Let $A_n \equiv (-1/n, 1/n)$ for each $n \geq 1$, an open subset of $(\mathbb{R}
 
 $(\supset)$ Since $0 \in (-1/n, 1/n)$ for every $n \geq 1$, $0 \in \bigcap_{n\geq 1} A_n$.
 
-$(\subset)$ Let $x \in \bigcap_{n \geq 1} A_n$ be given, and suppose for contradiction $x \neq 0$. By the Archimedean property, $\exists N \in \mathbb{N}$ such that $1/N < |x|$, so $x \notin (-1/N, 1/N) = A_N$, contradicting $x \in \bigcap_{n\geq 1} A_n \subset A_N$. Hence $x = 0$.
+$(\subset)$ Let $x \in \bigcap_{n \geq 1} A_n$ be given, and suppose for contradiction $x \neq 0$. 
+
+By the Archimedean property, $\exists N \in \mathbb{N}$ such that $1/N < |x|$, so $x \notin (-1/N, 1/N) = A_N$, contradicting $x \in \bigcap_{n\geq 1} A_n \subset A_N$. Hence $x = 0$.
 
 Combining both containments, $\bigcap_{n\geq 1} A_n = \{0\}$.
 
-Finally, $\{0\}$ is not open: for any $\delta > 0$, the point $y \equiv \delta/2$ satisfies $d(0,y) = \delta/2 < \delta$, yet $y \neq 0$, so $y \notin \{0\}$. Thus no $\delta$-ball centered at $0$ is contained in $\{0\}$, so $\{0\}$ is not open.
+Finally, $\{0\}$ is not open: for any $\delta > 0$, the point $y \equiv \delta/2$ satisfies $d(0,y) = \delta/2 < \delta$, yet $y \neq 0$, so $y \notin \{0\}$.
 
-Hence $\bigcap_{n\geq 1} A_n = \{0\}$ is a countable (in fact infinite) intersection of open sets that is not open.//
+Thus no $\delta$-ball centered at $0$ is contained in $\{0\}$, so $\{0\}$ is not open, and we conclude that $\bigcap_{n\geq 1} A_n = \{0\}$ is a countable (infinite) intersection of open sets that is itself not open.//
 
 # Q3: A.36
 
 Let $f_n(x) = x^n$ and $g(x) \equiv 0$ on $\mathbb{R}$. Then $\{f_n\}_{n \ge 1}$ converges pointwise to $g$ on $(-1,1)$, uniformly on $[a,b]$ for $-1 < a < b < 1$, but not uniformly on $(0,1)$.
 
 ## Answer
-
-**Sketch:** Parts (a)–(b) use the same bound $|x|^n < \varepsilon \iff n > \log\varepsilon/\log|x|$; on $[a,b]$, bounding $|x|$ by $M\equiv\max(|a|,|b|)<1$ makes $N$ independent of $x$, giving uniformity. Part (c) negates the uniform convergence definition directly, using $x_N = (1/2)^{1/N}$ as a witness at each $N$.
 
 **Proof.**
 
@@ -179,7 +217,7 @@ Let $\Omega$ be a finite set, i.e., the number of elements in $\Omega$ is finite
 
 ## Answer
 
-**Sketch:** By Proposition 1.1.1, it suffices to show $\mathcal{F}$ is closed under monotone unions. Since $\Omega$ is finite, an increasing sequence in $\mathcal{F}$ reduces the union to a finite union already in $\mathcal{F}$.
+**Sketch:** By Proposition 1.1.1, it suffices to show $\mathcal{F}$ is closed under monotone unions to show that $\mathcal{F}$ is a $\sigma$-algebra. Since $\Omega$ is finite, an increasing sequence in $\mathcal{F}$ reduces the union to a finite union already in $\mathcal{F}$.
 
 **Proof.** Since $\Omega$ is finite, write $m \equiv |\Omega| < \infty$; since $\mathcal{F} \subset \mathcal{P}(\Omega)$, every $A \in \mathcal{F}$ satisfies $A \subset \Omega$ and hence $|A| \leq m$.
 
@@ -206,9 +244,7 @@ Let $\{\mathcal{F}_\theta : \theta \in \Theta\}$ be a family of $\sigma$-algebra
 
 ## Answer
 
-**Sketch:** Verify $\mathcal{G}$ satisfies Definition 1.1.2 directly: each defining property passes through the intersection unchanged, since it holds for every $\theta \in \Theta$.
-
-**Note:** Definition 1.1.2 requires (a), (b), (c) — $\mathcal{F}$ an algebra — together with (d). But (a) and (b) alone give $\emptyset = \Omega^c \in \mathcal{F}$, so any finite union extends to a countable union by appending $\emptyset$'s; thus (d) already implies (c), and it suffices to verify (a), (b), (d).
+**Sketch:** It suffices to verify properties (a), (b), (d) ((a) and (b) from Definition 1.1.1 and (d) from Definition 1.1.2) to conclude that $\mathcal{G} \equiv \bigcap_{\theta \in \Theta} \mathcal{F}_\theta$ is also a $\sigma$-algebra. 
 
 **Proof.**
 
@@ -226,7 +262,7 @@ Let $\Omega$ be a nonempty set and let $\mathcal{A} \equiv \{A_i : i \in \mathbb
 
 ## Answer
 
-**Sketch:** By the Note from Q5, it suffices to verify (a), (b), (d): (a) is immediate with $J=\mathbb{N}$; (b) follows by complementing the index set, using disjointness of the partition; (d) follows since countable unions correspond to unions of index sets.
+**Sketch:** By the Note from Q5, it suffices to verify properties (a), (b), (d) ((a) and (b) from Definition 1.1.1 and (d) from Definition 1.1.2) to conclude that $\mathcal{F}$ is a $\sigma$-algebra. 
 
 **Proof.**
 
@@ -234,17 +270,29 @@ Let $\Omega$ be a nonempty set and let $\mathcal{A} \equiv \{A_i : i \in \mathbb
 
 **(b)** Let $B \in \mathcal{F}$ be given. Then $B = \bigcup_{i \in J} A_i$ for some $J \subset \mathbb{N}$. Let $J^c \equiv \mathbb{N} \setminus J$. We claim $B^c = \bigcup_{i \in J^c} A_i$.
 
-Since $\{A_i : i \in \mathbb{N}\}$ is a partition, $A_i \cap A_j = \emptyset$ for all $i \neq j$; in particular, for any $i \in J$ and $j \in J^c$, $i \neq j$, so $A_i \cap A_j = \emptyset$. Hence
+Since $\{A_i : i \in \mathbb{N}\}$ is a partition, $A_i \cap A_j = \emptyset$ for all $i \neq j$; in particular, for any $i \in J$ and $j \in J^c$, $i \neq j$, so $A_i \cap A_j = \emptyset$. 
+
+Hence
+
 $$\left(\bigcup_{i \in J} A_i\right) \cap \left(\bigcup_{j \in J^c} A_j\right) = \bigcup_{i \in J,\, j \in J^c} (A_i \cap A_j) = \emptyset.$$
 Also, since $J \cup J^c = \mathbb{N}$,
+
 $$\left(\bigcup_{i \in J} A_i\right) \cup \left(\bigcup_{j \in J^c} A_j\right) = \bigcup_{i \in \mathbb{N}} A_i = \Omega.$$
+
 Thus $\bigcup_{i \in J} A_i$ and $\bigcup_{j \in J^c} A_j$ partition $\Omega$, so
+
 $$B^c = \Omega \setminus B = \Omega \setminus \bigcup_{i \in J} A_i = \bigcup_{j \in J^c} A_j \in \mathcal{F},$$
 since $J^c \subset \mathbb{N}$.
 
-**(d)** Let $\{B_k\}_{k \geq 1} \subset \mathcal{F}$ be given. For each $k \geq 1$, $\exists J_k \subset \mathbb{N}$ such that $B_k = \bigcup_{i \in J_k} A_i$. Let $J \equiv \bigcup_{k \geq 1} J_k \subset \mathbb{N}$. Then
-$$\bigcup_{k \geq 1} B_k = \bigcup_{k \geq 1} \bigcup_{i \in J_k} A_i = \bigcup_{i \in \bigcup_{k\geq 1} J_k} A_i = \bigcup_{i \in J} A_i \in \mathcal{F},$$
-since $J \subset \mathbb{N}$.
+**(d)** Let $\{B_k\}_{k \geq 1} \subset \mathcal{F}$ be given. 
+
+For each $k \geq 1$, $\exists J_k \subset \mathbb{N}$ such that $B_k = \bigcup_{i \in J_k} A_i$. 
+
+Let $J \equiv \bigcup_{k \geq 1} J_k \subset \mathbb{N}$. 
+
+It then follows that since $J \subset \mathbb{N}$, 
+
+$$\bigcup_{k \geq 1} B_k = \bigcup_{k \geq 1} \bigcup_{i \in J_k} A_i = \bigcup_{i \in \bigcup_{k\geq 1} J_k} A_i = \bigcup_{i \in J} A_i \in \mathcal{F}.$$
 
 By (a), (b), (d), and the Note established in Q5 (1.4), $\mathcal{F}$ satisfies Definition 1.1.2. Hence $\mathcal{F}$ is a $\sigma$-algebra.//
 
