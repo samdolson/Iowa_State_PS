@@ -8,10 +8,6 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Progress 
-
-- Q2: Draft
-
 # Q1 
 
 Let $X$, $W$, and $Z$ denote matrices.
@@ -248,12 +244,17 @@ Show that $AA^-C = C$ and $DA^-A = D$.
 
 **Answer.** 
 
-Since $\mathcal C(C)\subseteq\mathcal C(A)$, Lemma 1.6 (i) gives $C=AF$ for some matrix $F$. Then
-$$AA^-C = AA^-(AF) = (AA^-A)F = AF = C,$$
-using $AA^-A=A$ (the defining property of a generalized inverse).
+Since $\mathcal C(C)\subseteq\mathcal C(A)$, Lemma 1.6 (i) gives $C=AF$ for some matrix $F$. 
 
-Since $\mathcal R(D)\subseteq\mathcal R(A)$, Lemma 1.6(ii) gives $D=GA$ for some matrix $G$. Then
-$$DA^-A = (GA)A^-A = G(AA^-A) = GA = D. \;//$$
+Using the definition of a generalized inverse, i.e., $AA^-A=A$, it then follows
+
+$$AA^-C = AA^-(AF) = (AA^-A)F = AF = C.$$
+
+Also, since $\mathcal R(D)\subseteq\mathcal R(A)$, Lemma 1.6 (ii) gives $D=GA$ for some matrix $G$. 
+
+Similarly, using the definition of a generalized inverse, it then follows 
+
+$$DA^-A = (GA)A^-A = G(AA^-A) = GA = D.//$$
 
 ## (b) 
 
@@ -271,12 +272,14 @@ where $Q = B - DA^-C$, and $I$ denotes the identity matrix of appropriate dimens
 
 **Answer.** 
 
-First compute $\begin{bmatrix} A & C\\ D& B\end{bmatrix}\begin{bmatrix} I & -A^-C\\ 0& I\end{bmatrix}$ blockwise:
+As given, we must compute $\begin{bmatrix} A & C\\ D& B\end{bmatrix}\begin{bmatrix} I & -A^-C\\ 0& I\end{bmatrix}$ blockwise. The following refers to the resultant matrix (we start with multiplication of the second and third matrices on the left-hand side):
 
 - top-left: $AI+C\cdot 0 = A$
-- top-right: $A(-A^-C)+CI = -AA^-C+C = -C+C=0$ (by (a))
+- top-right: $A(-A^-C)+CI = -AA^-C+C = -C+C=0$ (by using part (a))
 - bottom-left: $DI+B\cdot 0 = D$
 - bottom-right: $D(-A^-C)+BI = B-DA^-C = Q$
+
+Taken together, this leaves us: 
 
 $$\begin{bmatrix} A & C\\ D& B\end{bmatrix}\begin{bmatrix} I & -A^-C\\ 0& I\end{bmatrix} = \begin{bmatrix} A & 0\\ D& Q\end{bmatrix}.$$
 
@@ -284,10 +287,12 @@ Now left-multiply by $\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix}$:
 
 - top-left: $IA+0\cdot D=A$
 - top-right: $I\cdot 0+0\cdot Q=0$
-- bottom-left: $-DA^-A+ID = -D+D=0$ (by (a))
+- bottom-left: $-DA^-A+ID = -D+D=0$ (again, using the results of part (a))
 - bottom-right: $-DA^-\cdot 0+IQ=Q$
 
-$$\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix}\begin{bmatrix} A & 0\\ D& Q\end{bmatrix} = \begin{bmatrix} A&0\\0&Q\end{bmatrix}. \;//$$
+Assembling the resultant matrix, we have: 
+
+$$\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix}\begin{bmatrix} A & 0\\ D& Q\end{bmatrix} = \begin{bmatrix} A&0\\0&Q\end{bmatrix}.//$$
 
 ## (c) 
 
@@ -307,17 +312,25 @@ $$
 
 **Answer.** 
 
-Let $L=\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix}$, $R=\begin{bmatrix} I&-A^-C\\0&I\end{bmatrix}$, and $\tilde M = \begin{bmatrix} A&0\\0&Q\end{bmatrix}$. Direct multiplication confirms
+Let $L=\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix}$ (the left-most matrix of the left-hand side equation), $R=\begin{bmatrix} I&-A^-C\\0&I\end{bmatrix}$ (the right-most matrix of the left-hand side equation), and $\tilde M = \begin{bmatrix} A&0\\0&Q\end{bmatrix}$. 
+
+We confirm by direct computation. But first, we note that $L,R$ are invertible, and: 
+
 $$L^{-1}=\begin{bmatrix} I&0\\DA^-&I\end{bmatrix}, \qquad R^{-1}=\begin{bmatrix} I&A^-C\\0&I\end{bmatrix}$$
-(e.g. $LL^{-1}=\begin{bmatrix} I&0\\-DA^-+DA^-&I\end{bmatrix}=I$, and similarly for $R$), so $L,R$ are invertible.
 
-By (b), $LMR=\tilde M$, so $M = L^{-1}\tilde M R^{-1}$.
+By part (b), $LMR=\tilde M$, so $M = L^{-1}\tilde M R^{-1}$ by multiplication of $L^{-1}$ and $R^{-1}$ on the left-side and right-side respectively.
 
-Let $G = R\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}L$. Then
-$$MGM = \big(L^{-1}\tilde M R^{-1}\big)\Big(R\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}L\Big)\big(L^{-1}\tilde M R^{-1}\big) = L^{-1}\tilde M\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}\tilde M R^{-1},$$
-since $R^{-1}R=I$ and $LL^{-1}=I$. Now
+Let $G = R\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}L$. 
+
+Then, since $R^{-1}R=I$ and $LL^{-1}=I$, 
+
+$$MGM = \big(L^{-1}\tilde M R^{-1}\big)\Big(R\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}L\Big)\big(L^{-1}\tilde M R^{-1}\big) = L^{-1}\tilde M (R^{-1}R)\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}(LL^{-1})\tilde M R^{-1} = L^{-1}\tilde M\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}\tilde M R^{-1}.$$ 
+
+Consequently, using $AA^-A=A$ and $QQ^-Q=Q$, we have  
+
 $$\tilde M\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}\tilde M = \begin{bmatrix} AA^-A&0\\0&QQ^-Q\end{bmatrix} = \begin{bmatrix} A&0\\0&Q\end{bmatrix} = \tilde M,$$
-using $AA^-A=A$ and $QQ^-Q=Q$. Hence $MGM = L^{-1}\tilde M R^{-1} = M$, so $G$ is a generalized inverse of $M$. //
+
+Hence $MGM = L^{-1}\tilde M R^{-1} = M$, and we conclude that $G$ is a generalized inverse of $M$.//
 
 ## (d) 
 
@@ -325,14 +338,27 @@ Show that the above generalized inverse matches that given in (i) of Theorem 1.4
 
 **Answer.** 
 
-First,
-$$\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix} = \begin{bmatrix} A^-&0\\-Q^-DA^-&Q^-\end{bmatrix}.$$
-Then
-$$R\begin{bmatrix} A^-&0\\-Q^-DA^-&Q^-\end{bmatrix} = \begin{bmatrix} I&-A^-C\\0&I\end{bmatrix}\begin{bmatrix} A^-&0\\-Q^-DA^-&Q^-\end{bmatrix}
-= \begin{bmatrix} A^- + A^-CQ^-DA^- & -A^-CQ^- \\ -Q^-DA^- & Q^- \end{bmatrix},$$
-computing entrywise: top-left $= A^- + (-A^-C)(-Q^-DA^-) = A^-+A^-CQ^-DA^-$; top-right $=(-A^-C)Q^-=-A^-CQ^-$; bottom-left $=-Q^-DA^-$; bottom-right $=Q^-$.
+From part (c), we have $G = R\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}L$. We show this matches the form given in Theorem 1.4 (i) by computation. 
 
-This is exactly the matrix given in Theorem 1.4(i). //
+First,
+
+$$
+\begin{bmatrix}A^-&0\\0&Q^-\end{bmatrix}L = \begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}\begin{bmatrix} I&0\\-DA^-&I\end{bmatrix} = \begin{bmatrix} A^-&0\\-Q^-DA^-&Q^-\end{bmatrix}.
+$$
+
+Left-multiplying by $R$ then gives us an expression of $G$:
+
+$$G = R\begin{bmatrix} A^-&0\\-Q^-DA^-&Q^-\end{bmatrix} = \begin{bmatrix} I&-A^-C\\0&I\end{bmatrix}\begin{bmatrix} A^-&0\\-Q^-DA^-&Q^-\end{bmatrix}
+= \begin{bmatrix} A^- + A^-CQ^-DA^- & -A^-CQ^- \\ -Q^-DA^- & Q^- \end{bmatrix},$$
+
+Some notes on the above computation, by block: 
+
+- top-left $= A^- + (-A^-C)(-Q^-DA^-) = A^-+A^-CQ^-DA^-$
+- top-right $=(-A^-C)Q^-=-A^-CQ^-$
+- bottom-left $=-Q^-DA^-$
+- bottom-right $=Q^-$
+
+Confirming that $G = R\begin{bmatrix} A^-&0\\0&Q^-\end{bmatrix}L$ matches the form of the matrix given in Theorem 1.4 (i).//
 
 ## (e) 
 
@@ -347,14 +373,24 @@ $$
 
 **Answer.** 
 
-By Lemma 1.4 (applied with $X=Z_2$), $Z_2'Z_2(Z_2'Z_2)^-Z_2' = Z_2'$, so $Z_2' = (Z_2'Z_2)\big[(Z_2'Z_2)^-Z_2'\big]$, which by Lemma 1.6(i) gives $\mathcal C(Z_2')\subseteq\mathcal C(Z_2'Z_2)$. Conversely, $Z_2'Z_2=Z_2'\cdot Z_2$ trivially gives $\mathcal C(Z_2'Z_2)\subseteq\mathcal C(Z_2')$ (Lemma 1.6(i) again). Hence
+By Lemma 1.4 (using $X=Z_2$), we have $Z_2'Z_2(Z_2'Z_2)^-Z_2' = Z_2'$ (i.e., $Z_2(Z_2'Z_2)^-$ is a generalized inverse of $Z_2'$), such that $Z_2' = (Z_2'Z_2)\big[(Z_2'Z_2)^-Z_2'\big]$. 
+
+By Lemma 1.6 (i), using ($\Leftarrow$), we have $\mathcal C(Z_2')\subseteq\mathcal C(Z_2'Z_2)$. 
+
+Conversely, as $Z_2'Z_2 = Z_2'\cdot Z_2$, we know $\mathcal C(Z_2'Z_2)\subseteq\mathcal C(Z_2')$ (using Lemma 1.6 (i) again, in the same $(\Leftarrow)$ direction as above, using $A=Z_2'$, $C=Z_2$).
+
+Hence
+
 $$\mathcal C(Z_2') = \mathcal C(Z_2'Z_2) = \mathcal C(B).$$
 
-Since $D=Z_2'Z_1$, each column of $D$ is $Z_2'$ times a column of $Z_1$, so by Lemma 1.6(i), $\mathcal C(D)\subseteq\mathcal C(Z_2')=\mathcal C(B)$. This is exactly the first condition of Theorem 1.4(ii).
+Since $D=Z_2'Z_1$, each column of $D$ is $Z_2'$ times a column of $Z_1$, so by Lemma 1.6 (i), $\mathcal C(D)\subseteq\mathcal C(Z_2')=\mathcal C(B)$, matching the first condition of Theorem 1.4 (ii).
 
-For the second condition, note $C=Z_1'Z_2$ so $C' = (Z_1'Z_2)' = Z_2'Z_1 = D$, and $B'=(Z_2'Z_2)'=Z_2'Z_2=B$. Then
+For the second condition, note $C=Z_1'Z_2$, such that $C' = (Z_1'Z_2)' = Z_2'Z_1 = D$ and $B'=(Z_2'Z_2)'=Z_2'Z_2=B$. 
+
+Using $\mathcal R(X)=\mathcal C(X')$ (the row space of $X$ is the column space of $X'$),
+
 $$\mathcal R(C) = \mathcal C(C') = \mathcal C(D) \subseteq \mathcal C(B) = \mathcal C(B') = \mathcal R(B),$$
-which is exactly the second condition of Theorem 1.4(ii). //
+matching the second and final condition of Theorem 1.4 (ii).//
 
 # 3. 
   
