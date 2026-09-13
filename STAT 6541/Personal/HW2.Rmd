@@ -10,16 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Note: We use $\subset \equiv \subseteq$ and $\supset \equiv \supseteq$ for the purposes of set relations. This note will be dropped henceforth in future problemsets. 
 
-# Progress 
-
-- Q1: part (b) needs edits 
-- Q2
-- Q3
-- Q4
-- Q5
-- Q6
-- Q7 
-
 # Q1: A.29
 
 Let $\mathbb{S} = C[0,1]$ and $d_p(f,g) \equiv \left(\int_0^1 |f(t)-g(t)|^p\, dt\right)^{\frac{1}{p}}$ for $1 \le p < \infty$
@@ -79,7 +69,7 @@ Show that $d_p(g_n, f) \to 0$ for all $1 \le p \le \infty$.
 
 **Proof.**
 
-Fix $f\in C[0,1]$. Since $[0,1]$ is compact and $f$ is continuous, $f$ is bounded: By the Extreme Value Theorem, $\exists M>0$ such that $|f(t)|\leq M$ for all $t\in[0,1]$.
+Fix $f\in C[0,1]$. Since $f$ is continuous on the closed and bounded interval $[0,1]$, Proposition A.2.5(ii)(a) (continuous functions on a closed and bounded interval are bounded) gives $\sup\{|f(t)| : t\in[0,1]\}<\infty$; fix $M>0$ such that $|f(t)|\leq M$ for all $t\in[0,1]$.
 
 For $t\in[1-1/n,1]$, let $s\equiv n(t+1/n-1)\in[0,1]$ (the linear reparametrization of $[1-1/n,1]$ onto $[0,1]$). 
 
@@ -111,13 +101,13 @@ $$d_p(g_n,f)^p = \int_0^1|g_n(t)-f(t)|^p\,dt = \int_{1-\frac1n}^1|g_n(t)-f(t)|^p
 
 Since $p$ is fixed, $2^{p+1}(2M)^p$ is a constant, so $d_p(g_n,f)^p\to0$ as $n\to\infty$, hence $d_p(g_n,f)\to0$.
 
-**Case (2): $p=\infty$.** By Heine–Cantor Theorem, since $f$ is continuous on the compact set $[0,1]$, $f$ is uniformly continuous: $\forall\varepsilon>0$, $\exists\delta>0$ such that $|x-y|<\delta\Rightarrow|f(x)-f(y)|<\varepsilon$ for all $x,y\in[0,1]$.
+**Case (2): $p=\infty$.** Since $f$ is continuous on the closed and bounded interval $[0,1]$, Proposition A.2.5(ii)(c) gives that $f$ is uniformly continuous on $[0,1]$: $\forall\varepsilon>0$, $\exists\delta>0$ such that $|x-y|<\delta\Rightarrow|f(x)-f(y)|<\varepsilon$ for all $x,y\in[0,1]$.
 
 Let $\varepsilon>0$ be given, and choose $N\in\mathbb{N}$ with $1/N<\delta$. Let $n\geq N$ and $t\in[1-1/n,1]$ be given. Since $|t-(1-\tfrac1n)|\leq\tfrac1n\leq\tfrac1N<\delta$ and $|t-1|\leq\tfrac1n\leq\tfrac1N<\delta$,
 
 $$|f(1-\tfrac1n)-f(t)|<\varepsilon \quad\text{and}\quad |f(1)-f(t)|<\varepsilon.$$
 
-By $(1)$ and the triangle inequality (the Note only covers finite $p$),
+By $(1)$ and the triangle inequality (the Note provided by Dr. Ghosh only covers finite $p$),
 
 $$|g_n(t)-f(t)| \leq (1-s)|f(1-\tfrac1n)-f(t)| + s|f(1)-f(t)| < (1-s)\varepsilon+s\varepsilon = \varepsilon$$
 
@@ -131,7 +121,7 @@ Combining both cases, $d_p(g_n,f)\to0$ for all $1\leq p\leq\infty$.//
 
 # Q2: A.34
 
-Show that unions of open sets are open and intersection of any two open sets is open. Give an example to show that the intersection of an infinite number of open sets need not be open.
+**(Part 1:)** Show that unions of open sets are open and **(Part 2:)** intersection of any two open sets is open. **(Part 3:)** Give an example to show that the intersection of an infinite number of open sets need not be open.
 
 ## Answer
 
@@ -169,7 +159,7 @@ $(\supset)$ Since $0 \in (-1/n, 1/n)$ for every $n \geq 1$, $0 \in \bigcap_{n\ge
 
 $(\subset)$ Let $x \in \bigcap_{n \geq 1} A_n$ be given, and suppose for contradiction $x \neq 0$. 
 
-By the Archimedean property, $\exists N \in \mathbb{N}$ such that $1/N < |x|$, so $x \notin (-1/N, 1/N) = A_N$, contradicting $x \in \bigcap_{n\geq 1} A_n \subset A_N$. Hence $x = 0$.
+By the Axiom of Archimedes (Proposition A.2.1: for all $y \in \mathbb{R}$, there exists $n \in \mathbb{N}$ with $n > y$), applied to $y = 1/|x|$, $\exists N \in \mathbb{N}$ such that $N > 1/|x|$, i.e., $1/N < |x|$, so $x \notin (-1/N, 1/N) = A_N$, contradicting $x \in \bigcap_{n\geq 1} A_n \subset A_N$.
 
 Combining both containments, $\bigcap_{n\geq 1} A_n = \{0\}$.
 
@@ -187,8 +177,8 @@ Let $f_n(x) = x^n$ and $g(x) \equiv 0$ on $\mathbb{R}$. Then $\{f_n\}_{n \ge 1}$
 
 **(a) Pointwise convergence on $(-1,1)$.**
 
-Let $x \in (-1,1)$ be given. If $x = 0$, then $f_n(x) = 0 = g(x)$ for all $n \geq 1$, so convergence is immediate. If $x \neq 0$, then $|x| \in (0,1)$, so $\log|x| < 0$. Let $\varepsilon > 0$ be given, and set
-$$N \equiv \left\lfloor \frac{\log \varepsilon}{\log |x|} \right\rfloor + 1.$$
+Let $x \in (-1,1)$ be given. If $x = 0$, then $f_n(x) = 0 = g(x)$ for all $n \geq 1$, so convergence is immediate. If $x \neq 0$, then $|x| \in (0,1)$, so $\log|x| < 0$. Let $\varepsilon > 0$ be given. If $\varepsilon \geq 1$, take $N \equiv 1$, since $|x|^n < 1 \leq \varepsilon$ for all $n \geq 1$ trivially. If $0 < \varepsilon < 1$, set
+$$N \equiv \left\lfloor \frac{\log \varepsilon}{\log |x|} \right\rfloor + 1 \in \mathbb{N}.$$
 For $n \geq N$, $n > \log\varepsilon/\log|x|$; since $\log|x| < 0$, multiplying both sides by $\log|x|$ reverses the inequality, giving $n\log|x| < \log\varepsilon$, i.e. $|x|^n < \varepsilon$. Thus $|f_n(x) - g(x)| = |x|^n < \varepsilon$ for all $n \geq N$.
 
 In either case $\lim_{n\to\infty} f_n(x) = 0 = g(x)$. Since $x \in (-1,1)$ was arbitrary, $\{f_n\}_{n\geq 1}$ converges pointwise to $g$ on $(-1,1)$.
@@ -197,8 +187,8 @@ In either case $\lim_{n\to\infty} f_n(x) = 0 = g(x)$. Since $x \in (-1,1)$ was a
 
 Let $-1 < a < b < 1$ be given, and set $M \equiv \max(|a|,|b|)$. Since $a \neq b$, not both $a,b$ equal $0$, so $M \in (0,1)$. For every $x \in [a,b]$, $|x| \leq M < 1$.
 
-Let $\varepsilon > 0$ be given, and set
-$$N_\varepsilon \equiv \left\lfloor \frac{\log \varepsilon}{\log M} \right\rfloor + 1.$$
+Similar to part (a) given above, let $\varepsilon > 0$ be given. If $\varepsilon \geq 1$, take $N \equiv 1$, since $|x|^n < 1 \leq \varepsilon$ for all $n \geq 1$ trivially. If $0 < \varepsilon < 1$, set
+$$N \equiv \left\lfloor \frac{\log \varepsilon}{\log |x|} \right\rfloor + 1 \in \mathbb{N}.$$
 By the same argument as in (a) (with $M$ in place of $|x|$), $n \geq N_\varepsilon \implies M^n < \varepsilon$. Since $t \mapsto t^n$ is non-decreasing on $[0,\infty)$ and $0 \leq |x| \leq M$, $|x|^n \leq M^n$ for all $x \in [a,b]$. Thus, for all $x \in [a,b]$ and $n \geq N_\varepsilon$,
 $$|f_n(x) - g(x)| = |x|^n \leq M^n < \varepsilon.$$
 Since $N_\varepsilon$ depends only on $\varepsilon$ (via $a,b$) and not on $x$, $\{f_n\}_{n\geq 1}$ converges uniformly to $g$ on $[a,b]$.
@@ -236,7 +226,7 @@ since for $n \leq N$, $A_n \subset A_N$ by monotonicity contributes nothing beyo
 $\bigcup_{n=1}^N A_n \in \mathcal{F}$. Hence
 $$\bigcup_{n \geq 1} A_n = A_N \in \mathcal{F}.$$
 
-Since $\{A_n\}_{n\geq 1} \subset \mathcal{F}$ with $A_n \subset A_{n+1}$ was arbitrary, $\mathcal{F}$ is closed under monotone unions. As $\mathcal{F}$ is an algebra by hypothesis, Proposition 1.1.1 gives that $\mathcal{F}$ is a $\sigma$-algebra (Definition 1.1.2).//
+Since $\{A_n\}_{n\geq 1} \subset \mathcal{F}$ with $A_n \subset A_{n+1}$ was arbitrary, $\mathcal{F}$ is closed under monotone unions. As $\mathcal{F}$ is an algebra by hypothesis and is closed under monotone unions, Proposition 1.1.1 (which states that $\mathcal{F} \subset \mathcal{P}(\Omega)$ is a $\sigma$-algebra if and only if $\mathcal{F}$ is an algebra satisfying $A_n \in \mathcal{F}$, $A_n \subset A_{n+1}$ for all $n \Rightarrow \bigcup_{n\geq1} A_n \in \mathcal{F}$) gives that $\mathcal{F}$ is a $\sigma$-algebra (Definition 1.1.2).//
 
 # Q5: 1.4
 
@@ -244,7 +234,7 @@ Let $\{\mathcal{F}_\theta : \theta \in \Theta\}$ be a family of $\sigma$-algebra
 
 ## Answer
 
-**Sketch:** It suffices to verify properties (a), (b), (d) ((a) and (b) from Definition 1.1.1 and (d) from Definition 1.1.2) to conclude that $\mathcal{G} \equiv \bigcap_{\theta \in \Theta} \mathcal{F}_\theta$ is also a $\sigma$-algebra. 
+**Sketch:** It suffices to verify (a), (b), (d) (Definition 1.1.1(a)-(b), Definition 1.1.2(d)); these force (c) (Definition 1.1.1(c)) automatically.
 
 **Proof.**
 
@@ -254,7 +244,7 @@ Let $\{\mathcal{F}_\theta : \theta \in \Theta\}$ be a family of $\sigma$-algebra
 
 **(d)** Let $\{A_n\}_{n \geq 1} \subset \mathcal{G}$ be given. Then for every $\theta \in \Theta$, $A_n \in \mathcal{F}_\theta$ for all $n \geq 1$. Since each $\mathcal{F}_\theta$ is a $\sigma$-algebra, $\bigcup_{n \geq 1} A_n \in \mathcal{F}_\theta$ for every $\theta \in \Theta$ (Definition 1.1.2(d)). Hence $\bigcup_{n \geq 1} A_n \in \bigcap_{\theta \in \Theta} \mathcal{F}_\theta = \mathcal{G}$.
 
-By (a), (b), and (d), and the Note above, $\mathcal{G}$ satisfies Definition 1.1.2. Hence $\mathcal{G}$ is a $\sigma$-algebra.//
+Since $\emptyset = \Omega^c \in \mathcal{G}$ by (a)-(b), (a), (b), (d) also give closure under pairwise unions (Definition 1.1.1(c)): for $A, B \in \mathcal{G}$, $A \cup B = A \cup B \cup \emptyset \cup \emptyset \cup \cdots \in \mathcal{G}$ by (d). Hence $\mathcal{G}$ satisfies Definition 1.1.1 and Definition 1.1.2, so $\mathcal{G}$ is a $\sigma$-algebra.//
 
 # Q6: 1.6
 
@@ -262,7 +252,7 @@ Let $\Omega$ be a nonempty set and let $\mathcal{A} \equiv \{A_i : i \in \mathbb
 
 ## Answer
 
-**Sketch:** By the Note from Q5, it suffices to verify properties (a), (b), (d) ((a) and (b) from Definition 1.1.1 and (d) from Definition 1.1.2) to conclude that $\mathcal{F}$ is a $\sigma$-algebra. 
+**Sketch:** As in Q5 (1.4), it suffices to verify (a), (b), (d) (Definition 1.1.1(a)-(b), Definition 1.1.2(d)); these force (c) (Definition 1.1.1(c)) automatically.
 
 **Proof.**
 
@@ -294,9 +284,7 @@ It then follows that since $J \subset \mathbb{N}$,
 
 $$\bigcup_{k \geq 1} B_k = \bigcup_{k \geq 1} \bigcup_{i \in J_k} A_i = \bigcup_{i \in \bigcup_{k\geq 1} J_k} A_i = \bigcup_{i \in J} A_i \in \mathcal{F}.$$
 
-By (a), (b), (d), and the Note established in Q5 (1.4), $\mathcal{F}$ satisfies Definition 1.1.2. Hence $\mathcal{F}$ is a $\sigma$-algebra.//
-
-\newpage 
+By (a), (b), (d) (which, as in Q5 (1.4), also give closure under pairwise unions (Definition 1.1.1(c)) automatically) $\mathcal{F}$ satisfies Definition 1.1.1 and Definition 1.1.2. Hence $\mathcal{F}$ is a $\sigma$-algebra.//
 
 # Q7: Problem A
 
@@ -304,7 +292,7 @@ Let $\Omega$ be an uncountable set (e.g. $\mathbb{R}$) and $\mathbb{C}$ be the c
 
 ## Answer
 
-**Sketch:** Claim $\sigma\langle \mathbb{C} \rangle = \mathcal{F}_0 \equiv \{A\subset\Omega : A \text{ or } A^c \text{ is countable}\}$. Show $\mathcal{F}_0$ is a $\sigma$-algebra containing $\mathbb{C}$ (so $\sigma\langle \mathbb{C} \rangle\subset\mathcal{F}_0$), then that every $\sigma$-algebra containing $\mathbb{C}$ must contain $\mathcal{F}_0$ (so $\mathcal{F}_0\subset\sigma\langle \mathbb{C} \rangle$).
+**Sketch:** We show that $\mathcal{F}_0$ is a $\sigma$-algebra containing $\mathbb{C}$ (so $\sigma\langle \mathbb{C} \rangle\subset\mathcal{F}_0$), then show that every $\sigma$-algebra containing $\mathbb{C}$ must contain $\mathcal{F}_0$ (so $\mathcal{F}_0\subset\sigma\langle \mathbb{C} \rangle$).
 
 **Proof.**
 
@@ -318,11 +306,11 @@ Let $\Omega$ be an uncountable set (e.g. $\mathbb{R}$) and $\mathbb{C}$ be the c
 $$\left(\bigcup_{n\geq1} A_n\right)^c = \bigcap_{n\geq1} A_n^c \subset A_{n_0}^c,$$
 and a subset of a countable set is countable, $\left(\bigcup_{n\geq1} A_n\right)^c$ is countable, so $\bigcup_{n\geq1} A_n \in \mathcal{F}_0$.
 
-By (a), (b), (d) and the Note established in Q5 (1.4), $\mathcal{F}_0$ is a $\sigma$-algebra.
+By (a), (b), (d) (which, as in Q5 (1.4), also give closure under pairwise unions (Definition 1.1.1(c)) automatically) $\mathcal{F}_0$ satisfies Definition 1.1.1 and Definition 1.1.2. Hence $\mathcal{F}_0$ is a $\sigma$-algebra.
 
 **Step 2: $\mathbb{C} \subset \mathcal{F}_0$, hence $\sigma\langle \mathbb{C} \rangle \subset \mathcal{F}_0$.**
 
-For any $\omega \in \Omega$, $\{\omega\}$ is finite, hence countable, so $\{\omega\} \in \mathcal{F}_0$. Thus $\mathbb{C} \subset \mathcal{F}_0$. Since $\sigma\langle \mathbb{C} \rangle$ is by definition the smallest $\sigma$-algebra containing $\mathbb{C}$, and $\mathcal{F}_0$ is *a* $\sigma$-algebra containing $\mathbb{C}$ (Steps 1–2), $\sigma\langle \mathbb{C} \rangle \subset \mathcal{F}_0$.
+For any $\omega \in \Omega$, $\{\omega\}$ is finite, hence countable, so $\{\omega\} \in \mathcal{F}_0$. Thus $\mathbb{C} \subset \mathcal{F}_0$. Since, by Definition 1.1.3, $\sigma\langle \mathbb{C} \rangle$ is the smallest $\sigma$-algebra containing $\mathbb{C}$ (i.e., the intersection of all $\sigma$-algebras containing $\mathbb{C}$), and $\mathcal{F}_0$ is *a* $\sigma$-algebra containing $\mathbb{C}$ (Steps 1–2), $\sigma\langle \mathbb{C} \rangle \subset \mathcal{F}_0$.
 
 **Step 3: $\mathcal{F}_0 \subset \sigma\langle \mathbb{C} \rangle$.**
 
