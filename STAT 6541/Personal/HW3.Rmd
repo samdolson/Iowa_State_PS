@@ -1,5 +1,5 @@
 ---
-title: "HW2"
+title: "HW3"
 author: "Sam Olson"
 output: pdf_document
 ---
@@ -12,33 +12,188 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## (i) 
 
-Show that $\mathcal{F}_6 = \{A \in \Omega : A \text{ is countable or } A^c \text{ is countable.}\}$ from example 1.1.4 is a $\sigma$-algebra.
+Show that $\mathcal{F}_6 = \{A \subset \Omega : A \text{ is countable or } A^c \text{ is countable}\}$ from Example 1.1.4 is a $\sigma$-algebra.
+
+### Answer 
+
+*Proof.* Let $\Omega$ be a nonempty set.
+
+(a) $\Omega^c = \emptyset$, which is countable (even if $\Omega$ is not). Thus, $\Omega \in \mathcal{F}_6$.
+
+(b) Let $A \in \mathcal{F}_6$ be given.
+
+*Case 1:* $A$ is countable. Then $(A^c)^c = A$ is countable, so $A^c \in \mathcal{F}_6$.
+
+*Case 2:* $A^c$ is countable. Then $A^c \in \mathcal{F}_6$ by the definition of $\mathcal{F}_6$.
+
+In either case, $A^c \in \mathcal{F}_6$.
+
+(d) Let $\{A_n\}_{n \geq 1} \subset \mathcal{F}_6$ be given, and set $A \equiv \bigcup_{n \geq 1} A_n$.
+
+*Case 1:* $A_n$ is countable for all $n \geq 1$. Then $A$ is a countable union of countable sets, and hence is countable. Thus, $A \in \mathcal{F}_6$.
+
+*Case 2:* $A_{n_0}$ is uncountable for some $n_0 \in \mathbb{N}$. Since $A_{n_0} \in \mathcal{F}_6$, $A_{n_0}^c$ must be countable. By De Morgan's law,
+$$A^c = \Big(\bigcup_{n \geq 1} A_n\Big)^c = \bigcap_{n \geq 1} A_n^c \subset A_{n_0}^c.$$
+Since any subset of a countable set is countable, $A^c$ is countable. Thus, $A \in \mathcal{F}_6$.
+
+(c) By (a) and (b), $\emptyset = \Omega^c \in \mathcal{F}_6$. Let $A, B \in \mathcal{F}_6$ be given, and take $A_1 = A$, $A_2 = B$, and $A_n = \emptyset$ for all $n \geq 3$. Then by (d), $A \cup B = \bigcup_{n \geq 1} A_n \in \mathcal{F}_6$.
+
+Thus, by (a)--(c), $\mathcal{F}_6$ is an algebra, and by (d), $\mathcal{F}_6$ is a $\sigma$-algebra. //
 
 ## (ii) 
 
 Define $\mu$ on $\mathcal{F}_6$ as $\mu(A) = 1$ if $A$ is uncountable and $\mu(A) = 0$ if $A$ is countable. Is $\mu$ a measure on $\mathcal{F}_6$? Justify.
 
+### Answer 
+
+Yes, $\mu$ is a measure on $\mathcal{F}_6$.
+
+*Proof.*
+
+(a) $\mu(A) \in \{0, 1\} \subset [0, \infty]$ for all $A \in \mathcal{F}_6$, so (a) holds.
+
+(b) $\emptyset$ is countable, so $\mu(\emptyset) = 0$, and (b) holds.
+
+(c) *Claim:* If $A, B \in \mathcal{F}_6$ with $A \cap B = \emptyset$, then $A$ and $B$ are not both uncountable.
+
+Suppose $A$ is uncountable. Since $A \in \mathcal{F}_6$, $A^c$ is countable. Since $A \cap B = \emptyset$, $B \subset A^c$, and so $B$ is countable.
+
+Now let $\{A_n\}_{n \geq 1} \subset \mathcal{F}_6$ be a disjoint collection, and let $A \equiv \bigcup_{n \geq 1} A_n$. Note that $A \in \mathcal{F}_6$ by (i). By the claim, at most one $A_n$ is uncountable.
+
+*Case 1:* $A_n$ is countable for all $n \geq 1$. Then $A$ is countable, and
+$$\mu(A) = 0 = \sum_{n=1}^\infty 0 = \sum_{n=1}^\infty \mu(A_n).$$
+
+*Case 2:* Exactly one $A_{n_0}$ is uncountable. Then $A \supset A_{n_0}$ is uncountable, so $\mu(A) = 1$. Also, $\mu(A_n) = 0$ for all $n \neq n_0$, so
+$$\sum_{n=1}^\infty \mu(A_n) = \mu(A_{n_0}) + \sum_{n \neq n_0} \mu(A_n) = 1 + 0 = 1 = \mu(A).$$
+
+Thus, (c) holds, and $(\Omega, \mathcal{F}_6, \mu)$ is a measure space. //
+
+*Remark.* If $\Omega$ is countable, then every $A \subset \Omega$ is countable, and $\mu \equiv 0$ is the trivial measure. If $\Omega$ is uncountable, then $\mu(\Omega) = 1$, so $\mu$ is in fact a probability measure.
+
 # Q2: 1.8
 
 Let $\Omega \equiv \{1, 2, \ldots\} = \mathbb{N}$ and $A_i \equiv \{j : j \in \mathbb{N},\, j \geq i\}$, $i \in \mathbb{N}$. Show that $\sigma\langle\mathcal{A}\rangle = \mathcal{P}(\Omega)$ where $\mathcal{A} = \{A_i : i \in \mathbb{N}\}$.
+
+## Answer 
+
+*Proof.*
+
+**Part 1:** WTS $\sigma\langle\mathcal{A}\rangle \subset \mathcal{P}(\Omega)$.
+
+$A_i \subset \Omega$ for all $i \in \mathbb{N}$, so $\mathcal{A} \subset \mathcal{P}(\Omega)$. Also, $\mathcal{P}(\Omega)$ is a $\sigma$-algebra (Example 1.1.2). Thus $\mathcal{P}(\Omega) \in \mathcal{I}(\mathcal{A})$, and so
+$$\sigma\langle\mathcal{A}\rangle = \bigcap_{\mathcal{F} \in \mathcal{I}(\mathcal{A})} \mathcal{F} \subset \mathcal{P}(\Omega).$$
+
+**Part 2:** WTS $\sigma\langle\mathcal{A}\rangle \supset \mathcal{P}(\Omega)$.
+
+*Step 1: $\{i\} = A_i \cap A_{i+1}^c$ for all $i \in \mathbb{N}$.*
+
+($\subset$) Since $i \geq i$, $i \in A_i$. Since $i < i + 1$, $i \notin A_{i+1}$, i.e., $i \in A_{i+1}^c$. Thus $i \in A_i \cap A_{i+1}^c$.
+
+($\supset$) Let $j \in A_i \cap A_{i+1}^c$. Then $j \geq i$ and $j < i + 1$. Since $j \in \mathbb{N}$, $j = i$.
+
+*Step 2: $\{i\} \in \sigma\langle\mathcal{A}\rangle$ for all $i \in \mathbb{N}$.*
+
+$A_i, A_{i+1} \in \mathcal{A} \subset \sigma\langle\mathcal{A}\rangle$. Since $\sigma\langle\mathcal{A}\rangle$ is a $\sigma$-algebra, it is closed under complementation, so $A_{i+1}^c \in \sigma\langle\mathcal{A}\rangle$. It is also closed under finite intersections, since $E \cap F = (E^c \cup F^c)^c$. Thus, by Step 1, $\{i\} = A_i \cap A_{i+1}^c \in \sigma\langle\mathcal{A}\rangle$.
+
+*Step 3: $B \in \sigma\langle\mathcal{A}\rangle$ for all $B \in \mathcal{P}(\Omega)$.*
+
+Let $B \in \mathcal{P}(\Omega)$ be given.
+
+*Case 1:* $B = \emptyset$. Then $B = \Omega^c \in \sigma\langle\mathcal{A}\rangle$.
+
+*Case 2:* $B \neq \emptyset$. Since $B \subset \mathbb{N}$, $B$ is countable, and
+$$B = \bigcup_{i \in B} \{i\}$$
+is a countable union of sets in $\sigma\langle\mathcal{A}\rangle$ by Step 2. Since $\sigma\langle\mathcal{A}\rangle$ is closed under countable unions, $B \in \sigma\langle\mathcal{A}\rangle$.
+
+Thus $\mathcal{P}(\Omega) \subset \sigma\langle\mathcal{A}\rangle$, and combining Parts 1 and 2, $\sigma\langle\mathcal{A}\rangle = \mathcal{P}(\Omega)$. //
 
 # Q3: 1.10
 
 Show that in Example 1.1.6, $\mathcal{O}_j \subset \sigma\langle\mathcal{O}_i\rangle$ for all $1 \leq i, j \leq 4$.
 
-  - $\mathcal{O}_1 = \{(a_1, b_1) \times (a_2, b_2) : -\infty \leq a_1 < b_1 \leq \infty,\, -\infty \leq a_2 < b_2 \leq \infty\}$
-  
-  - $\mathcal{O}_2 = \{(-\infty, x_1) \times (-\infty, x_2) : -\infty < x_1, x_2 < \infty\}$
-  
-  - $\mathcal{O}_3 = \{(a_1, b_1) \times (a_2, b_2) : a_1 < b_1,\, a_2 < b_2,\, a_1, a_2, b_1, b_2 \in \mathbb{Q}\}$
-  
-  - $\mathcal{O}_4 = \{(-\infty, x_1) \times (-\infty, x_2) : x_1, x_2 \in \mathbb{Q}\}$
-
 (Okay to do for $k = 2$, i.e. $\mathbb{R}^2$.)
-    
+
+*Note: General Strategy;* For classes $\mathcal{D}, \mathcal{E} \subset \mathcal{P}(\mathbb{R}^2)$, $\mathcal{D} \subset \sigma\langle\mathcal{E}\rangle$ implies $\sigma\langle\mathcal{D}\rangle \subset \sigma\langle\mathcal{E}\rangle$, since $\sigma\langle\mathcal{E}\rangle$ is a $\sigma$-algebra containing $\mathcal{D}$. So it suffices to establish the cycle
+$$\mathcal{O}_1 \subset \sigma\langle\mathcal{O}_3\rangle, \quad \mathcal{O}_3 \subset \sigma\langle\mathcal{O}_4\rangle, \quad \mathcal{O}_4 \subset \sigma\langle\mathcal{O}_2\rangle, \quad \mathcal{O}_2 \subset \sigma\langle\mathcal{O}_1\rangle.$$
+Each part below proves the link beginning at its $\mathcal{O}_j$.
+
+## (i) 
+
+$\mathcal{O}_1 = \{(a_1, b_1) \times (a_2, b_2) : -\infty \leq a_1 < b_1 \leq \infty,\, -\infty \leq a_2 < b_2 \leq \infty\}$
+
+### Answer 
+
+*Proof.* Let $R = (a_1, b_1) \times (a_2, b_2) \in \mathcal{O}_1$, and let $J \equiv \{(p_1, q_1, p_2, q_2) \in \mathbb{Q}^4 : a_i < p_i < q_i < b_i,\ i = 1, 2\}$. We claim
+$$R = \bigcup_{(p_1, q_1, p_2, q_2) \in J} (p_1, q_1) \times (p_2, q_2).$$
+
+($\supset$) Each rectangle in the union is contained in $R$.
+
+($\subset$) Let $(x_1, x_2) \in R$. By the density of $\mathbb{Q}$, choose $p_i \in (a_i, x_i) \cap \mathbb{Q}$ and $q_i \in (x_i, b_i) \cap \mathbb{Q}$. Then $(p_1, q_1, p_2, q_2) \in J$ and $(x_1, x_2) \in (p_1, q_1) \times (p_2, q_2)$.
+
+Since $J \subset \mathbb{Q}^4$ is countable and each $(p_1, q_1) \times (p_2, q_2) \in \mathcal{O}_3$, $R \in \sigma\langle\mathcal{O}_3\rangle$. Thus $\mathcal{O}_1 \subset \sigma\langle\mathcal{O}_3\rangle$. //
+
+## (ii) 
+
+$\mathcal{O}_2 = \{(-\infty, x_1) \times (-\infty, x_2) : -\infty < x_1, x_2 < \infty\}$
+
+### Answer 
+
+*Proof.* Let $(-\infty, x_1) \times (-\infty, x_2) \in \mathcal{O}_2$. Taking $a_i = -\infty$ and $b_i = x_i$ in the definition of $\mathcal{O}_1$ (valid since $-\infty < x_i < \infty$), this set is in $\mathcal{O}_1$. Thus $\mathcal{O}_2 \subset \mathcal{O}_1 \subset \sigma\langle\mathcal{O}_1\rangle$. //
+
+## (iii) 
+
+$\mathcal{O}_3 = \{(a_1, b_1) \times (a_2, b_2) : a_1 < b_1,\, a_2 < b_2,\, a_1, a_2, b_1, b_2 \in \mathbb{Q}\}$
+
+### Answer 
+
+*Proof.* Write $H(x_1, x_2) \equiv (-\infty, x_1) \times (-\infty, x_2)$, so $\mathcal{O}_4 = \{H(x_1, x_2) : x_1, x_2 \in \mathbb{Q}\}$. Let $R = (a_1, b_1) \times (a_2, b_2) \in \mathcal{O}_3$, and let $c_{i,n} \equiv a_i + n^{-1} \in \mathbb{Q}$ for $n \in \mathbb{N}$.
+
+*Step 1.* For $c_1, c_2 \in \mathbb{Q}$,
+$$[c_1, b_1) \times [c_2, b_2) = H(b_1, b_2) \setminus \big[H(c_1, b_2) \cup H(b_1, c_2)\big].$$
+For $y \in H(b_1, b_2)$, we have $y \notin H(c_1, b_2)$ iff $y_1 \geq c_1$, and $y \notin H(b_1, c_2)$ iff $y_2 \geq c_2$. So both sides equal $\{y : c_i \leq y_i < b_i,\ i = 1, 2\}$.
+
+All three quadrants are in $\mathcal{O}_4$. Since $\sigma\langle\mathcal{O}_4\rangle$ is closed under finite unions and differences ($E \setminus F = E \cap F^c$), $[c_1, b_1) \times [c_2, b_2) \in \sigma\langle\mathcal{O}_4\rangle$.
+
+*Step 2.* We claim $R = \bigcup_{n \geq 1} [c_{1,n}, b_1) \times [c_{2,n}, b_2)$.
+
+($\supset$) Since $c_{i,n} > a_i$, each set in the union is contained in $R$.
+
+($\subset$) Let $y \in R$, and choose $n$ with $n^{-1} < \min_i (y_i - a_i)$. Then $c_{i,n} < y_i < b_i$ for $i = 1, 2$.
+
+By Step 1, $R$ is a countable union of sets in $\sigma\langle\mathcal{O}_4\rangle$, so $R \in \sigma\langle\mathcal{O}_4\rangle$. Thus $\mathcal{O}_3 \subset \sigma\langle\mathcal{O}_4\rangle$. //
+
+## (iv) 
+
+$\mathcal{O}_4 = \{(-\infty, x_1) \times (-\infty, x_2) : x_1, x_2 \in \mathbb{Q}\}$
+
+### Answer 
+
+*Proof.* Since $\mathbb{Q} \subset \mathbb{R}$, $\mathcal{O}_4 \subset \mathcal{O}_2 \subset \sigma\langle\mathcal{O}_2\rangle$.
+
+Combining (i)--(iv) with the strategy above,
+$$\sigma\langle\mathcal{O}_1\rangle \subset \sigma\langle\mathcal{O}_3\rangle \subset \sigma\langle\mathcal{O}_4\rangle \subset \sigma\langle\mathcal{O}_2\rangle \subset \sigma\langle\mathcal{O}_1\rangle.$$
+So all four $\sigma$-algebras are equal, and $\mathcal{O}_j \subset \sigma\langle\mathcal{O}_j\rangle = \sigma\langle\mathcal{O}_i\rangle$ for all $1 \leq i, j \leq 4$. //
+
 # Q4: 1.18
 
 Let $\Omega \equiv \mathbb{N}$, $\mathcal{F} = \mathcal{P}(\Omega)$, and $A_n = \{j : j \in \mathbb{N},\, j \geq n\}$, $n \in \mathbb{N}$. Let $\mu$ be the counting measure on $(\Omega, \mathcal{F})$. Verify that $\lim_{n \to \infty} \mu(A_n) \neq \mu(\cap_{n \geq 1} A_n)$.
+
+## Answer 
+
+*Proof.*
+
+*Step 1: $\lim_{n \to \infty} \mu(A_n) = \infty$.*
+
+Let $n \in \mathbb{N}$ be given. The map $j \mapsto n + j - 1$ is an injection from $\mathbb{N}$ into $A_n$, so $A_n$ is infinite and $\mu(A_n) = |A_n| = \infty$. Since this holds for all $n$, $\lim_{n \to \infty} \mu(A_n) = \infty$.
+
+*Step 2: $\bigcap_{n \geq 1} A_n = \emptyset$.*
+
+($\supset$) Trivial.
+
+($\subset$) Let $j \in \mathbb{N}$ be given. Since $j < j + 1$, $j \notin A_{j+1}$, and hence $j \notin \bigcap_{n \geq 1} A_n$. Thus no element of $\Omega$ lies in $\bigcap_{n \geq 1} A_n$.
+
+*Step 3.* By Step 2 and property (b) of Definition 1.2.1, $\mu\left(\bigcap_{n \geq 1} A_n\right) = \mu(\emptyset) = 0$. Combining with Step 1,
+$$\lim_{n \to \infty} \mu(A_n) = \infty \neq 0 = \mu\Big(\bigcap_{n \geq 1} A_n\Big). \quad //$$
 
 # Q5: 1.19
 
@@ -49,9 +204,49 @@ $$\mathcal{A}(\mathcal{C}) \equiv \left\{A : A = \bigcup_{i=1}^{k} B_i : B_i \in
 
 Show that $\mathcal{A}(\mathcal{C})$ is the smallest algebra containing $\mathcal{C}$.
 
+### Answer 
+
+*Proof.* Assume $\mathcal{C} \neq \emptyset$. (If $\mathcal{C} = \emptyset$, then $\mathcal{A}(\mathcal{C}) = \emptyset$, and the claim fails trivially.)
+
+**Part 1:** WTS $\mathcal{C} \subset \mathcal{A}(\mathcal{C})$.
+
+For $B \in \mathcal{C}$, take $k = 1$ and $B_1 = B$. Then $B \in \mathcal{A}(\mathcal{C})$.
+
+**Part 2:** WTS $\mathcal{A}(\mathcal{C})$ is an algebra.
+
+(a) Pick any $A \in \mathcal{C}$. By the definition of a semialgebra, there exist $B_1, \ldots, B_m \in \mathcal{C}$ with $A^c = \bigcup_{i=1}^m B_i$. Thus $\Omega = A \cup A^c = A \cup B_1 \cup \cdots \cup B_m \in \mathcal{A}(\mathcal{C})$.
+
+(b) Let $A \in \mathcal{A}(\mathcal{C})$, say $A = \bigcup_{i=1}^k B_i$ with $B_i \in \mathcal{C}$. For each $i$, there exist $B_{i1}, \ldots, B_{i n_i} \in \mathcal{C}$ with $B_i^c = \bigcup_{j=1}^{n_i} B_{ij}$. Then
+$$A^c = \bigcap_{i=1}^k B_i^c = \bigcap_{i=1}^k \bigcup_{j=1}^{n_i} B_{ij} = \bigcup_{j_1 = 1}^{n_1} \cdots \bigcup_{j_k = 1}^{n_k} \Big( \bigcap_{i=1}^k B_{i j_i} \Big).$$
+The last equality holds because $x \in \bigcap_{i=1}^k \bigcup_{j=1}^{n_i} B_{ij}$ iff for each $i$ there is some $j_i$ with $x \in B_{i j_i}$, i.e., iff $x \in \bigcap_{i=1}^k B_{i j_i}$ for some $(j_1, \ldots, j_k)$.
+
+Since $\mathcal{C}$ is closed under pairwise intersections, by induction it is closed under finite intersections, so each $\bigcap_{i=1}^k B_{i j_i} \in \mathcal{C}$. The union ranges over $n_1 n_2 \cdots n_k < \infty$ index tuples, so $A^c \in \mathcal{A}(\mathcal{C})$.
+
+(c) Let $A = \bigcup_{i=1}^k B_i$ and $D = \bigcup_{j=1}^m D_j$ be in $\mathcal{A}(\mathcal{C})$. Then $A \cup D = B_1 \cup \cdots \cup B_k \cup D_1 \cup \cdots \cup D_m$ is a union of $k + m$ sets in $\mathcal{C}$, so $A \cup D \in \mathcal{A}(\mathcal{C})$.
+
+Thus $\mathcal{A}(\mathcal{C})$ is an algebra.
+
+**Part 3:** WTS $\mathcal{A}(\mathcal{C})$ is the smallest algebra containing $\mathcal{C}$.
+
+Let $\mathcal{E}$ be an algebra on $\Omega$ with $\mathcal{C} \subset \mathcal{E}$, and let $A = \bigcup_{i=1}^k B_i \in \mathcal{A}(\mathcal{C})$. Then $B_i \in \mathcal{E}$ for all $i$. Since $\mathcal{E}$ is closed under pairwise unions, by induction it is closed under finite unions, so $A \in \mathcal{E}$. Thus $\mathcal{A}(\mathcal{C}) \subset \mathcal{E}$. //
+
 ## (ii) 
 
 Show also that $\sigma\langle\mathcal{C}\rangle = \sigma\langle\mathcal{A}(\mathcal{C})\rangle$.
+
+### Answer 
+
+*Proof.*
+
+**Part 1:** WTS $\sigma\langle\mathcal{C}\rangle \subset \sigma\langle\mathcal{A}(\mathcal{C})\rangle$.
+
+By (i), $\mathcal{C} \subset \mathcal{A}(\mathcal{C}) \subset \sigma\langle\mathcal{A}(\mathcal{C})\rangle$. So $\sigma\langle\mathcal{A}(\mathcal{C})\rangle$ is a $\sigma$-algebra containing $\mathcal{C}$, and hence $\sigma\langle\mathcal{C}\rangle \subset \sigma\langle\mathcal{A}(\mathcal{C})\rangle$.
+
+**Part 2:** WTS $\sigma\langle\mathcal{A}(\mathcal{C})\rangle \subset \sigma\langle\mathcal{C}\rangle$.
+
+$\sigma\langle\mathcal{C}\rangle$ is a $\sigma$-algebra, and hence an algebra, containing $\mathcal{C}$. By (i), $\mathcal{A}(\mathcal{C})$ is the smallest such algebra, so $\mathcal{A}(\mathcal{C}) \subset \sigma\langle\mathcal{C}\rangle$. Hence $\sigma\langle\mathcal{A}(\mathcal{C})\rangle \subset \sigma\langle\mathcal{C}\rangle$.
+
+Thus $\sigma\langle\mathcal{C}\rangle = \sigma\langle\mathcal{A}(\mathcal{C})\rangle$. //
 
 # Q6: 1.20
 
@@ -60,26 +255,101 @@ Let $\mu^*$ be as in (3.1) of Section 1.3:
 Given a measure $\mu$ on a semialgebra $\mathcal{C} \subset \mathcal{P}(\Omega)$, the outer measure induced by $\mu$ is the function $\mu^*$, defined on $\mathcal{P}(\Omega)$ as:
 $$\mu^*(A) = \inf\left\{\sum_{n=1}^{\infty} \mu(A_n) : \{A_n\}_{n \geq 1} \subset \mathcal{C},\, A \subset \bigcup_{n \geq 1} A_n\right\}$$
 
+(**Hint:** Fix $0 < \epsilon < \infty$. If $\mu^*(A_n) < \infty$ for all $n \in \mathbb{N}$, then find, for each $n$, a cover $\{A_{nj}\}_{j \geq 1} \subset \mathcal{C}$, $A_n \subset \bigcup_{j \geq 1} A_{nj}$ such that $\sum_{j=1}^{\infty} \mu(A_{nj}) \leq \mu^*(A_n) + \frac{\epsilon}{2^n}$.)
+
 Verify:
 
 ## (3.4) 
 
 $\mu^*(\emptyset) = 0$
 
+### Answer 
+
+*Notation.* For $A \subset \Omega$, let
+$$\Sigma(A) \equiv \left\{\sum_{n=1}^{\infty} \mu(A_n) : \{A_n\}_{n \geq 1} \subset \mathcal{C},\, A \subset \bigcup_{n \geq 1} A_n\right\},$$
+so that $\mu^*(A) = \inf \Sigma(A)$. Since $\mu$ takes values in $[0, \infty]$, every element of $\Sigma(A)$ is nonnegative, and hence $\mu^*(A) \geq 0$ for all $A \subset \Omega$.
+
+*Proof.* 
+
+*Step 1: $\emptyset \in \mathcal{C}$.* Assume $\mathcal{C} \neq \emptyset$, as in Q5, and pick any $A \in \mathcal{C}$. By the definition of a semialgebra, there exist $B_1, \ldots, B_k \in \mathcal{C}$ with $A^c = \bigcup_{i=1}^k B_i$. Since $\mathcal{C}$ is closed under intersections, $A \cap B_1 \in \mathcal{C}$. But $A \cap B_1 \subset A \cap A^c = \emptyset$, so $\emptyset = A \cap B_1 \in \mathcal{C}$.
+
+*Step 2.* Take $A_n = \emptyset \in \mathcal{C}$ for all $n \geq 1$. Then $\emptyset \subset \bigcup_{n \geq 1} A_n$, and since $\mu$ is a measure on $\mathcal{C}$, $\mu(\emptyset) = 0$. Thus
+$$0 \leq \mu^*(\emptyset) \leq \sum_{n=1}^\infty \mu(\emptyset) = 0,$$
+and so $\mu^*(\emptyset) = 0$. //
+
 ## (3.5) 
 
 $A \subset B \Rightarrow \mu^*(A) \leq \mu^*(B)$
+
+### Answer 
+
+*Proof.* Suppose $A \subset B$, and let $\{A_n\}_{n \geq 1} \subset \mathcal{C}$ with $B \subset \bigcup_{n \geq 1} A_n$. Then $A \subset B \subset \bigcup_{n \geq 1} A_n$, so $\sum_{n=1}^\infty \mu(A_n) \in \Sigma(A)$. Thus $\Sigma(B) \subset \Sigma(A)$.
+
+The infimum over a larger set is no greater than the infimum over a smaller one, so
+$$\mu^*(A) = \inf \Sigma(A) \leq \inf \Sigma(B) = \mu^*(B). \quad //$$
 
 ## (3.6) 
 
 For any $\{A_n\}_{n \geq 1} \subset \mathcal{P}(\Omega)$,
 $$\mu^*\left(\bigcup_{n \geq 1} A_n\right) \leq \sum_{n=1}^{\infty} \mu^*(A_n).$$
 
-(**Hint:** Fix $0 < \epsilon < \infty$. If $\mu^*(A_n) < \infty$ for all $n \in \mathbb{N}$, then find, for each $n$, a cover $\{A_{nj}\}_{j \geq 1} \subset \mathcal{C}$, $A_n \subset \bigcup_{j \geq 1} A_{nj}$ such that $\sum_{j=1}^{\infty} \mu(A_{nj}) \leq \mu^*(A_n) + \frac{\epsilon}{2^n}$.)
+### Answer 
 
-7. Chapter 1, Problem 1.24
+*Proof.* Let $\{A_n\}_{n \geq 1} \subset \mathcal{P}(\Omega)$ be given, and set $A \equiv \bigcup_{n \geq 1} A_n$.
 
-    Verify that $\mathcal{C}_2$, defined in (3.11), is a semialgebra.
+*Case 1:* $\mu^*(A_{n_0}) = \infty$ for some $n_0$. Then $\sum_{n=1}^\infty \mu^*(A_n) = \infty$, and the inequality holds trivially.
+
+*Case 2:* $\mu^*(A_n) < \infty$ for all $n \geq 1$. Fix $0 < \epsilon < \infty$. For each $n$, $\mu^*(A_n) + \epsilon / 2^n > \mu^*(A_n) = \inf \Sigma(A_n)$, so it is not a lower bound of $\Sigma(A_n)$. Thus there exists $\{A_{nj}\}_{j \geq 1} \subset \mathcal{C}$ with $A_n \subset \bigcup_{j \geq 1} A_{nj}$ and
+$$\sum_{j=1}^\infty \mu(A_{nj}) \leq \mu^*(A_n) + \frac{\epsilon}{2^n}.$$
+
+Now $\{A_{nj} : n, j \geq 1\} \subset \mathcal{C}$ is countable, since it is indexed by $\mathbb{N} \times \mathbb{N}$, so it can be enumerated as a single sequence in $\mathcal{C}$. It also covers $A$, since $A = \bigcup_{n \geq 1} A_n \subset \bigcup_{n \geq 1} \bigcup_{j \geq 1} A_{nj}$.
+
+Since the terms $\mu(A_{nj})$ are nonnegative, their sum does not depend on the order of summation. Thus
+$$\mu^*(A) \leq \sum_{n=1}^\infty \sum_{j=1}^\infty \mu(A_{nj}) \leq \sum_{n=1}^\infty \left(\mu^*(A_n) + \frac{\epsilon}{2^n}\right) = \sum_{n=1}^\infty \mu^*(A_n) + \epsilon.$$
+Since $\epsilon > 0$ is arbitrary, $\mu^*(A) \leq \sum_{n=1}^\infty \mu^*(A_n)$. //
+
+# Q7: 1.24
+
+Verify that $\mathcal{C}_2$, defined in (3.11), is a semialgebra.
+
+## Answer 
+
+Recall from (3.7) and (3.11):
+$$\mathcal{C} \equiv \{(a, b] : -\infty \leq a \leq b < \infty\} \cup \{(a, \infty) : -\infty \leq a < \infty\}, \qquad \mathcal{C}_2 \equiv \{I_1 \times I_2 : I_1, I_2 \in \mathcal{C}\}.$$
+
+*Proof.*
+
+**Part 0:** $\mathcal{C}$ is a semialgebra.
+
+*Intersections.* For $-\infty \leq a, c$ and $b, d < \infty$:
+$$(a, b] \cap (c, d] = (a \vee c,\, b \wedge d], \qquad (a, b] \cap (c, \infty) = (a \vee c,\, b], \qquad (a, \infty) \cap (c, \infty) = (a \vee c,\, \infty),$$
+where an interval with left endpoint greater than or equal to its right endpoint is $\emptyset = (0, 0] \in \mathcal{C}$. All of these are in $\mathcal{C}$.
+
+*Complements.* $(a, b]^c = (-\infty, a] \cup (b, \infty)$ and $(a, \infty)^c = (-\infty, a]$. These are finite disjoint unions of sets in $\mathcal{C}$, where $(-\infty, a] \in \mathcal{C}$ because (3.7) allows a left endpoint of $-\infty$. (If $a = -\infty$, then $(-\infty, a] = \emptyset \in \mathcal{C}$.)
+
+**Part 1:** WTS $A, B \in \mathcal{C}_2 \Rightarrow A \cap B \in \mathcal{C}_2$.
+
+Let $A = I_1 \times I_2$ and $B = I_3 \times I_4$ with $I_1, \ldots, I_4 \in \mathcal{C}$. Then
+$$A \cap B = (I_1 \cap I_3) \times (I_2 \cap I_4),$$
+since $(x, y) \in A \cap B$ iff $x \in I_1 \cap I_3$ and $y \in I_2 \cap I_4$. By Part 0, $I_1 \cap I_3,\, I_2 \cap I_4 \in \mathcal{C}$, so $A \cap B \in \mathcal{C}_2$.
+
+**Part 2:** WTS for $A \in \mathcal{C}_2$, $A^c$ is a finite disjoint union of sets in $\mathcal{C}_2$.
+
+Let $A = I_1 \times I_2 \in \mathcal{C}_2$. A point $(x, y) \in A^c$ iff $x \notin I_1$ or $y \notin I_2$. Splitting on which of these hold,
+$$A^c = (I_1^c \times I_2) \cup (I_1 \times I_2^c) \cup (I_1^c \times I_2^c),$$
+and the three pieces are pairwise disjoint, since they differ in whether $x \in I_1$ or $y \in I_2$.
+
+By Part 0, for $k = 1, 2$, there exist disjoint $I_{k1}, \ldots, I_{k n_k} \in \mathcal{C}$ with $I_k^c = \bigcup_{j=1}^{n_k} I_{kj}$. Since products distribute over unions,
+$$I_1^c \times I_2 = \bigcup_{j=1}^{n_1} (I_{1j} \times I_2), \qquad I_1 \times I_2^c = \bigcup_{l=1}^{n_2} (I_1 \times I_{2l}), \qquad I_1^c \times I_2^c = \bigcup_{j=1}^{n_1} \bigcup_{l=1}^{n_2} (I_{1j} \times I_{2l}).$$
+
+Each set on the right is a product of sets in $\mathcal{C}$, and hence is in $\mathcal{C}_2$.
+
+* *Disjoint within each piece:* two products are disjoint whenever their first coordinates (or their second coordinates) are disjoint, and the $I_{1j}$ are pairwise disjoint, as are the $I_{2l}$.
+* *Disjoint across pieces:* the three pieces are pairwise disjoint.
+
+Thus $A^c$ is a disjoint union of $n_1 + n_2 + n_1 n_2 < \infty$ sets in $\mathcal{C}_2$.
+
+By Parts 1 and 2, $\mathcal{C}_2$ is a semialgebra. //
 
 # Q8: Extra
 
@@ -91,18 +361,98 @@ $$F(x) = x\,\mathbb{I}\{0 < x < 1\} + \mathbb{I}\{x \geq 1\},\quad x \in \mathbb
 
 Is this $F(\cdot)$ non-decreasing, right-continuous? Check.
 
+### Answer 
+
+Yes. In fact, $F$ is non-decreasing and continuous, and hence right-continuous.
+
+*Proof.* We claim $F(x) = \min\{\max\{x, 0\}, 1\}$ for all $x \in \mathbb{R}$.
+
+*Case 1:* $x \leq 0$. Then $\max\{x, 0\} = 0$, so the right side is $0 = F(x)$.
+
+*Case 2:* $0 < x < 1$. Then $\max\{x, 0\} = x < 1$, so the right side is $x = F(x)$.
+
+*Case 3:* $x \geq 1$. Then $\max\{x, 0\} = x \geq 1$, so the right side is $1 = F(x)$.
+
+Let $g(x) \equiv \max\{x, 0\} = \frac{x + |x|}{2}$ and $h(y) \equiv \min\{y, 1\} = \frac{y + 1 - |y - 1|}{2}$. Both are continuous, since $|\cdot|$ is continuous. Both are also non-decreasing, since for $x_1 \leq x_2$ we have $\max\{x_1, 0\} \leq \max\{x_2, 0\}$ and $\min\{x_1, 1\} \leq \min\{x_2, 1\}$.
+
+Thus $F = h \circ g$ is non-decreasing (a composition of non-decreasing functions) and continuous (a composition of continuous functions). In particular, $F(x+) = F(x)$ for all $x \in \mathbb{R}$, so $F$ is right-continuous. //
+
 ## (ii) 
 
 Define suitably a Lebesgue-Stieltjes measure $\mu_F$ on a suitable semialgebra $\mathcal{C}$. Do not have to prove $\mathcal{C}$ is a semi-algebra or $\mu_F$ is a measure.
+
+### Answer 
+
+Take $\mathcal{C}$ to be the semialgebra in (3.7):
+$$\mathcal{C} \equiv \{(a, b] : -\infty \leq a \leq b < \infty\} \cup \{(a, \infty) : -\infty \leq a < \infty\}.$$
+Set $F(-\infty) \equiv \lim_{x \to -\infty} F(x) = 0$ and $F(\infty) \equiv \lim_{x \to \infty} F(x) = 1$. Following (3.8), define
+$$\mu_F((a, b]) = F(b+) - F(a+) = F(b) - F(a), \qquad \mu_F((a, \infty)) = F(\infty) - F(a+) = 1 - F(a),$$
+where $F(x+) = F(x)$ by (i).
+
+Equivalently, since $F(x)$ is the length of $(0, x] \cap (0, 1)$, the measure of $I \in \mathcal{C}$ is the length of $I \cap (0, 1)$.
 
 ## (iii) 
 
 Prove that $\sigma\langle\mathcal{C}\rangle = \mathcal{B}(\mathbb{R})$. (Can use the fact that $\mathcal{B}(\mathbb{R}) = \sigma\langle\{\text{open sets}\}\rangle = \sigma\langle\mathcal{O}_1\rangle = \sigma\langle\mathcal{O}_2\rangle = \sigma\langle\mathcal{O}_3\rangle = \sigma\langle\mathcal{O}_4\rangle$ as in 1.10.)
 
+### Answer 
+
+Here, for $k = 1$, $\mathcal{O}_1 = \{(a, b) : -\infty \leq a < b \leq \infty\}$ and $\mathcal{O}_2 = \{(-\infty, x) : x \in \mathbb{R}\}$.
+
+*Proof.*
+
+**Part 1:** WTS $\mathcal{B}(\mathbb{R}) \subset \sigma\langle\mathcal{C}\rangle$.
+
+Let $x \in \mathbb{R}$. We claim $(-\infty, x) = \bigcup_{n \geq 1} (-\infty, x - n^{-1}]$.
+
+($\supset$) Each $(-\infty, x - n^{-1}] \subset (-\infty, x)$.
+
+($\subset$) If $y < x$, choose $n$ with $n^{-1} \leq x - y$. Then $y \leq x - n^{-1}$.
+
+Each $(-\infty, x - n^{-1}] \in \mathcal{C}$ (take $a = -\infty$), so $(-\infty, x) \in \sigma\langle\mathcal{C}\rangle$. Thus $\mathcal{O}_2 \subset \sigma\langle\mathcal{C}\rangle$, and so $\mathcal{B}(\mathbb{R}) = \sigma\langle\mathcal{O}_2\rangle \subset \sigma\langle\mathcal{C}\rangle$.
+
+**Part 2:** WTS $\sigma\langle\mathcal{C}\rangle \subset \mathcal{B}(\mathbb{R})$.
+
+*Sets $(a, \infty)$:* $(a, \infty) \in \mathcal{O}_1$ directly (take $b = \infty$).
+
+*Sets $(a, b]$ with $a = b$:* $(a, a] = \emptyset \in \mathcal{B}(\mathbb{R})$.
+
+*Sets $(a, b]$ with $-\infty \leq a < b < \infty$:* We claim $(a, b] = \bigcap_{n \geq 1} (a, b + n^{-1})$.
+
+($\subset$) $b < b + n^{-1}$ for all $n$.
+
+($\supset$) If $a < y < b + n^{-1}$ for all $n$, then $y \leq b$.
+
+Each $(a, b + n^{-1}) \in \mathcal{O}_1$, and $\sigma\langle\mathcal{O}_1\rangle$ is closed under countable intersections, so $(a, b] \in \sigma\langle\mathcal{O}_1\rangle$.
+
+Thus $\mathcal{C} \subset \sigma\langle\mathcal{O}_1\rangle = \mathcal{B}(\mathbb{R})$, and so $\sigma\langle\mathcal{C}\rangle \subset \mathcal{B}(\mathbb{R})$.
+
+Therefore $\sigma\langle\mathcal{C}\rangle = \mathcal{B}(\mathbb{R})$. //
+
 ## (iv) 
 
 Argue that there exist a $\mu$ on $(\mathbb{R}, \mathcal{B}(\mathbb{R}))$ that extends $\mu_F$ defined above. Do not need to prove this step - just state a result for your answer.
 
+### Answer 
+
+By Caratheodory's extension theorem (Theorem 1.3.3), since $\mu_F$ is a measure on the semialgebra $\mathcal{C}$, the outer measure $\mu_F^*$ induced by $\mu_F$ via (3.1) satisfies the following:
+
+* $\mathcal{M}_{\mu_F^*}$ is a $\sigma$-algebra and $\mu_F^*$ is a measure on it (Theorem 1.3.2);
+* $\mathcal{C} \subset \mathcal{M}_{\mu_F^*}$;
+* $\mu_F^* = \mu_F$ on $\mathcal{C}$.
+
+Since $\mathcal{M}_{\mu_F^*}$ is a $\sigma$-algebra containing $\mathcal{C}$, (iii) gives $\mathcal{B}(\mathbb{R}) = \sigma\langle\mathcal{C}\rangle \subset \mathcal{M}_{\mu_F^*}$. Thus $\mu \equiv \mu_F^*|_{\mathcal{B}(\mathbb{R})}$ is a measure on $(\mathbb{R}, \mathcal{B}(\mathbb{R}))$ with $\mu = \mu_F$ on $\mathcal{C}$.
+
 ## (v) 
 
 Is this extension unique? (i.e. if $\mu'$ is another extension of $\mu_F$, then is it true that $\mu(A) = \mu'(A)$, for all $A \in \mathcal{B}(\mathbb{R})$?). Justify your answer (no proof needed). What is the "common name" for this measure $\mu$?
+
+### Answer 
+
+Yes, the extension is unique.
+
+Note that $\mathbb{R} = (-\infty, \infty) \in \mathcal{C}$ and $\mu_F(\mathbb{R}) = F(\infty) - F(-\infty) = 1$. So any extension $\mu'$ of $\mu_F$ satisfies $\mu'(\mathbb{R}) = \mu(\mathbb{R}) = 1$, and both $\mu$ and $\mu'$ are finite. Moreover, $\mathcal{C}$ is a $\pi$-system, since a semialgebra is closed under intersections by definition, and $\sigma\langle\mathcal{C}\rangle = \mathcal{B}(\mathbb{R})$ by (iii).
+
+Thus, by the uniqueness of measures (Theorem 1.2.4), $\mu = \mu'$ on $\mathcal{B}(\mathbb{R})$. Equivalently, since $\mu_F$ is finite and hence $\sigma$-finite on $\mathcal{C}$, Theorem 1.3.6 gives the same conclusion.
+
+The measure $\mu$ is the **Uniform(0, 1) distribution**: the probability measure with CDF $F$. Equivalently, it is Lebesgue measure restricted to $(0, 1)$, i.e., $\mu(A) = m(A \cap (0, 1))$ for $A \in \mathcal{B}(\mathbb{R})$.
