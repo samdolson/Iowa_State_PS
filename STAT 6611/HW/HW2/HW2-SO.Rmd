@@ -2,123 +2,400 @@
 title: "HW2"
 author: "Sam Olson"
 output: pdf_document
+header-includes:
+  - \newcommand{\ve}[1]{\underline{#1}}
+  - \newcommand{\bb}{\ve{\beta}}
+  - \newcommand{\bhat}{\widehat{\ve{\beta}}}
+  - \newcommand{\lam}{\ve{\lambda}}
+  - \newcommand{\y}{\ve{y}}
+  - \newcommand{\av}{\ve{a}}
+  - \newcommand{\bv}{\ve{b}}
+  - \newcommand{\dv}{\ve{d}}
+  - \newcommand{\hv}{\ve{h}}
+  - \newcommand{\rv}{\ve{r}}
+  - \newcommand{\tv}{\ve{t}}
+  - \newcommand{\wv}{\ve{w}}
+  - \newcommand{\zv}{\ve{z}}
+  - \newcommand{\rhov}{\ve{\rho}}
+  - \newcommand{\eps}{\ve{\epsilon}}
+  - \newcommand{\zero}{\ve{0}}
+  - \newcommand{\one}{\ve{1}}
+  - \newcommand{\tr}{^{\prime}}
+  - \newcommand{\C}{\mathcal{C}}
+  - \newcommand{\R}{\mathcal{R}}
+  - \newcommand{\PX}{P_X}
+  - \newcommand{\Real}{\mathbb{R}}
+  - \newcommand{\rank}{\operatorname{rank}}
+  - \newcommand{\tra}{\operatorname{tr}}
+  - \newcommand{\Var}{\operatorname{Var}}
+  - \newcommand{\E}{\operatorname{E}}
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Progress 
-
-- Q1: Skeleton Draft
-- Q2: 
-- Q3: 
-- Q4: 
-- Q5: 
-
 # Q1
 
-Suppose that $\underline{y}$ is an $n \times 1$ observable random vector that follows Model II.
+Suppose that $\y$ is an $n \times 1$ observable random vector that follows Model II.
 
 ## (a)
 
-If $\underline{\lambda}_1'\underline{\beta}$ and $\underline{\lambda}_2'\underline{\beta}$ are both estimable, is $\underline{\lambda}_1'\underline{\beta} + \underline{\lambda}_2'\underline{\beta}$ necessarily estimable? Explain your answer.
+If $\lam_1\tr\bb$ and $\lam_2\tr\bb$ are both estimable, is $\lam_1\tr\bb + \lam_2\tr\bb$ necessarily estimable? Explain your answer.
 
-**Answer.**
+**Answer.** Yes.
 
-Yes. If $\underline{\lambda}_1'\underline{\beta}$ and $\underline{\lambda}_2'\underline{\beta}$ are both estimable, then there exist vectors $\underline{a}_1$ and $\underline{a}_2$ such that $E(\underline{a}_1 \underline{y}) = \underline{\lambda}_1^{'} \underline{\beta}$ and $E(\underline{a}_2 \underline{y}) = \underline{\lambda}_2^{'} \underline{\beta}$. It would then follow that $E(\underline{a}_1 \underline{y} + \underline{a}_2 \underline{y}) = \underline{\lambda}_1^{'} \underline{\beta} + \underline{\lambda}_2^{'} \underline{\beta}$.
+Recall that $\lam\tr\bb$ is *estimable* if there exists a linear unbiased estimator $c + \av\tr\y$ of it. We use:
+
+- **Lemma 2.1**, which states that under Models II--VII, a linear estimator $c + \av\tr\y$ of $\lam\tr\bb$ is unbiased if and only if $c = 0$ and $\lam\tr = \av\tr X$.
+- **Theorem 2.1**, which states that under Models II--VII, $\lam\tr\bb$ is estimable if and only if $\lam\tr = \av\tr X$ for some $n \times 1$ vector $\av$, that is, if and only if $\lam\tr \in \R(X)$.
+
+Since $\lam_1\tr\bb$ and $\lam_2\tr\bb$ are estimable, Theorem 2.1 gives $n \times 1$ vectors $\av_1$ and $\av_2$ with $\lam_1\tr = \av_1\tr X$ and $\lam_2\tr = \av_2\tr X$. Then
+$$
+\lam_1\tr + \lam_2\tr = (\av_1 + \av_2)\tr X \in \R(X),
+$$
+so $\lam_1\tr\bb + \lam_2\tr\bb = (\lam_1 + \lam_2)\tr\bb$ is estimable by Theorem 2.1. By Lemma 2.1, $(\av_1 + \av_2)\tr\y$ is a linear unbiased estimator of it.
+
+This argument is **Corollary 2 to Theorem 2.1**, which states that under Models II--VII, if $\lam_1\tr\bb, \ldots, \lam_k\tr\bb$ are estimable, then any linear combination of them is estimable.
 
 ## (b)
 
-If $\underline{\lambda}_1'\underline{\beta}$ and $\underline{\lambda}_2'\underline{\beta}$ are both nonestimable, is $\underline{\lambda}_1'\underline{\beta} + \underline{\lambda}_2'\underline{\beta}$ necessarily nonestimable? Explain your answer.
+If $\lam_1\tr\bb$ and $\lam_2\tr\bb$ are both nonestimable, is $\lam_1\tr\bb + \lam_2\tr\bb$ necessarily nonestimable? Explain your answer.
 
-**Answer.**
+**Answer.** No. Here is a counterexample.
 
-No. Suppose that $\underline{\lambda}_1'\underline{\beta}$ is nonestimable. Then, $- \underline{\lambda}_1'\underline{\beta}$ is also nonestimable. However, $\underline{\lambda}_1'\underline{\beta} + (- \underline{\lambda}_1'\underline{\beta}) = 0$, and this quantity is trivially estimable. 
+Take $p = 2$ and $X = \one_n \one_2\tr$, the $n \times 2$ matrix whose every row is $(1, 1)$, so that $y_i = \beta_1 + \beta_2 + \epsilon_i$. For any $n \times 1$ vector $\av$, $\av\tr X = (\av\tr\one_n)\one_2\tr$, so
+$$
+\R(X) = \{t\,\one_2\tr : t \in \Real\} = \{(t, t) : t \in \Real\}.
+$$
+Let $\lam_1 = (1, 0)\tr$ and $\lam_2 = (0, 1)\tr$. Then $\lam_1\tr = (1, 0) \notin \R(X)$ and $\lam_2\tr = (0, 1) \notin \R(X)$, so by Theorem 2.1, $\lam_1\tr\bb = \beta_1$ and $\lam_2\tr\bb = \beta_2$ are both nonestimable. However,
+$$
+\lam_1\tr + \lam_2\tr = (1, 1) \in \R(X),
+$$
+so $\lam_1\tr\bb + \lam_2\tr\bb = \beta_1 + \beta_2$ is estimable.
+
+The same conclusion holds in general. If $\lam\tr\bb$ is nonestimable, then $-\lam\tr\bb$ is nonestimable too; otherwise $\lam\tr\bb = (-1)(-\lam\tr\bb)$ would be estimable by Corollary 2 to Theorem 2.1. Yet $\lam\tr\bb + (-\lam\tr\bb) = \zero\tr\bb$ is estimable, since $\zero_p\tr = \zero_n\tr X \in \R(X)$.
 
 ## (c)
 
-Can $\underline{\lambda}_1'\underline{\beta} + \underline{\lambda}_2'\underline{\beta}$ be estimable if $\underline{\lambda}_1'\underline{\beta}$ is estimable and $\underline{\lambda}_2'\underline{\beta}$ is nonestimable? Explain your answer.
+Can $\lam_1\tr\bb + \lam_2\tr\bb$ be estimable if $\lam_1\tr\bb$ is estimable and $\lam_2\tr\bb$ is nonestimable? Explain your answer.
 
-**Answer.**
-
-No. Suppose $\underline{\lambda}_1'\underline{\beta}$ and $\underline{\lambda}_2'\underline{\beta}$ are both estimable. Then, necessarily, $\underline{\lambda}_1'\underline{\beta} = \underline{\lambda}_1'\underline{\beta} + \left(\underline{\lambda}_2'\underline{\beta} - \underline{\lambda}_2'\underline{\beta}\right) = \left( \underline{\lambda}_1'\underline{\beta} + \underline{\lambda}_2'\underline{\beta}\right) - \underline{\lambda}_2'\underline{\beta}$ must also estimable. 
+**Answer.** No. Suppose, for contradiction, that $\lam_1\tr\bb$ and $\lam_1\tr\bb + \lam_2\tr\bb$ are both estimable. Then
+$$
+\lam_2\tr\bb = (1)\big(\lam_1\tr\bb + \lam_2\tr\bb\big) + (-1)\big(\lam_1\tr\bb\big)
+$$
+is a linear combination of estimable functions, and so it is estimable by Corollary 2 to Theorem 2.1. This contradicts the assumption that $\lam_2\tr\bb$ is nonestimable.
 
 # Q2
 
 Take the model to be Model VII and suppose that
-
-$$\underline{y} = \begin{pmatrix} 2 \\ 3 \\ 4 \end{pmatrix} \quad \text{and} \quad X = \begin{pmatrix} 1 & 2 & 3 \\ 2 & 3 & 1 \\ 0 & 0 & 0 \end{pmatrix}.$$
+$$
+\y = \begin{pmatrix} 2 \\ 3 \\ 4 \end{pmatrix}
+\quad \text{and} \quad
+X = \begin{pmatrix} 1 & 2 & 3 \\ 2 & 3 & 1 \\ 0 & 0 & 0 \end{pmatrix}.
+$$
 
 ## (a)
 
-Find the orthogonal projections of $\underline{y}$ on $\mathcal{C}(X)$ and on $\mathcal{C}^{\perp}(X)$.
+Find the orthogonal projections of $\y$ on $\C(X)$ and on $\C^{\perp}(X)$.
 
-**Answer.**
+**Answer.** Recall two definitions:
+
+- $\C(X) = \{X\bv : \bv \in \Real^3\}$ is the span of the columns of $X$.
+- $\C^{\perp}(X) = \{\av \in \Real^3 : X\tr\av = \zero\}$ is the null space of $X\tr$.
+
+We use **Theorem 2.6**, which states that any $n \times 1$ vector $\y$ admits a unique decomposition $\y = \y_1 + \y_2$ with $\y_1 \in \C(X)$ and $\y_2 \in \C^{\perp}(X)$. It also states that this decomposition is given by $\y_1 = X\bhat$ and $\y_2 = \y - X\bhat$ for any solution $\bhat$ to the normal equations. The vectors $\y_1$ and $\y_2$ are the orthogonal projections of $\y$ on $\C(X)$ and $\C^{\perp}(X)$, respectively.
+
+*Finding $\C(X)$.* The columns of $X$ are
+$$
+\ve{x}_1 = (1, 2, 0)\tr, \qquad \ve{x}_2 = (2, 3, 0)\tr, \qquad \ve{x}_3 = (3, 1, 0)\tr.
+$$
+Each has third coordinate $0$, so $\C(X) \subseteq \{(u, v, 0)\tr : u, v \in \Real\}$. For the reverse inclusion, note that
+$$
+-3\ve{x}_1 + 2\ve{x}_2 = (1, 0, 0)\tr \qquad \text{and} \qquad 2\ve{x}_1 - \ve{x}_2 = (0, 1, 0)\tr
+$$
+both lie in $\C(X)$. Every $(u, v, 0)\tr$ is a linear combination of these two vectors. Hence
+$$
+\C(X) = \{(u, v, 0)\tr : u, v \in \Real\}.
+$$
+
+*Finding $\C^{\perp}(X)$.* For $\av = (a_1, a_2, a_3)\tr$,
+$$
+X\tr\av = (a_1 + 2a_2,\ 2a_1 + 3a_2,\ 3a_1 + a_2)\tr.
+$$
+The first two coordinates vanish only if $a_1 = a_2 = 0$, because $\det\begin{pmatrix} 1 & 2 \\ 2 & 3 \end{pmatrix} = -1 \neq 0$. Then the third coordinate vanishes as well, and $a_3$ is unrestricted. Hence
+$$
+\C^{\perp}(X) = \{(0, 0, w)\tr : w \in \Real\}.
+$$
+
+*The projections.* Write
+$$
+\y = \begin{pmatrix} 2 \\ 3 \\ 0 \end{pmatrix} + \begin{pmatrix} 0 \\ 0 \\ 4 \end{pmatrix}.
+$$
+The first vector is in $\C(X)$ and the second is in $\C^{\perp}(X)$. By the uniqueness in Theorem 2.6, the orthogonal projections of $\y$ on $\C(X)$ and $\C^{\perp}(X)$ are $(2, 3, 0)\tr$ and $(0, 0, 4)\tr$, respectively.
 
 ## (b)
 
-Determine $\mathrm{rank}(X'X)$.
+Determine $\rank(X\tr X)$.
 
-**Answer.**
+**Answer.** From part (a), $\C(X)$ is spanned by the two linearly independent vectors $(1, 0, 0)\tr$ and $(0, 1, 0)\tr$. So $\rank(X) = \dim \C(X) = 2$.
 
-Via Lemma 2.3, $rank(X^{'}X) = rank(X) = 2$. 
+We use **Lemma 2.3**, which states that for any matrix $A$, $\rank(A\tr A) = \rank(A)$. With $A = X$, it gives
+$$
+\rank(X\tr X) = \rank(X) = 2.
+$$
 
 ## (c)
 
-Use the following method and find a generalized inverse of $X'X$.
+Use the following method and find a generalized inverse of $X\tr X$.
 
-Let $A$ be an $n \times m$ matrix of rank $r \geq 1$. Let $B$ be a nonsingular $r \times r$ submatrix of $A$. For matrix $A$, replace the entries of $B$ by those of $(B^{-1})'$, and replace all other entries of $A$ by $0$. Then the transpose of the resulting matrix is a generalized inverse of $A$.
+Let $A$ be an $n \times m$ matrix of rank $r \geq 1$. Let $B$ be a nonsingular $r \times r$ submatrix of $A$. For matrix $A$, replace the entries of $B$ by those of $(B^{-1})\tr$, and replace all other entries of $A$ by $0$. Then the transpose of the resulting matrix is a generalized inverse of $A$.
 
-**Answer.**
+**Answer.** Recall that a *generalized inverse* of a matrix $A$ is any matrix $G$ satisfying $AGA = A$.
+
+We have
+$$
+A = X\tr X
+= \begin{pmatrix} 1 & 2 & 0 \\ 2 & 3 & 0 \\ 3 & 1 & 0 \end{pmatrix}
+  \begin{pmatrix} 1 & 2 & 3 \\ 2 & 3 & 1 \\ 0 & 0 & 0 \end{pmatrix}
+= \begin{pmatrix} 5 & 8 & 5 \\ 8 & 13 & 9 \\ 5 & 9 & 10 \end{pmatrix}.
+$$
+This $3 \times 3$ matrix has rank $r = 2$ by part (b). Take $B$ to be the leading $2 \times 2$ submatrix. Then
+$$
+B = \begin{pmatrix} 5 & 8 \\ 8 & 13 \end{pmatrix}, \qquad
+\det(B) = 65 - 64 = 1 \neq 0, \qquad
+(B^{-1})\tr = B^{-1} = \begin{pmatrix} 13 & -8 \\ -8 & 5 \end{pmatrix},
+$$
+where $(B^{-1})\tr = B^{-1}$ because $B$ is symmetric. Replacing the entries of $B$ in $A$ by those of $(B^{-1})\tr$ and all other entries by $0$ gives a symmetric matrix, so transposing leaves it unchanged. We obtain
+$$
+G = (X\tr X)^{-} = \begin{pmatrix} 13 & -8 & 0 \\ -8 & 5 & 0 \\ 0 & 0 & 0 \end{pmatrix}.
+$$
+
+*Check.* We have
+$$
+AG = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ -7 & 5 & 0 \end{pmatrix}
+\qquad \text{and} \qquad
+AGA = \begin{pmatrix} 5 & 8 & 5 \\ 8 & 13 & 9 \\ 5 & 9 & 10 \end{pmatrix} = A,
+$$
+so $G$ is a generalized inverse of $X\tr X$.
 
 ## (d)
 
-Compute a solution $\hat{\underline{\beta}}$ to the normal equations.
+Compute a solution $\bhat$ to the normal equations.
 
-**Answer.**
+**Answer.** We use two results:
+
+- **Theorem 2.3**, which states that the normal equations $X\tr X\bhat = X\tr\y$ are consistent.
+- **Theorem 1.2**, which states that a matrix $G$ is a generalized inverse of a matrix $A$ if and only if $\wv = G\ve{c}$ solves $A\wv = \ve{c}$ for every vector $\ve{c}$ for which these equations are consistent.
+
+Applying Theorem 1.2 with $A = X\tr X$ and $\ve{c} = X\tr\y$, the vector $\bhat = (X\tr X)^{-}X\tr\y$ solves the normal equations. With
+$$
+X\tr\y = \begin{pmatrix} 1 & 2 & 0 \\ 2 & 3 & 0 \\ 3 & 1 & 0 \end{pmatrix}\begin{pmatrix} 2 \\ 3 \\ 4 \end{pmatrix} = \begin{pmatrix} 8 \\ 13 \\ 9 \end{pmatrix},
+$$
+we get
+$$
+\bhat = \begin{pmatrix} 13 & -8 & 0 \\ -8 & 5 & 0 \\ 0 & 0 & 0 \end{pmatrix}
+  \begin{pmatrix} 8 \\ 13 \\ 9 \end{pmatrix}
+= \begin{pmatrix} 104 - 104 \\ -64 + 65 \\ 0 \end{pmatrix}
+= \begin{pmatrix} 0 \\ 1 \\ 0 \end{pmatrix}.
+$$
+As a direct check, $X\tr X\bhat$ is the second column of $X\tr X$, namely $(8, 13, 9)\tr = X\tr\y$.
 
 ## (e)
 
-Check that the vectors $X\hat{\underline{\beta}}$ and $\underline{y} - X\hat{\underline{\beta}}$ agree with your results in part (a).
+Check that the vectors $X\bhat$ and $\y - X\bhat$ agree with your results in part (a).
 
-**Answer.**
+**Answer.** From part (d), $X\bhat$ is the second column of $X$, so
+$$
+X\bhat = \begin{pmatrix} 2 \\ 3 \\ 0 \end{pmatrix}, \qquad
+\y - X\bhat = \begin{pmatrix} 0 \\ 0 \\ 4 \end{pmatrix}.
+$$
+These agree with the projections found in part (a), as Theorem 2.6 requires.
+
+```{r q2-check}
+X <- matrix(c(1, 2, 3,
+              2, 3, 1,
+              0, 0, 0), nrow = 3, byrow = TRUE)
+y <- c(2, 3, 4)
+XtX <- crossprod(X)
+G <- matrix(c(13, -8, 0,
+              -8,  5, 0,
+               0,  0, 0), nrow = 3, byrow = TRUE)
+
+all.equal(XtX %*% G %*% XtX, XtX)  # G is a generalized inverse of X'X
+bhat <- drop(G %*% crossprod(X, y))
+bhat
+drop(X %*% bhat)                    # projection onto C(X)
+drop(y - X %*% bhat)                # projection onto C-perp(X)
+```
 
 # Q3
 
-For Model VII, partition $\underline{y}$, $X$, and $\underline{\epsilon}$ correspondingly as follows:
+For Model VII, partition $\y$, $X$, and $\eps$ correspondingly as follows:
+$$
+\y = \begin{pmatrix} \y_1 \\ \y_2 \end{pmatrix}, \quad
+X = \begin{pmatrix} X_1 \\ X_2 \end{pmatrix}, \quad \text{and} \quad
+\eps = \begin{pmatrix} \eps_1 \\ \eps_2 \end{pmatrix}.
+$$
+Suppose that the row spaces of $X_1$ and $X_2$ are essentially disjoint, that is, $\R(X_1) \cap \R(X_2) = \{\zero\tr\}$. Show that, if $\lam\tr \in \R(X_1)$, then the least squares estimate of $\lam\tr\bb$ based on the model $\y_1 = X_1\bb + \eps_1$ is the same as the least squares estimate of $\lam\tr\bb$ based on the model $\y = X\bb + \eps$.
 
-$$\underline{y} = \begin{pmatrix} \underline{y}_1 \\ \underline{y}_2 \end{pmatrix}, \quad X = \begin{pmatrix} X_1 \\ X_2 \end{pmatrix}, \quad \text{and} \quad \underline{\epsilon} = \begin{pmatrix} \underline{\epsilon}_1 \\ \underline{\epsilon}_2 \end{pmatrix}.$$
-
-Suppose that the row spaces of $X_1$ and $X_2$ are essentially disjoint, that is, $\mathcal{R}(X_1) \cap \mathcal{R}(X_2) = \{\underline{0}'\}$. Show that, if $\underline{\lambda}' \in \mathcal{R}(X_1)$, then the least squares estimate of $\underline{\lambda}'\underline{\beta}$ based on the model $\underline{y}_1 = X_1\underline{\beta} + \underline{\epsilon}_1$ is the same as the least squares estimate of $\underline{\lambda}'\underline{\beta}$ based on the model $\underline{y} = X\underline{\beta} + \underline{\epsilon}$.
-
-*Hint: Under the full model, the LSE is $\underline{a}'X'\underline{y} = \underline{a}'X_1'\underline{y}_1 + \underline{a}'X_2'\underline{y}_2$ and, under the partial model, the LSE is $\underline{b}'X_1'\underline{y}_1$ where here $X_1'X_1\underline{a} + X_2'X_2\underline{a} = X'X\underline{a} = \underline{\lambda} = X_1'X_1\underline{b}$ (why?); in the last equation, move terms involving $X_2'$ and $X_1'$ to different sides.*
+*Hint: Under the full model, the LSE is $\av\tr X\tr\y = \av\tr X_1\tr\y_1 + \av\tr X_2\tr\y_2$ and, under the partial model, the LSE is $\bv\tr X_1\tr\y_1$ where here $X_1\tr X_1\av + X_2\tr X_2\av = X\tr X\av = \lam = X_1\tr X_1\bv$ (why?); in the last equation, move terms involving $X_2\tr$ and $X_1\tr$ to different sides.*
 
 **Answer.**
+
+*Setup.* Let $X_1$ be $n_1 \times p$ and $X_2$ be $n_2 \times p$, with $n_1 + n_2 = n$. The hint's $\av$ and $\bv$ are $p \times 1$ solutions to conjugate normal equations. To keep $\av$ reserved for $n \times 1$ coefficient vectors, we write them as $\rv$ and $\rv_1$. The partial model $\y_1 = X_1\bb + \eps_1$ is itself an instance of Model VII: $\E(\eps_1) = \zero_{n_1}$, and $\Var(\eps_1)$ is the leading $n_1 \times n_1$ block of $\Var(\eps)$. So every Model II--VII result below applies to both models.
+
+*Estimability under both models.* Since $\lam\tr \in \R(X_1)$, we have $\lam\tr = \tv\tr X_1$ for some $n_1 \times 1$ vector $\tv$. Hence
+$$
+\lam\tr = (\tv\tr, \zero_{n_2}\tr)\begin{pmatrix} X_1 \\ X_2 \end{pmatrix} \in \R(X).
+$$
+By Theorem 2.1 (stated in Q1(a)), $\lam\tr\bb$ is estimable under both models.
+
+**Theorem 2.5** states that under Models II--VII, $\lam\tr\bhat = \lam\tr\widetilde{\ve{\beta}}$ for any two solutions $\bhat$ and $\widetilde{\ve{\beta}}$ to the normal equations if and only if $\lam\tr\bb$ is estimable. So the least squares estimate of $\lam\tr\bb$ is well defined under *each* model. However, the two models have different normal equations, so this alone does not show that the two estimates coincide. That is what remains to prove.
+
+*Representing the two estimates (the "why?" in the hint).* We use two results:
+
+- **Theorem 2.7**, which states that under Models II--VII, $\lam\tr\bb$ is estimable if and only if the conjugate normal equations $X\tr X\rv = \lam$ are consistent.
+- **Theorem 2.8**, which states that under Models II--VII, the least squares estimate of an estimable $\lam\tr\bb$ equals $\rv\tr X\tr\y$, where $\rv$ is any solution to $X\tr X\rv = \lam$.
+
+Since $\lam\tr\bb$ is estimable under both models, Theorem 2.7 gives $p \times 1$ vectors $\rv$ and $\rv_1$ with
+$$
+X\tr X\rv = \lam \qquad \text{and} \qquad X_1\tr X_1\rv_1 = \lam.
+$$
+By Theorem 2.8, the least squares estimates under the full and partial models are $\rv\tr X\tr\y$ and $\rv_1\tr X_1\tr\y_1$, respectively. By block multiplication,
+$$
+X\tr X = X_1\tr X_1 + X_2\tr X_2 \qquad \text{and} \qquad X\tr\y = X_1\tr\y_1 + X_2\tr\y_2.
+$$
+Therefore
+$$
+X_1\tr X_1\rv + X_2\tr X_2\rv = \lam = X_1\tr X_1\rv_1,
+\qquad \text{that is,} \qquad
+X_1\tr X_1(\rv - \rv_1) = -X_2\tr X_2\rv.
+$$
+
+*Using disjointness.* Transposing both sides gives an equality of $1 \times p$ row vectors:
+$$
+\underbrace{[X_1(\rv - \rv_1)]\tr X_1}_{\in\, \R(X_1)} = \underbrace{[-X_2\rv]\tr X_2}_{\in\, \R(X_2)}.
+$$
+The left side has the form $\ve{u}\tr X_1$ with $\ve{u} = X_1(\rv - \rv_1) \in \Real^{n_1}$, so it lies in $\R(X_1)$. Similarly, the right side lies in $\R(X_2)$. Since $\R(X_1) \cap \R(X_2) = \{\zero\tr\}$, both sides equal $\zero_p\tr$. This gives two facts.
+
+1. $\rv\tr X_2\tr X_2 = \zero_p\tr$. Hence $(X_2\rv)\tr(X_2\rv) = \rv\tr X_2\tr X_2\rv = 0$. We use **Lemma 1.2**, which states that for any matrix $M$, $\tra(M\tr M) = 0$ implies $M = 0$. Applied to the $n_2 \times 1$ matrix $M = X_2\rv$, for which $\tra(M\tr M) = (X_2\rv)\tr(X_2\rv) = 0$, it gives $X_2\rv = \zero_{n_2}$.
+2. $X_1\tr X_1\rv = X_1\tr X_1\rv_1$. We use **Lemma 1.3(ii)**, which states that for any matrices $M$, $P$, and $Q$ of appropriate dimensions, $M\tr MP = M\tr MQ$ implies $MP = MQ$. Applied with $M = X_1$, $P = \rv$, and $Q = \rv_1$, it gives $X_1\rv = X_1\rv_1$.
+
+*Conclusion.* Combining these,
+$$
+\rv\tr X\tr\y = \rv\tr X_1\tr\y_1 + \rv\tr X_2\tr\y_2 = (X_1\rv)\tr\y_1 + (X_2\rv)\tr\y_2 = (X_1\rv_1)\tr\y_1 + 0 = \rv_1\tr X_1\tr\y_1.
+$$
+So the least squares estimates of $\lam\tr\bb$ under the two models coincide. \hfill $\square$
 
 # Q4
 
-Show that, under Model II, $\underline{a}'\underline{y}$ is a BLUE of its expectation if and only if $\underline{a} \in \mathcal{C}(X)$.
+Show that, under Model II, $\av\tr\y$ is a BLUE of its expectation if and only if $\av \in \C(X)$.
 
-**Answer.**
+**Answer.** Here $\av$ is $n \times 1$. Under Model II, $\E(\eps) = \zero_n$ and $\Var(\y) = \Var(\eps) = \sigma^2 I_n$ with $\sigma^2 > 0$.
+
+*The projection matrix.* Let $\PX = X(X\tr X)^{-}X\tr$, an $n \times n$ matrix. We use three results:
+
+- **Lemma 1.4**, which states that for any matrix $X$, $X\tr X(X\tr X)^{-}X\tr = X\tr$.
+- **Corollary 1(ii) to Lemma 1.4**, which states that for any matrix $X$, $X(X\tr X)^{-}X\tr X = X$.
+- **Corollary 3 to Lemma 1.5**, which states that for any matrix $X$, $X(X\tr X)^{-}X\tr$ is symmetric.
+
+These give three properties of $\PX$:
+
+- $\PX X = X$, by Corollary 1(ii) to Lemma 1.4.
+- $\PX\tr = \PX$, by Corollary 3 to Lemma 1.5.
+- $\PX^2 = X(X\tr X)^{-}\big[X\tr X(X\tr X)^{-}X\tr\big] = X(X\tr X)^{-}X\tr = \PX$, by Lemma 1.4.
+
+Consequently,
+$$
+\PX\tr(I_n - \PX) = \PX - \PX^2 = 0_{n \times n}.
+$$
+
+*The BLUE of $\E(\av\tr\y)$.* We have $\E(\av\tr\y) = \av\tr X\bb = \lam\tr\bb$ with $\lam\tr = \av\tr X \in \R(X)$. By Lemma 2.1 (stated in Q1(a)), $\av\tr\y$ is a linear unbiased estimator of $\lam\tr\bb$, and $\lam\tr\bb$ is estimable.
+
+We use **Theorem 2.9 (Gauss--Markov)**, which states the following. Under Models II--VII, if $\lam\tr\bb$ is estimable and $\bhat$ is any solution to the normal equations, then $\lam\tr\bhat$ is a linear unbiased estimator of $\lam\tr\bb$. Moreover, under Model II, the variance of $\lam\tr\bhat$ is uniformly less than that of any other linear unbiased estimator of $\lam\tr\bb$, so $\lam\tr\bhat$ is the BLUE.
+
+By Theorems 2.3 and 1.2 (stated in Q2(d)), $\bhat = (X\tr X)^{-}X\tr\y$ solves the normal equations. So the BLUE of $\lam\tr\bb$ is
+$$
+\lam\tr\bhat = \av\tr X(X\tr X)^{-}X\tr\y = \av\tr\PX\y = (\PX\av)\tr\y,
+$$
+where the last step uses $\PX\tr = \PX$.
+
+*Comparing variances.* We use the **Corollary to Lemma 2.4**, which states that $\Var(L\tr\ve{x}) = L\tr\Sigma L$ for a random vector $\ve{x}$ with $\Var(\ve{x}) = \Sigma$ and a matrix of constants $L$.
+
+Write $\av = \PX\av + (I_n - \PX)\av$. Applying the corollary with $L = \av$ and $\Sigma = \sigma^2 I_n$,
+$$
+\Var(\av\tr\y) = \sigma^2\av\tr\av
+= \sigma^2(\PX\av)\tr(\PX\av) + 2\sigma^2\av\tr\PX\tr(I_n - \PX)\av + \sigma^2[(I_n - \PX)\av]\tr[(I_n - \PX)\av].
+$$
+The middle term vanishes because $\PX\tr(I_n - \PX) = 0_{n \times n}$. The first term is $\Var\big((\PX\av)\tr\y\big)$, again by the Corollary to Lemma 2.4. Hence
+$$
+\Var(\av\tr\y) = \Var\big((\PX\av)\tr\y\big) + \sigma^2[(I_n - \PX)\av]\tr[(I_n - \PX)\av]. \tag{Q4.1}
+$$
+
+*Characterizing when $\av\tr\y$ is a BLUE.* Since $\av\tr\y$ is linear and unbiased for $\lam\tr\bb$, and $(\PX\av)\tr\y$ is the BLUE, $\av\tr\y$ is a BLUE if and only if $\Var(\av\tr\y) = \Var\big((\PX\av)\tr\y\big)$. Because $\sigma^2 > 0$, (Q4.1) shows this holds if and only if $[(I_n - \PX)\av]\tr[(I_n - \PX)\av] = 0$. By Lemma 1.2 (stated in Q3), applied to the $n \times 1$ matrix $(I_n - \PX)\av$, this holds if and only if $(I_n - \PX)\av = \zero_n$, that is, $\av = \PX\av$.
+
+*Characterizing $\av = \PX\av$.* Recall that $\av \in \C(X)$ if and only if $\av = X\bv$ for some $p \times 1$ vector $\bv$.
+
+- ($\Rightarrow$) If $\av = \PX\av$, then $\av = X\bv$ with $\bv = (X\tr X)^{-}X\tr\av$, so $\av \in \C(X)$.
+- ($\Leftarrow$) If $\av = X\bv$, then $\PX\av = \PX X\bv = X\bv = \av$, since $\PX X = X$.
+
+Hence $\av\tr\y$ is a BLUE of its expectation if and only if $\av \in \C(X)$. \hfill $\square$
 
 # Q5
 
 ## (a)
 
-Show that, under Model II, the problem of determining the BLUE $\underline{a}'\underline{y}$ of an estimable function $\underline{\lambda}'\underline{\beta}$ is equivalent to that of minimizing $\underline{a}'\underline{a}$ subject to the constraints $\underline{a}'X = \underline{\lambda}'$.
+Show that, under Model II, the problem of determining the BLUE $\av\tr\y$ of an estimable function $\lam\tr\bb$ is equivalent to that of minimizing $\av\tr\av$ subject to the constraints $\av\tr X = \lam\tr$.
 
-**Answer.**
+**Answer.** Here $\av$ is $n \times 1$ and $\lam$ is $p \times 1$.
+
+*The class of linear unbiased estimators.* By Lemma 2.1 (stated in Q1(a)), a linear estimator $c + \av\tr\y$ is unbiased for $\lam\tr\bb$ if and only if $c = 0$ and $\av\tr X = \lam\tr$. So the linear unbiased estimators of $\lam\tr\bb$ are exactly
+$$
+\{\av\tr\y : \av\tr X = \lam\tr\},
+$$
+which is nonempty because $\lam\tr\bb$ is estimable.
+
+*Their variances.* Under Model II, $\Var(\y) = \sigma^2 I_n$. By the Corollary to Lemma 2.4 (stated in Q4),
+$$
+\Var(\av\tr\y) = \av\tr(\sigma^2 I_n)\av = \sigma^2\av\tr\av.
+$$
+
+*Equivalence.* Since $\sigma^2 > 0$ does not depend on $\av$, a vector $\av$ minimizes $\Var(\av\tr\y)$ over this class if and only if it minimizes $\av\tr\av$ subject to $\av\tr X = \lam\tr$ (equivalently, $X\tr\av = \lam$). The minimizing $\av$ does not depend on $\sigma^2$, so the resulting estimator has minimum variance uniformly in $\sigma^2$. \hfill $\square$
 
 ## (b)
 
 The Lagrangian function associated with this minimization problem is
+$$
+L(\av, \rhov) = \av\tr\av + 2\rhov\tr(X\tr\av - \lam).
+$$
+Use the vector calculus to differentiate the Lagrangian function with respect to $\av$ and the Lagrangian multipliers, and set these derivatives equal to zero.
 
-$$L(\underline{a}, \underline{\rho}) = \underline{a}'\underline{a} + 2\underline{\rho}'(X'\underline{a} - \underline{\lambda}).$$
+**Answer.** There is one multiplier per constraint in $X\tr\av = \lam$, so $\rhov$ is $p \times 1$.
 
-Use the vector calculus to differentiate the Lagrangian function with respect to $\underline{a}$ and the Lagrangian multipliers, and set these derivatives equal to zero.
+*Vector-calculus identities.* We use the identities in Section 2.3 of the notes, which state the following for a vector variable $\bb$:
 
-**Answer.**
+- For any constant vector $\hv$, $\partial(\hv\tr\bb)/\partial\bb = \hv$.
+- For any constant matrix $X$, $\partial(\bb\tr X\tr X\bb)/\partial\bb = 2X\tr X\bb$.
+
+*Derivative with respect to $\av$.*
+
+- The second identity, with $I_n$ in place of $X$ and $\av$ in place of $\bb$, gives $\partial(\av\tr\av)/\partial\av = 2\av$.
+- Writing $\rhov\tr X\tr\av = (X\rhov)\tr\av$, the first identity with $\hv = X\rhov$ gives $\partial(\rhov\tr X\tr\av)/\partial\av = X\rhov$.
+- The term $-2\rhov\tr\lam$ does not involve $\av$.
+
+*Derivative with respect to $\rhov$.* Writing $2\rhov\tr(X\tr\av - \lam) = 2(X\tr\av - \lam)\tr\rhov$, the first identity with $\hv = X\tr\av - \lam$ applies.
+
+Together, the $n \times 1$ and $p \times 1$ gradients are
+$$
+\frac{\partial L}{\partial \av} = 2\av + 2X\rhov,
+\qquad
+\frac{\partial L}{\partial \rhov} = 2(X\tr\av - \lam).
+$$
+Setting these equal to zero gives the system
+$$
+\av + X\rhov = \zero_n, \qquad X\tr\av = \lam. \tag{1}
+$$
 
 ## (c)
 
@@ -126,8 +403,65 @@ Show that the resulting equations have a solution if and only if the conjugate n
 
 **Answer.**
 
+($\Rightarrow$) Suppose $(\av_0, \rhov_0)$ solves (1). The first equation gives $\av_0 = -X\rhov_0$. Substituting into the second,
+$$
+\lam = X\tr\av_0 = X\tr X(-\rhov_0).
+$$
+Thus $\rv = -\rhov_0$ solves $X\tr X\rv = \lam$, so the conjugate normal equations are consistent.
+
+($\Leftarrow$) Suppose $X\tr X\rv_0 = \lam$ for some $p \times 1$ vector $\rv_0$. Set $\av_0 = X\rv_0$ and $\rhov_0 = -\rv_0$. Then
+$$
+\av_0 + X\rhov_0 = X\rv_0 - X\rv_0 = \zero_n
+\qquad \text{and} \qquad
+X\tr\av_0 = X\tr X\rv_0 = \lam,
+$$
+so $(\av_0, \rhov_0)$ solves (1). \hfill $\square$
+
 ## (d)
 
-Solve your equations for the minimizing value of $\underline{a}$.
+Solve your equations for the minimizing value of $\av$.
 
 **Answer.**
+
+*Existence of a solution.* Since $\lam\tr\bb$ is estimable, the conjugate normal equations are consistent by Theorem 2.7 (stated in Q3). So (1) has a solution by part (c).
+
+*All solutions.* The first equation of (1) gives $\av = -X\rhov$. Substituting into the second gives $X\tr X(-\rhov) = \lam$, a consistent system in the $p \times 1$ unknown $-\rhov$.
+
+We use **Theorem 1.3**, which states that all solutions to a consistent matrix equation $AW = Y$ are generated by
+$$
+W = A^{-}Y + (I - A^{-}A)Z
+$$
+as $Z$ ranges over all matrices of appropriate dimensions. (We write $W$ for the notes' unknown to avoid a clash with the design matrix $X$.) Applying it with $A = X\tr X$, $W = -\rhov$, and $Y = \lam$, all solutions are
+$$
+-\rhov = (X\tr X)^{-}\lam + [I_p - (X\tr X)^{-}X\tr X]\zv, \qquad \zv \in \Real^p.
+$$
+Hence
+$$
+\av = -X\rhov = X(X\tr X)^{-}\lam + \big[X - X(X\tr X)^{-}X\tr X\big]\zv = X(X\tr X)^{-}\lam,
+$$
+since $X(X\tr X)^{-}X\tr X = X$ by Corollary 1(ii) to Lemma 1.4 (stated in Q4). Therefore every solution of (1) has the same $\av$-component,
+$$
+\av_* = X(X\tr X)^{-}\lam.
+$$
+
+*The stationary point is the minimum.* Equations (1) are necessary conditions only, so we verify directly that $\av_*$ minimizes $\av\tr\av$ subject to $X\tr\av = \lam$.
+
+Let $\av$ be any $n \times 1$ vector with $X\tr\av = \lam$. Set $\dv = \av - \av_*$; then $X\tr\dv = \lam - \lam = \zero_p$. Since $\av_* = X\rv_*$ with $\rv_* = (X\tr X)^{-}\lam$, we have
+$$
+\av_*\tr\dv = \rv_*\tr X\tr\dv = 0.
+$$
+Therefore
+$$
+\av\tr\av = (\av_* + \dv)\tr(\av_* + \dv) = \av_*\tr\av_* + \dv\tr\dv \ \ge\ \av_*\tr\av_*.
+$$
+Equality holds if and only if $\dv\tr\dv = 0$, that is, $\dv = \zero_n$ (by Lemma 1.2, stated in Q3). So $\av_*$ is the unique minimizer.
+
+*The resulting BLUE.* By part (a), the BLUE is
+$$
+\av_*\tr\y = \lam\tr[(X\tr X)^{-}]\tr X\tr\y.
+$$
+We use the **Corollary to Lemma 1.1**, which states that for any matrix $X$, $[(X\tr X)^{-}]\tr$ is a generalized inverse of $X\tr X$. By Theorems 2.3 and 1.2 (stated in Q2(d)), $\bhat = [(X\tr X)^{-}]\tr X\tr\y$ therefore solves the normal equations, and
+$$
+\av_*\tr\y = \lam\tr\bhat.
+$$
+That is, the BLUE of $\lam\tr\bb$ is its least squares estimator, in agreement with Theorem 2.9 (stated in Q4). \hfill $\square$
