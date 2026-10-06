@@ -1,0 +1,141 @@
+---
+title: "HW4"
+author: "Sam Olson"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Q1: 2.1
+
+Let $\Omega_i$, $i = 1, 2$ be two nonempty sets and $T : \Omega_1 \to \Omega_2$ be a map. Then for any collection $\{A_\alpha : \alpha \in I\}$ of subsets of $\Omega_2$, show that
+$$T^{-1}\Big(\bigcup_{\alpha \in I} A_\alpha\Big) = \bigcup_{\alpha \in I} T^{-1}(A_\alpha) \quad \text{and} \quad T^{-1}\Big(\bigcap_{\alpha \in I} A_\alpha\Big) = \bigcap_{\alpha \in I} T^{-1}(A_\alpha).$$
+
+Further, $\big(T^{-1}(A)\big)^c = T^{-1}(A^c)$ for all $A \subset \Omega_2$. (These are known using *de Morgan's* laws.)
+
+## Answer
+
+Recall that $T^{-1}(A) \equiv \{\omega \in \Omega_1 : T(\omega) \in A\}$ for $A \subset \Omega_2$.
+
+*Proof.* Let $\{A_\alpha : \alpha \in I\}$ be a collection of subsets of $\Omega_2$, and let $A \subset \Omega_2$.
+
+**Union:**
+
+($\subset$) Let $\omega \in T^{-1}\big(\bigcup_{\alpha \in I} A_\alpha\big)$ be given. Then $T(\omega) \in \bigcup_{\alpha \in I} A_\alpha$, so $T(\omega) \in A_{\alpha_0}$ for some $\alpha_0 \in I$. Thus $\omega \in T^{-1}(A_{\alpha_0}) \subset \bigcup_{\alpha \in I} T^{-1}(A_\alpha)$.
+
+($\supset$) Let $\omega \in \bigcup_{\alpha \in I} T^{-1}(A_\alpha)$ be given. Then $\omega \in T^{-1}(A_{\alpha_0})$ for some $\alpha_0 \in I$, so $T(\omega) \in A_{\alpha_0} \subset \bigcup_{\alpha \in I} A_\alpha$. Thus $\omega \in T^{-1}\big(\bigcup_{\alpha \in I} A_\alpha\big)$.
+
+**Intersection:**
+
+($\subset$) Let $\omega \in T^{-1}\big(\bigcap_{\alpha \in I} A_\alpha\big)$ be given. Then $T(\omega) \in A_\alpha$ for all $\alpha \in I$, so $\omega \in T^{-1}(A_\alpha)$ for all $\alpha \in I$. Thus $\omega \in \bigcap_{\alpha \in I} T^{-1}(A_\alpha)$.
+
+($\supset$) Let $\omega \in \bigcap_{\alpha \in I} T^{-1}(A_\alpha)$ be given. Then $T(\omega) \in A_\alpha$ for all $\alpha \in I$, so $T(\omega) \in \bigcap_{\alpha \in I} A_\alpha$. Thus $\omega \in T^{-1}\big(\bigcap_{\alpha \in I} A_\alpha\big)$.
+
+**Complement:**
+
+($\subset$) Let $\omega \in \big(T^{-1}(A)\big)^c$ be given. Then $\omega \notin T^{-1}(A)$, so $T(\omega) \notin A$, i.e., $T(\omega) \in A^c$. Thus $\omega \in T^{-1}(A^c)$.
+
+($\supset$) Let $\omega \in T^{-1}(A^c)$ be given. Then $T(\omega) \in A^c$, so $T(\omega) \notin A$, i.e., $\omega \notin T^{-1}(A)$. Thus $\omega \in \big(T^{-1}(A)\big)^c$.
+
+Combining both containments in each case, we conclude that all three identities hold. //
+
+# Q2: 2.3
+
+Let $f, g : \Omega \to \mathbb{R}$ be $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable. Set
+$$h(\omega) = \frac{f(\omega)}{g(\omega)}\, I(g(\omega) \neq 0), \quad \omega \in \Omega.$$
+Verify that $h$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable.
+
+## Answer
+
+*Proof.* Define $\psi : \mathbb{R}^2 \to \mathbb{R}$ by
+$$\psi(x, y) \equiv \frac{x}{y}\, I(y \neq 0) = \begin{cases} x/y & \text{if } y \neq 0, \\ 0 & \text{if } y = 0, \end{cases}$$
+so that $h(\omega) = \psi(f(\omega), g(\omega))$ for all $\omega \in \Omega$, i.e., $h = \psi \circ \zeta$ with $\zeta \equiv (f, g)$.
+
+We first show that $\psi$ is $\langle\mathcal{B}(\mathbb{R}^2), \mathcal{B}(\mathbb{R})\rangle$-measurable. Let $a \in \mathbb{R}$ be given. For $y > 0$, $x/y \leq a$ iff $x - ay \leq 0$; for $y < 0$, $x/y \leq a$ iff $x - ay \geq 0$; and for $y = 0$, $\psi(x, y) = 0 \leq a$ iff $a \geq 0$. Hence
+$$\psi^{-1}((-\infty, a]) = \{(x, y) : y > 0,\ x - ay \leq 0\} \cup \{(x, y) : y < 0,\ x - ay \geq 0\} \cup \{(x, y) : y = 0,\ a \geq 0\},$$
+where the last set is $\mathbb{R} \times \{0\}$ if $a \geq 0$ and $\emptyset$ if $a < 0$.
+
+Since $(x, y) \mapsto x - ay$ and $(x, y) \mapsto y$ are continuous on $\mathbb{R}^2$, they are $\langle\mathcal{B}(\mathbb{R}^2), \mathcal{B}(\mathbb{R})\rangle$-measurable by Proposition 2.1.2. Hence $\{y > 0\}$, $\{y < 0\}$, $\{y = 0\}$, $\{x - ay \leq 0\}$, and $\{x - ay \geq 0\}$ are in $\mathcal{B}(\mathbb{R}^2)$, as preimages of Borel sets, and so $\psi^{-1}((-\infty, a]) \in \mathcal{B}(\mathbb{R}^2)$. Since $a \in \mathbb{R}$ was arbitrary, $\psi$ is $\langle\mathcal{B}(\mathbb{R}^2), \mathcal{B}(\mathbb{R})\rangle$-measurable by Definition 2.1.2(a).
+
+By Proposition 2.1.3(i), $\zeta = (f, g)$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R}^2)\rangle$-measurable. Hence $h = \psi \circ \zeta$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Proposition 2.1.1(ii). //
+
+# Q3: 2.6
+
+Let $X_i$, $i = 1, 2, 3$ be random variables on a probability space $(\Omega, \mathcal{F}, P)$. Consider the random equation (in $t \in \mathbb{R}$):
+$$X_1(\omega)t^2 + X_2(\omega)t + X_3(\omega) = 0. \tag{6.1}$$
+
+## (a)
+
+Show that $A \equiv \{\omega \in \Omega : \text{Equation (6.1) has two distinct real roots}\} \in \mathcal{F}$.
+
+### Answer
+
+*Proof.* Let $D \equiv X_2^2 - 4X_1X_3$, and let $\omega \in \Omega$ be given. If $X_1(\omega) \neq 0$, then (6.1) is a quadratic in $t$ with discriminant $D(\omega)$, and so has two distinct real roots iff $D(\omega) > 0$. If $X_1(\omega) = 0$, then (6.1) reduces to $X_2(\omega)t + X_3(\omega) = 0$, whose solution set is a single point, empty, or all of $\mathbb{R}$, and so never consists of two distinct real roots. Since $\omega \in \Omega$ was arbitrary,
+$$A =\{\omega : X_1(\omega) \neq 0\} \cap \{\omega : D(\omega) > 0\} = X_1^{-1}(\mathbb{R} \setminus \{0\}) \cap D^{-1}((0, \infty)).$$
+
+Since $X_1, X_2, X_3$ are random variables, they are $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable (Definition 2.1.2(b)), and hence so is $D$ by Corollary 2.1.4. Since $\mathbb{R} \setminus \{0\}$ and $(0, \infty)$ are open, they are in $\mathcal{B}(\mathbb{R})$, so both preimages above are in $\mathcal{F}$. Thus $A \in \mathcal{F}$. //
+
+## (b)
+
+Let $T_1(\omega)$ and $T_2(\omega)$ denote the two roots of (6.1) on $A$. Let
+$$f_i(\omega) = \begin{cases} T_i(\omega) & \text{on } A \\ 0 & \text{on } A^c \end{cases},$$
+$i = 1, 2$. Show that $(f_1, f_2)$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R}^2)\rangle$-measurable.
+
+### Answer
+
+*Proof.* Let $D$ be as in (a), so that $D$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable and $A = \{X_1 \neq 0\} \cap \{D > 0\} \in \mathcal{F}$. Label the two roots on $A$ by the quadratic formula:
+$$T_1 = \frac{-X_2 + \sqrt{D}}{2X_1}, \qquad T_2 = \frac{-X_2 - \sqrt{D}}{2X_1}.$$
+
+Since $y \mapsto \sqrt{\max\{y, 0\}}$ is continuous on $\mathbb{R}$, $S \equiv \sqrt{\max\{D, 0\}}$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Proposition 2.1.3(iv), and $S = \sqrt{D}$ on $A$. Since $A \in \mathcal{F}$, $I_A$ is also $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable: $I_A^{-1}((-\infty, a])$ is $\emptyset$, $A^c$, or $\Omega$ according as $a < 0$, $0 \leq a < 1$, or $a \geq 1$.
+
+Let $u_1 \equiv -X_2 + S$, $u_2 \equiv -X_2 - S$, and $v \equiv 2X_1 I_A$, each of which is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Corollary 2.1.4. Since $X_1 \neq 0$ on $A$, $v(\omega) \neq 0$ iff $\omega \in A$, and $u_i / v = T_i$ on $A$. Thus, for $i = 1, 2$,
+$$f_i(\omega) = \frac{u_i(\omega)}{v(\omega)}\, I(v(\omega) \neq 0), \quad \omega \in \Omega,$$
+and so $f_i$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Q2. Hence $(f_1, f_2)$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R}^2)\rangle$-measurable by Proposition 2.1.3(i). //
+
+# Q4: Extra A
+
+Let $X : \Omega_1 \to \Omega_2$ be a $\langle\mathcal{F}_1, \mathcal{F}_2\rangle$ be a measurable transformation. Consider the collection (of subsets of $\Omega_1$) defined by $\sigma\langle X\rangle = \{X^{-1}(B), B \in \mathcal{F}_2\}$. Then show that
+
+## (a)
+
+$\sigma\langle X\rangle$ is a $\sigma$-algebra,
+
+### Answer
+
+*Proof.* We verify properties (a)--(d) of Definitions 1.1.1 and 1.1.2.
+
+(a) $\Omega_2 \in \mathcal{F}_2$ and $X^{-1}(\Omega_2) = \Omega_1$, so $\Omega_1 \in \sigma\langle X\rangle$.
+
+(b) Let $A \in \sigma\langle X\rangle$ be given, so $A = X^{-1}(B)$ for some $B \in \mathcal{F}_2$. By Q1, $A^c = \big(X^{-1}(B)\big)^c = X^{-1}(B^c)$, and $B^c \in \mathcal{F}_2$. Thus $A^c \in \sigma\langle X\rangle$.
+
+(c) Let $A_1, A_2 \in \sigma\langle X\rangle$ be given, so $A_i = X^{-1}(B_i)$ for some $B_i \in \mathcal{F}_2$, $i = 1, 2$. By Q1, $A_1 \cup A_2 = X^{-1}(B_1 \cup B_2)$, and $B_1 \cup B_2 \in \mathcal{F}_2$. Thus $A_1 \cup A_2 \in \sigma\langle X\rangle$.
+
+(d) Let $\{A_n\}_{n \geq 1} \subset \sigma\langle X\rangle$ be given, so $A_n = X^{-1}(B_n)$ for some $B_n \in \mathcal{F}_2$, $n \geq 1$. By Q1,
+$$\bigcup_{n \geq 1} A_n = \bigcup_{n \geq 1} X^{-1}(B_n) = X^{-1}\Big(\bigcup_{n \geq 1} B_n\Big),$$
+and $\bigcup_{n \geq 1} B_n \in \mathcal{F}_2$. Thus $\bigcup_{n \geq 1} A_n \in \sigma\langle X\rangle$.
+
+Thus, by (a)--(c), $\sigma\langle X\rangle$ is an algebra; and furthermore, by (d), $\sigma\langle X\rangle$ is a $\sigma$-algebra. //
+
+## (b)
+
+$\sigma\langle X\rangle$ is the *smallest* $\sigma$-algebra that makes $X$ measurable, (i.e. if $X$ is $\langle\mathcal{G}, \mathcal{F}_2\rangle$-measurable, then $\sigma\langle X\rangle \subset \mathcal{G}$).
+
+### Answer
+
+*Proof.* By (a), $\sigma\langle X\rangle$ is a $\sigma$-algebra on $\Omega_1$. Since $X^{-1}(B) \in \sigma\langle X\rangle$ for all $B \in \mathcal{F}_2$, $X$ is $\langle\sigma\langle X\rangle, \mathcal{F}_2\rangle$-measurable (Definition 2.1.3).
+
+Now let $\mathcal{G}$ be a $\sigma$-algebra on $\Omega_1$ such that $X$ is $\langle\mathcal{G}, \mathcal{F}_2\rangle$-measurable. By Definition 2.1.3, $X^{-1}(B) \in \mathcal{G}$ for all $B \in \mathcal{F}_2$, i.e., $\sigma\langle X\rangle \subset \mathcal{G}$. //
+
+# Q5: Extra B
+
+Give an example of a function $f$ that is **not** $\langle\mathcal{B}(\mathbb{R}), \mathcal{B}(\mathbb{R})\rangle$-measurable.
+
+## Answer
+
+Take $f \equiv I_V$, where $V \subset \mathbb{R}$ is not Lebesgue measurable, i.e., $V \notin \mathcal{M}_m$. Such sets exist (see p. 27 of the text); the standard example is a Vitali set, i.e., a set $V \subset [0, 1]$ containing exactly one point from each equivalence class of the relation $x \sim y \iff x - y \in \mathbb{Q}$ on $\mathbb{R}$.
+
+*Proof.* The singleton $\{1\}$ is in $\mathcal{B}(\mathbb{R})$, but
+$$f^{-1}(\{1\}) = \{x \in \mathbb{R} : f(x) = 1\} = A \notin \mathcal{B}(\mathbb{R}).$$
+Thus $f$ is not $\langle\mathcal{B}(\mathbb{R}), \mathcal{B}(\mathbb{R})\rangle$-measurable by Definition 2.1.3. //

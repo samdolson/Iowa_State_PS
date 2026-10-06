@@ -1,0 +1,546 @@
+---
+title: "HW3"
+author: "Sam Olson"
+output: pdf_document
+header-includes:
+  - \newcommand{\ve}[1]{\underline{#1}}
+  - \newcommand{\bb}{\ve{\beta}}
+  - \newcommand{\bhat}{\widehat{\ve{\beta}}}
+  - \newcommand{\lam}{\ve{\lambda}}
+  - \newcommand{\y}{\ve{y}}
+  - \newcommand{\av}{\ve{a}}
+  - \newcommand{\bv}{\ve{b}}
+  - \newcommand{\dv}{\ve{d}}
+  - \newcommand{\gv}{\ve{g}}
+  - \newcommand{\hv}{\ve{h}}
+  - \newcommand{\rv}{\ve{r}}
+  - \newcommand{\tv}{\ve{t}}
+  - \newcommand{\wv}{\ve{w}}
+  - \newcommand{\zv}{\ve{z}}
+  - \newcommand{\rhov}{\ve{\rho}}
+  - \newcommand{\eps}{\ve{\epsilon}}
+  - \newcommand{\zero}{\ve{0}}
+  - \newcommand{\one}{\ve{1}}
+  - \newcommand{\tr}{^{\prime}}
+  - \newcommand{\C}{\mathcal{C}}
+  - \newcommand{\R}{\mathcal{R}}
+  - \newcommand{\PX}{P_X}
+  - \newcommand{\Real}{\mathbb{R}}
+  - \newcommand{\rank}{\operatorname{rank}}
+  - \newcommand{\tra}{\operatorname{tr}}
+  - \newcommand{\Var}{\operatorname{Var}}
+  - \newcommand{\E}{\operatorname{E}}
+  - \newcommand{\cov}{\operatorname{cov}}
+  - \newcommand{\corr}{\operatorname{corr}}
+  - \newcommand{\btil}{\widetilde{\ve{\beta}}}
+  - \newcommand{\ehat}{\widehat{\ve{\epsilon}}}
+  - \newcommand{\gam}{\ve{\gamma}}
+  - \newcommand{\cv}{\ve{c}}
+  - \newcommand{\ev}{\ve{e}}
+  - \newcommand{\kv}{\ve{k}}
+  - \newcommand{\vv}{\ve{v}}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Q1
+
+For unit $i$, $i = 1, \dots, n$, let $y_i$ and $x_i$ denote respectively the dependent variable and the known value of an independent variable. For a known value $t$, let $z_i$ be defined as
+$$
+z_i = \begin{cases} 0 & \text{if } x_i \le t, \\ 1 & \text{otherwise,} \end{cases}
+$$
+for $i = 1, \dots, n$. Assume that the $y_i$'s are uncorrelated with common variance $\sigma^2$, an unknown positive constant. Consider the (unconstrained) linear model
+$$
+\E(y_i) = \beta_0 + \beta_1 z_i + \beta_2 x_i + \beta_3 x_i z_i, \tag{1}
+$$
+and the constrained linear model
+$$
+\E(y_i) = \gamma_0 + \gamma_1 z_i + \gamma_2 x_i + \gamma_3 x_i z_i, \quad \text{with the constraint} \quad \gamma_1 + \gamma_3 t = 0. \tag{2}
+$$
+You can assume that all $\beta$'s and $\gamma$'s are estimable with the available data.
+
+## (a)
+
+For each of the two models, sketch in as much detail as possible what relationship the model proposes between the variables $y$ and $x$. (A plot of $y$ versus $x$, showing the general shape of the fitted model, could form an important part of your answer.)
+
+**Answer.**
+
+Splitting on the value of $z_i$, model (1) says
+$$
+\E(y_i) = \begin{cases} \beta_0 + \beta_2 x_i & \text{if } x_i \le t, \\ (\beta_0 + \beta_1) + (\beta_2 + \beta_3) x_i & \text{if } x_i > t. \end{cases}
+$$
+So model (1) proposes two separate straight-line relationships between $y$ and $x$: one for $x \le t$, with intercept $\beta_0$ and slope $\beta_2$, and one for $x > t$, with intercept $\beta_0 + \beta_1$ and slope $\beta_2 + \beta_3$. That is, $\beta_1$ and $\beta_3$ are the changes in intercept and slope in passing from $x \le t$ to $x > t$. With all four $\beta$'s free, the two lines are unrelated, so the mean may jump at $x = t$, by
+$$
+\lim_{x \downarrow t} \E(y) - \E(y)\big|_{x = t} = \{(\beta_0 + \beta_1) + (\beta_2 + \beta_3)t\} - (\beta_0 + \beta_2 t) = \beta_1 + \beta_3 t.
+$$
+
+Model (2) has the same two-line form (with $\gamma$'s in place of $\beta$'s), but its constraint $\gamma_1 + \gamma_3 t = 0$ says exactly that this jump is zero. So the two lines meet at $x = t$: model (2) proposes a continuous, piecewise linear relationship between $y$ and $x$, whose slope changes from $\gamma_2$ to $\gamma_2 + \gamma_3$ at $x = t$. Substituting $\gamma_1 = -\gamma_3 t$,
+$$
+\E(y_i) = \gamma_0 + \gamma_2 x_i + \gamma_3 (x_i - t) z_i, \tag{Q1 (a)}
+$$
+so model (2) has three free mean parameters to model (1)'s four.
+
+In both models, the $y_i$'s vary about this mean with the same variance $\sigma^2$ on either side of $t$.
+
+The plots below show the general shape of each fitted model, using data simulated under that model. Each line is labelled with the mean it estimates. In the plot for model (1), the filled and open circles mark that the value at $x = t$ belongs to the left-hand line (as $z = 0$ there).
+
+```{r q1-sketch, echo=FALSE, fig.width=7, fig.height=3.3, fig.align="center"}
+set.seed(6611)
+t0 <- 5                           # the known value t (t0, so as not to mask t())
+x  <- sort(runif(40, 0, 10))
+z  <- as.numeric(x > t0)
+e  <- rnorm(40, sd = 0.4)
+y1 <- 1 + 7.5 * z + 0.8 * x - 1.1 * x * z + e    # generated under model (1)
+y2 <- 1 + 0.8 * x - 1.1 * (x - t0) * z + e       # generated under model (2)
+
+# model (1): b = (beta_0, beta_1, beta_2, beta_3)
+b <- unname(coef(lm(y1 ~ z + x + x:z)))
+# model (2), with gamma_1 = -gamma_3 t substituted: g = (gamma_0, gamma_2, gamma_3)
+g <- unname(coef(lm(y2 ~ x + I((x - t0) * z))))
+
+lo <- b[1] + b[3] * c(0, t0)                     # model (1) fit at x = 0, t
+hi <- b[1] + b[2] + (b[3] + b[4]) * c(t0, 10)    # model (1) fit at x = t, 10
+m2 <- g[1] + g[2] * c(0, t0, 10) +               # model (2) fit at x = 0, t, 10
+  g[3] * c(0, 0, 10 - t0)
+
+# scatterplot with the x-axis split at t; returns the height for the line labels
+panel <- function(y, main) {
+  plot(x, y, pch = 16, col = "grey60", xaxt = "n", yaxt = "n", xlim = c(0, 10),
+       ylab = "y", main = main)
+  axis(1, at = t0, labels = FALSE)
+  axis(1, at = c(t0 / 2, t0, (t0 + 10) / 2), tick = FALSE,
+       labels = expression(x <= t, t, x > t))
+  abline(v = t0, lty = 3)
+  par("usr")[3] + 0.04 * diff(par("usr")[3:4])
+}
+
+par(mfrow = c(1, 2), mar = c(3, 2.6, 2, 0.6), mgp = c(1.6, 0.6, 0), cex = 0.85)
+
+yb <- panel(y1, "Model (1)")
+segments(c(0, t0), c(lo[1], hi[1]), c(t0, 10), c(lo[2], hi[2]), lwd = 2)
+points(c(t0, t0), c(lo[2], hi[1]), pch = c(16, 21), bg = "white")  # z = 0 at x = t
+arrows(t0 - 0.3, lo[2], t0 - 0.3, hi[1], code = 3, length = 0.05)
+text(t0 - 0.5, mean(c(lo[2], hi[1])), adj = 1,
+     labels = expression("jump of " * beta[1] + beta[3] * t))
+text(4.8, yb, adj = c(1, 0), labels = expression(beta[0] + beta[2] * x))
+text(9.9, yb, adj = c(1, 0),
+     labels = expression((beta[0] + beta[1]) + (beta[2] + beta[3]) * x))
+
+yb <- panel(y2, "Model (2)")
+lines(c(0, t0, 10), m2, lwd = 2)
+points(t0, m2[2], pch = 16)
+text(t0 - 0.5, m2[2] + 0.1, adj = c(1, 0),
+     labels = expression("no jump: " * gamma[1] + gamma[3] * t == 0))
+text(4.8, yb, adj = c(1, 0), labels = expression(gamma[0] + gamma[2] * x))
+text(9.9, yb, adj = c(1, 0),
+     labels = expression(gamma[0] + gamma[2] * x + gamma[3] * (x - t)))
+```
+
+## (b)
+
+For each of the following two statements, decide whether the statement is correct. Justify your answers.
+
+**Statement 1:** For model (1), the (ordinary) least squares estimator of $\beta_2$ depends only on those $y_i$'s for which $x_i \le t$.
+
+**Statement 2:** For model (2), the (constrained) least squares estimator of $\gamma_2$ depends only on those $y_i$'s for which $x_i \le t$.
+
+**Answer.** Statement 1 is correct. Statement 2 is incorrect.
+
+**Note:** Both models have the $n \times 4$ model matrix $X$ whose $i$th row is $(1, z_i, x_i, x_i z_i)$. By Theorem 2.1, which states that under Models II--VII, $\lam\tr\bb$ is estimable if and only if $\lam\tr \in \R(X)$, the estimability of all four $\beta$'s puts every $1 \times 4$ unit vector in $\R(X)$. So $\rank(X) = 4$, that is, the columns of $X$ are linearly independent. This requires at least two distinct values among the $x_i \le t$, and at least two among the $x_i > t$:
+
+- if the $x_i > t$ all equaled a common value $x_*$ (or there were none), the fourth column of $X$ would be $x_*$ times the second;
+- if the $x_i \le t$ all equaled a common value $x_*$ (or there were none), the third column minus the fourth would be $x_*$ times the first minus the second.
+
+### Statement 1
+
+By the two-line form of model (1) in part (a), the residual sum of squares is
+$$
+Q(\bb) = \sum_{x_i \le t} (y_i - \beta_0 - \beta_2 x_i)^2 + \sum_{x_i > t} (y_i - \delta_0 - \delta_1 x_i)^2,
+\qquad \text{where } \delta_0 \equiv \beta_0 + \beta_1 \text{ and } \delta_1 \equiv \beta_2 + \beta_3.
+$$
+The correspondence between $\bb$ and $(\beta_0, \beta_2, \delta_0, \delta_1)$ is one-to-one, so $(\beta_0, \beta_2)$ and $(\delta_0, \delta_1)$ each range freely over $\Real^2$ as $\bb$ ranges over $\Real^4$. Since the first sum involves only $(\beta_0, \beta_2)$ and the second only $(\delta_0, \delta_1)$, $Q$ is minimized by minimizing the two sums separately.
+
+Hence $(\widehat\beta_0, \widehat\beta_2)$ minimizes the first sum, which involves only the $y_i$ with $x_i \le t$. That is, $\widehat\beta_2$ is the least squares slope from the simple linear regression of $y$ on $x$ fit to those units alone,
+$$
+\widehat\beta_2 = \frac{\sum_{x_i \le t} (x_i - \bar{x}_0)\, y_i}{\sum_{x_i \le t} (x_i - \bar{x}_0)^2},
+$$
+where $\bar{x}_0$ is the average of the $x_i \le t$ (the denominator is positive by the Note). So Statement 1 is correct.
+
+### Statement 2
+
+By definition, the constrained least squares estimator of $\gamma_2$ is the corresponding element of a $\gam$ minimizing $Q(\gam) = (\y - X\gam)\tr(\y - X\gam)$ over the $\gam$ satisfying $\gamma_1 + \gamma_3 t = 0$. By (Q1 (a)), for these $\gam$,
+$$
+X\gam = M\gam_*, \qquad \text{where } \gam_* \equiv (\gamma_0, \gamma_2, \gamma_3)\tr
+$$
+and $M$ is the $n \times 3$ matrix whose $i$th row is $(1, x_i, (x_i - t) z_i)$. As $\gam$ ranges over the constraint set, $\gam_*$ ranges over $\Real^3$. So $\widehat\gamma_2$ is the ordinary least squares estimator of $\gamma_2 = \lam\tr\gam_*$, with $\lam \equiv (0, 1, 0)\tr$, under the unconstrained model $\y = M\gam_* + \eps$, which is of the form of Model II. (Here $\rank(M) = 3$, as $M\gam_* = \zero_n$ gives $X\gam = \zero_n$ and so $\gam = \zero_4$; hence $\lam\tr\gam_*$ is estimable.)
+
+We now utilize Theorem 2.8, which states that under Models II--VII, the least squares estimate of an estimable $\lam\tr\bb$ equals $\rv\tr X\tr\y$, where $\rv$ is any solution to $X\tr X\rv = \lam$. With $M$ in place of $X$,
+$$
+\widehat\gamma_2 = \rv\tr M\tr\y = \wv\tr\y, \qquad \text{where } \wv \equiv M\rv \text{ and } M\tr M\rv = \lam.
+$$
+So $\widehat\gamma_2$ depends on $y_i$ exactly when $w_i \neq 0$, where
+$$
+w_i = r_1 + r_2 x_i + r_3 (x_i - t) z_i,
+$$
+and where $M\tr\wv = \lam$ reads
+$$
+\sum_{i=1}^n w_i = 0, \qquad \sum_{i=1}^n x_i w_i = 1, \qquad \sum_{i=1}^n (x_i - t) z_i w_i = 0.
+$$
+
+Suppose, for contradiction, that $w_i = 0$ for every $i$ with $x_i > t$. For these $i$, $w_i = (r_1 - r_3 t) + (r_2 + r_3) x_i$ is a linear function of $x_i$ that vanishes at two distinct values of $x_i$ (by the Note), so $r_1 = r_3 t$ and $r_2 = -r_3$. Then $w_i = r_1 + r_2 x_i = r_3 (t - x_i)$ for every $i$ with $x_i \le t$, and the first of the three equations becomes
+$$
+0 = \sum_{i=1}^n w_i = r_3 \sum_{x_i \le t} (t - x_i).
+$$
+This last sum is positive, as its terms are nonnegative and not all zero (by the Note). So $r_3 = 0$, hence $\rv = \zero_3$ and $\wv = \zero_n$, contradicting $\sum_i x_i w_i = 1$.
+
+Hence $w_i \neq 0$ for at least one $i$ with $x_i > t$: $\widehat\gamma_2$ depends on a $y_i$ for which $x_i > t$, and Statement 2 is incorrect. (The constraint makes the left-hand line pass through the common value at $x = t$, which the $y_i$ with $x_i > t$ help to locate.)
+
+\newpage
+
+A quick numerical check of both statements in R. Each estimator is linear in $\y$, so we compute the weights it places on $y_1, \dots, y_n$:
+
+```{r q1-check}
+# x, z, and t0 (the value of t) are those simulated for the plots in part (a)
+X  <- cbind(1, z, x, x * z)                          # rows (1, z_i, x_i, x_i z_i)
+A  <- matrix(c(0, 1, 0, t0), nrow = 1)               # gamma_1 + gamma_3 t = 0
+K  <- rbind(cbind(crossprod(X), t(A)), cbind(A, 0))  # constrained normal equations
+W1 <- solve(crossprod(X), t(X))                      # model (1): beta-hat  = W1 y
+W2 <- solve(K)[1:4, 1:4] %*% t(X)                    # model (2): gamma-hat = W2 y
+
+# weights placed on the y_i with x_i > t
+# beta_2-hat: all zero
+round(range(W1[3, x > t0]), 10)
+# gamma_2-hat: not all zero
+round(range(W2[3, x > t0]), 10)
+```
+
+# Q2
+
+For the following questions 2 and 3, let $G = \begin{pmatrix} G_{11} & G_{12} \\ G_{21} & G_{22} \end{pmatrix}$ be any generalized inverse of $\begin{pmatrix} X\tr X & A\tr \\ A & 0 \end{pmatrix}$ (the coefficient matrix of the constrained normal equations for Models IIa--VIIa).
+
+Consider Models IIa--VIIa. Let $\bhat$ be the first component of any solution to the constrained normal equations.
+
+**Note:** Here $A$ is $q \times p$ and $\bv$ is $q \times 1$, the constraints $A\bb = \bv$ are consistent, and the constrained normal equations are
+$$
+\begin{pmatrix} X\tr X & A\tr \\ A & 0 \end{pmatrix} \begin{pmatrix} \bhat \\ \rhov \end{pmatrix} = \begin{pmatrix} X\tr\y \\ \bv \end{pmatrix}.
+$$
+$G$ is partitioned to match the coefficient matrix, so $G_{11}$ is $p \times p$, $G_{12}$ is $p \times q$, $G_{21}$ is $q \times p$, and $G_{22}$ is $q \times q$.
+
+## (a)
+
+Show that $X\bb$ has a unique least squares estimator $X\bhat = XG_{11}X\tr\y + XG_{12}\bv$ and that the vector of residuals is $\ehat = (I - XG_{11}X\tr)\y - XG_{12}\bv$.
+
+**Answer.**
+
+We utilize the following results:
+
+- **Theorem 2.11**: Under Models IIa--VIIa, a linear function $\lam\tr\bb$ is estimable if and only if $\lam\tr \in \R\begin{pmatrix} X \\ A \end{pmatrix}$.
+- **Theorem 2.12**: The constrained normal equations are consistent.
+- **Theorem 2.13**: $Q(\bb) \equiv (\y - X\bb)\tr(\y - X\bb)$ assumes a minimum at $\bb = \bhat$, for $\bb$ satisfying $A\bb = \bv$, if and only if the constrained normal equations have a solution whose first component is $\bhat$.
+- **Corollary to Theorem 2.15**: $X\bhat = X\btil$ for the first components $\bhat$ and $\btil$ of any two solutions to the constrained normal equations.
+- **Theorem 1.2**: A matrix $G$ is a generalized inverse of a matrix $B$ if and only if $\wv = G\cv$ solves $B\wv = \cv$ for every vector $\cv$ for which these equations are consistent.
+
+Each row of $X$ is a row of $\begin{pmatrix} X \\ A \end{pmatrix}$, so each element of $X\bb$ is estimable (Theorem 2.11). By definition, its least squares estimator is the corresponding element of $X\bhat$, for any $\bhat$ minimizing $Q(\bb)$ over the $\bb$ satisfying $A\bb = \bv$. By Theorem 2.13, these $\bhat$ are exactly the first components of solutions to the constrained normal equations, and by the Corollary to Theorem 2.15, $X\bhat$ is the same for all of them. So the least squares estimator of $X\bb$ is unique.
+
+By Theorem 2.12 the constrained normal equations are consistent, so by Theorem 1.2 one solution is
+$$
+G \begin{pmatrix} X\tr\y \\ \bv \end{pmatrix} = \begin{pmatrix} G_{11}X\tr\y + G_{12}\bv \\ G_{21}X\tr\y + G_{22}\bv \end{pmatrix},
+$$
+with first component $G_{11}X\tr\y + G_{12}\bv$. By the uniqueness just shown,
+$$
+X\bhat = X(G_{11}X\tr\y + G_{12}\bv) = XG_{11}X\tr\y + XG_{12}\bv,
+$$
+whichever generalized inverse $G$ is used, and the vector of residuals is
+$$
+\ehat = \y - X\bhat = (I - XG_{11}X\tr)\y - XG_{12}\bv.
+$$
+
+## (b)
+
+*Use Theorem 2.14 and Lemma 2.13 to show (b) and (c).*
+
+$\E(\ehat) = \zero$ for all $\bb$ satisfying $A\bb = \bv$.
+
+**Answer.**
+
+We utilize the following results:
+
+- **Theorem 2.14(ii)**: For any generalized inverse $G$ of the coefficient matrix,
+  $-A\tr G_{22}A = -A\tr G_{22}\tr A = X\tr XG_{21}\tr A = A\tr G_{21}X\tr X = X\tr XG_{12}A = A\tr G_{12}\tr X\tr X$.
+- **Lemma 2.13**: For any generalized inverse $G$ of the coefficient matrix, $X\tr X = X\tr XG_{11}X\tr X - A\tr G_{22}A$.
+- **Lemma 1.3(ii)**: For any matrices $M$, $P$, and $Q$ of appropriate dimensions, $M\tr MP = M\tr MQ$ implies $MP = MQ$.
+
+By Theorem 2.14(ii), $X\tr XG_{12}A = -A\tr G_{22}A$, so by Lemma 2.13,
+$$
+X\tr X(G_{11}X\tr X + G_{12}A) = X\tr XG_{11}X\tr X - A\tr G_{22}A = X\tr X = X\tr X I_p.
+$$
+Lemma 1.3(ii), with $M = X$, $P = G_{11}X\tr X + G_{12}A$, and $Q = I_p$, then gives
+$$
+XG_{11}X\tr X + XG_{12}A = X. \tag{Q2 (b)}
+$$
+Under Models IIa--VIIa, $\E(\y) = X\bb$. So by part (a) and (Q2 (b)), for any $\bb$ satisfying $A\bb = \bv$,
+$$
+\E(\ehat) = (I - XG_{11}X\tr)X\bb - XG_{12}\bv = (X - XG_{11}X\tr X - XG_{12}A)\bb = \zero_n,
+$$
+where the second equality substitutes $\bv = A\bb$.
+
+## (c)
+
+$XG_{11}X\tr$ and $I - XG_{11}X\tr$ are symmetric and idempotent matrices.
+
+**Answer.**
+
+We utilize Lemma 1.3(ii) (noted in part (b): $M\tr MP = M\tr MQ$ implies $MP = MQ$), along with
+
+- **Theorem 2.14(iv)**: For any generalized inverse $G$ of the coefficient matrix,
+  $X\tr XG_{11}X\tr XG_{11}X\tr X = X\tr XG_{11}X\tr X = X\tr XG_{11}\tr X\tr XG_{11}X\tr X = X\tr XG_{11}\tr X\tr X$.
+
+*$XG_{11}X\tr$ is symmetric.* By Theorem 2.14(iv), $X\tr X(G_{11}X\tr X) = X\tr X(G_{11}\tr X\tr X)$, so Lemma 1.3(ii) gives $XG_{11}X\tr X = XG_{11}\tr X\tr X$. Transposing, $X\tr X(G_{11}\tr X\tr) = X\tr X(G_{11}X\tr)$, and Lemma 1.3(ii) again gives
+$$
+XG_{11}\tr X\tr = XG_{11}X\tr, \qquad \text{that is,} \qquad (XG_{11}X\tr)\tr = XG_{11}X\tr.
+$$
+
+*$XG_{11}X\tr$ is idempotent.* By Theorem 2.14(iv), $X\tr X(G_{11}X\tr XG_{11}X\tr X) = X\tr X(G_{11}X\tr X)$, so Lemma 1.3(ii) gives
+$$
+(XG_{11}X\tr)(XG_{11}X\tr)X = (XG_{11}X\tr)X.
+$$
+Transposing, and using the symmetry of $XG_{11}X\tr$, $X\tr X(G_{11}X\tr XG_{11}X\tr) = X\tr X(G_{11}X\tr)$. Lemma 1.3(ii) once more gives
+$$
+(XG_{11}X\tr)(XG_{11}X\tr) = XG_{11}X\tr.
+$$
+
+*$I - XG_{11}X\tr$.* It is symmetric, as $I$ and $XG_{11}X\tr$ both are, and it is idempotent, as
+$$
+(I - XG_{11}X\tr)^2 = I - 2XG_{11}X\tr + (XG_{11}X\tr)^2 = I - XG_{11}X\tr.
+$$
+
+# Q3
+
+Take the model to be Model IIa and assume that $\Lambda_1\tr\bb$ and $\Lambda_2\tr\bb$ are both estimable. Let $\bhat$ be the first component of any solution to the constrained normal equations. Show that $\cov(\Lambda_1\tr\bhat, \Lambda_2\tr\bhat) = \sigma^2\Lambda_1\tr G_{11}\Lambda_2$.
+
+**Answer.**
+
+**Note:** $G$ is as defined ahead of Q2. $\Lambda_1$ and $\Lambda_2$ each have $p$ rows, and $\Lambda_j\tr\bb$ being estimable means that $\lam\tr\bb$ is estimable for each column $\lam$ of $\Lambda_j$.
+
+We utilize the following results:
+
+- **Theorem 2.16**: Under Models IIa--VIIa, $\lam\tr\bb$ is estimable if and only if the constrained conjugate normal equations, $X\tr X\rv_1 + A\tr\rv_2 = \lam$ and $A\rv_1 = \zero$, are consistent.
+- **Theorem 2.17**: Under Models IIa--VIIa, the least squares estimate of an estimable function $\lam\tr\bb$ is given by $\rv_1\tr X\tr\y + \rv_2\tr\bv$, where $\begin{pmatrix} \rv_1 \\ \rv_2 \end{pmatrix}$ is any solution to the constrained conjugate normal equations.
+- **Theorem 1.2** (noted in Q2(a)): If $B\wv = \cv$ is consistent, then $\wv = G\cv$ solves it, for any generalized inverse $G$ of $B$.
+- **Corollary to Lemma 2.4**: For a random vector $\ve{x}$ with $\Var(\ve{x}) = \Sigma$ and a matrix of constants $L$, $\Var(L\tr\ve{x}) = L\tr\Sigma L$.
+
+Let $\lam$ be any column of $\Lambda_1$ or of $\Lambda_2$. Since $\lam\tr\bb$ is estimable, the constrained conjugate normal equations are consistent (Theorem 2.16), and their coefficient matrix is the one for which $G$ is a generalized inverse. So by Theorem 1.2 they are solved by
+$$
+\begin{pmatrix} \rv_1 \\ \rv_2 \end{pmatrix} = G \begin{pmatrix} \lam \\ \zero \end{pmatrix} = \begin{pmatrix} G_{11}\lam \\ G_{21}\lam \end{pmatrix}.
+$$
+Collecting these solutions column by column, let
+$$
+R_1 \equiv G_{11}\Lambda_1, \qquad R_2 \equiv G_{21}\Lambda_1, \qquad S_1 \equiv G_{11}\Lambda_2, \qquad S_2 \equiv G_{21}\Lambda_2,
+$$
+so that
+$$
+X\tr XR_1 + A\tr R_2 = \Lambda_1, \qquad AS_1 = 0,
+$$
+and, by Theorem 2.17 applied to each column,
+$$
+\Lambda_1\tr\bhat = R_1\tr X\tr\y + R_2\tr\bv, \qquad \Lambda_2\tr\bhat = S_1\tr X\tr\y + S_2\tr\bv.
+$$
+
+Under Model IIa, $\Var(\y) = \sigma^2 I$, and $R_2\tr\bv$ and $S_2\tr\bv$ are constants. So by the Corollary to Lemma 2.4, with $L = (XR_1, \; XS_1)$,
+$$
+\Var\begin{pmatrix} \Lambda_1\tr\bhat \\ \Lambda_2\tr\bhat \end{pmatrix} = L\tr(\sigma^2 I)L = \sigma^2 \begin{pmatrix} R_1\tr X\tr XR_1 & R_1\tr X\tr XS_1 \\ S_1\tr X\tr XR_1 & S_1\tr X\tr XS_1 \end{pmatrix},
+$$
+whose upper-right block is $\cov(\Lambda_1\tr\bhat, \Lambda_2\tr\bhat) = \sigma^2 R_1\tr X\tr XS_1$. Finally, $R_1\tr X\tr X = (\Lambda_1 - A\tr R_2)\tr = \Lambda_1\tr - R_2\tr A$ and $AS_1 = 0$, so
+$$
+\cov(\Lambda_1\tr\bhat, \Lambda_2\tr\bhat) = \sigma^2(\Lambda_1\tr - R_2\tr A)S_1 = \sigma^2\Lambda_1\tr S_1 = \sigma^2\Lambda_1\tr G_{11}\Lambda_2.
+$$
+
+# Q4
+
+Prove Theorem 2.18, the generalization of the Gauss-Markov theorem to Models IIa--VIIa.
+
+**Answer.**
+
+**Theorem 2.18.** Under Models IIa--VIIa, if $\lam\tr\bb$ is estimable and $\bhat$ is the first component of any solution to the constrained normal equations, then $\lam\tr\bhat$ is a linear unbiased estimator of $\lam\tr\bb$. Under Model IIa, the variance of $\lam\tr\bhat$ is uniformly less than that of any other linear unbiased estimator of $\lam\tr\bb$, that is, $\lam\tr\bhat$ is the best (minimum variance) linear unbiased estimator (BLUE) of $\lam\tr\bb$.
+
+We utilize the following results:
+
+- **Lemma 2.9**: Under Models IIa--VIIa, a linear estimator $c + \av\tr\y$ of a linear function $\lam\tr\bb$ is unbiased if and only if there exists a vector $\kv$ such that $c = \kv\tr\bv$ and $\lam\tr = \av\tr X + \kv\tr A$.
+- **Theorem 2.16** (noted in Q3): Under Models IIa--VIIa, $\lam\tr\bb$ is estimable if and only if the constrained conjugate normal equations, $X\tr X\rv_1 + A\tr\rv_2 = \lam$ and $A\rv_1 = \zero$, are consistent.
+- **Theorem 2.17** (noted in Q3): Under Models IIa--VIIa, the least squares estimate of an estimable $\lam\tr\bb$ is $\rv_1\tr X\tr\y + \rv_2\tr\bv$, for any solution $\rv_1$, $\rv_2$ to the constrained conjugate normal equations.
+- **Corollary to Lemma 2.4** (noted in Q3): $\Var(L\tr\ve{x}) = L\tr\Var(\ve{x})L$ for a matrix of constants $L$.
+
+**Proof:**
+
+*$\lam\tr\bhat$ is linear and unbiased (Models IIa--VIIa).* Since $\lam\tr\bb$ is estimable, by Theorem 2.16 there are vectors $\rv_1$ and $\rv_2$ with
+$$
+X\tr X\rv_1 + A\tr\rv_2 = \lam \qquad \text{and} \qquad A\rv_1 = \zero_q.
+$$
+By Theorem 2.17,
+$$
+\lam\tr\bhat = \rv_1\tr X\tr\y + \rv_2\tr\bv = c + \av\tr\y, \qquad \text{where } c \equiv \rv_2\tr\bv \text{ and } \av \equiv X\rv_1,
+$$
+which is a linear estimator. And $\av\tr X + \rv_2\tr A = (X\tr X\rv_1 + A\tr\rv_2)\tr = \lam\tr$, so by Lemma 2.9 (with $\kv = \rv_2$), $\lam\tr\bhat$ is unbiased for $\lam\tr\bb$.
+
+*$\lam\tr\bhat$ is the BLUE (Model IIa).* Let $c_0 + \av_0\tr\y$ be any linear unbiased estimator of $\lam\tr\bb$. By Lemma 2.9, there is a vector $\kv$ with $c_0 = \kv\tr\bv$ and $\lam\tr = \av_0\tr X + \kv\tr A$. Set $\dv \equiv \av_0 - \av$. Then
+$$
+X\tr\dv = X\tr\av_0 - X\tr X\rv_1 = (\lam - A\tr\kv) - (\lam - A\tr\rv_2) = A\tr(\rv_2 - \kv),
+$$
+so that
+$$
+\av\tr\dv = \rv_1\tr X\tr\dv = (A\rv_1)\tr(\rv_2 - \kv) = 0.
+$$
+Under Model IIa, $\Var(\y) = \sigma^2 I_n$, so by the Corollary to Lemma 2.4,
+$$
+\Var(c_0 + \av_0\tr\y) = \sigma^2\av_0\tr\av_0 = \sigma^2(\av + \dv)\tr(\av + \dv) = \sigma^2\av\tr\av + \sigma^2\dv\tr\dv = \Var(\lam\tr\bhat) + \sigma^2\dv\tr\dv.
+$$
+Since $\sigma^2 > 0$, and $\dv\tr\dv \ge 0$ with equality if and only if $\dv = \zero_n$,
+$$
+\Var(c_0 + \av_0\tr\y) \ge \Var(\lam\tr\bhat), \qquad \text{with equality if and only if } \av_0 = \av.
+$$
+
+It remains to show that $\av_0 = \av$ only for $\lam\tr\bhat$ itself. If $\av_0 = \av$, then $(\kv - \rv_2)\tr A = (\lam\tr - \av\tr X) - (\lam\tr - \av\tr X) = \zero_p\tr$. Since $A\bb = \bv$ is consistent, $\bv = A\bb_0$ for some $\bb_0$, and so $c_0 - c = (\kv - \rv_2)\tr A\bb_0 = 0$.
+
+Hence any other linear unbiased estimator of $\lam\tr\bb$ has $\dv \neq \zero_n$, and its variance exceeds that of $\lam\tr\bhat$ by $\sigma^2\dv\tr\dv > 0$, whatever the value of $\sigma^2 > 0$. So the variance of $\lam\tr\bhat$ is uniformly less than that of any other linear unbiased estimator of $\lam\tr\bb$; that is, $\lam\tr\bhat$ is the BLUE of $\lam\tr\bb$.
+
+# Q5
+
+Suppose that $\y$ is an $n \times 1$ observable random vector that follows the model
+$$
+\y = X\bb + Z\bv + \ev,
+$$
+where $X$ is an $n \times p$ known matrix of rank $p^*$, $Z$ is an $n \times q$ known matrix, and $\bb$ is a $p \times 1$ vector of unknown parameters. Furthermore, suppose that $\bv$ and $\ev$ are independent random vectors with $\bv \sim N(\zero, \sigma^2 D)$ and $\ev \sim N(\zero, \sigma^2 I)$, where $\sigma^2$ is an unknown positive parameter, and $D$ is a given positive definite matrix.
+
+## (a)
+
+Show that this model is an Aitken model (Model III) with $H$ nonsingular.
+
+**Answer.**
+
+**Note:** In Model III, $\y = X\bb + \eps$ with $\E(\eps) = \zero$ and $\Var(\eps) = \sigma^2 H$, where $H$ is a given nonnegative definite matrix.
+
+Let $\eps \equiv Z\bv + \ev$, so that $\y = X\bb + \eps$. Then
+$$
+\E(\eps) = Z\E(\bv) + \E(\ev) = \zero_n.
+$$
+Since $\bv$ and $\ev$ are independent, $Z\bv$ and $\ev$ are uncorrelated, and $\Var(Z\bv) = Z(\sigma^2 D)Z\tr$ by the Corollary to Lemma 2.4, which states that $\Var(L\tr\ve{x}) = L\tr\Sigma L$ for a random vector $\ve{x}$ with $\Var(\ve{x}) = \Sigma$ and a matrix of constants $L$. So
+$$
+\Var(\eps) = \Var(Z\bv) + \Var(\ev) = \sigma^2 ZDZ\tr + \sigma^2 I_n = \sigma^2 H, \qquad \text{where } H \equiv I_n + ZDZ\tr.
+$$
+$H$ is a given matrix, as $Z$ and $D$ are. It is symmetric, and for any $n \times 1$ vector $\vv \neq \zero_n$,
+$$
+\vv\tr H\vv = \vv\tr\vv + (Z\tr\vv)\tr D(Z\tr\vv) \ge \vv\tr\vv > 0,
+$$
+since $D$ is positive definite. So $H$ is positive definite. In particular, $H$ is nonnegative definite, and $H$ is nonsingular: if $H\vv = \zero_n$, then $\vv\tr H\vv = 0$, which forces $\vv = \zero_n$.
+
+Hence $\y = X\bb + \eps$ with $\E(\eps) = \zero_n$ and $\Var(\eps) = \sigma^2 H$, where $\sigma^2 > 0$ is unknown and $H$ is a given nonnegative definite matrix. This is Model III, with $H = I_n + ZDZ\tr$ nonsingular.
+
+## (b)
+
+Give a BLUE of any estimable function $\lam\tr\bb$. (Simplify your results to the greatest extent possible.)
+
+**Answer.** A BLUE of an estimable $\lam\tr\bb$ is
+$$
+\lam\tr\bhat = \lam\tr(X\tr H^{-1}X)^{-}X\tr H^{-1}\y, \qquad \text{where } H^{-1} = I_n - Z(D^{-1} + Z\tr Z)^{-1}Z\tr.
+$$
+
+We utilize the following results:
+
+- **Theorem 2.19**: Under Model III (with $H$ nonsingular), if $\lam\tr\bb$ is estimable and $\bhat$ is any solution to the Aitken equations $X\tr H^{-1}X\bhat = X\tr H^{-1}\y$, then $\lam\tr\bhat$ is a linear unbiased estimator of $\lam\tr\bb$, and the variance of $\lam\tr\bhat$ is uniformly less than that of any other linear unbiased estimator.
+- **Theorem 2.3**: The normal equations $X\tr X\bhat = X\tr\y$ are consistent.
+- **Theorem 1.2** (noted in Q2(a)): If $B\wv = \cv$ is consistent, then $\wv = G\cv$ solves it, for any generalized inverse $G$ of $B$.
+
+By part (a), the model is Model III with $H = I_n + ZDZ\tr$ nonsingular. So by Theorem 2.19, $\lam\tr\bhat$ is a BLUE of $\lam\tr\bb$ for any solution $\bhat$ to the Aitken equations. Writing $H = R\tr R$ with $R$ nonsingular, the Aitken equations are the normal equations $W\tr W\bhat = W\tr\zv$ of the transformed model, with $W = (R^{-1})\tr X$ and $\zv = (R^{-1})\tr\y$. So they are consistent (Theorem 2.3), and by Theorem 1.2 one solution is
+$$
+\bhat = (X\tr H^{-1}X)^{-}X\tr H^{-1}\y.
+$$
+
+To simplify $H^{-1}$: since $D$ is positive definite, so is $D^{-1}$, and hence so is $D^{-1} + Z\tr Z$, which is then nonsingular (as in part (a)). Since $Z + ZDZ\tr Z = ZD(D^{-1} + Z\tr Z)$,
+$$
+(I_n + ZDZ\tr)\{I_n - Z(D^{-1} + Z\tr Z)^{-1}Z\tr\} = I_n + ZDZ\tr - ZD(D^{-1} + Z\tr Z)(D^{-1} + Z\tr Z)^{-1}Z\tr = I_n.
+$$
+So $H^{-1} = I_n - Z(D^{-1} + Z\tr Z)^{-1}Z\tr$, which needs only $q \times q$ inverses. Substituting, the BLUE is
+$$
+\lam\tr\bhat = \lam\tr\{X\tr X - X\tr Z(D^{-1} + Z\tr Z)^{-1}Z\tr X\}^{-}\{X\tr\y - X\tr Z(D^{-1} + Z\tr Z)^{-1}Z\tr\y\}.
+$$
+
+## (c)
+
+Suppose that there exists a $p \times q$ matrix $Q$ such that $Z = XQ$. Give a simple expression for a BLUE of any estimable function $\lam\tr\bb$ and explain your reasoning. The expression that you give should NOT involve $D$.
+
+**Answer.** A BLUE of an estimable $\lam\tr\bb$ is its simple least squares estimator,
+$$
+\lam\tr(X\tr X)^{-}X\tr\y.
+$$
+
+We utilize Theorem 2.3 (the normal equations are consistent) and Theorem 1.2 (if $B\wv = \cv$ is consistent, then $G\cv$ solves it, for any generalized inverse $G$ of $B$), both noted in part (b), along with
+
+- **Corollary 1 to Theorem 2.21**: Under Model III, the SLSE of an estimable function $\lam\tr\bb$ is a BLUE of $\lam\tr\bb$ for every $\lam$ for which $\lam\tr\bb$ is estimable if and only if there exists a matrix $T$ such that $HX = XT$. (The notes call this matrix $Q$; we write $T$ to keep it apart from the $Q$ of this problem.)
+
+With $Z = XQ$, part (a) gives $H = I_n + XQDQ\tr X\tr$, so
+$$
+HX = X + XQDQ\tr X\tr X = XT, \qquad \text{where } T \equiv I_p + QDQ\tr X\tr X.
+$$
+So by Corollary 1 to Theorem 2.21, the SLSE of every estimable $\lam\tr\bb$ is a BLUE. The SLSE is $\lam\tr\btil$ for any solution $\btil$ to the normal equations $X\tr X\btil = X\tr\y$. These are consistent (Theorem 2.3), so by Theorem 1.2 we may take $\btil = (X\tr X)^{-}X\tr\y$, which gives the BLUE
+$$
+\lam\tr\btil = \lam\tr(X\tr X)^{-}X\tr\y.
+$$
+This involves neither $D$ nor $Z$.
+
+\newpage
+
+# Q6
+
+Consider the following model for a balanced two-way classification:
+$$
+y_{ij} = \mu + \tau_i + \gamma_j + \epsilon_{ij} \quad (i = 1, \dots, t, \;\; j = 1, \dots, c);
+$$
+where $\mu, \tau_1, \dots, \tau_t, \gamma_1, \dots, \gamma_c$ are unknown parameters; where $\epsilon_{11}, \dots, \epsilon_{tc}$ are random errors, with $\E(\epsilon_{ij}) = 0$, $\Var(\epsilon_{ij}) = \sigma^2$, $\corr(\epsilon_{ij}, \epsilon_{ij'}) = \rho$ for $j' \neq j$, and $\corr(\epsilon_{ij}, \epsilon_{i'j'}) = 0$ for $i \neq i'$; and where $\sigma^2$ and $\rho$ are unknown parameters satisfying $\sigma^2 > 0$ and $\rho > -1/(c - 1)$ with $c > 1$. Establish whether or not the variance of the SLSE of every estimable function is uniformly less than or equal to that of any other linear unbiased estimator of that estimable function.
+
+*Hint:* Writing $\y = (y_{11}, \dots, y_{1c}, \dots, y_{t1}, \dots, y_{tc})\tr$, $\eps = (\epsilon_{11}, \dots, \epsilon_{1c}, \dots, \epsilon_{t1}, \dots, \epsilon_{tc})\tr$, and $\bb = (\mu, \tau_1, \dots, \tau_t, \gamma_1, \dots, \gamma_c)\tr$, then the model matrix $X$ (which is $(tc) \times (1 + t + c)$) and the variance matrix (which is $(tc) \times (tc)$) can be expressed as
+$$
+X = \begin{pmatrix}
+\one & \one & \zero & \cdots & \zero & I \\
+\one & \zero & \one & \cdots & \zero & I \\
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots \\
+\one & \zero & \zero & \cdots & \one & I
+\end{pmatrix}.
+\qquad
+V = \Var(\eps) = \sigma^2 \begin{pmatrix}
+A & & & \\
+& A & & \\
+& & \ddots & \\
+& & & A
+\end{pmatrix}.
+$$
+Above $\one = (1, \dots, 1)\tr$ and $\zero = (0, \dots, 0)\tr$ are $c \times 1$ column vectors, while $I$ be a $c \times c$ identity matrix and $A = (1 - \rho)I + \rho\one\,\one\tr$.
+
+**Answer.** Yes. The SLSE of every estimable function is a BLUE: its variance is uniformly less than or equal to that of any other linear unbiased estimator of that function.
+
+We utilize the following result:
+
+- **Remarks following Corollary 2 to Theorem 2.21**: Under Model VII with variance $V$, the SLSE of an estimable function $\lam\tr\bb$ is a BLUE of $\lam\tr\bb$ for every $\lam$ for which $\lam\tr\bb$ is estimable if and only if there exists a $Q$ such that $VX = XQ$, where the elements of $Q$ may be functions of $\ve{\theta}$.
+
+Here $\E(\eps) = \zero$, and $\Var(\eps) = V$ depends on the unknown $\ve{\theta} = (\sigma^2, \rho)\tr$, so the model is a special case of Model VII. It then suffices to find a matrix $Q$ with $VX = XQ$.
+
+Partition $X = (\ve{x}_0, \; X_1, \; X_2)$, where $\ve{x}_0$ is the first column of $X$ (a $tc \times 1$ vector of ones), $X_1$ is the next $t$ columns, and $X_2$ is the last $c$ columns. Let $a \equiv 1 + (c - 1)\rho$. Since $\one\tr\one = c$,
+$$
+A\one = (1 - \rho)\one + \rho\one(\one\tr\one) = a\one.
+$$
+$V$ is block diagonal, so $V$ multiplies each $c$-row block of $X$ by $\sigma^2 A$. These blocks are $\one$ in $\ve{x}_0$, are $\one$ or $\zero$ in each column of $X_1$, and are $I$ in $X_2$, with $\sigma^2 A\one = \sigma^2 a\one$ and $\sigma^2 AI = \sigma^2\{(1 - \rho)I + \rho\one\,\one\tr\}$. Hence
+$$
+V\ve{x}_0 = \sigma^2 a\,\ve{x}_0, \qquad VX_1 = \sigma^2 a X_1, \qquad VX_2 = \sigma^2\{(1 - \rho)X_2 + \rho\,\ve{x}_0\one\tr\},
+$$
+where the last uses that $\ve{x}_0\one\tr$ has each $c$-row block equal to $\one\,\one\tr$. Therefore
+$$
+VX = XQ, \qquad \text{where } Q \equiv \sigma^2 \begin{pmatrix}
+a & 0 & \rho\one\tr \\
+0 & a I_t & 0 \\
+0 & 0 & (1 - \rho) I_c
+\end{pmatrix},
+$$
+with $Q$ partitioned into row and column blocks of sizes $1$, $t$, and $c$, to match $(\ve{x}_0, X_1, X_2)$, and with each $0$ a block of zeros of the appropriate size.
+
+This holds for every $\sigma^2$ and $\rho$ in the parameter space. So by the Remarks following Corollary 2 to Theorem 2.21, the SLSE of every estimable function is a BLUE, for every $\sigma^2$ and $\rho$. That is, its variance is uniformly less than or equal to that of any other linear unbiased estimator of that estimable function.
