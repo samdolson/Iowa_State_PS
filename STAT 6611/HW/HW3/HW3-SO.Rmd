@@ -84,7 +84,7 @@ so model (2) has three free mean parameters to model (1)'s four.
 
 In both models, the $y_i$'s vary about this mean with the same variance $\sigma^2$ on either side of $t$.
 
-The plots below show the general shape of each fitted model, using data simulated under that model. Each line is labelled with the mean it estimates. In the plot for model (1), the filled and open circles mark that the value at $x = t$ belongs to the left-hand line (as $z = 0$ there).
+The plots below show the general shape of each fitted model, using data simulated under that model; the signs of the slopes and of the jump are arbitrary. Each line is labelled with the mean it estimates. In the plot for model (1), the filled and open circles mark that the value at $x = t$ belongs to the left-hand line (as $z = 0$ there).
 
 ```{r q1-sketch, echo=FALSE, fig.width=7, fig.height=3.3, fig.align="center"}
 set.seed(6611)
@@ -151,7 +151,7 @@ For each of the following two statements, decide whether the statement is correc
 **Note:** Both models have the $n \times 4$ model matrix $X$ whose $i$th row is $(1, z_i, x_i, x_i z_i)$. By Theorem 2.1, which states that under Models II--VII, $\lam\tr\bb$ is estimable if and only if $\lam\tr \in \R(X)$, the estimability of all four $\beta$'s puts every $1 \times 4$ unit vector in $\R(X)$. So $\rank(X) = 4$, that is, the columns of $X$ are linearly independent. This requires at least two distinct values among the $x_i \le t$, and at least two among the $x_i > t$:
 
 - if the $x_i > t$ all equaled a common value $x_*$ (or there were none), the fourth column of $X$ would be $x_*$ times the second;
-- if the $x_i \le t$ all equaled a common value $x_*$ (or there were none), the third column minus the fourth would be $x_*$ times the first minus the second.
+- if the $x_i \le t$ all equaled a common value $x_*$ (or there were none), the third column minus the fourth would be $x_*$ times the difference of the first and second.
 
 ### Statement 1
 
@@ -174,7 +174,7 @@ By definition, the constrained least squares estimator of $\gamma_2$ is the corr
 $$
 X\gam = M\gam_*, \qquad \text{where } \gam_* \equiv (\gamma_0, \gamma_2, \gamma_3)\tr
 $$
-and $M$ is the $n \times 3$ matrix whose $i$th row is $(1, x_i, (x_i - t) z_i)$. As $\gam$ ranges over the constraint set, $\gam_*$ ranges over $\Real^3$. So $\widehat\gamma_2$ is the ordinary least squares estimator of $\gamma_2 = \lam\tr\gam_*$, with $\lam \equiv (0, 1, 0)\tr$, under the unconstrained model $\y = M\gam_* + \eps$, which is of the form of Model II. (Here $\rank(M) = 3$, as $M\gam_* = \zero_n$ gives $X\gam = \zero_n$ and so $\gam = \zero_4$; hence $\lam\tr\gam_*$ is estimable.)
+and $M$ is the $n \times 3$ matrix whose $i$th row is $(1, x_i, (x_i - t) z_i)$. As $\gam$ ranges over the constraint set, $\gam_*$ ranges over $\Real^3$. So $\widehat\gamma_2$ is the ordinary least squares estimator of $\gamma_2 = \lam\tr\gam_*$, with $\lam \equiv (0, 1, 0)\tr$, under the unconstrained model $\y = M\gam_* + \eps$, which is of the form of Model II. (Here $\rank(M) = 3$: if $M\gam_* = \zero_n$, then $X\gam = \zero_n$, so $\gam = \zero_4$ by the Note and $\gam_* = \zero_3$. Hence $\lam\tr\gam_*$ is estimable.)
 
 We now utilize Theorem 2.8, which states that under Models II--VII, the least squares estimate of an estimable $\lam\tr\bb$ equals $\rv\tr X\tr\y$, where $\rv$ is any solution to $X\tr X\rv = \lam$. With $M$ in place of $X$,
 $$
@@ -326,14 +326,14 @@ Take the model to be Model IIa and assume that $\Lambda_1\tr\bb$ and $\Lambda_2\
 
 We utilize the following results:
 
-- **Theorem 2.16**: Under Models IIa--VIIa, $\lam\tr\bb$ is estimable if and only if the constrained conjugate normal equations, $X\tr X\rv_1 + A\tr\rv_2 = \lam$ and $A\rv_1 = \zero$, are consistent.
+- **Theorem 2.16**: Under Models IIa--VIIa, $\lam\tr\bb$ is estimable if and only if the constrained conjugate normal equations, $X\tr X\rv_1 + A\tr\rv_2 = \lam$ and $A\rv_1 = \zero_q$, are consistent.
 - **Theorem 2.17**: Under Models IIa--VIIa, the least squares estimate of an estimable function $\lam\tr\bb$ is given by $\rv_1\tr X\tr\y + \rv_2\tr\bv$, where $\begin{pmatrix} \rv_1 \\ \rv_2 \end{pmatrix}$ is any solution to the constrained conjugate normal equations.
 - **Theorem 1.2** (noted in Q2(a)): If $B\wv = \cv$ is consistent, then $\wv = G\cv$ solves it, for any generalized inverse $G$ of $B$.
 - **Corollary to Lemma 2.4**: For a random vector $\ve{x}$ with $\Var(\ve{x}) = \Sigma$ and a matrix of constants $L$, $\Var(L\tr\ve{x}) = L\tr\Sigma L$.
 
 Let $\lam$ be any column of $\Lambda_1$ or of $\Lambda_2$. Since $\lam\tr\bb$ is estimable, the constrained conjugate normal equations are consistent (Theorem 2.16), and their coefficient matrix is the one for which $G$ is a generalized inverse. So by Theorem 1.2 they are solved by
 $$
-\begin{pmatrix} \rv_1 \\ \rv_2 \end{pmatrix} = G \begin{pmatrix} \lam \\ \zero \end{pmatrix} = \begin{pmatrix} G_{11}\lam \\ G_{21}\lam \end{pmatrix}.
+\begin{pmatrix} \rv_1 \\ \rv_2 \end{pmatrix} = G \begin{pmatrix} \lam \\ \zero_q \end{pmatrix} = \begin{pmatrix} G_{11}\lam \\ G_{21}\lam \end{pmatrix}.
 $$
 Collecting these solutions column by column, let
 $$
@@ -365,12 +365,9 @@ Prove Theorem 2.18, the generalization of the Gauss-Markov theorem to Models IIa
 
 **Theorem 2.18.** Under Models IIa--VIIa, if $\lam\tr\bb$ is estimable and $\bhat$ is the first component of any solution to the constrained normal equations, then $\lam\tr\bhat$ is a linear unbiased estimator of $\lam\tr\bb$. Under Model IIa, the variance of $\lam\tr\bhat$ is uniformly less than that of any other linear unbiased estimator of $\lam\tr\bb$, that is, $\lam\tr\bhat$ is the best (minimum variance) linear unbiased estimator (BLUE) of $\lam\tr\bb$.
 
-We utilize the following results:
+We utilize Theorems 2.16 and 2.17 and the Corollary to Lemma 2.4 (all noted in Q3), along with
 
 - **Lemma 2.9**: Under Models IIa--VIIa, a linear estimator $c + \av\tr\y$ of a linear function $\lam\tr\bb$ is unbiased if and only if there exists a vector $\kv$ such that $c = \kv\tr\bv$ and $\lam\tr = \av\tr X + \kv\tr A$.
-- **Theorem 2.16** (noted in Q3): Under Models IIa--VIIa, $\lam\tr\bb$ is estimable if and only if the constrained conjugate normal equations, $X\tr X\rv_1 + A\tr\rv_2 = \lam$ and $A\rv_1 = \zero$, are consistent.
-- **Theorem 2.17** (noted in Q3): Under Models IIa--VIIa, the least squares estimate of an estimable $\lam\tr\bb$ is $\rv_1\tr X\tr\y + \rv_2\tr\bv$, for any solution $\rv_1$, $\rv_2$ to the constrained conjugate normal equations.
-- **Corollary to Lemma 2.4** (noted in Q3): $\Var(L\tr\ve{x}) = L\tr\Var(\ve{x})L$ for a matrix of constants $L$.
 
 **Proof:**
 
@@ -403,7 +400,7 @@ $$
 
 It remains to show that $\av_0 = \av$ only for $\lam\tr\bhat$ itself. If $\av_0 = \av$, then $(\kv - \rv_2)\tr A = (\lam\tr - \av\tr X) - (\lam\tr - \av\tr X) = \zero_p\tr$. Since $A\bb = \bv$ is consistent, $\bv = A\bb_0$ for some $\bb_0$, and so $c_0 - c = (\kv - \rv_2)\tr A\bb_0 = 0$.
 
-Hence any other linear unbiased estimator of $\lam\tr\bb$ has $\dv \neq \zero_n$, and its variance exceeds that of $\lam\tr\bhat$ by $\sigma^2\dv\tr\dv > 0$, whatever the value of $\sigma^2 > 0$. So the variance of $\lam\tr\bhat$ is uniformly less than that of any other linear unbiased estimator of $\lam\tr\bb$; that is, $\lam\tr\bhat$ is the BLUE of $\lam\tr\bb$.
+Hence any other linear unbiased estimator of $\lam\tr\bb$ has $\dv \neq \zero_n$, and its variance exceeds that of $\lam\tr\bhat$ by $\sigma^2\dv\tr\dv > 0$, whatever the value of $\sigma^2$. We conclude that the variance of $\lam\tr\bhat$ is uniformly less than that of any other linear unbiased estimator of $\lam\tr\bb$; that is, $\lam\tr\bhat$ is the BLUE of $\lam\tr\bb$. //
 
 # Q5
 
@@ -419,7 +416,7 @@ Show that this model is an Aitken model (Model III) with $H$ nonsingular.
 
 **Answer.**
 
-**Note:** In Model III, $\y = X\bb + \eps$ with $\E(\eps) = \zero$ and $\Var(\eps) = \sigma^2 H$, where $H$ is a given nonnegative definite matrix.
+**Note:** In Model III, $\y = X\bb + \eps$ with $\E(\eps) = \zero_n$ and $\Var(\eps) = \sigma^2 H$, where $H$ is a given nonnegative definite matrix.
 
 Let $\eps \equiv Z\bv + \ev$, so that $\y = X\bb + \eps$. Then
 $$
@@ -435,7 +432,7 @@ $$
 $$
 since $D$ is positive definite. So $H$ is positive definite. In particular, $H$ is nonnegative definite, and $H$ is nonsingular: if $H\vv = \zero_n$, then $\vv\tr H\vv = 0$, which forces $\vv = \zero_n$.
 
-Hence $\y = X\bb + \eps$ with $\E(\eps) = \zero_n$ and $\Var(\eps) = \sigma^2 H$, where $\sigma^2 > 0$ is unknown and $H$ is a given nonnegative definite matrix. This is Model III, with $H = I_n + ZDZ\tr$ nonsingular.
+Hence the model is Model III, with $H = I_n + ZDZ\tr$ nonsingular.
 
 ## (b)
 
@@ -452,7 +449,7 @@ We utilize the following results:
 - **Theorem 2.3**: The normal equations $X\tr X\bhat = X\tr\y$ are consistent.
 - **Theorem 1.2** (noted in Q2(a)): If $B\wv = \cv$ is consistent, then $\wv = G\cv$ solves it, for any generalized inverse $G$ of $B$.
 
-By part (a), the model is Model III with $H = I_n + ZDZ\tr$ nonsingular. So by Theorem 2.19, $\lam\tr\bhat$ is a BLUE of $\lam\tr\bb$ for any solution $\bhat$ to the Aitken equations. Writing $H = R\tr R$ with $R$ nonsingular, the Aitken equations are the normal equations $W\tr W\bhat = W\tr\zv$ of the transformed model, with $W = (R^{-1})\tr X$ and $\zv = (R^{-1})\tr\y$. So they are consistent (Theorem 2.3), and by Theorem 1.2 one solution is
+By part (a), the model is Model III with $H = I_n + ZDZ\tr$ nonsingular. So by Theorem 2.19, $\lam\tr\bhat$ is a BLUE of $\lam\tr\bb$ for any solution $\bhat$ to the Aitken equations. Writing $H = R\tr R$ with $R$ nonsingular (Lemma 2.15), the Aitken equations are the normal equations $W\tr W\bhat = W\tr\zv$ of the transformed model, with $W = (R^{-1})\tr X$ and $\zv = (R^{-1})\tr\y$. So they are consistent (Theorem 2.3), and by Theorem 1.2 one solution is
 $$
 \bhat = (X\tr H^{-1}X)^{-}X\tr H^{-1}\y.
 $$
@@ -523,7 +520,7 @@ We utilize the following result:
 
 - **Remarks following Corollary 2 to Theorem 2.21**: Under Model VII with variance $V$, the SLSE of an estimable function $\lam\tr\bb$ is a BLUE of $\lam\tr\bb$ for every $\lam$ for which $\lam\tr\bb$ is estimable if and only if there exists a $Q$ such that $VX = XQ$, where the elements of $Q$ may be functions of $\ve{\theta}$.
 
-Here $\E(\eps) = \zero$, and $\Var(\eps) = V$ depends on the unknown $\ve{\theta} = (\sigma^2, \rho)\tr$, so the model is a special case of Model VII. It then suffices to find a matrix $Q$ with $VX = XQ$.
+Here $\E(\eps) = \zero_{tc}$, and $\Var(\eps) = V$ depends on the unknown $\ve{\theta} = (\sigma^2, \rho)\tr$, so the model is a special case of Model VII. It then suffices to find a matrix $Q$ with $VX = XQ$.
 
 Partition $X = (\ve{x}_0, \; X_1, \; X_2)$, where $\ve{x}_0$ is the first column of $X$ (a $tc \times 1$ vector of ones), $X_1$ is the next $t$ columns, and $X_2$ is the last $c$ columns. Let $a \equiv 1 + (c - 1)\rho$. Since $\one\tr\one = c$,
 $$
@@ -543,4 +540,4 @@ a & 0 & \rho\one\tr \\
 $$
 with $Q$ partitioned into row and column blocks of sizes $1$, $t$, and $c$, to match $(\ve{x}_0, X_1, X_2)$, and with each $0$ a block of zeros of the appropriate size.
 
-This holds for every $\sigma^2$ and $\rho$ in the parameter space. So by the Remarks following Corollary 2 to Theorem 2.21, the SLSE of every estimable function is a BLUE, for every $\sigma^2$ and $\rho$. That is, its variance is uniformly less than or equal to that of any other linear unbiased estimator of that estimable function.
+This holds for every $\sigma^2$ and $\rho$ in the parameter space. So by the Remarks following Corollary 2 to Theorem 2.21, the SLSE of every estimable function is a BLUE, for every $\sigma^2$ and $\rho$.
