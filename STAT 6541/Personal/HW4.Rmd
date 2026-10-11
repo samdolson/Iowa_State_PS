@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 Let $\Omega_i$, $i = 1, 2$ be two nonempty sets and $T : \Omega_1 \to \Omega_2$ be a map. Then for any collection $\{A_\alpha : \alpha \in I\}$ of subsets of $\Omega_2$, show that
 $$T^{-1}\Big(\bigcup_{\alpha \in I} A_\alpha\Big) = \bigcup_{\alpha \in I} T^{-1}(A_\alpha) \quad \text{and} \quad T^{-1}\Big(\bigcap_{\alpha \in I} A_\alpha\Big) = \bigcap_{\alpha \in I} T^{-1}(A_\alpha).$$
 
-Further, $\big(T^{-1}(A)\big)^c = T^{-1}(A^c)$ for all $A \subset \Omega_2$. (These are known using *de Morgan's* laws.)
+Further, $\big(T^{-1}(A)\big)^c = T^{-1}(A^c)$ for all $A \subset \Omega_2$. (These are known as *de Morgan's* laws.)
 
 ## Answer
 
@@ -49,17 +49,15 @@ Verify that $h$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurab
 
 ## Answer
 
-*Proof.* Define $\psi : \mathbb{R}^2 \to \mathbb{R}$ by
-$$\psi(x, y) \equiv \frac{x}{y}\, I(y \neq 0) = \begin{cases} x/y & \text{if } y \neq 0, \\ 0 & \text{if } y = 0, \end{cases}$$
-so that $h(\omega) = \psi(f(\omega), g(\omega))$ for all $\omega \in \Omega$, i.e., $h = \psi \circ \zeta$ with $\zeta \equiv (f, g)$.
+*Proof.* Define $r : \mathbb{R} \to \mathbb{R}$ by
+$$r(y) \equiv \frac{1}{y}\, I(y \neq 0) = \begin{cases} 1/y & \text{if } y \neq 0, \\ 0 & \text{if } y = 0, \end{cases}$$
+so that $h = f \cdot (r \circ g)$: where $g(\omega) \neq 0$, both sides equal $f(\omega)/g(\omega)$, and where $g(\omega) = 0$, both sides equal $0$.
 
-We first show that $\psi$ is $\langle\mathcal{B}(\mathbb{R}^2), \mathcal{B}(\mathbb{R})\rangle$-measurable. Let $a \in \mathbb{R}$ be given. For $y > 0$, $x/y \leq a$ iff $x - ay \leq 0$; for $y < 0$, $x/y \leq a$ iff $x - ay \geq 0$; and for $y = 0$, $\psi(x, y) = 0 \leq a$ iff $a \geq 0$. Hence
-$$\psi^{-1}((-\infty, a]) = \{(x, y) : y > 0,\ x - ay \leq 0\} \cup \{(x, y) : y < 0,\ x - ay \geq 0\} \cup \{(x, y) : y = 0,\ a \geq 0\},$$
-where the last set is $\mathbb{R} \times \{0\}$ if $a \geq 0$ and $\emptyset$ if $a < 0$.
+We first show that $r$ is $\langle\mathcal{B}(\mathbb{R}), \mathcal{B}(\mathbb{R})\rangle$-measurable. Let $a \in \mathbb{R}$ be given. If $a < 0$, then $r(y) \leq a$ forces $y < 0$, and for $y < 0$, $1/y \leq a$ iff $y \geq 1/a$. If $a \geq 0$, then $r(y) \leq a$ for every $y \leq 0$, and for $y > 0$, $1/y \leq a$ iff $a > 0$ and $y \geq 1/a$. Hence
+$$r^{-1}((-\infty, a]) = \begin{cases} [1/a,\, 0) & \text{if } a < 0, \\ (-\infty, 0] & \text{if } a = 0, \\ (-\infty, 0] \cup [1/a,\, \infty) & \text{if } a > 0, \end{cases}$$
+a Borel set in every case. Since $a \in \mathbb{R}$ was arbitrary and $\mathcal{B}(\mathbb{R}) = \sigma\langle\{(-\infty, a] : a \in \mathbb{R}\}\rangle$, $r$ is $\langle\mathcal{B}(\mathbb{R}), \mathcal{B}(\mathbb{R})\rangle$-measurable by Proposition 2.1.1(i).
 
-Since $(x, y) \mapsto x - ay$ and $(x, y) \mapsto y$ are continuous on $\mathbb{R}^2$, they are $\langle\mathcal{B}(\mathbb{R}^2), \mathcal{B}(\mathbb{R})\rangle$-measurable by Proposition 2.1.2. Hence $\{y > 0\}$, $\{y < 0\}$, $\{y = 0\}$, $\{x - ay \leq 0\}$, and $\{x - ay \geq 0\}$ are in $\mathcal{B}(\mathbb{R}^2)$, as preimages of Borel sets, and so $\psi^{-1}((-\infty, a]) \in \mathcal{B}(\mathbb{R}^2)$. Since $a \in \mathbb{R}$ was arbitrary and $\mathcal{B}(\mathbb{R}) = \sigma\langle\{(-\infty, a] : a \in \mathbb{R}\}\rangle$, $\psi$ is $\langle\mathcal{B}(\mathbb{R}^2), \mathcal{B}(\mathbb{R})\rangle$-measurable by Proposition 2.1.1(i).
-
-By Proposition 2.1.3(i), $\zeta = (f, g)$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R}^2)\rangle$-measurable. Hence $h = \psi \circ \zeta$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Proposition 2.1.1(ii). //
+Then $r \circ g$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Proposition 2.1.1(ii), and so $h = f \cdot (r \circ g)$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Corollary 2.1.4. //
 
 # Q3: 2.6
 
@@ -72,10 +70,12 @@ Show that $A \equiv \{\omega \in \Omega : \text{Equation (6.1) has two distinct 
 
 ### Answer
 
-*Proof.* Let $D \equiv X_2^2 - 4X_1X_3$, and let $\omega \in \Omega$ be given. If $X_1(\omega) \neq 0$, then (6.1) is a quadratic in $t$ with discriminant $D(\omega)$, and so has two distinct real roots iff $D(\omega) > 0$. If $X_1(\omega) = 0$, then (6.1) reduces to $X_2(\omega)t + X_3(\omega) = 0$, whose solution set is a single point, empty, or all of $\mathbb{R}$, and so never consists of two distinct real roots. Since $\omega \in \Omega$ was arbitrary,
-$$A =\{\omega : X_1(\omega) \neq 0\} \cap \{\omega : D(\omega) > 0\} = X_1^{-1}(\mathbb{R} \setminus \{0\}) \cap D^{-1}((0, \infty)).$$
+*Proof.* Let $D \equiv X_2^2 - 4X_1X_3$. We claim
+$$A = \{\omega : X_1(\omega) \neq 0,\ D(\omega) > 0\}.$$
+If $X_1(\omega) \neq 0$, then (6.1) is a quadratic in $t$ with discriminant $D(\omega)$, which has two distinct real roots iff $D(\omega) > 0$. If $X_1(\omega) = 0$, then (6.1) is the linear equation $X_2(\omega)t + X_3(\omega) = 0$, which has one root, no roots, or (when $X_2(\omega) = X_3(\omega) = 0$) every $t \in \mathbb{R}$ as a root, but never exactly two.
 
-Since $X_1, X_2, X_3$ are random variables, they are $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable (Definition 2.1.2(b)), and hence so is $D$ by Corollary 2.1.4. Since $\mathbb{R} \setminus \{0\}$ and $(0, \infty)$ are open, they are in $\mathcal{B}(\mathbb{R})$, so both preimages above are in $\mathcal{F}$. Thus $A \in \mathcal{F}$. //
+Since $X_1, X_2, X_3$ are $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable (Definition 2.1.2(b)), so is $D$ by Corollary 2.1.4. As $\mathbb{R} \setminus \{0\}$ and $(0, \infty)$ are Borel sets,
+$$A = X_1^{-1}(\mathbb{R} \setminus \{0\}) \cap D^{-1}((0, \infty)) \in \mathcal{F}. \quad //$$
 
 ## (b)
 
@@ -85,14 +85,12 @@ $i = 1, 2$. Show that $(f_1, f_2)$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R
 
 ### Answer
 
-*Proof.* Let $D$ be as in (a), so that $D$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable and $A = \{X_1 \neq 0\} \cap \{D > 0\} \in \mathcal{F}$. Label the two roots on $A$ by the quadratic formula:
+*Proof.* Let $D$ be as in (a), and label the two roots on $A$ by the quadratic formula:
 $$T_1 = \frac{-X_2 + \sqrt{D}}{2X_1}, \qquad T_2 = \frac{-X_2 - \sqrt{D}}{2X_1}.$$
+Let $R \equiv \sqrt{\max\{D, 0\}}$ and $W \equiv \frac{1}{2X_1}\, I(2X_1 \neq 0)$. On $A$, $R = \sqrt{D}$ and $W = 1/(2X_1)$, while $I_A = 0$ on $A^c$, so
+$$f_1 = (-X_2 + R)\, W\, I_A \qquad \text{and} \qquad f_2 = (-X_2 - R)\, W\, I_A.$$
 
-Since $y \mapsto \sqrt{\max\{y, 0\}}$ is continuous on $\mathbb{R}$, $S \equiv \sqrt{\max\{D, 0\}}$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Proposition 2.1.3(iv), and $S = \sqrt{D}$ on $A$. Since $A \in \mathcal{F}$, $I_A$ is also $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable: $I_A^{-1}((-\infty, a])$ is $\emptyset$, $A^c$, or $\Omega$ according as $a < 0$, $0 \leq a < 1$, or $a \geq 1$.
-
-Let $u_1 \equiv -X_2 + S$, $u_2 \equiv -X_2 - S$, and $v \equiv 2X_1 I_A$, each of which is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Corollary 2.1.4. Since $X_1 \neq 0$ on $A$, $v(\omega) \neq 0$ iff $\omega \in A$, and $u_i / v = T_i$ on $A$. Thus, for $i = 1, 2$,
-$$f_i(\omega) = \frac{u_i(\omega)}{v(\omega)}\, I(v(\omega) \neq 0), \quad \omega \in \Omega,$$
-and so $f_i$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Q2. Hence $(f_1, f_2)$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R}^2)\rangle$-measurable by Proposition 2.1.3(i). //
+Each factor is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable. Since $y \mapsto \sqrt{\max\{y, 0\}}$ is continuous on $\mathbb{R}$ and $D$ is measurable by (a), $R$ is measurable by Proposition 2.1.3(iv). Taking $f \equiv 1$ and $g = 2X_1$ in Q2 shows that $W$ is measurable. Since $A \in \mathcal{F}$ by (a), $I_A$ is measurable, as $I_A^{-1}((-\infty, a])$ is $\emptyset$, $A^c$, or $\Omega$ according as $a < 0$, $0 \leq a < 1$, or $a \geq 1$. Hence $f_1$ and $f_2$ are $\langle\mathcal{F}, \mathcal{B}(\mathbb{R})\rangle$-measurable by Corollary 2.1.4, and $(f_1, f_2)$ is $\langle\mathcal{F}, \mathcal{B}(\mathbb{R}^2)\rangle$-measurable by Proposition 2.1.3(i). //
 
 # Q4: Extra A
 
@@ -116,7 +114,7 @@ $\sigma\langle X\rangle$ is a $\sigma$-algebra,
 $$\bigcup_{n \geq 1} A_n = \bigcup_{n \geq 1} X^{-1}(B_n) = X^{-1}\Big(\bigcup_{n \geq 1} B_n\Big),$$
 and $\bigcup_{n \geq 1} B_n \in \mathcal{F}_2$. Thus $\bigcup_{n \geq 1} A_n \in \sigma\langle X\rangle$.
 
-Thus, by (a)--(c), $\sigma\langle X\rangle$ is an algebra; and furthermore, by (d), $\sigma\langle X\rangle$ is a $\sigma$-algebra. //
+Thus, by (a)--(d), $\sigma\langle X\rangle$ is a $\sigma$-algebra. //
 
 ## (b)
 
@@ -126,7 +124,7 @@ $\sigma\langle X\rangle$ is the *smallest* $\sigma$-algebra that makes $X$ measu
 
 *Proof.* By (a), $\sigma\langle X\rangle$ is a $\sigma$-algebra on $\Omega_1$. Since $X^{-1}(B) \in \sigma\langle X\rangle$ for all $B \in \mathcal{F}_2$, $X$ is $\langle\sigma\langle X\rangle, \mathcal{F}_2\rangle$-measurable (Definition 2.1.3).
 
-Now let $\mathcal{G}$ be a $\sigma$-algebra on $\Omega_1$ such that $X$ is $\langle\mathcal{G}, \mathcal{F}_2\rangle$-measurable. By Definition 2.1.3, $X^{-1}(B) \in \mathcal{G}$ for all $B \in \mathcal{F}_2$, i.e., $\sigma\langle X\rangle \subset \mathcal{G}$. //
+Now let $\mathcal{G}$ be a $\sigma$-algebra on $\Omega_1$ such that $X$ is $\langle\mathcal{G}, \mathcal{F}_2\rangle$-measurable. By Definition 2.1.3, $X^{-1}(B) \in \mathcal{G}$ for all $B \in \mathcal{F}_2$, so $\sigma\langle X\rangle \subset \mathcal{G}$. //
 
 # Q5: Extra B
 
@@ -134,8 +132,10 @@ Give an example of a function $f$ that is **not** $\langle\mathcal{B}(\mathbb{R}
 
 ## Answer
 
-Take $f \equiv I_V$, where $V \subset \mathbb{R}$ is not Lebesgue measurable, i.e., $V \notin \mathcal{M}_m$. Such sets exist (see p. 27 of the text); the standard example is a Vitali set, i.e., a set $V \subset [0, 1]$ containing exactly one point from each equivalence class of the relation $x \sim y \iff x - y \in \mathbb{Q}$ on $\mathbb{R}$.
+A Vitali set, which is not Lebesgue measurable, is one such set that is **not** $\langle\mathcal{B}(\mathbb{R}), \mathcal{B}(\mathbb{R})\rangle$-measurable. 
 
-*Proof.* Since $\mathcal{B}(\mathbb{R}) \subset \mathcal{M}_m$ and $V \notin \mathcal{M}_m$, we have $V \notin \mathcal{B}(\mathbb{R})$. The singleton $\{1\}$ is in $\mathcal{B}(\mathbb{R})$, but
-$$f^{-1}(\{1\}) = \{x \in \mathbb{R} : f(x) = 1\} = V \notin \mathcal{B}(\mathbb{R}).$$
-Thus $f$ is not $\langle\mathcal{B}(\mathbb{R}), \mathcal{B}(\mathbb{R})\rangle$-measurable by Definition 2.1.3. //
+Define $f : (\mathbb{R}, \mathcal{B}(\mathbb{R})) \to (\mathbb{R}, \mathcal{B}(\mathbb{R}))$ by
+$$f(x) = \begin{cases} 1 & \text{if } x \in E, \\ 0 & \text{if } x \notin E. \end{cases}$$
+Then $f$ is not $\langle\mathcal{B}(\mathbb{R}), \mathcal{B}(\mathbb{R})\rangle$-measurable.
+
+*Proof.* The singleton $\{1\}$ is in $\mathcal{B}(\mathbb{R})$, but $f^{-1}(\{1\}) = E \notin \mathcal{B}(\mathbb{R})$, so $f$ fails Definition 2.1.3. More generally, since $I_E^{-1}(\{1\}) = E$, an indicator $I_E$ can be measurable only when $E \in \mathcal{B}(\mathbb{R})$. //
