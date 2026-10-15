@@ -63,7 +63,7 @@ $$
 
 For the first implication, suppose $F(t) > x$, and let $y \in B_x$. Then $F(y) \leq x < F(t)$, so $y < t$ since $F$ is nondecreasing. Thus $t$ is an upper bound of $B_x$, and $F_2^{-1}(x) = \sup B_x \leq t$.
 
-For the second, suppose $F(t) < x$. By the right continuity of $F$, there is an $s > t$ with $F(s) < x$. Then $s \in B_x$, so $F_2^{-1}(x) \geq s > t$.
+For the second, suppose, for contradiction, that $F_2^{-1}(x) \leq t$ but $F(t) < x$. By the right continuity of $F$, there is an $s > t$ with $F(s) < x$. Then $s \in B_x$, so $F_2^{-1}(x) \geq s > t$, a contradiction.
 
 Now let $t \in \mathbb{R}$ be given. By (2),
 
@@ -127,7 +127,9 @@ $$
 \int g_k \, d\mu = h(k)\, \mu(\{k\}) = h(k).
 $$
 
-Also $h = \sum_{k=1}^{\infty} g_k$, since at each $j \in \mathbb{N}$ the only nonzero term is $g_j(j) = h(j)$. By Corollary 2.3.5,
+Also $h = \sum_{k=1}^{\infty} g_k$, since for each $j \in \mathbb{N}$, $g_j(j) = h(j)$ and $g_k(j) = 0$ for $k \neq j$.
+
+By Corollary 2.3.5,
 
 $$
 \int h \, d\mu = \sum_{k=1}^{\infty} \int g_k \, d\mu = \sum_{k=1}^{\infty} h(k).
@@ -215,27 +217,25 @@ For each $x \in \Omega$, $f_n(x)$ is increasing with $n$ (i.e., $\{f_n(\cdot)\}$
 
 ### Answer
 
-*Notation.* For $a \in \mathbb{R}$, let $\lfloor a \rfloor \equiv \max\{k \in \mathbb{Z} : k \leq a\}$. Then $a - 1 < \lfloor a \rfloor \leq a$, $\lfloor k \rfloor = k$ for $k \in \mathbb{Z}$, and $a \leq b$ implies $\lfloor a \rfloor \leq \lfloor b \rfloor$.
-
-*Proof.* We first claim that for all $n \geq 1$ and $x \in \Omega$,
+*Proof.* For $n \geq 1$, let $P_n \equiv \{ j/2^n : j = 0, 1, \ldots, n2^n \}$. We first claim that for all $n \geq 1$ and $x \in \Omega$,
 
 $$
-f_n(x) = \frac{\lfloor 2^n \min\{f(x), n\} \rfloor}{2^n}. \tag{3}
+f_n(x) = \max\big\{ p \in P_n : p \leq \min\{f(x), n\} \big\}. \tag{3}
 $$
 
-*Case 1:* $f(x) \geq n$. Then the right side of (3) is $\lfloor 2^n n \rfloor / 2^n = n = f_n(x)$.
+*Case 1:* $f(x) \geq n$. Then $\min\{f(x), n\} = n = \max P_n$, so the right side of (3) is $n = f_n(x)$.
 
-*Case 2:* $\frac{i-1}{2^n} \leq f(x) < \frac{i}{2^n}$ for some $i \in \{1, \ldots, n2^n\}$. Then $f(x) < n$ and $i - 1 \leq 2^n f(x) < i$, so the right side of (3) is $\lfloor 2^n f(x) \rfloor / 2^n = (i-1)/2^n = f_n(x)$.
+*Case 2:* $\frac{i-1}{2^n} \leq f(x) < \frac{i}{2^n}$ for some $i \in \{1, \ldots, n2^n\}$. Then $\min\{f(x), n\} = f(x)$, and $j/2^n \leq f(x)$ iff $j \leq i - 1$, so the right side of (3) is $(i-1)/2^n = f_n(x)$.
 
 In either case, (3) holds.
 
-Now let $x \in \Omega$ and $n \geq 1$ be given, and set $a \equiv 2^n \min\{f(x), n+1\}$ and $b \equiv 2^n \min\{f(x), n\}$, so that $b \leq a$. Since $2 \lfloor a \rfloor$ is an integer with $2 \lfloor a \rfloor \leq 2a$, we have $2 \lfloor a \rfloor \leq \lfloor 2a \rfloor$. Thus, by (3),
+Now let $x \in \Omega$ and $n \geq 1$ be given. Each $j/2^n \in P_n$ equals $2j/2^{n+1}$ with $2j \leq n2^{n+1}$, so $P_n \subset P_{n+1}$. Also $\min\{f(x), n\} \leq \min\{f(x), n+1\}$, so
 
 $$
-f_{n+1}(x) = \frac{\lfloor 2a \rfloor}{2^{n+1}} \geq \frac{2 \lfloor a \rfloor}{2^{n+1}} = \frac{\lfloor a \rfloor}{2^n} \geq \frac{\lfloor b \rfloor}{2^n} = f_n(x).
+\big\{ p \in P_n : p \leq \min\{f(x), n\} \big\} \subset \big\{ p \in P_{n+1} : p \leq \min\{f(x), n+1\} \big\},
 $$
 
-Since $x$ and $n$ were arbitrary, $f_n(x) \leq f_{n+1}(x)$ for all $x \in \Omega$ and $n \geq 1$. //
+and hence $f_n(x) \leq f_{n+1}(x)$ by (3). Since $x$ and $n$ were arbitrary, $f_n(x) \leq f_{n+1}(x)$ for all $x \in \Omega$ and $n \geq 1$. //
 
 ## (iii)
 
@@ -243,19 +243,13 @@ Prove that $f_n(x) \to f(x)$ pointwise (i.e., for each fixed $x$), as $n \to \in
 
 ### Answer
 
-*Proof.* Let $x \in \Omega$ be given. Since $f(x) \in [0, \infty)$, there is an $n_0 \in \mathbb{N}$ with $n_0 > f(x)$. For $n \geq n_0$, $\min\{f(x), n\} = f(x)$, so by (3),
+*Proof.* Let $x \in \Omega$ be given. Since $f(x) \in [0, \infty)$, there is an $n_0 \in \mathbb{N}$ with $n_0 > f(x)$. For $n \geq n_0$, $0 \leq f(x) < n$, so $\frac{i-1}{2^n} \leq f(x) < \frac{i}{2^n}$ for some $i \in \{1, \ldots, n2^n\}$, and $f_n(x) = \frac{i-1}{2^n}$. Hence
 
 $$
-f_n(x) = \frac{\lfloor 2^n f(x) \rfloor}{2^n}.
+0 \leq f(x) - f_n(x) < \frac{1}{2^n} \quad \text{for all } n \geq n_0,
 $$
 
-Since $2^n f(x) - 1 < \lfloor 2^n f(x) \rfloor \leq 2^n f(x)$,
-
-$$
-0 \leq f(x) - f_n(x) < \frac{1}{2^n} \quad \text{for all } n \geq n_0.
-$$
-
-Hence $f_n(x) \to f(x)$ as $n \to \infty$. Since $x$ was arbitrary, $f_n \to f$ pointwise. //
+and so $f_n(x) \to f(x)$ as $n \to \infty$. Since $x$ was arbitrary, $f_n \to f$ pointwise. //
 
 # Q5: Extra (B)
 
@@ -279,7 +273,7 @@ $$
 \{\omega : \min(f, g)(\omega) \leq a\} = \{\omega : f(\omega) \leq a\} \cup \{\omega : g(\omega) \leq a\} \in \mathcal{F},
 $$
 
-so $\min(f, g)$ is $\mathcal{F}$-measurable (Definition 2.1.2). At each $\omega \in \Omega$, $\min(f, g)(\omega)$ is either $f(\omega)$ or $g(\omega)$, so $|\min(f, g)| \leq |f| + |g|$. By Corollary 2.3.3,
+so $\min(f, g)$ is $\mathcal{F}$-measurable (Definition 2.1.2(a)). At each $\omega \in \Omega$, $\min(f, g)(\omega)$ is either $f(\omega)$ or $g(\omega)$, so $|\min(f, g)| \leq |f| + |g|$. By Corollary 2.3.3,
 
 $$
 \int |\min(f, g)| \, d\mu \leq \int \big( |f| + |g| \big) \, d\mu = \int |f| \, d\mu + \int |g| \, d\mu < \infty,
@@ -287,38 +281,10 @@ $$
 
 and so $\min(f, g) \in L^1(\Omega, \mathcal{F}, \mu)$.
 
-For the inequality, note that for $a, b \in \mathbb{R}$,
+For the inequality, note that $\min(f, g) \leq f$ and $\min(f, g) \leq g$ on $\Omega$. Since $\min(f, g), f, g \in L^1(\Omega, \mathcal{F}, \mu)$, Proposition 2.3.8 (ii) gives
 
 $$
-\min(a, b) = \tfrac{1}{2} \big( a + b - |a - b| \big).
+\int \min(f, g) \, d\mu \leq \int f \, d\mu \quad \text{and} \quad \int \min(f, g) \, d\mu \leq \int g \, d\mu,
 $$
 
-By Remark 2.3.8, $f - g \in L^1(\Omega, \mathcal{F}, \mu)$, and hence $|f - g| \in L^1(\Omega, \mathcal{F}, \mu)$. Since $f - g \leq |f - g|$ and $g - f \leq |f - g|$, Proposition 2.3.8 (i) and (ii) give
-
-$$
-\int f \, d\mu - \int g \, d\mu \leq \int |f - g| \, d\mu \quad \text{and} \quad \int g \, d\mu - \int f \, d\mu \leq \int |f - g| \, d\mu,
-$$
-
-i.e., $\left| \int f \, d\mu - \int g \, d\mu \right| \leq \int |f - g| \, d\mu$. Thus, by Proposition 2.3.8 (i),
-
-$$
-\begin{aligned}
-\int \min(f, g) \, d\mu
-&= \frac{1}{2} \left( \int f \, d\mu + \int g \, d\mu - \int |f - g| \, d\mu \right) \\
-&\leq \frac{1}{2} \left( \int f \, d\mu + \int g \, d\mu - \left| \int f \, d\mu - \int g \, d\mu \right| \right) \\
-&= \min\left( \int f \, d\mu, \int g \, d\mu \right). \quad //
-\end{aligned}
-$$
-
-<!--
-OPTIONAL: Dr. Ghosh's key also characterizes when equality holds. This is not asked in
-the problem statement above, so it is commented out. Delete the comment markers to include it.
-
-*Equality.* Let $h \equiv f - g$. By the display above, equality holds iff $\int |h| \, d\mu = \left| \int h \, d\mu \right|$. Since $|h| = h^+ + h^-$ and $h = h^+ - h^-$, this is
-
-$$
-\int h^+ \, d\mu + \int h^- \, d\mu = \left| \int h^+ \, d\mu - \int h^- \, d\mu \right|.
-$$
-
-For $a, b \in [0, \infty)$, $a + b = |a - b|$ iff $\min(a, b) = 0$. So equality holds iff $\int h^+ \, d\mu = 0$ or $\int h^- \, d\mu = 0$. By Proposition 2.3.9, this is the case iff $h^+ = 0$ a.e. $(\mu)$ or $h^- = 0$ a.e. $(\mu)$, i.e., iff $f \leq g$ a.e. $(\mu)$ or $f \geq g$ a.e. $(\mu)$. //
--->
+and so $\int \min(f, g) \, d\mu \leq \min\left( \int f \, d\mu, \int g \, d\mu \right)$. //
