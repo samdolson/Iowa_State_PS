@@ -18,17 +18,17 @@ Show that $\text{rank}(I - AA^{-}) = n - r$.
 
 ### Answer 
 
-On notation: $I$ in this problem is $I_n$; this is done to ensure matrix arithmetic is well-defined. Additionally, Lemma 2.7 of the course notes provides this result; however, we will provide proof in full with (ideally) minimal invoking of "known results" unless appropriate. 
+(Preface: $I$ in this problem is $I_n$; this is done to ensure matrix arithmetic is well-defined. Additionally, I have an inclination that Lemma 2.7 of the course notes *could* be used to prove the desired result (if one were to make a projection matrix argument); however, I am sticking with a more direct argument without note/use of projection matrices.)
 
 To start, note that $A^{-}$ is an $m \times n$ matrix. Let $P=AA^{-}$ ($P$ is an $n \times n$ matrix).
 
 The goal then is to determine the rank of $I_n-P$. And as given, we know $\operatorname{rank}(P) =\operatorname{rank}(AA^{-}) \leq \operatorname{rank}(A)=r.$
 
-The inequality holds via Lemma 2.2, though this is a general linear algebra result. The goal then is to prove $\operatorname{rank}(P) = r$.
+The above inequality holds via Lemma 2.2, though this is a general linear algebra result. The goal then is to prove $\operatorname{rank}(P) = r$.
 
-We'll utilize a "squeeze" (or sandwich) argument, i.e., showing $r = \operatorname{rank}(A) \leq \operatorname{rank}(P)$ to establish equality. One way to do this is to show that $A=PA$, i.e., showing that $A=PA$ implies $\operatorname{rank}(A) = \operatorname{rank}(PA) \leq\operatorname{rank}(P)$ (again, utilizing Lemma 2.2 instead of directly jumping to Lemma 2.3).
+We'll utilize a "squeeze" (or sandwich) argument, showing $r = \operatorname{rank}(A) \leq \operatorname{rank}(P)$ to establish equality. One way to do this is to show that $A=PA$, i.e., by showing that $A=PA \Rightarrow \operatorname{rank}(A) = \operatorname{rank}(PA) \leq\operatorname{rank}(P)$ (again, utilizing Lemma 2.2 instead of directly jumping to Lemma 2.3).
 
-To that end, first note that $A^{-}$ is a generalized inverse of $A$, meaning that, by definition $AA^{-}A=A.$
+To that end, note that $A^{-}$ is a generalized inverse of $A$, meaning that, by definition $AA^{-}A=A.$
 
 Then consider $PA$:
 
@@ -36,15 +36,8 @@ $$
 PA=AA^{-}A=A.
 $$
 
-Thus, we've shown our desired outcome, namely
-
-$$
-r= \operatorname{rank}(A)
-=\operatorname{rank}(PA)
-\leq\operatorname{rank}(P), 
-$$
-
-which, combining our earlier result, allows us to we conclude $\operatorname{rank}(P)=r.$
+Thus, we've shown our desired outcome, namely $r= \operatorname{rank}(A)=\operatorname{rank}(PA)\leq\operatorname{rank}(P),$
+which, combined with our earlier result, shows that $\operatorname{rank}(P)=r.$
 
 Next, we show that $P$ is idempotent (as it makes the rank difference calculation tractable via the Corollary to Lemma 2.5). 
 
@@ -74,7 +67,7 @@ $$
 =I_n-P.
 $$
 
-And, as desired, $I_n-P$ is idempotent.
+Thus, as desired, $I_n-P$ is idempotent.
 
 Note: Via the corollary to Lemma 2.5, the trace of an idempotent matrix is equal to its rank. Applying this result to $I_n-P$, we obtain $\operatorname{rank}(I_n-P)=\operatorname{tr}(I_n-P).$
 
@@ -108,7 +101,7 @@ Find the rank of $I - A^{-}A$.
 
 ### Answer
 
-On notation: $I$ in this problem is $I_m$; this is done to ensure matrix arithmetic is well-defined (similar to part (a)). The other prefaced comments from part (a) similarly apply here. 
+(Preface: $I$ in this problem is $I_m$; this is done to ensure matrix arithmetic is well-defined, similar to part (a). The other prefaced comments from part (a) similarly apply here.)
 
 Let $Q=A^{-}A$ ($Q$ is an $m\times m$ matrix). To start note that $Q$ is idempotent, as:
 
@@ -120,15 +113,11 @@ QQ
 =Q.
 $$
 
-As in part (a), $\operatorname{rank}(Q) = \operatorname{rank}(A^{-}A) \leq\operatorname{rank}(A)=r$ (via Lemma 2.2). To get the other side of the inequality (to conclude equality), we note: 
+As in part (a), $\operatorname{rank}(Q) = \operatorname{rank}(A^{-}A) \leq\operatorname{rank}(A)=r$ (via Lemma 2.2). To get the other side of the inequality (to conclude equality), note: $AQ = A(A^{-}A) = A,$ such that $r = \operatorname{rank}(A) = \operatorname{rank}(AQ) \leq\operatorname{rank}(Q)$.
 
-$$
-AQ = A(A^{-}A) = A. 
-$$
+Thus, via a "squeeze" argument we've shown that $\operatorname{rank}(Q)=r$.
 
-This means that $r = \operatorname{rank}(A) = \operatorname{rank}(AQ) \leq\operatorname{rank}(Q)$. Thus, via a "squeeze" argument we've shown that $\operatorname{rank}(Q)=r$.
-
-Next, we show that $I_m-Q$ is idempotent. We evaluate the expression and simplify:
+Next, we show that $I_m-Q$ is idempotent. We evaluate the expression directly and simplify:
 
 $$
 (I_m-Q)^2
@@ -137,7 +126,7 @@ $$
 =I_m-Q.
 $$
 
-(Noting the prior result that $Q$ is idempotent for simplifying the expression.)
+(Noting that $Q$ is idempotent for simplifying the expression.)
 
 By the Corollary to Lemma 2.5, the trace of an idempotent matrix is equal to its rank; and again, invoking known properties of the trace operation (additivity), we have: $\operatorname{rank}(I_m-Q)=\operatorname{tr}(I_m-Q) = \operatorname{tr}(I_m) -\operatorname{tr}(Q).$
 
@@ -158,6 +147,8 @@ Where $Q=A^{-}A$.
 Suppose that $\underline{y}$ is an $n \times 1$ observable random vector that follows the model
 $$\underline{y} = X(\underline{\beta} + \underline{b}) + \underline{e},$$
 where $X$ is an $n \times p$ known matrix, and $\underline{\beta}$ is a $p \times 1$ vector of unknown parameters. Furthermore, suppose that $\underline{b}$ and $\underline{e}$ are independent random vectors with $\underline{b} \sim N(\underline{0}, D)$ and $\underline{e} \sim N(\underline{0}, \sigma^2 I)$, where $D$ is an unknown non-negative definite matrix, and $\sigma^2$ is an unknown positive parameter.
+
+## Q: DO WE PUT A HAT ON JUST $\beta$? 
 
 ## (a) 
 
@@ -182,7 +173,7 @@ $$
 \widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{SLSE}} = \underline{\lambda}'\widehat{\underline{\beta}} = (\underline{r}'X'X)\widehat{\underline{\beta}} = \underline{r}'(X'X\widehat{\underline{\beta}}) = \underline{r}'X'\underline{y} = (X\underline{r})'\underline{y}.
 $$
 
-The goal then is to establish that the SLSE is BLUE, i.e., that it is an unbiased estimator with the smallest variance among the class of linear unbiased estimators. 
+The goal then is to establish that the SLSE is BLUE, i.e., that the SLSE is an unbiased estimator with the smallest variance among the class of linear unbiased estimators. 
 
 On unbiasedness: Since $\underline{b}$ and $\underline{e}$ are independent random vectors with mean zero, taking expectation of $\underline{y}$: 
 $$
@@ -190,7 +181,7 @@ E(\underline{y}) = E(X(\underline{\beta} + \underline{b}) + \underline{e}) = E(X
 $$
 noting linearity of expectation (and that $\underline{\beta}$ is non-random). 
 
-Then, for the SLSE, 
+Then, taking expectation of the SLSE, 
 
 $$
 E(\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{SLSE}}) = E(\underline{r}'X'\underline{y}) = \underline{r}'X'E(\underline{y}) = \underline{r}'X'X\underline{r} = \underline{r}'\underline{\lambda} = \underline{\lambda}'\underline{\beta}.
@@ -216,7 +207,9 @@ $$
 =\underline{\lambda}'D\underline{\lambda}+\sigma^2\underline{\lambda}'\underline{r}.
 $$
 
-But can any other unbiased estimator have lower variance? To answer that, consider an (other) arbitrary linear unbiased estimator $c'\underline{y}$ of $\underline{\lambda}'\underline{\beta}$. By Lemma 2.1, unbiasedness requires $c'X = \underline{\lambda}'$; and since $X'X\underline{r}=\underline{\lambda}$, we also have $\underline{r}'X'X=\underline{\lambda}'$. 
+## Q: SHOULD WE REFER TO THIS AS SOME OTHER ESTIMATOR LIKE $\tilde{\beta}$? 
+
+But can any other unbiased estimator have lower variance compared to the SLSE? To answer that, consider an (other) arbitrary linear unbiased estimator $c'\underline{y}$ of $\underline{\lambda}'\underline{\beta}$. By Lemma 2.1, unbiasedness requires $c'X = \underline{\lambda}'$; and since $X'X\underline{r}=\underline{\lambda}$, we also have $\underline{r}'X'X=\underline{\lambda}'$. 
 
 Let $\underline{d}=c-X\underline{r}$. Then 
 
@@ -259,6 +252,8 @@ $$
 -\operatorname{Var}(\underline{r}'X'\underline{y})\ge0.
 $$
 
+## Q: CAN WE CITE SOME THEOREM/KNOWN RESULT HERE TO BOOT? 
+
 So any other linear unbiased estimator can do "no better" in terms of its variance, and we conclude that the SLSE of any estimable function $\underline{\lambda}'\underline{\beta}$ is the BLUE.
 
 ## (b) 
@@ -273,6 +268,7 @@ Using the results from part (a), and taking as given that the SLSE is BLUE, we h
 $$
 \begin{aligned}
 \operatorname{Var}(\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{BLUE}})
+&=\operatorname{Var}(\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{SLSE}})\\ 
 &=\operatorname{Var}(\underline{r}'X'\underline{y})\\
 &=\underline{r}'X'VX\underline{r}\\
 &=\underline{r}'X'(XDX' + \sigma^2 I_n)X\underline{r}\\
@@ -289,6 +285,8 @@ $$
 $$
 where $(X'X)^-$ denotes *a* generalized inverse of $X'X$. 
 
+## GENERAL IMPROVEMENTS NEEDED HERE 
+
 By the corollary to Theorem 2.7, $\underline{\lambda}'\underline{\beta}$ is estimable iff 
 $$
 X'X(X'X)^-\underline{\lambda}=\underline{\lambda}. 
@@ -296,7 +294,7 @@ $$
 
 Via substitution of $\underline{r}=(X'X)^-\underline{\lambda}$, $X'X\underline{r}=\underline{\lambda}$. 
 
-However, there is one (potential) issue: Because we're working with a generalized inverse, there are (infinitely) many solutions. So the goal is then to show that the variance of the BLUE of any estimable function $\underline{\lambda}'\underline{\beta}$ does not depend on the exact solution we use. 
+However, there is one (potential) issue: Because we're working with a generalized inverse, there are (infinitely) many solutions. So the goal is then to show that the variance of the BLUE of any estimable function $\underline{\lambda}'\underline{\beta}$ does not depend on the exact solution (i.e., the specific generalized inverse of $X'X$) that we use. 
 
 To that point: Suppose that $\underline{r}_1$ and $\underline{r}_2$ both satisfy $X'X\underline{r}=\underline{\lambda}$. Then, by subtraction:
 $$
@@ -311,7 +309,7 @@ $$
 =\underline{r}_1'\underline{0}
 =0.
 $$
-Expanding this gives $\underline{\lambda}'\underline{r}_1 - \underline{\lambda}'\underline{r}_2 = 0$, which implies $\underline{\lambda}'\underline{r}_1 = \underline{\lambda}'\underline{r}_2$, showing that $\underline{\lambda}'\underline{r}$ is invariant to the choice of solution (i.e., the exact specification of $\underline{r}$).
+Expanding this gives $\underline{\lambda}'\underline{r}_1 - \underline{\lambda}'\underline{r}_2 = 0 \Rightarrow \underline{\lambda}'\underline{r}_1 = \underline{\lambda}'\underline{r}_2$, meaning $\underline{\lambda}'\underline{r}$ is invariant to the choice of solution (i.e., the exact specification of $\underline{r}$).
 
 Finally, we substitute $\underline{r}=(X'X)^-\underline{\lambda}$ into the variance expression from above, giving us the variance of the BLUE of any estimable function $\underline{\lambda}'\underline{\beta}$:
 $$
@@ -365,7 +363,7 @@ c=\underline{k}'\underline{b}
 \underline{\lambda}'=\underline{a}'X+\underline{k}'A.
 $$
 
-We may "split" (well, partition) $\underline{\lambda}'$ from the above expression into two components (noting $X=(X_1,X_2)$ and $A=(0,I_{p-q})$):
+We may "split" (well, partition) $\underline{\lambda}'$ from the above expression into two components, and noting $X=(X_1,X_2)$ and $A=(0,I_{p-q})$):
 
 $$
 \underline{\lambda}_1'=\underline{a}'X_1
@@ -373,11 +371,7 @@ $$
 \underline{\lambda}_2'=\underline{a}'X_2+\underline{k}'.
 $$
 
-The first equation given above says that $\underline{\lambda}_1'$ is a linear combination of the rows of $X_1$, i.e.,
-
-$$
-\underline{\lambda}_1'\in\mathcal{R}(X_1).
-$$
+The first equation given above says that $\underline{\lambda}_1'$ is a linear combination of the rows of $X_1$, i.e., $\underline{\lambda}_1'\in\mathcal{R}(X_1)$, as desired.
 
 **($\Leftarrow$)** Suppose that
 
@@ -385,24 +379,16 @@ $$
 \underline{\lambda}_1'\in\mathcal{R}(X_1).
 $$
 
-By the definition of the row space of $X_1$ (i.e., all $1 \times q$ vectors spanned by the rows of $X_1$), there exists an $n\times 1$ vector $\underline{a}$ such that
-
-$$
-\underline{a}'X_1=\underline{\lambda}_1'.
-$$
+By the definition of the row space of $X_1$ (i.e., all $1 \times q$ vectors spanned by the rows of $X_1$), there exists an $n\times 1$ vector $\underline{a}$ such that $\underline{a}'X_1=\underline{\lambda}_1'.$
 
 We may then construct a linear unbiased estimator using the above linear combination. Specifically, let
 
 $$
-\underline{k}'=\underline{\lambda}_2'-\underline{a}'X_2,
-$$
-
-and then let 
-
-$$
+\underline{k}'=\underline{\lambda}_2'-\underline{a}'X_2, \quad 
+\text{ and let } \quad 
 c=\underline{k}'\underline{b}
 =\underline{\lambda}_2'\underline{b}
--\underline{a}'X_2\underline{b},
+-\underline{a}'X_2\underline{b}.
 $$
 
 Taken together, the estimator we have constructed, $t(\underline{y})=c+\underline{a}'\underline{y}$, is a linear estimator of $\underline{\lambda}'\underline{\beta}$. The goal then is to verify that this estimator is unbiased.
@@ -417,20 +403,25 @@ E[t(\underline{y})]
 +\underline{a}'X_2\underline{\beta}_2
 =c+\underline{a}'X_1\underline{\beta}_1
 +\underline{a}'X_2\underline{b}
+$$
+
+Continuing simplification
+
+$$
+E[t(\underline{y})]
 =\underline{\lambda}_2'\underline{b}
 -\underline{a}'X_2\underline{b}
 +\underline{\lambda}_1'\underline{\beta}_1
 +\underline{a}'X_2\underline{b}
 =\underline{\lambda}_1'\underline{\beta}_1
 +\underline{\lambda}_2'\underline{b}
-=\underline{\lambda}'\underline{\beta}.
+=\underline{\lambda}'\underline{\beta},
 $$
+noting use of the given constraint $\underline{\beta}_2=\underline{b}$.
 
-Noting use of the given constraint $\underline{\beta}_2=\underline{b}$.
+As desired, the estimator $t(\underline{y})$ is unbiased, so we in fact constructed a linear unbiased estimator of $\underline{\lambda}'\underline{\beta}$. What's more, this function is estimable (with note of the Definition *under* Lemma 2.9 for Model IIa), as desired.
 
-As desired, the estimator $t(\underline{y})$ is unbiased, so we in fact constructed a linear unbiased estimator of $\underline{\lambda}'\underline{\beta}$. What's more, this function is estimable (with note of the Definition *under* Lemma 2.9 for Model IIa).
-
-Combining the two directions, we may then conclude
+Then, combining the two directions, we may then conclude
 
 $$
 \underline{\lambda}'\underline{\beta}\text{ is estimable}
@@ -471,7 +462,7 @@ Our main focus is the first block equation (the top row), and that is $X'X\under
 
 Using the given information, i.e.,  $X=(X_1,X_2)$, $\underline{\beta}=(\underline{\beta}_1',\underline{\beta}_2')'$, and $A=(0,I_{p-q})$, we evaluate each term in this equation. 
 
-First, note that $X'X$ is equivalent to 
+To that end, note 
 
 $$
 X'X = \begin{pmatrix} X_1' \\ X_2' \end{pmatrix} \begin{pmatrix} X_1 & X_2 \end{pmatrix} = \begin{pmatrix} X_1'X_1 & X_1'X_2 \\ X_2'X_1 & X_2'X_2 \end{pmatrix}.
@@ -540,9 +531,9 @@ X_1'X_1\underline{\beta}_1
 X_1'(\underline{y}-X_2\underline{b}).
 $$
 
-If we define $\underline{y}^*=\underline{y}-X_2\underline{b}$, then the above equation is equivalent to $X_1'X_1\underline{\beta}_1=X_1'\underline{y}^*$. However, this is exactly the form of the ordinary normal equations for a Model II with design matrix $X_1$ and response $\underline{y}^*$! 
+Let$\underline{y}^*=\underline{y}-X_2\underline{b}$, then the above equation is equivalent to $X_1'X_1\underline{\beta}_1=X_1'\underline{y}^*$. However, this is exactly the form of the ordinary normal equations for a Model II with design matrix $X_1$ and response $\underline{y}^*$! 
 
-Looking ahead at the desired expression for the BLUE, we see that we will need $\widehat{\underline{\beta}}_1=(X_1'X_1)^-X_1'\underline{y}^*$. (Admittedly, this is peeking at the ending to know where to go, but the verification below will justify the choice.) By Lemma 1.4,
+Looking ahead at the desired expression for the BLUE, we see that we will need $\widehat{\underline{\beta}}_1=(X_1'X_1)^-X_1'\underline{y}^*=(X_1'X_1)^-X_1'X_1\underline{\beta}_1$. (Admittedly, this is peeking at the ending to know where to go, but the verification below will justify the choice.) By Lemma 1.4,
 
 $$
 X_1'X_1(X_1'X_1)^-X_1'=X_1',
@@ -564,6 +555,8 @@ X_2'\underline{y}
 \end{pmatrix}.
 $$
 
+## NO TRANSPOSES HERE? 
+
 By construction, the vector $(\widehat{\underline{\beta}}', \widehat{\underline{\rho}}')'$ solves the constrained normal equations. Therefore, by Theorem 2.18, the BLUE of $\underline{\lambda}'\underline{\beta}$ is
 
 $$
@@ -578,6 +571,8 @@ $$
 (\underline{y}-X_2\underline{b})
 +\underline{\lambda}_2'\underline{b}.
 $$
+
+## COMPARE TO Q2 PART(B) 
 
 Finally, note that the above expression is well-defined, i.e., it does not depend on the choice of the generalized inverse of $(X_1'X_1)$. To prove this statement, note that because $\underline{\lambda}_1'\in\mathcal{R}(X_1)$, there exists a vector $\underline{a}$ such that $\underline{\lambda}_1'=\underline{a}'X_1$. Then
 
@@ -613,7 +608,7 @@ $$
 
 where $E(\underline{\epsilon}) = \underline{0}$, $\operatorname{Var}(\underline{\epsilon}) = \sigma^2I_n$ with parameter space $\{ \underline{\beta}, \sigma^2: \underline{\beta} \in \mathbb{R}^p, \sigma^2 > 0 \}$. 
 
-Using this notation, for the linear model, model (1), formulated in the problem statement, we write:
+Using this notation for model (1), as formulated in the problem statement, we may write:
 $$
 \underline{y}=X\underline{\beta}+\underline{\epsilon},
 $$
@@ -682,7 +677,7 @@ $$
 
 Noting $\underline{1}'\underline{x} = \underline{1}'\underline{z} = \underline{x}'\underline{z} = 0$ and $\underline{x}'\underline{x} = \underline{z}'\underline{z} = n$ as given, and $\underline{1}'\underline{1}= \sum_{i=1}^{n} 1\cdot 1 = n$. 
 
-We know then that $X'X = nI_3$ is a nonsingular matrix of dimension 3. Then, assuming $n>0$ to avoid the trivial case, $\operatorname{rank}(X'X)=3.$
+We know then that $X'X = nI_3$ is a nonsingular matrix of dimension 3, such that $\operatorname{rank}(X'X)=3$ (assuming $n>0$ to avoid the trivial case). 
 
 Noting Lemma 2.3, $\operatorname{rank}(X'X) = \operatorname{rank}(X) = 3.$
 
@@ -692,11 +687,11 @@ $$
 3=\operatorname{rank}(X)\le n. 
 $$
 
-This then forces $n\ge 3.$
+This forces $n\ge 3.$
 
 ### Additional Note 
 
-While I believe the above argument is correct (and hopefully clear), I wanted to make one part of the argument airtight. Specifically, for $0 < n < 3$, we effectively have fewer than 3 rows (observations). In that case, the individual coefficients cannot all be uniquely identified, i.e., only certain linear combinations of the coefficients may be estimable. While I'd say this intuitively makes sense, such a statement does not get at the *why*, and the why is this: If $0<n<3$, then $\operatorname{rank}(X)\leq n<3$, such that $X$ cannot have full column rank. Consequently, an unconstrained linear model with three unknown fixed parameters, i.e., for model (1) as specified, the three unknown fixed parameters cannot *all* be estimable, meaning that $n\geq 3$ is a necessary condition for the separate estimation of all three parameters (with a tip of the cap to Theorem 2.2).
+While I believe the above argument is correct (and hopefully clear), I wanted to make one part of the argument airtight. Specifically, for $0 < n < 3$, we effectively have fewer than 3 rows (observations). In that case, the individual coefficients cannot all be uniquely identified, i.e., only certain linear combinations of the coefficients may be estimable. While I'd say this intuitively makes sense, such a statement does not get at the *why*, and the why is this: If $0<n<3$, then $\operatorname{rank}(X)\leq n<3$, such that $X$ cannot have full column rank. Consequently for model (1) as specified, the three unknown fixed parameters cannot *all* be estimable, meaning that $n\geq 3$ is a necessary condition for the separate estimation of all three parameters (with a tip of the cap to Theorem 2.2).
 
 ## (c) 
 
@@ -716,32 +711,21 @@ $$
 \mathcal R(X')=\mathbb R^3.
 $$
 
-That is to say, a linear function $\underline{\lambda}'\underline{\beta}$ is estimable if and only if
-$$
-\underline{\lambda}'\in\mathcal R(X),
-$$
-or equivalently,
-$$
-\underline{\lambda}\in\mathcal C(X').
-$$
+That is to say, a linear function $\underline{\lambda}'\underline{\beta}$ is estimable $\iff \underline{\lambda}'\in\mathcal R(X) \iff\underline{\lambda}\in\mathcal C(X').$
 
 As model (1) is a full-rank linear model, with note of Corollary 3, since $\mathcal C(X')=\mathbb R^3$, every linear function $\underline{\lambda}'\underline{\beta}$ is estimable. Specifically, taking
 
 $$
 \underline{\lambda}_1 = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}, \quad 
 \underline{\lambda}_2 = \begin{pmatrix} 0 \\ 1 \\ 0 \end{pmatrix}, \quad 
-\underline{\lambda}_3 = \begin{pmatrix} 0 \\ 0 \\ 1 \end{pmatrix},
-$$
-
-gives the three estimable functions
-
-$$
+\underline{\lambda}_3 = \begin{pmatrix} 0 \\ 0 \\ 1 \end{pmatrix}, \quad
+\text{ gives the three estimable functions } \quad
 \underline{\lambda}_1'\underline{\beta} = \mu, \quad 
 \underline{\lambda}_2'\underline{\beta} = \alpha, \quad 
 \underline{\lambda}_3'\underline{\beta} = \gamma.
 $$
 
-Thus, $\mu$, $\alpha$, and $\gamma$ are estimable functions.
+And we conclude that $\mu$, $\alpha$, and $\gamma$ are estimable functions.
 
 ## (d) 
 
@@ -755,7 +739,7 @@ $$
 X'X\widehat{\underline{\beta}}=X'\underline{y}.
 $$
 
-From our work in the prior problems, we've calculated $X'X=nI_3$ and know it is nonsingular (such that we know its inverse exists, and we can take that inverse rather than calculating generalized inverses). Specifically, by multiplying both sides of the normal equations by $(X'X)^{-1}$,
+From our work in the prior problems, we've calculated $X'X=nI_3$ and know it is nonsingular (such that we know its inverse exists, and we can take that inverse rather than calculating/using generalized inverses for computation). Specifically, by multiplying both sides of the normal equations by $(X'X)^{-1}$,
 
 $$
 \begin{pmatrix}\widehat{\mu}\\\widehat{\alpha}\\\widehat{\gamma}\end{pmatrix} 
@@ -776,7 +760,7 @@ Where $(X'X)^{-1} = \frac{1}{n} I_{3}$.
 Writing these terms component-wise, i.e., as non-matrix, explicit expressions: 
 
 $$
-\widehat{\mu}= \frac{1}{n} \underline{1}'\underline{y} = \frac1n\sum_{i=1}^n 1 \cdot y_i,
+\widehat{\mu}= \frac{1}{n} \underline{1}'\underline{y} = \frac1n\sum_{i=1}^n y_i,
 \qquad
 \widehat{\alpha}=\frac{1}{n} \underline{x}'\underline{y} = \frac1n\sum_{i=1}^n x_i y_i,
 \qquad
@@ -797,7 +781,7 @@ Find all estimable functions $\underline{\lambda}'\underline{\beta}$.
 
 ### Answer
 
-From question 4, we have the original parameter vector
+From question 4, we have the original parameter vector and design matrix given by 
 
 $$
 \underline{\beta}
@@ -807,11 +791,7 @@ $$
 \alpha\\
 \gamma
 \end{pmatrix},
-$$
-
-and the design matrix
-
-$$
+\qquad \text{and } 
 X=\begin{pmatrix} 1 & x_1 & z_1 \\ 1 & x_2 & z_2 \\ \vdots & \vdots & \vdots \\ 1 & x_n & z_n \end{pmatrix} = \begin{pmatrix}\underline{1}&\underline{x}&\underline{z}\end{pmatrix}.
 $$
 
@@ -819,11 +799,9 @@ Note: We can write the constraint $\gamma=\mu+\alpha$ as $A\underline{\beta}=\un
 
 $$
 A=\begin{pmatrix}1&1&-1\end{pmatrix}, 
-$$
-
-as
-
-$$
+\quad 
+\text{ as } 
+\quad 
 \mu + \alpha - \gamma = 0 \Rightarrow \mu + \alpha = \gamma
 $$
 
@@ -836,9 +814,9 @@ $$
 =(\lambda_1+\lambda_3)\mu+(\lambda_2+\lambda_3)\alpha.
 $$
 
-That is to say, we can write every linear function $\underline{\lambda}'\underline{\beta}$ as a function of $\mu$ and $\alpha$ only, effectively reducing $\underline{\lambda}'\underline{\beta}$ to $\tilde{\lambda}'\tilde{\beta}$ with $\tilde{\beta}=(\mu,\alpha)'$. 
+That is to say, we can write every linear function $\underline{\lambda}'\underline{\beta}$ as a function of $\mu$ and $\alpha$ only, effectively reducing $\underline{\lambda}'\underline{\beta}$ to $\underline{\tilde{\lambda}}'\underline{\tilde{\beta}}$ with $\underline{\tilde{\beta}}=(\mu,\alpha)'$. 
 
-The question then becomes whether $\tilde{\lambda}'\tilde{\beta}$ is estimable in the model for $\underline{y}$ with parameter $\tilde{\beta}$. Estimability here is determined by the design matrix for that *parameterization*, that is, by the (design) matrix $W$ satisfying $E(\underline{y})=W\tilde{\beta}$. To identify $W$, we consider the constrained mean model given by
+The question then becomes whether $\underline{\tilde{\lambda}}'\underline{\tilde{\beta}}$ is estimable in the model for $\underline{y}$ with parameter $\underline{\tilde{\beta}}$. Estimability here is determined by the design matrix for that *parameterization*, that is, by the (design) matrix $W$ satisfying $E(\underline{y})=W\underline{\tilde{\beta}}$. To identify $W$, we consider the constrained mean model given by
 
 $$
 E(\underline{y})
@@ -865,7 +843,7 @@ W=\begin{pmatrix}
 \end{pmatrix}.
 $$
 
-And for shorthand convenient, we have
+And for shorthand convenience, similar to question 4, we may write 
 
 $$
 W=
@@ -897,7 +875,12 @@ W'W= \begin{pmatrix}\underline{1}+\underline{z}&\underline{x}+\underline{z}\end{
 (\underline{x}+\underline{z})'(\underline{1}+\underline{z})&
 (\underline{x}+\underline{z})'(\underline{x}+\underline{z})
 \end{pmatrix}
-=
+$$
+
+Continuing simplification of this expression
+
+$$
+W'W= 
 \begin{pmatrix}
 \underline{1}'\underline{1}+\underline{1}'\underline{z} + \underline{z}'\underline{1} + \underline{z}'\underline{z}&
 \underline{1}'\underline{x}+\underline{1}'\underline{z} + \underline{z}'\underline{x}+ \underline{z}'\underline{z}\\
@@ -916,26 +899,14 @@ $$
 kA=k\left(\begin{matrix}a&b\\ c&d\end{matrix}\right),  \qquad \operatorname{det} (A)=k^2(ad-bc).
 $$
 
-Applying this to the above matrix,
+Applying this to the above matrix, and noting $n >0$, we have $\det(W'W) =(2n)(2n)-n^2 =3n^2>0,$ meaning that, $W'W$ is nonsingular (and consequently $W$ has full column rank). 
+
+Then, by Lemma 2.3, $2 = \operatorname{rank}(W'W)=\operatorname{rank}(W)$, and $\operatorname{rank}(W)=2.$
+
+Since $W$ has full column rank, Corollary 3 to Theorem 2.1 gives that $\underline{\tilde{\lambda}}'\underline{\tilde{\beta}}$ is estimable for every $\underline{\tilde{\lambda}}\in\mathbb R^2$. Now for any $\underline{\lambda}\in\mathbb R^3$, set
 
 $$
-\operatorname{det}(W'W) = n^2 \cdot (4 - 1) = 3n^2
-$$
-
-Since $n>0$, we have
-
-$$
-\det(W'W)
-=(2n)(2n)-n^2
-=3n^2>0, 
-$$
-
-meaning that, $W'W$ is nonsingular (and consequently $W$ has full column rank). Then, by Lemma 2.3, $2 = \operatorname{rank}(W'W)=\operatorname{rank}(W)$, and therefore $\operatorname{rank}(W)=2.$
-
-Since $W$ has full column rank, Corollary 3 to Theorem 2.1 gives that $\tilde{\lambda}'\tilde{\beta}$ is estimable for every $\tilde{\lambda}\in\mathbb R^2$. Now for any $\underline{\lambda}\in\mathbb R^3$, set
-
-$$
-\tilde{\lambda}
+\underline{\tilde{\lambda}}
 =
 \begin{pmatrix}
 \lambda_1+\lambda_3\\
@@ -943,7 +914,7 @@ $$
 \end{pmatrix}.
 $$
 
-Then $\underline{\lambda}'\underline{\beta}=\tilde{\lambda}'\tilde{\beta}$ on the constrained space, and since $\tilde{\lambda}'\tilde{\beta}$ is estimable, so is $\underline{\lambda}'\underline{\beta}$. Because $\underline{\lambda}\in\mathbb R^3$ was arbitrary, *all linear functions* $\underline{\lambda}'\underline{\beta}$ are estimable under $\gamma=\mu+\alpha$.
+Then $\underline{\lambda}'\underline{\beta}=\underline{\tilde{\lambda}}'\underline{\tilde{\beta}}$ on the constrained space, and since $\underline{\tilde{\lambda}}'\underline{\tilde{\beta}}$ is estimable, $\underline{\lambda}'\underline{\beta}$ is also estimable. And because $\underline{\lambda}\in\mathbb R^3$ was arbitrary, *all linear functions* $\underline{\lambda}'\underline{\beta}$ are estimable under $\gamma=\mu+\alpha$.
 
 ## (b) 
 
@@ -990,7 +961,7 @@ A&0
 \end{pmatrix}. 
 $$
 
-To that end, note that $X'X$ is a $3 \times 3$ matrix, $A'$ is a $3 \times 1$ matrix, $A$ is a $1 \times 3$ matrix, and the lower-right $0$ is a $1 \times 1$ matrix. Combining together, we know that 
+To that end, note that $X'X$ is a $3 \times 3$ matrix, $A'$ is a $3 \times 1$ matrix, $A$ is a $1 \times 3$ matrix, and the lower-right $0$ is $1 \times 1$. Combining together, we know that 
 
 $$
 \begin{pmatrix}
@@ -1101,9 +1072,11 @@ $$
 
 where $\begin{pmatrix} \underline{r}_1 \\ \underline{r}_2 \end{pmatrix}$ is any solution to the constrained conjugate normal equations. 
 
-Since $\underline{b}=\underline{0}$, the right-hand side quantity is zero. Also, by Theorem 2.18, this least-squares estimator is the BLUE under Model IIa. Now we just need to provide an (non-matrix) explicit expression. 
+## NOTE WHY IS Since $\underline{b}=\underline{0}$ 
 
-From question 4, $X=(\underline{1},\underline{x},\underline{z})$, so we need only compute and simplify using all known quantities. Specifically
+Since $\underline{b}=\underline{0}$, the quantity on the right-hand side ($\underline{r}_2'\underline{b}$) is also zero. Also, by Theorem 2.18, this least-squares estimator is the BLUE under Model IIa. Now we just need to provide an (non-matrix) explicit expression. 
+
+From question 4, $X=(\underline{1},\underline{x},\underline{z})$, so we need only compute and simplify using known quantities. Specifically
 
 $$
 \widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{BLUE}}
