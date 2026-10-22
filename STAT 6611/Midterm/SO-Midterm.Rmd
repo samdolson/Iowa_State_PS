@@ -148,15 +148,11 @@ Suppose that $\underline{y}$ is an $n \times 1$ observable random vector that fo
 $$\underline{y} = X(\underline{\beta} + \underline{b}) + \underline{e},$$
 where $X$ is an $n \times p$ known matrix, and $\underline{\beta}$ is a $p \times 1$ vector of unknown parameters. Furthermore, suppose that $\underline{b}$ and $\underline{e}$ are independent random vectors with $\underline{b} \sim N(\underline{0}, D)$ and $\underline{e} \sim N(\underline{0}, \sigma^2 I)$, where $D$ is an unknown non-negative definite matrix, and $\sigma^2$ is an unknown positive parameter.
 
-## Q: DO WE PUT A HAT ON JUST $\beta$? 
-
 ## (a) 
 
 Show that the simple least squares estimator (SLSE) of any estimable function $\underline{\lambda}'\underline{\beta}$ is the best linear unbiased estimator (BLUE) of $\underline{\lambda}'\underline{\beta}$.
 
 ### Answer
-
-Note: I am explicitly *not* invoking the results from Section 2.11 of the Summary Notes, as this cannot be clearly defined as a model of the type Model III (an Aitken model). That said... 
 
 Let $\underline{\lambda}'\underline{\beta}$ be an estimable function. By Theorem 2.7, $\underline{\lambda}'\underline{\beta}$ is estimable if and only if the conjugate normal equations are consistent. That is to say, we know there exists a solution $\underline{r}\in\mathbb R^p$ such that
 $$
@@ -170,7 +166,7 @@ Because $X'X\underline{r} = \underline{\lambda}$, noting transpose of matrices, 
 Taken together, this gives us:
 
 $$
-\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{SLSE}} = \underline{\lambda}'\widehat{\underline{\beta}} = (\underline{r}'X'X)\widehat{\underline{\beta}} = \underline{r}'(X'X\widehat{\underline{\beta}}) = \underline{r}'X'\underline{y} = (X\underline{r})'\underline{y}.
+\underline{\lambda}'\widehat{\underline{\beta}}_{\mathrm{SLSE}} = \underline{\lambda}'\widehat{\underline{\beta}} = (\underline{r}'X'X)\widehat{\underline{\beta}} = \underline{r}'(X'X\widehat{\underline{\beta}}) = \underline{r}'X'\underline{y} = (X\underline{r})'\underline{y}.
 $$
 
 The goal then is to establish that the SLSE is BLUE, i.e., that the SLSE is an unbiased estimator with the smallest variance among the class of linear unbiased estimators. 
@@ -184,15 +180,15 @@ noting linearity of expectation (and that $\underline{\beta}$ is non-random).
 Then, taking expectation of the SLSE, 
 
 $$
-E(\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{SLSE}}) = E(\underline{r}'X'\underline{y}) = \underline{r}'X'E(\underline{y}) = \underline{r}'X'X\underline{r} = \underline{r}'\underline{\lambda} = \underline{\lambda}'\underline{\beta}.
+E(\underline{\lambda}'\widehat{\underline{\beta}}_{\mathrm{SLSE}}) = E(\underline{r}'X'\underline{y}) = \underline{r}'X'E(\underline{y}) = \underline{r}'X'X\underline{r} = \underline{r}'\underline{\lambda} = \underline{\lambda}'\underline{\beta}.
 $$
 
 So the SLSE is unbiased, as desired. 
 
-Next, on the variance: Starting with $\underline{y}$: 
+Next, on the variance-covariance matrix: Starting with $\underline{y}$: 
 
 $$
-V=\operatorname{Var}(\underline{y}) = \operatorname{Var}(X(\underline{\beta} + \underline{b}) + \underline{e}) = \operatorname{Var}(X\underline{b} + \underline{e}) = X D X' + \sigma^2 I_n, 
+\operatorname{Var}(\underline{y}) = \operatorname{Var}(X(\underline{\beta} + \underline{b}) + \underline{e}) = \operatorname{Var}(X\underline{b} + \underline{e}) = X D X' + \sigma^2 I_n, 
 $$
 
 noting independence of $\underline{b}$ and $\underline{e}$. 
@@ -200,21 +196,21 @@ noting independence of $\underline{b}$ and $\underline{e}$.
 The variance of the SLSE is then
 
 $$
-\operatorname{Var}(\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{SLSE}})
+\operatorname{Var}(\underline{\lambda}'\widehat{\underline{\beta}}_{\mathrm{SLSE}})
 =\operatorname{Var}(\underline{r}'X'\underline{y})
 =\underline{r}'X'VX\underline{r}
 =\underline{r}'X'(XDX'+\sigma^2 I_n)X\underline{r}
 =\underline{\lambda}'D\underline{\lambda}+\sigma^2\underline{\lambda}'\underline{r}.
 $$
 
-## Q: SHOULD WE REFER TO THIS AS SOME OTHER ESTIMATOR LIKE $\tilde{\beta}$? 
+(Noting that $X'X\underline{r} = \underline{\lambda} \Rightarrow \underline{r}'X'X = \underline{\lambda}'$.)
 
 But can any other unbiased estimator have lower variance compared to the SLSE? To answer that, consider an (other) arbitrary linear unbiased estimator $c'\underline{y}$ of $\underline{\lambda}'\underline{\beta}$. By Lemma 2.1, unbiasedness requires $c'X = \underline{\lambda}'$; and since $X'X\underline{r}=\underline{\lambda}$, we also have $\underline{r}'X'X=\underline{\lambda}'$. 
 
 Let $\underline{d}=c-X\underline{r}$. Then 
 
 $$
-\underline{d}'X=c'X-\underline{r}'X'X=0.
+\underline{d}'X=c'X-\underline{r}'X'X= \underline{\lambda}' - \underline{\lambda}' = 0.
 $$
 The difference in variances between these two estimators is then
 $$
@@ -225,18 +221,25 @@ $$
 =2\underline{d}'VX\underline{r}+\underline{d}'V\underline{d}.
 $$
 
-The term $2\underline{d}'VX\underline{r}$ vanishes (i.e., is zero) because
+We consider the two quantities that make up $\operatorname{Var}(c'\underline{y})-\operatorname{Var}(\underline{r}'X'\underline{y})$ in turn. To start, note that the term $2\underline{d}'VX\underline{r}$ is zero because
 
 $$
 VX\underline{r}
 =(XDX'+\sigma^2 I_n)X\underline{r}
 =X(DX'X\underline{r}+\sigma^2\underline{r})
-=X(D\underline{\lambda}+\sigma^2\underline{r})
-\in\mathcal C(X),
+=X(D\underline{\lambda}+\sigma^2\underline{r}).
+$$
+
+We may then write
+
+$$
+2\underline{d}'VX\underline{r}
+= 2\underline{d}' \big[ X(D\underline{\lambda}+\sigma^2\underline{r}) \big]
+= 2(\underline{d}'X)(D\underline{\lambda}+\sigma^2\underline{r}).
 $$
 and $\underline{d}'X=0$, making the whole term zero. 
 
-And the remaining term, $\underline{d}'V\underline{d}$, is non-negative as
+The remaining term, $\underline{d}'V\underline{d}$, is non-negative as
 $$
 \underline{d}'V\underline{d}
 =\underline{d}'XDX'\underline{d}+\sigma^2\underline{d}'\underline{d}
@@ -252,9 +255,19 @@ $$
 -\operatorname{Var}(\underline{r}'X'\underline{y})\ge0.
 $$
 
-## Q: CAN WE CITE SOME THEOREM/KNOWN RESULT HERE TO BOOT? 
-
 So any other linear unbiased estimator can do "no better" in terms of its variance, and we conclude that the SLSE of any estimable function $\underline{\lambda}'\underline{\beta}$ is the BLUE.
+
+### An Aside 
+
+I have a hunch that I may have done more work than is necessary. In reviewing the Summary Notes again, we can argue that the model in this problem is of the form of Model VII. Thus, if we can identify a suitable matrix $Q$ such that $VX = XQ$, we have a clear path to the goal. 
+
+To that end, consider the variance-covariance matrix of $\underline{y}$ and call it $V$. We know $V = XDX' + \sigma^2 I_n$; then consider $Q = DX'X + \sigma^2 I_n$. 
+
+Then, we can verify that $VX = XQ$ holds, as:
+$$
+VX = (XDX' + \sigma^2 I_n)X = X(DX'X + \sigma^2 I_n) = XQ.
+$$
+Then we can invoke Corollary 1 to Theorem 2.21 and conclude that the SLSE is the BLUE for every estimable function $\underline{\lambda}'\underline{\beta}$ for the model specified in this problem.
 
 ## (b) 
 
@@ -265,9 +278,10 @@ Show that the variance of the BLUE of any estimable function $\underline{\lambda
 Using the conjugate normal equations noted in Theorem 2.7, let $\underline{r}$ be a solution to $X'X\underline{r}=\underline{\lambda}$. 
 
 Using the results from part (a), and taking as given that the SLSE is BLUE, we have
+
 $$
 \begin{aligned}
-\operatorname{Var}(\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{BLUE}})=\operatorname{Var}(\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{SLSE}})
+\operatorname{Var}(\underline{\lambda}'\widehat{\underline{\beta}}_{\mathrm{BLUE}})=\operatorname{Var}(\underline{\lambda}'\widehat{\underline{\beta}}_{\mathrm{SLSE}})
 &=\operatorname{Var}(\underline{r}'X'\underline{y})\\
 &=\underline{r}'X'VX\underline{r}\\
 &=\underline{r}'X'(XDX' + \sigma^2 I_n)X\underline{r}\\
@@ -278,41 +292,29 @@ $$
 \end{aligned}
 $$
 
-For an estimable $\underline{\lambda}'\underline{\beta}$, take
-$$
-\underline{r}=(X'X)^-\underline{\lambda},
-$$
-where $(X'X)^-$ denotes *a* generalized inverse of $X'X$. 
+For an estimable $\underline{\lambda}'\underline{\beta}$, take $\underline{r}=(X'X)^-\underline{\lambda},$ where $(X'X)^-$ denotes *a* generalized inverse of $X'X$. 
 
-## GENERAL IMPROVEMENTS NEEDED HERE 
+By the corollary to Theorem 2.7, $\underline{\lambda}'\underline{\beta}$ is estimable iff
+$$
+X'X(X'X)^-\underline{\lambda}=\underline{\lambda},
+$$
+which confirms that the conjugate normal equation ($X'X\underline{r}=\underline{\lambda}$) holds.
 
-By the corollary to Theorem 2.7, $\underline{\lambda}'\underline{\beta}$ is estimable iff 
-$$
-X'X(X'X)^-\underline{\lambda}=\underline{\lambda}. 
-$$
+Because we are working with a generalized inverse, there are potentially (infinitely) many solutions for $\underline{r}$ (i.e., the choice of generalized inverse $(X'X)^-$). To address this (potential) issue, note that because $\underline{\lambda}'\underline{\beta}$ is estimable, Theorem 2.1 guarantees that $\underline{\lambda}'\in\mathcal{R}(X)$. Thus, there exists a vector $\underline{a}$ such that $\underline{\lambda}' = \underline{a}'X$. 
 
-Via substitution of $\underline{r}=(X'X)^-\underline{\lambda}$, $X'X\underline{r}=\underline{\lambda}$. 
+Substituting this into the variance expression gives:
+$$
+\sigma^2\underline{\lambda}'(X'X)^-\underline{\lambda} 
+= \sigma^2\underline{a}'X(X'X)^-X'\underline{a} 
+= \sigma^2\underline{a}'P_X\underline{a},
+$$
+where $P_X = X(X'X)^-X'$. 
 
-However, there is one (potential) issue: Because we're working with a generalized inverse, there are (infinitely) many solutions. So the goal is then to show that the variance of the BLUE of any estimable function $\underline{\lambda}'\underline{\beta}$ does not depend on the exact solution (i.e., the specific generalized inverse of $X'X$) that we use. 
+Note: We know $P_X$ is an orthogonal projection matrix with the properties of $P_X$ following *after* Corollary 4 to Lemma 1.5 (i.e., the 5 noted properties, specifically property (3)). Furthermore, by property (1) of $P_X$, with note of Lemma 1.5, $P_X$ is invariant to the choice of the generalized inverse $(X'X)^-$. 
 
-To that point: Suppose that $\underline{r}_1$ and $\underline{r}_2$ both satisfy $X'X\underline{r}=\underline{\lambda}$. Then, by subtraction:
+In toto then, the expression for the variance of the BLUE of any estimable function $\underline{\lambda}'\underline{\beta}$ is given by:
 $$
-X'X\underline{r}_1=\underline{\lambda}= X'X\underline{r}_2 \Rightarrow X'X\underline{r}_1-X'X\underline{r}_2 = X'X(\underline{r}_1-\underline{r}_2)=\underline{0}.
-$$
-
-Taking the transpose of $\underline{\lambda} = X'X\underline{r}_1$ gives $\underline{\lambda}'=\underline{r}_1'X'X$. Substituting this quantity into the above expression: 
-$$
-\underline{\lambda}'(\underline{r}_1-\underline{r}_2)
-=\underline{r}_1'X'X(\underline{r}_1-\underline{r}_2)
-=\underline{r}_1'\big[X'X(\underline{r}_1-\underline{r}_2)\big]
-=\underline{r}_1'\underline{0}
-=0.
-$$
-Expanding this gives $\underline{\lambda}'\underline{r}_1 - \underline{\lambda}'\underline{r}_2 = 0 \Rightarrow \underline{\lambda}'\underline{r}_1 = \underline{\lambda}'\underline{r}_2$, meaning $\underline{\lambda}'\underline{r}$ is invariant to the choice of solution (i.e., the exact specification of $\underline{r}$).
-
-Finally, we substitute $\underline{r}=(X'X)^-\underline{\lambda}$ into the variance expression from above, giving us the variance of the BLUE of any estimable function $\underline{\lambda}'\underline{\beta}$:
-$$
-\operatorname{Var}(\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{BLUE}})
+\operatorname{Var}(\underline{\lambda}'\widehat{\underline{\beta}}_{\mathrm{BLUE}})
 =\sigma^2\underline{\lambda}'(X'X)^-\underline{\lambda}
 +\underline{\lambda}'D\underline{\lambda}.
 $$
@@ -530,9 +532,11 @@ X_1'X_1\underline{\beta}_1
 X_1'(\underline{y}-X_2\underline{b}).
 $$
 
-Let$\underline{y}^*=\underline{y}-X_2\underline{b}$, then the above equation is equivalent to $X_1'X_1\underline{\beta}_1=X_1'\underline{y}^*$. However, this is exactly the form of the ordinary normal equations for a Model II with design matrix $X_1$ and response $\underline{y}^*$! 
+Let $\underline{y}^*=\underline{y}-X_2\underline{b}$, then the above equation is equivalent to $X_1'X_1\underline{\beta}_1=X_1'\underline{y}^*$. However, this is exactly the form of the ordinary normal equations for a Model II with design matrix $X_1$ and response $\underline{y}^*$! 
 
-Looking ahead at the desired expression for the BLUE, we see that we will need $\widehat{\underline{\beta}}_1=(X_1'X_1)^-X_1'\underline{y}^*=(X_1'X_1)^-X_1'X_1\underline{\beta}_1$. (Admittedly, this is peeking at the ending to know where to go, but the verification below will justify the choice.) By Lemma 1.4,
+Looking ahead at the desired expression for the BLUE, we need $\widehat{\underline{\beta}}_1=(X_1'X_1)^-X_1'\underline{y}^*$. 
+
+To motivate such a choice, note that by Lemma 1.4,
 
 $$
 X_1'X_1(X_1'X_1)^-X_1'=X_1',
@@ -554,12 +558,10 @@ X_2'\underline{y}
 \end{pmatrix}.
 $$
 
-## NO TRANSPOSES HERE? 
-
-By construction, the vector $(\widehat{\underline{\beta}}', \widehat{\underline{\rho}}')'$ solves the constrained normal equations. Therefore, by Theorem 2.18, the BLUE of $\underline{\lambda}'\underline{\beta}$ is
+By construction, the vector $\begin{pmatrix} \widehat{\underline{\beta}} \\ \widehat{\underline{\rho}} \end{pmatrix}$ solves the constrained normal equations. Therefore, by Theorem 2.18, the BLUE of $\underline{\lambda}'\underline{\beta}$ is
 
 $$
-\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{BLUE}}
+\underline{\lambda}'\widehat{\underline{\beta}}_{\mathrm{BLUE}}
 =
 \underline{\lambda}'\widehat{\underline{\beta}}
 =
@@ -571,9 +573,7 @@ $$
 +\underline{\lambda}_2'\underline{b}.
 $$
 
-## COMPARE TO Q2 PART(B) 
-
-Finally, note that the above expression is well-defined, i.e., it does not depend on the choice of the generalized inverse of $(X_1'X_1)$. To prove this statement, note that because $\underline{\lambda}_1'\in\mathcal{R}(X_1)$, there exists a vector $\underline{a}$ such that $\underline{\lambda}_1'=\underline{a}'X_1$. Then
+Finally, note that the above expression is well-defined, i.e., it does not depend on the choice of the generalized inverse of $(X_1'X_1)$. To prove this statement, note that, with reference to part (a), because $\underline{\lambda}_1'\in\mathcal{R}(X_1)$, there exists a vector $\underline{a}$ such that $\underline{\lambda}_1'=\underline{a}'X_1$. Then
 
 $$
 \underline{\lambda}_1'(X_1'X_1)^-X_1'
@@ -913,7 +913,7 @@ $$
 \end{pmatrix}.
 $$
 
-Then $\underline{\lambda}'\underline{\beta}=\underline{\tilde{\lambda}}'\underline{\tilde{\beta}}$ on the constrained space, and since $\underline{\tilde{\lambda}}'\underline{\tilde{\beta}}$ is estimable, $\underline{\lambda}'\underline{\beta}$ is also estimable. And because $\underline{\lambda}\in\mathbb R^3$ was arbitrary, *all linear functions* $\underline{\lambda}'\underline{\beta}$ are estimable under $\gamma=\mu+\alpha$.
+Then $\underline{\lambda}'\underline{\beta}=\underline{\tilde{\lambda}}'\underline{\tilde{\beta}}$ on the constrained space, and since $\underline{\tilde{\lambda}}'\underline{\tilde{\beta}}$ is estimable, $\underline{\lambda}'\underline{\beta}$ is also estimable. And because $\underline{\lambda}\in\mathbb R^3$ was arbitrary, we may then conclude that all linear functions $\underline{\lambda}'\underline{\beta}$ are estimable under $\gamma=\mu+\alpha$.
 
 ## (b) 
 
@@ -1079,16 +1079,14 @@ $$
 
 where $\begin{pmatrix} \underline{r}_1 \\ \underline{r}_2 \end{pmatrix}$ is any solution to the constrained conjugate normal equations. 
 
-## NOTE WHY IS Since $\underline{b}=\underline{0}$ $\Rightarrow$ Conjugate constrained normal equations to constrained normal equations 
+Note: With regards to notation, $\underline{r}_2' = \rho$. Additionally note the original model constraint is $\gamma = \mu + \alpha \Rightarrow \mu + \alpha - \gamma = 0$. Thus, $A\underline{\beta} = \underline{b} \Rightarrow (1, 1, -1)\begin{pmatrix} \mu \\ \alpha \\ \gamma \end{pmatrix} = \mu + \alpha - \gamma = \underline{0}$, meaning $\underline{b} = \underline{0}$, such that $\underline{r}_2'\underline{b}$ is also zero. 
 
-Note: With regards to notation then, $\underline{r}_2' = \rho$ and $\underline{b}=\underline{0}$ (with note of the Definition *under* Theorem 2.11, i.e., the constrained normal equations). 
-
-It then follows that the quantity on the right-hand side ($\underline{r}_2'\underline{b}$) is zero. Also, by Theorem 2.18, this least-squares estimator is the BLUE under Model IIa. Now we just need to provide an (non-matrix) explicit expression. 
+Also, by Theorem 2.18, this least-squares estimator is the BLUE under Model IIa. Now we just need to provide an (non-matrix) explicit expression. 
 
 From question 4, $X=(\underline{1},\underline{x},\underline{z})$, so we need only compute and simplify using known quantities. Specifically
 
 $$
-\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{BLUE}}
+\underline{\lambda}'\widehat{\underline{\beta}}_{\mathrm{BLUE}}
 =\underline{r}_1'X'\underline{y}
 =r_1\underline{1}'\underline{y}
 +r_2\underline{x}'\underline{y}
@@ -1098,7 +1096,7 @@ $$
 Expanding
 
 $$
-\widehat{\underline{\lambda}'\underline{\beta}}_{\mathrm{BLUE}}
+\underline{\lambda}'\widehat{\underline{\beta}}_{\mathrm{BLUE}}
 =
 \left(\frac{2\lambda_1-\lambda_2+\lambda_3}{3n}\right)
 \sum_{i=1}^n y_i
