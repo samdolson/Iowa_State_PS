@@ -1,0 +1,239 @@
+---
+title: "HW6"
+author: "Sam Olson"
+output: pdf_document
+---
+
+# Q1: 2.28
+
+Let $\mu$ be the Lebesgue measure on $([-1, 1], \mathcal{B}([-1, 1]))$. For $n \geq 1$, define $f_n(x) = nI_{(0,n^{-1})}(x) - nI_{(-n^{-1},0)}(x)$ and $f(x) \equiv 0$ for $x \in [-1, 1]$. Show that $f_n \to f$ a.e. $(\mu)$ and $\int f_n\, d\mu \to \int f\, d\mu$ but $\{f_n\}_{n \geq 1}$ is not UI.
+
+## Answer
+
+We utilize the following results:
+
+- Proposition A.2.1 (Axiom of Archimedes): for every $y \in \mathbb{R}$, there exists $n \in \mathbb{N}$ with $n > y$.
+- Definition 2.3.2 (integral of a simple nonnegative function): if $f = \sum_{i=1}^k c_i I_{A_i}$ with $c_i \geq 0$ and $A_i \in \mathcal{F}$, then $\int f\, d\mu = \sum_{i=1}^k c_i\, \mu(A_i)$.
+- Definition 2.3.4 (integral of a measurable function): $\int f\, d\mu = \int f^+\, d\mu - \int f^-\, d\mu$, where $f^+ = fI_{\{f \geq 0\}}$ and $f^- = -fI_{\{f < 0\}}$, provided at least one of the two is finite.
+- Definition 2.5.2 (convergence a.e.): $f_n \to f$ a.e. $(\mu)$ if there is a $B \in \mathcal{F}$ with $\mu(B) = 0$ and $f_n(\omega) \to f(\omega)$ for all $\omega \in B^c$.
+- Definition 2.5.8 (uniform integrability): $\{f_\lambda : \lambda \in \Lambda\} \subset L^1(\Omega, \mathcal{F}, \mu)$ is UI if $\sup_{\lambda \in \Lambda} a_\lambda(t) \to 0$ as $t \to \infty$, where $a_\lambda(t) \equiv \int_{\{|f_\lambda| > t\}} |f_\lambda|\, d\mu$.
+- Remark 2.5.4: when $\mu(\Omega) < \infty$ and $f_n \to f$ a.e. $(\mu)$, UI of $\{f_n\}_{n \geq 1}$ is sufficient, but not necessary, for $\int f_n\, d\mu \to \int f\, d\mu$; when $\mu(\Omega) = \infty$, UI no longer suffices.
+
+*Proof.* Since $f_n$ equals $n$ on $(0, n^{-1})$, $-n$ on $(-n^{-1}, 0)$, and $0$ elsewhere,
+$$f_n^+ = nI_{(0, n^{-1})}, \qquad f_n^- = nI_{(-n^{-1}, 0)}, \qquad |f_n| = nI_{(-n^{-1}, 0) \cup (0, n^{-1})}.$$
+
+**$f_n \to f$ a.e. $(\mu)$:** Let $x \in [-1, 1]$ be given. If $x = 0$, then $f_n(0) = 0$ for all $n \geq 1$, since $0$ is in neither open interval. If $x \neq 0$, then by Proposition A.2.1 there exists $N \in \mathbb{N}$ with $N > 1/|x|$. For all $n \geq N$, $1/n \leq 1/N < |x|$, so $x \notin (-n^{-1}, n^{-1})$ and $f_n(x) = 0$. In either case, $f_n(x) \to 0 = f(x)$. Thus $B \equiv \{x \in [-1, 1] : f_n(x) \not\to f(x)\} = \emptyset$, and since $\mu(\emptyset) = 0$, $f_n \to f$ a.e. $(\mu)$ (Definition 2.5.2).
+
+**$\int f_n\, d\mu \to \int f\, d\mu$:** By Definitions 2.3.2 and 2.3.4, for every $n \geq 1$,
+$$\int f_n\, d\mu = \int f_n^+\, d\mu - \int f_n^-\, d\mu = n\,\mu\big((0, n^{-1})\big) - n\,\mu\big((-n^{-1}, 0)\big) = 1 - 1 = 0.$$
+Since $\int f\, d\mu = \int 0\, d\mu = 0$, we have $\int f_n\, d\mu = \int f\, d\mu$ for every $n$, and so $\int f_n\, d\mu \to \int f\, d\mu$.
+
+**$\{f_n\}_{n \geq 1}$ is not UI:** By Definition 2.3.2, $\int |f_n|\, d\mu = n \cdot \frac{2}{n} = 2 < \infty$, so each $f_n \in L^1(\mu)$. Let $t > 0$ be given. If $n \leq t$, then $|f_n| \leq n \leq t$, so $\{|f_n| > t\} = \emptyset$ and $a_n(t) = 0$. If $n > t$, then $\{|f_n| > t\} = (-n^{-1}, 0) \cup (0, n^{-1})$, so $a_n(t) = \int |f_n|\, d\mu = 2$. It then follows that
+$$\sup_{n \geq 1} a_n(t) = 2 \quad \text{for every } t > 0,$$
+which does not tend to $0$ as $t \to \infty$. Thus $\{f_n\}_{n \geq 1}$ is not UI.
+
+Said differently, even with $\mu(\Omega) < \infty$, UI is not necessary for $\int f_n\, d\mu \to \int f\, d\mu$ (Remark 2.5.4). //
+
+# Q2: 2.30
+
+For $n \geq 1$, let $f_n(x) = n^{-1/2} I_{(0,n)}(x)$, $x \in \mathbb{R}$, and let $f(x) = 0$, $x \in \mathbb{R}$. Let $m$ denote the Lebesgue measure on $(\mathbb{R}, \mathcal{B}(\mathbb{R}))$. Show that $f_n \to f$ a.e. $(m)$ and $\{f_n\}_{n \geq 1}$ is UI, but $\int f_n\, dm \not\to \int f\, dm$.
+
+## Answer
+
+We utilize the following results (each stated in Q1):
+
+- Definition 2.3.2 (integral of a simple nonnegative function).
+- Definition 2.5.2 (convergence a.e.).
+- Definition 2.5.8 (uniform integrability), with $a_n(t) \equiv \int_{\{|f_n| > t\}} |f_n|\, dm$.
+- Remark 2.5.4 (UI suffices for convergence of integrals when $\mu(\Omega) < \infty$, but not when $\mu(\Omega) = \infty$).
+
+*Proof.*
+
+**$f_n \to f$ a.e. $(m)$:** For every $x \in \mathbb{R}$, $0 \leq f_n(x) \leq n^{-1/2}$, and $n^{-1/2} \to 0$. So $f_n(x) \to 0 = f(x)$ for every $x \in \mathbb{R}$. Thus $B \equiv \{x : f_n(x) \not\to f(x)\} = \emptyset$, and since $m(\emptyset) = 0$, $f_n \to f$ a.e. $(m)$ (Definition 2.5.2).
+
+**$\{f_n\}_{n \geq 1}$ is UI:** By Definition 2.3.2, $\int |f_n|\, dm = n^{-1/2}\, m((0, n)) = n^{-1/2} \cdot n = n^{1/2} < \infty$, so each $f_n \in L^1(m)$. Let $t \geq 1$ be given. Since $|f_n| \leq n^{-1/2} \leq 1 \leq t$, $\{|f_n| > t\} = \emptyset$, and so $a_n(t) = 0$ for all $n \geq 1$. Hence $\sup_{n \geq 1} a_n(t) = 0$ for all $t \geq 1$, which tends to $0$ as $t \to \infty$. Thus $\{f_n\}_{n \geq 1}$ is UI.
+
+**$\int f_n\, dm \not\to \int f\, dm$:** From the computation above, $\int f_n\, dm = n^{1/2} \to \infty$, while $\int f\, dm = 0$. Thus $\int f_n\, dm \not\to \int f\, dm$.
+
+In contrast to Q1, here $m(\mathbb{R}) = \infty$, and UI together with a.e. convergence is not enough for $\int f_n\, dm \to \int f\, dm$ (Remark 2.5.4). //
+
+# Q3: 2.36
+
+We utilize the following results for (a) and (b):
+
+- Definition 2.5.3 (convergence in measure): $f_n \stackrel{m}{\longrightarrow} f$ if $\mu(\{|f_n - f| > \epsilon\}) \to 0$ for each $\epsilon > 0$.
+- Definition 2.5.4 (convergence in $L^p$): $f_n \to f$ in $L^p(\mu)$ if $f_n, f \in L^p(\mu)$ and $\int |f_n - f|^p\, d\mu \to 0$.
+- Definition 2.5.8 (uniform integrability; see Q1), with $a_\lambda(t) \equiv \int_{\{|f_\lambda| > t\}} |f_\lambda|\, d\mu$.
+- Proposition 2.5.7 (properties of UI families of integrable functions): (i) a finite family is UI; (iv) if $\{f_\lambda : \lambda \in \Lambda\}$ and $\{g_\gamma : \gamma \in \Gamma\}$ are UI, then so is $\{f_\lambda + g_\gamma : \lambda \in \Lambda, \gamma \in \Gamma\}$; (v) if $\{f_\lambda : \lambda \in \Lambda\}$ is UI and $\mu(\Omega) < \infty$, then $\sup_{\lambda \in \Lambda} \int |f_\lambda|\, d\mu < \infty$.
+- Theorem 2.5.2: if $f_n \stackrel{m}{\longrightarrow} f$, then there is a subsequence $\{n_k\}_{k \geq 1}$ with $f_{n_k} \to f$ a.e. $(\mu)$.
+- Theorem 2.3.7 (Fatou's lemma): for nonnegative measurable $\{f_n\}_{n \geq 1}$, $\int \liminf_{n \to \infty} f_n\, d\mu \leq \liminf_{n \to \infty} \int f_n\, d\mu$.
+- Corollary 2.3.3: Proposition 2.3.1 holds for nonnegative measurable functions; in particular, $f \geq g$ a.e. $(\mu)$ implies $\int f\, d\mu \geq \int g\, d\mu$, and $f = g$ a.e. $(\mu)$ implies $\int f\, d\mu = \int g\, d\mu$.
+
+## (a)
+
+Let $\{f_n\}_{n \geq 1} \subset L^1(\Omega, \mathcal{F}, \mu)$ such that $f_n \to 0$ in $L^1(\mu)$. Show that $\{f_n\}_{n \geq 1}$ is UI.
+
+### Answer
+
+*Proof.* Let $a_n(t)$ be as in Q1, and let $\epsilon > 0$ be given. Since $f_n \to 0$ in $L^1(\mu)$, $\int |f_n|\, d\mu \to 0$ (Definition 2.5.4). So there exists $N \in \mathbb{N}$ with $\int |f_n|\, d\mu < \epsilon$ for all $n > N$. Since $a_n(t) \leq \int |f_n|\, d\mu$ for every $t$,
+$$\sup_{n > N} a_n(t) \leq \epsilon \quad \text{for all } t > 0.$$
+That leaves the first $N$ terms. $\{f_1, \ldots, f_N\}$ is a finite family in $L^1(\mu)$, so it is UI by Proposition 2.5.7(i). Hence there exists $t_\epsilon > 0$ with $\sup_{1 \leq n \leq N} a_n(t) < \epsilon$ for all $t \geq t_\epsilon$. Combining the two bounds,
+$$\sup_{n \geq 1} a_n(t) \leq \epsilon \quad \text{for all } t \geq t_\epsilon.$$
+Since $\epsilon > 0$ was arbitrary, $\sup_{n \geq 1} a_n(t) \to 0$ as $t \to \infty$, and we conclude that $\{f_n\}_{n \geq 1}$ is UI. //
+
+## (b)
+
+Let $\{f_n\}_{n \geq 1} \subset L^p(\Omega, \mathcal{F}, \mu)$, $0 < p < \infty$, such that $\mu(\Omega) < \infty$, $\{|f_n|^p\}_{n \geq 1}$ is UI and $f_n \stackrel{m}{\longrightarrow} f$. Show that $f \in L^p(\mu)$ and $f_n \to f$ in $L^p(\mu)$.
+
+### Answer
+
+*Proof.* Write $g_n \equiv |f_n - f|^p$. We then have three goals: (1) $f \in L^p(\mu)$, (2) $\{g_n\}_{n \geq 1}$ is UI, and (3) $\int g_n\, d\mu \to 0$.
+
+**(1) $f \in L^p(\mu)$:** By Theorem 2.5.2, there is a subsequence $\{n_k\}_{k \geq 1}$ with $f_{n_k} \to f$ a.e. $(\mu)$. Since $x \mapsto |x|^p$ is continuous, $|f_{n_k}|^p \to |f|^p$ a.e. $(\mu)$ as well, so $|f|^p = \liminf_{k \to \infty} |f_{n_k}|^p$ a.e. $(\mu)$. Since $\{|f_n|^p\}_{n \geq 1}$ is UI and $\mu(\Omega) < \infty$, Proposition 2.5.7(v) gives
+$$K \equiv \sup_{n \geq 1} \int |f_n|^p\, d\mu < \infty.$$
+It then follows from Corollary 2.3.3 and Fatou's lemma that
+$$\int |f|^p\, d\mu = \int \liminf_{k \to \infty} |f_{n_k}|^p\, d\mu \leq \liminf_{k \to \infty} \int |f_{n_k}|^p\, d\mu \leq K < \infty,$$
+so $f \in L^p(\mu)$.
+
+**(2) $\{g_n\}_{n \geq 1}$ is UI:** Since $|f_n - f| \leq |f_n| + |f| \leq 2\max\{|f_n|, |f|\}$ and $x \mapsto x^p$ is increasing on $[0, \infty)$,
+$$0 \leq g_n \leq 2^p \max\{|f_n|^p, |f|^p\} \leq G_n \equiv 2^p |f_n|^p + 2^p |f|^p.$$
+We claim $\{G_n\}_{n \geq 1}$ is UI. First, $\{2^p |f_n|^p\}_{n \geq 1}$ is UI, since for $t > 0$,
+$$\sup_{n \geq 1} \int_{\{2^p |f_n|^p > t\}} 2^p |f_n|^p\, d\mu = 2^p \sup_{n \geq 1} \int_{\{|f_n|^p > t/2^p\}} |f_n|^p\, d\mu \to 0 \quad \text{as } t \to \infty$$
+by the UI of $\{|f_n|^p\}_{n \geq 1}$. Second, $2^p |f|^p \in L^1(\mu)$ by (1), so the one-element family $\{2^p |f|^p\}$ is UI by Proposition 2.5.7(i). Hence $\{G_n\}_{n \geq 1}$ is UI by Proposition 2.5.7(iv).
+
+To pass this to $\{g_n\}_{n \geq 1}$, let $h_t(x) \equiv xI_{(t, \infty)}(x)$, so that $\int_{\{u > t\}} u\, d\mu = \int h_t(u)\, d\mu$ for nonnegative $u$. Since $h_t$ is nondecreasing on $[0, \infty)$ and $0 \leq g_n \leq G_n$, we have $h_t(g_n) \leq h_t(G_n)$, and so by Corollary 2.3.3,
+$$\sup_{n \geq 1} \int_{\{g_n > t\}} g_n\, d\mu \leq \sup_{n \geq 1} \int_{\{G_n > t\}} G_n\, d\mu \to 0 \quad \text{as } t \to \infty.$$
+Each $g_n$ is also integrable, since $g_n \leq G_n \in L^1(\mu)$. Thus $\{g_n\}_{n \geq 1}$ is UI.
+
+**(3) $\int g_n\, d\mu \to 0$:** Let $\epsilon > 0$ and $t > \epsilon$ be given, and let $c(t) \equiv \sup_{k \geq 1} \int_{\{g_k > t\}} g_k\, d\mu$. Splitting $\Omega$ into $\{g_n \leq \epsilon\}$, $\{\epsilon < g_n \leq t\}$, and $\{g_n > t\}$,
+$$\int g_n\, d\mu \leq \epsilon\, \mu(\Omega) + t\, \mu(\{g_n > \epsilon\}) + c(t).$$
+Since $\{g_n > \epsilon\} = \{|f_n - f| > \epsilon^{1/p}\}$ and $f_n \stackrel{m}{\longrightarrow} f$, Definition 2.5.3 gives $\mu(\{g_n > \epsilon\}) \to 0$. So
+$$0 \leq \limsup_{n \to \infty} \int g_n\, d\mu \leq \epsilon\, \mu(\Omega) + c(t).$$
+Letting $t \to \infty$, $c(t) \to 0$ by (2). Then letting $\epsilon \downarrow 0$, $\epsilon\, \mu(\Omega) \to 0$ since $\mu(\Omega) < \infty$. Thus $\int |f_n - f|^p\, d\mu \to 0$.
+
+Combining (1)--(3), $f_n, f \in L^p(\mu)$ and $\int |f_n - f|^p\, d\mu \to 0$, so $f_n \to f$ in $L^p(\mu)$ (Definition 2.5.4). //
+
+# Q4: 2.42
+
+(Change of variables formula). Let $(\Omega_i, \mathcal{F}_i)$, $i = 1, 2$ be two measurable spaces. Let $f : \Omega_1 \to \Omega_2$ be $\langle\mathcal{F}_1, \mathcal{F}_2\rangle$-measurable, $h : \Omega_2 \to \mathbb{R}$ be $\langle\mathcal{F}_2, \mathcal{B}(\mathbb{R})\rangle$-measurable, and $\mu_1$ be a measure on $(\Omega_1, \mathcal{F}_1)$. Show that $g \equiv h \circ f$, i.e., $g(\omega) \equiv h(f(\omega))$ for $\omega \in \Omega_1$ is in $L^1(\mu)$ iff $h(\cdot) \in L^1(\Omega_2, \mathcal{F}_2, \mu_2)$ where $\mu_2 = \mu_1 f^{-1}$ iff $I(\cdot) \in L^1\big(\mathbb{R}, \mathcal{B}(\mathbb{R}), \mu_3 \equiv \mu_2 h^{-1}\big)$ where $I(\cdot)$ is the identity function in $\mathbb{R}$, i.e., $I(x) \equiv x$ for all $x \in \mathbb{R}$ and also that
+$$\int_{\Omega_1} g\, d\mu_1 = \int_{\Omega_2} h\, d\mu_2 = \int_{\mathbb{R}} x\, d\mu_3.$$
+
+(**Hint:** To show the first equality (and the first part of the problem), start with a simple non-negative function $h$ and follow the usual steps to conclude about general $h$. The second part of the problem is related to the first part.)
+
+## Answer
+
+We utilize the following results:
+
+- Proposition 2.1.1(ii): if $T_1$ is $\langle\mathcal{F}_1, \mathcal{F}_2\rangle$-measurable and $T_2$ is $\langle\mathcal{F}_2, \mathcal{F}_3\rangle$-measurable, then $T_2 \circ T_1$ is $\langle\mathcal{F}_1, \mathcal{F}_3\rangle$-measurable.
+- Proposition 2.1.2: a continuous $f : \mathbb{R}^p \to \mathbb{R}^k$ is $\langle\mathcal{B}(\mathbb{R}^p), \mathcal{B}(\mathbb{R}^k)\rangle$-measurable.
+- Proposition 2.2.1 and (2.2) (induced measure): if $T : \Omega_1 \to \Omega_2$ is $\langle\mathcal{F}_1, \mathcal{F}_2\rangle$-measurable and $\mu$ is a measure on $(\Omega_1, \mathcal{F}_1)$, then $\mu T^{-1}(A) \equiv \mu(T^{-1}(A))$, $A \in \mathcal{F}_2$, is a measure on $\mathcal{F}_2$.
+- Definitions 2.3.2 and 2.3.4 (integrals of simple nonnegative and of measurable functions; see Q1).
+- Definition 2.3.3 (integral of a nonnegative measurable function): $\int f\, d\mu \equiv \lim_{n \to \infty} \int f_n\, d\mu$ for any nonnegative simple $f_n \uparrow f$. The limit does not depend on the sequence (Proposition 2.3.2), and such a sequence always exists, e.g. (3.7).
+- Remark 2.3.7: $f^+$ and $f^-$ are nonnegative and measurable, with $f = f^+ - f^-$ and $|f| = f^+ + f^-$.
+- Definition 2.3.5 (integrability): $f \in L^1(\mu)$ iff $\int |f|\, d\mu < \infty$.
+
+*Proof.* To keep the three spaces straight,
+$$(\Omega_1, \mathcal{F}_1, \mu_1) \xrightarrow{\ f\ } (\Omega_2, \mathcal{F}_2, \mu_2) \xrightarrow{\ h\ } (\mathbb{R}, \mathcal{B}(\mathbb{R}), \mu_3), \qquad \mu_2 = \mu_1 f^{-1}, \quad \mu_3 = \mu_2 h^{-1}.$$
+By Proposition 2.2.1, $\mu_2$ and $\mu_3$ are measures on $\mathcal{F}_2$ and $\mathcal{B}(\mathbb{R})$. By Proposition 2.1.1(ii), $g = h \circ f$ is $\langle\mathcal{F}_1, \mathcal{B}(\mathbb{R})\rangle$-measurable. By Proposition 2.1.2, $I$ is $\langle\mathcal{B}(\mathbb{R}), \mathcal{B}(\mathbb{R})\rangle$-measurable, being continuous.
+
+We first show
+$$g \in L^1(\mu_1) \iff h \in L^1(\mu_2), \quad \text{in which case} \quad \int_{\Omega_1} g\, d\mu_1 = \int_{\Omega_2} h\, d\mu_2. \tag{$\ast$}$$
+Following the hint, we build up from simple $h$.
+
+**Nonnegative simple $h$:** Let $h = \sum_{i=1}^k c_i I_{A_i}$ with $c_i \in [0, \infty)$ and $A_i \in \mathcal{F}_2$. For $\omega \in \Omega_1$, $I_{A_i}(f(\omega)) = 1$ iff $f(\omega) \in A_i$ iff $\omega \in f^{-1}(A_i)$, so $I_{A_i} \circ f = I_{f^{-1}(A_i)}$. Thus
+$$h \circ f = \sum_{i=1}^k c_i I_{f^{-1}(A_i)},$$
+which is nonnegative and simple on $\Omega_1$, since each $f^{-1}(A_i) \in \mathcal{F}_1$. By Definition 2.3.2 and (2.2),
+$$\int_{\Omega_1} h \circ f\, d\mu_1 = \sum_{i=1}^k c_i\, \mu_1\big(f^{-1}(A_i)\big) = \sum_{i=1}^k c_i\, \mu_2(A_i) = \int_{\Omega_2} h\, d\mu_2.$$
+
+**Nonnegative measurable $h$:** Let $h \geq 0$, and let $\{h_n\}_{n \geq 1}$ be nonnegative simple functions on $\Omega_2$ with $h_n \uparrow h$ pointwise, e.g. as in (3.7). By the simple case, each $h_n \circ f$ is nonnegative and simple on $\Omega_1$, and $h_n \circ f \uparrow h \circ f$ pointwise. Applying Definition 2.3.3 on both spaces, together with the simple case,
+$$\int_{\Omega_1} h \circ f\, d\mu_1 = \lim_{n \to \infty} \int_{\Omega_1} h_n \circ f\, d\mu_1 = \lim_{n \to \infty} \int_{\Omega_2} h_n\, d\mu_2 = \int_{\Omega_2} h\, d\mu_2.$$
+
+**General $h$:** Pointwise, $g^+ = h^+ \circ f$, $g^- = h^- \circ f$, and $|g| = |h| \circ f$. Since $h^+$, $h^-$, and $|h|$ are nonnegative and measurable (Remark 2.3.7), the previous case gives
+$$\int_{\Omega_1} |g|\, d\mu_1 = \int_{\Omega_2} |h|\, d\mu_2 \qquad \text{and} \qquad \int_{\Omega_1} g^{\pm}\, d\mu_1 = \int_{\Omega_2} h^{\pm}\, d\mu_2.$$
+By Definition 2.3.5, the first identity gives $g \in L^1(\mu_1)$ iff $h \in L^1(\mu_2)$. When both are integrable, the second identity and Definition 2.3.4 give
+$$\int_{\Omega_1} g\, d\mu_1 = \int_{\Omega_1} g^+\, d\mu_1 - \int_{\Omega_1} g^-\, d\mu_1 = \int_{\Omega_2} h^+\, d\mu_2 - \int_{\Omega_2} h^-\, d\mu_2 = \int_{\Omega_2} h\, d\mu_2,$$
+which proves ($\ast$).
+
+**Second equivalence:** The second part is ($\ast$) again, one step down the chain. Take $(\Omega_2, \mathcal{F}_2, \mu_2)$ as the starting space, $h$ as the map, and $I$ as the function being integrated; both are measurable, as noted above. Since $I \circ h = h$ and the induced measure is $\mu_2 h^{-1} = \mu_3$, ($\ast$) gives $h \in L^1(\mu_2)$ iff $I \in L^1(\mu_3)$, in which case
+$$\int_{\Omega_2} h\, d\mu_2 = \int_{\mathbb{R}} I\, d\mu_3 = \int_{\mathbb{R}} x\, d\mu_3.$$
+
+Combining the two equivalences, $g \in L^1(\mu_1)$ iff $h \in L^1(\mu_2)$ iff $I \in L^1(\mu_3)$, and in that case $\int_{\Omega_1} g\, d\mu_1 = \int_{\Omega_2} h\, d\mu_2 = \int_{\mathbb{R}} x\, d\mu_3$. //
+
+# Q5: Extra A
+
+Let $(\Omega, \mathcal{F}, P) = ([0, 1], \mathcal{B}([0, 1]), m)$, where $m$ denotes the Lebesgue measure. Define the random variables $X, \{X_n\}$: for each $\omega \in \Omega$, $X(\omega) = 1$,
+$$X_1(\omega) = 0, \qquad X_n(\omega) = 1 + (n - 1)I_{[0, \frac{1}{n}]}(\omega), \quad n \geq 2.$$
+
+We utilize the following results for (a)--(e):
+
+- Proposition A.2.1 (Axiom of Archimedes; see Q1).
+- Definition 2.3.2 (integral of a simple nonnegative function; see Q1).
+- Definition 2.5.2 (convergence a.e.; see Q1). Convergence a.s. $(P)$ is convergence a.e. with respect to $P$.
+- Definitions 2.5.3 and 2.5.4 (convergence in measure and in $L^p$; see Q3). Convergence in probability is convergence in measure with respect to $P$.
+- Theorem 2.5.1: if $\mu(\Omega) < \infty$, then $f_n \to f$ a.e. $(\mu)$ implies $f_n \stackrel{m}{\longrightarrow} f$.
+- Definition 2.5.8 (uniform integrability; see Q1).
+
+## (a)
+
+Does $X_n \to X$ everywhere as $n \to \infty$?
+
+### Answer
+
+No; the single point $\omega = 0$ spoils it.
+
+*Proof.* For all $n \geq 2$, $0 \in [0, \frac{1}{n}]$, so
+$$X_n(0) = 1 + (n - 1) = n \to \infty \neq 1 = X(0). \quad //$$
+
+## (b)
+
+Does $X_n \to X$ a.s. $(P)$ as $n \to \infty$?
+
+### Answer
+
+Yes.
+
+*Proof.* Let $\omega \in (0, 1]$ be given. By Proposition A.2.1, there exists $N \in \mathbb{N}$ with $N > \max\{1/\omega, 1\}$, so $N \geq 2$. For all $n \geq N$, $1/n \leq 1/N < \omega$, so $\omega \notin [0, \frac{1}{n}]$ and $X_n(\omega) = 1 = X(\omega)$. So $X_n(\omega) \to X(\omega)$ for every $\omega \in (0, 1]$. Together with (a),
+$$B \equiv \{\omega \in [0, 1] : X_n(\omega) \not\to X(\omega)\} = \{0\}.$$
+Since $P(\{0\}) = m(\{0\}) = 0$, $X_n \to X$ a.s. $(P)$ (Definition 2.5.2). //
+
+## (c)
+
+Does $X_n \to X$ in probability as $n \to \infty$?
+
+### Answer
+
+Yes.
+
+*Proof.* $P = m$ is a probability measure on $[0, 1]$, so $P(\Omega) = 1 < \infty$. By (b), $X_n \to X$ a.s. $(P)$, so Theorem 2.5.1 gives $X_n \stackrel{P}{\longrightarrow} X$. //
+
+## (d)
+
+Does $X_n \to X$ in $L^p$ as $n \to \infty$? Argue for different values of $p \in (0, \infty)$.
+
+### Answer
+
+$X_n \to X$ in $L^p$ for $0 < p < 1$, but not for $1 \leq p < \infty$.
+
+*Proof.* First, $X$ and every $X_n$ are in $L^p(P)$ for every $0 < p < \infty$: $|X| = 1$, $X_1 = 0$, and $|X_n| \leq n$ for $n \geq 2$, so each is bounded, and $P(\Omega) = 1$. Next, for $n \geq 2$, $X_n - X = (n - 1)I_{[0, \frac{1}{n}]}$, so $|X_n - X|^p = (n - 1)^p I_{[0, \frac{1}{n}]}$ is nonnegative and simple. By Definition 2.3.2,
+$$\int |X_n - X|^p\, dP = (n - 1)^p\, m\big([0, \tfrac{1}{n}]\big) = \frac{(n - 1)^p}{n}.$$
+So, by Definition 2.5.4, $X_n \to X$ in $L^p$ iff $(n - 1)^p/n \to 0$.
+
+*Case $0 < p < 1$:* $0 \leq (n - 1)^p/n < n^p/n = n^{p - 1} \to 0$, since $p - 1 < 0$. So $X_n \to X$ in $L^p$.
+
+*Case $p = 1$:* $(n - 1)/n = 1 - 1/n \to 1 \neq 0$. So $X_n \not\to X$ in $L^1$.
+
+*Case $1 < p < \infty$:* Since $(n - 1)/n \geq 1/2$ for $n \geq 2$,
+$$\frac{(n - 1)^p}{n} = (n - 1)^{p - 1} \cdot \frac{n - 1}{n} \geq \frac{(n - 1)^{p - 1}}{2} \to \infty,$$
+since $p - 1 > 0$. So $X_n \not\to X$ in $L^p$. //
+
+## (e)
+
+Is $\{X_n\}$ a uniformly integrable sequence of random variables?
+
+### Answer
+
+No.
+
+*Proof.* Let $a_n(t)$ be as in Q1, with $P$ in place of $\mu$, and let $t \geq 1$ be given. Take any $n > t$, so that $n \geq 2$. On $[0, \frac{1}{n}]$, $|X_n| = n > t$, and on $(\frac{1}{n}, 1]$, $|X_n| = 1 \leq t$. So $\{|X_n| > t\} = [0, \frac{1}{n}]$, and by Definition 2.3.2,
+$$a_n(t) = \int nI_{[0, \frac{1}{n}]}\, dP = n\, m\big([0, \tfrac{1}{n}]\big) = 1.$$
+Thus $\sup_{n \geq 1} a_n(t) \geq 1$ for every $t \geq 1$, which does not tend to $0$ as $t \to \infty$. Hence $\{X_n\}_{n \geq 1}$ is not UI (Definition 2.5.8). //

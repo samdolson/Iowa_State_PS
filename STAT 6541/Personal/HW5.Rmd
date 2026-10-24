@@ -4,11 +4,6 @@ author: "Sam Olson"
 output: pdf_document
 ---
 
-# Progress
-
-- Add Preface/Known results to top of each problem/section
-- General checks 
-
 # Q1: 2.15 (c)
 
 Consider the probability space $\big((0,1), \mathcal{B}((0,1)), m\big)$, where $m(\cdot)$ is the Lebesgue measure.
@@ -28,6 +23,13 @@ $$
 Z_i = F_i^{-1}(x), \quad 0 < x < 1, \quad i = 1, 2.
 $$
 
+We utilize the following results for (i) and (ii):
+
+- Definition 2.2.4 (cdf): $F : \mathbb{R} \to \mathbb{R}$ is a cdf if it is nondecreasing, right continuous (i.e., $F(x) = \lim_{y \downarrow x} F(y)$), and satisfies $\lim_{x \to -\infty} F(x) = 0$ and $\lim_{x \to \infty} F(x) = 1$, the properties of Proposition 2.2.2.
+- Definition 2.1.2(b) (random variable): $X : \Omega \to \mathbb{R}$ is a random variable if $\{\omega : X(\omega) \leq a\} \in \mathcal{F}$ for each $a \in \mathbb{R}$.
+- Definition 2.2.3 (cdf of a random variable): $F_X(t) \equiv P(X \leq t)$, $t \in \mathbb{R}$.
+- Lebesgue measure: $m$ of an interval is its length, so $m\big((0, c) \cap (0,1)\big) = m\big((0, c] \cap (0,1)\big) = c$ for $0 \leq c \leq 1$; and $A \subset B$ implies $m(A) \leq m(B)$.
+
 ## (i)
 
 Find the cdf of $Z_i$, $i = 1, 2$.
@@ -36,30 +38,30 @@ Find the cdf of $Z_i$, $i = 1, 2$.
 
 ### Answer
 
-For $x \in (0,1)$, let $A_x \equiv \{y \in \mathbb{R} : F(y) \geq x\}$ and $B_x \equiv \{y \in \mathbb{R} : F(y) \leq x\}$, so that $F_1^{-1}(x) = \inf A_x$ and $F_2^{-1}(x) = \sup B_x$. Since $F$ is nondecreasing with $F(y) \to 0 < x$ as $y \to -\infty$ and $F(y) \to 1 > x$ as $y \to \infty$ (Definition 2.2.4), $A_x$ is nonempty and bounded below, and $B_x$ is nonempty and bounded above. Thus $F_1^{-1}(x)$ and $F_2^{-1}(x)$ are finite.
+$Z_1$ and $Z_2$ both have cdf $F$.
 
-*Proof.* **Claim.** For any $x \in (0,1)$ and $t \in \mathbb{R}$,
+For $x \in (0,1)$, let $A_x \equiv \{y \in \mathbb{R} : F(y) \geq x\}$ and $B_x \equiv \{y \in \mathbb{R} : F(y) \leq x\}$, so that $F_1^{-1}(x) = \inf A_x$ and $F_2^{-1}(x) = \sup B_x$. Both are finite. Since $F$ is nondecreasing with $F(y) \to 0 < x$ as $y \to -\infty$ and $F(y) \to 1 > x$ as $y \to \infty$ (Definition 2.2.4), $A_x$ is nonempty and bounded below (by any $y_0$ with $F(y_0) < x$), and $B_x$ is nonempty and bounded above (by any $y_1$ with $F(y_1) > x$).
 
+*Proof.*
+
+**Claim (1):** For any $x \in (0,1)$ and $t \in \mathbb{R}$,
 $$
 F(t) \geq x \iff F_1^{-1}(x) \leq t. \tag{1}
 $$
 
 Let $x \in (0,1)$ and $t \in \mathbb{R}$ be given, and let $q \equiv F_1^{-1}(x)$.
 
-($\Rightarrow$) If $F(t) \geq x$, then $t \in A_x$, so $q = \inf A_x \leq t$.
+($\Rightarrow$) Suppose $F(t) \geq x$. Then $t \in A_x$, so $q = \inf A_x \leq t$.
 
-($\Leftarrow$) We first show $F(q) \geq x$. For each $n \geq 1$, $q + n^{-1}$ is not a lower bound of $A_x$, so there is a $y_n \in A_x$ with $q \leq y_n < q + n^{-1}$. Then $y_n \to q$ with $y_n \geq q$, so $F(y_n) \to F(q)$ by the right continuity of $F$. Since $F(y_n) \geq x$ for all $n$, $F(q) \geq x$. Now suppose $q \leq t$. Since $F$ is nondecreasing, $F(t) \geq F(q) \geq x$.
+($\Leftarrow$) Suppose $q \leq t$. We first show $F(q) \geq x$. For each $n \geq 1$, $q + n^{-1}$ is not a lower bound of $A_x$, so there is a $y_n \in A_x$ with $q \leq y_n < q + n^{-1}$. Then $y_n \to q$ with $y_n \geq q$, so $F(y_n) \to F(q)$ by the right continuity of $F$. Since $F(y_n) \geq x$ for all $n$, $F(q) \geq x$. Since $F$ is nondecreasing and $q \leq t$, $F(t) \geq F(q) \geq x$.
 
-*The cdf of $Z_1$.* Let $t \in \mathbb{R}$ be given. By (1),
-
+**cdf of $Z_1$:** Let $t \in \mathbb{R}$ be given. By (1),
 $$
-P(Z_1 \leq t) = m\big(\{x \in (0,1) : F_1^{-1}(x) \leq t\}\big) = m\big(\{x \in (0,1) : x \leq F(t)\}\big) = F(t),
+\{x \in (0,1) : Z_1(x) \leq t\} = \{x \in (0,1) : x \leq F(t)\} = (0, F(t)] \cap (0,1).
 $$
+This is an interval, so it is in $\mathcal{B}((0,1))$, and $Z_1$ is a random variable (Definition 2.1.2(b)). Since $0 \leq F(t) \leq 1$, its Lebesgue measure is $F(t)$. Thus $P(Z_1 \leq t) = F(t)$.
 
-where the last equality holds because $0 \leq F(t) \leq 1$.
-
-*The cdf of $Z_2$.* We claim that for any $x \in (0,1)$ and $t \in \mathbb{R}$,
-
+**cdf of $Z_2$:** The equivalence (1) can fail for $F_2^{-1}$. For instance, if $F \equiv x$ on an interval $[a, b]$ and $F > x$ beyond $b$, then $F(a) \geq x$ but $F_2^{-1}(x) = b > a$. Instead, we claim that for any $x \in (0,1)$ and $t \in \mathbb{R}$,
 $$
 F(t) > x \implies F_2^{-1}(x) \leq t \implies F(t) \geq x. \tag{2}
 $$
@@ -69,18 +71,15 @@ For the first implication, suppose $F(t) > x$, and let $y \in B_x$. Then $F(y) \
 For the second, suppose, for contradiction, that $F_2^{-1}(x) \leq t$ but $F(t) < x$. By the right continuity of $F$, there is an $s > t$ with $F(s) < x$. Then $s \in B_x$, so $F_2^{-1}(x) \geq s > t$, a contradiction.
 
 Now let $t \in \mathbb{R}$ be given. By (2),
-
 $$
 \{x \in (0,1) : x < F(t)\} \subset \{x \in (0,1) : F_2^{-1}(x) \leq t\} \subset \{x \in (0,1) : x \leq F(t)\}.
 $$
-
-The two outer sets differ by at most the point $F(t)$, and each has Lebesgue measure $F(t)$ since $0 \leq F(t) \leq 1$. (The middle set is then one of the two outer sets, and hence is Borel.) By the monotonicity of $m$,
-
+The two outer sets are $(0, F(t)) \cap (0,1)$ and $(0, F(t)] \cap (0,1)$. They differ by at most the point $F(t)$, and each has Lebesgue measure $F(t)$. So the middle set is one of the two outer sets, hence is in $\mathcal{B}((0,1))$, and $Z_2$ is a random variable. By the monotonicity of $m$,
 $$
 P(Z_2 \leq t) = m\big(\{x \in (0,1) : F_2^{-1}(x) \leq t\}\big) = F(t).
 $$
 
-Since $t$ was arbitrary, $Z_1$ and $Z_2$ both have cdf $F$. //
+Since $t$ was arbitrary, $Z_1$ and $Z_2$ both have cdf $F$ (Definition 2.2.3). Said differently, starting from Lebesgue measure on $(0,1)$, $Z_1$ (or $Z_2$) produces a random variable with any prescribed cdf $F$. //
 
 ## (ii)
 
@@ -88,27 +87,24 @@ Show also that $F_1^{-1}(\cdot)$ is left continuous and $F_2^{-1}(\cdot)$ is rig
 
 ### Answer
 
-*Proof.* Both functions are nondecreasing on $(0,1)$: for $0 < x \leq x' < 1$, $A_{x'} \subset A_x$ and $B_x \subset B_{x'}$, so
-
+*Proof.* Let $A_x$ and $B_x$ be as in (i). Both functions are nondecreasing on $(0,1)$. For $0 < x \leq x' < 1$, $A_{x'} \subset A_x$ and $B_x \subset B_{x'}$, so
 $$
 F_1^{-1}(x) = \inf A_x \leq \inf A_{x'} = F_1^{-1}(x') \quad \text{and} \quad F_2^{-1}(x) = \sup B_x \leq \sup B_{x'} = F_2^{-1}(x').
 $$
 
 Let $x \in (0,1)$ and $\epsilon > 0$ be given.
 
-*Left continuity of $F_1^{-1}$.* Let $q \equiv F_1^{-1}(x)$. Since $q - \epsilon < \inf A_x$, $q - \epsilon \notin A_x$, i.e., $F(q - \epsilon) < x$. Set $\delta \equiv x - F(q - \epsilon) > 0$, and let $x' \in (x - \delta, x)$. Then $0 \leq F(q - \epsilon) < x' < x < 1$, so $x' \in (0,1)$, and (1) applied to $x'$ and $t = q - \epsilon$ gives $F_1^{-1}(x') > q - \epsilon$. Also $F_1^{-1}(x') \leq q$, since $F_1^{-1}$ is nondecreasing. Hence
-
+**Left continuity of $F_1^{-1}$:** Let $q \equiv F_1^{-1}(x)$. Since $q - \epsilon < \inf A_x$, $q - \epsilon \notin A_x$, i.e., $F(q - \epsilon) < x$. Set $\delta \equiv x - F(q - \epsilon) > 0$, and let $x' \in (x - \delta, x)$. Then $0 \leq F(q - \epsilon) < x' < x < 1$, so $x' \in (0,1)$. Since $F(q - \epsilon) < x'$, (1) applied to $x'$ and $t = q - \epsilon$ gives $F_1^{-1}(x') > q - \epsilon$. Also $F_1^{-1}(x') \leq q$, since $F_1^{-1}$ is nondecreasing. Hence
 $$
 0 \leq F_1^{-1}(x) - F_1^{-1}(x') < \epsilon \quad \text{for all } x' \in (x - \delta, x).
 $$
 
-*Right continuity of $F_2^{-1}$.* Let $s \equiv F_2^{-1}(x)$. Since $s + \epsilon > \sup B_x$, $s + \epsilon \notin B_x$, i.e., $F(s + \epsilon) > x$. Set $\delta \equiv F(s + \epsilon) - x > 0$, and let $x' \in (x, x + \delta)$. Then $0 < x < x' < F(s + \epsilon) \leq 1$, so $x' \in (0,1)$, and the first implication in (2), applied to $x'$ and $t = s + \epsilon$, gives $F_2^{-1}(x') \leq s + \epsilon$. Also $F_2^{-1}(x') \geq s$, since $F_2^{-1}$ is nondecreasing. Hence
-
+**Right continuity of $F_2^{-1}$:** Let $s \equiv F_2^{-1}(x)$. Since $s + \epsilon > \sup B_x$, $s + \epsilon \notin B_x$, i.e., $F(s + \epsilon) > x$. Set $\delta \equiv F(s + \epsilon) - x > 0$, and let $x' \in (x, x + \delta)$. Then $0 < x < x' < F(s + \epsilon) \leq 1$, so $x' \in (0,1)$. Since $F(s + \epsilon) > x'$, the first implication in (2), applied to $x'$ and $t = s + \epsilon$, gives $F_2^{-1}(x') \leq s + \epsilon$. Also $F_2^{-1}(x') \geq s$, since $F_2^{-1}$ is nondecreasing. Hence
 $$
 0 \leq F_2^{-1}(x') - F_2^{-1}(x) \leq \epsilon \quad \text{for all } x' \in (x, x + \delta).
 $$
 
-Since $x$ and $\epsilon$ were arbitrary, $F_1^{-1}$ is left continuous and $F_2^{-1}$ is right continuous on $(0,1)$. //
+Since $x \in (0,1)$ and $\epsilon > 0$ were arbitrary, $F_1^{-1}$ is left continuous and $F_2^{-1}$ is right continuous on $(0,1)$. //
 
 # Q2: 2.20
 
@@ -118,65 +114,68 @@ $$
 \sum_{i=1}^{\infty} \Bigg( \sum_{j=1}^{\infty} a_{ij} \Bigg) = \sum_{j=1}^{\infty} \Bigg( \sum_{i=1}^{\infty} a_{ij} \Bigg).
 $$
 
-### Answer
+## Answer
 
-*Proof.* Let $\Omega \equiv \mathbb{N}$, $\mathcal{F} \equiv \mathcal{P}(\mathbb{N})$, and let $\mu$ be the counting measure on $(\Omega, \mathcal{F})$. Every function on $\mathbb{N}$ is $\mathcal{F}$-measurable.
+We utilize the following results:
 
-**Lemma.** If $h : \mathbb{N} \to [0, \infty]$, then $\int h \, d\mu = \sum_{k=1}^{\infty} h(k)$.
+- Counting measure: on $(\mathbb{N}, \mathcal{P}(\mathbb{N}))$, $\mu(A)$ is the number of elements of $A$; in particular, $\mu(\{k\}) = 1$.
+- Definition 2.3.2 (integral of a simple nonnegative function): if $f = \sum_{i=1}^k c_i I_{A_i}$ with $c_i \in [0, \infty]$ and $A_i \in \mathcal{F}$, then $\int f\, d\mu = \sum_{i=1}^k c_i\, \mu(A_i)$, with the convention $0 \cdot \infty = 0$.
+- Corollary 2.3.5: for nonnegative measurable $\{h_n\}_{n \geq 1}$, $\int \big( \sum_{n=1}^\infty h_n \big)\, d\mu = \sum_{n=1}^\infty \int h_n\, d\mu$.
+- Remark 2.3.2: on a countable $\Omega = \{\omega_i : i \geq 1\}$ with $\mathcal{F} = \mathcal{P}(\Omega)$, every $f : \Omega \to [0, \infty)$ is measurable, and $\int f\, d\mu = \sum_{i=1}^\infty f(\omega_i)\, \mu(\{\omega_i\})$.
 
-For $k \in \mathbb{N}$, let $g_k \equiv h(k) I_{\{k\}}$. Each $g_k$ is a nonnegative simple function, so by (3.2 from Definition 2.3.2),
+*Proof.* Let $\Omega \equiv \mathbb{N}$, $\mathcal{F} \equiv \mathcal{P}(\mathbb{N})$, and let $\mu$ be the counting measure on $(\Omega, \mathcal{F})$. Since $\mathcal{F}$ contains every subset of $\mathbb{N}$, every function on $\mathbb{N}$ is $\mathcal{F}$-measurable.
 
+**Lemma.** If $h : \mathbb{N} \to [0, \infty]$, then $\int h\, d\mu = \sum_{k=1}^{\infty} h(k)$.
+
+This is Remark 2.3.2 for counting measure, allowing the value $\infty$; we derive it from Corollary 2.3.5. For $k \in \mathbb{N}$, let $g_k \equiv h(k) I_{\{k\}}$. Each $g_k$ is nonnegative and simple, so by Definition 2.3.2,
 $$
-\int g_k \, d\mu = h(k)\, \mu(\{k\}) = h(k).
+\int g_k\, d\mu = h(k)\, \mu(\{k\}) = h(k).
 $$
-
-Also $h = \sum_{k=1}^{\infty} g_k$, since for each $j \in \mathbb{N}$, $g_j(j) = h(j)$ and $g_k(j) = 0$ for $k \neq j$.
-
-By Corollary 2.3.5,
-
+Also $h = \sum_{k=1}^{\infty} g_k$ pointwise, since for each $j \in \mathbb{N}$, $g_j(j) = h(j)$ and $g_k(j) = 0$ for $k \neq j$ (using $0 \cdot \infty = 0$). By Corollary 2.3.5,
 $$
-\int h \, d\mu = \sum_{k=1}^{\infty} \int g_k \, d\mu = \sum_{k=1}^{\infty} h(k).
+\int h\, d\mu = \sum_{k=1}^{\infty} \int g_k\, d\mu = \sum_{k=1}^{\infty} h(k).
 $$
 
 Now for $i \in \mathbb{N}$, define $h_i : \mathbb{N} \to [0, \infty)$ by $h_i(j) \equiv a_{ij}$, and let $h \equiv \sum_{i=1}^{\infty} h_i$, so that $h(j) = \sum_{i=1}^{\infty} a_{ij} \in [0, \infty]$. By the lemma,
-
 $$
-\int h_i \, d\mu = \sum_{j=1}^{\infty} a_{ij} \quad \text{and} \quad \int h \, d\mu = \sum_{j=1}^{\infty} \Bigg( \sum_{i=1}^{\infty} a_{ij} \Bigg).
+\int h_i\, d\mu = \sum_{j=1}^{\infty} a_{ij} \quad \text{and} \quad \int h\, d\mu = \sum_{j=1}^{\infty} \Bigg( \sum_{i=1}^{\infty} a_{ij} \Bigg).
 $$
-
 Since each $h_i$ is nonnegative and measurable, Corollary 2.3.5 gives
-
 $$
-\sum_{j=1}^{\infty} \Bigg( \sum_{i=1}^{\infty} a_{ij} \Bigg) = \int \Bigg( \sum_{i=1}^{\infty} h_i \Bigg) d\mu = \sum_{i=1}^{\infty} \int h_i \, d\mu = \sum_{i=1}^{\infty} \Bigg( \sum_{j=1}^{\infty} a_{ij} \Bigg). \quad //
+\sum_{j=1}^{\infty} \Bigg( \sum_{i=1}^{\infty} a_{ij} \Bigg) = \int \Bigg( \sum_{i=1}^{\infty} h_i \Bigg) d\mu = \sum_{i=1}^{\infty} \int h_i\, d\mu = \sum_{i=1}^{\infty} \Bigg( \sum_{j=1}^{\infty} a_{ij} \Bigg). \quad //
 $$
 
 # Q3: 2.25
 
 If $f(x) = I_{Q_1}(x)$ where $Q_1 = \mathbb{Q} \cap [0,1]$, $\mathbb{Q}$ being the set of all rationals, then show that for any partition $P$, $U(P, f) = 1$ and $L(P, f) = 0$.
 
-### Answer
+## Answer
 
-*Proof.* Let $P = \{x_0, x_1, \ldots, x_n\}$ be a finite partition of $[0,1]$, i.e., $0 = x_0 < x_1 < \cdots < x_n = 1$. As in Section 2.4, for $i = 0, 1, \ldots, n-1$, let
+We utilize the following results:
 
+- Definition 2.4.1 (upper and lower Riemann sums): for a partition $P = \{x_0, \ldots, x_n\}$ of $[a, b]$, $U(f, P) \equiv \sum_{i=0}^{n-1} M_i (x_{i+1} - x_i)$ and $L(f, P) \equiv \sum_{i=0}^{n-1} m_i (x_{i+1} - x_i)$, where $M_i$ and $m_i$ are the sup and inf of $f$ on $[x_i, x_{i+1}]$.
+- Definitions 2.4.2 and 2.4.3 (Riemann integrability): $f$ is Riemann integrable iff $\overline{\int} f \equiv \inf_P U(f, P)$ equals $\underline{\int} f \equiv \sup_P L(f, P)$.
+- Definition 2.3.2 (integral of a simple nonnegative function): if $f = \sum_{i=1}^k c_i I_{A_i}$ with $c_i \geq 0$ and $A_i \in \mathcal{F}$, then $\int f\, d\mu = \sum_{i=1}^k c_i\, \mu(A_i)$.
+
+*Proof.* Let $P = \{x_0, x_1, \ldots, x_n\}$ be a finite partition of $[0,1]$, i.e., $0 = x_0 < x_1 < \cdots < x_n = 1$. As in Definition 2.4.1, for $i = 0, 1, \ldots, n-1$, let
 $$
 M_i = \sup\{f(x) : x_i \leq x \leq x_{i+1}\} \quad \text{and} \quad m_i = \inf\{f(x) : x_i \leq x \leq x_{i+1}\}.
 $$
 
-Fix $i$. Since $x_i < x_{i+1}$, by the density of $\mathbb{Q}$ and of $\mathbb{R} \setminus \mathbb{Q}$ in $\mathbb{R}$, the interval $[x_i, x_{i+1}] \subset [0,1]$ contains a rational $r$ and an irrational $s$. Then $r \in Q_1$ and $s \notin Q_1$, so $f(r) = 1$ and $f(s) = 0$. Since $0 \leq f \leq 1$, it follows that $M_i = 1$ and $m_i = 0$.
+Fix $i$. Since $x_i < x_{i+1}$, the density of $\mathbb{Q}$ and of $\mathbb{R} \setminus \mathbb{Q}$ in $\mathbb{R}$ gives a rational $r$ and an irrational $s$ in $[x_i, x_{i+1}] \subset [0,1]$. Then $r \in Q_1$ and $s \notin Q_1$, so $f(r) = 1$ and $f(s) = 0$. Since $0 \leq f \leq 1$, it follows that $M_i = 1$ and $m_i = 0$.
 
 By Definition 2.4.1,
-
 $$
-U(P, f) = \sum_{i=0}^{n-1} M_i \, (x_{i+1} - x_i) = \sum_{i=0}^{n-1} (x_{i+1} - x_i) = x_n - x_0 = 1
+U(P, f) = \sum_{i=0}^{n-1} M_i\, (x_{i+1} - x_i) = \sum_{i=0}^{n-1} (x_{i+1} - x_i) = x_n - x_0 = 1
 $$
-
 and
-
 $$
-L(P, f) = \sum_{i=0}^{n-1} m_i \, (x_{i+1} - x_i) = 0.
+L(P, f) = \sum_{i=0}^{n-1} m_i\, (x_{i+1} - x_i) = 0.
 $$
 
-Since $P$ was arbitrary, $U(P, f) = 1$ and $L(P, f) = 0$ for any partition $P$. //
+Since $P$ was arbitrary, $U(P, f) = 1$ and $L(P, f) = 0$ for any partition $P$.
+
+Said differently, $\overline{\int} f = 1 \neq 0 = \underline{\int} f$, so $f$ is not Riemann integrable (Definition 2.4.3). Yet $f$ is Lebesgue integrable, with $\int f\, dm = m(Q_1) = 0$ by Definition 2.3.2, since $Q_1$ is countable and each singleton has Lebesgue measure $0$. //
 
 # Q4: Extra (A)
 
@@ -192,6 +191,12 @@ $$
 
 Then prove the following:
 
+We utilize the following results for (i)--(iii):
+
+- Definition 2.1.3 (measurable map): $T : \Omega_1 \to \Omega_2$ is $\langle \mathcal{F}_1, \mathcal{F}_2 \rangle$-measurable if $T^{-1}(A) \in \mathcal{F}_1$ for all $A \in \mathcal{F}_2$.
+- Corollary 2.1.4: the $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \rangle$-measurable functions from $\Omega$ to $\mathbb{R}$ are closed under pointwise addition and multiplication, and under scalar multiplication.
+- Proposition A.2.1 (Axiom of Archimedes): for every $y \in \mathbb{R}$, there exists $n \in \mathbb{N}$ with $n > y$.
+
 ## (i)
 
 For each $n \geq 1$, $f_n(x)$ is $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \rangle$-measurable.
@@ -199,20 +204,16 @@ For each $n \geq 1$, $f_n(x)$ is $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \
 ### Answer
 
 *Proof.* Let $n \geq 1$ be given, and let
-
 $$
 A_{n,i} \equiv f^{-1}\Big( \Big[ \tfrac{i-1}{2^n}, \tfrac{i}{2^n} \Big) \Big), \quad i = 1, \ldots, n2^n, \quad \text{and} \quad B_n \equiv f^{-1}\big( [n, \infty) \big).
 $$
-
-The intervals $\big[\tfrac{i-1}{2^n}, \tfrac{i}{2^n}\big)$, $i = 1, \ldots, n2^n$, and $[n, \infty)$ are disjoint with union $[0, \infty)$. Since $f \geq 0$, each $x \in \Omega$ lies in exactly one of $A_{n,1}, \ldots, A_{n,n2^n}, B_n$, it then follows that
-
+The intervals $\big[\tfrac{i-1}{2^n}, \tfrac{i}{2^n}\big)$, $i = 1, \ldots, n2^n$, and $[n, \infty)$ are disjoint with union $[0, \infty)$. Since $f \geq 0$, each $x \in \Omega$ lies in exactly one of $A_{n,1}, \ldots, A_{n,n2^n}, B_n$, and so
 $$
-f_n = \sum_{i=1}^{n2^n} \frac{i-1}{2^n} \, I_{A_{n,i}} + n \, I_{B_n}.
+f_n = \sum_{i=1}^{n2^n} \frac{i-1}{2^n}\, I_{A_{n,i}} + n\, I_{B_n}.
 $$
+Each of these intervals is in $\mathcal{B}(\mathbb{R})$ and $f$ is $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \rangle$-measurable, so $A_{n,i} \in \mathcal{F}$ for all $i$ and $B_n \in \mathcal{F}$ (Definition 2.1.3).
 
-Each of these intervals is in $\mathcal{B}(\mathbb{R})$, and $f$ is $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \rangle$-measurable, so $A_{n,i} \in \mathcal{F}$ for all $i$ and $B_n \in \mathcal{F}$ (see Definition 2.1.3).
-
-Then for any $A \in \mathcal{F}$, $I_A$ is $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \rangle$-measurable, since $I_A^{-1}(B) \in \{\emptyset, A, A^c, \Omega\} \subset \mathcal{F}$ for all $B \in \mathcal{B}(\mathbb{R})$. Thus $f_n$ is a finite linear combination of $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \rangle$-measurable functions, and hence is $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \rangle$-measurable by Corollary 2.1.4. //
+For any $A \in \mathcal{F}$, $I_A$ is $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \rangle$-measurable, since $I_A^{-1}(B) \in \{\emptyset, A, A^c, \Omega\} \subset \mathcal{F}$ for all $B \in \mathcal{B}(\mathbb{R})$. Thus $f_n$ is a finite linear combination of $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \rangle$-measurable functions, and so is $\langle \mathcal{F}, \mathcal{B}(\mathbb{R}) \rangle$-measurable by Corollary 2.1.4. //
 
 ## (ii)
 
@@ -220,25 +221,23 @@ For each $x \in \Omega$, $f_n(x)$ is increasing with $n$ (i.e., $\{f_n(\cdot)\}$
 
 ### Answer
 
-*Proof.* For $n \geq 1$, let $P_n \equiv \{ j/2^n : j = 0, 1, \ldots, n2^n \}$. We first claim that for all $n \geq 1$ and $x \in \Omega$,
-
+*Proof.* For $n \geq 1$, let $P_n \equiv \{ j/2^n : j = 0, 1, \ldots, n2^n \}$, the grid of mesh $2^{-n}$ on $[0, n]$. We first claim that for all $n \geq 1$ and $x \in \Omega$,
 $$
 f_n(x) = \max\big\{ p \in P_n : p \leq \min\{f(x), n\} \big\}. \tag{3}
 $$
+That is, $f_n(x)$ is the largest grid point at or below $\min\{f(x), n\}$. Since $f \geq 0$, there are two cases.
 
-There are two cases for us to then consider. 
+*Case 1:* $f(x) \geq n$. Then $\min\{f(x), n\} = n = \max P_n$, so the right side of (3) is $n = f_n(x)$.
 
-*Case 1:* $f(x) \geq n$. Then $\min\{f(x), n\} = n = \max P_n$, such that the right side of (3) is $n = f_n(x)$.
+*Case 2:* $\frac{i-1}{2^n} \leq f(x) < \frac{i}{2^n}$ for some $i \in \{1, \ldots, n2^n\}$. Then $f(x) < n$, so $\min\{f(x), n\} = f(x)$. Also $j/2^n \leq f(x)$ iff $j \leq i - 1$, so the right side of (3) is $(i-1)/2^n = f_n(x)$.
 
-*Case 2:* $\frac{i-1}{2^n} \leq f(x) < \frac{i}{2^n}$ for some $i \in \{1, \ldots, n2^n\}$. Then $\min\{f(x), n\} = f(x)$, and $j/2^n \leq f(x)$ iff $j \leq i - 1$, so the right side of (3) is $(i-1)/2^n = f_n(x)$.
+In either case, (3) holds.
 
-In either case, (3) holds. Noting functional equivalence then, we can address the question posed. Let $x \in \Omega$ and $n \geq 1$ be given. Each $j/2^n \in P_n$ equals $2j/2^{n+1}$ with $2j \leq n2^{n+1}$, so $P_n \subset P_{n+1}$. Also $\min\{f(x), n\} \leq \min\{f(x), n+1\}$, so
-
+With (3) in hand, let $x \in \Omega$ and $n \geq 1$ be given. Each $j/2^n \in P_n$ equals $2j/2^{n+1}$ with $2j \leq n2^{n+1} \leq (n+1)2^{n+1}$, so $P_n \subset P_{n+1}$. Also $\min\{f(x), n\} \leq \min\{f(x), n+1\}$. So
 $$
 \big\{ p \in P_n : p \leq \min\{f(x), n\} \big\} \subset \big\{ p \in P_{n+1} : p \leq \min\{f(x), n+1\} \big\},
 $$
-
-such that $f_n(x) \leq f_{n+1}(x)$ by (3). 
+and taking the maximum of each side, $f_n(x) \leq f_{n+1}(x)$ by (3).
 
 Since $x$ and $n$ were arbitrary, $f_n(x) \leq f_{n+1}(x)$ for all $x \in \Omega$ and $n \geq 1$. //
 
@@ -248,13 +247,11 @@ Prove that $f_n(x) \to f(x)$ pointwise (i.e., for each fixed $x$), as $n \to \in
 
 ### Answer
 
-*Proof.* Let $x \in \Omega$ be given. Since $f(x) \in [0, \infty)$, there exists an $n_0 \in \mathbb{N}$ such that $n_0 > f(x)$. For $n \geq n_0$, $0 \leq f(x) < n$, so $\frac{i-1}{2^n} \leq f(x) < \frac{i}{2^n}$ for some $i \in \{1, \ldots, n2^n\}$, and $f_n(x) = \frac{i-1}{2^n}$. Hence
-
+*Proof.* Let $x \in \Omega$ be given. Since $f(x) \in [0, \infty)$, Proposition A.2.1 gives an $n_0 \in \mathbb{N}$ with $n_0 > f(x)$. For $n \geq n_0$, $0 \leq f(x) < n$, so $\frac{i-1}{2^n} \leq f(x) < \frac{i}{2^n}$ for some $i \in \{1, \ldots, n2^n\}$, and $f_n(x) = \frac{i-1}{2^n}$. Hence
 $$
 0 \leq f(x) - f_n(x) < \frac{1}{2^n} \quad \text{for all } n \geq n_0,
 $$
-
-and so $f_n(x) \to f(x)$ as $n \to \infty$. 
+and so $f_n(x) \to f(x)$ as $n \to \infty$.
 
 Since $x$ was arbitrary, $f_n \to f$ pointwise. //
 
@@ -269,31 +266,32 @@ $$
 and
 
 $$
-\min\left( \int f \, d\mu, \int g \, d\mu \right) \geq \int \min(f, g) \, d\mu.
+\min\left( \int f\, d\mu, \int g\, d\mu \right) \geq \int \min(f, g)\, d\mu.
 $$
 
-### Answer
+## Answer
 
-*Proof.* We first show $\min(f, g) \in L^1(\Omega, \mathcal{F}, \mu)$. For each $a \in \mathbb{R}$,
+We utilize the following results:
 
+- Definition 2.1.2(a) (measurable function): $f : \Omega \to \mathbb{R}$ is $\mathcal{F}$-measurable if $\{\omega : f(\omega) \leq a\} \in \mathcal{F}$ for each $a \in \mathbb{R}$.
+- Definition 2.3.5 (integrability): a measurable $f$ is in $L^1(\Omega, \mathcal{F}, \mu)$ iff $\int |f|\, d\mu < \infty$.
+- Corollary 2.3.3: Proposition 2.3.1 holds for nonnegative measurable functions; in particular, $\int (\alpha f + \beta g)\, d\mu = \alpha \int f\, d\mu + \beta \int g\, d\mu$ for $\alpha, \beta \geq 0$, and $f \geq g$ a.e. $(\mu)$ implies $\int f\, d\mu \geq \int g\, d\mu$.
+- Proposition 2.3.8(ii): for $f, g \in L^1(\Omega, \mathcal{F}, \mu)$, $f \geq g$ a.e. $(\mu)$ implies $\int f\, d\mu \geq \int g\, d\mu$.
+
+*Proof.*
+
+**$\min(f, g) \in L^1(\Omega, \mathcal{F}, \mu)$:** For each $a \in \mathbb{R}$, $\min(f, g)(\omega) \leq a$ iff $f(\omega) \leq a$ or $g(\omega) \leq a$, so
 $$
 \{\omega : \min(f, g)(\omega) \leq a\} = \{\omega : f(\omega) \leq a\} \cup \{\omega : g(\omega) \leq a\} \in \mathcal{F},
 $$
-
-so $\min(f, g)$ is $\mathcal{F}$-measurable (using Definition 2.1.2(a)). 
-
-At each $\omega \in \Omega$, $\min(f, g)(\omega)$ is either $f(\omega)$ or $g(\omega)$, so $|\min(f, g)| \leq |f| + |g|$. Then by Corollary 2.3.3,
-
+and $\min(f, g)$ is $\mathcal{F}$-measurable (Definition 2.1.2(a)). At each $\omega \in \Omega$, $\min(f, g)(\omega)$ is either $f(\omega)$ or $g(\omega)$, so $|\min(f, g)| \leq |f| + |g|$. Then by Corollary 2.3.3,
 $$
-\int |\min(f, g)| \, d\mu \leq \int \big( |f| + |g| \big) \, d\mu = \int |f| \, d\mu + \int |g| \, d\mu < \infty,
+\int |\min(f, g)|\, d\mu \leq \int \big( |f| + |g| \big)\, d\mu = \int |f|\, d\mu + \int |g|\, d\mu < \infty,
 $$
+and so $\min(f, g) \in L^1(\Omega, \mathcal{F}, \mu)$ (Definition 2.3.5).
 
-and so $\min(f, g) \in L^1(\Omega, \mathcal{F}, \mu)$.
-
-We then turn to the inequality. Note that $\min(f, g) \leq f$ and $\min(f, g) \leq g$ on $\Omega$. Since $\min(f, g), f, g \in L^1(\Omega, \mathcal{F}, \mu)$, Proposition 2.3.8 (ii) gives
-
+**The inequality:** Note that $\min(f, g) \leq f$ and $\min(f, g) \leq g$ on $\Omega$. Since $\min(f, g), f, g \in L^1(\Omega, \mathcal{F}, \mu)$, Proposition 2.3.8(ii) gives
 $$
-\int \min(f, g) \, d\mu \leq \int f \, d\mu \quad \text{and} \quad \int \min(f, g) \, d\mu \leq \int g \, d\mu,
+\int \min(f, g)\, d\mu \leq \int f\, d\mu \quad \text{and} \quad \int \min(f, g)\, d\mu \leq \int g\, d\mu,
 $$
-
-and so $\int \min(f, g) \, d\mu \leq \min\left( \int f \, d\mu, \int g \, d\mu \right)$. //
+and so $\int \min(f, g)\, d\mu \leq \min\left( \int f\, d\mu, \int g\, d\mu \right)$. //
