@@ -1,0 +1,141 @@
+---
+title: "HW4"
+author: "Sam Olson"
+output: pdf_document
+header-includes:
+  - \newcommand{\ve}[1]{\underline{#1}}
+  - \newcommand{\bb}{\ve{\beta}}
+  - \newcommand{\bhat}{\widehat{\ve{\beta}}}
+  - \newcommand{\lam}{\ve{\lambda}}
+  - \newcommand{\y}{\ve{y}}
+  - \newcommand{\av}{\ve{a}}
+  - \newcommand{\bv}{\ve{b}}
+  - \newcommand{\dv}{\ve{d}}
+  - \newcommand{\gv}{\ve{g}}
+  - \newcommand{\hv}{\ve{h}}
+  - \newcommand{\rv}{\ve{r}}
+  - \newcommand{\tv}{\ve{t}}
+  - \newcommand{\wv}{\ve{w}}
+  - \newcommand{\zv}{\ve{z}}
+  - \newcommand{\rhov}{\ve{\rho}}
+  - \newcommand{\eps}{\ve{\epsilon}}
+  - \newcommand{\zero}{\ve{0}}
+  - \newcommand{\one}{\ve{1}}
+  - \newcommand{\tr}{^{\prime}}
+  - \newcommand{\C}{\mathcal{C}}
+  - \newcommand{\R}{\mathcal{R}}
+  - \newcommand{\PX}{P_X}
+  - \newcommand{\Real}{\mathbb{R}}
+  - \newcommand{\rank}{\operatorname{rank}}
+  - \newcommand{\tra}{\operatorname{tr}}
+  - \newcommand{\Var}{\operatorname{Var}}
+  - \newcommand{\E}{\operatorname{E}}
+  - \newcommand{\cov}{\operatorname{cov}}
+  - \newcommand{\corr}{\operatorname{corr}}
+  - \newcommand{\btil}{\widetilde{\ve{\beta}}}
+  - \newcommand{\ehat}{\widehat{\ve{\epsilon}}}
+  - \newcommand{\gam}{\ve{\gamma}}
+  - \newcommand{\cv}{\ve{c}}
+  - \newcommand{\ev}{\ve{e}}
+  - \newcommand{\kv}{\ve{k}}
+  - \newcommand{\vv}{\ve{v}}
+---
+
+<!-- Homework 4 – STAT 6611 -->
+<!-- Due Friday, November 13 by midnight (submit in gradescope under 'Assignments') -->
+
+# Q1
+
+Let $\ve{x}$ be an $n \times 1$ random vector with mean vector $\ve{\mu}$ and variance-covariance matrix $\Sigma$. Use Theorem 3.1 to show that $\ve{x}$ has a multivariate normal distribution if and only if, for every $n \times 1$ vector of constants $\av$, $\av\tr\ve{x}$ has a (univariate) normal distribution.
+
+## Answer
+
+\newpage
+
+# Q2
+
+Let $\ve{x} \sim N(\ve{\mu}, \Sigma)$. Show that
+$$
+\cov(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = 2 \tra(A\Sigma B\Sigma) + 4\ve{\mu}\tr A\Sigma B\ve{\mu},
+$$
+where $A$ and $B$ are symmetric matrices of constants. [Hint: For any random variables $w$ and $z$, $\Var(w + z) = \Var(w) + \Var(z) + 2\cov(w, z)$.]
+
+## Answer
+
+\newpage
+
+# Q3
+
+Let $\ve{x} \sim N(\ve{\mu}, \Sigma)$, where $\ve{x}$ is an $n \times 1$ vector and $\rank(\Sigma) \geq 1$. Let
+$$
+w_1 = \bv_1\tr\ve{x} + \ve{x}\tr A_1\ve{x} \quad \text{and} \quad w_2 = \bv_2\tr\ve{x} + \ve{x}\tr A_2\ve{x},
+$$
+where $\bv_1$ and $\bv_2$ are vectors of constants and $A_1$ and $A_2$ are symmetric matrices of constants. Let
+$$
+\cv_1 = \bv_1 + 2A_1\ve{\mu} \quad \text{and} \quad \cv_2 = \bv_2 + 2A_2\ve{\mu}.
+$$
+
+## (a)
+
+Find
+$$
+\cov\left( \begin{pmatrix} \bv_1\tr \\ A_1 \end{pmatrix} \ve{x}, \begin{pmatrix} \bv_2\tr \\ A_2 \end{pmatrix} \ve{x} \right).
+$$
+
+### Answer
+
+## (b)
+
+Suppose that (i) $\bv_1\tr\Sigma\bv_2 = 0$, (ii) $\bv_1\tr\Sigma A_2 = \zero\tr$, (iii) $\bv_2\tr\Sigma A_1 = \zero\tr$, and (iv) $A_1\Sigma A_2 = 0$. Use (a) to show that $w_1$ and $w_2$ are independent. [Hint: Note that $w_i = \bv_i\tr\ve{x} + (A_i\ve{x})\tr A_i^-(A_i\ve{x})$ for $i = 1, 2$.]
+
+### Answer
+
+\newpage
+
+# Q4
+
+Take the model to be Model II and assume that $\y$ has a multivariate normal distribution.
+
+## (a)
+
+Obtain the expectation, the variance, and the mean squared error for any estimator of $\sigma^2$ having the form $(1/k)\y\tr(\y - X\bhat)$, where $k$ is a nonzero constant, and $\bhat$ is any solution to the normal equations.
+
+### Answer
+
+## (b)
+
+Of those estimators of $\sigma^2$ having the above form, which has the smallest mean squared error? (That is, determine the optimum value of $k$.)
+
+### Answer
+
+\newpage
+
+# Q5
+
+Let $\ve{x} \sim N(\ve{\mu}, \Sigma)$, where $\ve{x}$ is an $r \times 1$ vector and $\rank(\Sigma) = k \geq 1$ (where possibly $k < r$). Let $A$ be an $r \times r$ symmetric matrix. Show that, if $A\Sigma$ is idempotent of rank $s$ and if in addition $\ve{\mu}$ lies in $\C(\Sigma)$, then $\ve{x}\tr A\ve{x} \sim \chi^2\left(s, \frac{1}{2}\ve{\mu}\tr A\ve{\mu}\right)$. (Hint: Let $\Gamma$ be a $k \times r$ matrix such that $\Sigma = \Gamma\tr\Gamma$, and show that $A\Sigma$ is idempotent of rank $s \implies \Gamma A \Gamma\tr$ is idempotent of rank $s$. Then, use $\ve{x}$ has the same distribution as $\Gamma\tr(\zv + \av)$, where $\zv$ is a standard normal vector and $\av$ is a certain vector of constants.)
+
+## Answer
+
+\newpage
+
+# Q6
+
+Let $\ve{x} \sim N(\zero, I)$, and take $A$ and $B$ to be two symmetric matrices such that $\ve{x}\tr A\ve{x} \sim \chi^2(p)$ and $\ve{x}\tr B\ve{x} \sim \chi^2(q)$, where $p > q$. Show, by completing the following three steps, that $\ve{x}\tr(A - B)\ve{x} \sim \chi^2(p - q)$ if and only if the correlation $\corr(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = q/\sqrt{pq}$.
+
+## (a)
+
+Show that $\tra[(I - A)B] = 0$ if and only if $\corr(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = q/\sqrt{pq}$. [Hint: Consider $\cov(\ve{x}\tr(A - B)\ve{x} + \ve{x}\tr B\ve{x}, \ve{x}\tr B\ve{x})$]
+
+### Answer
+
+## (b)
+
+Show that $(I - A)B = 0$ if and only if $\tra[(I - A)B] = 0$.
+
+### Answer
+
+## (c)
+
+Show that $\ve{x}\tr(A - B)\ve{x} \sim \chi^2(p - q)$ if and only if $(I - A)B = 0$.
+
+### Answer
