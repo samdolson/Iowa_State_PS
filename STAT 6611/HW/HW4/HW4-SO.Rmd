@@ -41,23 +41,20 @@ header-includes:
   - \newcommand{\vv}{\ve{v}}
 ---
 
-<!-- Homework 4 – STAT 6611 -->
-<!-- Due Friday, November 13 by midnight (submit in gradescope under 'Assignments') -->
-
 # Q1
 
 Let $\ve{x}$ be an $n \times 1$ random vector with mean vector $\ve{\mu}$ and variance-covariance matrix $\Sigma$. Use Theorem 3.1 to show that $\ve{x}$ has a multivariate normal distribution if and only if, for every $n \times 1$ vector of constants $\av$, $\av\tr\ve{x}$ has a (univariate) normal distribution.
 
 ## Answer
 
-Note: As in the definition of the multivariate normal, we take $\rank(\Sigma) = k \geq 1$, and we read $N(c, 0)$ as the point mass at $c$ (needed when $\av\tr\Sigma\av = 0$).
-
 We utilize the following results:
 
-- Theorem 3.1 (uniqueness of mgfs): if the mgfs of two random vectors exist and are equal on an open rectangle containing the origin, then their cdfs are identical.
-- Definition ($n$-variate normal of rank $k$): $\ve{x} \sim N(\ve{\mu}, \Sigma)$ if $\ve{x} \overset{d}{=} \ve{\mu} + \Gamma\tr\zv$, where $\Gamma$ is $k \times n$ with $\Sigma = \Gamma\tr\Gamma$ (such a $\Gamma$ exists by Lemma 2.15) and $\zv \sim N(\zero_k, I_k)$.
-- mgf of the multivariate normal (Section 3.1): if $\ve{x} \sim N(\ve{\mu}, \Sigma)$, then $M_{\ve{x}}(\tv) = \exp\left(\tv\tr\ve{\mu} + \frac{1}{2}\tv\tr\Sigma\tv\right)$ for all $\tv \in \Real^n$; in particular, $N(m, v)$ has mgf $\exp\left(tm + \frac{1}{2}t^2 v\right)$, $t \in \Real$.
+- Theorem 3.1: if the mgf's of two random vectors exist and are equal for all $\tv$ in an open rectangle that includes the origin, then their cdf's are identical.
+- Definition ($n$-variate normal of rank $k$): with $\rank(\Sigma) = k \geq 1$, $\ve{x} \sim N(\ve{\mu}, \Sigma)$ if the cdf of $\ve{x}$ is the same as that of $\ve{\mu} + \Gamma\tr\zv$, where $\Gamma$ is a $k \times n$ matrix with $\Sigma = \Gamma\tr\Gamma$ (such a $\Gamma$ exists by Lemma 2.15) and $\zv \sim N(\zero_k, I_k)$ is $k$-variate standard normal.
+- mgf of $N(\ve{\mu}, \Sigma)$ (Section 3.1): $M_{\ve{x}}(\tv) = \exp\left(\tv\tr\ve{\mu} + \frac{1}{2}\tv\tr\Sigma\tv\right)$, $\tv \in \Real^n$; in particular, $N(m, v)$ has mgf $\exp\left(tm + \frac{1}{2}t^2 v\right)$, $t \in \Real$.
 - Corollary to Lemma 2.4: $\Var(L\tr\ve{x}) = L\tr\Sigma L$, where $\Sigma = \Var(\ve{x})$.
+
+<!-- Note: As in the definition of the multivariate normal, we take $\rank(\Sigma) = k \geq 1$, and we read $N(c, 0)$ as the point mass at $c$ (needed when $\av\tr\Sigma\av = 0$). -->
 
 *Proof:* For any $\av \in \Real^n$ and $t \in \Real$,
 $$
@@ -65,21 +62,13 @@ M_{\av\tr\ve{x}}(t) = \E\left[\exp(t\av\tr\ve{x})\right] = \E\left[\exp\left((t\
 $$
 whenever either side exists.
 
-**($\Rightarrow$)** Suppose $\ve{x}$ is multivariate normal, so that $\ve{x} \sim N(\ve{\mu}, \Sigma)$, and let $\av \in \Real^n$ be given. By (Q1) and the mgf of $\ve{x}$, for every $t \in \Real$,
-$$
-M_{\av\tr\ve{x}}(t) = \exp\left(t\av\tr\ve{\mu} + \frac{1}{2}t^2\av\tr\Sigma\av\right),
-$$
-which is the mgf of $N(\av\tr\ve{\mu}, \av\tr\Sigma\av)$. By Theorem 3.1, $\av\tr\ve{x} \sim N(\av\tr\ve{\mu}, \av\tr\Sigma\av)$. Since $\av$ was arbitrary, every $\av\tr\ve{x}$ is (univariate) normal.
+**($\Rightarrow$)** Suppose $\ve{x} \sim N(\ve{\mu}, \Sigma)$, and let $\av \in \Real^n$ be given. By (Q1) and the mgf of $\ve{x}$, $M_{\av\tr\ve{x}}(t) = \exp\left(t\av\tr\ve{\mu} + \frac{1}{2}t^2\av\tr\Sigma\av\right)$ for every $t \in \Real$, which is the mgf of $N(\av\tr\ve{\mu}, \av\tr\Sigma\av)$. By Theorem 3.1, $\av\tr\ve{x} \sim N(\av\tr\ve{\mu}, \av\tr\Sigma\av)$; since $\av$ was arbitrary, every $\av\tr\ve{x}$ is normal.
 
 **($\Leftarrow$)** Suppose $\av\tr\ve{x}$ is normal for every $\av \in \Real^n$, and let $\tv \in \Real^n$ be given. Since $\E(\tv\tr\ve{x}) = \tv\tr\ve{\mu}$ and $\Var(\tv\tr\ve{x}) = \tv\tr\Sigma\tv$ (Corollary to Lemma 2.4), $\tv\tr\ve{x} \sim N(\tv\tr\ve{\mu}, \tv\tr\Sigma\tv)$, so (Q1) with $t = 1$ gives
 $$
 M_{\ve{x}}(\tv) = M_{\tv\tr\ve{x}}(1) = \exp\left(\tv\tr\ve{\mu} + \frac{1}{2}\tv\tr\Sigma\tv\right).
 $$
-Since $\tv$ was arbitrary, $M_{\ve{x}}$ exists on all of $\Real^n$. Now take $\Gamma$ ($k \times n$) with $\Sigma = \Gamma\tr\Gamma$ and $\zv \sim N(\zero_k, I_k)$. By definition, $\ve{\mu} + \Gamma\tr\zv \sim N(\ve{\mu}, \Sigma)$, so its mgf is also $\exp\left(\tv\tr\ve{\mu} + \frac{1}{2}\tv\tr\Sigma\tv\right)$ for all $\tv \in \Real^n$. The two mgfs agree on $\Real^n$, an open rectangle containing the origin, so by Theorem 3.1, $\ve{x} \overset{d}{=} \ve{\mu} + \Gamma\tr\zv$; that is, $\ve{x} \sim N(\ve{\mu}, \Sigma)$.
-
-Hence $\ve{x}$ is multivariate normal if and only if every linear combination $\av\tr\ve{x}$ is univariate normal.
-
-\newpage
+Since $\tv$ was arbitrary, $M_{\ve{x}}$ exists on all of $\Real^n$, where it agrees with the mgf of $\ve{\mu} + \Gamma\tr\zv \sim N(\ve{\mu}, \Sigma)$ ($\Gamma$ and $\zv$ as in the definition). By Theorem 3.1, $\ve{x}$ has the same cdf as $\ve{\mu} + \Gamma\tr\zv$; that is, $\ve{x} \sim N(\ve{\mu}, \Sigma)$.
 
 # Q2
 
@@ -95,29 +84,18 @@ We utilize the following results:
 
 - Variance of a quadratic form (Section 3.2): if $\ve{x} \sim N(\ve{\mu}, \Sigma)$ and $C$ is a symmetric matrix of constants, then $\Var(\ve{x}\tr C\ve{x}) = 2\tra\left[(C\Sigma)^2\right] + 4\ve{\mu}\tr C\Sigma C\ve{\mu}$.
 
-*Proof:* Following the hint, write $w \equiv \ve{x}\tr A\ve{x}$ and $z \equiv \ve{x}\tr B\ve{x}$, so that $w + z = \ve{x}\tr(A + B)\ve{x}$ with $A + B$ symmetric. The Section 3.2 result with $C = A + B$ gives
-$$
-\Var(w + z) = 2\tra\left[(A\Sigma + B\Sigma)^2\right] + 4\ve{\mu}\tr(A + B)\Sigma(A + B)\ve{\mu}.
-$$
-Expanding each term,
+*Proof:* Following the hint, write $w \equiv \ve{x}\tr A\ve{x}$ and $z \equiv \ve{x}\tr B\ve{x}$, so that $w + z = \ve{x}\tr(A + B)\ve{x}$ with $A + B$ symmetric. The Section 3.2 result with $C = A + B$, and then with $C = A$ and $C = B$, gives
 $$
 \begin{aligned}
-\tra\left[(A\Sigma + B\Sigma)^2\right] &= \tra\left[(A\Sigma)^2\right] + \tra\left[(B\Sigma)^2\right] + \tra(A\Sigma B\Sigma) + \tra(B\Sigma A\Sigma) \\
-&= \tra\left[(A\Sigma)^2\right] + \tra\left[(B\Sigma)^2\right] + 2\tra(A\Sigma B\Sigma), \\
-\ve{\mu}\tr(A + B)\Sigma(A + B)\ve{\mu} &= \ve{\mu}\tr A\Sigma A\ve{\mu} + \ve{\mu}\tr B\Sigma B\ve{\mu} + \ve{\mu}\tr A\Sigma B\ve{\mu} + \ve{\mu}\tr B\Sigma A\ve{\mu} \\
-&= \ve{\mu}\tr A\Sigma A\ve{\mu} + \ve{\mu}\tr B\Sigma B\ve{\mu} + 2\ve{\mu}\tr A\Sigma B\ve{\mu},
+\Var(w + z) &= 2\tra\left[(A\Sigma + B\Sigma)^2\right] + 4\ve{\mu}\tr(A + B)\Sigma(A + B)\ve{\mu} \\
+&= \Var(w) + \Var(z) + 2\left[\tra(A\Sigma B\Sigma) + \tra(B\Sigma A\Sigma)\right] + 4\left(\ve{\mu}\tr A\Sigma B\ve{\mu} + \ve{\mu}\tr B\Sigma A\ve{\mu}\right) \\
+&= \Var(w) + \Var(z) + 4\tra(A\Sigma B\Sigma) + 8\ve{\mu}\tr A\Sigma B\ve{\mu},
 \end{aligned}
 $$
-since $\tra(B\Sigma A\Sigma) = \tra(A\Sigma B\Sigma)$ (cyclic property of the trace), and the scalar $\ve{\mu}\tr B\Sigma A\ve{\mu}$ equals its transpose $\ve{\mu}\tr A\Sigma B\ve{\mu}$ ($A$, $B$, and $\Sigma$ are symmetric). Applying the Section 3.2 result with $C = A$ and $C = B$ as well, it then follows that
-$$
-\Var(w + z) = \Var(w) + \Var(z) + 4\tra(A\Sigma B\Sigma) + 8\ve{\mu}\tr A\Sigma B\ve{\mu}.
-$$
-Comparing with the hint, $2\cov(w, z) = 4\tra(A\Sigma B\Sigma) + 8\ve{\mu}\tr A\Sigma B\ve{\mu}$; that is,
+where the last step uses $\tra(B\Sigma A\Sigma) = \tra(A\Sigma B\Sigma)$ (cyclic property of the trace) and $\ve{\mu}\tr B\Sigma A\ve{\mu} = (\ve{\mu}\tr B\Sigma A\ve{\mu})\tr = \ve{\mu}\tr A\Sigma B\ve{\mu}$ (as $A$, $B$, and $\Sigma$ are symmetric). Comparing with the hint, $2\cov(w, z) = 4\tra(A\Sigma B\Sigma) + 8\ve{\mu}\tr A\Sigma B\ve{\mu}$; that is,
 $$
 \cov(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = 2\tra(A\Sigma B\Sigma) + 4\ve{\mu}\tr A\Sigma B\ve{\mu}. \tag{Q2}
 $$
-
-\newpage
 
 # Q3
 
@@ -130,7 +108,12 @@ $$
 \cv_1 = \bv_1 + 2A_1\ve{\mu} \quad \text{and} \quad \cv_2 = \bv_2 + 2A_2\ve{\mu}.
 $$
 
-Note: Each $\bv_i$ is $n \times 1$ and each $A_i$ is $n \times n$, so each $\left(\begin{smallmatrix} \bv_i\tr \\ A_i \end{smallmatrix}\right)$ is $(n + 1) \times n$. (The vectors $\cv_1$ and $\cv_2$ do not enter (a) or (b); they are just along for the ride.)
+We utilize the following results for (a)–(b):
+
+- Lemma 2.4: if $L$ and $M$ are matrices of constants having the same number of rows as $\ve{x}$ has elements, then $\cov(L\tr\ve{x}, M\tr\ve{x}) = L\tr\Sigma M$, where $\Sigma = \Var(\ve{x})$.
+- Corollary to Theorem 3.7: if $\ve{x} \sim N(\ve{\mu}, \Sigma)$ and $B_1$, $B_2$ are matrices of constants with $n$ columns, then $B_1\ve{x}$ and $B_2\ve{x}$ are independent if and only if $B_1\Sigma B_2\tr = 0$.
+- Definition of a generalized inverse: $A_iA_i^-A_i = A_i$.
+- Continuous functions of independent random vectors are independent.
 
 ## (a)
 
@@ -145,15 +128,7 @@ $$
 \cov\left( \begin{pmatrix} \bv_1\tr \\ A_1 \end{pmatrix} \ve{x}, \begin{pmatrix} \bv_2\tr \\ A_2 \end{pmatrix} \ve{x} \right) = \begin{pmatrix} \bv_1\tr\Sigma\bv_2 & \bv_1\tr\Sigma A_2 \\ A_1\Sigma\bv_2 & A_1\Sigma A_2 \end{pmatrix}. \tag{Q3 (a)}
 $$
 
-We utilize the following results:
-
-- Lemma 2.4: if $L$ and $M$ are matrices of constants with as many rows as $\ve{x}$ has elements, then $\cov(L\tr\ve{x}, M\tr\ve{x}) = L\tr\Sigma M$, where $\Sigma = \Var(\ve{x})$.
-
-Take $L \equiv (\bv_1, A_1)$ and $M \equiv (\bv_2, A_2)$, each $n \times (n + 1)$. Since $A_1$ and $A_2$ are symmetric, $L\tr = \left(\begin{smallmatrix} \bv_1\tr \\ A_1 \end{smallmatrix}\right)$ and $M\tr = \left(\begin{smallmatrix} \bv_2\tr \\ A_2 \end{smallmatrix}\right)$, so by Lemma 2.4 the covariance is
-$$
-L\tr\Sigma M = \begin{pmatrix} \bv_1\tr \\ A_1 \end{pmatrix} \Sigma \begin{pmatrix} \bv_2 & A_2 \end{pmatrix},
-$$
-and multiplying out blockwise gives (Q3 (a)), with blocks of sizes $1 \times 1$, $1 \times n$, $n \times 1$, and $n \times n$.
+For $i = 1, 2$, write $B_i \equiv \left(\begin{smallmatrix} \bv_i\tr \\ A_i \end{smallmatrix}\right)$, an $(n + 1) \times n$ matrix. Lemma 2.4, with $L = B_1\tr$ and $M = B_2\tr$, gives $\cov(B_1\ve{x}, B_2\ve{x}) = B_1\Sigma B_2\tr$, where $B_2\tr = (\bv_2, A_2)$ as $A_2$ is symmetric; multiplying out blockwise gives (Q3 (a)).
 
 ## (b)
 
@@ -161,35 +136,27 @@ Suppose that (i) $\bv_1\tr\Sigma\bv_2 = 0$, (ii) $\bv_1\tr\Sigma A_2 = \zero\tr$
 
 ### Answer
 
-We utilize the following results:
+*Proof:* Let $B_i$ be as in (a), and let $\ve{u}_i \equiv B_i\ve{x} = \left(\begin{smallmatrix} \bv_i\tr\ve{x} \\ A_i\ve{x} \end{smallmatrix}\right)$ for $i = 1, 2$. By (a), $B_1\Sigma B_2\tr = \cov(\ve{u}_1, \ve{u}_2)$ is the matrix in (Q3 (a)), whose blocks all vanish: $\bv_1\tr\Sigma\bv_2 = 0$ by (i), $\bv_1\tr\Sigma A_2 = \zero_n\tr$ by (ii), $A_1\Sigma\bv_2 = (\bv_2\tr\Sigma A_1)\tr = \zero_n$ by (iii) (as $A_1$ and $\Sigma$ are symmetric), and $A_1\Sigma A_2 = 0$ by (iv). So $B_1\Sigma B_2\tr = 0$, and by the Corollary to Theorem 3.7, $\ve{u}_1$ and $\ve{u}_2$ are independent.
 
-- Corollary to Theorem 3.7: if $\ve{x} \sim N(\ve{\mu}, \Sigma)$ and $B_1$, $B_2$ are matrices of constants with $n$ columns, then $B_1\ve{x}$ and $B_2\ve{x}$ are independent if and only if $B_1\Sigma B_2\tr = 0$ (the corollary's constant vectors play no role here, so we take them to be zero).
-- Definition of a generalized inverse: $A_iA_i^-A_i = A_i$.
-- Borel functions of independent random vectors are independent.
-
-*Proof:* For $i = 1, 2$, let $B_i \equiv \left(\begin{smallmatrix} \bv_i\tr \\ A_i \end{smallmatrix}\right)$ and $\ve{u}_i \equiv B_i\ve{x} = \left(\begin{smallmatrix} \bv_i\tr\ve{x} \\ A_i\ve{x} \end{smallmatrix}\right)$. By Lemma 2.4, $B_1\Sigma B_2\tr = \cov(\ve{u}_1, \ve{u}_2)$, the matrix in (Q3 (a)), and its four blocks vanish under the assumptions: $\bv_1\tr\Sigma\bv_2 = 0$ by (i), $\bv_1\tr\Sigma A_2 = \zero_n\tr$ by (ii), $A_1\Sigma\bv_2 = (\bv_2\tr\Sigma A_1)\tr = \zero_n$ by (iii) (as $A_1$ and $\Sigma$ are symmetric), and $A_1\Sigma A_2 = 0$ by (iv). So $B_1\Sigma B_2\tr = 0$, and by the Corollary to Theorem 3.7, $\ve{u}_1$ and $\ve{u}_2$ are independent.
-
-It then suffices to show that each $w_i$ is a function of $\ve{u}_i$ alone. Since $A_iA_i^-A_i = A_i$ and $A_i\tr = A_i$,
+It then suffices to show that each $w_i$ is a continuous function of $\ve{u}_i$. Since $A_iA_i^-A_i = A_i$ and $A_i\tr = A_i$,
 $$
 \ve{x}\tr A_i\ve{x} = \ve{x}\tr A_iA_i^-A_i\ve{x} = (A_i\ve{x})\tr A_i^-(A_i\ve{x}),
 $$
-which is the hint. So $w_i = g_i(\bv_i\tr\ve{x}, A_i\ve{x}) = g_i(\ve{u}_i)$, where $g_i(s, \vv) \equiv s + \vv\tr A_i^-\vv$ for $s \in \Real$ and $\vv \in \Real^n$. Since $g_1$ and $g_2$ are continuous and $\ve{u}_1$ and $\ve{u}_2$ are independent, $w_1 = g_1(\ve{u}_1)$ and $w_2 = g_2(\ve{u}_2)$ are independent.
-
-\newpage
+which is the hint. So $w_i = g_i(\ve{u}_i)$, where $g_i(s, \vv) \equiv s + \vv\tr A_i^-\vv$ ($s \in \Real$, $\vv \in \Real^n$) is continuous, and hence $w_1$ and $w_2$ are independent.
 
 # Q4
 
 Take the model to be Model II and assume that $\y$ has a multivariate normal distribution.
 
-Note: Under Model II with $\y$ multivariate normal, $\y \sim N(X\bb, \sigma^2 I_n)$, where $X$ is $n \times p$ with $p^* \equiv \rank(X)$. We assume $n > p^*$ (otherwise $\y\tr(\y - X\bhat) = 0$, and every estimator of the given form has MSE $\sigma^4$). As in Section 2.8, write $Q(\bhat) = (\y - X\bhat)\tr(\y - X\bhat) = \y\tr(\y - X\bhat)$ for the residual sum of squares, and let $\widetilde{\sigma}^2_k \equiv (1/k)Q(\bhat)$.
-
 We utilize the following results for (a)–(b):
 
-- Corollary to Theorem 2.5 and the Note following Theorem 2.6: for any solution $\bhat$ to the normal equations, $X\bhat = \PX\y$, so $\y - X\bhat = (I_n - \PX)\y$, where $\PX = X(X\tr X)^-X\tr$.
-- Lemmas 2.6–2.7 and property (4) of $\PX$: $I_n - \PX$ is symmetric and idempotent with $\rank(I_n - \PX) = n - p^*$, and $\PX X = X$, so $(I_n - \PX)X = 0$.
+- Corollary to Theorem 2.5 and the Note following Theorem 2.6: for any solution $\bhat$ to the normal equations, $X\bhat = \PX\y$, so $\y - X\bhat = (I_n - \PX)\y$.
+- Lemmas 2.6–2.7 and property (4) of $\PX$: $I_n - \PX$ is symmetric and idempotent of rank $n - p^*$, and $(I_n - \PX)X = 0$.
 - Corollary to Lemma 2.5: if $F$ is idempotent, then $\tra(F) = \rank(F)$.
-- Lemma 2.8: if $\E(\ve{x}) = \ve{\mu}$ and $\Var(\ve{x}) = \Sigma$, then $\E(\ve{x}\tr F\ve{x}) = \tra(F\Sigma) + \ve{\mu}\tr F\ve{\mu}$.
+- Lemma 2.8: if $\E(\ve{x}) = \ve{\mu}$ and $\Var(\ve{x}) = \Sigma$, then $\E(\ve{x}\tr C\ve{x}) = \tra(C\Sigma) + \ve{\mu}\tr C\ve{\mu}$.
 - Variance of a quadratic form (Section 3.2; stated in Q2).
+
+Note: Under Model II with $\y$ multivariate normal, $\y \sim N(X\bb, \sigma^2 I_n)$, where $X$ is $n \times p$ with $p^* = \rank(X)$; as in Section 2.8, we take $n > p^*$. Write $\widetilde{\sigma}^2_k \equiv (1/k)\y\tr(\y - X\bhat)$.
 
 ## (a)
 
@@ -205,15 +172,14 @@ $$
 \end{aligned} \tag{Q4 (a)}
 $$
 
-By the first result, $Q(\bhat) = \y\tr(I_n - \PX)\y$ for any solution $\bhat$, so $\widetilde{\sigma}^2_k$ does not depend on the choice of $\bhat$. We apply Lemma 2.8 and the Section 3.2 result with $F = C = I_n - \PX$, $\ve{\mu} = X\bb$, and $\Sigma = \sigma^2 I_n$. Since $(I_n - \PX)X\bb = \zero_n$, both mean terms vanish, and since $(I_n - \PX)^2 = I_n - \PX$ with $\tra(I_n - \PX) = \rank(I_n - \PX) = n - p^*$,
+By the first result, $\widetilde{\sigma}^2_k = (1/k)\y\tr(I_n - \PX)\y$ for every solution $\bhat$. We apply Lemma 2.8 and the Section 3.2 result with $C = I_n - \PX$, $\ve{\mu} = X\bb$, and $\Sigma = \sigma^2 I_n$: the terms in $X\bb$ vanish as $(I_n - \PX)X = 0$, and $(I_n - \PX)^2 = I_n - \PX$ has trace $n - p^*$ (Corollary to Lemma 2.5), so
 $$
-\E[Q(\bhat)] = \sigma^2\tra(I_n - \PX) = (n - p^*)\sigma^2, \qquad \Var[Q(\bhat)] = 2\sigma^4\tra\left[(I_n - \PX)^2\right] = 2(n - p^*)\sigma^4.
+\E\left[\y\tr(I_n - \PX)\y\right] = \sigma^2\tra(I_n - \PX) = (n - p^*)\sigma^2, \qquad \Var\left[\y\tr(I_n - \PX)\y\right] = 2\sigma^4\tra\left[(I_n - \PX)^2\right] = 2(n - p^*)\sigma^4.
 $$
-Dividing by $k$ (resp. $k^2$) gives the expectation (resp. variance) in (Q4 (a)), and
+Dividing by $k$ and $k^2$, resp., gives the expectation and variance in (Q4 (a)), and the MSE is
 $$
-\text{MSE}(\widetilde{\sigma}^2_k) = \Var(\widetilde{\sigma}^2_k) + \left[\E(\widetilde{\sigma}^2_k) - \sigma^2\right]^2 = \frac{2(n - p^*)\sigma^4}{k^2} + \sigma^4\left(\frac{n - p^*}{k} - 1\right)^2,
+\Var(\widetilde{\sigma}^2_k) + \left[\E(\widetilde{\sigma}^2_k) - \sigma^2\right]^2 = \frac{2(n - p^*)\sigma^4}{k^2} + \left[\frac{(n - p^* - k)\sigma^2}{k}\right]^2.
 $$
-which rearranges to the MSE in (Q4 (a)). (Equivalently, $Q(\bhat)/\sigma^2 \sim \chi^2(n - p^*)$ by Example 1 following Theorem 3.16, with mean $n - p^*$ and variance $2(n - p^*)$.)
 
 ## (b)
 
@@ -221,41 +187,33 @@ Of those estimators of $\sigma^2$ having the above form, which has the smallest 
 
 ### Answer
 
-$k = n - p^* + 2$; that is, $\y\tr(\y - X\bhat)/(n - p^* + 2)$ has the smallest MSE of the family, namely $2\sigma^4/(n - p^* + 2)$.
+$k = n - p^* + 2$; that is, $\y\tr(\y - X\bhat)/(n - p^* + 2)$ has the smallest MSE.
 
-*Proof:* Write $m \equiv n - p^* \geq 1$ and $v \equiv 1/k$, which ranges over all nonzero reals as $k$ does. By (Q4 (a)),
+Write $m \equiv n - p^* \geq 1$ and $v \equiv 1/k$, which ranges over the nonzero reals as $k$ does. By (Q4 (a)),
 $$
-\frac{\text{MSE}(\widetilde{\sigma}^2_k)}{\sigma^4} = 2mv^2 + (mv - 1)^2 = m(m + 2)v^2 - 2mv + 1 \equiv h(v).
+\frac{\text{MSE}(\widetilde{\sigma}^2_k)}{\sigma^4} = 2mv^2 + (mv - 1)^2 = m(m + 2)v^2 - 2mv + 1,
 $$
-Since $m(m + 2) > 0$, $h$ is a strictly convex quadratic, uniquely minimized where $h'(v) = 2m(m + 2)v - 2m = 0$, that is, at $v^* = 1/(m + 2) \neq 0$. Hence the optimum is $k^* = 1/v^* = m + 2 = n - p^* + 2$, with
-$$
-\text{MSE}(\widetilde{\sigma}^2_{k^*}) = \sigma^4 h(v^*) = \sigma^4\left(1 - \frac{m}{m + 2}\right) = \frac{2\sigma^4}{n - p^* + 2}.
-$$
-Said differently, dividing by $n - p^* + 2$ rather than the $n - p^*$ of the unbiased $\widehat{\sigma}^2$ (Section 2.8) accepts a downward bias to cut the MSE from $2\sigma^4/(n - p^*)$ to $2\sigma^4/(n - p^* + 2)$.
+a strictly convex quadratic in $v$ (as $m(m + 2) > 0$), uniquely minimized where its derivative $2m(m + 2)v - 2m$ vanishes, at $v = 1/(m + 2) \neq 0$. Hence the optimum is $k = m + 2 = n - p^* + 2$.
 
-As a quick numerical check (a one-way layout with an intercept, so $X$ is rank-deficient):
-
-```{r q4-check}
-set.seed(611)
-n <- 12; sigma <- 2
-g <- factor(rep(1:3, times = 4))
-X <- cbind(1, model.matrix(~ g - 1))            # n x 4, rank 3
-pstar <- qr(X)$rank; m <- n - pstar             # Expect pstar = 3, m = 9
-beta <- c(1, -1, 0.5, 2)
-PX <- X %*% MASS::ginv(crossprod(X)) %*% t(X)
-R <- 1e5
-Y <- drop(X %*% beta) + matrix(rnorm(n * R, sd = sigma), n, R)
-Q <- colSums(Y * ((diag(n) - PX) %*% Y))        # y'(y - X betahat), one per replicate
-c(mean(Q), m * sigma^2)                         # Expect approx. equal (36)
-c(var(Q), 2 * m * sigma^4)                      # Expect approx. equal (288)
-mse <- function(k) sigma^4 / k^2 * (2 * m + (m - k)^2)
-ks <- m + 0:4
-rbind(simulated = sapply(ks, function(k) mean((Q / k - sigma^2)^2)),
-      theory = mse(ks))                         # Expect agreement; smallest at k = 11
-optimize(mse, c(1, 50))$minimum                 # Expect m + 2 = 11
-```
-
-\newpage
+<!-- # ```{r q4-check} -->
+<!-- # set.seed(611) -->
+<!-- # n <- 12; sigma <- 2 -->
+<!-- # g <- factor(rep(1:3, times = 4)) -->
+<!-- # X <- cbind(1, model.matrix(~ g - 1))            # n x 4, rank 3 -->
+<!-- # pstar <- qr(X)$rank; m <- n - pstar             # Expect pstar = 3, m = 9 -->
+<!-- # beta <- c(1, -1, 0.5, 2) -->
+<!-- # PX <- X %*% MASS::ginv(crossprod(X)) %*% t(X) -->
+<!-- # R <- 1e5 -->
+<!-- # Y <- drop(X %*% beta) + matrix(rnorm(n * R, sd = sigma), n, R) -->
+<!-- # Q <- colSums(Y * ((diag(n) - PX) %*% Y))        # y'(y - X betahat), one per replicate -->
+<!-- # c(mean(Q), m * sigma^2)                         # Expect approx. equal (36) -->
+<!-- # c(var(Q), 2 * m * sigma^4)                      # Expect approx. equal (288) -->
+<!-- # mse <- function(k) sigma^4 / k^2 * (2 * m + (m - k)^2) -->
+<!-- # ks <- m + 0:4 -->
+<!-- # rbind(simulated = sapply(ks, function(k) mean((Q / k - sigma^2)^2)), -->
+<!-- #       theory = mse(ks))                         # Expect agreement; smallest at k = 11 -->
+<!-- # optimize(mse, c(1, 50))$minimum                 # Expect m + 2 = 11 -->
+<!-- # ``` -->
 
 # Q5
 
@@ -263,57 +221,44 @@ Let $\ve{x} \sim N(\ve{\mu}, \Sigma)$, where $\ve{x}$ is an $r \times 1$ vector 
 
 ## Answer
 
-Note: $\Sigma$ is $r \times r$ and $\Gamma$ is $k \times r$. We take $s \geq 1$, as in Theorem 3.16 (if $s = 0$, the argument below gives $\ve{x}\tr A\ve{x} = 0$ with probability one).
-
 We utilize the following results:
 
-- Definition of $N(\ve{\mu}, \Sigma)$ (stated in Q1): $\ve{x} \overset{d}{=} \ve{\mu} + \Gamma\tr\zv$ with $\zv \sim N(\zero_k, I_k)$, for any $k \times r$ matrix $\Gamma$ with $\Sigma = \Gamma\tr\Gamma$ (the distribution of $\ve{\mu} + \Gamma\tr\zv$ depends on $\Gamma$ only through $\Gamma\tr\Gamma$, as its mgf shows).
+- Definition of $N(\ve{\mu}, \Sigma)$ (stated in Q1).
 - Lemma 1.3(i): for any matrix $X$, $PX\tr X = QX\tr X$ implies $PX\tr = QX\tr$.
 - Corollary to Lemma 2.5 (stated in Q4).
 - Theorem 3.5: if $\ve{x} \sim N(\ve{\mu}, \Sigma)$, then $B\ve{x} + \bv \sim N(B\ve{\mu} + \bv, B\Sigma B\tr)$.
-- Theorem 3.16 (case $\Sigma = I$): if $\vv \sim N(\av, I_k)$ and $M$ is a $k \times k$ symmetric matrix that is idempotent of rank $s \geq 1$, then $\vv\tr M\vv \sim \chi^2\left(s, \frac{1}{2}\av\tr M\av\right)$; conversely, if $\vv\tr M\vv \sim \chi^2(s, \lambda)$ for some $\lambda$, then $M$ is idempotent of rank $s$.
+- Theorem 3.16 (with $\Sigma = I$): if $\vv \sim N(\av, I_k)$ and $M$ is a $k \times k$ symmetric matrix of constants that is idempotent of rank $s \geq 1$, then $\vv\tr M\vv \sim \chi^2\left(s, \frac{1}{2}\av\tr M\av\right)$.
 
-*Proof:* Following the hint, we have two goals: (1) $\Gamma A\Gamma\tr$ is idempotent of rank $s$, and (2) $\ve{x}\tr A\ve{x} \overset{d}{=} \vv\tr\Gamma A\Gamma\tr\vv$ for some $\vv \sim N(\av, I_k)$ with $\av\tr\Gamma A\Gamma\tr\av = \ve{\mu}\tr A\ve{\mu}$.
+Note: We take $s \geq 1$, as in Theorem 3.16.
 
-**(1) $\Gamma A\Gamma\tr$ is idempotent of rank $s$:** Since $A\Sigma$ is idempotent,
-$$
-(A\Sigma A)\Gamma\tr\Gamma = A\Sigma A\Sigma = A\Sigma = A\Gamma\tr\Gamma,
-$$
-so Lemma 1.3(i), with $\Gamma$ in the role of $X$, gives $A\Sigma A\Gamma\tr = A\Gamma\tr$. Premultiplying by $\Gamma$,
-$$
-(\Gamma A\Gamma\tr)^2 = \Gamma A(\Gamma\tr\Gamma)A\Gamma\tr = \Gamma(A\Sigma A\Gamma\tr) = \Gamma A\Gamma\tr,
-$$
-so the symmetric matrix $\Gamma A\Gamma\tr$ is idempotent. By the Corollary to Lemma 2.5 (twice) and the cyclic property of the trace,
+*Proof:* Following the hint, we have two goals: (1) $\Gamma A\Gamma\tr$ is idempotent of rank $s$, and (2) $\ve{x}\tr A\ve{x}$ has the same distribution as $\vv\tr(\Gamma A\Gamma\tr)\vv$ for some $\vv \sim N(\av, I_k)$ with $\av\tr\Gamma A\Gamma\tr\av = \ve{\mu}\tr A\ve{\mu}$.
+
+**(1) $\Gamma A\Gamma\tr$ is idempotent of rank $s$:** Since $A\Sigma$ is idempotent, $(A\Sigma A)\Gamma\tr\Gamma = (A\Sigma)^2 = A\Sigma = A\Gamma\tr\Gamma$, so Lemma 1.3(i), with $\Gamma$ in the role of $X$, gives $A\Sigma A\Gamma\tr = A\Gamma\tr$. Premultiplying by $\Gamma$, $(\Gamma A\Gamma\tr)^2 = \Gamma A\Sigma A\Gamma\tr = \Gamma A\Gamma\tr$, so the symmetric matrix $\Gamma A\Gamma\tr$ is idempotent. By the Corollary to Lemma 2.5 (twice) and the cyclic property of the trace,
 $$
 \rank(\Gamma A\Gamma\tr) = \tra(\Gamma A\Gamma\tr) = \tra(A\Gamma\tr\Gamma) = \tra(A\Sigma) = \rank(A\Sigma) = s.
 $$
 
-**(2) The representation:** Since $\ve{\mu} \in \C(\Sigma)$, $\ve{\mu} = \Sigma\dv$ for some $\dv \in \Real^r$, so $\ve{\mu} = \Gamma\tr\Gamma\dv = \Gamma\tr\av$ with $\av \equiv \Gamma\dv \in \Real^k$. By the definition, $\ve{x} \overset{d}{=} \ve{\mu} + \Gamma\tr\zv = \Gamma\tr(\zv + \av)$, where $\zv \sim N(\zero_k, I_k)$. Writing $\vv \equiv \zv + \av \sim N(\av, I_k)$ (Theorem 3.5), it then follows that
-$$
-\ve{x}\tr A\ve{x} \overset{d}{=} (\Gamma\tr\vv)\tr A(\Gamma\tr\vv) = \vv\tr(\Gamma A\Gamma\tr)\vv \quad \text{and} \quad \av\tr\Gamma A\Gamma\tr\av = (\Gamma\tr\av)\tr A(\Gamma\tr\av) = \ve{\mu}\tr A\ve{\mu}.
-$$
+**(2) The representation:** Since $\ve{\mu} \in \C(\Sigma)$, $\ve{\mu} = \Sigma\dv = \Gamma\tr\av$ for some $\dv \in \Real^r$, where $\av \equiv \Gamma\dv$. By the definition, $\ve{x}$ has the same cdf as $\ve{\mu} + \Gamma\tr\zv = \Gamma\tr(\zv + \av)$, where $\zv \sim N(\zero_k, I_k)$, and $\vv \equiv \zv + \av \sim N(\av, I_k)$ by Theorem 3.5. Hence $\ve{x}\tr A\ve{x}$ has the same distribution as $(\Gamma\tr\vv)\tr A(\Gamma\tr\vv) = \vv\tr(\Gamma A\Gamma\tr)\vv$, and $\av\tr\Gamma A\Gamma\tr\av = (\Gamma\tr\av)\tr A(\Gamma\tr\av) = \ve{\mu}\tr A\ve{\mu}$.
 
-Combining (1)–(2), Theorem 3.16 (case $\Sigma = I$), applied to $\vv$ and $\Gamma A\Gamma\tr$, gives
+Combining (1)–(2), Theorem 3.16 applied to $\vv$ and $\Gamma A\Gamma\tr$ gives
 $$
-\ve{x}\tr A\ve{x} \overset{d}{=} \vv\tr(\Gamma A\Gamma\tr)\vv \sim \chi^2\left(s, \frac{1}{2}\av\tr\Gamma A\Gamma\tr\av\right) = \chi^2\left(s, \frac{1}{2}\ve{\mu}\tr A\ve{\mu}\right).
+\ve{x}\tr A\ve{x} \sim \chi^2\left(s, \frac{1}{2}\av\tr\Gamma A\Gamma\tr\av\right) = \chi^2\left(s, \frac{1}{2}\ve{\mu}\tr A\ve{\mu}\right).
 $$
-Said differently, $\ve{\mu} \in \C(\Sigma)$ lets the mean be absorbed into the standard normal vector, which is what carries the sufficiency half of Theorem 3.16 over to singular $\Sigma$.
-
-\newpage
 
 # Q6
 
 Let $\ve{x} \sim N(\zero, I)$, and take $A$ and $B$ to be two symmetric matrices such that $\ve{x}\tr A\ve{x} \sim \chi^2(p)$ and $\ve{x}\tr B\ve{x} \sim \chi^2(q)$, where $p > q$. Show, by completing the following three steps, that $\ve{x}\tr(A - B)\ve{x} \sim \chi^2(p - q)$ if and only if the correlation $\corr(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = q/\sqrt{pq}$.
 
-Note: Let $n$ denote the length of $\ve{x}$, so $\ve{x} \sim N(\zero_n, I_n)$ and $A$, $B$ are $n \times n$. Since $\ve{x}\tr A\ve{x} \sim \chi^2(p)$ and $\ve{x}\tr B\ve{x} \sim \chi^2(q)$, the converse in Theorem 3.16 makes $A$ and $B$ idempotent of ranks $p$ and $q$, resp. Hence $\tra(A) = p$ and $\tra(B) = q$ (Corollary to Lemma 2.5), $I_n - A$ is symmetric and idempotent as well, and $p - q \geq 1$ (as $p$ and $q$ are ranks).
-
 We utilize the following results for (a)–(c):
 
-- (Q2): for symmetric $C$ and $D$, $\cov(\ve{x}\tr C\ve{x}, \ve{x}\tr D\ve{x}) = 2\tra(C\Sigma D\Sigma) + 4\ve{\mu}\tr C\Sigma D\ve{\mu}$, which here ($\ve{\mu} = \zero_n$, $\Sigma = I_n$) reads $2\tra(CD)$.
-- Theorem 3.16 (case $\Sigma = I$; stated in Q5) and the Corollary to Lemma 2.5 (stated in Q4).
-- Moments of the $\chi^2$ (Section 3.3): if $u \sim \chi^2(m, \lambda)$, then $\Var(u) = 2(m + 4\lambda)$.
-- Lemma 1.2: $\tra(X\tr X) = 0$ implies $X = 0$.
+- (Q2), which here ($\ve{\mu} = \zero_n$, $\Sigma = I_n$) reads $\cov(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = 2\tra(AB)$.
+- Section 3.3: if $u \sim \chi^2(m, \lambda)$, then $\Var(u) = 2(m + 4\lambda)$.
+- Theorem 3.16 (stated in Q5) and its converse: if $\vv\tr M\vv \sim \chi^2(s, \lambda)$ for some $\lambda$, then $M$ is idempotent of rank $s$.
+- Corollary to Lemma 2.5 (stated in Q4).
+- Lemma 1.2: for any matrix $X$, $\tra(X\tr X) = 0$ implies $X = 0$.
 - Lemma 3.6: if $F$, $G$, and $F + G$ are all idempotent, then $FG = 0$.
+
+Note: Let $n$ denote the length of $\ve{x}$. By the converse in Theorem 3.16, $A$ and $B$ are idempotent of ranks $p$ and $q$, resp., so $\tra(A) = p$ and $\tra(B) = q$ (Corollary to Lemma 2.5), $I_n - A$ is symmetric and idempotent, and $p - q \geq 1$ (as $p > q$ are integers).
 
 ## (a)
 
@@ -321,22 +266,15 @@ Show that $\tra[(I - A)B] = 0$ if and only if $\corr(\ve{x}\tr A\ve{x}, \ve{x}\t
 
 ### Answer
 
-*Proof:* By (Q2) and $B^2 = B$,
+*Proof:* By (Q2) and $\tra(B) = q$,
 $$
-\cov(\ve{x}\tr(A - B)\ve{x}, \ve{x}\tr B\ve{x}) = 2\tra[(A - B)B] = 2\tra(AB - B) = -2\tra[(I_n - A)B],
+\cov(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = 2\tra(AB) = 2\tra(B) - 2\tra[(I_n - A)B] = 2q - 2\tra[(I_n - A)B],
 $$
-while $\Var(\ve{x}\tr A\ve{x}) = 2p$ and $\Var(\ve{x}\tr B\ve{x}) = 2q$ (Section 3.3 with $\lambda = 0$). Following the hint, bilinearity of the covariance gives
+while $\Var(\ve{x}\tr A\ve{x}) = 2p$ and $\Var(\ve{x}\tr B\ve{x}) = 2q$ (Section 3.3 with $\lambda = 0$). Hence
 $$
-\begin{aligned}
-\cov(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) &= \cov(\ve{x}\tr(A - B)\ve{x} + \ve{x}\tr B\ve{x}, \ve{x}\tr B\ve{x}) \\
-&= \cov(\ve{x}\tr(A - B)\ve{x}, \ve{x}\tr B\ve{x}) + \Var(\ve{x}\tr B\ve{x}) = 2q - 2\tra[(I_n - A)B],
-\end{aligned}
+\corr(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = \frac{2q - 2\tra[(I_n - A)B]}{\sqrt{2p \cdot 2q}} = \frac{q - \tra[(I_n - A)B]}{\sqrt{pq}},
 $$
-so that
-$$
-\corr(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = \frac{2q - 2\tra[(I_n - A)B]}{\sqrt{2p \cdot 2q}} = \frac{q - \tra[(I_n - A)B]}{\sqrt{pq}}.
-$$
-Hence $\corr(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = q/\sqrt{pq}$ if and only if $\tra[(I_n - A)B] = 0$.
+which equals $q/\sqrt{pq}$ if and only if $\tra[(I_n - A)B] = 0$.
 
 ## (b)
 
@@ -346,13 +284,11 @@ Show that $(I - A)B = 0$ if and only if $\tra[(I - A)B] = 0$.
 
 *Proof:* **($\Rightarrow$)** If $(I_n - A)B = 0$, then $\tra[(I_n - A)B] = \tra(0) = 0$.
 
-**($\Leftarrow$)** Write $M \equiv B(I_n - A)$, so that $M\tr = (I_n - A)B$ by symmetry. Since $(I_n - A)^2 = I_n - A$ and $B^2 = B$, the cyclic property of the trace gives
+**($\Leftarrow$)** Write $M \equiv B(I_n - A)$, so that $M\tr = (I_n - A)B$. Since $(I_n - A)^2 = I_n - A$ and $B^2 = B$, the cyclic property of the trace gives
 $$
 \tra[(I_n - A)B] = \tra[(I_n - A)(I_n - A)BB] = \tra[(I_n - A)BB(I_n - A)] = \tra(M\tr M).
 $$
-So if $\tra[(I_n - A)B] = 0$, then $\tra(M\tr M) = 0$, and Lemma 1.2 gives $M = 0$; hence $(I_n - A)B = M\tr = 0$.
-
-Thus $(I_n - A)B = 0$ if and only if $\tra[(I_n - A)B] = 0$.
+So if $\tra[(I_n - A)B] = 0$, then Lemma 1.2 gives $M = 0$, and hence $(I_n - A)B = M\tr = 0$.
 
 ## (c)
 
@@ -360,18 +296,17 @@ Show that $\ve{x}\tr(A - B)\ve{x} \sim \chi^2(p - q)$ if and only if $(I - A)B =
 
 ### Answer
 
-*Proof:* Since $A - B$ is symmetric, $\ve{x} \sim N(\zero_n, I_n)$, and $p - q \geq 1$, Theorem 3.16 (case $\Sigma = I$) gives $\ve{x}\tr(A - B)\ve{x} \sim \chi^2(p - q)$ if and only if $A - B$ is idempotent of rank $p - q$ (the noncentrality $\frac{1}{2}\zero_n\tr(A - B)\zero_n$ is zero). It then suffices to show that $A - B$ is idempotent of rank $p - q$ if and only if $(I_n - A)B = 0$.
+*Proof:* Since $A - B$ is symmetric and $p - q \geq 1$, Theorem 3.16 and its converse give $\ve{x}\tr(A - B)\ve{x} \sim \chi^2(p - q)$ if and only if $A - B$ is idempotent of rank $p - q$ (the noncentrality is $0$, as $\ve{\mu} = \zero_n$). It then suffices to show that $A - B$ is idempotent of rank $p - q$ if and only if $(I_n - A)B = 0$.
 
-**($\Rightarrow$)** If $A - B$ is idempotent, then $A - B$, $B$, and $(A - B) + B = A$ are all idempotent, so Lemma 3.6 gives $(A - B)B = 0$, i.e., $AB - B = 0$, i.e., $(I_n - A)B = 0$.
+**($\Rightarrow$)** If $A - B$ is idempotent, then $A - B$, $B$, and $(A - B) + B = A$ are all idempotent, so Lemma 3.6 gives $(A - B)B = AB - B = 0$; that is, $(I_n - A)B = 0$.
 
-**($\Leftarrow$)** If $(I_n - A)B = 0$, then $AB = B$, and transposing (by symmetry) $BA = B$. Hence
+**($\Leftarrow$)** If $(I_n - A)B = 0$, then $AB = B$, and transposing, $BA = B$. Hence
 $$
 (A - B)^2 = A^2 - AB - BA + B^2 = A - B - B + B = A - B,
 $$
-so $A - B$ is idempotent, with $\rank(A - B) = \tra(A - B) = p - q$ (Corollary to Lemma 2.5).
+so $A - B$ is idempotent, of rank $\tra(A - B) = p - q$ (Corollary to Lemma 2.5).
 
 Combining (a)–(c),
 $$
-\ve{x}\tr(A - B)\ve{x} \sim \chi^2(p - q) \overset{\text{(c)}}{\iff} (I_n - A)B = 0 \overset{\text{(b)}}{\iff} \tra[(I_n - A)B] = 0 \overset{\text{(a)}}{\iff} \corr(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = \frac{q}{\sqrt{pq}},
+\ve{x}\tr(A - B)\ve{x} \sim \chi^2(p - q) \overset{\text{(c)}}{\iff} (I_n - A)B = 0 \overset{\text{(b)}}{\iff} \tra[(I_n - A)B] = 0 \overset{\text{(a)}}{\iff} \corr(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = \frac{q}{\sqrt{pq}}.
 $$
-as claimed.
