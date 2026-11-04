@@ -81,7 +81,7 @@ where $q = \frac{p}{p-1}$.
 (ii)
 $$\sum_{i=1}^k |a_i b_i| c_i \leq \Bigg( \sum_{i=1}^k |a_i|^2 c_i \Bigg)^{\frac{1}{2}} \Bigg( \sum_{i=1}^k |b_i|^2 c_i \Bigg)^{\frac{1}{2}}. \tag{1.17}$$
 
-Note: The text prints $q = \frac{p-1}{p}$ in (i); we use the conjugate exponent $q = \frac{p}{p-1}$ of Theorem 3.1.11, so that $\frac{1}{p} + \frac{1}{q} = 1$.
+Note: The text prints $q = \frac{p-1}{p}$ in (i); we use the conjugate exponent $q = \frac{p}{p-1}$ of Theorem 3.1.11, such that $\frac{1}{p} + \frac{1}{q} = 1$.
 
 We utilize the following results:
 
@@ -103,9 +103,46 @@ Each is a finite sum of finite terms, so $f \in L^p(\mu)$ and $g \in L^q(\mu)$.
 $$\sum_{i=1}^k |a_i b_i| c_i = \int |fg|\, d\mu \leq \Big( \int |f|^p\, d\mu \Big)^{\frac{1}{p}} \Big( \int |g|^q\, d\mu \Big)^{\frac{1}{q}} = \Bigg( \sum_{i=1}^k |a_i|^p c_i \Bigg)^{\frac{1}{p}} \Bigg( \sum_{i=1}^k |b_i|^q c_i \Bigg)^{\frac{1}{q}},$$
 which is (1.16).
 
-**(ii):** Taking $p = 2$ in (i) gives $q = \frac{2}{2-1} = 2$, and (1.16) becomes (1.17). //
+**(ii):** Taking $p = 2$ in (i) gives $q = \frac{2}{2-1} = 2$, then from part **(i)**, (1.17) follows, i.e., 
 
-# Q3: 3.17 (a) and (b)
+$$
+\sum_{i=1}^k |a_i b_i| c_i \leq \Bigg( \sum_{i=1}^k |a_i|^p c_i \Bigg)^{\frac{1}{p}} \Bigg( \sum_{i=1}^k |b_i|^q c_i \Bigg)^{\frac{1}{q}} \Rightarrow \sum_{i=1}^k |a_i b_i| c_i \leq \Bigg( \sum_{i=1}^k |a_i|^2 c_i \Bigg)^{\frac{1}{2}} \Bigg( \sum_{i=1}^k |b_i|^2 c_i \Bigg)^{\frac{1}{2}}.//
+$$
+
+# Q3: 3.11
+
+## Answer
+
+We utilize the following results:
+
+- Section 3.2.1 ($L^p$ norms): for $0 < p < \infty$, $\|f\|_p = \big(\int |f|^p\, d\mu\big)^{\min\{1/p, 1\}}$, so $\|f\|_1 = \int |f|\, d\mu$; and $\|f\|_\infty \equiv \sup\{k : \mu(\{|f| > k\}) > 0\}$ (the essential supremum).
+- Theorem 3.1.14 (Minkowski's inequality): for $1 < p < \infty$ and $f, g \in L^p(\mu)$, $\|f + g\|_p \leq \|f\|_p + \|g\|_p$.
+- Proposition 3.2.1: for $0 < p \leq \infty$, $f, g \in L^p(\mu)$ and $a, b \in \mathbb{R}$ imply $af + bg \in L^p(\mu)$.
+- Monotonicity and linearity of the integral (Section 2.3): for nonnegative measurable $f_1, f_2$, $f_1 \leq f_2$ implies $\int f_1\, d\mu \leq \int f_2\, d\mu$, and $\int (f_1 + f_2)\, d\mu = \int f_1\, d\mu + \int f_2\, d\mu$.
+- Monotonicity and countable subadditivity of measures (Chapter 1): $A \subset B$ implies $\mu(A) \leq \mu(B)$, and $\mu\big(\bigcup_{n} A_n\big) \leq \sum_{n} \mu(A_n)$.
+
+*Proof.* Let $p \in \{1, \infty\}$ and $f, g \in L^p(\mu)$ be given. By Proposition 3.2.1 (with $a = b = 1$), $f + g \in L^p(\mu)$, so $\|f + g\|_p$ is defined. For every $\omega \in \Omega$, the triangle inequality on $\mathbb{R}$ gives
+$$|f(\omega) + g(\omega)| \leq |f(\omega)| + |g(\omega)|.$$
+
+**$p = 1$:** Since $|f + g|$, $|f|$, and $|g|$ are nonnegative and measurable, monotonicity and linearity of the integral give
+$$\|f + g\|_1 = \int |f + g|\, d\mu \leq \int \big(|f| + |g|\big)\, d\mu = \int |f|\, d\mu + \int |g|\, d\mu = \|f\|_1 + \|g\|_1.$$
+
+**$p = \infty$:** We first show that, off a null set, $|h|$ is bounded by its essential supremum.
+
+**Claim:** For $h \in L^\infty(\mu)$, $\mu(\{|h| > \|h\|_\infty\}) = 0$.
+
+Write $M \equiv \|h\|_\infty$, which is finite since $h \in L^\infty(\mu)$ (with $\sup \emptyset \equiv 0$, which arises only when $\mu(\Omega) = 0$). Let $k > M$ be given. If $\mu(\{|h| > k\}) > 0$, then $k$ lies in the set defining $M$, so $k \leq M$, a contradiction. Hence $\mu(\{|h| > k\}) = 0$ for every $k > M$. Since
+$$\{|h| > M\} = \bigcup_{n \geq 1} \{|h| > M + n^{-1}\},$$
+countable subadditivity gives $\mu(\{|h| > M\}) \leq \sum_{n \geq 1} \mu(\{|h| > M + n^{-1}\}) = 0$, which proves the Claim.
+
+Now let $N \equiv \{|f| > \|f\|_\infty\} \cup \{|g| > \|g\|_\infty\}$. By the Claim and subadditivity, $\mu(N) = 0$. For $\omega \in N^c$,
+$$|f(\omega) + g(\omega)| \leq |f(\omega)| + |g(\omega)| \leq \|f\|_\infty + \|g\|_\infty,$$
+so $\{|f + g| > \|f\|_\infty + \|g\|_\infty\} \subset N$. Let $k \geq \|f\|_\infty + \|g\|_\infty$ be given. Then $\{|f + g| > k\} \subset N$, so by monotonicity $\mu(\{|f + g| > k\}) = 0$. Hence no such $k$ lies in $\{k : \mu(\{|f + g| > k\}) > 0\}$, and every element of that set is less than $\|f\|_\infty + \|g\|_\infty$. Taking the supremum,
+$$\|f + g\|_\infty \leq \|f\|_\infty + \|g\|_\infty.$$
+
+Combining both cases, Minkowski's inequality holds for $p = 1$ and $p = \infty$, as asserted in Remark 3.1.5. //
+
+# Q4: 3.17 (a) and (b)
 
 Let $X$ be a random variable on a probability space $(\Omega, \mathcal{F}, \mu)$. Recall that $Eh(X) = \int h(X)\, d\mu$ if $h(X) \in L^1(\Omega, \mathcal{F}, \mu)$.
 
@@ -149,7 +186,7 @@ so equality holds.
 
 In either case, $|X|$ is a constant a.e. $(\mu)$. //
 
-# Q4: 3.18
+# Q5: 3.18
 
 Let $X$ be a nonnegative random variable.
 

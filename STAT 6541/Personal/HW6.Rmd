@@ -45,7 +45,7 @@ We utilize the following results (each stated in Q1):
 - Definition 2.3.2 (integral of a simple nonnegative function).
 - Definition 2.5.2 (convergence a.e.).
 - Definition 2.5.8 (uniform integrability), with $a_n(t) \equiv \int_{\{|f_n| > t\}} |f_n|\, dm$.
-- Remark 2.5.4 (UI suffices for convergence of integrals when $\mu(\Omega) < \infty$, but not when $\mu(\Omega) = \infty$).
+- Remark 2.5.4: when $\mu(\Omega) < \infty$ and $f_n \to f$ a.e. $(\mu)$, UI of $\{f_n\}_{n \geq 1}$ is sufficient, but not necessary, for $\int f_n\, d\mu \to \int f\, d\mu$; when $\mu(\Omega) = \infty$, UI no longer suffices.
 
 *Proof.*
 
@@ -53,9 +53,7 @@ We utilize the following results (each stated in Q1):
 
 **$\{f_n\}_{n \geq 1}$ is UI:** By Definition 2.3.2, $\int |f_n|\, dm = n^{-1/2}\, m((0, n)) = n^{-1/2} \cdot n = n^{1/2} < \infty$, so each $f_n \in L^1(m)$. Let $t \geq 1$ be given. Since $|f_n| \leq n^{-1/2} \leq 1 \leq t$, $\{|f_n| > t\} = \emptyset$, and so $a_n(t) = 0$ for all $n \geq 1$. Hence $\sup_{n \geq 1} a_n(t) = 0$ for all $t \geq 1$, which tends to $0$ as $t \to \infty$. Thus $\{f_n\}_{n \geq 1}$ is UI.
 
-**$\int f_n\, dm \not\to \int f\, dm$:** From the computation above, $\int f_n\, dm = n^{1/2} \to \infty$, while $\int f\, dm = 0$. Thus $\int f_n\, dm \not\to \int f\, dm$.
-
-In contrast to Q1, here $m(\mathbb{R}) = \infty$, and UI together with a.e. convergence is not enough for $\int f_n\, dm \to \int f\, dm$ (see Remark 2.5.4). //
+**$\int f_n\, dm \not\to \int f\, dm$:** From the computation above, $\int f_n\, dm = n^{1/2} \to \infty$, while $\int f\, dm = 0$. Thus $\int f_n\, dm \not\to \int f\, dm$.//
 
 # Q3: 2.36
 
@@ -87,7 +85,11 @@ Let $\{f_n\}_{n \geq 1} \subset L^p(\Omega, \mathcal{F}, \mu)$, $0 < p < \infty$
 
 ### Answer
 
-*Proof.* Write $g_n \equiv |f_n - f|^p$. We then have three goals: (1) $f \in L^p(\mu)$, (2) $\{g_n\}_{n \geq 1}$ is UI, and (3) $\int g_n\, d\mu \to 0$.
+*Proof.* Write $g_n \equiv |f_n - f|^p$. We then have three goals: 
+
+- (1) $f \in L^p(\mu)$, 
+- (2) $\{g_n\}_{n \geq 1}$ is UI, and 
+- (3) $\int g_n\, d\mu \to 0$.
 
 **(1) $f \in L^p(\mu)$:** By Theorem 2.5.2, there is a subsequence $\{n_k\}_{k \geq 1}$ with $f_{n_k} \to f$ a.e. $(\mu)$. Since $x \mapsto |x|^p$ is continuous, $|f_{n_k}|^p \to |f|^p$ a.e. $(\mu)$ as well, so $|f|^p = \liminf_{k \to \infty} |f_{n_k}|^p$ a.e. $(\mu)$. Since $\{|f_n|^p\}_{n \geq 1}$ is UI and $\mu(\Omega) < \infty$, Proposition 2.5.7(v) gives
 $$K \equiv \sup_{n \geq 1} \int |f_n|^p\, d\mu < \infty.$$
@@ -132,12 +134,12 @@ We utilize the following results:
 - Remark 2.3.7: $f^+$ and $f^-$ are nonnegative and measurable, with $f = f^+ - f^-$ and $|f| = f^+ + f^-$.
 - Definition 2.3.5 (integrability): $f \in L^1(\mu)$ iff $\int |f|\, d\mu < \infty$.
 
-*Proof.* To keep the three spaces straight,
+*Proof.* To keep the three spaces straight, note:
 $$(\Omega_1, \mathcal{F}_1, \mu_1) \xrightarrow{\ f\ } (\Omega_2, \mathcal{F}_2, \mu_2) \xrightarrow{\ h\ } (\mathbb{R}, \mathcal{B}(\mathbb{R}), \mu_3), \qquad \mu_2 = \mu_1 f^{-1}, \quad \mu_3 = \mu_2 h^{-1}.$$
 By Proposition 2.2.1, $\mu_2$ and $\mu_3$ are measures on $\mathcal{F}_2$ and $\mathcal{B}(\mathbb{R})$. By Proposition 2.1.1(ii), $g = h \circ f$ is $\langle\mathcal{F}_1, \mathcal{B}(\mathbb{R})\rangle$-measurable. By Proposition 2.1.2, $I$ is $\langle\mathcal{B}(\mathbb{R}), \mathcal{B}(\mathbb{R})\rangle$-measurable, being continuous.
 
 We first show
-$$g \in L^1(\mu_1) \iff h \in L^1(\mu_2), \quad \text{in which case} \quad \int_{\Omega_1} g\, d\mu_1 = \int_{\Omega_2} h\, d\mu_2. \tag{$\ast$}$$
+$$g \in L^1(\mu_1) \iff h \in L^1(\mu_2), \quad \text{in which case} \quad \int_{\Omega_1} g\, d\mu_1 = \int_{\Omega_2} h\, d\mu_2. \tag{Q4}$$
 Following the hint, we build up from simple $h$.
 
 **Nonnegative simple $h$:** Let $h = \sum_{i=1}^k c_i I_{A_i}$ with $c_i \in [0, \infty)$ and $A_i \in \mathcal{F}_2$. For $\omega \in \Omega_1$, $I_{A_i}(f(\omega)) = 1$ iff $f(\omega) \in A_i$ iff $\omega \in f^{-1}(A_i)$, so $I_{A_i} \circ f = I_{f^{-1}(A_i)}$. Thus
@@ -152,10 +154,24 @@ $$\int_{\Omega_1} h \circ f\, d\mu_1 = \lim_{n \to \infty} \int_{\Omega_1} h_n \
 $$\int_{\Omega_1} |g|\, d\mu_1 = \int_{\Omega_2} |h|\, d\mu_2 \qquad \text{and} \qquad \int_{\Omega_1} g^{\pm}\, d\mu_1 = \int_{\Omega_2} h^{\pm}\, d\mu_2.$$
 By Definition 2.3.5, the first identity gives $g \in L^1(\mu_1)$ iff $h \in L^1(\mu_2)$. When both are integrable, the second identity and Definition 2.3.4 give
 $$\int_{\Omega_1} g\, d\mu_1 = \int_{\Omega_1} g^+\, d\mu_1 - \int_{\Omega_1} g^-\, d\mu_1 = \int_{\Omega_2} h^+\, d\mu_2 - \int_{\Omega_2} h^-\, d\mu_2 = \int_{\Omega_2} h\, d\mu_2,$$
-which proves ($\ast$).
+which proves (Q4).
 
-**Second equivalence:** The second part is ($\ast$) again, one step down the chain. Take $(\Omega_2, \mathcal{F}_2, \mu_2)$ as the starting space, $h$ as the map, and $I$ as the function being integrated; both are measurable, as noted above. Since $I \circ h = h$ and the induced measure is $\mu_2 h^{-1} = \mu_3$, ($\ast$) gives $h \in L^1(\mu_2)$ iff $I \in L^1(\mu_3)$, in which case
-$$\int_{\Omega_2} h\, d\mu_2 = \int_{\mathbb{R}} I\, d\mu_3 = \int_{\mathbb{R}} x\, d\mu_3.$$
+**Second equivalence:** This is the same argument as for (Q4), one step down the chain: take $(\Omega_2, \mathcal{F}_2, \mu_2)$ as the starting space, $h$ as the map, and $I$ as the function being integrated. Since $I \circ h = h$ and $\mu_2 h^{-1} = \mu_3$, we show
+$$h \in L^1(\mu_2) \iff I \in L^1(\mu_3), \quad \text{in which case} \quad \int_{\Omega_2} h\, d\mu_2 = \int_{\mathbb{R}} I\, d\mu_3.$$
+Since $I$ is not nonnegative, we work with a generic $\phi : \mathbb{R} \to \mathbb{R}$ and later take $\phi \in \{I^+, I^-, |I|\}$.
+
+*Nonnegative simple $\phi$:* Let $\phi = \sum_{i=1}^k c_i I_{B_i}$ with $c_i \in [0, \infty)$ and $B_i \in \mathcal{B}(\mathbb{R})$. For $\omega \in \Omega_2$, $I_{B_i}(h(\omega)) = 1$ iff $h(\omega) \in B_i$ iff $\omega \in h^{-1}(B_i)$, so $I_{B_i} \circ h = I_{h^{-1}(B_i)}$. Thus
+$$\phi \circ h = \sum_{i=1}^k c_i I_{h^{-1}(B_i)},$$
+which is nonnegative and simple on $\Omega_2$, since each $h^{-1}(B_i) \in \mathcal{F}_2$. By Definition 2.3.2 and (2.2),
+$$\int_{\Omega_2} \phi \circ h\, d\mu_2 = \sum_{i=1}^k c_i\, \mu_2\big(h^{-1}(B_i)\big) = \sum_{i=1}^k c_i\, \mu_3(B_i) = \int_{\mathbb{R}} \phi\, d\mu_3.$$
+
+*Nonnegative measurable $\phi$:* Let $\phi \geq 0$ be measurable, and let $\{\phi_n\}_{n \geq 1}$ be nonnegative simple functions on $\mathbb{R}$ with $\phi_n \uparrow \phi$ pointwise, e.g. as in (3.7). By the simple case, each $\phi_n \circ h$ is nonnegative and simple on $\Omega_2$, and $\phi_n \circ h \uparrow \phi \circ h$ pointwise. Applying Definition 2.3.3 on both spaces, together with the simple case,
+$$\int_{\Omega_2} \phi \circ h\, d\mu_2 = \lim_{n \to \infty} \int_{\Omega_2} \phi_n \circ h\, d\mu_2 = \lim_{n \to \infty} \int_{\mathbb{R}} \phi_n\, d\mu_3 = \int_{\mathbb{R}} \phi\, d\mu_3.$$
+
+*The identity $I$:* Pointwise, $I^+ \circ h = h^+$, $I^- \circ h = h^-$, and $|I| \circ h = |h|$. Since $I^+$, $I^-$, and $|I|$ are nonnegative and measurable (Remark 2.3.7), the previous case gives
+$$\int_{\Omega_2} |h|\, d\mu_2 = \int_{\mathbb{R}} |I|\, d\mu_3 \qquad \text{and} \qquad \int_{\Omega_2} h^{\pm}\, d\mu_2 = \int_{\mathbb{R}} I^{\pm}\, d\mu_3.$$
+By Definition 2.3.5, the first identity gives $h \in L^1(\mu_2)$ iff $I \in L^1(\mu_3)$. When both are integrable, the second identity and Definition 2.3.4 give
+$$\int_{\Omega_2} h\, d\mu_2 = \int_{\Omega_2} h^+\, d\mu_2 - \int_{\Omega_2} h^-\, d\mu_2 = \int_{\mathbb{R}} I^+\, d\mu_3 - \int_{\mathbb{R}} I^-\, d\mu_3 = \int_{\mathbb{R}} I\, d\mu_3 = \int_{\mathbb{R}} x\, d\mu_3.$$
 
 Combining the two equivalences, $g \in L^1(\mu_1)$ iff $h \in L^1(\mu_2)$ iff $I \in L^1(\mu_3)$, and in that case $\int_{\Omega_1} g\, d\mu_1 = \int_{\Omega_2} h\, d\mu_2 = \int_{\mathbb{R}} x\, d\mu_3$. //
 
@@ -179,7 +195,7 @@ Does $X_n \to X$ everywhere as $n \to \infty$?
 
 ### Answer
 
-No; the single point $\omega = 0$ spoils it.
+Narp; the single point $\omega = 0$ spoils the fun.
 
 *Proof.* For all $n \geq 2$, $0 \in [0, \frac{1}{n}]$, so
 $$X_n(0) = 1 + (n - 1) = n \to \infty \neq 1 = X(0). \quad //$$
@@ -190,11 +206,13 @@ Does $X_n \to X$ a.s. $(P)$ as $n \to \infty$?
 
 ### Answer
 
-Yes.
+Yes (yarp).
 
 *Proof.* Let $\omega \in (0, 1]$ be given. By Proposition A.2.1, there exists $N \in \mathbb{N}$ with $N > \max\{1/\omega, 1\}$, so $N \geq 2$. For all $n \geq N$, $1/n \leq 1/N < \omega$, so $\omega \notin [0, \frac{1}{n}]$ and $X_n(\omega) = 1 = X(\omega)$. So $X_n(\omega) \to X(\omega)$ for every $\omega \in (0, 1]$. Together with (a),
 $$B \equiv \{\omega \in [0, 1] : X_n(\omega) \not\to X(\omega)\} = \{0\}.$$
 Since $P(\{0\}) = m(\{0\}) = 0$, $X_n \to X$ a.s. $(P)$ (Definition 2.5.2). //
+
+\newpage
 
 ## (c)
 
@@ -202,7 +220,7 @@ Does $X_n \to X$ in probability as $n \to \infty$?
 
 ### Answer
 
-Yes.
+Yes (yarp, again).
 
 *Proof.* $P = m$ is a probability measure on $[0, 1]$, so $P(\Omega) = 1 < \infty$. By (b), $X_n \to X$ a.s. $(P)$, so Theorem 2.5.1 gives $X_n \stackrel{P}{\longrightarrow} X$. //
 
@@ -212,7 +230,7 @@ Does $X_n \to X$ in $L^p$ as $n \to \infty$? Argue for different values of $p \i
 
 ### Answer
 
-$X_n \to X$ in $L^p$ for $0 < p < 1$, but not for $1 \leq p < \infty$.
+Narp (but also yarp); $X_n \to X$ in $L^p$ for $0 < p < 1$, but not for $1 \leq p < \infty$.
 
 *Proof.* First, $X$ and every $X_n$ are in $L^p(P)$ for every $0 < p < \infty$: $|X| = 1$, $X_1 = 0$, and $|X_n| \leq n$ for $n \geq 2$, so each is bounded, and $P(\Omega) = 1$. Next, for $n \geq 2$, $X_n - X = (n - 1)I_{[0, \frac{1}{n}]}$, so $|X_n - X|^p = (n - 1)^p I_{[0, \frac{1}{n}]}$ is nonnegative and simple. By Definition 2.3.2,
 $$\int |X_n - X|^p\, dP = (n - 1)^p\, m\big([0, \tfrac{1}{n}]\big) = \frac{(n - 1)^p}{n}.$$
@@ -226,15 +244,13 @@ So, by Definition 2.5.4, $X_n \to X$ in $L^p$ iff $(n - 1)^p/n \to 0$.
 $$\frac{(n - 1)^p}{n} = (n - 1)^{p - 1} \cdot \frac{n - 1}{n} \geq \frac{(n - 1)^{p - 1}}{2} \to \infty,$$
 since $p - 1 > 0$. So $X_n \not\to X$ in $L^p$. //
 
-\newpage 
-
 ## (e)
 
 Is $\{X_n\}$ a uniformly integrable sequence of random variables?
 
 ### Answer
 
-No.
+Narp.
 
 *Proof.* Let $a_n(t)$ be as in Q1, with $P$ in place of $\mu$, and let $t \geq 1$ be given. Take any $n > t$, so that $n \geq 2$. On $[0, \frac{1}{n}]$, $|X_n| = n > t$, and on $(\frac{1}{n}, 1]$, $|X_n| = 1 \leq t$. So $\{|X_n| > t\} = [0, \frac{1}{n}]$, and by Definition 2.3.2,
 $$a_n(t) = \int nI_{[0, \frac{1}{n}]}\, dP = n\, m\big([0, \tfrac{1}{n}]\big) = 1.$$
