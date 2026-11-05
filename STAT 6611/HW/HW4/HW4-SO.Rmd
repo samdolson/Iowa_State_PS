@@ -51,25 +51,29 @@ We utilize the following results:
 
 - Theorem 3.1: If the mgf's of two random vectors exist and are equal for all $\tv$ in an open rectangle that includes the origin, then their cdf's are identical.
 - Definition ($n$-variate normal of rank $k$): With $\rank(\Sigma) = k \geq 1$, $\ve{x} \sim N(\ve{\mu}, \Sigma)$ if the cdf of $\ve{x}$ is the same as that of $\ve{\mu} + \Gamma\tr\zv$, where $\Gamma$ is a $k \times n$ matrix with $\Sigma = \Gamma\tr\Gamma$ (such a $\Gamma$ exists by Lemma 2.15) and $\zv \sim N(\zero_k, I_k)$ is $k$-variate standard normal.
-- mgf of $N(\ve{\mu}, \Sigma)$ (Section 3.1): $M_{\ve{x}}(\tv) = \exp\left(\tv\tr\ve{\mu} + \frac{1}{2}\tv\tr\Sigma\tv\right)$, $\tv \in \Real^n$; in particular, $N(m, v)$ has mgf $\exp\left(tm + \frac{1}{2}t^2 v\right)$, $t \in \Real$.
+- mgf of $N(\ve{\mu}, \Sigma)$ (Section 3.1): $M_{\ve{x}}(\tv) = \exp\left(\tv\tr\ve{\mu} + \frac{1}{2}\tv\tr\Sigma\tv\right)$ for all $\tv \in \Real^n$; in particular, $N(m, v)$ has mgf $\exp\left(tm + \frac{1}{2}t^2 v\right)$ for all $t \in \Real$.
 - Corollary to Lemma 2.4: $\Var(L\tr\ve{x}) = L\tr\Sigma L$, where $\Sigma = \Var(\ve{x})$.
 
 <!-- Note: As in the definition of the multivariate normal, we take $\rank(\Sigma) = k \geq 1$, and we read $N(c, 0)$ as the point mass at $c$ (needed when $\av\tr\Sigma\av = 0$). -->
 
-*Proof:* We start by noting that for any $\av \in \Real^n$ and $t \in \Real$,
+*Proof:* Both directions rest on the following identity, which follows from the definition of the mgf: For any $\av \in \Real^n$ and $t \in \Real$,
 $$
-M_{\av\tr\ve{x}}(t) = \E\left[\exp(t\av\tr\ve{x})\right] = \E\left[\exp\left((t\av)\tr\ve{x}\right)\right] = M_{\ve{x}}(t\av). \tag{Q1}
+M_{\av\tr\ve{x}}(t) = \E\left[\exp(t\av\tr\ve{x})\right] = \E\left[\exp\left((t\av)\tr\ve{x}\right)\right] = M_{\ve{x}}(t\av). \tag{$*$}
 $$
 
-**($\Rightarrow$)** Suppose $\ve{x} \sim N(\ve{\mu}, \Sigma)$, and let $\av \in \Real^n$ be given. By (Q1) and the mgf of $\ve{x}$, $M_{\av\tr\ve{x}}(t) = \exp\left(t\av\tr\ve{\mu} + \frac{1}{2}t^2\av\tr\Sigma\av\right)$ for every $t \in \Real$, which is the mgf of $N(\av\tr\ve{\mu}, \av\tr\Sigma\av)$. By Theorem 3.1, $\av\tr\ve{x} \sim N(\av\tr\ve{\mu}, \av\tr\Sigma\av)$. Since the choice of $\av$ was arbitrary, every $\av\tr\ve{x}$ is normal.
+**($\Rightarrow$)** Suppose $\ve{x} \sim N(\ve{\mu}, \Sigma)$, and let $\av \in \Real^n$ be given. By $(*)$ and the mgf of $N(\ve{\mu}, \Sigma)$, for all $t \in \Real$,
+$$
+M_{\av\tr\ve{x}}(t) = M_{\ve{x}}(t\av) = \exp\left(t\av\tr\ve{\mu} + \frac{1}{2}t^2\av\tr\Sigma\av\right),
+$$
+which is the mgf of $N(\av\tr\ve{\mu}, \av\tr\Sigma\av)$. By Theorem 3.1, $\av\tr\ve{x} \sim N(\av\tr\ve{\mu}, \av\tr\Sigma\av)$. Since $\av$ was arbitrary, every $\av\tr\ve{x}$ is normal.
 
-**($\Leftarrow$)** Suppose $\av\tr\ve{x}$ is normal for every $\av \in \Real^n$, and let $\tv \in \Real^n$ be given. Since $\E(\tv\tr\ve{x}) = \tv\tr\ve{\mu}$ and $\Var(\tv\tr\ve{x}) = \tv\tr\Sigma\tv$ (Corollary to Lemma 2.4), $\tv\tr\ve{x} \sim N(\tv\tr\ve{\mu}, \tv\tr\Sigma\tv)$, so (Q1) with $t = 1$ gives
+**($\Leftarrow$)** Suppose $\av\tr\ve{x}$ is normal for every $\av \in \Real^n$, and let $\tv \in \Real^n$ be given. Since $\E(\tv\tr\ve{x}) = \tv\tr\ve{\mu}$ and $\Var(\tv\tr\ve{x}) = \tv\tr\Sigma\tv$ (Corollary to Lemma 2.4), $\tv\tr\ve{x} \sim N(\tv\tr\ve{\mu}, \tv\tr\Sigma\tv)$. Taking $\av = \tv$ and $t = 1$ in $(*)$ then gives
 $$
 M_{\ve{x}}(\tv) = M_{\tv\tr\ve{x}}(1) = \exp\left(\tv\tr\ve{\mu} + \frac{1}{2}\tv\tr\Sigma\tv\right).
 $$
-Since $\tv$ was arbitrary, $M_{\ve{x}}$ exists on all of $\Real^n$, where it agrees with the mgf of $\ve{\mu} + \Gamma\tr\zv \sim N(\ve{\mu}, \Sigma)$ ($\Gamma$ and $\zv$ as in the definition). By Theorem 3.1, $\ve{x}$ has the same cdf as $\ve{\mu} + \Gamma\tr\zv$; that is, $\ve{x} \sim N(\ve{\mu}, \Sigma)$.
+Since $\tv$ was arbitrary, $M_{\ve{x}}$ exists on all of $\Real^n$ and agrees there with the mgf of $\ve{\mu} + \Gamma\tr\zv \sim N(\ve{\mu}, \Sigma)$, for $\Gamma$ and $\zv$ as in the definition. By Theorem 3.1, $\ve{x}$ has the same cdf as $\ve{\mu} + \Gamma\tr\zv$; that is, $\ve{x} \sim N(\ve{\mu}, \Sigma)$.
 
-Combining both directions, we then conclude that $\ve{x}$ has a multivariate normal distribution if and only if, for every $n \times 1$ vector of constants $\av$, $\av\tr\ve{x}$ has a (univariate) normal distribution.
+Combining both directions, we conclude that $\ve{x}$ has a multivariate normal distribution if and only if $\av\tr\ve{x}$ has a (univariate) normal distribution for every $\av \in \Real^n$.
 
 \newpage
 
@@ -97,9 +101,24 @@ $$
 &= \Var(w) + \Var(z) + 4\tra(A\Sigma B\Sigma) + 8\ve{\mu}\tr A\Sigma B\ve{\mu},
 \end{aligned}
 $$
-where the last step uses $\tra(B\Sigma A\Sigma) = \tra(A\Sigma B\Sigma)$ (cyclic property of the trace) and $\ve{\mu}\tr B\Sigma A\ve{\mu} = (\ve{\mu}\tr B\Sigma A\ve{\mu})\tr = \ve{\mu}\tr A\Sigma B\ve{\mu}$ (as $A$, $B$, and $\Sigma$ are symmetric). Comparing with the hint, $2\cov(w, z) = 4\tra(A\Sigma B\Sigma) + 8\ve{\mu}\tr A\Sigma B\ve{\mu}$; that is,
+Note, we simplify this expression by using: 
+
+- $A$, $B$, and $\Sigma$ symmetric, 
+- $\ve{\mu}\tr B\Sigma A\ve{\mu} = (\ve{\mu}\tr B\Sigma A\ve{\mu})\tr = \ve{\mu}\tr A\Sigma B\ve{\mu}$, and 
+- Known properties of the trace, i.e., $\tra(B\Sigma A\Sigma) = \tra(A\Sigma B\Sigma)$. 
+
+Returning then to the variance formula noted in the hint, subtracting $\Var(w)$ and $\Var(z)$ from $\Var(w + z)$ above leaves
 $$
-\cov(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = 2\tra(A\Sigma B\Sigma) + 4\ve{\mu}\tr A\Sigma B\ve{\mu}. \tag{Q2}
+\begin{aligned}
+\cov(w, z) &= \frac{1}{2}\left[\Var(w + z) - \Var(w) - \Var(z)\right] \\
+&= \frac{1}{2}\left[4\tra(A\Sigma B\Sigma) + 8\ve{\mu}\tr A\Sigma B\ve{\mu}\right] \\
+&= 2\tra(A\Sigma B\Sigma) + 4\ve{\mu}\tr A\Sigma B\ve{\mu}.
+\end{aligned}
+$$
+
+And we conclude that 
+$$
+\cov(\ve{x}\tr A\ve{x}, \ve{x}\tr B\ve{x}) = 2 \tra(A\Sigma B\Sigma) + 4\ve{\mu}\tr A\Sigma B\ve{\mu},
 $$
 
 \newpage
@@ -131,11 +150,24 @@ $$
 
 ### Answer
 
-For $i = 1, 2$, write $B_i \equiv \left(\begin{smallmatrix} \bv_i\tr \\ A_i \end{smallmatrix}\right)$, an $(n + 1) \times n$ matrix. Lemma 2.4, with $L = B_1\tr$ and $M = B_2\tr$, gives $\cov(B_1\ve{x}, B_2\ve{x}) = B_1\Sigma B_2\tr$, where $B_2\tr = (\bv_2, A_2)$ as $A_2$ is symmetric; multiplying out blockwise gives:
+Note: Each $\bv_i$ is $n \times 1$ and each $A_i$ is $n \times n$. For $i = 1, 2$, write $B_i \equiv \left(\begin{smallmatrix} \bv_i\tr \\ A_i \end{smallmatrix}\right)$, an $(n + 1) \times n$ matrix.
 
+Since $A_i$ is symmetric, $B_i\tr = (\bv_i, A_i)$, an $n \times (n + 1)$ matrix. 
+
+Via Lemma 2.4, with $L = B_1\tr$ and $M = B_2\tr$, we know
+$$
+\cov(B_1\ve{x}, B_2\ve{x}) = B_1\Sigma B_2\tr = \begin{pmatrix} \bv_1\tr \\ A_1 \end{pmatrix} \Sigma \begin{pmatrix} \bv_2 & A_2 \end{pmatrix}.
+$$
+Multiplying out blockwise, then:
+$$
+B_1\Sigma = \begin{pmatrix} \bv_1\tr\Sigma \\ A_1\Sigma \end{pmatrix} \quad \implies \quad B_1\Sigma B_2\tr = \begin{pmatrix} \bv_1\tr\Sigma \\ A_1\Sigma \end{pmatrix} \begin{pmatrix} \bv_2 & A_2 \end{pmatrix} = \begin{pmatrix} \bv_1\tr\Sigma\bv_2 & \bv_1\tr\Sigma A_2 \\ A_1\Sigma\bv_2 & A_1\Sigma A_2 \end{pmatrix},
+$$
+which leads us to say
 $$
 \cov\left( \begin{pmatrix} \bv_1\tr \\ A_1 \end{pmatrix} \ve{x}, \begin{pmatrix} \bv_2\tr \\ A_2 \end{pmatrix} \ve{x} \right) = \begin{pmatrix} \bv_1\tr\Sigma\bv_2 & \bv_1\tr\Sigma A_2 \\ A_1\Sigma\bv_2 & A_1\Sigma A_2 \end{pmatrix}. \tag{Q3 (a)}
 $$
+
+\newpage
 
 ## (b)
 
@@ -143,13 +175,11 @@ Suppose that (i) $\bv_1\tr\Sigma\bv_2 = 0$, (ii) $\bv_1\tr\Sigma A_2 = \zero\tr$
 
 ### Answer
 
-*Proof:* Let $B_i$ be as in (a), and let $\ve{u}_i \equiv B_i\ve{x} = \left(\begin{smallmatrix} \bv_i\tr\ve{x} \\ A_i\ve{x} \end{smallmatrix}\right)$ for $i = 1, 2$. By (a), $B_1\Sigma B_2\tr = \cov(\ve{u}_1, \ve{u}_2)$ is the matrix in (Q3 (a)), whose blocks all vanish: $\bv_1\tr\Sigma\bv_2 = 0$ by (i), $\bv_1\tr\Sigma A_2 = \zero_n\tr$ by (ii), $A_1\Sigma\bv_2 = (\bv_2\tr\Sigma A_1)\tr = \zero_n$ by (iii) (as $A_1$ and $\Sigma$ are symmetric), and $A_1\Sigma A_2 = 0$ by (iv). So $B_1\Sigma B_2\tr = 0$, and by the Corollary to Theorem 3.7, $\ve{u}_1$ and $\ve{u}_2$ are independent.
+*Proof:* Let $B_i$ be as in part (a), and let $\ve{u}_i \equiv B_i\ve{x} = \left(\begin{smallmatrix} \bv_i\tr\ve{x} \\ A_i\ve{x} \end{smallmatrix}\right)$ for $i = 1, 2$. By part (a), $\cov(\ve{u}_1, \ve{u}_2) = B_1\Sigma B_2\tr$ is the matrix in (Q3 (a)), which is $0$ by assumptions (i)–(iv), i.e., the elements of (Q3 (a)) are all zero. (Specifically, for the lower-left block, $A_1\Sigma\bv_2 = (\bv_2\tr\Sigma A_1)\tr = \zero_n$ by assumption (iii), as $A_1$ and $\Sigma$ are symmetric.) 
 
-It then suffices to show that each $w_i$ is a continuous function of $\ve{u}_i$. Since $A_iA_i^-A_i = A_i$ and $A_i\tr = A_i$,
-$$
-\ve{x}\tr A_i\ve{x} = \ve{x}\tr A_iA_i^-A_i\ve{x} = (A_i\ve{x})\tr A_i^-(A_i\ve{x}),
-$$
-which is the hint. So $w_i = g_i(\ve{u}_i)$, where $g_i(s, \vv) \equiv s + \vv\tr A_i^-\vv$ ($s \in \Real$, $\vv \in \Real^n$) is continuous, and hence $w_1$ and $w_2$ are independent.
+Since $\ve{u}_1$ and $\ve{u}_2$ are linear transformations of the same normal $\ve{x}$, the Corollary to Theorem 3.7 then gives that $\ve{u}_1$ and $\ve{u}_2$ are independent.
+
+By the hint (which holds as $A_iA_i^-A_i = A_i$ and $A_i\tr = A_i$), $w_i = \bv_i\tr\ve{x} + (A_i\ve{x})\tr A_i^-(A_i\ve{x})$ is a continuous function of $\ve{u}_i$ (and only $\ve{u}_i$), leading us to conclude that $w_1$ and $w_2$ (as they are continuous functions of independent random vectors) are themselves independent.
 
 \newpage
 
