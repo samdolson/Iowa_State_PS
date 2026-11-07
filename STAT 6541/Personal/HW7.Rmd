@@ -13,8 +13,8 @@ We utilize the following results for (a) and (b):
 - Theorem 3.1.1 (Markov's inequality): for nonnegative measurable $f$ and $0 < t < \infty$, $\mu(\{f \geq t\}) \leq \frac{1}{t} \int f\, d\mu$.
 - Proposition 3.1.8: if $\phi$ is twice differentiable on $(a, b)$ and $\phi'' \geq 0$ on $(a, b)$, then $\phi$ is convex on $(a, b)$.
 - Theorem 3.1.9 and Remark 3.1.2 (Jensen's inequality): if $P(X \in (a, b)) = 1$ and $\phi$ is convex on $(a, b)$, then $\phi(EX) \leq E\phi(X)$, provided $E|X| < \infty$ and $E|\phi(X)| < \infty$.
-- Remark 3.1.3: if $\phi$ is strictly convex, then equality holds in Jensen's inequality iff $X = EX$ a.e. $(P)$.
-- Corollary 2.3.3: Proposition 2.3.1 holds for nonnegative measurable functions; in particular, $\int (\alpha f + \beta g)\, d\mu = \alpha \int f\, d\mu + \beta \int g\, d\mu$ for $\alpha, \beta \geq 0$, $f \geq g$ a.e. $(\mu)$ implies $\int f\, d\mu \geq \int g\, d\mu$, and $f = g$ a.e. $(\mu)$ implies $\int f\, d\mu = \int g\, d\mu$.
+- Remark 3.1.3: if $\phi$ is strictly convex (i.e., strict inequality holds in (1.2) for $0 < \lambda < 1$), then equality holds in Jensen's inequality iff $X = EX$ a.e.\ $(P)$.
+- Corollary 2.3.3: Proposition 2.3.1 holds for nonnegative measurable functions; in particular, $\int (\alpha f + \beta g)\, d\mu = \alpha \int f\, d\mu + \beta \int g\, d\mu$ for $\alpha, \beta \geq 0$, $f \geq g$ a.e.\ $(\mu)$ implies $\int f\, d\mu \geq \int g\, d\mu$, and $f = g$ a.e.\ $(\mu)$ implies $\int f\, d\mu = \int g\, d\mu$.
 - Proposition 2.1.1(ii): if $T_1$ is $\langle\mathcal{F}_1, \mathcal{F}_2\rangle$-measurable and $T_2$ is $\langle\mathcal{F}_2, \mathcal{F}_3\rangle$-measurable, then $T_2 \circ T_1$ is $\langle\mathcal{F}_1, \mathcal{F}_3\rangle$-measurable.
 
 ## (a)
@@ -25,7 +25,7 @@ Show that $(EX)\big(E\frac{1}{X}\big) \geq 1$. What does this say about the corr
 
 $(EX)\big(E\frac{1}{X}\big) \geq 1$, so $X$ and $\frac{1}{X}$ are negatively correlated whenever that correlation is defined.
 
-Note: We take $X > 0$ a.e. $(P)$, so that $\frac{1}{X}$ is a.e. finite. (If $X = 0$ a.e., then $EX = 0$ and $E\frac{1}{X} = \infty$, and the product is $0$ under the convention $0 \cdot \infty = 0$.)
+Note: The inequality fails only when $X = 0$ a.e.: then $EX = 0$ and $E\frac{1}{X} = \infty$, and the product is $0$ under the convention $0 \cdot \infty = 0$. If instead $P(X = 0) > 0$ but $X$ is not $0$ a.e., then $E\frac{1}{X} = \infty$ and $EX > 0$ by (1) below, so the product is $\infty \geq 1$. So we take $X > 0$ a.e.\ $(P)$, so that $\frac{1}{X}$ is a.e.\ finite.
 
 *Proof.*
 
@@ -46,9 +46,9 @@ In either case, $(EX)\big(E\frac{1}{X}\big) \geq 1$.
 
 **Correlation:** For the correlation to be defined, we need $EX^2 < \infty$, $E\frac{1}{X^2} < \infty$, and $\text{Var}(X), \text{Var}\big(\frac{1}{X}\big) > 0$. Since $x \leq 1 + x^2$, this puts us in Case 1. Since $X \cdot \frac{1}{X} = 1$,
 $$\text{Corr}\Big(X, \frac{1}{X}\Big) = \frac{E\big(X \cdot \frac{1}{X}\big) - (EX)\big(E\frac{1}{X}\big)}{\sqrt{\text{Var}(X)\, \text{Var}\big(\frac{1}{X}\big)}} = \frac{1 - (EX)\big(E\frac{1}{X}\big)}{\sqrt{\text{Var}(X)\, \text{Var}\big(\frac{1}{X}\big)}} \leq 0.$$
-The inequality is in fact strict. Since $\phi$ is strictly convex, equality in Jensen's inequality would force $X = EX$ a.e. $(P)$ (Remark 3.1.3), and then $\text{Var}(X) = 0$.
+The inequality is in fact strict. Since $\phi'' > 0$, the mean value theorem argument behind Proposition 3.1.8 gives strict inequality in (1.2), so $\phi$ is strictly convex. Equality in Jensen's inequality would then force $X = EX$ a.e.\ $(P)$ (Remark 3.1.3), and then $\text{Var}(X) = 0$. //
 
-Said differently, $X$ and $\frac{1}{X}$ are negatively correlated unless $X$ is a constant, in which case the correlation is undefined. //
+Said differently, $X$ and $\frac{1}{X}$ are negatively correlated unless $X$ is a constant, in which case the correlation is undefined.
 
 ## (b)
 
@@ -62,9 +62,9 @@ $$f(x) \geq \frac{1}{g(x)} > 0 \quad \text{for all } x \in \mathbb{R}_+.$$
 Define $Y \equiv g(X)$. Since $g$ is Borel measurable and $X$ is a random variable, $Y$ is a random variable by Proposition 2.1.1(ii), and $Y > 0$ everywhere. Note that $f(X) \geq \frac{1}{Y}$ pointwise, so $Ef(X) \geq E\frac{1}{Y}$ by Corollary 2.3.3. Also $EY > 0$ by (1).
 
 Putting this all together, and applying (a) to $Y$,
-$$Ef(X)\, Eg(X) \geq \Big(E\frac{1}{Y}\Big)(EY) \geq 1.$$
+$$Ef(X)\, Eg(X) \geq \Big(E\frac{1}{Y}\Big)(EY) \geq 1. \quad //$$
 
-Unlike (a), this needs no assumption that $X > 0$, since $g > 0$ on all of $\mathbb{R}_+$. //
+Unlike (a), this needs no assumption that $X > 0$, since $g > 0$ on all of $\mathbb{R}_+$.
 
 # Q2: 3.9
 
@@ -81,7 +81,7 @@ where $q = \frac{p}{p-1}$.
 (ii)
 $$\sum_{i=1}^k |a_i b_i| c_i \leq \Bigg( \sum_{i=1}^k |a_i|^2 c_i \Bigg)^{\frac{1}{2}} \Bigg( \sum_{i=1}^k |b_i|^2 c_i \Bigg)^{\frac{1}{2}}. \tag{1.17}$$
 
-Note: The text prints $q = \frac{p-1}{p}$ in (i); we use the conjugate exponent $q = \frac{p}{p-1}$ of Theorem 3.1.11, such that $\frac{1}{p} + \frac{1}{q} = 1$.
+Note: The book uses $q = \frac{p-1}{p}$ in (i); but here we (I) use the conjugate exponent $q = \frac{p}{p-1}$ of Theorem 3.1.11, such that $\frac{1}{p} + \frac{1}{q} = 1$.
 
 We utilize the following results:
 
@@ -103,13 +103,11 @@ Each is a finite sum of finite terms, so $f \in L^p(\mu)$ and $g \in L^q(\mu)$.
 $$\sum_{i=1}^k |a_i b_i| c_i = \int |fg|\, d\mu \leq \Big( \int |f|^p\, d\mu \Big)^{\frac{1}{p}} \Big( \int |g|^q\, d\mu \Big)^{\frac{1}{q}} = \Bigg( \sum_{i=1}^k |a_i|^p c_i \Bigg)^{\frac{1}{p}} \Bigg( \sum_{i=1}^k |b_i|^q c_i \Bigg)^{\frac{1}{q}},$$
 which is (1.16).
 
-**(ii):** Taking $p = 2$ in (i) gives $q = \frac{2}{2-1} = 2$, then from part **(i)**, (1.17) follows, i.e., 
-
-$$
-\sum_{i=1}^k |a_i b_i| c_i \leq \Bigg( \sum_{i=1}^k |a_i|^p c_i \Bigg)^{\frac{1}{p}} \Bigg( \sum_{i=1}^k |b_i|^q c_i \Bigg)^{\frac{1}{q}} \Rightarrow \sum_{i=1}^k |a_i b_i| c_i \leq \Bigg( \sum_{i=1}^k |a_i|^2 c_i \Bigg)^{\frac{1}{2}} \Bigg( \sum_{i=1}^k |b_i|^2 c_i \Bigg)^{\frac{1}{2}}.//
-$$
+**(ii):** Taking $p = 2$ in (i) gives $q = \frac{2}{2-1} = 2$, and (1.16) becomes (1.17). //
 
 # Q3: 3.11
+
+Verify Minkowski's inequality for $p = 1$ and $p = \infty$.
 
 ## Answer
 
@@ -118,13 +116,13 @@ We utilize the following results:
 - Section 3.2.1 ($L^p$ norms): for $0 < p < \infty$, $\|f\|_p = \big(\int |f|^p\, d\mu\big)^{\min\{1/p, 1\}}$, so $\|f\|_1 = \int |f|\, d\mu$; and $\|f\|_\infty \equiv \sup\{k : \mu(\{|f| > k\}) > 0\}$ (the essential supremum).
 - Theorem 3.1.14 (Minkowski's inequality): for $1 < p < \infty$ and $f, g \in L^p(\mu)$, $\|f + g\|_p \leq \|f\|_p + \|g\|_p$.
 - Proposition 3.2.1: for $0 < p \leq \infty$, $f, g \in L^p(\mu)$ and $a, b \in \mathbb{R}$ imply $af + bg \in L^p(\mu)$.
-- Monotonicity and linearity of the integral (Section 2.3): for nonnegative measurable $f_1, f_2$, $f_1 \leq f_2$ implies $\int f_1\, d\mu \leq \int f_2\, d\mu$, and $\int (f_1 + f_2)\, d\mu = \int f_1\, d\mu + \int f_2\, d\mu$.
+- Corollary 2.3.3 (see Q1).
 - Monotonicity and countable subadditivity of measures (Chapter 1): $A \subset B$ implies $\mu(A) \leq \mu(B)$, and $\mu\big(\bigcup_{n} A_n\big) \leq \sum_{n} \mu(A_n)$.
 
 *Proof.* Let $p \in \{1, \infty\}$ and $f, g \in L^p(\mu)$ be given. By Proposition 3.2.1 (with $a = b = 1$), $f + g \in L^p(\mu)$, so $\|f + g\|_p$ is defined. For every $\omega \in \Omega$, the triangle inequality on $\mathbb{R}$ gives
 $$|f(\omega) + g(\omega)| \leq |f(\omega)| + |g(\omega)|.$$
 
-**$p = 1$:** Since $|f + g|$, $|f|$, and $|g|$ are nonnegative and measurable, monotonicity and linearity of the integral give
+**$p = 1$:** Since $|f + g|$, $|f|$, and $|g|$ are nonnegative and measurable, Corollary 2.3.3 gives
 $$\|f + g\|_1 = \int |f + g|\, d\mu \leq \int \big(|f| + |g|\big)\, d\mu = \int |f|\, d\mu + \int |g|\, d\mu = \|f\|_1 + \|g\|_1.$$
 
 **$p = \infty$:** We first show that, off a null set, $|h|$ is bounded by its essential supremum.
@@ -148,9 +146,9 @@ Let $X$ be a random variable on a probability space $(\Omega, \mathcal{F}, \mu)$
 
 We utilize the following results for (a) and (b):
 
-- Theorem 3.1.11 (Hölder's inequality; see Q2), together with its equality case: if $\|fg\|_1 \neq 0$, then equality holds in (1.13) iff $|f|^p = c|g|^q$ a.e. $(\mu)$ for some constant $c \in (0, \infty)$.
+- Theorem 3.1.11 (Hölder's inequality; see Q2), together with its equality case: if $\|fg\|_1 \neq 0$, then equality holds in (1.13) iff $|f|^p = c|g|^q$ a.e.\ $(\mu)$ for some constant $c \in (0, \infty)$.
 - Corollary 2.3.3 (see Q1).
-- (1) in Q1, with $\mu$ in place of $P$.
+- The Claim (1) in Q1, with $\mu$ in place of $P$.
 
 ## (a)
 
@@ -161,12 +159,11 @@ Show that $(E|X|^{p_1}) \leq (E|X|^{p_2})^{\frac{p_1}{p_2}}$ for any $0 < p_1 < 
 *Proof.* Let $0 < p_1 < p_2 < \infty$ be given. If $E|X|^{p_2} = \infty$, the right side is $\infty$ and there is nothing to show, so suppose $E|X|^{p_2} < \infty$.
 
 Define $Y \equiv |X|^{p_1}$, $r \equiv \frac{p_2}{p_1} > 1$, and $s \equiv \frac{r}{r-1}$, so that $\frac{1}{r} + \frac{1}{s} = 1$. Note that $Y^r = |X|^{p_2}$, so $\int Y^r\, d\mu = E|X|^{p_2} < \infty$ and $Y \in L^r(\mu)$. Also $\int 1^s\, d\mu = \mu(\Omega) = 1$, so $1 \in L^s(\mu)$. By Hölder's inequality with $f = Y$ and $g = 1$,
-$$E|X|^{p_1} = \int |Y \cdot 1|\, d\mu \leq \Big( \int Y^r\, d\mu \Big)^{\frac{1}{r}} \Big( \int 1^s\, d\mu \Big)^{\frac{1}{s}} = (E|X|^{p_2})^{\frac{p_1}{p_2}}. \tag{3}$$
-//
+$$E|X|^{p_1} = \int |Y \cdot 1|\, d\mu \leq \Big( \int Y^r\, d\mu \Big)^{\frac{1}{r}} \Big( \int 1^s\, d\mu \Big)^{\frac{1}{s}} = (E|X|^{p_2})^{\frac{p_1}{p_2}}. \quad // \tag{3}$$
 
 ## (b)
 
-Show that '=' holds in (a) iff $|X|$ is a constant a.e. $(\mu)$.
+Show that '=' holds in (a) iff $|X|$ is a constant a.e.\ $(\mu)$.
 
 ### Answer
 
@@ -174,17 +171,17 @@ Note: This requires $E|X|^{p_2} < \infty$. Otherwise, any $X$ with $E|X|^{p_1} =
 
 *Proof.* Let $Y$, $r$, and $s$ be as in (a), with $E|X|^{p_2} < \infty$.
 
-($\Leftarrow$) Suppose $|X| = c$ a.e. $(\mu)$ for some constant $c \geq 0$. Then by Corollary 2.3.3, $E|X|^{p_1} = c^{p_1}$ and
+($\Leftarrow$) Suppose $|X| = c$ a.e.\ $(\mu)$ for some constant $c \geq 0$. Then by Corollary 2.3.3, $E|X|^{p_1} = c^{p_1}$ and
 $$(E|X|^{p_2})^{\frac{p_1}{p_2}} = (c^{p_2})^{\frac{p_1}{p_2}} = c^{p_1},$$
 so equality holds.
 
 ($\Rightarrow$) Suppose equality holds in (3).
 
-*Case 1:* $E|X|^{p_1} = 0$. Then $|X|^{p_1} = 0$ a.e. $(\mu)$ by (1), i.e., $|X| = 0$ a.e. $(\mu)$, a constant.
+*Case 1:* $E|X|^{p_1} = 0$. Then $|X|^{p_1} = 0$ a.e.\ $(\mu)$ by (1), i.e., $|X| = 0$ a.e.\ $(\mu)$, a constant.
 
-*Case 2:* $E|X|^{p_1} > 0$. Then $\|Y \cdot 1\|_1 = E|X|^{p_1} \neq 0$, so the equality case of Hölder's inequality gives a constant $c \in (0, \infty)$ with $|Y|^r = c \cdot 1^s$ a.e. $(\mu)$, i.e., $|X|^{p_2} = c$ a.e. $(\mu)$. Thus $|X| = c^{1/p_2}$ a.e. $(\mu)$, a constant.
+*Case 2:* $E|X|^{p_1} > 0$. Then $\|Y \cdot 1\|_1 = E|X|^{p_1} \neq 0$, so the equality case of Hölder's inequality gives a constant $c' \in (0, \infty)$ with $|Y|^r = c' \cdot 1^s$ a.e.\ $(\mu)$, i.e., $|X|^{p_2} = c'$ a.e.\ $(\mu)$. Thus $|X| = (c')^{1/p_2}$ a.e.\ $(\mu)$, a constant.
 
-In either case, $|X|$ is a constant a.e. $(\mu)$. //
+In either case, $|X|$ is a constant a.e.\ $(\mu)$. //
 
 # Q5: 3.18
 
@@ -195,7 +192,7 @@ We utilize the following results for (a) and (b):
 - Proposition 3.1.8 (see Q1).
 - Theorem 3.1.9 and Remark 3.1.2 (Jensen's inequality; see Q1).
 - Corollary 2.3.3 (see Q1).
-- (1) in Q1.
+- The Claim (1) in Q1.
 
 ## (a)
 
@@ -203,7 +200,7 @@ Show that $EX \log X \geq (EX)(E \log X)$.
 
 ### Answer
 
-Note: We take both sides to be well defined and finite: $X > 0$ a.e. $(P)$, so that $\log X$ is a.e. finite, and $EX$, $E|X \log X|$, $E|\log X| < \infty$.
+Note: We take both sides to be well defined and finite: $X > 0$ a.e.\ $(P)$, so that $\log X$ is a.e.\ finite, and $E|X \log X|$, $E|\log X| < \infty$. (Then $EX < \infty$ as well, since $X \leq e + |X \log X|$.)
 
 *Proof.* By (1), $EX > 0$, so $EX \in (0, \infty)$ and $\log(EX)$ is finite. Both steps below apply Jensen's inequality on $(0, \infty)$, since $P(X \in (0, \infty)) = 1$.
 
@@ -236,4 +233,4 @@ $$E\sqrt{1 + X^2} \leq E(1 + X) = 1 + EX.$$
 *Case 2:* $EX < \infty$. Since $\phi'(x) = x(1 + x^2)^{-1/2}$ and $\phi''(x) = (1 + x^2)^{-3/2} > 0$, $\phi$ is convex on $\mathbb{R}$ (Proposition 3.1.8). Also $E|X| = EX < \infty$, and $E|\phi(X)| \leq 1 + EX < \infty$ by the upper bound. Jensen's inequality on $(-\infty, \infty)$ then gives
 $$\sqrt{1 + (EX)^2} = \phi(EX) \leq E\phi(X) = E\sqrt{1 + X^2}.$$
 
-Putting this all together, $\sqrt{1 + (EX)^2} \leq E(\sqrt{1 + X^2}) \leq 1 + EX$. //
+Putting everything together, $\sqrt{1 + (EX)^2} \leq E(\sqrt{1 + X^2}) \leq 1 + EX$. //
