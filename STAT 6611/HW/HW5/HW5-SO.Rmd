@@ -48,7 +48,7 @@ $$
 f = \rank\begin{pmatrix} X \\ A \end{pmatrix} - \rank(A).
 $$
 
-We utilize the following results for parts (a)--(c) (also, yay--I get to quote myself now, every statistician's dream!):
+We utilize the following results for parts (a)--(c) (also, yay---I get to quote myself now, every statistician's dream!):
 
 - HW3 Q2(a): For the first component $\bhat$ of any solution to the constrained normal equations (and whichever generalized inverse $G$ is used), $X\bhat = XG_{11}X\tr\y + XG_{12}\bv$, so the vector of residuals is $\ehat \equiv \y - X\bhat = (I - XG_{11}X\tr)\y - XG_{12}\bv$.
 - HW3 Q2(b): $\E(\ehat) = \zero_n$ for all $\bb$ satisfying $A\bb = \bv$.
@@ -57,7 +57,7 @@ We utilize the following results for parts (a)--(c) (also, yay--I get to quote m
 - HW4 Q5: If $\ve{x} \sim N(\ve{\mu}, \Sigma)$, where $\rank(\Sigma) \geq 1$ (possibly with $\Sigma$ singular), $B$ is a symmetric matrix such that $B\Sigma$ is idempotent of rank $s \geq 1$, and $\ve{\mu} \in \C(\Sigma)$, then $\ve{x}\tr B\ve{x} \sim \chi^2\left(s, \frac{1}{2}\ve{\mu}\tr B\ve{\mu}\right)$. (HW4 Q5 calls this matrix $A$; we write $B$ to keep it apart from the constraint matrix $A$ of this problem.)
 - Theorem 3.5: If $\ve{x} \sim N(\ve{\mu}, \Sigma)$, then $C\ve{x} + \cv \sim N(C\ve{\mu} + \cv, C\Sigma C\tr)$.
 
-Note: Under Model IIa with $\y$ multivariate normal, $\y \sim N(X\bb, \sigma^2 I_n)$, where $X$ is $n \times p$, $A$ is $q \times p$, and $\bb$ satisfies the constraint $A\bb = \bv$. $G$ is partitioned to match the coefficient matrix, so $G_{11}$ is $p \times p$ and $G_{12}$ is $p \times q$. 
+Note: Under Model IIa with $\y$ multivariate normal, $\y \sim N(X\bb, \sigma^2 I_n)$, where $X$ is $n \times p$, $A$ is $q \times p$, and $\bb$ satisfies the constraints $A\bb = \bv$. $G$ is partitioned to match the coefficient matrix, so $G_{11}$ is $p \times p$ and $G_{12}$ is $p \times q$. 
 
 Also, we write $W \equiv XG_{11}X\tr$, so that $\ehat = (I_n - W)\y - XG_{12}\bv$ and $Q(\bhat) = \ehat\tr\ehat$.
 
@@ -83,14 +83,14 @@ Note: We take $n > f$, so that $n - f \geq 1$, as in HW4 Q5.
 $$
 (I_n - W)(\sigma^2 I_n)(I_n - W)\tr = \sigma^2(I_n - W)^2 = \sigma^2(I_n - W),
 $$
-where the two equalities result from symmetry and idempotence of $I_n - W$ (HW3 Q2(c)). That is all to say, we then know that $\ehat \sim N(\zero_n, \sigma^2(I_n - W))$.
+where the two equalities result from the symmetry and idempotence of $I_n - W$, resp. (HW3 Q2(c)). That is all to say, we then know that $\ehat \sim N(\zero_n, \sigma^2(I_n - W))$.
 
 *(2) The rank of $I_n - W$:* Since $I_n - W$ is idempotent (HW3 Q2(c)), the Corollary to Lemma 2.5 gives $\rank(I_n - W) = \tra(I_n - W) = n - \tra(W)$. Then, using the known property of the trace, $\tra(W) = \tra(XG_{11}X\tr) = \tra(X\tr XG_{11})$, so by Theorem 2.14(v) and Lemma 2.12(ii),
 $$
 \rank(I_n - W) = n - \left[\rank\begin{pmatrix} X\tr X \\ A \end{pmatrix} - \rank(A)\right] = n - \left[\rank\begin{pmatrix} X \\ A \end{pmatrix} - \rank(A)\right] = n - f.
 $$
 
-*(1) and (2) together:* Combining these two facts, $\ehat \sim N(\zero_n, \Sigma)$ with $\Sigma \equiv \sigma^2(I_n - W)$ of rank $n - f \geq 1$ (singular whenever $f \geq 1$). 
+*(1) and (2):* Combining these two facts, $\ehat \sim N(\zero_n, \Sigma)$ with $\Sigma \equiv \sigma^2(I_n - W)$ of rank $n - f \geq 1$ (singular whenever $f \geq 1$, hence HW4 Q5 rather than Theorem 3.16). 
 
 We then apply HW4 Q5 with $\ve{x} = \ehat$, $\ve{\mu} = \zero_n$, and $B = (1/\sigma^2)I_n$, which is symmetric. Since $B\Sigma = I_n - W$ is idempotent of rank $n - f$, and $\zero_n \in \C(\Sigma)$, we may then conclude
 $$
@@ -194,7 +194,7 @@ y_{ij} = \mu + \alpha_i + \epsilon_{ij} \quad (i = 1, \ldots, t;\ j = 1, \ldots,
 $$
 Here, $\mu, \alpha_1, \ldots, \alpha_t$ are unknown parameters, while the $\epsilon_{ij}$'s are statistically independent and normally distributed random variables having zero means and common variance $\sigma^2$.
 
-We utilize the following results for parts (a)--(b):
+We utilize the following results for parts (a)--(d):
 
 - Example 3 of Chapter 3 (pp. 109--111): For the one-way model with $n_i$ observations on the $i$th group ($n = \sum_i n_i$), Cochran's theorem gives that $\frac{1}{\sigma^2}n\bar{y}_{\cdot\cdot}^2$, $\frac{1}{\sigma^2}\sum_i n_i(\bar{y}_{i\cdot} - \bar{y}_{\cdot\cdot})^2$, and $\frac{1}{\sigma^2}\sum_i\sum_j(y_{ij} - \bar{y}_{i\cdot})^2$ (the correction factor, among-groups, and within-groups lines) are mutually independent, with distributions $\chi^2\left(1, \frac{n}{2\sigma^2}\left[\mu + \frac{1}{n}\sum_i n_i\alpha_i\right]^2\right)$, $\chi^2\left(t - 1, \frac{1}{2\sigma^2}\sum_i n_i\left[\alpha_i - \frac{1}{n}\sum_j n_j\alpha_j\right]^2\right)$, and $\chi^2(n - t)$, resp.
 - Definition of the noncentral $F$ (from Section 3.3): If $u_1 \sim \chi^2(n_1, \lambda)$ and $u_2 \sim \chi^2(n_2)$ are independent, then $(u_1/n_1)/(u_2/n_2) \sim F(n_1, n_2, \lambda)$, which is the central $F$ when $\lambda = 0$.
@@ -203,13 +203,15 @@ We utilize the following results for parts (a)--(b):
 - The $F$ test (from Section 4.2): For $H_0: \ve{\tau} = \bv$, where $\ve{\tau} = \Lambda\tr\bb$ is a vector of $q$ linearly independent estimable functions, the $F$ statistic is $(\widehat{\ve{\tau}} - \bv)\tr H^{-1}(\widehat{\ve{\tau}} - \bv)/(q\widehat{\sigma}^2)$, where $\widehat{\ve{\tau}} = \Lambda\tr\bhat$.
 - Theorem 4.3 (with Lemma 4.1): If $\Lambda_*\tr = D\Lambda\tr$ and $\bv_* = D\bv$ for a nonsingular matrix $D$, then the $F$ statistics for $H_0: \Lambda\tr\bb = \bv$ and $H_0^*: \Lambda_*\tr\bb = \bv_*$ are the same.
 
-Note: In matrix form, this is Example 3 of Chapter 3 with $n_1 = \cdots = n_t = r$ and $\ve{\alpha}$ in place of $\bb$: $\y = X\ve{\alpha} + \eps$ with $n = rt$, $X = [\one_n, X_0]$, and $X_0 = \operatorname{diag}(\one_r, \ldots, \one_r)$ ($n \times t$). So $p^* = \rank(X) = t$ and $n - p^* = t(r - 1)$. (A bare $t$ counts treatments, while $t_{\gamma:\,\nu}$ is the upper $\gamma$ point of $t(\nu)$.) Write $\bar{y}_{i\cdot} = (1/r)\sum_j y_{ij}$, $\bar{y}_{\cdot\cdot} = (1/t)\sum_i \bar{y}_{i\cdot}$, $\bar{\alpha} \equiv (1/t)\sum_i \alpha_i$, and
+Note: In matrix form, this is Example 3 of Chapter 3 with $n_1 = \cdots = n_t = r$ and $\ve{\alpha}$ in place of $\bb$: $\y = X\ve{\alpha} + \eps$ with $n = rt$, $X = [\one_n, X_0]$, and $X_0 = \operatorname{diag}(\one_r, \ldots, \one_r)$ ($n \times t$). So $p^* = \rank(X) = t$ and $n - p^* = t(r - 1)$. (A bare $t$ counts treatments, while $t_{\gamma:\,\nu}$ is the upper $\gamma$ point of $t(\nu)$.)
+
+Also, we write $\bar{y}_{i\cdot} = (1/r)\sum_j y_{ij}$, $\bar{y}_{\cdot\cdot} = (1/t)\sum_i \bar{y}_{i\cdot}$, $\bar{\alpha} \equiv (1/t)\sum_i \alpha_i$, and
 $$
 \widehat{\sigma}^2 = \frac{1}{t(r - 1)}\sum_{i=1}^t\sum_{j=1}^r (y_{ij} - \bar{y}_{i\cdot})^2
 $$
 for the within-treatments mean square, which is the $\widehat{\sigma}^2$ of Section 2.8. By Example 3, one solution to the normal equations is $\widehat{\ve{\alpha}} = (0, \bar{y}_{1\cdot}, \ldots, \bar{y}_{t\cdot})\tr$. And since $\bar{y}_{1\cdot}, \ldots, \bar{y}_{t\cdot}$ are independent, each with variance $\sigma^2/r$,
 $$
-\Var(\bar{y}_{i\cdot} - \bar{y}_{j\cdot}) = \frac{2\sigma^2}{r} \quad (i \neq j). \tag{Q2}
+\Var(\bar{y}_{i\cdot} - \bar{y}_{j\cdot}) = \frac{2\sigma^2}{r} \quad (i \neq j). \tag{$\ast$}
 $$
 
 ## (a)
@@ -220,9 +222,9 @@ Hint: See Example 3 of Chapter 3 of our notes (pages 109-111). One can determine
 
 ### Answer
 
-Following the hint, we have two goals: (1) find what is needed for the numerator of the among-treatments $F$ statistic to have a central $\chi^2$ distribution, and (2) check that the $F$ statistic of Section 4.2 for the resulting hypothesis is the among-treatments $F$ statistic itself.
+Following the hint, there are two goals at hand: (1) Find what is needed for the numerator of the among-treatments $F$ statistic to have a central $\chi^2$ distribution, and (2) Check that the $F$ statistic of Section 4.2 for the resulting hypothesis is the among-treatments $F$ statistic itself.
 
-*When the numerator is central:* With $n_i = r$ and $n = rt$, the among-treatments line of Example 3 has sum of squares $r\sum_i(\bar{y}_{i\cdot} - \bar{y}_{\cdot\cdot})^2$ on $t - 1$ degrees of freedom, and its $F$ statistic is
+*(1) When the numerator is central:* With $n_i = r$ and $n = rt$, the among-treatments line of Example 3 has sum of squares $r\sum_i(\bar{y}_{i\cdot} - \bar{y}_{\cdot\cdot})^2$ on $t - 1$ degrees of freedom, and its $F$ statistic is given by
 $$
 F_A \equiv \frac{r\sum_{i=1}^t(\bar{y}_{i\cdot} - \bar{y}_{\cdot\cdot})^2/(t - 1)}{\widehat{\sigma}^2}.
 $$
@@ -238,7 +240,7 @@ $$
 $$
 whose rows give $\alpha_1 - \alpha_i$ for $i = 2, \ldots, t$. This is a testable hypothesis: each $\alpha_1 - \alpha_i = (\mu + \alpha_1) - (\mu + \alpha_i)$ is estimable (Corollaries 1--2 to Theorem 2.1), and the $-I_{t-1}$ block makes the $q = t - 1$ rows of $\Lambda\tr$ linearly independent.
 
-*The $F$ statistic of Section 4.2:* For this $H_0$, $\widehat{\ve{\tau}} = \Lambda\tr\widehat{\ve{\alpha}} = (d_2, \ldots, d_t)\tr$, where $d_i \equiv \bar{y}_{1\cdot} - \bar{y}_{i\cdot}$. By (Q2), $\Var(d_i) = 2\sigma^2/r$, and $\cov(d_i, d_j) = \Var(\bar{y}_{1\cdot}) = \sigma^2/r$ for $i \neq j$, so (from Section 2.6)
+*(2) The $F$ statistic of Section 4.2:* For this $H_0$, $\widehat{\ve{\tau}} = \Lambda\tr\widehat{\ve{\alpha}} = (d_2, \ldots, d_t)\tr$, where $d_i \equiv \bar{y}_{1\cdot} - \bar{y}_{i\cdot}$. By ($\ast$), $\Var(d_i) = 2\sigma^2/r$, and $\cov(d_i, d_j) = \Var(\bar{y}_{1\cdot}) = \sigma^2/r$ for $i \neq j$, so (from Section 2.6)
 $$
 H = \frac{\Var(\widehat{\ve{\tau}})}{\sigma^2} = \frac{1}{r}\left(I_{t-1} + \one_{t-1}\one_{t-1}\tr\right), \qquad \text{with} \qquad H^{-1} = r\left(I_{t-1} - \frac{1}{t}\one_{t-1}\one_{t-1}\tr\right),
 $$
@@ -248,7 +250,7 @@ $$
 $$
 Dividing by $q\widehat{\sigma}^2 = (t - 1)\widehat{\sigma}^2$ then gives exactly $F_A$.
 
-Taken together, the $F$ statistic on the among-treatments line is the $F$ statistic for testing
+*(1) and (2):* Taken together, we may then conclude that the $F$ statistic on the among-treatments line is the $F$ statistic for testing
 $$
 H_0: \Lambda\tr\ve{\alpha} = \zero_{t-1}, \qquad \text{i.e.,} \qquad H_0: \alpha_1 = \alpha_2 = \cdots = \alpha_t,
 $$
@@ -264,17 +266,17 @@ Hint: Same as above hint.
 
 ### Answer
 
-As in part (a), we have two goals: (1) find what is needed for the numerator of the correction-factor $F$ statistic to have a central $\chi^2$ distribution, and (2) check that the $F$ statistic of Section 4.2 for the resulting hypothesis is the correction-factor $F$ statistic itself.
+As in part (a), there are two goals at hand: (1) Find what is needed for the numerator of the correction-factor $F$ statistic to have a central $\chi^2$ distribution, and (2) Check that the $F$ statistic of Section 4.2 for the resulting hypothesis is the correction-factor $F$ statistic itself.
 
-*When the numerator is central:* The correction-factor line of Example 3 has sum of squares $n\bar{y}_{\cdot\cdot}^2 = rt\bar{y}_{\cdot\cdot}^2$ on 1 degree of freedom, and its $F$ statistic is $F_{CF} \equiv rt\bar{y}_{\cdot\cdot}^2/\widehat{\sigma}^2$. By Example 3 and the definition of the noncentral $F$, $F_{CF} \sim F(1, t(r - 1), \lambda_{CF})$, where
+*(1) When the numerator is central:* The correction-factor line of Example 3 has sum of squares $n\bar{y}_{\cdot\cdot}^2 = rt\bar{y}_{\cdot\cdot}^2$ on 1 degree of freedom, and its $F$ statistic is $F_{CF} \equiv rt\bar{y}_{\cdot\cdot}^2/\widehat{\sigma}^2$. By Example 3 and the definition of the noncentral $F$, $F_{CF} \sim F(1, t(r - 1), \lambda_{CF})$, where
 $$
 \lambda_{CF} = \frac{rt}{2\sigma^2}\left[\mu + \frac{1}{rt}\sum_{i=1}^t r\alpha_i\right]^2 = \frac{rt}{2\sigma^2}(\mu + \bar{\alpha})^2.
 $$
 So $F_{CF}$ has a central $F$ distribution if and only if $\mu + \bar{\alpha} = 0$. In the form $\lam\tr\ve{\alpha} = b$, this reads $\lam\tr\ve{\alpha} = 0$ with $\lam\tr = (1, t^{-1}\one_t\tr)$, which is testable, as $\lam\tr\ve{\alpha} = (1/t)\sum_i(\mu + \alpha_i)$ is estimable (Corollaries 1--2 to Theorem 2.1) and $\lam \neq \zero$.
 
-*The $F$ statistic of Section 4.2:* Here $\widehat{\tau} = \lam\tr\widehat{\ve{\alpha}} = (1/t)\sum_i\bar{y}_{i\cdot} = \bar{y}_{\cdot\cdot}$, and $H = \lam\tr(X\tr X)^-\lam = \Var(\bar{y}_{\cdot\cdot})/\sigma^2 = 1/(rt)$, so the $F$ statistic is $\widehat{\tau}^2/(H\widehat{\sigma}^2) = rt\bar{y}_{\cdot\cdot}^2/\widehat{\sigma}^2 = F_{CF}$.
+*(2) The $F$ statistic of Section 4.2:* Here $\widehat{\tau} = \lam\tr\widehat{\ve{\alpha}} = (1/t)\sum_i\bar{y}_{i\cdot} = \bar{y}_{\cdot\cdot}$, and $H = \lam\tr(X\tr X)^-\lam = \Var(\bar{y}_{\cdot\cdot})/\sigma^2 = 1/(rt)$, so the $F$ statistic is $\widehat{\tau}^2/(H\widehat{\sigma}^2) = rt\bar{y}_{\cdot\cdot}^2/\widehat{\sigma}^2 = F_{CF}$.
 
-Taken together, the $F$ statistic on the line for the correction factor is the $F$ statistic for testing
+*(1) and (2):* Taken together, we may then conclude that the $F$ statistic on the line for the correction factor is the $F$ statistic for testing
 $$
 H_0: \lam\tr\ve{\alpha} = 0, \quad \lam\tr = (1, t^{-1}\one_t\tr), \qquad \text{i.e.,} \qquad H_0: \mu + \bar{\alpha} = 0
 $$
@@ -288,15 +290,15 @@ Obtain "one-at-a-time" $1 - \gamma$ (symmetrical) confidence intervals for the d
 
 ### Answer
 
-We utilize Corollaries 1--2 to Theorem 2.1 and the variance of least squares estimators (from Section 2.6), both noted above, along with
+In addition to utilizing Corollaries 1--2 to Theorem 2.1 and the variance of least squares estimators (from Section 2.6), both noted above, we utilize:
 
 - Theorem 4.1: Suppose that $\y \sim N(X\bb, \sigma^2 I)$ and $\lam\tr\bb$ is estimable, where $\lam \neq \zero$. Let $\tau = \lam\tr\bb$, $\widehat{\tau} = \lam\tr\bhat$, and $h = \lam\tr(X\tr X)^-\lam$. Then $\left[\widehat{\tau} - t_{\gamma_2:\,n-p^*}\widehat{\sigma}\sqrt{h},\ \widehat{\tau} + t_{\gamma_1:\,n-p^*}\widehat{\sigma}\sqrt{h}\right]$ forms a $1 - \gamma$ confidence interval for $\tau$, where $\gamma_1 + \gamma_2 = \gamma$.
 
-We start by noting that each difference $\alpha_i - \alpha_j = (\mu + \alpha_i) - (\mu + \alpha_j)$ is estimable (Corollaries 1--2 to Theorem 2.1), with least squares estimate $\widehat{\tau} = \bar{y}_{i\cdot} - \bar{y}_{j\cdot}$ (from $\widehat{\ve{\alpha}}$). Then, by Section 2.6 and (Q2),
+We start by noting that each difference $\alpha_i - \alpha_j = (\mu + \alpha_i) - (\mu + \alpha_j)$ is estimable (Corollaries 1--2 to Theorem 2.1), with least squares estimate $\widehat{\tau} = \bar{y}_{i\cdot} - \bar{y}_{j\cdot}$ (from $\widehat{\ve{\alpha}}$). Then, by Section 2.6 and ($\ast$),
 $$
 h = \frac{\Var(\bar{y}_{i\cdot} - \bar{y}_{j\cdot})}{\sigma^2} = \frac{2}{r}.
 $$
-Applying Theorem 4.1 with $\gamma_1 = \gamma_2 = \gamma/2$ (the symmetric choice) and $n - p^* = t(r - 1)$, we may then conclude that the "one-at-a-time" $1 - \gamma$ confidence intervals are
+Applying Theorem 4.1 with $\gamma_1 = \gamma_2 = \gamma/2$ (the symmetric choice) and $n - p^* = t(r - 1)$, we may then conclude that the "one-at-a-time" $1 - \gamma$ confidence intervals are given by
 $$
 \bar{y}_{i\cdot} - \bar{y}_{j\cdot} \pm t_{\gamma/2:\,t(r-1)}\,\widehat{\sigma}\sqrt{2/r} \qquad (1 \leq i < j \leq t), \tag{Q2 (c)}
 $$
@@ -310,21 +312,21 @@ Use each of the three methods discussed in class (Bonferroni, Scheffé, and Tuke
 
 ### Answer
 
-We utilize the following results:
+In addition to the above "known results", we utilize the following:
 
 - Theorem 4.5 (Bonferroni): If $E_i$ is the event that $\widehat{\tau}_i - t_{\gamma_i/2:\,n-p^*}\widehat{\sigma}\sqrt{h_{ii}} \leq \tau_i \leq \widehat{\tau}_i + t_{\gamma_i/2:\,n-p^*}\widehat{\sigma}\sqrt{h_{ii}}$, for $i = 1, \ldots, q$, then $\Pr\left(\bigcap_{i=1}^q E_i\right) \geq 1 - \sum_{i=1}^q\gamma_i$.
 - Theorem 4.6 (Scheffé): With $q^* = \rank(\Lambda)$, the probability of simultaneous coverage for the intervals $\lam\tr\bhat \pm \left[q^*F_{\gamma:\,q^*,\,n-p^*}\right]^{1/2}\widehat{\sigma}\left[\lam\tr(X\tr X)^-\lam\right]^{1/2}$, for all $\lam\tr \in \R(\Lambda\tr)$, is $1 - \gamma$.
 - Theorem 4.7 (Tukey): If $\psi_1, \ldots, \psi_k$ are linearly independent estimable functions whose least squares estimators satisfy $\Var(\widehat{\psi}_1, \ldots, \widehat{\psi}_k)\tr = \sigma^2c^2 I_k$, then the probability of simultaneous coverage for the $k(k - 1)/2$ intervals $\widehat{\psi}_i - \widehat{\psi}_j \pm q^*_{\gamma:\,k,\,n-p^*}\widehat{\sigma}c$, $1 \leq i < j \leq k$, is $1 - \gamma$. (The subscripted $q^*_{\gamma:\,k,\,\nu}$ is the upper $\gamma$ point of the studentized range, not the rank $q^*$ of Theorem 4.6.)
 
-As in part (c), each $\alpha_i - \alpha_j$ is estimable, with estimate $\bar{y}_{i\cdot} - \bar{y}_{j\cdot}$ and $h = 2/r$, and $n - p^* = t(r - 1)$; there are $q \equiv t(t - 1)/2$ differences in all. We tackle the three methods in turn.
+As in part (c), each $\alpha_i - \alpha_j$ is estimable, with estimate $\bar{y}_{i\cdot} - \bar{y}_{j\cdot}$ and $h = 2/r$, and $n - p^* = t(r - 1)$; there are $q \equiv t(t - 1)/2$ differences in all. There are then three methods to tackle: (1) Bonferroni, (2) Scheffé, and (3) Tukey.
 
-*Bonferroni:* Taking $\gamma_i = \gamma/q$ for each of the $q$ differences, Theorem 4.5 gives simultaneous coverage at least $1 - q(\gamma/q) = 1 - \gamma$, with $t$-quantile $t_{\gamma/(2q):\,t(r-1)}$, where $\gamma/(2q) = \gamma/[t(t - 1)]$.
+*(1) Bonferroni:* Taking $\gamma_i = \gamma/q$ for each of the $q$ differences, Theorem 4.5 gives simultaneous coverage at least $1 - q(\gamma/q) = 1 - \gamma$, with $t$-quantile $t_{\gamma/(2q):\,t(r-1)}$, where $\gamma/(2q) = \gamma/[t(t - 1)]$.
 
-*Scheffé:* Here let $\Lambda\tr$ be the $q \times (t + 1)$ matrix whose rows are the coefficient vectors of the $\alpha_i - \alpha_j$. Its rows for $\alpha_1 - \alpha_j$ ($j = 2, \ldots, t$) are linearly independent (as in part (a)), and every other row is a difference of two of them, as $\alpha_i - \alpha_j = (\alpha_1 - \alpha_j) - (\alpha_1 - \alpha_i)$. So $q^* = \rank(\Lambda) = t - 1$. Theorem 4.6 then gives simultaneous coverage $1 - \gamma$ for the intervals for all $\lam\tr\ve{\alpha}$ with $\lam\tr \in \R(\Lambda\tr)$ (that is, all contrasts $\sum_i c_i\alpha_i$ with $\sum_i c_i = 0$). The pairwise differences are among these, so their intervals have simultaneous coverage at least $1 - \gamma$.
+*(2) Scheffé:* Here let $\Lambda\tr$ be the $q \times (t + 1)$ matrix whose rows are the coefficient vectors of the $\alpha_i - \alpha_j$. Its rows for $\alpha_1 - \alpha_j$ ($j = 2, \ldots, t$) are linearly independent (as in part (a)), and every other row is a difference of two of them, as $\alpha_i - \alpha_j = (\alpha_1 - \alpha_j) - (\alpha_1 - \alpha_i)$. So $q^* = \rank(\Lambda) = t - 1$. Theorem 4.6 then gives simultaneous coverage $1 - \gamma$ for the intervals for all $\lam\tr\ve{\alpha}$ with $\lam\tr \in \R(\Lambda\tr)$ (that is, all contrasts $\sum_i c_i\alpha_i$ with $\sum_i c_i = 0$). The pairwise differences are among these, so their intervals have simultaneous coverage at least $1 - \gamma$.
 
-*Tukey:* Take $k = t$ and $\psi_i = \mu + \alpha_i$, which are linearly independent and estimable, with $\widehat{\psi}_i = \bar{y}_{i\cdot}$ and $\Var(\bar{y}_{1\cdot}, \ldots, \bar{y}_{t\cdot})\tr = (\sigma^2/r)I_t$, so that $c = 1/\sqrt{r}$. Since $\psi_i - \psi_j = \alpha_i - \alpha_j$, Theorem 4.7 gives intervals for the differences with simultaneous coverage exactly $1 - \gamma$.
+*(3) Tukey:* Take $k = t$ and $\psi_i = \mu + \alpha_i$, which are linearly independent and estimable, with $\widehat{\psi}_i = \bar{y}_{i\cdot}$ and $\Var(\bar{y}_{1\cdot}, \ldots, \bar{y}_{t\cdot})\tr = (\sigma^2/r)I_t$, so that $c = 1/\sqrt{r}$. Since $\psi_i - \psi_j = \alpha_i - \alpha_j$, Theorem 4.7 gives intervals for the differences with simultaneous coverage exactly $1 - \gamma$.
 
-Taken together, for all $1 \leq i < j \leq t$, the three sets of intervals are
+*(1)--(3):* Taken together, for all $1 \leq i < j \leq t$, the three sets of intervals are given by
 $$
 \begin{aligned}
 \text{Bonferroni:} &\quad \bar{y}_{i\cdot} - \bar{y}_{j\cdot} \pm t_{\gamma/[t(t-1)]:\,t(r-1)}\,\widehat{\sigma}\sqrt{2/r}, \\
@@ -352,7 +354,7 @@ We start by writing all four sets of intervals in a common form. Since $q^*_{\ga
 $$
 \kappa = t_{\gamma/2:\,t(r-1)}, \quad t_{\gamma/[t(t-1)]:\,t(r-1)}, \quad \left[(t - 1)F_{\gamma:\,t-1,\,t(r-1)}\right]^{1/2}, \quad \text{and} \quad q^*_{\gamma:\,t,\,t(r-1)}/\sqrt{2} \tag{Q2 (e)}
 $$
-for the one-at-a-time, Bonferroni, Scheffé, and Tukey intervals, resp. Each interval then has length $L = 2\kappa\widehat{\sigma}\sqrt{2/r}$, the same for every pair $i < j$ (a perk of the balanced design!), so by the unbiasedness of $\widehat{\sigma}^2$,
+for the one-at-a-time, Bonferroni, Scheffé, and Tukey intervals, resp. Each interval then has length $L = 2\kappa\widehat{\sigma}\sqrt{2/r}$, the same for every pair $i < j$, so by the unbiasedness of $\widehat{\sigma}^2$,
 $$
 \E(L^2) = \frac{8\kappa^2}{r}\E(\widehat{\sigma}^2) = \frac{8\kappa^2\sigma^2}{r}.
 $$
@@ -378,19 +380,20 @@ Here the error degrees of freedom are $t(r - 1) = 24$, there are $q = 28$ differ
 
 ```{r q2f}
 t <- 8; r <- 4; gam <- 0.05
-nu <- t * (r - 1)                                      # error df: 24
-q  <- choose(t, 2)                                     # number of differences: 28
-kappa <- c(
-  "One-at-a-time" = qt(1 - gam / 2, nu),               # t_{.025: 24}
-  "Bonferroni"    = qt(1 - gam / (2 * q), nu),         # t_{.05/56: 24}
-  "Scheffe"       = sqrt((t - 1) * qf(1 - gam, t - 1, nu)),
-  "Tukey"         = qtukey(1 - gam, t, nu) / sqrt(2)   # q*_{.05: 8, 24} / sqrt(2)
+nu <- t * (r - 1)                                   # error df: 24
+q  <- choose(t, 2)                                  # number of differences: 28
+crit <- c(
+  "One-at-a-time" = qt(1 - gam / 2, nu),            # t_{.025: 24}
+  "Bonferroni"    = qt(1 - gam / (2 * q), nu),      # t_{.05/56: 24}
+  "Scheffe"       = qf(1 - gam, t - 1, nu),         # F_{.05: 7, 24}
+  "Tukey"         = qtukey(1 - gam, t, nu)          # q*_{.05: 8, 24}
 )
-# [E(L^2)]^{1/2}, in units of sigma; Expect rootEL2 = 2.919, 4.968, 5.824, 4.684
-round(cbind(kappa, rootEL2 = sqrt(8 / r) * kappa), 4)
+kappa <- c(crit[1:2], sqrt((t - 1) * crit[3]), crit[4] / sqrt(2))   # (Q2 (e))
+# Expect crit = 2.0639, 3.5126, 2.4226, 4.6838; rootEL2 = 2.919, 4.968, 5.824, 4.684
+round(cbind(crit, kappa, rootEL2 = sqrt(8 / r) * kappa), 4)
 ```
 
-As $\sigma$ is unknown, we report $[\E(L^2)]^{1/2}$ in units of $\sigma$:
+As $\sigma$ is unknown, we report $[\E(L^2)]^{1/2}$ in units of $\sigma$ (each value from the output above):
 
 | Method          | Critical value                   | $\kappa$                                   | $[\E(L^2)]^{1/2}$ |
 |:----------------|:---------------------------------|:-------------------------------------------|:------------------|
@@ -416,25 +419,20 @@ We utilize the following results:
 - Corollary 3 to Theorem 2.1: If $p^* = p$, then $\lam\tr\bb$ is estimable for every $p \times 1$ vector $\lam$.
 - Theorem 4.2: Suppose that $\y \sim N(X\bb, \sigma^2 I)$ and $\Lambda\tr\bb$ is a $q$-dimensional vector of linearly independent estimable functions. Let $\ve{\tau} = \Lambda\tr\bb$, $\widehat{\ve{\tau}} = \Lambda\tr\bhat$, and $H = \Lambda\tr(X\tr X)^-\Lambda$. Then the set of all $\ve{\tau}$-values satisfying $(\ve{\tau} - \widehat{\ve{\tau}})\tr H^{-1}(\ve{\tau} - \widehat{\ve{\tau}}) \leq qF_{\gamma:\,q,\,n-p^*}\widehat{\sigma}^2$ forms a $1 - \gamma$ confidence set for $\ve{\tau}$.
 
-Note: For this problem, we write the parameter vector, $\ve{\theta} \equiv (\delta, \beta)\tr$. Additionally, as specified, this is a Model II with $\y = (y_1, \ldots, y_n)\tr \sim N(X\ve{\theta}, \sigma^2 I_n)$ and $X = [\one_n, \ve{x} - \overline{x}\one_n]$, where $\ve{x} = (x_1, \ldots, x_n)\tr$.
-
-That all said...
-
-**Answer:**
+Note: For this problem, we write the parameter vector as $\ve{\theta} \equiv (\delta, \beta)\tr$. Additionally, as specified, this is Model II with $\y = (y_1, \ldots, y_n)\tr \sim N(X\ve{\theta}, \sigma^2 I_n)$ and $X = [\one_n, \ve{x} - \overline{x}\one_n]$, where $\ve{x} = (x_1, \ldots, x_n)\tr$.
 
 We start by identifying $X\tr X$. Since $\one_n\tr(\ve{x} - \overline{x}\one_n) = \sum_i(x_i - \overline{x}) = 0$,
 $$
 X\tr X = \begin{pmatrix} n & 0 \\ 0 & S_{xx} \end{pmatrix} \qquad \text{and} \qquad X\tr\y = \begin{pmatrix} \sum_i y_i \\ \sum_i(x_i - \overline{x})y_i \end{pmatrix},
 $$
-where $S_{xx} \equiv \sum_i(x_i - \overline{x})^2 > 0$ (as $x_j \neq \overline{x}$ for some $j$ as specified). 
+where $S_{xx} \equiv \sum_i(x_i - \overline{x})^2 > 0$ (since $x_j \neq \overline{x}$ for some $j$, as specified). 
 
 We then know that $X\tr X$ is nonsingular and $p^* = p = 2$ (with $n - p^* = n - 2 \geq 1$, as $n > 2$). It then follows that
 $$
-\widehat{\ve{\theta}} = (X\tr X)^{-1}X\tr\y = \begin{pmatrix} \overline{y} \\ \widehat{\beta} \end{pmatrix}, \qquad \text{where} \quad \overline{y} = \frac{1}{n}\sum_{i=1}^n y_i \quad \text{and} \quad \widehat{\beta} \equiv \frac{\sum_i(x_i - \overline{x})y_i}{S_{xx}},
+\widehat{\ve{\theta}} = (X\tr X)^{-1}X\tr\y = \begin{pmatrix} \overline{y} \\ \widehat{\beta} \end{pmatrix}, \qquad \text{where} \quad \overline{y} = \frac{1}{n}\sum_{i=1}^n y_i \quad \text{and} \quad \widehat{\beta} \equiv \frac{\sum_i(x_i - \overline{x})y_i}{S_{xx}}.
 $$
 
-Such that the residual mean square is given by: 
-
+The residual mean square is then given by
 $$
 \widehat{\sigma}^2 = \frac{1}{n - 2}\sum_{i=1}^n\left[y_i - \overline{y} - \widehat{\beta}(x_i - \overline{x})\right]^2 = \frac{1}{n - 2}\left[\sum_{i=1}^n(y_i - \overline{y})^2 - \widehat{\beta}^2S_{xx}\right].
 $$
@@ -443,21 +441,19 @@ Next, by Corollary 3 to Theorem 2.1, $\ve{\theta} = I_2\tr\ve{\theta}$ is a vect
 $$
 H = (X\tr X)^{-1} = \begin{pmatrix} 1/n & 0 \\ 0 & 1/S_{xx} \end{pmatrix}, \qquad H^{-1} = \begin{pmatrix} n & 0 \\ 0 & S_{xx} \end{pmatrix}.
 $$
-Theorem 4.2 then gives the $1 - \gamma$ confidence set may be expressed as 
+By Theorem 4.2, the $1 - \gamma$ confidence set may be expressed as 
 $$
-\left\{\ve{\theta} \equiv (\delta, \beta) : n(\delta - \overline{y})^2 + S_{xx}(\beta - \widehat{\beta})^2 \leq 2F_{\gamma:\,2,\,n-2}\,\widehat{\sigma}^2\right\},
+\left\{\ve{\theta} = (\delta, \beta)\tr : n(\delta - \overline{y})^2 + S_{xx}(\beta - \widehat{\beta})^2 \leq 2F_{\gamma:\,2,\,n-2}\,\widehat{\sigma}^2\right\},
 $$
-
-(noting that there is no cross term as $H$ is diagonal). 
+(noting that there is no cross term, as $H$ is diagonal). 
 
 We then conclude that the boundary of this set is the ellipse
-
 $$
 n(\delta - \overline{y})^2 + S_{xx}(\beta - \widehat{\beta})^2 = 2F_{\gamma:\,2,\,n-2}\,\widehat{\sigma}^2, \tag{Q3}
 $$
 centered at $(\overline{y}, \widehat{\beta})$. 
 
-Dividing both sides by $2F_{\gamma:\,2,\,n-2}\,\widehat{\sigma}^2$ we then have an ellipse formula given by: 
+Dividing both sides by $2F_{\gamma:\,2,\,n-2}\,\widehat{\sigma}^2$, we then have the ellipse in standard form: 
 $$
 \frac{(\delta - \overline{y})^2}{a^2} + \frac{(\beta - \widehat{\beta})^2}{b^2} = 1, \qquad \text{where} \quad a^2 \equiv \frac{2F_{\gamma:\,2,\,n-2}\,\widehat{\sigma}^2}{n} \quad \text{and} \quad b^2 \equiv \frac{2F_{\gamma:\,2,\,n-2}\,\widehat{\sigma}^2}{S_{xx}}.
 $$
